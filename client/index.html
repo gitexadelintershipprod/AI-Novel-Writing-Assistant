@@ -6,7 +6,7 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
     <link rel="apple-touch-icon" sizes="128x128" href="/apple-touch-icon.png" />
-    <title>AI 小说创作工作台 | AI Novel Production Engine</title>
+    <title>AI Novel Writing Assistant | AI Novel Production Engine</title>
     <script>
       (() => {
         try {
@@ -20,7 +20,7 @@
           document.documentElement.dataset.density = density;
           document.documentElement.style.colorScheme = resolvedMode;
         } catch {
-          // 启动阶段使用默认浅色主题，React 挂载后会继续校正偏好。
+          // Use the default light theme until React restores the saved preference.
         }
       })();
     </script>
@@ -92,8 +92,8 @@
       <div class="app-startup-shell">
         <div class="app-startup-content">
           <div class="app-startup-spinner" aria-hidden="true"></div>
-          <h1 class="app-startup-title">正在加载创作工作台</h1>
-          <p class="app-startup-copy">系统会在界面和本地创作服务准备好后自动进入。</p>
+          <h1 class="app-startup-title">Loading your writing workspace</h1>
+          <p class="app-startup-copy">The workspace opens automatically when the interface and local writing service are ready.</p>
         </div>
       </div>
     </div>

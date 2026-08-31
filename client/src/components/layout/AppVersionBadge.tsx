@@ -61,8 +61,8 @@ export default function AppVersionBadge({ className }: AppVersionBadgeProps) {
         "shrink-0 rounded-md border border-border/70 bg-muted/60 px-1.5 py-0.5 text-[10px] font-medium leading-none text-muted-foreground",
         className,
       )}
-      title={`当前版本 ${versionLabel}`}
-      aria-label={`当前版本 ${versionLabel}`}
+      title={`Current version ${versionLabel}`}
+      aria-label={`Current version ${versionLabel}`}
     >
       {versionLabel}
     </span>

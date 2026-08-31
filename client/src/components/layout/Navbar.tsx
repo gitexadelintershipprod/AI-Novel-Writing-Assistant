@@ -1,5 +1,6 @@
 import { useLocation } from "react-router-dom";
 import { SlidersHorizontal } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import LLMSelector from "@/components/common/LLMSelector";
 import { useCreationSetup } from "@/components/onboarding/CreationSetupContext";
 import AppVersionBadge from "@/components/layout/AppVersionBadge";
@@ -20,6 +21,7 @@ interface NavbarProps {
 }
 
 export default function Navbar(props: NavbarProps) {
+  const { t } = useTranslation("navigation");
   const { workspaceNavMode, onWorkspaceNavModeChange } = props;
   const { openQuickSetup } = useCreationSetup();
   const location = useLocation();
@@ -33,12 +35,12 @@ export default function Navbar(props: NavbarProps) {
         <DesktopBrandMark className="h-8 w-8 shrink-0 drop-shadow-none" />
         <div className="flex min-w-0 flex-col leading-tight">
           <div className="flex min-w-0 items-center gap-1.5">
-            <span className="min-w-0 truncate text-sm font-semibold">AI 小说创作工作台</span>
+            <span className="min-w-0 truncate text-sm font-semibold">{t("brand.title")}</span>
             <AppVersionBadge />
             <DesktopReleaseNotesDialog />
             <ProjectGithubLink />
           </div>
-          <span className="hidden truncate text-[11px] text-muted-foreground sm:block">AI Novel Production Engine</span>
+          <span className="hidden truncate text-[11px] text-muted-foreground sm:block">{t("brand.subtitle")}</span>
         </div>
       </div>
       <div className="flex shrink-0 items-center gap-2 sm:gap-3">
@@ -50,7 +52,7 @@ export default function Navbar(props: NavbarProps) {
             className={useMobileAutoDirectorShell ? AUTO_DIRECTOR_MOBILE_CLASSES.navbarWorkspaceToggle : undefined}
             onClick={() => onWorkspaceNavModeChange?.(workspaceNavMode === "workspace" ? "project" : "workspace")}
           >
-            {workspaceNavMode === "workspace" ? "项目导航" : "创作导航"}
+            {workspaceNavMode === "workspace" ? t("controls.projectNavigation") : t("controls.writingNavigation")}
           </Button>
         ) : null}
         <LiveExecutionDialog />
@@ -63,7 +65,7 @@ export default function Navbar(props: NavbarProps) {
           onClick={openQuickSetup}
         >
           <SlidersHorizontal className="h-4 w-4" />
-          <span className="hidden lg:inline">模型设置</span>
+          <span className="hidden lg:inline">{t("controls.modelSettings")}</span>
         </Button>
         <div className={useMobileAutoDirectorShell ? AUTO_DIRECTOR_MOBILE_CLASSES.navbarModelSelector : undefined}>
           <LLMSelector
