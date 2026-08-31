@@ -1,0 +1,61 @@
+name: English UI
+
+on:
+  push:
+    branches:
+      - feature/english-ui
+  pull_request:
+    branches:
+      - main
+      - feature/english-ui
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.6.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Enforce English UI policy
+        run: pnpm check:english-ui
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Test
+        run: pnpm test:all
+
+      - name: Build web application
+        run: pnpm build
+
+      - name: Build desktop application
+        run: pnpm build:desktop:all
+
+      - name: Install Wine for Windows package verification
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes wine64
+
+      - name: Verify desktop package
+        run: pnpm verify:desktop-package
