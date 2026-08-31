@@ -12,6 +12,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: english-ui-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   verify:
     runs-on: ubuntu-latest
@@ -44,6 +48,9 @@ jobs:
         run: pnpm lint
 
       - name: Test
+        id: tests
+        timeout-minutes: 5
+        continue-on-error: true
         run: pnpm test:all
 
       - name: Build web application
@@ -59,3 +66,7 @@ jobs:
 
       - name: Verify desktop package
         run: pnpm verify:desktop-package
+
+      - name: Enforce test result
+        if: always() && steps.tests.outcome != 'success'
+        run: exit 1
