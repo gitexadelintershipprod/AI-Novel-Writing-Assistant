@@ -93,7 +93,7 @@ function main() {
     throw new Error("Desktop updater feed configuration is missing the GitHub provider.");
   }
 
-  const packagedFiles = new Set(asar.listPackage(unpackedAppArchive).map((entry) => entry.replace(/^\\/, "").replace(/\\/g, "/")));
+  const packagedFiles = new Set(asar.listPackage(unpackedAppArchive).map((entry) => entry.replace(/^[\\/]+/, "").replace(/\\/g, "/")));
   const packagedEntries = Array.from(packagedFiles);
   assertSomeMatch(
     packagedEntries,
