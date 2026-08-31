@@ -327,7 +327,7 @@ export default function TitleFactoryPanel({ genreTree, novels }: TitleFactoryPan
           onCopy={handleCopy}
           onSave={(suggestion) => saveMutation.mutate(suggestion)}
           savingTitle={saveMutation.isPending ? saveMutation.variables?.title ?? "" : ""}
-          emptyMessage={`${modeCopy.title}准备好后，点击“生成标题”查看不同命名方向。`}
+          emptyMessage={`When ${modeCopy.title} is ready, select “Generate titles” to explore different naming directions.`}
         />
       </section>
     </div>

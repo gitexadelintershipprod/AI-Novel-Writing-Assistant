@@ -235,7 +235,7 @@ export default function MarketRadarPage() {
           ))}
           <Button onClick={() => scanMutation.mutate()} disabled={scanMutation.isPending || scanning || sourcesQuery.isPending} variant="outline">
             {scanning ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-            {scanning ? `正在获取榜单 ${Math.round((activeRun?.progress ?? 0) * 100)}%` : "重新扫榜"}
+            {scanning ? `Fetching rankings ${Math.round((activeRun?.progress ?? 0) * 100)}%` : "Scan rankings again"}
           </Button>
         </div>
       </div>

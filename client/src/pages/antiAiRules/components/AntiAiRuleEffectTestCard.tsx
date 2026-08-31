@@ -78,7 +78,7 @@ export default function AntiAiRuleEffectTestCard(props: AntiAiRuleEffectTestCard
         <textarea
           className="min-h-[180px] w-full rounded-md border bg-background p-3 text-sm leading-7"
           value={props.content}
-          placeholder="粘贴待检测正文。建议输入一段完整场景，便于判断总结腔、解释腔和模板感。"
+          placeholder="Paste prose to analyze. A complete scene makes summary-like, explanatory, and formulaic writing easier to detect."
           onChange={(event) => props.onContentChange(event.target.value)}
         />
 

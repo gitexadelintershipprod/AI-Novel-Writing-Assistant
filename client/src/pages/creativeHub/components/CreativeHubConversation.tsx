@@ -109,10 +109,10 @@ export default function CreativeHubConversation({
                 <ComposerPrimitive.Root className="rounded-md border border-border bg-background p-3">
                   <ComposerPrimitive.Input
                     className="min-h-[110px] w-full resize-none rounded-md border border-input bg-muted/20 p-3 text-base text-foreground outline-none transition focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-60 md:text-sm"
-                    placeholder="询问小说进度、失败原因、执行记录或下一步入口；Enter 发送，Shift+Enter 换行。"
+                    placeholder="Ask about novel progress, failures, execution history, or next steps. Enter to send; Shift+Enter for a new line."
                     submitMode="enter"
                     disabled={actionDisabled}
-                    aria-label="状态查询或诊断问题"
+                    aria-label="Status or diagnostic question"
                   />
                   <div className="mt-3 flex gap-2">
                     <ComposerPrimitive.Send asChild>
