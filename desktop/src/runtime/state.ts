@@ -1,5 +1,6 @@
 import { EventEmitter } from "node:events";
 import { resolveDesktopLogsDir, resolveDesktopMainLogFile } from "./paths";
+import { DESKTOP_UI_MESSAGES } from "../uiMessages";
 
 export type DesktopBootstrapState = "launching" | "starting-server" | "loading-ui" | "ready" | "error";
 export type DesktopBootstrapStage =
@@ -110,8 +111,8 @@ export const desktopBootstrapStore = new SnapshotStore<DesktopBootstrapSnapshot>
   createBootstrapSnapshot({
     state: "launching",
     stage: "launching",
-    title: "正在启动桌面工作区",
-    detail: "正在准备桌面运行时和本地工作区。",
+    title: DESKTOP_UI_MESSAGES.bootstrap.initialTitle,
+    detail: DESKTOP_UI_MESSAGES.bootstrap.initialDetail,
     canRetry: false,
   }),
 );
@@ -119,7 +120,7 @@ export const desktopBootstrapStore = new SnapshotStore<DesktopBootstrapSnapshot>
 export const desktopUpdaterStore = new SnapshotStore<DesktopUpdaterSnapshot>(
   createUpdaterSnapshot({
     status: "disabled",
-    message: "桌面版启动完成后即可检查更新。",
+    message: DESKTOP_UI_MESSAGES.updater.readyAfterStartup,
     currentVersion: "0.0.0",
     availableVersion: null,
     progressPercent: null,

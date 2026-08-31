@@ -29,6 +29,7 @@ import {
 } from "./runtime/state";
 import { initializeDesktopUpdater, type DesktopUpdaterController } from "./runtime/updater";
 import { createDesktopLogBundle } from "./runtime/logBundle";
+import { DESKTOP_UI_MESSAGES } from "./uiMessages";
 
 const APP_USER_MODEL_ID = "com.ai-novel.desktop";
 const MAIN_WINDOW_BACKGROUND = "#08101f";
@@ -115,10 +116,10 @@ function updateBootstrapProgress(): void {
     setBootstrapSnapshot(createBootstrapSnapshot({
       state: "starting-server",
       stage: "server-starting",
-      title: "正在启动本地写作引擎",
+      title: DESKTOP_UI_MESSAGES.bootstrap.startingEngineTitle,
       detail: rendererReady
-        ? "桌面启动壳已经显示，正在等待打包后的本地服务进入可用状态。"
-        : "正在拉起桌面本地服务，并准备用户数据目录。",
+        ? DESKTOP_UI_MESSAGES.bootstrap.waitingForService
+        : DESKTOP_UI_MESSAGES.bootstrap.preparingService,
     }));
     return;
   }
@@ -127,8 +128,8 @@ function updateBootstrapProgress(): void {
     setBootstrapSnapshot(createBootstrapSnapshot({
       state: "loading-ui",
       stage: "server-healthy",
-      title: "正在加载桌面工作区",
-      detail: "本地服务已经可用，正在渲染桌面端首屏工作区。",
+      title: DESKTOP_UI_MESSAGES.bootstrap.loadingWorkspaceTitle,
+      detail: DESKTOP_UI_MESSAGES.bootstrap.loadingWorkspaceDetail,
     }));
     return;
   }
@@ -136,8 +137,8 @@ function updateBootstrapProgress(): void {
   setBootstrapSnapshot(createBootstrapSnapshot({
     state: "ready",
     stage: "main-window-shown",
-    title: "桌面工作区已就绪",
-    detail: "启动壳、本地服务和工作区界面都已准备完成。",
+    title: DESKTOP_UI_MESSAGES.bootstrap.readyTitle,
+    detail: DESKTOP_UI_MESSAGES.bootstrap.readyDetail,
     canRetry: false,
   }));
   maybeScheduleUpdateCheck();
@@ -154,8 +155,8 @@ function showMainWindowIfReady(): void {
   appendBootstrapStage(
     "main-window-shown",
     serverHealthy
-      ? "主窗口已经显示。"
-      : "主窗口已经显示，本地服务仍在继续启动中。",
+      ? DESKTOP_UI_MESSAGES.bootstrap.mainWindowShown
+      : DESKTOP_UI_MESSAGES.bootstrap.mainWindowShownWhileStarting,
   );
   closeSplashWindow();
   updateBootstrapProgress();
@@ -224,14 +225,14 @@ function createSplashHtml(): string {
   `;
 
   return `<!DOCTYPE html>
-  <html lang="zh-CN">
+  <html lang="en">
     <head>
       <meta charset="UTF-8" />
       <meta
         http-equiv="Content-Security-Policy"
         content="default-src 'none'; style-src 'unsafe-inline'; img-src data:"
       />
-      <title>AI 小说创作工作台</title>
+      <title>${DESKTOP_UI_MESSAGES.splash.title}</title>
       <style>
         :root {
           color-scheme: dark;
@@ -304,8 +305,8 @@ function createSplashHtml(): string {
     <body>
       <main class="panel">
         ${brandMark}
-        <div class="title">AI 小说创作工作台</div>
-        <p class="subtitle">正在准备桌面启动壳和打包后的本地写作引擎。</p>
+        <div class="title">${DESKTOP_UI_MESSAGES.splash.title}</div>
+        <p class="subtitle">${DESKTOP_UI_MESSAGES.splash.subtitle}</p>
         <div class="meter"><span></span></div>
       </main>
     </body>
@@ -340,8 +341,8 @@ async function bootstrapDesktopApp(): Promise<void> {
   setBootstrapSnapshot(createBootstrapSnapshot({
     state: "launching",
     stage: "app-ready",
-    title: "正在启动桌面工作区",
-    detail: "Electron 已就绪，正在打开桌面启动壳。",
+    title: DESKTOP_UI_MESSAGES.bootstrap.launchingTitle,
+    detail: DESKTOP_UI_MESSAGES.bootstrap.launchingDetail,
     canRetry: false,
   }));
 
@@ -350,8 +351,8 @@ async function bootstrapDesktopApp(): Promise<void> {
   setBootstrapSnapshot(createBootstrapSnapshot({
     state: "launching",
     stage: "splash-shown",
-    title: "桌面启动壳已显示",
-    detail: "正在准备桌面运行时环境和随包资源。",
+    title: DESKTOP_UI_MESSAGES.bootstrap.shellVisibleTitle,
+    detail: DESKTOP_UI_MESSAGES.bootstrap.shellVisibleDetail,
     canRetry: false,
   }));
   initializeDesktopUpdaterController();
@@ -363,8 +364,8 @@ async function bootstrapDesktopApp(): Promise<void> {
     setBootstrapSnapshot(createBootstrapSnapshot({
       state: "launching",
       stage: "splash-shown",
-      title: "正在导入旧版本地数据",
-      detail: "正在把你选择的旧 web 本地数据库接管到桌面版数据目录。",
+      title: DESKTOP_UI_MESSAGES.bootstrap.importingTitle,
+      detail: DESKTOP_UI_MESSAGES.bootstrap.importingDetail,
       canRetry: false,
     }));
     importLegacyDatabaseFromPath(pendingImportPath);
@@ -406,10 +407,10 @@ async function showBootstrapFailureDialog(error: unknown): Promise<void> {
   const errorMessage = error instanceof Error ? error.message : String(error);
   const result = await dialog.showMessageBox({
     type: "error",
-    title: "AI 小说创作工作台启动失败",
-    message: "桌面应用未能完成初始化。",
-    detail: `${errorMessage}\n\n日志目录:\n${logDir}\n\n日志文件:\n${logFilePath}`,
-    buttons: ["打开日志目录", "复制日志路径", "退出"],
+    title: DESKTOP_UI_MESSAGES.failureDialog.title,
+    message: DESKTOP_UI_MESSAGES.failureDialog.message,
+    detail: `${errorMessage}\n\n${DESKTOP_UI_MESSAGES.failureDialog.logDirectory}:\n${logDir}\n\n${DESKTOP_UI_MESSAGES.failureDialog.logFile}:\n${logFilePath}`,
+    buttons: [...DESKTOP_UI_MESSAGES.failureDialog.buttons],
     defaultId: 0,
     cancelId: 2,
     noLink: true,
@@ -446,24 +447,24 @@ function registerDesktopIpcHandlers(): void {
   ipcMain.handle("desktop:bundle-logs", async () => {
     const suggestedName = `AI-Novel-logs-${new Date().toISOString().replace(/[:.]/g, "-")}.zip`;
     const result = await dialog.showSaveDialog({
-      title: "保存桌面日志包",
+      title: DESKTOP_UI_MESSAGES.logBundle.saveTitle,
       defaultPath: path.join(app.getPath("downloads"), suggestedName),
-      filters: [{ name: "日志压缩包", extensions: ["zip"] }],
+      filters: [{ name: DESKTOP_UI_MESSAGES.logBundle.filterName, extensions: ["zip"] }],
     });
     if (result.canceled || !result.filePath) return null;
     const bootstrap = desktopBootstrapStore.getSnapshot();
     const updater = desktopUpdaterStore.getSnapshot();
     const summary = [
-      "AI 小说创作工作台近期日志包摘要",
-      `生成时间: ${new Date().toISOString()}`,
-      `应用版本: ${app.getVersion()}`,
-      `平台: ${process.platform} ${process.arch}`,
-      `系统: ${os.release()}`,
-      `更新通道: ${updater.channel}`,
-      `更新状态: ${updater.status}`,
-      `启动状态: ${bootstrap.state}`,
-      `启动阶段: ${bootstrap.stage}`,
-      `启动说明: ${bootstrap.detail}`,
+      DESKTOP_UI_MESSAGES.logBundle.summaryTitle,
+      `${DESKTOP_UI_MESSAGES.logBundle.generatedAt}: ${new Date().toISOString()}`,
+      `${DESKTOP_UI_MESSAGES.logBundle.appVersion}: ${app.getVersion()}`,
+      `${DESKTOP_UI_MESSAGES.logBundle.platform}: ${process.platform} ${process.arch}`,
+      `${DESKTOP_UI_MESSAGES.logBundle.system}: ${os.release()}`,
+      `${DESKTOP_UI_MESSAGES.logBundle.updateChannel}: ${updater.channel}`,
+      `${DESKTOP_UI_MESSAGES.logBundle.updateStatus}: ${updater.status}`,
+      `${DESKTOP_UI_MESSAGES.logBundle.startupStatus}: ${bootstrap.state}`,
+      `${DESKTOP_UI_MESSAGES.logBundle.startupStage}: ${bootstrap.stage}`,
+      `${DESKTOP_UI_MESSAGES.logBundle.startupDetail}: ${bootstrap.detail}`,
     ].join("\n");
     const tempPath = createDesktopLogBundle(summary);
     try {
@@ -582,7 +583,7 @@ async function handleBootstrapFailure(error: unknown): Promise<void> {
   setBootstrapSnapshot(createBootstrapSnapshot({
     state: "error",
     stage: "error",
-    title: "桌面启动失败",
+    title: DESKTOP_UI_MESSAGES.bootstrap.failedTitle,
     detail: errorMessage,
   }));
 

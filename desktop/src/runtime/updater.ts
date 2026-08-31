@@ -3,6 +3,7 @@ import path from "node:path";
 import { autoUpdater } from "electron-updater";
 import { appendDesktopLog, logDesktopError } from "./logging";
 import { createUpdaterSnapshot, desktopUpdaterStore } from "./state";
+import { DESKTOP_UI_MESSAGES } from "../uiMessages";
 
 export interface DesktopUpdaterController {
   checkForUpdates: () => Promise<void>;
@@ -41,18 +42,18 @@ export function initializeDesktopUpdater(options: DesktopUpdaterOptions): Deskto
   const supported = isUpdaterSupported(options);
   const hasFeedConfig = !supported || hasPackagedUpdateFeedConfig();
   const unsupportedReason = !options.isPackaged
-    ? "开发环境不下载安装包，请在正式安装版中检查更新。"
+    ? DESKTOP_UI_MESSAGES.updater.developmentUnsupported
     : options.isPortable
-      ? "便携版需要下载新版安装包后手动替换。"
+      ? DESKTOP_UI_MESSAGES.updater.portableUnsupported
       : !hasFeedConfig
-        ? "此安装包未配置版本更新通道。"
-        : "桌面版更新已被运行环境关闭。";
+        ? DESKTOP_UI_MESSAGES.updater.feedMissing
+        : DESKTOP_UI_MESSAGES.updater.disabled;
 
   markUpdaterSnapshot(createUpdaterSnapshot({
     status: supported && hasFeedConfig ? "idle" : "disabled",
     message: supported
       ? hasFeedConfig
-        ? "可以检查桌面版更新。"
+        ? DESKTOP_UI_MESSAGES.updater.ready
         : unsupportedReason
       : unsupportedReason,
     currentVersion: options.currentVersion,
@@ -91,7 +92,7 @@ export function initializeDesktopUpdater(options: DesktopUpdaterOptions): Deskto
     markUpdaterSnapshot(createUpdaterSnapshot({
       ...desktopUpdaterStore.getSnapshot(),
       status: "checking",
-      message: "正在检查桌面版更新。",
+      message: DESKTOP_UI_MESSAGES.updater.checking,
       canInstall: false,
       lastCheckedAt: new Date().toISOString(),
       progressPercent: null,
@@ -104,7 +105,7 @@ export function initializeDesktopUpdater(options: DesktopUpdaterOptions): Deskto
     markUpdaterSnapshot(createUpdaterSnapshot({
       ...desktopUpdaterStore.getSnapshot(),
       status: "update-available",
-      message: `桌面版 v${info.version} 可用，由你确认后开始下载。`,
+      message: DESKTOP_UI_MESSAGES.updater.available(info.version),
       availableVersion: info.version,
       canInstall: false,
       progressPercent: null,
@@ -118,7 +119,7 @@ export function initializeDesktopUpdater(options: DesktopUpdaterOptions): Deskto
     markUpdaterSnapshot(createUpdaterSnapshot({
       ...desktopUpdaterStore.getSnapshot(),
       status: "not-available",
-      message: "当前安装包符合此更新通道的最新版本。",
+      message: DESKTOP_UI_MESSAGES.updater.current,
       availableVersion: null,
       canInstall: false,
       progressPercent: null,
@@ -131,7 +132,7 @@ export function initializeDesktopUpdater(options: DesktopUpdaterOptions): Deskto
     markUpdaterSnapshot(createUpdaterSnapshot({
       ...desktopUpdaterStore.getSnapshot(),
       status: "downloading",
-      message: "正在下载桌面版更新。",
+      message: DESKTOP_UI_MESSAGES.updater.downloading,
       progressPercent: progress.percent,
       bytesPerSecond: progress.bytesPerSecond,
       canInstall: false,
@@ -143,7 +144,7 @@ export function initializeDesktopUpdater(options: DesktopUpdaterOptions): Deskto
     markUpdaterSnapshot(createUpdaterSnapshot({
       ...desktopUpdaterStore.getSnapshot(),
       status: "downloaded",
-      message: `桌面版 v${info.version} 准备完成，重启应用后安装。`,
+      message: DESKTOP_UI_MESSAGES.updater.downloaded(info.version),
       availableVersion: info.version,
       canInstall: true,
       progressPercent: 100,
@@ -157,7 +158,7 @@ export function initializeDesktopUpdater(options: DesktopUpdaterOptions): Deskto
     markUpdaterSnapshot(createUpdaterSnapshot({
       ...desktopUpdaterStore.getSnapshot(),
       status: "error",
-      message: "未能完成版本检查，请确认网络连接后重试。",
+      message: DESKTOP_UI_MESSAGES.updater.failed,
       canInstall: false,
       progressPercent: null,
       bytesPerSecond: null,
@@ -177,7 +178,7 @@ export function initializeDesktopUpdater(options: DesktopUpdaterOptions): Deskto
         markUpdaterSnapshot(createUpdaterSnapshot({
           ...snapshot,
           status: "downloading",
-          message: "正在下载桌面版更新。",
+          message: DESKTOP_UI_MESSAGES.updater.downloading,
           canInstall: false,
           progressPercent: 0,
           bytesPerSecond: null,
