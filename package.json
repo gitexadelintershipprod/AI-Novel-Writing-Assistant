@@ -8,7 +8,9 @@
     "pnpm": ">=10.6.0"
   },
   "scripts": {
+    "check:english-ui": "node scripts/check-english-ui.cjs",
     "check:deps": "node scripts/check-deps.cjs",
+    "update:english-ui-allowlist": "node scripts/update-english-ui-allowlist.cjs",
     "dev": "node scripts/check-deps.cjs && node scripts/run-with-log.cjs --name dev -- pnpm dev:raw",
     "dev:raw": "concurrently \"pnpm dev:shared\" \"pnpm dev:server\" \"pnpm dev:client\"",
     "dev:log": "node scripts/check-deps.cjs && node scripts/run-with-log.cjs --name dev -- pnpm dev:raw",
