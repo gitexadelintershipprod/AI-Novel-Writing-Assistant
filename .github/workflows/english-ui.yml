@@ -61,11 +61,12 @@ jobs:
 
       - name: Install Wine for Windows package verification
         run: |
+          sudo dpkg --add-architecture i386
           sudo apt-get update
-          sudo apt-get install --yes wine64
+          sudo apt-get install --yes wine64 wine32:i386 xvfb
 
       - name: Verify desktop package
-        run: pnpm verify:desktop-package
+        run: xvfb-run -a env WINEDEBUG=-all pnpm verify:desktop-package
 
       - name: Enforce test result
         if: always() && steps.tests.outcome != 'success'

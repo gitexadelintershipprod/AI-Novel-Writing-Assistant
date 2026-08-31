@@ -76,7 +76,7 @@ pnpm build:desktop:all
 pnpm verify:desktop-package
 ```
 
-Windows package verification requires Wine when run from Linux. The English UI GitHub Actions workflow installs `wine64` before invoking the verification command.
+Windows package verification requires 64-bit and 32-bit Wine plus a virtual X display when run from Linux. The English UI GitHub Actions workflow installs `wine64`, `wine32:i386`, and `xvfb`, then invokes verification through `xvfb-run`.
 
 At the recorded upstream baseline, the server portion of `pnpm test:all` has pre-existing failures outside the localization scope. Keep the command mandatory and visible in CI; do not suppress those failures in the English UI checks. Client tests, English UI policy checks, type checking, linting, and web/desktop builds must still pass before localization changes are accepted.
 
