@@ -1,0 +1,45 @@
+const navigation = {
+  brand: {
+    title: "AI Novel Writing Assistant",
+    subtitle: "AI Novel Production Engine",
+  },
+  groups: {
+    creation: "Creation",
+    assets: "Assets",
+    system: "System",
+  },
+  items: {
+    home: "Home",
+    guide: "Creation Guide",
+    marketRadar: "Trending Genre Radar",
+    novels: "Novels",
+    drama: "Drama Studio",
+    comic: "Comic Studio",
+    creativeHub: "Creative Hub",
+    bookAnalysis: "Book Analysis",
+    genres: "Genre Library",
+    storyModes: "Story Mode Library",
+    titles: "Title Studio",
+    knowledge: "Knowledge Base",
+    worlds: "World Library",
+    styleEngine: "Style Engine",
+    antiAiRules: "Anti-AI Rules",
+    baseCharacters: "Base Character Library",
+    visualAssets: "Visual Asset Library",
+    tasks: "Task History",
+    directorFollowUps: "Director Follow-ups",
+    prompts: "Prompt Management",
+    settings: "Settings",
+  },
+  controls: {
+    collapse: "Collapse navigation",
+    expand: "Expand navigation",
+    comingSoon: "Coming soon",
+    comicBeta: "Comic Studio is still in beta",
+    projectNavigation: "Project navigation",
+    writingNavigation: "Writing navigation",
+    modelSettings: "Model settings",
+  },
+} as const;
+
+export default navigation;
