@@ -4,6 +4,13 @@
 
 ## 更新历史
 
+### 2026-08-31 (English-only interface)
+
+- The web application now opens in English by default across navigation, creation, writing, knowledge, task, title, market, and settings workflows, with no language selector or saved-language override.
+- Existing novels, prompts, provider settings, API values, and persisted Chinese domain values remain unchanged; only their presentation labels are translated.
+- The Windows desktop shell now uses English startup, update, import, failure, and diagnostic messages.
+- New English UI safeguards detect unclassified Chinese interface copy during development and keep intentional prompt, content, fixture, and protocol text explicitly documented.
+
 ### 2026-08-26（章节审校与恢复边界）
 
 - 热门题材雷达会明确区分“库中已有”和“需要加入”：已有题材或推进方式可直接进入资源库定位，不会再误报为本次新增；缺少的方向确认加入后会刷新资源库并定位对应内容。

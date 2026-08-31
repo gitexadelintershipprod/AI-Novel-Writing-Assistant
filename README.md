@@ -147,13 +147,12 @@
 
 ## 最新更新
 
-### 2026-08-26
+### 2026-08-31
 
-- 热门题材雷达会区分库中已有与需要加入的题材和推进方式：已有内容可直接定位，缺少的方向确认后才写入资源库；从雷达开书时会预填这些创作基础，同时保留用户的手动选择。
-- 人工章节审校需要调整后续规划时，会保留正文并等待用户确认，不会在审校过程中静默重规划。
-- 审校结论、待处理问题和章节进度会一起保存为可恢复状态，刷新页面后仍能看到真实处理原因。
-- 整本自动创作会保留可用正文、记录局部质量问题并继续；质量优先可在人工分阶段创作时停在已保存边界等待确认。
-- 正文无法确认保存时不会自动重复生成；后台任务自动恢复失败时会保留恢复入口，并从未完成章节继续。
+- The web interface now opens in English across navigation, novel creation and writing, knowledge, task, title, market, and settings workflows.
+- The English presentation layer preserves existing novels, prompts, API payloads, routes, provider names, and persisted domain values.
+- Desktop startup, updates, imports, failure dialogs, and diagnostic messages now use English.
+- Automated checks reject newly introduced, unclassified Chinese UI copy while retaining documented prompts, fixtures, content, and protocol values.
 
 完整历史更新见 [docs/releases/release-notes.md](./docs/releases/release-notes.md)。
 
