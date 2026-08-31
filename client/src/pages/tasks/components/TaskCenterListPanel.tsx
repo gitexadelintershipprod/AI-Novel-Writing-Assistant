@@ -39,7 +39,7 @@ export default function TaskCenterListPanel({
   return (
     <TaskQueueSection
       title="任务记录"
-      description={`${tasks.length} 项结果，优先展示需要处理和等待操作的任务。`}
+      description={`${tasks.length} results, prioritizing tasks that need attention or are waiting for action.`}
       className="overflow-hidden rounded-2xl border-border/40 bg-card/60 shadow-[0_12px_36px_rgba(15,23,42,0.035)]"
     >
       <div className="space-y-3">
