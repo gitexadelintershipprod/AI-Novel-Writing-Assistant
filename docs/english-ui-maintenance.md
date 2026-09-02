@@ -15,7 +15,11 @@ The client initializes i18next before React renders. Its language, fallback, and
 
 Shared navigation and brand copy use semantic keys in feature-scoped English namespaces. The wider upstream UI is covered by an English presentation catalog and `EnglishUiBoundary`. That boundary translates rendered labels, tooltips, placeholders, toasts, dialogs, and errors without changing API payloads, persisted values, routes, identifiers, schemas, model/provider names, or generation logic.
 
+Static phrases are resolved from the presentation catalog. Runtime phrases whose numbers or provider/model names change are handled by narrowly scoped patterns in `client/src/i18n/dynamicUiPatterns.ts`; these patterns may format presentation text but must never translate or rewrite persisted domain values. Prefer semantic i18n keys for new UI and add a dynamic pattern only when the upstream source assembles a bounded legacy sentence at runtime.
+
 The boundary deliberately skips `textarea`, `pre`, `code`, content-editable elements, Plate/ProseMirror editors, and elements marked with `data-preserve-language` or `data-novel-content`. This protects prompts, novel prose, and user-authored content.
+
+Use `data-preserve-language` only around source-owned or user-authored values. Keep surrounding controls, empty-state text, and fallback labels outside that boundary or write those fallbacks directly in English.
 
 Electron startup, splash, updater, failure-dialog, and log-bundle copy comes from `desktop/src/uiMessages.ts`. Runtime state values and IPC contracts remain unchanged.
 

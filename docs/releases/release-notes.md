@@ -4,6 +4,12 @@
 
 ## 更新历史
 
+### 2026-09-02 (English interface coverage)
+
+- Dynamic counters, progress messages, provider status text, and task guidance now stay in English when their values change at runtime.
+- Source-provided book titles, author names, and categories remain intact while surrounding Market Radar controls and fallback messages stay in English.
+- Failed Auto Director tasks continue to show their terminal state instead of being presented as an active dashboard run.
+
 ### 2026-08-31 (English-only interface)
 
 - The web application now opens in English by default across navigation, creation, writing, knowledge, task, title, market, and settings workflows, with no language selector or saved-language override.

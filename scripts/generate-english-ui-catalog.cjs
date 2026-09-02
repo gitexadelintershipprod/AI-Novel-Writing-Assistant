@@ -6,7 +6,20 @@ const ts = require("typescript");
 
 const ROOT = path.resolve(__dirname, "..");
 const OUTPUT = path.join(ROOT, "client/src/locales/en/legacy-ui.json");
-const SOURCE_DIRS = [path.join(ROOT, "client/src"), path.join(ROOT, "desktop/src")];
+const SOURCE_PATHS = [
+  path.join(ROOT, "client/src"),
+  path.join(ROOT, "desktop/src"),
+  path.join(ROOT, "shared/types"),
+  path.join(ROOT, "server/src/db/storyModeSeeds.ts"),
+  path.join(ROOT, "server/src/llm/factory.ts"),
+  path.join(ROOT, "server/src/modules/setup/onboarding"),
+  path.join(ROOT, "server/src/modules/marketRadar/infrastructure/marketRadarSources.ts"),
+  path.join(ROOT, "server/src/prompting/addendums/PromptAddendumService.ts"),
+  path.join(ROOT, "server/src/prompting/prompts"),
+  path.join(ROOT, "server/src/services/bootstrap/SystemResourceBootstrapService.ts"),
+  path.join(ROOT, "server/src/services/settings/ProviderBalanceService.ts"),
+  path.join(ROOT, "server/src/services/styleEngine/defaults.ts"),
+];
 const HAN = /[\p{Script=Han}]/u;
 const SPLIT_MARKER = "<<<AI_NOVEL_UI_SPLIT>>>";
 const MAX_BATCH_CHARS = 2800;
@@ -38,6 +51,28 @@ const MANUAL_OVERRIDES = {
   "世界观": "World",
   "知识库": "Knowledge Base",
   "系统设置": "Settings",
+  "先完成一次快捷配置": "Complete quick setup first",
+  "还有": "There are also",
+  "类创作任务没有可用模型路由。": "authoring task types with no available model route.",
+  "保存全部修改": "Save all changes",
+  "当前厂商暂未接入可程序化余额查询。": "Automated balance lookup is not available for this provider.",
+  "都市": "Urban",
+  "都市生活": "Urban Life",
+  "科幻": "Science Fiction",
+  "历史": "Historical",
+  "奇幻": "Fantasy",
+  "言情": "Romance",
+  "日常流": "Slice of Life",
+  "情感流": "Relationship Drama",
+  "爽文流": "Power Fantasy",
+  "优先完成整本书": "Prioritize finishing the full book",
+  "质量优先": "Prioritize quality",
+  "新书榜": "New Releases",
+  "阅读榜": "Most Read",
+  "畅销榜": "Bestsellers",
+  "月票榜": "Monthly Votes",
+  "月度榜": "Monthly Ranking",
+  "季度榜": "Quarterly Ranking",
 };
 
 function collectFiles(directory, output = []) {
@@ -52,6 +87,11 @@ function collectFiles(directory, output = []) {
   return output;
 }
 
+function collectSourceFiles(sourcePath) {
+  const stat = fs.statSync(sourcePath);
+  return stat.isDirectory() ? collectFiles(sourcePath) : [sourcePath];
+}
+
 function isCatalogCandidate(value) {
   const normalized = value.trim();
   if (!normalized || !HAN.test(normalized)) return false;
@@ -63,15 +103,22 @@ function isCatalogCandidate(value) {
 function collectSourceStrings() {
   const strings = new Set();
   const visit = (node) => {
-    if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node) || ts.isJsxText(node)) {
+    if (
+      ts.isStringLiteral(node)
+      || ts.isNoSubstitutionTemplateLiteral(node)
+      || ts.isJsxText(node)
+      || ts.isTemplateHead(node)
+      || ts.isTemplateMiddle(node)
+      || ts.isTemplateTail(node)
+    ) {
       const value = node.text.trim();
       if (isCatalogCandidate(value)) strings.add(value);
     }
     ts.forEachChild(node, visit);
   };
 
-  for (const directory of SOURCE_DIRS) {
-    for (const filePath of collectFiles(directory)) {
+  for (const sourcePath of SOURCE_PATHS) {
+    for (const filePath of collectSourceFiles(sourcePath)) {
       const source = fs.readFileSync(filePath, "utf8");
       const scriptKind = filePath.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS;
       visit(ts.createSourceFile(filePath, source, ts.ScriptTarget.Latest, true, scriptKind));

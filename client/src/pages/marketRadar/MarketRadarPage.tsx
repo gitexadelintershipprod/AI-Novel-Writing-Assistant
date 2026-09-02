@@ -282,8 +282,8 @@ export default function MarketRadarPage() {
                 </button>
                 <span className="font-mono text-muted-foreground">#{item.rank}</span>
                 <button type="button" disabled={Boolean(activeRun?.report) || analyzing} onClick={() => toggleAnalysisItem(item.id)} className="min-w-0 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 disabled:cursor-not-allowed">
-                  <span className="block truncate font-medium">{item.title}</span>
-                  <span className="block truncate text-xs text-muted-foreground">{item.author || "作者未公开"}{item.category ? ` · ${item.category}` : ""}</span>
+                  <span className="block truncate font-medium" data-preserve-language>{item.title}</span>
+                  <span className="block truncate text-xs text-muted-foreground" data-preserve-language>{item.author || "Author unavailable"}{item.category ? ` · ${item.category}` : ""}</span>
                 </button>
                 <a href={item.sourceUrl} target="_blank" rel="noreferrer" aria-label={`查看${item.title}的公开来源`} className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"><ExternalLink className="h-3.5 w-3.5" /></a>
               </div>;

@@ -147,12 +147,11 @@
 
 ## 最新更新
 
-### 2026-08-31
+### 2026-09-02
 
-- The web interface now opens in English across navigation, novel creation and writing, knowledge, task, title, market, and settings workflows.
-- The English presentation layer preserves existing novels, prompts, API payloads, routes, provider names, and persisted domain values.
-- Desktop startup, updates, imports, failure dialogs, and diagnostic messages now use English.
-- Automated checks reject newly introduced, unclassified Chinese UI copy while retaining documented prompts, fixtures, content, and protocol values.
+- Dynamic counters, progress messages, provider status text, and task guidance stay in English as their values change.
+- Source-provided book information remains intact while surrounding controls and fallback messages stay in English.
+- Failed Auto Director tasks keep their terminal state visible instead of appearing as an active run.
 
 完整历史更新见 [docs/releases/release-notes.md](./docs/releases/release-notes.md)。
 
