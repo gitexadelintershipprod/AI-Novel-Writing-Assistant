@@ -152,6 +152,7 @@
 - Dynamic counters, progress messages, provider status text, and task guidance stay in English as their values change.
 - Source-provided book information remains intact while surrounding controls and fallback messages stay in English.
 - Failed Auto Director tasks keep their terminal state visible instead of appearing as an active run.
+- Market Radar is temporarily unavailable while suitable Georgian or international sources are prepared; Auto Director continues to work from the writer's own idea.
 
 完整历史更新见 [docs/releases/release-notes.md](./docs/releases/release-notes.md)。
 

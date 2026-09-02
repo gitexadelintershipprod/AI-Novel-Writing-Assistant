@@ -9,6 +9,7 @@
 - Dynamic counters, progress messages, provider status text, and task guidance now stay in English when their values change at runtime.
 - Source-provided book titles, author names, and categories remain intact while surrounding Market Radar controls and fallback messages stay in English.
 - Failed Auto Director tasks continue to show their terminal state instead of being presented as an active dashboard run.
+- Market Radar is temporarily unavailable while suitable Georgian or international sources are prepared; Auto Director remains available and starts directly from the writer's own idea.
 
 ### 2026-08-31 (English-only interface)
 

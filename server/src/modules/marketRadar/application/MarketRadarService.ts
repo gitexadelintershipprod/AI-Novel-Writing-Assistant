@@ -17,6 +17,8 @@ import type {
   NovelResourceRecommendationOption,
 } from "@ai-novel/shared/types/novelResourceRecommendation";
 import { prisma } from "../../../db/prisma";
+import { featureFlags } from "../../../config/featureFlags";
+import { AppError } from "../../../middleware/errorHandler";
 import { runStructuredPrompt } from "../../../prompting/core/promptRunner";
 import {
   marketCreativeBriefPrompt,
@@ -540,6 +542,9 @@ export class MarketRadarService {
 
   async getBriefPromptBlock(id?: string | null): Promise<string> {
     if (!id?.trim()) return "";
+    if (!featureFlags.marketRadarEnabled) {
+      throw new AppError("Market Radar briefs are temporarily unavailable.", 400);
+    }
     const brief = await prisma.marketCreativeBrief.findUnique({ where: { id: id.trim() }, select: { promptBlock: true } });
     return brief?.promptBlock.trim() ?? "";
   }

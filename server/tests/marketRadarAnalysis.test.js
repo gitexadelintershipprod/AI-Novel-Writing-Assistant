@@ -7,6 +7,7 @@ const {
   toMarketFoundationCandidate,
   selectMarketAnalysisItems,
   selectMarketAnalysisSnapshots,
+  marketRadarService,
 } = require("../dist/modules/marketRadar/application/MarketRadarService.js");
 const {
   marketPlatformDigestSchema,
@@ -54,6 +55,14 @@ test("market radar analyzes only new-book lists when a platform has one", () => 
     snapshots[0],
     snapshots[2],
   ]);
+});
+
+test("disabled Market Radar rejects legacy brief ids before database access", async () => {
+  await assert.rejects(
+    () => marketRadarService.getBriefPromptBlock("legacy-brief"),
+    (error) => error?.statusCode === 400 && error?.message === "Market Radar briefs are temporarily unavailable.",
+  );
+  assert.equal(await marketRadarService.getBriefPromptBlock(""), "");
 });
 
 test("market radar honors the lists explicitly selected for AI analysis", () => {

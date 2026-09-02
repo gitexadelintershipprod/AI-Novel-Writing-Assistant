@@ -64,6 +64,7 @@ import { marketRadarService } from "./modules/marketRadar/application/MarketRada
 import { DirectorWorker } from "./workers/directorWorker";
 import { cleanupLogDirectory, resolveLogRetentionConfig } from "./platform/logging/logRetention";
 import { resolveLogsRoot } from "./runtime/appPaths";
+import { featureFlags } from "./config/featureFlags";
 
 getSharedNovelServices();
 registerNovelEventHandlers(novelEventBus);
@@ -260,9 +261,11 @@ function scheduleLogRetentionCleanup(): void {
 }
 
 function initializeBackgroundServices(): BackgroundServicesHandle {
-  void marketRadarService.recoverInterruptedRuns().catch((error) => {
-    console.warn("[market-radar] failed to mark interrupted scans.", error);
-  });
+  if (featureFlags.marketRadarEnabled) {
+    void marketRadarService.recoverInterruptedRuns().catch((error) => {
+      console.warn("[market-radar] failed to mark interrupted scans.", error);
+    });
+  }
   ragServices.ragWorker.start();
   ragServices.ragRetrievalTraceRetention.start();
   novelSideEffectWorker.start();

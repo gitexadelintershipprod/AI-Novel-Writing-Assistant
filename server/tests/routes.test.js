@@ -65,6 +65,22 @@ test("GET /api/llm/model-routes returns success payload", async () => {
   }
 });
 
+test("Market Radar API is unavailable by default", async () => {
+  const app = createApp();
+  const server = http.createServer(app);
+  const port = await listen(server);
+  try {
+    const response = await fetch(`http://127.0.0.1:${port}/api/market-radar/sources`);
+    assert.equal(response.status, 503);
+    assert.deepEqual(await response.json(), {
+      success: false,
+      error: "Market Radar is temporarily unavailable.",
+    });
+  } finally {
+    await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+  }
+});
+
 test("GET /api/settings/rag/models/openai returns embedding-only models", async () => {
   const originalFetch = global.fetch;
   const originalOpenAIKey = process.env.OPENAI_API_KEY;

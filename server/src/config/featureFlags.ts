@@ -10,5 +10,5 @@ export const featureFlags = {
   worldWizardEnabled: isEnabled(process.env.WORLD_WIZARD_ENABLED, true),
   worldVisEnabled: isEnabled(process.env.WORLD_VIS_ENABLED, true),
   worldGraphEnabled: isEnabled(process.env.WORLD_GRAPH_ENABLED, false),
+  marketRadarEnabled: isEnabled(process.env.MARKET_RADAR_ENABLED, false),
 };
-

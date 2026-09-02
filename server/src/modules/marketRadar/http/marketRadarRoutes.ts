@@ -9,6 +9,7 @@ import {
   type StartMarketRadarAnalysisRequest,
 } from "@ai-novel/shared/types/marketRadar";
 import { validate } from "../../../middleware/validate";
+import { featureFlags } from "../../../config/featureFlags";
 import { marketRadarService } from "../application/MarketRadarService";
 
 const router = Router();
@@ -31,6 +32,18 @@ const foundationSyncSchema = z.object({ target: z.enum(MARKET_FOUNDATION_SYNC_TA
 function ok<T>(data: T, message?: string): ApiResponse<T> {
   return { success: true, data, message };
 }
+
+router.use((_req, res, next) => {
+  if (featureFlags.marketRadarEnabled) {
+    next();
+    return;
+  }
+  const response: ApiResponse<null> = {
+    success: false,
+    error: "Market Radar is temporarily unavailable.",
+  };
+  res.status(503).json(response);
+});
 
 router.get("/sources", (_req, res) => res.json(ok(marketRadarService.listSources())));
 

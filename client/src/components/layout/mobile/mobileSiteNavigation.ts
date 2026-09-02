@@ -1,3 +1,5 @@
+import { featureFlags } from "../../../config/featureFlags.ts";
+
 export type MobilePrimaryNavKey = "home" | "novels" | "creation" | "tasks" | "more";
 
 export interface MobileNavItem {
@@ -67,7 +69,9 @@ const moreNavGroups: MobileNavGroup[] = [
       { key: "help", label: "创作向导", to: "/help", group: "more" },
       { key: "drama", label: "短剧工作台", to: "/drama", group: "creation" },
       { key: "book-analysis", label: "拆书", to: "/book-analysis", group: "creation" },
-      { key: "market-radar", label: "热门题材雷达", to: "/market-radar", group: "creation" },
+      ...(featureFlags.marketRadarEnabled
+        ? [{ key: "market-radar", label: "热门题材雷达", to: "/market-radar", group: "creation" as const }]
+        : []),
       { key: "chat-legacy", label: "旧版聊天", to: "/chat-legacy", group: "creation" },
     ],
   },

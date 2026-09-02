@@ -74,7 +74,6 @@ test("mobile more menu contains all non-primary registered pages", () => {
       "/help",
       "/drama",
       "/book-analysis",
-      "/market-radar",
       "/chat-legacy",
       "/knowledge",
       "/genres",

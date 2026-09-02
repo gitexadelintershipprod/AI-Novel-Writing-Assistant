@@ -12,6 +12,7 @@ import { getWorldList } from "@/api/world";
 import { getMarketCreativeBrief } from "@/api/marketRadar";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
+import { featureFlags } from "@/config/featureFlags";
 import {
   createDefaultNovelBasicFormState,
   patchNovelBasicForm,
@@ -82,7 +83,7 @@ export default function AutoDirectorCreatePage() {
   const marketBriefQuery = useQuery({
     queryKey: queryKeys.marketRadar.brief(marketBriefId || "none"),
     queryFn: () => getMarketCreativeBrief(marketBriefId),
-    enabled: Boolean(marketBriefId),
+    enabled: featureFlags.marketRadarEnabled && Boolean(marketBriefId),
   });
   const genreTree = genreTreeQuery.data?.data ?? [];
   const storyModeTree = storyModeTreeQuery.data?.data ?? [];
@@ -428,7 +429,7 @@ export default function AutoDirectorCreatePage() {
         </div>
       ) : null}
 
-      {marketBriefId ? (
+      {featureFlags.marketRadarEnabled && marketBriefId ? (
         <div className="flex flex-col gap-3 rounded-xl border border-primary/25 bg-primary/5 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="text-sm font-medium text-foreground">雷达推荐方向</div>
@@ -447,7 +448,7 @@ export default function AutoDirectorCreatePage() {
           </div>
           <Button type="button" variant="outline" size="sm" asChild><Link to="/market-radar">返回调整</Link></Button>
         </div>
-      ) : activeStage === "idea" ? (
+      ) : featureFlags.marketRadarEnabled && activeStage === "idea" ? (
         <div className="flex items-center justify-between gap-3 rounded-xl border border-dashed px-4 py-3 text-sm">
           <span className="text-muted-foreground">想先参考近期热门题材、金手指和开局模式？</span>
           <Button type="button" variant="outline" size="sm" asChild><Link to="/market-radar">先看热门题材雷达</Link></Button>

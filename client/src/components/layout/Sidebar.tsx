@@ -35,6 +35,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { VisualAssetLibraryDialog } from "@/components/visualAssets";
 import { cn } from "@/lib/utils";
+import { featureFlags } from "@/config/featureFlags";
 
 interface NavItem {
   to: string;
@@ -55,7 +56,9 @@ const navGroups: NavGroup[] = [
     items: [
       { to: "/", labelKey: "items.home", icon: House },
       { to: "/help", labelKey: "items.guide", icon: CircleHelp },
-      { to: "/market-radar", labelKey: "items.marketRadar", icon: Radar },
+      ...(featureFlags.marketRadarEnabled
+        ? [{ to: "/market-radar", labelKey: "items.marketRadar", icon: Radar }]
+        : []),
       { to: "/novels", labelKey: "items.novels", icon: BookOpenText },
       { to: "/drama", labelKey: "items.drama", icon: MonitorPlay, disabled: true },
       { to: "/comic", labelKey: "items.comic", icon: SquareStack },
