@@ -9,6 +9,7 @@ import type {
   StoryStateSnapshot,
   VolumePlan,
 } from "@ai-novel/shared/types/novel";
+import { countGeorgianWords } from "@ai-novel/shared/utils/georgianTextMetrics";
 
 type WorldLike = {
   name?: string | null;
@@ -66,7 +67,7 @@ export function normalizeChapterContent(text: string | null | undefined): string
 }
 
 export function countEditorWords(text: string | null | undefined): number {
-  return normalizeEditorText(text).replace(/\s+/g, "").length;
+  return countGeorgianWords(normalizeEditorText(text));
 }
 
 export function splitParagraphsWithRanges(text: string | null | undefined): ChapterEditorParagraph[] {

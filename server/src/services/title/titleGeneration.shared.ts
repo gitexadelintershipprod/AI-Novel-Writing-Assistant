@@ -1,4 +1,10 @@
 import type { TitleFactorySuggestion, TitleSuggestionStyle } from "@ai-novel/shared/types/title";
+import {
+  countGeorgianWords,
+  countUnicodeCodePoints,
+  tokenizeGeorgianWords,
+  truncateGeorgianWords,
+} from "@ai-novel/shared/utils/georgianTextMetrics";
 
 export type TitleGenerationMode = "brief" | "adapt" | "novel";
 
@@ -23,17 +29,13 @@ type TitleSuggestionHookType =
   | "high_concept";
 
 export type TitleSurfaceFrame =
-  | "contrast_then_self"
-  | "setting_then_self"
-  | "scenario_then_self"
-  | "self_split"
   | "colon_split"
-  | "when_open"
-  | "setting_open"
-  | "self_open"
-  | "genre_open"
   | "comma_split"
-  | "plain_statement";
+  | "question"
+  | "conditional_open"
+  | "first_person_open"
+  | "possessive_open"
+  | "plain_phrase";
 
 interface NormalizedTitleSuggestion extends TitleFactorySuggestion {
   surfaceFrame: TitleSurfaceFrame;
@@ -66,22 +68,14 @@ const HOOK_TYPE_TO_STYLE: Record<TitleSuggestionHookType, TitleSuggestionStyle> 
   high_concept: "high_concept",
 };
 
-const GENRE_OPENING_PATTERN =
-  /^(末日|丧尸|诡异|规则|全球|全民|深海|废土|星际|高武|修仙|历史|天灾|国运|灾变|怪谈)/u;
-const SELF_SPLIT_PATTERN = /^我.+[，,]/u;
-const SCENARIO_THEN_SELF_PATTERN =
-  /^[^，,：:]+[，,](我|我的|我能|我有|我靠|我用|我让|我把|我开局|我却|我直接|我只要)/u;
-const CONTRAST_THEN_SELF_PATTERN =
-  /^(别人|全网|所有人|世人|诸天|满朝|全校|全班|全服).+[，,](我|我的|我能|我有|我靠|我开局|我却|我直接)/u;
-const SETTING_THEN_SELF_PATTERN = /^在.+[，,](我|我的|我能|我有|我靠|我开局|我却|我直接)/u;
+const QUESTION_OPENING_PATTERN = /^(ვინ|რა|რატომ|როგორ|როდის|სად)(?:\s|$)/iu;
+const CONDITIONAL_OPENING_PATTERN = /^(თუ|როცა|როდესაც|სანამ|ვიდრე)(?:\s|$)/iu;
+const FIRST_PERSON_OPENING_PATTERN = /^(მე|ჩვენ)(?:\s|$)/iu;
+const POSSESSIVE_OPENING_PATTERN = /^(ჩემი|ჩვენი)(?:\s|$)/iu;
 
 export const DEFAULT_TITLE_COUNT = 12;
 export const MIN_TITLE_COUNT = 3;
 export const MAX_TITLE_COUNT = 24;
-
-function sliceText(value: string, maxLength: number): string {
-  return Array.from(value).slice(0, maxLength).join("");
-}
 
 export function toTrimmedString(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
@@ -118,7 +112,7 @@ export function extractJsonPayload(source: string): string {
   if (firstBrace >= 0 && lastBrace > firstBrace) {
     return normalized.slice(firstBrace, lastBrace + 1);
   }
-  throw new Error("模型输出异常：无法解析为合法 JSON。");
+  throw new Error("The model output could not be parsed as valid JSON.");
 }
 
 export function normalizeRequestedCount(value: unknown, fallback = DEFAULT_TITLE_COUNT): number {
@@ -171,33 +165,31 @@ export function normalizeTitle(raw: string): string {
 
 function normalizeCompareKey(title: string): string {
   return normalizeTitle(title)
-    .replace(/[^\p{Script=Han}\p{Letter}\p{Number}]+/gu, "")
-    .toLowerCase();
+    .normalize("NFC")
+    .replace(/[^\p{Letter}\p{Number}]+/gu, " ")
+    .trim()
+    .toLocaleLowerCase("ka-GE");
 }
 
-function titleLength(title: string): number {
-  return Array.from(title).length;
-}
-
-function normalizeShortText(value: unknown, maxLength: number): string | null {
+function normalizeShortText(value: unknown, maxWords: number, maxCodePoints: number): string | null {
   const text = toTrimmedString(value).replace(/\s+/g, " ");
   if (!text) {
     return null;
   }
-  return sliceText(text, maxLength);
+  return truncateGeorgianWords(text, maxWords, maxCodePoints);
 }
 
-function buildBiGramSet(source: string): Set<string> {
-  const normalized = normalizeCompareKey(source);
-  if (!normalized) {
+function buildCodePointNGramSet(source: string, size = 3): Set<string> {
+  const normalized = Array.from(normalizeCompareKey(source).replace(/\s+/g, ""));
+  if (normalized.length === 0) {
     return new Set<string>();
   }
-  if (normalized.length <= 2) {
-    return new Set<string>([normalized]);
+  if (normalized.length <= size) {
+    return new Set<string>([normalized.join("")]);
   }
   const grams = new Set<string>();
-  for (let index = 0; index <= normalized.length - 2; index += 1) {
-    grams.add(normalized.slice(index, index + 2));
+  for (let index = 0; index <= normalized.length - size; index += 1) {
+    grams.add(normalized.slice(index, index + size).join(""));
   }
   return grams;
 }
@@ -216,53 +208,40 @@ function jaccardSimilarity(left: Set<string>, right: Set<string>): number {
   return union === 0 ? 0 : intersection / union;
 }
 
-function canonicalizeTitleFrame(title: string): string {
-  return normalizeTitle(title)
-    .replace(/,/g, "，")
-    .replace(/:/g, "：");
-}
-
 export function detectTitleSurfaceFrame(title: string): TitleSurfaceFrame {
-  const normalized = canonicalizeTitleFrame(title);
+  const normalized = normalizeTitle(title).normalize("NFC");
   if (!normalized) {
-    return "plain_statement";
+    return "plain_phrase";
   }
-
-  if (CONTRAST_THEN_SELF_PATTERN.test(normalized)) {
-    return "contrast_then_self";
+  if (normalized.endsWith("?") || normalized.endsWith("؟") || QUESTION_OPENING_PATTERN.test(normalized)) {
+    return "question";
   }
-  if (SETTING_THEN_SELF_PATTERN.test(normalized)) {
-    return "setting_then_self";
-  }
-  if (SELF_SPLIT_PATTERN.test(normalized)) {
-    return "self_split";
-  }
-  if (SCENARIO_THEN_SELF_PATTERN.test(normalized)) {
-    return "scenario_then_self";
-  }
-  if (normalized.includes("：")) {
+  if (normalized.includes(":")) {
     return "colon_split";
   }
-  if (/^当/u.test(normalized)) {
-    return "when_open";
-  }
-  if (/^在/u.test(normalized)) {
-    return "setting_open";
-  }
-  if (/^我/u.test(normalized)) {
-    return "self_open";
-  }
-  if (normalized.includes("，")) {
+  if (normalized.includes(",")) {
     return "comma_split";
   }
-  if (GENRE_OPENING_PATTERN.test(normalized)) {
-    return "genre_open";
+  if (CONDITIONAL_OPENING_PATTERN.test(normalized)) {
+    return "conditional_open";
   }
-  return "plain_statement";
+  if (FIRST_PERSON_OPENING_PATTERN.test(normalized)) {
+    return "first_person_open";
+  }
+  if (POSSESSIVE_OPENING_PATTERN.test(normalized)) {
+    return "possessive_open";
+  }
+  return "plain_phrase";
 }
 
 export function titleSimilarity(left: string, right: string): number {
-  return jaccardSimilarity(buildBiGramSet(left), buildBiGramSet(right));
+  const leftWords = new Set(tokenizeGeorgianWords(normalizeCompareKey(left)));
+  const rightWords = new Set(tokenizeGeorgianWords(normalizeCompareKey(right)));
+  const wordSimilarity = jaccardSimilarity(leftWords, rightWords);
+  const trigramSimilarity = jaccardSimilarity(buildCodePointNGramSet(left), buildCodePointNGramSet(right));
+  return leftWords.size > 1 && rightWords.size > 1
+    ? Math.max(wordSimilarity, trigramSimilarity * 0.85)
+    : trigramSimilarity;
 }
 
 export function isNearDuplicateTitle(left: string, right: string): boolean {
@@ -274,10 +253,12 @@ export function isNearDuplicateTitle(left: string, right: string): boolean {
   if (leftKey === rightKey) {
     return true;
   }
-  if ((leftKey.includes(rightKey) || rightKey.includes(leftKey)) && Math.abs(leftKey.length - rightKey.length) <= 2) {
+  const leftWordCount = countGeorgianWords(leftKey);
+  const rightWordCount = countGeorgianWords(rightKey);
+  if ((leftKey.includes(rightKey) || rightKey.includes(leftKey)) && Math.abs(leftWordCount - rightWordCount) <= 1) {
     return true;
   }
-  return titleSimilarity(leftKey, rightKey) >= 0.78;
+  return titleSimilarity(leftKey, rightKey) >= 0.72;
 }
 
 function sanitizeSuggestion(value: unknown): NormalizedTitleSuggestion | null {
@@ -297,8 +278,8 @@ function sanitizeSuggestion(value: unknown): NormalizedTitleSuggestion | null {
   };
 
   const title = normalizeTitle(toTrimmedString(record.title));
-  const normalizedLength = titleLength(title);
-  if (!title || normalizedLength < 4 || normalizedLength > 26) {
+  const wordCount = countGeorgianWords(title);
+  if (!title || wordCount < 1 || wordCount > 10 || countUnicodeCodePoints(title) > 80) {
     return null;
   }
 
@@ -306,8 +287,8 @@ function sanitizeSuggestion(value: unknown): NormalizedTitleSuggestion | null {
     title,
     clickRate: clampClickRate(record.clickRate ?? record.score),
     style: normalizeStyle(record.style, record.hookType),
-    angle: normalizeShortText(record.angle ?? record.coreSell, 20),
-    reason: normalizeShortText(record.reason, 72),
+    angle: normalizeShortText(record.angle ?? record.coreSell, 12, 120),
+    reason: normalizeShortText(record.reason, 40, 320),
     surfaceFrame: detectTitleSurfaceFrame(title),
   };
 }

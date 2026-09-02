@@ -2,316 +2,282 @@ import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { z } from "zod";
 import type { PromptAsset } from "../../core/promptTypes";
 import type { StoryModeProfile } from "@ai-novel/shared/types/storyMode";
-import {
-  storyModeChildDraftListSchema,
-  storyModeChildDraftNodeSchema,
-  storyModeDraftNodeSchema,
-  storyModeExpansionDraftListSchema,
-} from "./storyMode.promptSchemas";
-
+import { storyModeChildDraftListSchema, storyModeChildDraftNodeSchema, storyModeDraftNodeSchema, storyModeExpansionDraftListSchema, } from "./storyMode.promptSchemas";
 export interface StoryModeTreePromptInput {
-  prompt: string;
+    prompt: string;
 }
-
 export interface StoryModeChildPromptInput {
-  prompt?: string;
-  count: number;
-  parentName: string;
-  parentDescription: string;
-  parentTemplate: string;
-  parentProfile: StoryModeProfile;
-  existingSiblingNames: string[];
+    prompt?: string;
+    count: number;
+    parentName: string;
+    parentDescription: string;
+    parentTemplate: string;
+    parentProfile: StoryModeProfile;
+    existingSiblingNames: string[];
 }
-
 export interface StoryModeExpansionPromptInput extends Omit<StoryModeChildPromptInput, "count" | "existingSiblingNames"> {
-  count: number;
-  existingSiblingNames: string[];
-  librarySummary: string;
+    count: number;
+    existingSiblingNames: string[];
+    librarySummary: string;
 }
-
 function formatOptionalSection(label: string, value: string): string {
-  const trimmed = value.trim();
-  return `${label}：${trimmed || "无"}`;
+    const trimmed = value.trim();
+    return `${label}：${trimmed || "None"}`;
 }
-
 function formatStoryModeProfile(profile: StoryModeProfile): string {
-  return [
-    `coreDrive：${profile.coreDrive}`,
-    `readerReward：${profile.readerReward}`,
-    `progressionUnits：${profile.progressionUnits.join("、")}`,
-    `allowedConflictForms：${profile.allowedConflictForms.join("、")}`,
-    `forbiddenConflictForms：${profile.forbiddenConflictForms.join("、")}`,
-    `conflictCeiling：${profile.conflictCeiling}`,
-    `resolutionStyle：${profile.resolutionStyle}`,
-    `chapterUnit：${profile.chapterUnit}`,
-    `volumeReward：${profile.volumeReward}`,
-    `mandatorySignals：${profile.mandatorySignals.join("、")}`,
-    `antiSignals：${profile.antiSignals.join("、")}`,
-  ].join("\n");
+    return [
+        `coreDrive：${profile.coreDrive}`,
+        `readerReward：${profile.readerReward}`,
+        `progressionUnits：${profile.progressionUnits.join("、")}`,
+        `allowedConflictForms：${profile.allowedConflictForms.join("、")}`,
+        `forbiddenConflictForms：${profile.forbiddenConflictForms.join("、")}`,
+        `conflictCeiling：${profile.conflictCeiling}`,
+        `resolutionStyle：${profile.resolutionStyle}`,
+        `chapterUnit：${profile.chapterUnit}`,
+        `volumeReward：${profile.volumeReward}`,
+        `mandatorySignals：${profile.mandatorySignals.join("、")}`,
+        `antiSignals：${profile.antiSignals.join("、")}`,
+    ].join("\n");
 }
-
 function normalizeNameKey(value: string): string {
-  return value.trim().toLocaleLowerCase("zh-CN");
+    return value.trim().toLocaleLowerCase("zh-CN");
 }
-
-export const storyModeTreePrompt: PromptAsset<
-  StoryModeTreePromptInput,
-  z.infer<typeof storyModeDraftNodeSchema>
-> = {
-  id: "storyMode.tree.generate",
-  version: "v1",
-  taskType: "planner",
-  mode: "structured",
-  language: "zh",
-  contextPolicy: {
-    maxTokensBudget: 0,
-  },
-  outputSchema: storyModeDraftNodeSchema,
-  render: (input) => [
-    new SystemMessage([
-      "你是资深网络小说流派模式策划专家。",
-      "你的任务是根据用户给出的创作方向，生成一棵可用于创作规划、模式约束和产品配置的“两级流派模式树”。",
-      "这棵树不是简单列标签，而是要输出可区分、可执行、可复用的流派模式结构。",
-      "",
-      "只返回一个合法 JSON 对象，不要输出 Markdown、解释、注释、代码块或额外文本。",
-      "",
-      "结构规则：",
-      "1. 最多两级树：顶层是流派模式父类，第二层是具体流派模式子类。",
-      "2. 每个节点都必须输出且只输出以下固定键：name、description、template、profile、children。",
-      "3. 第二层节点的 children 必须为 []。",
-      "4. 不要缺键、不要改键名、不要新增近义字段。",
-      "5. 整体必须是一棵结构清晰的单树，不要输出多个并列根节点。",
-      "",
-      "节点要求：",
-      "1. name：名称必须简洁、稳定、可直接作为系统标签或模式名使用，不要写成长句或宣传语。",
-      "2. description：说明该模式的核心叙事特征、主要爽点来源、冲突组织方式或读者预期，避免“很好看”“很有代入感”这类空话。",
-      "3. template：写该模式最典型的剧情推进模板或叙事骨架，必须具体到创作层面，不能只写抽象概念。",
-      "4. profile：必须承担真正的控制逻辑，不允许把关键规则偷藏在 name 或 description 里。",
-      "",
-      "profile 固定结构要求：",
-      "profile 必须严格包含以下键：",
-      "coreDrive, readerReward, progressionUnits, allowedConflictForms, forbiddenConflictForms, conflictCeiling, resolutionStyle, chapterUnit, volumeReward, mandatorySignals, antiSignals。",
-      "",
-      "profile 字段解释：",
-      "1. coreDrive：该模式最核心的推进驱动力，说明故事为什么能持续往前走。",
-      "2. readerReward：读者持续阅读该模式时最稳定获得的满足类型。",
-      "3. progressionUnits：该模式常用的推进单元，说明剧情通常以什么单位滚动前进。",
-      "4. allowedConflictForms：适合该模式的冲突形式，写可接受、可高频使用的冲突类型。",
-      "5. forbiddenConflictForms：不适合该模式、容易破坏模式体验的冲突形式。",
-      "6. conflictCeiling：该模式冲突上限或压力上限应控制在什么区间，体现强度边界。",
-      "7. resolutionStyle：该模式常见的化解方式、兑现方式或收束方式。",
-      "8. chapterUnit：单章层面最适合承载的内容单位或小钩子单位。",
-      "9. volumeReward：卷级别应兑现的阶段性奖励或阶段性成果。",
-      "10. mandatorySignals：该模式必须反复给读者的明确信号，用来稳固模式预期。",
-      "11. antiSignals：会让读者误判模式、削弱模式体验、或导致模式跑偏的反信号。",
-      "",
-      "策划规则：",
-      "1. 顶层父类负责抽象模式方向，第二层子类负责落到可执行的具体模式变体。",
-      "2. 同层节点之间必须有明确区分度，不能只是换个说法重复同一种模式。",
-      "3. 子类必须是在父类逻辑下的自然细分，不要突然切换分类维度。",
-      "4. 不得使用“因为它叫某某流，所以必须怎样”这种按名称硬绑定的偷懒写法，必须把约束逻辑写进 profile。",
-      "5. 如果用户描述较模糊，应做保守、低风险、行业常见的模式归纳，不要过度发散。",
-      "6. 输出结果要可直接供后续创作系统消费，因此字段内容应具体、稳定、避免空泛修辞。",
-      "",
-      "风格规则：",
-      "1. 全部内容使用简体中文。",
-      "2. 数组字段应使用简洁短语，不要写成长段解释。",
-      "3. 字符串字段要具体、可执行，避免抽象套话。",
-      "4. 各字段之间必须一致，不得互相冲突。",
-    ].join("\n")),
-    new HumanMessage([
-      "请根据下面的创作方向生成根流派模式及其子类草稿：",
-      "",
-      input.prompt.trim(),
-    ].join("\n")),
-  ],
+export const storyModeTreePrompt: PromptAsset<StoryModeTreePromptInput, z.infer<typeof storyModeDraftNodeSchema>> = {
+    id: "storyMode.tree.generate",
+    version: "v2",
+    taskType: "planner",
+    mode: "structured",
+    language: "ka",
+    contextPolicy: {
+        maxTokensBudget: 0,
+    },
+    outputSchema: storyModeDraftNodeSchema,
+    render: (input) => [
+        new SystemMessage([
+            "You are a senior online novel genre model planning expert.",
+            "Your task is to generate a \"two-level genre pattern tree\" that can be used for creative planning, pattern constraints and product configuration based on the creative direction given by the user.",
+            "This tree is not just a simple column label, but a genre pattern structure that is distinguishable, executable, and reusable.",
+            "",
+            "Only return a valid JSON object, do not output Markdown, explanations, comments, code blocks or extra text.",
+            "",
+            "Structural rules:",
+            "1. Up to two levels of tree: the top level is the genre mode parent class, and the second level is the specific genre mode subclass.",
+            "2. Each node must output and only output the following fixed keys: name, description, template, profile, children.",
+            "3. The children of the second-level node must be [].",
+            "4. Do not leave missing keys, do not change key names, and do not add new synonymous fields.",
+            "5. The whole tree must be a single tree with a clear structure, and do not output multiple parallel root nodes.",
+            "",
+            "Node requirements:",
+            "1. name: The name must be concise, stable, and can be used directly as a system label or mode name. Do not write long sentences or slogans.",
+            "2. Description: Explain the mode\u2019s core narrative features, main sources of excitement, conflict organization methods or readers\u2019 expectations, and avoid empty words such as \u201Cvery beautiful\u201D and \u201Cvery immersive\u201D.",
+            "3. Template: Write the most typical plot advancement template or narrative skeleton of this mode. It must be specific to the creative level and cannot just write abstract concepts.",
+            "4. Profile: It must bear the real control logic and is not allowed to hide key rules in name or description.",
+            "",
+            "profile fixed structure requirements:",
+            "profile must contain strictly the following keys:",
+            "coreDrive, readerReward, progressionUnits, allowedConflictForms, forbiddenConflictForms, conflictCeiling, resolutionStyle, chapterUnit, volumeReward, mandatorySignals, antiSignals。",
+            "",
+            "profile field explanation:",
+            "1. coreDrive: The core driving force of this mode, explaining why the story can continue to move forward.",
+            "2. readerReward: The most stable type of satisfaction that readers get when they continue to read this mode.",
+            "3. progressionUnits: The commonly used advancement units in this mode, indicating the units in which the plot usually scrolls forward.",
+            "4. allowedConflictForms: Conflict forms suitable for this mode, write acceptable and frequently used conflict types.",
+            "5. forbiddenConflictForms: Conflict forms that are not suitable for the mode and can easily destroy the mode experience.",
+            "6. conflictCeiling: In what range should the upper limit of conflict or pressure in this mode be controlled, reflecting the intensity boundary.",
+            "7. resolutionStyle: the common resolution, cashing or closing methods of this model.",
+            "8. chapterUnit: The content unit or small hook unit that is most suitable for carrying at the single chapter level.",
+            "9. volumeReward: The phased rewards or phased results that should be honored at the volume level.",
+            "10. MandatorySignals: The pattern must repeatedly give clear signals to readers to stabilize pattern expectations.",
+            "11. antiSignals: Anti-signals that cause readers to misjudge the model, weaken the model experience, or cause the model to deviate.",
+            "",
+            "Planning rules:",
+            "1. The top-level parent class is responsible for the abstract pattern direction, and the second-level subclass is responsible for the executable concrete pattern variant.",
+            "2. There must be a clear distinction between nodes at the same level, and you cannot just repeat the same pattern in another way.",
+            "3. Subcategories must be natural subdivisions under the logic of the parent category, and do not suddenly switch classification dimensions.",
+            "4. Do not use the lazy writing method of hard binding by name such as \"because it is called such-and-such stream, so it must be like this\". The constraint logic must be written into the profile.",
+            "5. If the user description is vague, it should be summarized into conservative, low-risk, and common industry models and should not be overly divergent.",
+            "6. The output results must be directly consumed by the subsequent creation system, so the field content should be specific, stable, and avoid empty rhetoric.",
+            "",
+            "Style rules:",
+            "1. All content is in natural Georgian.",
+            "2. Use concise phrases for array fields and do not write long explanations.",
+            "3. String fields should be specific and executable, and avoid abstract clich\u00E9s.",
+            "4. Each field must be consistent and must not conflict with each other.",
+        ].join("\n")),
+        new HumanMessage([
+            "Please generate a draft of the root genre pattern and its subcategories according to the creative direction below:",
+            "",
+            input.prompt.trim(),
+        ].join("\n")),
+    ]
 };
-
-export const storyModeChildPrompt: PromptAsset<
-  StoryModeChildPromptInput,
-  z.infer<typeof storyModeChildDraftListSchema>,
-  z.infer<typeof storyModeChildDraftListSchema>
-> = {
-  id: "storyMode.child.generate",
-  version: "v1",
-  taskType: "planner",
-  mode: "structured",
-  language: "zh",
-  contextPolicy: {
-    maxTokensBudget: 0,
-  },
-  semanticRetryPolicy: {
-    maxAttempts: 1,
-  },
-  outputSchema: storyModeChildDraftListSchema,
-  render: (input) => [
-    new SystemMessage([
-      "你是资深网络小说流派模式策划专家。",
-      "你的任务不是生成整棵树，而是基于给定父类，补出一组可以直接挂载到该父类下的子类流派模式节点。",
-      "这些子类节点必须可区分、可执行、可直接进入后续创作系统使用。",
-      "",
-      "只返回一个合法 JSON 数组，不要输出 Markdown、解释、注释、代码块或额外文本。",
-      "",
-      "结构规则：",
-      `1. 必须精确生成 ${input.count} 个子类节点，不要生成父节点，不要少于或多于要求数量。`,
-      "2. 最外层必须是 JSON 数组，数组中的每一项都是一个子类节点对象。",
-      "3. 每个节点只输出且只允许以下固定键：name、description、template、profile、children。",
-      "4. 每个节点的 children 必须是 []，不得继续生成孙级节点。",
-      "5. 不要缺键、不要改键名、不要新增近义字段。",
-      "",
-      "子类生成规则：",
-      "1. 每个子类都必须是给定父类逻辑下的自然细分，不能切换到别的分类维度。",
-      "2. 必须延续父类 profile 的核心控制逻辑，但要在体验结构、冲突组织、推进单位、兑现方式或叙事侧重上形成清晰区分。",
-      "3. 生成的多个子类之间必须彼此有明显差异，不能只是换个说法重复同一种模式。",
-      "4. 不能与已有兄弟节点重名，不能只是复述已有兄弟节点，也不能输出父类本身。",
-      "5. 必须下钻到可以直接使用的具体子模式，不要停留在模糊标签层。",
-      "6. 如果用户补充较少，也必须直接根据父类逻辑和现有兄弟节点进行保守、低风险、行业常见的细分，不要回避生成。",
-      "7. 若父类本身已非常具体，子类应在不破坏父类逻辑的前提下做体验型、组织型或兑现型细分，而不是硬拆出不自然的类别。",
-      "",
-      "节点要求：",
-      "1. name：名称必须简洁、稳定、可直接作为系统标签使用，不要写宣传语、口号或解释式长名称。",
-      "2. description：说明该子类的核心叙事特征、爽点来源、冲突组织方式或读者预期，必须具体，避免空话。",
-      "3. template：写该子类最典型的剧情推进模板或叙事骨架，必须具体到创作层面，不能只写抽象概念。",
-      "4. profile：必须承担真正的控制逻辑，不允许把关键规则偷藏在 name 或 description 里。",
-      "",
-      "profile 固定结构要求：",
-      "profile 必须严格包含以下键：",
-      "coreDrive, readerReward, progressionUnits, allowedConflictForms, forbiddenConflictForms, conflictCeiling, resolutionStyle, chapterUnit, volumeReward, mandatorySignals, antiSignals。",
-      "",
-      "profile 字段要求：",
-      "1. coreDrive：说明该子模式最核心的持续推进驱动力。",
-      "2. readerReward：说明读者持续阅读时最稳定获得的满足类型。",
-      "3. progressionUnits：说明剧情以什么单位持续推进。",
-      "4. allowedConflictForms：写适合高频使用的冲突形式。",
-      "5. forbiddenConflictForms：写会破坏该模式体验的冲突形式。",
-      "6. conflictCeiling：写清冲突强度或压力上限，不要模糊。",
-      "7. resolutionStyle：写清该模式常见的化解方式或兑现方式。",
-      "8. chapterUnit：写单章最适合承载的推进单元或小钩子单元。",
-      "9. volumeReward：写卷级别应兑现的阶段性奖励或成果。",
-      "10. mandatorySignals：写必须反复给读者的稳定信号。",
-      "11. antiSignals：写会让模式跑偏、削弱体验或误导读者预期的反信号。",
-      "",
-      "风格规则：",
-      "1. 全部内容使用简体中文。",
-      "2. 数组字段使用简洁短语，不要写成长段解释。",
-      "3. 字符串字段要具体、可执行，避免抽象套话。",
-      "4. 各字段之间必须一致，不得互相冲突。",
-      "5. 输出结果要像可直接落库和配置的模式节点，而不是泛泛而谈的策划说明。",
-    ].join("\n")),
-    new HumanMessage([
-      `当前任务：请为下面这个父类精确生成 ${input.count} 个新的子类流派模式节点。`,
-      "",
-      `父类名称：${input.parentName.trim()}`,
-      formatOptionalSection("父类说明", input.parentDescription),
-      formatOptionalSection("父类模板", input.parentTemplate),
-      "父类 profile：",
-      formatStoryModeProfile(input.parentProfile),
-      "",
-      `现有兄弟节点：${input.existingSiblingNames.length > 0 ? input.existingSiblingNames.join("、") : "无"}`,
-      "",
-      "用户补充方向：",
-      input.prompt?.trim() ? input.prompt.trim() : "无。请直接基于父类逻辑和现有兄弟节点进行衍生。",
-    ].join("\n")),
-  ],
-  postValidate: (output, input) => {
-    if (output.length !== input.count) {
-      throw new Error(`流派模式子类输出数量不正确，期望 ${input.count} 个，实际 ${output.length} 个。`);
+export const storyModeChildPrompt: PromptAsset<StoryModeChildPromptInput, z.infer<typeof storyModeChildDraftListSchema>, z.infer<typeof storyModeChildDraftListSchema>> = {
+    id: "storyMode.child.generate",
+    version: "v2",
+    taskType: "planner",
+    mode: "structured",
+    language: "ka",
+    contextPolicy: {
+        maxTokensBudget: 0,
+    },
+    semanticRetryPolicy: {
+        maxAttempts: 1,
+    },
+    outputSchema: storyModeChildDraftListSchema,
+    render: (input) => [
+        new SystemMessage([
+            "You are a senior online novel genre model planning expert.",
+            "Your task is not to generate the entire tree, but to make up a set of subclass genre mode nodes based on a given parent class that can be directly mounted to the parent class.",
+            "These subclass nodes must be distinguishable, executable, and directly accessible for use in subsequent creation systems.",
+            "",
+            "Only return a valid JSON array, do not output Markdown, explanations, comments, code blocks or extra text.",
+            "",
+            "Structural rules:",
+            `1. Must be accurately generated ${input.count} For subclass nodes, do not generate parent nodes, and do not generate less or more than the required number.`,
+            "2. The outermost layer must be a JSON array, and each item in the array is a subclass node object.",
+            "3. Each node only outputs and allows only the following fixed keys: name, description, template, profile, and children.",
+            "4. The children of each node must be [], and no more grandchild nodes are allowed.",
+            "5. Do not leave missing keys, do not change key names, and do not add new synonymous fields.",
+            "",
+            "Subclass generation rules:",
+            "1. Each subcategory must be a natural subdivision under the logic of a given parent category and cannot be switched to other classification dimensions.",
+            "2. The core control logic of the parent profile must be continued, but a clear distinction must be made in the experience structure, conflict organization, promotion unit, redemption method or narrative focus.",
+            "3. The multiple generated subcategories must be significantly different from each other, and cannot just repeat the same pattern in another way.",
+            "4. It cannot have the same name as an existing sibling node, it cannot just repeat the existing sibling node, and it cannot output the parent class itself.",
+            "5. You must drill down to specific sub-modes that can be used directly, and do not stay at the fuzzy label level.",
+            "6. If the user adds less, conservative, low-risk, industry-common subdivisions must be made directly based on the parent class logic and existing sibling nodes, and do not avoid generation.",
+            "7. If the parent category itself is very specific, the subcategory should be subdivided into experiential, organizational or cash-based categories without destroying the logic of the parent category, rather than forcibly carving out unnatural categories.",
+            "",
+            "Node requirements:",
+            "1. name: The name must be concise, stable, and can be used directly as a system label. Do not write slogans, slogans, or long explanatory names.",
+            "2. Description: Describe the core narrative features, source of excitement, conflict organization, or reader expectations of this subgenre. It must be specific and avoid empty words.",
+            "3. Template: Write the most typical plot advancement template or narrative skeleton of this sub-category. It must be specific to the creative level and cannot just write abstract concepts.",
+            "4. Profile: It must bear the real control logic and is not allowed to hide key rules in name or description.",
+            "",
+            "profile fixed structure requirements:",
+            "profile must contain strictly the following keys:",
+            "coreDrive, readerReward, progressionUnits, allowedConflictForms, forbiddenConflictForms, conflictCeiling, resolutionStyle, chapterUnit, volumeReward, mandatorySignals, antiSignals。",
+            "",
+            "profile field requirements:",
+            "1. coreDrive: Describes the core driving force for continuous advancement of this sub-mode.",
+            "2. readerReward: describes the most stable type of satisfaction that readers get when they continue to read.",
+            "3. progressionUnits: Describes the units in which the plot continues to advance.",
+            "4. allowedConflictForms: Write conflict forms suitable for high-frequency use.",
+            "5. forbiddenConflictForms: Write conflict forms that would ruin the experience of this mode.",
+            "6. conflictCeiling: Write down the conflict intensity or pressure limit clearly, don\u2019t be vague.",
+            "7. resolutionStyle: Write down the common resolution or redemption methods of this mode.",
+            "8. chapterUnit: A propulsion unit or a small hook unit that is most suitable for writing a single chapter.",
+            "9. volumeReward: The phased reward or achievement that should be realized at the volume writing level.",
+            "10. MandatorySignals: Write stable signals that must be given to readers repeatedly.",
+            "11. antiSignals: Write countersignals that deflect the model, weaken the experience, or mislead the reader\u2019s expectations.",
+            "",
+            "Style rules:",
+            "1. All content is in natural Georgian.",
+            "2. Use concise phrases for array fields and do not write long explanations.",
+            "3. String fields should be specific and executable, and avoid abstract clich\u00E9s.",
+            "4. Each field must be consistent and must not conflict with each other.",
+            "5. The output results should be like pattern nodes that can be directly dropped into the library and configured, rather than general planning instructions.",
+        ].join("\n")),
+        new HumanMessage([
+            `Current task: Please accurately generate the following parent class ${input.count} A new subcategory genre mode node.`,
+            "",
+            `Parent class name:${input.parentName.trim()}`,
+            formatOptionalSection("Parent class description", input.parentDescription),
+            formatOptionalSection("Parent class template", input.parentTemplate),
+            "Parent profile:",
+            formatStoryModeProfile(input.parentProfile),
+            "",
+            `Existing sibling nodes:${input.existingSiblingNames.length > 0 ? input.existingSiblingNames.join("、") : "None"}`,
+            "",
+            "User supplementary directions:",
+            input.prompt?.trim() ? input.prompt.trim() : "None. Please derive directly based on parent class logic and existing sibling nodes.",
+        ].join("\n")),
+    ],
+    postValidate: (output, input) => {
+        if (output.length !== input.count) {
+            throw new Error(`Genre mode subcategory output number is incorrect, expected ${input.count} one, actual ${output.length} .`);
+        }
+        const siblingNames = new Set(input.existingSiblingNames.map(normalizeNameKey));
+        const batchNames = new Set<string>();
+        for (const item of output) {
+            if ((item.children ?? []).length > 0) {
+                throw new Error("Genre mode subclass output cannot continue to generate grandchild nodes.");
+            }
+            const generatedName = normalizeNameKey(item.name);
+            if (generatedName === normalizeNameKey(input.parentName)) {
+                throw new Error("Genre mode subclass output duplicates parent class name.");
+            }
+            if (siblingNames.has(generatedName)) {
+                throw new Error("Genre mode subclass output has the same name as an existing sibling node.");
+            }
+            if (batchNames.has(generatedName)) {
+                throw new Error("There are duplicate name candidates within the genre mode subcategory output.");
+            }
+            batchNames.add(generatedName);
+        }
+        return output.map((item) => ({
+            ...item,
+            children: [],
+        }));
     }
-
-    const siblingNames = new Set(input.existingSiblingNames.map(normalizeNameKey));
-    const batchNames = new Set<string>();
-
-    for (const item of output) {
-      if ((item.children ?? []).length > 0) {
-        throw new Error("流派模式子类输出不能继续生成孙级节点。");
-      }
-
-      const generatedName = normalizeNameKey(item.name);
-
-      if (generatedName === normalizeNameKey(input.parentName)) {
-        throw new Error("流派模式子类输出重复了父类名称。");
-      }
-
-      if (siblingNames.has(generatedName)) {
-        throw new Error("流派模式子类输出与现有兄弟节点重名。");
-      }
-
-      if (batchNames.has(generatedName)) {
-        throw new Error("流派模式子类输出内部存在重名候选。");
-      }
-
-      batchNames.add(generatedName);
-    }
-
-    return output.map((item) => ({
-      ...item,
-      children: [],
-    }));
-  },
 };
-
-export const storyModeExpansionPrompt: PromptAsset<
-  StoryModeExpansionPromptInput,
-  z.infer<typeof storyModeExpansionDraftListSchema>,
-  z.infer<typeof storyModeExpansionDraftListSchema>
-> = {
-  id: "storyMode.expansion.recommend",
-  version: "v1",
-  taskType: "planner",
-  mode: "structured",
-  language: "zh",
-  contextPolicy: { maxTokensBudget: 0 },
-  semanticRetryPolicy: { maxAttempts: 1 },
-  outputSchema: storyModeExpansionDraftListSchema,
-  render: (input) => [
-    new SystemMessage([
-      "你是资深网络小说推进模式架构师。",
-      "你的任务是基于现有推进模式库，设计一组真正不同的新模式，帮助作者扩展玩法覆盖，而不是给已有模式换名称。",
-      input.parentName.trim()
-        ? "候选必须属于选定根模式的逻辑范围，并能直接用于长篇网文的规划、章节推进和回报设计。"
-        : "没有选定根模式时，候选必须是可以独立成立的全新根模式，并补足现有根模式没有覆盖的推进体验。",
-      "只返回合法 JSON 数组，不要输出 Markdown、解释、注释或代码块。",
-      `必须精确生成 ${input.count} 个候选，每项只允许 name、description、template、profile、children 这五个键，children 必须为 []。`,
-      "候选之间要在读者回报、推进单元、冲突组织、兑现方式或章节节奏上形成明确差异。",
-      "不能复述现有库中的模式，不能与现有同级节点重名，也不能脱离父类的核心驱动。",
-      "profile 必须完整填写 coreDrive、readerReward、progressionUnits、allowedConflictForms、forbiddenConflictForms、conflictCeiling、resolutionStyle、chapterUnit、volumeReward、mandatorySignals、antiSignals。",
-      "名称简洁稳定；描述和模板必须具体可执行；全部使用简体中文。",
-    ].join("\n")),
-    new HumanMessage([
-      input.parentName.trim()
-        ? `请为根模式“${input.parentName.trim()}”推荐 ${input.count} 个新的推进模式。`
-        : `请基于整个推进模式库推荐 ${input.count} 个全新的根推进模式。`,
-      formatOptionalSection("根模式说明", input.parentDescription),
-      formatOptionalSection("根模式模板", input.parentTemplate),
-      input.parentName.trim()
-        ? ["根模式 profile：", formatStoryModeProfile(input.parentProfile)].join("\n")
-        : "未指定根模式：请自行设计完整且可执行的根模式 profile。",
-      "",
-      `现有同级模式：${input.existingSiblingNames.length ? input.existingSiblingNames.join("、") : "无"}`,
-      "",
-      "当前推进模式库摘要（用于避开重复并寻找缺口）：",
-      input.librarySummary.trim() || "无",
-      "",
-      "作者希望扩展的方向：",
-      input.prompt?.trim() || "请优先补足现有库没有覆盖的读者回报和推进节奏。",
-    ].join("\n")),
-  ],
-  postValidate: (output, input) => {
-    if (output.length !== input.count) {
-      throw new Error(`推进模式扩展候选数量不正确，期望 ${input.count} 个，实际 ${output.length} 个。`);
+export const storyModeExpansionPrompt: PromptAsset<StoryModeExpansionPromptInput, z.infer<typeof storyModeExpansionDraftListSchema>, z.infer<typeof storyModeExpansionDraftListSchema>> = {
+    id: "storyMode.expansion.recommend",
+    version: "v2",
+    taskType: "planner",
+    mode: "structured",
+    language: "ka",
+    contextPolicy: { maxTokensBudget: 0 },
+    semanticRetryPolicy: { maxAttempts: 1 },
+    outputSchema: storyModeExpansionDraftListSchema,
+    render: (input) => [
+        new SystemMessage([
+            "You are a senior online novel promotion model architect.",
+            "Your task is to design a set of truly different new modes based on the existing library of advancement modes to help the author expand gameplay coverage, rather than renaming existing modes.",
+            input.parentName.trim()
+                ? "Candidates must fall within the logical scope of the selected root pattern and can be directly used in the planning, chapter advancement and return design of long web articles." : "When no root mode is selected, the candidate must be a brand new root mode that can be established independently and complement the advancement experience not covered by the existing root mode.",
+            "Only return valid JSON arrays, do not output Markdown, explanations, comments or code blocks.",
+            `must be generated accurately ${input.count} Candidates, each item only allows five keys: name, description, template, profile, and children, and children must be [].`,
+            "There should be clear differences between candidates in terms of reader reward, progression, organization of conflict, delivery, or chapter pacing.",
+            "It cannot repeat the pattern in the existing library, cannot have the same name as an existing node of the same level, and cannot be separated from the core driver of the parent class.",
+            "profile must be completely filled in coreDrive, readerReward, progressionUnits, allowedConflictForms, forbiddenConflictForms, conflictCeiling, resolutionStyle, chapterUnit, volumeReward, mandatorySignals, antiSignals.",
+            "The name should be concise and stable; descriptions and templates must be specific and executable; all use natural Georgian.",
+        ].join("\n")),
+        new HumanMessage([
+            input.parentName.trim()
+                ? `Please root mode"${input.parentName.trim()}"Recommended ${input.count} a new advancement model.`
+                : `Please make recommendations based on the entire propulsion pattern library ${input.count} A brand new root propulsion mode.`,
+            formatOptionalSection("Root mode description", input.parentDescription),
+            formatOptionalSection("root pattern template", input.parentTemplate),
+            input.parentName.trim()
+                ? ["Root mode profile:", formatStoryModeProfile(input.parentProfile)].join("\n")
+                : "Root mode is not specified: Please design a complete and executable root mode profile yourself.",
+            "",
+            `Existing peer modes:${input.existingSiblingNames.length ? input.existingSiblingNames.join("、") : "None"}`,
+            "",
+            "Summary of current advancement pattern library (used to avoid duplication and find gaps):",
+            input.librarySummary.trim() || "None",
+            "",
+            "Directions the author hopes to expand on:",
+            input.prompt?.trim() || "Please give priority to filling in reader returns and advancement rhythms that are not covered by the existing library.",
+        ].join("\n")),
+    ],
+    postValidate: (output, input) => {
+        if (output.length !== input.count) {
+            throw new Error(`Incorrect number of push mode extension candidates, expected ${input.count} one, actual ${output.length} .`);
+        }
+        const existing = new Set(input.existingSiblingNames.map(normalizeNameKey));
+        const names = new Set<string>();
+        for (const item of output) {
+            const key = normalizeNameKey(item.name);
+            if (existing.has(key) || names.has(key) || key === normalizeNameKey(input.parentName)) {
+                throw new Error("The push pattern extension candidate is a duplicate of an existing pattern.");
+            }
+            if ((item.children ?? []).length > 0) {
+                throw new Error("Push mode extension candidates cannot contain child nodes.");
+            }
+            names.add(key);
+        }
+        return output.map((item) => ({ ...item, children: [] }));
     }
-    const existing = new Set(input.existingSiblingNames.map(normalizeNameKey));
-    const names = new Set<string>();
-    for (const item of output) {
-      const key = normalizeNameKey(item.name);
-      if (existing.has(key) || names.has(key) || key === normalizeNameKey(input.parentName)) {
-        throw new Error("推进模式扩展候选与现有模式重复。");
-      }
-      if ((item.children ?? []).length > 0) {
-        throw new Error("推进模式扩展候选不能包含子节点。");
-      }
-      names.add(key);
-    }
-    return output.map((item) => ({ ...item, children: [] }));
-  },
 };

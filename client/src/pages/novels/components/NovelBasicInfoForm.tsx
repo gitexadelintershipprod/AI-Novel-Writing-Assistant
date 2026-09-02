@@ -185,9 +185,9 @@ export default function NovelBasicInfoForm(props: NovelBasicInfoFormProps) {
               min={500}
               max={10000}
               value={basicForm.defaultChapterLength}
-              onChange={(event) => onFormChange({ defaultChapterLength: Number(event.target.value || 0) || 2800 })}
+              onChange={(event) => onFormChange({ defaultChapterLength: Number(event.target.value || 0) || 1500 })}
             />
-            <div className="text-xs text-muted-foreground">推荐先设为 2500-3500，后续仍可按章节单独调整。</div>
+            <div className="text-xs text-muted-foreground">Recommended Georgian chapter length: 1,200–2,000 words. You can adjust individual chapters later.</div>
           </div>
 
           <div className="space-y-2">

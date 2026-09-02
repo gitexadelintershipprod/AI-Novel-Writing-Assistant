@@ -1,123 +1,109 @@
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
-import type {
-  AiChapterTaskSheetQualityAssessment,
-  ChapterExecutionContractQualityCandidate,
-} from "@ai-novel/shared/types/chapterTaskSheetQuality";
-import {
-  aiChapterTaskSheetQualityAssessmentSchema,
-} from "@ai-novel/shared/types/chapterTaskSheetQuality";
+import type { AiChapterTaskSheetQualityAssessment, ChapterExecutionContractQualityCandidate, } from "@ai-novel/shared/types/chapterTaskSheetQuality";
+import { aiChapterTaskSheetQualityAssessmentSchema, } from "@ai-novel/shared/types/chapterTaskSheetQuality";
 import type { PromptAsset } from "../../../core/promptTypes";
-
 export interface ChapterTaskSheetQualityPromptInput {
-  candidate: ChapterExecutionContractQualityCandidate;
-  mode: "full_book_autopilot" | "ai_copilot" | "manual";
+    candidate: ChapterExecutionContractQualityCandidate;
+    mode: "full_book_autopilot" | "ai_copilot" | "manual";
 }
-
 function renderNullable(value: string | number | string[] | null | undefined): string {
-  if (Array.isArray(value)) {
-    return value.length > 0 ? value.join(" | ") : "none";
-  }
-  if (typeof value === "number") {
-    return String(value);
-  }
-  return value?.trim() || "none";
+    if (Array.isArray(value)) {
+        return value.length > 0 ? value.join(" | ") : "none";
+    }
+    if (typeof value === "number") {
+        return String(value);
+    }
+    return value?.trim() || "none";
 }
-
 function renderCandidate(candidate: ChapterExecutionContractQualityCandidate): string {
-  return [
-    `novelId: ${candidate.novelId}`,
-    `volumeId: ${renderNullable(candidate.volumeId)}`,
-    `chapterId: ${candidate.chapterId}`,
-    `chapterOrder: ${candidate.chapterOrder}`,
-    `title: ${candidate.title}`,
-    `summary: ${renderNullable(candidate.summary)}`,
-    `purpose: ${renderNullable(candidate.purpose)}`,
-    `exclusiveEvent: ${renderNullable(candidate.exclusiveEvent)}`,
-    `endingState: ${renderNullable(candidate.endingState)}`,
-    `nextChapterEntryState: ${renderNullable(candidate.nextChapterEntryState)}`,
-    `conflictLevel: ${renderNullable(candidate.conflictLevel)}`,
-    `revealLevel: ${renderNullable(candidate.revealLevel)}`,
-    `targetWordCount: ${renderNullable(candidate.targetWordCount)}`,
-    `mustAvoid: ${renderNullable(candidate.mustAvoid)}`,
-    `payoffRefs: ${renderNullable(candidate.payoffRefs ?? [])}`,
-    "",
-    "taskSheet:",
-    renderNullable(candidate.taskSheet),
-    "",
-    "sceneCards:",
-    renderNullable(candidate.sceneCards),
-  ].join("\n");
+    return [
+        `novelId: ${candidate.novelId}`,
+        `volumeId: ${renderNullable(candidate.volumeId)}`,
+        `chapterId: ${candidate.chapterId}`,
+        `chapterOrder: ${candidate.chapterOrder}`,
+        `title: ${candidate.title}`,
+        `summary: ${renderNullable(candidate.summary)}`,
+        `purpose: ${renderNullable(candidate.purpose)}`,
+        `exclusiveEvent: ${renderNullable(candidate.exclusiveEvent)}`,
+        `endingState: ${renderNullable(candidate.endingState)}`,
+        `nextChapterEntryState: ${renderNullable(candidate.nextChapterEntryState)}`,
+        `conflictLevel: ${renderNullable(candidate.conflictLevel)}`,
+        `revealLevel: ${renderNullable(candidate.revealLevel)}`,
+        `targetWordCount: ${renderNullable(candidate.targetWordCount)}`,
+        `mustAvoid: ${renderNullable(candidate.mustAvoid)}`,
+        `payoffRefs: ${renderNullable(candidate.payoffRefs ?? [])}`,
+        "",
+        "taskSheet:",
+        renderNullable(candidate.taskSheet),
+        "",
+        "sceneCards:",
+        renderNullable(candidate.sceneCards),
+    ].join("\n");
 }
-
 function createSystemPrompt(mode: ChapterTaskSheetQualityPromptInput["mode"]): string {
-  const modeRule = mode === "full_book_autopilot"
-    ? "当前是全书自动模式。你要判断系统能否自动修好并继续，不能把普通写作质量问题交给新手用户。"
-    : "当前是 AI 副驾或手动模式。你要指出是否需要用户确认，避免把不可靠合同静默同步到正文执行链。";
-  return [
-    "你是网文章节执行合同质量评估器。",
-    "你的任务是判断 purpose、章节边界、taskSheet、readerExperience 和 sceneCards 是否足以交给正文生成器执行。",
-    modeRule,
-    "只评估当前章节合同，不扩写正文，不改写任务单。",
-    "可用合同必须满足：本章目标清晰、边界不越章、任务单可执行、读者体验合同明确本章问题、可见回报、主角欲望、主要阻力、关键转折、净变化和钩子责任，场景卡覆盖整章推进并为每场提供阻力、转折、情绪位移和读者价值。",
-    "readerExperience.rewardLevel 表示本章计划提供的可见回报强度，只能使用 setup、partial、major；它不是正文完成度、承诺兑现比例或事后结果评级。",
-    "即使正文完整兑现了 promisedReward，也不要建议把 rewardLevel 改为 full、complete 或其他值；只有本章计划的回报强度本身与章节职责不匹配时，才建议在 setup、partial、major 之间调整。",
-    "还要判断本章是否被塞入过多彼此争夺篇幅的必达义务；如果任务单显示当前章职责已经过载，loadRisk=overloaded，recommendedHandling=replan_window。",
-    "如果问题仍可在本章合同内收口，recommendedHandling=repair_contract；只有合同已经足够稳时才用 use_as_is。",
-    "如果存在问题，给出面向自动修复器的具体 repairGuidance。",
-    "",
-    "输出严格 JSON，不要 Markdown、注释、解释或额外字段。",
-    "顶层只能输出 verdict、safeToSync、loadRisk、recommendedHandling、summary、issues、repairGuidance、confidence。",
-    "verdict 只能使用 usable、repairable、unusable。",
-    "loadRisk 只能使用 normal、overloaded。",
-    "recommendedHandling 只能使用 use_as_is、repair_contract、replan_window。",
-    "issues 每项只能包含 id、severity、target、summary、repairHint。",
-    "issues.severity 只能使用 low、medium、high。",
-    "issues.target 只能使用 purpose、boundary、task_sheet、scene_cards、semantic；节奏、重复、职责过载、主动性不足、义务冲突都归入 semantic。",
-    "confidence 必须是 0 到 1 之间的小数，不要输出百分制数字。",
-    "不得输出 pass、accepted、ok、blocked、pacing、plot、load 等自定义枚举值。",
-    "",
-    "JSON 形状示例：",
-    "{",
-    "  \"verdict\": \"repairable\",",
-    "  \"safeToSync\": false,",
-    "  \"loadRisk\": \"normal\",",
-    "  \"recommendedHandling\": \"repair_contract\",",
-    "  \"summary\": \"章节合同目标清楚，但场景卡缺少结尾钩子。\",",
-    "  \"issues\": [",
-    "    {",
-    "      \"id\": \"scene_cards_missing_hook\",",
-    "      \"severity\": \"medium\",",
-    "      \"target\": \"scene_cards\",",
-    "      \"summary\": \"场景卡没有覆盖章末阅读牵引。\",",
-    "      \"repairHint\": \"补充最后一个场景的离场状态和下一章入口压力。\"",
-    "    }",
-    "  ],",
-    "  \"repairGuidance\": [\"补齐最后一个场景的钩子和离场状态。\"],",
-    "  \"confidence\": 0.82",
-    "}",
-  ].join("\n");
+    const modeRule = mode === "full_book_autopilot"
+        ? "Currently the entire book is in automatic mode. You need to judge whether the system can automatically fix it and continue, and you cannot leave ordinary writing quality issues to novice users." : "Currently it is AI co-pilot or manual mode. You need to indicate whether user confirmation is required to avoid silently synchronizing unreliable contracts to the main execution chain.";
+    return [
+        "You are a web article section execution contract quality evaluator.",
+        "Your task is to determine whether the purpose, chapter boundaries, taskSheet, readerExperience, and sceneCards are sufficient to be handed over to the text generator for execution.",
+        modeRule,
+        "Only the current chapter contract will be evaluated, the text will not be expanded, and the task list will not be rewritten.",
+        "The available contracts must meet the following requirements: the chapter's goal is clear, the boundary does not cross the chapter, the task order is executable, the reader experience contract clearly defines the chapter's problem, visible rewards, protagonist's desires, main resistance, key turning point, net change and hook responsibility, and the scene card covers the entire chapter advancement and provides resistance, turning point, emotional displacement and reader value for each scene.",
+        "readerExperience.rewardLevel represents the visible reward intensity provided by this chapter's plan, and can only be used with setup, partial, and major; it is not text completion, promise fulfillment ratio, or post-event result rating.",
+        "Even if the text fully fulfills the promisedReward, it is not recommended to change rewardLevel to full, complete or other values; only when the reward intensity of the chapter plan itself does not match the chapter responsibilities, it is recommended to adjust between setup, partial and major.",
+        "Also determine whether this chapter is crammed into too many must-have tasks competing for space; if the task list shows that the current chapter's responsibilities are overloaded, loadRisk=overloaded, recommendedHandling=replan_window.",
+        "If the problem can still be solved within the contract of this chapter, recommendedHandling=repair_contract; use use_as_is only if the contract is stable enough.",
+        "If there is a problem, give a specific repairGuidance for the automatic repairer.",
+        "",
+        "Output strictly JSON, no Markdown, comments, explanations or extra fields.",
+        "The top level can only output verdict, safeToSync, loadRisk, recommendedHandling, summary, issues, repairGuidance, and confidence.",
+        "Only usable, repairable, and unusable can be used for verdict.",
+        "loadRisk can only use normal and overloaded.",
+        "recommendedHandling can only use use_as_is, repair_contract, replan_window.",
+        "Each item of issues can only contain id, severity, target, summary, repairHint.",
+        "issues.severity can only use low, medium, high.",
+        "issues.target can only use purpose, boundary, task_sheet, scene_cards, and semantic; rhythm, repetition, responsibility overload, lack of initiative, and conflict of obligations are all classified into semantic.",
+        "confidence must be a decimal between 0 and 1, do not output percentage numbers.",
+        "Custom enumeration values such as pass, accepted, ok, blocked, pacing, plot, and load must not be output.",
+        "",
+        "JSON shape example:",
+        "{",
+        "  \"verdict\": \"repairable\",",
+        "  \"safeToSync\": false,",
+        "  \"loadRisk\": \"normal\",",
+        "  \"recommendedHandling\": \"repair_contract\",",
+        "  \"summary\": \"The goal of the chapter contract is clear, but the scene card lacks an ending hook.\",",
+        "  \"issues\": [",
+        "    {",
+        "      \"id\": \"scene_cards_missing_hook\",",
+        "      \"severity\": \"medium\",",
+        "      \"target\": \"scene_cards\",",
+        "      \"summary\": \"The scene card does not cover the end-of-chapter reading traction.\",",
+        "      \"repairHint\": \"Supplement the exit status of the last scene and the entrance pressure of the next chapter.\"",
+        "    }",
+        "  ],",
+        "  \"repairGuidance\": [\"Repair the hook and exit status of the last scene.\"],",
+        "  \"confidence\": 0.82",
+        "}",
+    ].join("\n");
 }
-
-export const chapterTaskSheetQualityPrompt: PromptAsset<
-  ChapterTaskSheetQualityPromptInput,
-  AiChapterTaskSheetQualityAssessment
-> = {
-  id: "novel.volume.chapter_task_sheet_quality",
-  version: "v2",
-  taskType: "review",
-  mode: "structured",
-  language: "zh",
-  contextPolicy: {
-    maxTokensBudget: 4200,
-  },
-  outputSchema: aiChapterTaskSheetQualityAssessmentSchema,
-  render: (input) => [
-    new SystemMessage(createSystemPrompt(input.mode)),
-    new HumanMessage([
-      `mode: ${input.mode}`,
-      "",
-      "chapter execution contract candidate:",
-      renderCandidate(input.candidate),
-    ].join("\n")),
-  ],
+export const chapterTaskSheetQualityPrompt: PromptAsset<ChapterTaskSheetQualityPromptInput, AiChapterTaskSheetQualityAssessment> = {
+    id: "novel.volume.chapter_task_sheet_quality",
+    version: "v3",
+    taskType: "review",
+    mode: "structured",
+    language: "ka",
+    contextPolicy: {
+        maxTokensBudget: 4200,
+    },
+    outputSchema: aiChapterTaskSheetQualityAssessmentSchema,
+    render: (input) => [
+        new SystemMessage(createSystemPrompt(input.mode)),
+        new HumanMessage([
+            `mode: ${input.mode}`,
+            "",
+            "chapter execution contract candidate:",
+            renderCandidate(input.candidate),
+        ].join("\n")),
+    ]
 };

@@ -2,539 +2,510 @@ import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { z } from "zod";
 import type { PromptAsset } from "../../core/promptTypes";
 import { novelBiblePayloadSchema } from "../../../services/novel/novelCoreSchemas";
-
 export interface NovelOutlinePromptInput {
-  title: string;
-  description: string;
-  charactersText: string;
-  worldContext: string;
-  referenceContext?: string;
-  initialPrompt?: string;
+    title: string;
+    description: string;
+    charactersText: string;
+    worldContext: string;
+    referenceContext?: string;
+    initialPrompt?: string;
 }
-
 export interface NovelStructuredOutlinePromptInput {
-  charactersText: string;
-  worldContext: string;
-  outline: string;
-  referenceContext?: string;
-  totalChapters: number;
+    charactersText: string;
+    worldContext: string;
+    outline: string;
+    referenceContext?: string;
+    totalChapters: number;
 }
-
 export interface NovelStructuredOutlineRepairPromptInput {
-  rawContent: string;
-  totalChapters: number;
-  reason: string;
+    rawContent: string;
+    totalChapters: number;
+    reason: string;
 }
-
 export interface NovelBiblePromptInput {
-  title: string;
-  genreName: string;
-  description: string;
-  charactersText: string;
-  worldContext: string;
-  referenceContext?: string;
+    title: string;
+    genreName: string;
+    description: string;
+    charactersText: string;
+    worldContext: string;
+    referenceContext?: string;
 }
-
 export interface NovelBeatPromptInput {
-  title: string;
-  description: string;
-  worldContext: string;
-  bibleRawContent: string;
-  targetChapters: number;
-  referenceContext?: string;
+    title: string;
+    description: string;
+    worldContext: string;
+    bibleRawContent: string;
+    targetChapters: number;
+    referenceContext?: string;
 }
-
 export interface NovelChapterHookPromptInput {
-  title: string;
-  content: string;
+    title: string;
+    content: string;
 }
-
-const novelBeatPayloadSchema = z.array(
-  z.object({
+const novelBeatPayloadSchema = z.array(z.object({
     chapterOrder: z.union([z.number(), z.string()]).optional(),
     beatType: z.string().optional(),
     title: z.string().optional(),
     content: z.string().optional(),
     status: z.string().optional(),
-  }).passthrough(),
-);
-
+}).passthrough());
 const novelChapterHookSchema = z.object({
-  hook: z.string().optional(),
-  nextExpectation: z.string().optional(),
+    hook: z.string().optional(),
+    nextExpectation: z.string().optional(),
 }).passthrough();
-
 function buildStructuredOutlineSystemPrompt(totalChapters: number): string {
-  return [
-    "You are a structured novel outline planning engine.",
-    "Your task is to generate a chapter-by-chapter outline for a novel as strict structured data, not prose.",
-    "",
-    "[Task Boundary]",
-    "Output exactly one JSON array and nothing else.",
-    `The array must contain exactly ${totalChapters} objects.`,
-    "Do not output markdown, code fences, comments, explanations, or any text before or after the JSON.",
-    "",
-    "[Schema Requirements]",
-    "Each object must contain exactly these keys, with no additional keys:",
-    "- chapter: positive integer",
-    "- title: string",
-    "- summary: string",
-    "- key_events: string[]",
-    "- roles: string[]",
-    "",
-    "[Hard Constraints]",
-    `Chapter numbers must be continuous integers from 1 to ${totalChapters}.`,
-    "The value of chapter must match the chapter's actual position in the array.",
-    "title must be a non-empty string and should feel like a real chapter title, not a placeholder.",
-    "summary must be a non-empty string that explains what newly advances in that chapter and why the chapter matters in the story flow.",
-    "key_events must contain 1-5 non-empty strings describing concrete developments, turns, reveals, conflicts, or decisions.",
-    "roles must contain the major participating characters or forces that are materially involved in that chapter.",
-    "",
-    "[Quality Requirements]",
-    "Each chapter must create real forward movement and should not feel like filler.",
-    "Adjacent chapters must not repeat the same function, event pattern, or summary in different wording.",
-    "The outline should show progression, escalation, turning points, and payoff rhythm across the full chapter sequence.",
-    "Do not write vague generic summaries such as 'the plot continues' or 'tension rises'.",
-    "Do not use placeholder role names unless they already exist in the provided context.",
-    "",
-    "[Consistency Rules]",
-    "Do not introduce contradictions with the provided setting, characters, or prior constraints.",
-    "Do not invent major new core characters, world rules, or premise shifts unless the user context explicitly supports them.",
-    "Maintain continuity across chapters so later chapters feel like natural consequences of earlier ones.",
-    "",
-    "[Output Reminder]",
-    "Return only the JSON array.",
-  ].join("\n");
+    return [
+        "You are a structured novel outline planning engine.",
+        "Your task is to generate a chapter-by-chapter outline for a novel as strict structured data, not prose.",
+        "",
+        "[Task Boundary]",
+        "Output exactly one JSON array and nothing else.",
+        `The array must contain exactly ${totalChapters} objects.`,
+        "Do not output markdown, code fences, comments, explanations, or any text before or after the JSON.",
+        "",
+        "[Schema Requirements]",
+        "Each object must contain exactly these keys, with no additional keys:",
+        "- chapter: positive integer",
+        "- title: string",
+        "- summary: string",
+        "- key_events: string[]",
+        "- roles: string[]",
+        "",
+        "[Hard Constraints]",
+        `Chapter numbers must be continuous integers from 1 to ${totalChapters}.`,
+        "The value of chapter must match the chapter's actual position in the array.",
+        "title must be a non-empty string and should feel like a real chapter title, not a placeholder.",
+        "summary must be a non-empty string that explains what newly advances in that chapter and why the chapter matters in the story flow.",
+        "key_events must contain 1-5 non-empty strings describing concrete developments, turns, reveals, conflicts, or decisions.",
+        "roles must contain the major participating characters or forces that are materially involved in that chapter.",
+        "",
+        "[Quality Requirements]",
+        "Each chapter must create real forward movement and should not feel like filler.",
+        "Adjacent chapters must not repeat the same function, event pattern, or summary in different wording.",
+        "The outline should show progression, escalation, turning points, and payoff rhythm across the full chapter sequence.",
+        "Do not write vague generic summaries such as 'the plot continues' or 'tension rises'.",
+        "Do not use placeholder role names unless they already exist in the provided context.",
+        "",
+        "[Consistency Rules]",
+        "Do not introduce contradictions with the provided setting, characters, or prior constraints.",
+        "Do not invent major new core characters, world rules, or premise shifts unless the user context explicitly supports them.",
+        "Maintain continuity across chapters so later chapters feel like natural consequences of earlier ones.",
+        "",
+        "[Output Reminder]",
+        "Return only the JSON array.",
+    ].join("\n");
 }
-
 function buildStructuredOutlineRepairSystemPrompt(totalChapters: number): string {
-  return [
-    "You are a strict JSON repair engine.",
-    "Your task is to transform the given input into a valid JSON array that strictly follows the required schema.",
-    "",
-    "[Task Boundary]",
-    "Output exactly one JSON array and nothing else.",
-    `The array must contain exactly ${totalChapters} objects.`,
-    "Do not output markdown, code fences, comments, explanations, or any extra text.",
-    "",
-    "[Schema Requirements]",
-    "Each object must contain exactly these keys (no more, no less):",
-    "- chapter: positive integer",
-    "- title: string",
-    "- summary: string",
-    "- key_events: string[]",
-    "- roles: string[]",
-    "",
-    "[Hard Constraints]",
-    `Chapter numbers must be continuous from 1 to ${totalChapters}.`,
-    "The value of chapter must match its position in the array.",
-    "All string fields must be non-empty.",
-    "key_events must contain 1-5 non-empty strings.",
-    "roles must contain at least 1 non-empty string.",
-    "",
-    "[Repair Rules]",
-    "If the input contains extra fields, remove them.",
-    "If required fields are missing, infer and fill them conservatively based on the input.",
-    "If chapter count is incorrect, trim or expand to match the required count.",
-    "If structure is broken, reconstruct it into valid JSON.",
-    "If text contains non-JSON content, extract and convert it into valid JSON.",
-    "",
-    "[Consistency Rules]",
-    "Preserve as much original content as possible while fixing structure.",
-    "Do not invent major new plot elements or characters unless necessary to complete missing fields.",
-    "Maintain logical continuity across chapters when possible.",
-    "",
-    "[Output Reminder]",
-    "Return only the JSON array.",
-  ].join("\n");
+    return [
+        "You are a strict JSON repair engine.",
+        "Your task is to transform the given input into a valid JSON array that strictly follows the required schema.",
+        "",
+        "[Task Boundary]",
+        "Output exactly one JSON array and nothing else.",
+        `The array must contain exactly ${totalChapters} objects.`,
+        "Do not output markdown, code fences, comments, explanations, or any extra text.",
+        "",
+        "[Schema Requirements]",
+        "Each object must contain exactly these keys (no more, no less):",
+        "- chapter: positive integer",
+        "- title: string",
+        "- summary: string",
+        "- key_events: string[]",
+        "- roles: string[]",
+        "",
+        "[Hard Constraints]",
+        `Chapter numbers must be continuous from 1 to ${totalChapters}.`,
+        "The value of chapter must match its position in the array.",
+        "All string fields must be non-empty.",
+        "key_events must contain 1-5 non-empty strings.",
+        "roles must contain at least 1 non-empty string.",
+        "",
+        "[Repair Rules]",
+        "If the input contains extra fields, remove them.",
+        "If required fields are missing, infer and fill them conservatively based on the input.",
+        "If chapter count is incorrect, trim or expand to match the required count.",
+        "If structure is broken, reconstruct it into valid JSON.",
+        "If text contains non-JSON content, extract and convert it into valid JSON.",
+        "",
+        "[Consistency Rules]",
+        "Preserve as much original content as possible while fixing structure.",
+        "Do not invent major new plot elements or characters unless necessary to complete missing fields.",
+        "Maintain logical continuity across chapters when possible.",
+        "",
+        "[Output Reminder]",
+        "Return only the JSON array.",
+    ].join("\n");
 }
-
 export const novelOutlinePrompt: PromptAsset<NovelOutlinePromptInput, string, string> = {
-  id: "novel.outline.generate",
-  version: "v1",
-  taskType: "planner",
-  mode: "text",
-  language: "zh",
-  contextPolicy: {
-    maxTokensBudget: 0,
-  },
-  render: (input) => {
-    const referenceBlock = input.referenceContext?.trim()
-      ? `\n\n【参考资料（仅作技法参考，不得照搬结构或剧情）】\n${input.referenceContext}`
-      : "";
+    id: "novel.outline.generate",
+    version: "v2",
+    taskType: "planner",
+    mode: "text",
+    language: "ka",
+    contextPolicy: {
+        maxTokensBudget: 0,
+    },
+    render: (input) => {
+        const referenceBlock = input.referenceContext?.trim()
+            ? `
 
-    const initialPrompt = input.initialPrompt?.trim() ?? "";
-    const initialPromptBlock = initialPrompt
-      ? `\n\n【用户补充要求（优先参考，但不得违背既有角色与世界设定）】\n${initialPrompt.slice(0, 2000)}`
-      : "";
+[Reference materials (for technical reference only, do not copy the structure or plot)]
+${input.referenceContext}`
+            : "";
+        const initialPrompt = input.initialPrompt?.trim() ?? "";
+        const initialPromptBlock = initialPrompt
+            ? `
 
-    return [
-      new SystemMessage([
-        "你是长篇网络小说发展走向策划师。",
-        "你的任务不是写正文，而是基于已有设定，输出一份具有可写性、可扩展性和连载潜力的整体发展走向。",
-        "",
-        "【任务边界】",
-        "只输出小说发展走向，不写正文，不写对白，不写具体章节划分。",
-        "不得输出解释、Markdown 或额外说明。",
-        "",
-        "【核心约束】",
-        "1. 必须严格使用给定核心角色，不得新增、替换或忽略关键角色。",
-        "2. 必须服从已有世界设定，不得引入冲突规则或越界设定。",
-        "3. 不得无依据扩展大量世界观细节，重点放在剧情推进与结构设计。",
-        "",
-        "【输出目标】",
-        "生成一份“可持续连载”的发展走向，而不是一次性完整剧透。",
-        "需要同时具备：开局抓力、中段扩展空间、后段升级潜力。",
-        "",
-        "【结构要求】",
-        "发展走向必须包含以下层次：",
-        "1. 起始局面：主角当前处境、核心困境与初始驱动力。",
-        "2. 主线驱动：贯穿全书的核心目标或问题。",
-        "3. 冲突演化路径：从初级冲突 → 扩展冲突 → 复杂冲突的升级方式。",
-        "4. 阶段性推进：明确多个阶段，每个阶段要有不同目标、压力来源与局面变化。",
-        "5. 关键转折：至少设计数个会改变局面的关键节点（认知变化 / 关系变化 / 规则揭示 / 局势反转）。",
-        "6. 成长与变化：主角在不同阶段的能力、认知或立场变化。",
-        "7. 高层走向：整体发展方向与可能的终局趋势（但不要写死所有细节）。",
-        "",
-        "【连载导向要求】",
-        "1. 前期必须快速建立主卖点与阅读钩子，避免长时间铺垫。",
-        "2. 中期必须不断引入新变化（新压力 / 新关系 / 新局面），避免重复同一模式。",
-        "3. 后期必须具备升级空间，避免过早封顶或提前透支高潮。",
-        "4. 整体走向要保留可调整空间，不要把所有发展路径写死。",
-        "",
-        "【质量要求】",
-        "1. 每个阶段都要体现“为什么值得写”，而不是泛泛推进。",
-        "2. 避免重复同类冲突或同一套路循环。",
-        "3. 优先强化人物处境、选择压力与情绪推动，而不是堆叠设定。",
-        "4. 在信息不足时允许合理补强，但必须克制、连贯。",
-      ].join("\n")),
-      new HumanMessage([
-        `小说标题：${input.title}`,
-        `小说简介：${input.description}`,
-        "",
-        "【核心角色（必须使用，不得替换或忽略）】",
-        input.charactersText,
-        "",
-        "【世界上下文】",
-        input.worldContext,
-        referenceBlock,
-        initialPromptBlock,
-        "",
-        "请输出完整的发展走向。",
-      ].join("\n")),
-    ];
-  },
+[User supplementary requirements (priority for reference, but must not violate existing character and world settings)]
+${initialPrompt.slice(0, 2000)}`
+            : "";
+        return [
+            new SystemMessage([
+                "You are the planner for the development of full-length online novels.",
+                "Your task is not to write the main text, but to output an overall development trend with writability, scalability, and serialization potential based on the existing settings.",
+                "",
+                "[Task Boundary]",
+                "Only output the development direction of the novel, without writing the main text, dialogue, or specific chapter divisions.",
+                "No explanation, Markdown, or additional explanations may be output.",
+                "",
+                "\u3010Core constraints\u3011",
+                "1. The given core roles must be strictly used and key roles must not be added, replaced or omitted.",
+                "2. The existing world settings must be obeyed, and conflicting rules or out-of-bounds settings must not be introduced.",
+                "3. Do not expand a large number of worldview details without any basis, and focus on plot advancement and structural design.",
+                "",
+                "[Output target]",
+                "Generate a \"sustainable\" development direction, rather than a complete spoiler at once.",
+                "It needs to have both: initial grip, room for expansion in the middle, and potential for upgrades in the later stages.",
+                "",
+                "\u3010Structural requirements\u3011",
+                "The development direction must include the following levels:",
+                "1. Starting situation: the protagonist\u2019s current situation, core dilemma and initial driving force.",
+                "2. Main line driver: the core goal or problem throughout the book.",
+                "3. Conflict evolution path: from primary conflict \u2192 extended conflict \u2192 escalation mode of complex conflict.",
+                "4. Phased advancement: Clarify multiple stages, each stage should have different goals, pressure sources and situation changes.",
+                "5. Key turning points: Design at least a few key nodes that will change the situation (cognitive changes/relationship changes/rules revealed/situation reversal).",
+                "6. Growth and change: The protagonist\u2019s ability, cognition or position changes at different stages.",
+                "7. High-level direction: overall development direction and possible final trends (but don\u2019t write down all the details).",
+                "",
+                "[Requirements for serialization guidance]",
+                "1. The main selling points and reading hooks must be quickly established in the early stage to avoid long-term preparation.",
+                "2. In the mid-term, new changes (new pressures/new relationships/new situations) must be continuously introduced to avoid repeating the same pattern.",
+                "3. There must be room for upgrades in the later period to avoid premature capping or early overdraft climax.",
+                "4. The overall direction should leave room for adjustment, and do not write down all development paths.",
+                "",
+                "\u3010Quality requirements\u3011",
+                "1. Each stage should reflect \"why it is worth writing\" instead of general promotion.",
+                "2. Avoid repeating similar conflicts or the same routine cycle.",
+                "3. Prioritize strengthening the character's situation, choice pressure and emotional promotion, rather than stacking settings.",
+                "4. Reasonable reinforcement is allowed when information is insufficient, but it must be restrained and consistent.",
+            ].join("\n")),
+            new HumanMessage([
+                `Novel title:${input.title}`,
+                `Introduction to the novel:${input.description}`,
+                "",
+                "[Core roles (must be used, cannot be replaced or ignored)]",
+                input.charactersText,
+                "",
+                "\u3010World Context\u3011",
+                input.worldContext,
+                referenceBlock,
+                initialPromptBlock,
+                "",
+                "Please output the complete development direction.",
+            ].join("\n")),
+        ];
+    }
 };
+export const novelStructuredOutlinePrompt: PromptAsset<NovelStructuredOutlinePromptInput, string, string> = {
+    id: "novel.structuredOutline.generate",
+    version: "v2",
+    taskType: "planner",
+    mode: "text",
+    language: "ka",
+    contextPolicy: {
+        maxTokensBudget: 0,
+    },
+    render: (input) => {
+        const referenceBlock = input.referenceContext?.trim()
+            ? `
 
-export const novelStructuredOutlinePrompt: PromptAsset<
-  NovelStructuredOutlinePromptInput,
-  string,
-  string
-> = {
-  id: "novel.structuredOutline.generate",
-  version: "v1",
-  taskType: "planner",
-  mode: "text",
-  language: "en",
-  contextPolicy: {
-    maxTokensBudget: 0,
-  },
-  render: (input) => {
-    const referenceBlock = input.referenceContext?.trim()
-      ? `\n\n【参考资料（仅作技法参考，不得照搬剧情或结构）】\n${input.referenceContext}`
-      : "";
-
-    return [
-      new SystemMessage([
-        buildStructuredOutlineSystemPrompt(input.totalChapters),
-        "",
-        "[Content Requirements]",
-        "The outline must reflect clear progression, escalation, and turning points across chapters.",
-        "Each chapter must introduce meaningful change (event, decision, reveal, conflict, or consequence).",
-        "Avoid filler chapters or repeated patterns across adjacent chapters.",
-        "",
-        "[Continuity Rules]",
-        "All chapters must follow the provided outline direction and remain consistent with characters and world context.",
-        "Do not introduce new core characters unless clearly implied by the context.",
-        "Do not contradict established setting or prior developments.",
-        "",
-        "[Chapter Function Guidance]",
-        "Early chapters must establish hook, situation, and main conflict.",
-        "Middle chapters must expand, complicate, and escalate.",
-        "Later chapters must intensify pressure and deliver partial or major payoffs.",
-      ].join("\n")),
-      new HumanMessage([
-        "【核心角色（必须使用，不得替换或忽略）】",
-        input.charactersText,
-        "",
-        "【世界上下文】",
-        input.worldContext,
-        "",
-        "【发展走向（必须严格承接，不得偏离主线）】",
-        input.outline,
-        referenceBlock,
-        "",
-        `请基于以上内容，生成 ${input.totalChapters} 章的结构化章节规划。`,
-        "",
-        "【输出要求（必须严格遵守）】",
-        "1. Only output a JSON array.",
-        "2. Each object must contain exactly: chapter, title, summary, key_events, roles.",
-        "3. chapter must be continuous from 1.",
-        "4. key_events and roles must be non-empty string arrays.",
-        "5. No explanations, no extra text.",
-      ].join("\n")),
-    ];
-  },
+[Reference materials (for technical reference only, do not copy the plot or structure)]
+${input.referenceContext}`
+            : "";
+        return [
+            new SystemMessage([
+                buildStructuredOutlineSystemPrompt(input.totalChapters),
+                "",
+                "[Content Requirements]",
+                "The outline must reflect clear progression, escalation, and turning points across chapters.",
+                "Each chapter must introduce meaningful change (event, decision, reveal, conflict, or consequence).",
+                "Avoid filler chapters or repeated patterns across adjacent chapters.",
+                "",
+                "[Continuity Rules]",
+                "All chapters must follow the provided outline direction and remain consistent with characters and world context.",
+                "Do not introduce new core characters unless clearly implied by the context.",
+                "Do not contradict established setting or prior developments.",
+                "",
+                "[Chapter Function Guidance]",
+                "Early chapters must establish hook, situation, and main conflict.",
+                "Middle chapters must expand, complicate, and escalate.",
+                "Later chapters must intensify pressure and deliver partial or major payoffs.",
+            ].join("\n")),
+            new HumanMessage([
+                "[Core roles (must be used, cannot be replaced or ignored)]",
+                input.charactersText,
+                "",
+                "\u3010World Context\u3011",
+                input.worldContext,
+                "",
+                "[Development trend (must be strictly followed and must not deviate from the main line)]",
+                input.outline,
+                referenceBlock,
+                "",
+                `Based on the above content, please generate ${input.totalChapters} Structured chapter planning for chapters.`,
+                "",
+                "[Output requirements (must be strictly followed)]",
+                "1. Only output a JSON array.",
+                "2. Each object must contain exactly: chapter, title, summary, key_events, roles.",
+                "3. chapter must be continuous from 1.",
+                "4. key_events and roles must be non-empty string arrays.",
+                "5. No explanations, no extra text.",
+            ].join("\n")),
+        ];
+    }
 };
-
-export const novelStructuredOutlineRepairPrompt: PromptAsset<
-  NovelStructuredOutlineRepairPromptInput,
-  string,
-  string
-> = {
-  id: "novel.structuredOutline.repair",
-  version: "v1",
-  taskType: "planner",
-  mode: "text",
-  language: "en",
-  contextPolicy: {
-    maxTokensBudget: 0,
-  },
-  render: (input) => [
-    new SystemMessage(
-      [
-        buildStructuredOutlineRepairSystemPrompt(input.totalChapters),
-        "",
-        "[Priority]",
-        "Fix structural validity first (JSON shape, keys, count, types).",
-        "Then ensure minimal semantic correctness while preserving original content.",
-        "",
-        "[Strict Enforcement]",
-        "If input is partially valid, do not re-generate everything; repair in place.",
-        "Do not add explanations or comments.",
-      ].join("\n"),
-    ),
-    new HumanMessage(
-      [
-        "请将下面内容修正为严格结构化 JSON 数组（优先修结构，其次补语义）：",
-        "",
-        `【校验失败原因】`,
-        input.reason,
-        "",
-        "【原始内容】",
-        input.rawContent,
-        "",
-        "【输出要求（必须严格遵守）】",
-        `- 必须输出 ${input.totalChapters} 个对象`,
-        "- 每个对象只能包含：chapter, title, summary, key_events, roles",
-        "- chapter 必须从 1 连续递增",
-        "- 不允许输出任何解释或额外文本",
-      ].join("\n"),
-    ),
-  ],
+export const novelStructuredOutlineRepairPrompt: PromptAsset<NovelStructuredOutlineRepairPromptInput, string, string> = {
+    id: "novel.structuredOutline.repair",
+    version: "v2",
+    taskType: "planner",
+    mode: "text",
+    language: "ka",
+    contextPolicy: {
+        maxTokensBudget: 0,
+    },
+    render: (input) => [
+        new SystemMessage([
+            buildStructuredOutlineRepairSystemPrompt(input.totalChapters),
+            "",
+            "[Priority]",
+            "Fix structural validity first (JSON shape, keys, count, types).",
+            "Then ensure minimal semantic correctness while preserving original content.",
+            "",
+            "[Strict Enforcement]",
+            "If input is partially valid, do not re-generate everything; repair in place.",
+            "Do not add explanations or comments.",
+        ].join("\n")),
+        new HumanMessage([
+            "Please amend the following content to a strictly structured JSON array (repair the structure first, then the semantics):",
+            "",
+            `[Reason for verification failure]`,
+            input.reason,
+            "",
+            "\u3010Original content\u3011",
+            input.rawContent,
+            "",
+            "[Output requirements (must be strictly followed)]",
+            `- must be output ${input.totalChapters} objects`,
+            "- Each object can only contain: chapter, title, summary, key_events, roles",
+            "- chapter must increase continuously from 1",
+            "- No explanation or additional text is allowed to be output",
+        ].join("\n")),
+    ]
 };
+export const novelBiblePrompt: PromptAsset<NovelBiblePromptInput, typeof novelBiblePayloadSchema._output> = {
+    id: "novel.bible.generate",
+    version: "v2",
+    taskType: "planner",
+    mode: "structured",
+    language: "ka",
+    contextPolicy: {
+        maxTokensBudget: 0,
+    },
+    outputSchema: novelBiblePayloadSchema,
+    render: (input) => {
+        const referenceBlock = input.referenceContext?.trim()
+            ? `
 
-export const novelBiblePrompt: PromptAsset<
-  NovelBiblePromptInput,
-  typeof novelBiblePayloadSchema._output
-> = {
-  id: "novel.bible.generate",
-  version: "v1",
-  taskType: "planner",
-  mode: "structured",
-  language: "zh",
-  contextPolicy: {
-    maxTokensBudget: 0,
-  },
-  outputSchema: novelBiblePayloadSchema,
-  render: (input) => {
-    const referenceBlock = input.referenceContext?.trim()
-      ? `\n\n【参考资料（仅作技法与方向参考，不得照搬剧情或结构）】\n${input.referenceContext}`
-      : "";
-
-    return [
-      new SystemMessage([
-        "你是网文作品圣经规划助手。",
-        "你的任务不是写正文，也不是扩写大纲，而是基于给定信息生成一份可供后续长期创作使用的作品圣经。",
-        "",
-        "【任务边界】",
-        "只输出符合 schema 的严格 JSON。",
-        "不要输出 Markdown、解释、注释、代码块或任何额外文本。",
-        "不得新增 schema 之外的字段，不得缺漏已有字段。",
-        "",
-        "【输出字段要求】",
-        "必须输出以下字段：",
-        '1. coreSetting: 作品最核心的设定抓手，说明这本书最本质的世界/题材/冲突基础是什么。',
-        '2. forbiddenRules: 创作中不得违背的硬规则、禁区或冲突边界，重点写“不能发生什么设定冲突”。',
-        '3. mainPromise: 本书持续向读者提供的主线阅读承诺，说明读者为什么会追下去。',
-        '4. characterArcs: 核心角色的成长主轴与变化方向，强调阶段性变化，不要泛泛而谈。',
-        '5. worldRules: 世界运行规则、基本秩序、关键限制与因果边界，要求能约束后续创作。',
-        "",
-        "【核心约束】",
-        "1. 必须严格基于输入的标题、类型、简介、角色与世界上下文生成。",
-        "2. 不得脱离上下文臆造与主线无关的大设定。",
-        "3. 不得忽略已给角色或把角色功能模糊化到无法指导后续写作。",
-        "4. forbiddenRules 与 worldRules 必须真正可约束后续内容，不能写成空话。",
-        "5. mainPromise 必须体现网文连载价值，不能只写主题口号。",
-        "",
-        "【质量要求】",
-        "1. coreSetting 要抓“这本书最不可替代的骨头”，不能只是题材复述。",
-        "2. forbiddenRules 要具体、清晰、可执行，避免“保持一致性”这类空泛表达。",
-        "3. characterArcs 要体现角色在长期连载中的成长或变化方向，而不是静态标签。",
-        "4. worldRules 要写出真正影响剧情推进的规则，而不是背景介绍。",
-        "5. 整体内容要服务长期创作稳定性，适合作为后续分卷、拆章、续写的约束基础。",
-        "",
-        "【生成原则】",
-        "信息不足时可以做保守补全，但必须克制、连贯，并优先保证设定稳定性。",
-      ].join("\n")),
-      new HumanMessage([
-        `小说标题：${input.title}`,
-        `类型：${input.genreName}`,
-        `简介：${input.description}`,
-        "",
-        "【角色】",
-        input.charactersText,
-        "",
-        "【世界上下文】",
-        input.worldContext,
-        referenceBlock,
-        "",
-        "请输出作品圣经 JSON。",
-      ].join("\n")),
-    ];
-  },
+[Reference materials (only for reference on technique and direction, no plot or structure may be copied)]
+${input.referenceContext}`
+            : "";
+        return [
+            new SystemMessage([
+                "You are a Bible planning assistant for online works.",
+                "Your task is not to write the text or expand the outline, but to generate a work Bible based on the given information that can be used for subsequent long-term creation.",
+                "",
+                "[Task Boundary]",
+                "Only output strict JSON that conforms to the schema.",
+                "Do not output Markdown, explanations, comments, code blocks, or any extra text.",
+                "Fields other than the schema must not be added, and existing fields must not be omitted.",
+                "",
+                "[Output field requirements]",
+                "The following fields must be output:",
+                "1. coreSetting: The core setting of the work, which explains the most essential world/subject/conflict basis of the book.",
+                "2. forbiddenRules: hard rules, restricted areas or conflict boundaries that must not be violated in creation, focusing on \"no set conflicts can occur\".",
+                "3. mainPromise: The main reading promise that this book continues to provide readers, explaining why readers will continue to follow it.",
+                "4. characterArcs: The main axis of growth and direction of change of the core character, emphasizing staged changes and not talking in general terms.",
+                "5. worldRules: world operating rules, basic order, key restrictions and causal boundaries, which are required to constrain subsequent creation.",
+                "",
+                "\u3010Core constraints\u3011",
+                "1. Must be generated strictly based on the input title, genre, introduction, characters and world context.",
+                "2. Do not create big settings that are irrelevant to the main line out of context.",
+                "3. Do not ignore the given roles or obscure the role's functions to the point where it cannot guide subsequent writing.",
+                "4. forbiddenRules and worldRules must truly constrain subsequent content and cannot be written as empty words.",
+                "5. mainPromise must reflect the serialization value of the web article and cannot just write the theme slogan.",
+                "",
+                "\u3010Quality requirements\u3011",
+                "1. coreSetting To grasp the \"most irreplaceable bone of this book\", it cannot just be a retelling of the subject matter.",
+                "2. forbiddenRules should be specific, clear, and executable, and avoid empty expressions such as \"maintain consistency.\"",
+                "3. characterArcs should reflect the growth or change direction of the character in the long-term serialization, rather than static labels.",
+                "4. worldRules should write rules that really affect the advancement of the plot, rather than background introduction.",
+                "5. The overall content should serve the long-term stability of creation and be suitable as a constraint basis for subsequent volume division, chapter splitting, and continuation of writing.",
+                "",
+                "[Generation Principle]",
+                "When there is insufficient information, conservative completion can be done, but it must be restrained and coherent, and priority must be given to ensuring the stability of the setting.",
+            ].join("\n")),
+            new HumanMessage([
+                `Novel title:${input.title}`,
+                `Type:${input.genreName}`,
+                `Introduction:${input.description}`,
+                "",
+                "\u3010Character\u3011",
+                input.charactersText,
+                "",
+                "\u3010World Context\u3011",
+                input.worldContext,
+                referenceBlock,
+                "",
+                "Please output the work Bible JSON.",
+            ].join("\n")),
+        ];
+    }
 };
+export const novelBeatPrompt: PromptAsset<NovelBeatPromptInput, z.infer<typeof novelBeatPayloadSchema>> = {
+    id: "novel.beat.generate",
+    version: "v2",
+    taskType: "planner",
+    mode: "structured",
+    language: "ka",
+    contextPolicy: {
+        maxTokensBudget: 0,
+    },
+    outputSchema: novelBeatPayloadSchema,
+    render: (input) => {
+        const referenceBlock = input.referenceContext?.trim()
+            ? `
 
-export const novelBeatPrompt: PromptAsset<
-  NovelBeatPromptInput,
-  z.infer<typeof novelBeatPayloadSchema>
-> = {
-  id: "novel.beat.generate",
-  version: "v1",
-  taskType: "planner",
-  mode: "structured",
-  language: "zh",
-  contextPolicy: {
-    maxTokensBudget: 0,
-  },
-  outputSchema: novelBeatPayloadSchema,
-  render: (input) => {
-    const referenceBlock = input.referenceContext?.trim()
-      ? `\n\n【参考资料（仅作技法与节奏参考，不得照搬剧情或结构）】\n${input.referenceContext}`
-      : "";
-
-    return [
-      new SystemMessage([
-        "你是网文剧情节拍规划助手。",
-        "你的任务不是写正文，也不是输出散文式大纲，而是基于作品圣经与目标章节数，生成可供后续章节规划与写作使用的剧情 beat 列表。",
-        "",
-        "【任务边界】",
-        "只输出符合 schema 的严格 JSON。",
-        "不要输出 Markdown、解释、注释、代码块或任何额外文本。",
-        "不得新增 schema 之外的字段，不得缺漏字段。",
-        "",
-        "【输出要求】",
-        "输出必须是 JSON 数组。",
-        "每一项必须完整包含以下字段：",
-        "- chapterOrder",
-        "- beatType",
-        "- title",
-        "- content",
-        "- status",
-        "",
-        "【字段约束】",
-        "1. chapterOrder 必须对应章节顺序，按 1 开始连续递增，且覆盖目标章节数。",
-        "2. beatType 必须准确表达该章的主要节拍功能，例如开局建立、冲突升级、信息揭示、关系变化、局面反转、高潮兑现、尾部钩子等。",
-        "3. title 必须像真实可用的节拍标题，清晰体现该章核心推进，不要写成空泛标签。",
-        "4. content 必须写清本章具体推进了什么、改变了什么、它在整体节奏中的作用是什么。",
-        "5. status 必须用于表示该 beat 当前所处状态，保持全数组语义一致，不得乱用。",
-        "",
-        "【核心约束】",
-        "1. 必须严格承接小说简介、世界上下文与作品圣经，不得偏离主线承诺。",
-        "2. 不得脱离上下文擅自发明新的核心角色、重大世界规则或主线方向。",
-        "3. 每一章都必须有实质推进，不能出现纯填充、纯气氛、纯复述型 beat。",
-        "4. 相邻章节的 beat 不能只是同义重复，必须体现推进、变化、升级、转向或兑现中的至少一种。",
-        "5. 整体 beat 序列必须形成清晰节奏：前段立钩子与局面，中段扩展与升级，后段压迫与兑现。",
-        "",
-        "【质量要求】",
-        "1. 前几章必须快速建立主局面、主冲突或主卖点，避免迟迟不进入故事。",
-        "2. 中段必须不断引入新变量、新压力、新选择或新后果，避免线性重复加码。",
-        "3. 后段必须体现阶段性回报、局势收束或更大悬念，而不是平推结束。",
-        "4. content 要强调“本章为什么值得存在”，而不是泛泛概括剧情。",
-        "5. 参考资料只能借鉴技法、节奏、组织方式，不能照搬角色关系、剧情结构或桥段。",
-        "",
-        "【生成原则】",
-        "信息不足时允许保守补全，但必须保持连贯、克制，并优先保证节奏稳定性与可写性。",
-      ].join("\n")),
-      new HumanMessage([
-        `小说标题：${input.title}`,
-        `小说简介：${input.description}`,
-        "",
-        "【世界上下文】",
-        input.worldContext,
-        "",
-        "【作品圣经】",
-        input.bibleRawContent,
-        "",
-        `【目标章节数】${input.targetChapters}`,
-        referenceBlock,
-        "",
-        "请输出对应的剧情 beat JSON 数组。",
-      ].join("\n")),
-    ];
-  },
+[Reference materials (only for reference on technique and rhythm, no plot or structure may be copied)]
+${input.referenceContext}`
+            : "";
+        return [
+            new SystemMessage([
+                "You are the rhythm planning assistant for online plots.",
+                "Your task is not to write the main text, nor to output a prose outline, but to generate a plot beat list that can be used for subsequent chapter planning and writing based on the work Bible and the target number of chapters.",
+                "",
+                "[Task Boundary]",
+                "Only output strict JSON that conforms to the schema.",
+                "Do not output Markdown, explanations, comments, code blocks, or any extra text.",
+                "Fields other than the schema must not be added, and fields must not be missing.",
+                "",
+                "[Output requirements]",
+                "The output must be a JSON array.",
+                "Each item must completely contain the following fields:",
+                "- chapterOrder",
+                "- beatType",
+                "- title",
+                "- content",
+                "- status",
+                "",
+                "[Field constraints]",
+                "1. chapterOrder must correspond to the order of chapters, increase continuously starting from 1, and cover the target number of chapters.",
+                "2. The beatType must accurately express the main beat functions of the chapter, such as opening establishment, conflict escalation, information revelation, relationship changes, situation reversal, climax fulfillment, tail hook, etc.",
+                "3. The title must be like a real and usable beat title, clearly reflecting the core advancement of the chapter, and should not be written as a vague label.",
+                "4. Content must clearly describe what this chapter specifically advances, what has changed, and what role it plays in the overall rhythm.",
+                "5. status must be used to indicate the current status of the beat, keeping the semantics of the entire array consistent, and must not be used indiscriminately.",
+                "",
+                "\u3010Core constraints\u3011",
+                "1. The novel\u2019s introduction, world context, and work Bible must be strictly adhered to, and the main line commitment must not be deviated from.",
+                "2. Do not invent new core characters, major world rules, or main plot directions out of context.",
+                "3. Each chapter must have substantial advancement, and there cannot be pure filler, pure atmosphere, or pure retelling beats.",
+                "4. The beats in adjacent chapters cannot just be tautological, but must reflect at least one of advancement, change, upgrade, turn, or fulfillment.",
+                "5. The overall beat sequence must form a clear rhythm: establishing the hook and situation in the front section, expanding and upgrading in the middle section, and pressing and cashing in the latter section.",
+                "",
+                "\u3010Quality requirements\u3011",
+                "1. The first few chapters must quickly establish the main situation, main conflict or main selling point to avoid being delayed in entering the story.",
+                "2. New variables, new pressures, new choices or new consequences must be continuously introduced in the middle stage to avoid linear repetitive overloading.",
+                "3. The latter part must reflect staged rewards, the end of the situation, or greater suspense, rather than ending in a flat push.",
+                "4. Content should emphasize \"why this chapter deserves to exist\" rather than generally summarizing the plot.",
+                "5. Reference materials can only draw on techniques, rhythm, and organization, but cannot copy character relationships, plot structures, or plots.",
+                "",
+                "[Generation Principle]",
+                "When information is insufficient, conservative completion is allowed, but coherence and restraint must be maintained, and rhythm stability and writeability must be prioritized.",
+            ].join("\n")),
+            new HumanMessage([
+                `Novel title:${input.title}`,
+                `Introduction to the novel:${input.description}`,
+                "",
+                "\u3010World Context\u3011",
+                input.worldContext,
+                "",
+                "\u3010Work Bible\u3011",
+                input.bibleRawContent,
+                "",
+                `[Target number of chapters]${input.targetChapters}`,
+                referenceBlock,
+                "",
+                "Please output the corresponding plot beat JSON array.",
+            ].join("\n")),
+        ];
+    }
 };
-
-export const novelChapterHookPrompt: PromptAsset<
-  NovelChapterHookPromptInput,
-  z.infer<typeof novelChapterHookSchema>
-> = {
-  id: "novel.chapterHook.generate",
-  version: "v2",
-  taskType: "planner",
-  mode: "structured",
-  language: "zh",
-  contextPolicy: {
-    maxTokensBudget: 0,
-  },
-  outputSchema: novelChapterHookSchema,
-  render: (input) => [
-    new SystemMessage([
-      "你是网文章节钩子规划助手。",
-      "你的任务不是改写正文，而是基于当前章节内容，提炼一个有效的章节末钩子与下章期待点。",
-      "",
-      "【任务边界】",
-      "只输出符合 schema 的严格 JSON。",
-      "不要输出 Markdown、解释、注释、代码块或任何额外文本。",
-      "不得新增 schema 之外的字段，不得缺漏字段。",
-      "",
-      "【输出格式】",
-      '必须输出：{"hook":"章节末钩子","nextExpectation":"下章期待点"}',
-      "",
-      "【字段要求】",
-      "1. hook 必须像真实网文章节末尾会形成的追读钩子，优先体现悬念、突发变化、未完成决策、风险升级、信息揭示后的余波或局面骤变。",
-      "2. nextExpectation 必须明确说明读者自然会期待下一章看到什么推进，不能空泛写成“后续发展”“接下来会怎样”。",
-      "",
-      "【核心约束】",
-      "1. 必须严格基于当前章节标题与章节内容生成，不得脱离内容臆造重大事件。",
-      "2. hook 必须承接本章已发生的推进结果，像从正文自然延伸出来，而不是凭空加一个外来悬念。",
-      "3. nextExpectation 必须与 hook 构成连续关系，说明下一章最值得看的兑现方向。",
-      "4. 不要重复本章正文的大段原句，要做提炼与重组。",
-      "5. 不要把 hook 写成总结句、主题句、抒情句或空泛感叹句。",
-      "",
-      "【质量要求】",
-      "1. 优先让 hook 具备即时追读力，而不是宽泛概括剧情。",
-      "2. 如果本章结尾是决策前夜，hook 应突出决策压力；如果本章结尾是异常暴露，hook 应突出后果或真相入口；如果本章结尾是局面逆转，hook 应突出新的不稳定状态。",
-      "3. nextExpectation 要具体到‘下一章大概率会推进什么’，而不是抽象情绪。",
-      "4. 信息不足时也要给出保守但有效的钩子，不要写空话。",
-    ].join("\n")),
-    new HumanMessage([
-      `章节标题：${input.title}`,
-      "",
-      "【章节内容】",
-      input.content,
-      "",
-      "请输出章节末钩子 JSON。",
-    ].join("\n")),
-  ],
+export const novelChapterHookPrompt: PromptAsset<NovelChapterHookPromptInput, z.infer<typeof novelChapterHookSchema>> = {
+    id: "novel.chapterHook.generate",
+    version: "v3",
+    taskType: "planner",
+    mode: "structured",
+    language: "ka",
+    contextPolicy: {
+        maxTokensBudget: 0,
+    },
+    outputSchema: novelChapterHookSchema,
+    render: (input) => [
+        new SystemMessage([
+            "You are the web article hook planning assistant.",
+            "Your task is not to rewrite the text, but to refine an effective end-of-chapter hook and expectations for the next chapter based on the content of the current chapter.",
+            "",
+            "[Task Boundary]",
+            "Only output strict JSON that conforms to the schema.",
+            "Do not output Markdown, explanations, comments, code blocks, or any extra text.",
+            "Fields other than the schema must not be added, and fields must not be missing.",
+            "",
+            "[Output format]",
+            "Must output: {\"hook\":\"Hook at the end of the chapter\",\"nextExpectation\":\"Expectation points for the next chapter\"}",
+            "",
+            "[Field requirements]",
+            "1. The hook must be like the follow-up hook that would be formed at the end of a real online article, giving priority to suspense, sudden changes, unfinished decisions, risk escalation, the aftermath of information disclosure, or sudden changes in the situation.",
+            "2. nextExpectation must clearly state what progress the reader will naturally expect to see in the next chapter. It cannot be written in a general way as \"subsequent development\" or \"what will happen next.\"",
+            "",
+            "\u3010Core constraints\u3011",
+            "1. It must be generated strictly based on the current chapter title and chapter content, and no major events may be fabricated away from the content.",
+            "2. The hook must take over the progress that has already occurred in this chapter, like a natural extension from the main text, rather than adding an external suspense out of thin air.",
+            "3. nextExpectation must form a continuous relationship with hook, indicating the most noteworthy fulfillment direction in the next chapter.",
+            "4. Do not repeat large sections of the original sentences in the text of this chapter, but refine and reorganize them.",
+            "5. Don\u2019t write the hook as a summary sentence, topic sentence, lyrical sentence or empty exclamation sentence.",
+            "",
+            "\u3010Quality requirements\u3011",
+            "1. Prioritize making the hook immediately readable, rather than broadly summarizing the plot.",
+            "2. If the chapter ends on the eve of decision-making, the hook should highlight the pressure of decision-making; if the chapter ends on an abnormal exposure, the hook should highlight the consequences or the entrance to the truth; if the chapter ends on a reversal of the situation, the hook should highlight the new unstable state.",
+            "3. nextExpectation should be specific to \u2018what will most likely be advanced in the next chapter\u2019, rather than abstract emotions.",
+            "4. Even when there is insufficient information, give a conservative but effective hook and don\u2019t write empty words.",
+        ].join("\n")),
+        new HumanMessage([
+            `Chapter title:${input.title}`,
+            "",
+            "\u3010Chapter content\u3011",
+            input.content,
+            "",
+            "Please output the chapter end hook JSON.",
+        ].join("\n")),
+    ]
 };

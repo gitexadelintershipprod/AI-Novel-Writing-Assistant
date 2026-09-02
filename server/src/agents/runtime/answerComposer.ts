@@ -24,9 +24,9 @@ function composeWorkflowHandoffAnswer(
 ): string {
   const note = structuredIntent.note?.trim();
   const target = note?.includes("任务中心") ? ["打开任务中心", "/tasks"]
-    : note?.includes("模型") ? ["打开模型设置", "/settings/models"]
-      : note?.includes("自动导演") ? ["打开 AI 自动导演", "/novels/auto-director"]
-        : ["打开小说工作台", context.novelId ? `/novels/${context.novelId}/edit` : "/novels"];
+    : note?.includes("model") ? ["打开模型设置", "/settings/models"]
+      : note?.includes("automatic director") ? ["Turn on AI automatic director", "/novels/auto-director"]
+        : ["Open the novel workbench", context.novelId ? `/novels/${context.novelId}/edit` : "/novels"];
   return `这项操作需要在正式工作台中执行，系统会在那里保存产物并维护完整任务状态。\n\n[${target[0]}](${target[1]})`;
 }
 
@@ -168,7 +168,7 @@ function composeNovelListAnswer(results: ToolExecutionResult[]): string {
     return "当前还没有小说。";
   }
   const lines = items.slice(0, 8).map((item, index) => {
-    const title = typeof item?.title === "string" && item.title.trim() ? item.title.trim() : "未命名小说";
+    const title = typeof item?.title === "string" && item.title.trim() ? item.title.trim() : "Untitled novel";
     const chapterCount = typeof item?.chapterCount === "number" ? item.chapterCount : null;
     return `${index + 1}. 《${title}》${chapterCount != null ? `（${chapterCount}章）` : ""}`;
   });
@@ -182,7 +182,7 @@ function composeBaseCharacterListAnswer(results: ToolExecutionResult[]): string 
     return "当前基础角色库还是空的。";
   }
   const lines = items.slice(0, 8).map((item, index) => {
-    const name = typeof item?.name === "string" && item.name.trim() ? item.name.trim() : "未命名角色";
+    const name = typeof item?.name === "string" && item.name.trim() ? item.name.trim() : "unnamed role";
     const role = typeof item?.role === "string" && item.role.trim() ? item.role.trim() : null;
     const category = typeof item?.category === "string" && item.category.trim() ? item.category.trim() : null;
     const tags = typeof item?.tags === "string" && item.tags.trim() ? item.tags.trim() : null;
@@ -199,7 +199,7 @@ function composeWorldListAnswer(results: ToolExecutionResult[]): string {
     return "当前还没有世界观。";
   }
   const lines = items.slice(0, 8).map((item, index) => {
-    const name = typeof item?.name === "string" && item.name.trim() ? item.name.trim() : "未命名世界观";
+    const name = typeof item?.name === "string" && item.name.trim() ? item.name.trim() : "Unnamed world view";
     const status = typeof item?.status === "string" && item.status.trim() ? item.status.trim() : null;
     return `${index + 1}. ${name}${status ? `（${status}）` : ""}`;
   });
@@ -285,11 +285,11 @@ function composeUnbindWorldAnswer(
   return "未完成世界观解绑。";
 }
 
-function composeFactProductionStatusText(status: Record<string, unknown>, fallbackTitle = "当前小说"): string {
+function composeFactProductionStatusText(status: Record<string, unknown>, fallbackTitle = "current novel"): string {
   const title = typeof status.title === "string" && status.title.trim() ? status.title.trim() : fallbackTitle;
   const currentStage = typeof status.currentStage === "string" && status.currentStage.trim()
     ? status.currentStage.trim()
-    : "未知阶段";
+    : "unknown stage";
   const factProgress = isRecord(status.factProgress) ? status.factProgress : null;
   const targetChapterCount = typeof status.targetChapterCount === "number" ? status.targetChapterCount : null;
   const chapterCount = typeof status.chapterCount === "number" ? status.chapterCount : 0;
@@ -391,7 +391,7 @@ function composeCharacterAnswer(results: ToolExecutionResult[]): string {
     return "当前小说还没有已规划角色。";
   }
   const lines = items.slice(0, 6).map((item, index) => {
-    const name = typeof item?.name === "string" && item.name.trim() ? item.name.trim() : "未命名角色";
+    const name = typeof item?.name === "string" && item.name.trim() ? item.name.trim() : "unnamed role";
     const role = typeof item?.role === "string" && item.role.trim() ? item.role.trim() : null;
     return `${index + 1}. ${name}${role ? `（${role}）` : ""}`;
   });
@@ -464,7 +464,7 @@ function composeProductionStatusAnswer(
       ? "未获取到整本生产状态。"
       : "没有当前小说上下文，无法读取整本生产状态。";
   }
-  const title = typeof status.title === "string" ? status.title.trim() : "当前小说";
+  const title = typeof status.title === "string" ? status.title.trim() : "current novel";
   return composeFactProductionStatusText(status, title);
 }
 
@@ -494,11 +494,11 @@ async function composeProduceNovelAnswer(
     ? created.title.trim()
     : typeof productionStatus?.title === "string" && productionStatus.title.trim()
       ? productionStatus.title.trim()
-      : "当前小说";
+      : "current novel";
   const assetParts: string[] = [];
   if (world) {
     const worldName = typeof world.worldName === "string" ? world.worldName.trim() : "";
-    assetParts.push(worldName ? `世界观《${worldName}》` : "世界观");
+    assetParts.push(worldName ? `世界观《${worldName}》` : "World");
   }
   if (characters) {
     const characterCount = typeof characters.characterCount === "number" ? characters.characterCount : 0;
@@ -516,7 +516,7 @@ async function composeProduceNovelAnswer(
   }
   if (synced) {
     const chapterCount = typeof synced.chapterCount === "number" ? synced.chapterCount : null;
-    assetParts.push(chapterCount != null ? `${chapterCount} 个章节目录` : "章节目录");
+    assetParts.push(chapterCount != null ? `${chapterCount} 个章节目录` : "Chapter table of contents");
   }
 
   if (waitingForApproval && preview) {
@@ -611,7 +611,7 @@ export async function composeAssistantMessage(
   if (context.plannerProfile === "creative_hub_readonly"
     && structuredIntent
     && ["create_novel", "bind_world_to_novel", "unbind_world_from_novel", "produce_novel", "run_director_next_step", "run_director_until_gate", "switch_director_policy", "write_chapter", "rewrite_chapter", "save_chapter_draft", "start_pipeline", "ideate_novel_setup"].includes(structuredIntent.intent)) {
-    return composeWorkflowHandoffAnswer({ ...structuredIntent, note: structuredIntent.note ?? "自动导演" }, context);
+    return composeWorkflowHandoffAnswer({ ...structuredIntent, note: structuredIntent.note ?? "automatic director" }, context);
   }
 
   if (

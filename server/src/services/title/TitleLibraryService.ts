@@ -1,6 +1,10 @@
 import type { TitleLibraryEntry, TitleLibraryListResult } from "@ai-novel/shared/types/title";
 import { prisma } from "../../db/prisma";
 import { AppError } from "../../middleware/errorHandler";
+import {
+  countGeorgianWords,
+  countUnicodeCodePoints,
+} from "@ai-novel/shared/utils/georgianTextMetrics";
 
 export interface ListTitleLibraryInput {
   search?: string;
@@ -28,8 +32,8 @@ function normalizeTitle(value: string): string {
   if (!trimmed) {
     throw new AppError("标题不能为空。", 400);
   }
-  if (trimmed.length > 40) {
-    throw new AppError("标题不能超过 40 个字符。", 400);
+  if (countGeorgianWords(trimmed) > 10 || countUnicodeCodePoints(trimmed) > 80) {
+    throw new AppError("A title must contain at most 10 words and 80 Unicode code points.", 400);
   }
   return trimmed;
 }

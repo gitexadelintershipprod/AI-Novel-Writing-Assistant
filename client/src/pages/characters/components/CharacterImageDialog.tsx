@@ -47,7 +47,7 @@ export function CharacterImageDialog({
   const [promptMode, setPromptMode] = useState<ImagePromptMode>("character_chain");
   const [directPrompt, setDirectPrompt] = useState("");
   const [directPromptSource, setDirectPromptSource] = useState<DirectPromptSource | null>(null);
-  const [optimizedPromptLanguage, setOptimizedPromptLanguage] = useState<ImagePromptOutputLanguage>("zh");
+  const optimizedPromptLanguage: ImagePromptOutputLanguage = "en";
   const [imageForm, setImageForm] = useState({
     stylePreset: "写实人像",
     negativePrompt: "低清晰度，畸形，多余肢体，文字水印",
@@ -82,7 +82,6 @@ export function CharacterImageDialog({
     setPromptMode("character_chain");
     setDirectPrompt("");
     setDirectPromptSource(null);
-    setOptimizedPromptLanguage("zh");
   }, [open, character]);
 
   useEffect(() => {
@@ -266,28 +265,9 @@ export function CharacterImageDialog({
 
           <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-              <div className="space-y-2">
-                <div className="text-xs font-medium uppercase tracking-[0.14em] text-slate-400">优化输出语言</div>
-                <div className="inline-flex w-full rounded-xl border border-slate-200 bg-slate-50 p-1 sm:w-auto">
-                  <Button
-                    type="button"
-                    variant={optimizedPromptLanguage === "zh" ? "default" : "ghost"}
-                    size="sm"
-                    className="min-w-[92px] flex-1 rounded-lg sm:flex-none"
-                    onClick={() => setOptimizedPromptLanguage("zh")}
-                  >
-                    中文
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={optimizedPromptLanguage === "en" ? "default" : "ghost"}
-                    size="sm"
-                    className="min-w-[92px] flex-1 rounded-lg sm:flex-none"
-                    onClick={() => setOptimizedPromptLanguage("en")}
-                  >
-                    English
-                  </Button>
-                </div>
+              <div className="space-y-1">
+                <div className="text-xs font-medium uppercase tracking-[0.14em] text-slate-400">Provider prompt language</div>
+                <div className="text-sm text-slate-600">English (for image-model compatibility)</div>
               </div>
 
               <div className="flex min-w-0 flex-col gap-3 xl:items-end">

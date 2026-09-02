@@ -153,6 +153,8 @@
 - Source-provided book information remains intact while surrounding controls and fallback messages stay in English.
 - Failed Auto Director tasks keep their terminal state visible instead of appearing as an active run.
 - Market Radar is temporarily unavailable while suitable Georgian or international sources are prepared; Auto Director continues to work from the writer's own idea.
+- Active creative pipelines now generate and review natural Georgian (`ka-GE`) while the application interface remains English.
+- Genres, Story Modes, Writing Profiles, Style Engine, Anti-AI, Title Studio, long-form writing, short stories, analysis, and derivative workflows remain available with Georgian-oriented guidance and word metrics.
 
 完整历史更新见 [docs/releases/release-notes.md](./docs/releases/release-notes.md)。
 

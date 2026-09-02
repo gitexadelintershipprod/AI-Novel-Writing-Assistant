@@ -18,18 +18,19 @@ import { NovelContinuationService } from "./NovelContinuationService";
 import { assertChapterContentNotEmpty } from "./runtime/chapterEmptyContentError";
 import { prisma } from "../../db/prisma";
 import type { WritingPlatformSnapshot } from "@ai-novel/shared/types/writingPlatform";
+import { countGeorgianWords } from "@ai-novel/shared/utils/georgianTextMetrics";
 
 async function loadWritingPlatformBlock(novelId: string) {
   const novel = await prisma.novel.findUnique({
     where: { id: novelId },
     select: { writingPlatformSnapshotJson: true },
   });
-  let content = "沿用通用中文商业网文写法，保持情节推进、人物主动、因果清晰和章节回报。";
+  let content = "Use natural Georgian serial-fiction prose with active characters, clear causality, concrete progression, and a meaningful chapter payoff.";
   if (novel?.writingPlatformSnapshotJson) {
     try {
       const snapshot = JSON.parse(novel.writingPlatformSnapshotJson) as WritingPlatformSnapshot;
-      content = `${snapshot.label}（配置版本 ${snapshot.profileVersion}）：${snapshot.guidance.drafting}`;
-    } catch { /* 旧数据继续使用通用合同。 */ }
+      content = `${snapshot.label} (profile version ${snapshot.profileVersion}): ${snapshot.guidance.drafting}`;
+    } catch { /* Invalid legacy snapshots use the Georgian default contract. */ }
   }
   return createContextBlock({ id: "writing_platform", group: "writing_platform", priority: 105, required: true, content });
 }
@@ -86,8 +87,8 @@ export interface ChapterStreamInput {
 
 const continuationService = new NovelContinuationService();
 
-function countChapterCharacters(content: string): number {
-  return content.replace(/\s+/g, "").trim().length;
+function countChapterWords(content: string): number {
+  return countGeorgianWords(content);
 }
 
 function buildLengthInstruction(targetWordCount?: number | null): {
@@ -105,7 +106,7 @@ function buildLengthInstruction(targetWordCount?: number | null): {
   }
   return {
     ...range,
-    instruction: `Write about ${range.targetWordCount} Chinese characters. Acceptable range: ${range.minWordCount}-${range.maxWordCount}. Do not end clearly below the minimum.`,
+    instruction: `Write about ${range.targetWordCount} Georgian words. Acceptable range: ${range.minWordCount}-${range.maxWordCount}. Do not end clearly below the minimum.`,
   };
 }
 
@@ -113,8 +114,8 @@ function buildDraftContinuationBlock(content: string, targetWordCount: number, m
   const trimmed = content.trim();
   const excerpt = trimmed.length > 1400 ? trimmed.slice(-1400) : trimmed;
   return [
-    `Current saved draft length: ${countChapterCharacters(trimmed)} Chinese characters.`,
-    `Target length: about ${targetWordCount} Chinese characters. Minimum acceptable length: ${minWordCount}.`,
+    `Current saved draft length: ${countChapterWords(trimmed)} Georgian words.`,
+    `Target length: about ${targetWordCount} Georgian words. Minimum acceptable length: ${minWordCount}.`,
     "Continue from the existing ending. Do not restart the chapter. Do not repeat already written events.",
     "Current draft tail (continue after this):",
     excerpt || "none",
@@ -181,7 +182,7 @@ export class ChapterWritingGraph {
       return input.content;
     }
 
-    const currentLength = countChapterCharacters(input.content);
+    const currentLength = countChapterWords(input.content);
     if (currentLength >= lengthGoal.minWordCount) {
       return input.content;
     }
@@ -259,7 +260,7 @@ export class ChapterWritingGraph {
     this.deps.logInfo("Chapter draft auto-extended for target length", {
       chapterOrder: input.chapter.order,
       beforeLength: currentLength,
-      afterLength: countChapterCharacters(merged),
+      afterLength: countChapterWords(merged),
       targetWordCount: lengthGoal.targetWordCount,
       minWordCount: lengthGoal.minWordCount,
     });

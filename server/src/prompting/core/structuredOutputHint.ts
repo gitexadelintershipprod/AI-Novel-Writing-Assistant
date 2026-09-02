@@ -6,12 +6,12 @@ const DEFAULT_MAX_DEPTH = 6;
 const DEFAULT_ARRAY_ITEM_COUNT = 1;
 const MAX_EXACT_ARRAY_EXAMPLE_ITEMS = 2;
 const MANUAL_STRUCTURED_HINT_PATTERNS = [
-  "输出结构必须严格为",
-  "json 结构必须严格为",
-  "json 结构：",
-  "结构固定如下",
-  "输出格式必须严格为",
-  "结构只能是 {",
+  "output structure must be exactly",
+  "json structure must be exactly",
+  "json structure:",
+  "the fixed structure is",
+  "output format must be exactly",
+  "the structure can only be {",
 ];
 
 type AnySchema = z.ZodType<unknown>;
@@ -98,14 +98,14 @@ function buildDepthFallback(schema: AnySchema): unknown {
   if (schema instanceof z.ZodObject || schema instanceof z.ZodRecord) {
     return {};
   }
-  return "示例值";
+  return "example value";
 }
 
 function buildNativeEnumExample(schema: AnySchema): string | number {
   const enumRecord = (schema as AnySchema & { enum?: Record<string, string | number> }).enum;
   const values = Object.values(enumRecord ?? {}).filter((value) => typeof value === "string" || typeof value === "number");
   const preferred = values.find((value) => typeof value === "string") ?? values[0];
-  return preferred ?? "示例枚举值";
+  return preferred ?? "example enum value";
 }
 
 function buildObjectExample(
@@ -136,7 +136,7 @@ function buildRecordExample(schema: AnySchema, depth: number, seen: Set<AnySchem
   })._def?.valueSchema;
 
   return {
-    exampleKey: valueSchema ? buildExampleFromSchema(valueSchema, depth + 1, seen) : "示例值",
+    exampleKey: valueSchema ? buildExampleFromSchema(valueSchema, depth + 1, seen) : "example value",
   };
 }
 
@@ -153,7 +153,7 @@ function buildMapExample(schema: AnySchema, depth: number, seen: Set<AnySchema>)
     };
   })._def?.value;
 
-  return [["exampleKey", valueSchema ? buildExampleFromSchema(valueSchema, depth + 1, seen) : "示例值"]];
+  return [["exampleKey", valueSchema ? buildExampleFromSchema(valueSchema, depth + 1, seen) : "example value"]];
 }
 
 function buildSetExample(schema: AnySchema, depth: number, seen: Set<AnySchema>): unknown[] {
@@ -169,7 +169,7 @@ function buildSetExample(schema: AnySchema, depth: number, seen: Set<AnySchema>)
     };
   })._def?.type;
 
-  return [valueSchema ? buildExampleFromSchema(valueSchema, depth + 1, seen) : "示例值"];
+  return [valueSchema ? buildExampleFromSchema(valueSchema, depth + 1, seen) : "example value"];
 }
 
 function buildTupleExample(schema: AnySchema, depth: number, seen: Set<AnySchema>): unknown[] {
@@ -202,7 +202,7 @@ function buildUnionExample(schema: AnySchema, depth: number, seen: Set<AnySchema
   })._def?.options ?? [];
 
   const [firstOption] = options;
-  return firstOption ? buildExampleFromSchema(firstOption, depth + 1, seen) : "示例值";
+  return firstOption ? buildExampleFromSchema(firstOption, depth + 1, seen) : "example value";
 }
 
 function buildDiscriminatedUnionExample(schema: AnySchema, depth: number, seen: Set<AnySchema>): unknown {
@@ -272,17 +272,17 @@ function buildExampleFromSchema(
     if (current instanceof z.ZodLiteral) {
       return (current as AnySchema & { value?: unknown; _def?: { value?: unknown } }).value
         ?? (current as AnySchema & { value?: unknown; _def?: { value?: unknown } })._def?.value
-        ?? "示例值";
+        ?? "example value";
     }
     if (current instanceof z.ZodEnum) {
       const options = (current as AnySchema & { options?: string[] }).options ?? [];
-      return options[0] ?? "示例枚举值";
+      return options[0] ?? "example enum value";
     }
     if ((current as AnySchema & { enum?: Record<string, string | number> }).enum) {
       return buildNativeEnumExample(current);
     }
     if (current instanceof z.ZodString) {
-      return "示例文本";
+      return "example text";
     }
     if (current instanceof z.ZodNumber) {
       return 1;
@@ -303,13 +303,13 @@ function buildExampleFromSchema(
       return null;
     }
     if (current instanceof z.ZodAny || current instanceof z.ZodUnknown || current instanceof z.ZodNever) {
-      return "示例值";
+      return "example value";
     }
     if (current instanceof z.ZodNaN) {
       return 0;
     }
 
-    return "示例值";
+    return "example value";
   } finally {
     seen.delete(current);
   }
@@ -387,12 +387,12 @@ function buildStructuredOutputHintText(example: unknown, customNote: string): st
     : "";
 
   return [
-    "结构化输出骨架：",
-    "- 下方 JSON 只用于演示字段名、层级、数组/对象位置与基础类型。",
-    "- 所有占位内容都必须替换成符合当前任务的真实结果，不能原样照抄。",
-    "- 如果任务正文里对数组数量、枚举取值、空数组、必填字段有更具体要求，以任务正文为准。",
+    "Structured output skeleton:",
+    "- The JSON below demonstrates field names, nesting, array/object positions, and primitive types only.",
+    "- Replace every placeholder with a real result for the current task; never copy placeholder values verbatim.",
+    "- More specific task rules for array length, enum values, empty arrays, and required fields take precedence.",
     noteLine,
-    "示例：",
+    "Example:",
     safeJsonStringify(example),
   ].filter(Boolean).join("\n");
 }

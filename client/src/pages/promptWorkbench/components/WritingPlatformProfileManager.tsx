@@ -16,18 +16,18 @@ import { toast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
 
 const PLATFORMS: Array<{ key: WritingPlatform; label: string }> = [
-  { key: "fanqie_free", label: "番茄免费网文" },
-  { key: "qidian_male", label: "起点男频" },
-  { key: "jinjiang_female", label: "晋江女频" },
-  { key: "zhihu_story", label: "知乎短故事" },
+  { key: "fanqie_free", label: "Georgian Serial" },
+  { key: "qidian_male", label: "Progression & Adventure" },
+  { key: "jinjiang_female", label: "Character & Relationship" },
+  { key: "zhihu_story", label: "Georgian Short Story" },
 ];
 
 const GUIDANCE_FIELDS: Array<{ key: keyof WritingPlatformGuidance; label: string }> = [
-  { key: "positioning", label: "作品定位" },
-  { key: "planning", label: "规划指导" },
-  { key: "drafting", label: "正文指导" },
-  { key: "auditing", label: "审校指导" },
-  { key: "repairing", label: "修复指导" },
+  { key: "positioning", label: "Positioning" },
+  { key: "planning", label: "Planning guidance" },
+  { key: "drafting", label: "Drafting guidance" },
+  { key: "auditing", label: "Review guidance" },
+  { key: "repairing", label: "Repair guidance" },
 ];
 
 export function WritingPlatformProfileManager(props: { open: boolean; onOpenChange: (open: boolean) => void }) {
@@ -46,19 +46,19 @@ export function WritingPlatformProfileManager(props: { open: boolean; onOpenChan
   const refresh = async () => queryClient.invalidateQueries({ queryKey: ["prompt-workbench", "writing-platform", platform] });
   const saveMutation = useMutation({
     mutationFn: () => {
-      if (!draft) throw new Error("平台写法尚未加载。");
+      if (!draft) throw new Error("The writing profile has not loaded yet.");
       return saveWritingPlatformProfile(platform, draft, notes);
     },
-    onSuccess: async () => { await refresh(); setNotes(""); toast.success("平台写法已保存为新版本。"); },
-    onError: (error) => toast.error(error instanceof Error ? error.message : "保存失败。"),
+    onSuccess: async () => { await refresh(); setNotes(""); toast.success("The writing profile was saved as a new version."); },
+    onError: (error) => toast.error(error instanceof Error ? error.message : "Save failed."),
   });
   const restoreMutation = useMutation({
     mutationFn: () => restoreOfficialWritingPlatformProfile(platform),
-    onSuccess: async () => { await refresh(); toast.success("已恢复官方平台写法。"); },
+    onSuccess: async () => { await refresh(); toast.success("The official writing profile was restored."); },
   });
   const activateMutation = useMutation({
     mutationFn: (versionId: string) => activateWritingPlatformProfileVersion(platform, versionId),
-    onSuccess: async () => { await refresh(); toast.success("平台写法版本已启用。"); },
+    onSuccess: async () => { await refresh(); toast.success("The writing profile version is now active."); },
   });
 
   function updateGuidance(form: NarrativeForm, key: keyof WritingPlatformGuidance, value: string) {
@@ -72,8 +72,8 @@ export function WritingPlatformProfileManager(props: { open: boolean; onOpenChan
     <Dialog open={props.open} onOpenChange={props.onOpenChange}>
       <DialogContent className="flex h-[88vh] w-[min(1280px,94vw)] max-w-none flex-col overflow-hidden p-0">
         <DialogHeader className="border-b px-6 py-5">
-          <DialogTitle>平台写法</DialogTitle>
-          <DialogDescription>同一套生产链会按这里的版本调整定位、规划、正文、审校和修复。已有作品继续使用创建时保存的快照。</DialogDescription>
+          <DialogTitle>Writing Profiles</DialogTitle>
+          <DialogDescription>The production pipeline uses the selected profile for positioning, planning, drafting, review, and repair. Existing works keep their saved snapshot.</DialogDescription>
         </DialogHeader>
         <div className="grid min-h-0 flex-1 md:grid-cols-[220px_minmax(0,1fr)_260px]">
           <nav className="space-y-1 border-r bg-muted/20 p-3">
@@ -82,16 +82,16 @@ export function WritingPlatformProfileManager(props: { open: boolean; onOpenChan
             ))}
           </nav>
           <main className="min-h-0 overflow-y-auto p-5">
-            {!draft ? <div className="text-sm text-muted-foreground">正在读取平台写法…</div> : (
+            {!draft ? <div className="text-sm text-muted-foreground">Loading writing profile…</div> : (
               <div className="space-y-6">
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <label className="text-sm">名称<Input className="mt-2" value={draft.label} onChange={(event) => setDraft({ ...draft, label: event.target.value })} /></label>
-                  <label className="text-sm">版本说明<Input className="mt-2" value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="说明这次希望改善的读感" /></label>
+                  <label className="text-sm">Name<Input className="mt-2" value={draft.label} onChange={(event) => setDraft({ ...draft, label: event.target.value })} /></label>
+                  <label className="text-sm">Version notes<Input className="mt-2" value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="Describe the intended reading improvement" /></label>
                 </div>
-                <label className="block text-sm">平台说明<textarea className="mt-2 min-h-20 w-full rounded-md border bg-background p-3 text-sm" value={draft.summary} onChange={(event) => setDraft({ ...draft, summary: event.target.value })} /></label>
+                <label className="block text-sm">Profile summary<textarea className="mt-2 min-h-20 w-full rounded-md border bg-background p-3 text-sm" value={draft.summary} onChange={(event) => setDraft({ ...draft, summary: event.target.value })} /></label>
                 {draft.supportedNarrativeForms.map((form) => (
                   <section key={form} className="space-y-3 rounded-xl border p-4">
-                    <h3 className="font-medium">{form === "long_novel" ? "长篇写法" : "短篇写法"}</h3>
+                    <h3 className="font-medium">{form === "long_novel" ? "Long-form guidance" : "Short-form guidance"}</h3>
                     {GUIDANCE_FIELDS.map((field) => (
                       <label key={field.key} className="block text-sm text-muted-foreground">{field.label}
                         <textarea className="mt-1.5 min-h-24 w-full rounded-md border bg-background p-3 text-sm leading-6 text-foreground" value={draft.guidance[form]?.[field.key] ?? ""} onChange={(event) => updateGuidance(form, field.key, event.target.value)} />
@@ -103,24 +103,23 @@ export function WritingPlatformProfileManager(props: { open: boolean; onOpenChan
             )}
           </main>
           <aside className="min-h-0 overflow-y-auto border-l bg-muted/15 p-4">
-            <div className="text-sm font-medium">当前状态</div>
-            <div className="mt-2 text-xs leading-6 text-muted-foreground">{detail?.source === "custom" ? `自定义版本 ${detail.activeVersion}` : `官方版本 ${detail?.activeVersion ?? "-"}`}</div>
+            <div className="text-sm font-medium">Current status</div>
+            <div className="mt-2 text-xs leading-6 text-muted-foreground">{detail?.source === "custom" ? `Custom version ${detail.activeVersion}` : `Official version ${detail?.activeVersion ?? "-"}`}</div>
             <div className="mt-5 space-y-2">
               {(detail?.versions ?? []).map((version) => (
                 <button key={version.id} type="button" onClick={() => activateMutation.mutate(version.id)} className={cn("w-full rounded-lg border p-3 text-left text-xs", version.active && "border-primary bg-primary/5")}>
-                  <div className="font-medium">版本 {version.versionNo}{version.active ? " · 使用中" : ""}</div>
-                  <div className="mt-1 text-muted-foreground">{version.notes || "无版本说明"}</div>
+                  <div className="font-medium">Version {version.versionNo}{version.active ? " · Active" : ""}</div>
+                  <div className="mt-1 text-muted-foreground">{version.notes || "No version notes"}</div>
                 </button>
               ))}
             </div>
           </aside>
         </div>
         <div className="flex items-center justify-end gap-2 border-t px-5 py-3">
-          <Button variant="outline" onClick={() => restoreMutation.mutate()} disabled={restoreMutation.isPending}><RotateCcw className="mr-2 h-4 w-4" />恢复官方写法</Button>
-          <Button onClick={() => saveMutation.mutate()} disabled={!draft || saveMutation.isPending}><Save className="mr-2 h-4 w-4" />保存新版本</Button>
+          <Button variant="outline" onClick={() => restoreMutation.mutate()} disabled={restoreMutation.isPending}><RotateCcw className="mr-2 h-4 w-4" />Restore official profile</Button>
+          <Button onClick={() => saveMutation.mutate()} disabled={!draft || saveMutation.isPending}><Save className="mr-2 h-4 w-4" />Save new version</Button>
         </div>
       </DialogContent>
     </Dialog>
   );
 }
-

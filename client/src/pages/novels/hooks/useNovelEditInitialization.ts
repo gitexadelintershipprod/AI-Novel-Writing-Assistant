@@ -126,7 +126,7 @@ export function useNovelEditInitialization({
       emotionIntensity: detail.emotionIntensity ?? "medium",
       aiFreedom: detail.aiFreedom ?? "medium",
       postGenerationStyleReviewEnabled: detail.postGenerationStyleReviewEnabled ?? true,
-      defaultChapterLength: detail.defaultChapterLength ?? 2800,
+      defaultChapterLength: detail.defaultChapterLength ?? 1500,
       estimatedChapterCount: detail.estimatedChapterCount ?? DEFAULT_ESTIMATED_CHAPTER_COUNT,
       projectStatus: detail.projectStatus ?? "not_started",
       storylineStatus: detail.storylineStatus ?? "not_started",

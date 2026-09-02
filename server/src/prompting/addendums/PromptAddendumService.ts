@@ -45,64 +45,64 @@ export const SUPPORTED_PROMPT_ADDENDUM_IDS = [
 const SUPPORTED_PROMPT_ADDENDUM_ID_SET = new Set<string>(SUPPORTED_PROMPT_ADDENDUM_IDS);
 
 const PROMPT_ADDENDUM_DESCRIPTIONS: Record<string, string> = {
-  "novel.chapter.writer": "根据章节任务、角色状态、世界规则和风格约束生成章节正文。",
-  "audit.chapter.full": "完整检查章节质量，输出结构化问题、评分和修复建议。",
-  "audit.chapter.light": "快速检查章节是否适合继续推进，识别明显风险。",
-  "novel.review.repair": "根据审校问题和上下文，对整章进行最小必要修复。",
-  "novel.review.patch": "根据审校问题生成局部补丁计划，优先减少整章重写。",
-  "novel.review.chapter": "对章节正文进行结构化审校，供后续修文使用。",
-  "novel.chapter.summary": "把章节正文压缩成可追踪、可回顾的章节摘要。",
-  "novel.chapter_editor.rewrite_candidates": "为章节编辑器生成候选改写方案。",
-  "novel.chapter_editor.user_intent": "理解用户在章节编辑器里的改稿意图。",
-  "novel.chapter_editor.workspace_diagnosis": "诊断章节编辑器当前段落和上下文状态。",
-  "novel.director.workspace_analysis": "分析自动导演工作区，判断下一步推进重点。",
-  "novel.director.manual_edit_impact": "评估手动改动对导演任务和后续流程的影响。",
-  "planner.intent.parse": "理解用户自然语言意图，输出可执行的规划意图。",
+  "novel.chapter.writer": "Generate chapter text based on chapter tasks, character status, world rules, and style constraints.",
+  "audit.chapter.full": "Completely check chapter quality, output structured questions, ratings and repair suggestions.",
+  "audit.chapter.light": "Quickly check whether a chapter is suitable to move forward and identify obvious risks.",
+  "novel.review.repair": "Make the minimum necessary fixes to the entire chapter based on the review question and context.",
+  "novel.review.patch": "Generate local patch plans based on review issues and prioritize reducing entire chapter rewrites.",
+  "novel.review.chapter": "Conduct structured review of the chapter text for subsequent revision.",
+  "novel.chapter.summary": "Condensate chapter text into trackable, reviewable chapter summaries.",
+  "novel.chapter_editor.rewrite_candidates": "Generate candidate rewrites for the chapter editor.",
+  "novel.chapter_editor.user_intent": "Understand the user's revision intention in the chapter editor.",
+  "novel.chapter_editor.workspace_diagnosis": "Diagnoses the current paragraph and context status of the Chapter Editor.",
+  "novel.director.workspace_analysis": "Analyze the automatic director workspace and determine the focus of next step.",
+  "novel.director.manual_edit_impact": "Evaluate the impact of manual changes on the director's task and subsequent processes.",
+  "planner.intent.parse": "Understand the user's natural language intentions and output executable planning intentions.",
 };
 
 const PROMPT_CATALOG_SHORT_DESCRIPTIONS: Record<string, string> = {
-  "novel.chapter.writer": "章节正文生成",
-  "novel.short_story.segment.write": "短篇正文生成",
-  "novel.short_story.full.audit": "短篇全文审校",
-  "agent.runtime.fallback_answer": "运行时兜底回复",
-  "agent.runtime.setup_guidance": "创作设置引导",
-  "agent.runtime.setup_ideation": "创意启发引导",
-  "drama.source.original_bundle": "原创短剧素材",
-  "drama.source.text_bundle": "改编短剧素材",
-  "drama.track.recommendation": "短剧赛道推荐",
-  "drama.source.supplement": "短剧素材补充",
-  "drama.strategy": "短剧创作策略",
-  "drama.episodeOutline": "短剧分集大纲",
-  "drama.episode.script": "短剧单集剧本",
-  "drama.episode.quality": "短剧单集审校",
-  "drama.episode.compliance": "短剧合规检查",
-  "drama.episode.repair": "短剧单集修复",
-  "drama.storyboard": "短剧分镜生成",
-  "drama.video.prompt": "短剧视频提示词",
-  "comic.episodeOutline": "漫画分集大纲",
-  "comic.panelScript": "漫画分镜脚本",
-  "rag.contextual_chunk.prefix": "知识片段上下文",
-  "audit.chapter.full": "完整章节审校",
-  "audit.chapter.light": "快速章节审校",
-  "novel.review.repair": "章节整章修复",
-  "novel.review.patch": "章节局部补丁",
-  "novel.review.chapter": "章节正文审校",
-  "novel.chapter.summary": "章节摘要生成",
-  "novel.chapter.acceptance_assessment": "章节验收评估",
-  "novel.chapter.artifact_delta.extract": "章节事实变化提取",
-  "novel.chapter_editor.rewrite_candidates": "章节候选改写",
-  "novel.chapter_editor.user_intent": "改稿意图理解",
-  "novel.chapter_editor.workspace_diagnosis": "章节编辑诊断",
-  "novel.director.workspace_analysis": "导演工作区分析",
-  "novel.director.manual_edit_impact": "手动改动影响评估",
-  "novel.volume.strategy.critique": "分卷策略审校",
-  "novel.volume.chapter_task_sheet_quality": "章节任务表审校",
-  "novel.characterDynamics.chapterExtract": "角色关系变化提取",
-  "novel.character_resource.extract_updates": "角色资源变化提取",
-  "novel.timeline.extractor": "时间线提取",
-  "world.consistency.check": "世界观一致性检查",
-  "world.import.extract": "世界设定提取",
-  "planner.intent.parse": "规划意图理解",
+  "novel.chapter.writer": "Chapter text generation",
+  "novel.short_story.segment.write": "Short text generation",
+  "novel.short_story.full.audit": "Short full text review",
+  "agent.runtime.fallback_answer": "Full reply at runtime",
+  "agent.runtime.setup_guidance": "Creation setup guide",
+  "agent.runtime.setup_ideation": "Creative inspiration and guidance",
+  "drama.source.original_bundle": "Original short play material",
+  "drama.source.text_bundle": "Adaptation of short play material",
+  "drama.track.recommendation": "Recommended short drama track",
+  "drama.source.supplement": "Supplementary materials for short plays",
+  "drama.strategy": "Short play creation strategies",
+  "drama.episodeOutline": "Short drama episode outline",
+  "drama.episode.script": "Short play single episode script",
+  "drama.episode.quality": "Short drama single episode review",
+  "drama.episode.compliance": "Skit Compliance Check",
+  "drama.episode.repair": "Short drama single episode repair",
+  "drama.storyboard": "Short drama storyboard generation",
+  "drama.video.prompt": "Short drama video prompt words",
+  "comic.episodeOutline": "Comic episode outline",
+  "comic.panelScript": "comic storyboard",
+  "rag.contextual_chunk.prefix": "knowledge fragment context",
+  "audit.chapter.full": "Complete chapter review",
+  "audit.chapter.light": "Quick chapter review",
+  "novel.review.repair": "Chapter whole chapter repair",
+  "novel.review.patch": "Chapter partial patch",
+  "novel.review.chapter": "Chapter text review",
+  "novel.chapter.summary": "Chapter summary generation",
+  "novel.chapter.acceptance_assessment": "Chapter Acceptance Assessment",
+  "novel.chapter.artifact_delta.extract": "Chapter fact change extraction",
+  "novel.chapter_editor.rewrite_candidates": "Chapter candidate rewrite",
+  "novel.chapter_editor.user_intent": "Understanding the intention of revision",
+  "novel.chapter_editor.workspace_diagnosis": "Chapter editing diagnostics",
+  "novel.director.workspace_analysis": "Director workspace analysis",
+  "novel.director.manual_edit_impact": "Manual change impact assessment",
+  "novel.volume.strategy.critique": "Review of paper division strategies",
+  "novel.volume.chapter_task_sheet_quality": "Chapter task list review",
+  "novel.characterDynamics.chapterExtract": "Role relationship change extraction",
+  "novel.character_resource.extract_updates": "Role resource change extraction",
+  "novel.timeline.extractor": "Timeline extraction",
+  "world.consistency.check": "Worldview consistency check",
+  "world.import.extract": "World setting extraction",
+  "planner.intent.parse": "Understanding planning intentions",
 };
 
 const MAX_TITLE_LENGTH = 80;
@@ -125,7 +125,7 @@ export function isPromptAddendumSupported(promptId: string): boolean {
 }
 
 export function getPromptAddendumScopeLabels(promptId: string): string[] {
-  return isPromptAddendumSupported(promptId) ? ["全局", "单本小说"] : [];
+  return isPromptAddendumSupported(promptId) ? ["overall situation", "single novel"] : [];
 }
 
 export function getPromptCatalogDescription(promptId: string, taskType?: string): string {
@@ -136,17 +136,17 @@ export function getPromptCatalogDescription(promptId: string, taskType?: string)
 
   switch (taskType) {
     case "writer":
-      return "生成或改写面向读者的正文内容。";
+      return "Generate or rewrite text content for readers.";
     case "critical_review":
-      return "检查内容质量并输出可执行的审校结果。";
+      return "Check content quality and output actionable review results.";
     case "repair":
-      return "根据问题和约束修复已有内容。";
+      return "Fix existing content based on issues and constraints.";
     case "planner":
-      return "理解目标并生成结构化规划结果。";
+      return "Understand goals and produce structured planning results.";
     case "summary":
-      return "压缩内容，生成便于追踪的摘要。";
+      return "Compress content to create easy-to-follow summaries.";
     default:
-      return "注册在提示词目录中的内部提示词。";
+      return "Internal prompt words registered in the prompt word directory.";
   }
 }
 
@@ -159,31 +159,31 @@ export function getPromptCatalogShortDescription(promptId: string, taskType?: st
   switch (taskType) {
     case "chapter_drafting":
     case "writer":
-      return "正文生成";
+      return "Text generation";
     case "chapter_review":
     case "review":
     case "light_review":
     case "critical_review":
-      return "内容审校";
+      return "Content review";
     case "chapter_repair":
     case "repair":
-      return "内容修复";
+      return "Content fix";
     case "outline_planning":
     case "planner":
-      return "内容规划";
+      return "content planning";
     case "replan":
-      return "重新规划";
+      return "Replan";
     case "state_resolution":
-      return "状态判断";
+      return "Status judgment";
     case "summary_generation":
     case "summary":
-      return "内容摘要";
+      return "Content summary";
     case "fact_extraction":
-      return "信息提取";
+      return "information extraction";
     case "chat":
-      return "对话引导";
+      return "Conversation guidance";
     default:
-      return "通用任务";
+      return "Common tasks";
   }
 }
 
@@ -203,19 +203,19 @@ function toView(record: PromptAddendumRecord): PromptAddendumView {
 
 function assertSupportedPrompt(promptId: string): void {
   if (!isPromptAddendumSupported(promptId)) {
-    throw new Error(`当前提示词不支持自定义补充要求：${promptId}`);
+    throw new Error(`This prompt does not support custom addenda: ${promptId}`);
   }
 
   const hasRegisteredPrompt = listRegisteredPromptAssets().some((asset) => asset.id === promptId);
   if (!hasRegisteredPrompt) {
-    throw new Error(`提示词未注册：${promptId}`);
+    throw new Error(`Prompt is not registered: ${promptId}`);
   }
 }
 
 function normalizeInput(input: PromptAddendumInput): PromptAddendumInput {
   const scope = input.scope;
   if (scope !== "global" && scope !== "novel") {
-    throw new Error("补充要求范围只能是 global 或 novel。");
+    throw new Error("Supplementary requirement scope can only be global or novel.");
   }
 
   const promptId = input.promptId.trim();
@@ -223,17 +223,17 @@ function normalizeInput(input: PromptAddendumInput): PromptAddendumInput {
 
   const title = input.title.trim();
   if (title.length === 0 || title.length > MAX_TITLE_LENGTH) {
-    throw new Error(`标题长度需在 1-${MAX_TITLE_LENGTH} 字之间。`);
+    throw new Error(`The title must contain 1-${MAX_TITLE_LENGTH} characters.`);
   }
 
   const content = input.content.trim();
   if (content.length === 0 || content.length > MAX_CONTENT_LENGTH) {
-    throw new Error(`补充要求长度需在 1-${MAX_CONTENT_LENGTH} 字之间。`);
+    throw new Error(`The addendum must contain 1-${MAX_CONTENT_LENGTH} characters.`);
   }
 
   const novelId = scope === "novel" ? input.novelId?.trim() : null;
   if (scope === "novel" && !novelId) {
-    throw new Error("单本小说补充要求需要 novelId。");
+    throw new Error("Single novel supplemental request requires novelId.");
   }
 
   return {
@@ -290,7 +290,7 @@ export class PromptAddendumService {
         select: { id: true },
       });
       if (!novel) {
-        throw new Error(`小说不存在：${normalized.novelId}`);
+        throw new Error(`Novel does not exist: ${normalized.novelId}`);
       }
     }
 
@@ -394,7 +394,7 @@ export class PromptAddendumService {
           required: true,
           allowSummary: true,
           content: [
-            row.scope === "global" ? "【全局补充要求】" : "【本书补充要求】",
+            row.scope === "global" ? "[Global supplementary requirements]" : "[Supplementary requirements for this book]",
             row.title,
             row.content,
           ].join("\n"),

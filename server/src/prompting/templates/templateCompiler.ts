@@ -169,26 +169,26 @@ function resolveSlotValue(key: string, slotDefs: PromptSlotDef[], slots?: Resolv
 function validateTemplateShape(template: PromptTemplateJson): string[] {
   const errors: string[] = [];
   if (!template || template.kind !== "chat" || !Array.isArray(template.messages)) {
-    return ["模板必须是 chat messages 结构。"];
+    return ["The template must use the chat messages structure."];
   }
   const totalChars = template.messages.reduce((sum, message) => sum + (message.content?.length ?? 0), 0);
   if (totalChars > ADVANCED_TEMPLATE_MAX_CHARS) {
-    errors.push(`模板不能超过 ${ADVANCED_TEMPLATE_MAX_CHARS} 个字符。`);
+    errors.push(`The template cannot exceed ${ADVANCED_TEMPLATE_MAX_CHARS} characters.`);
   }
   const systemCount = template.messages.filter((message) => message.role === "system").length;
   const humanCount = template.messages.filter((message) => message.role === "human").length;
   if (systemCount !== 1) {
-    errors.push("模板必须包含一个 system 消息。");
+    errors.push("The template must contain exactly one system message.");
   }
   if (humanCount !== 1) {
-    errors.push("模板必须包含一个 human 消息。");
+    errors.push("The template must contain exactly one human message.");
   }
   for (const message of template.messages) {
     if (message.role !== "system" && message.role !== "human") {
-      errors.push(`不支持的消息角色：${String(message.role)}。`);
+      errors.push(`Unsupported message role: ${String(message.role)}.`);
     }
     if (typeof message.content !== "string" || message.content.trim().length === 0) {
-      errors.push(`${message.role} 模板不能为空。`);
+      errors.push(`The ${message.role} template cannot be empty.`);
     }
   }
   return unique(errors);
@@ -213,12 +213,12 @@ function renderFallbackRequiredContext(input: {
       appendDiagnostic(input.diagnostics, "missingRequiredGroups", group);
       continue;
     }
-    sections.push(`【${formatContextGroupLabel(group)}】\n${content}`);
+    sections.push(`[${formatContextGroupLabel(group)}]\n${content}`);
   }
   if (sections.length === 0) {
     return "";
   }
-  return ["", "", "【必需上下文保底】", ...sections].join("\n");
+  return ["", "", "[Required context fallback]", ...sections].join("\n");
 }
 
 export function extractPromptTemplateContextRefs(template: PromptTemplateJson): PromptTemplateContextRefs {

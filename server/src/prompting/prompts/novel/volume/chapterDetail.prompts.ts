@@ -1,78 +1,65 @@
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import type { PromptAsset } from "../../../core/promptTypes";
 import { renderSelectedContextBlocks } from "../../../core/renderContextBlocks";
-import {
-  createChapterBoundarySchema,
-  createChapterExecutionContractSchema,
-  createChapterPurposeSchema,
-  createChapterTaskSheetSchema,
-} from "../../../../services/novel/volume/volumeGenerationSchemas";
+import { createChapterBoundarySchema, createChapterExecutionContractSchema, createChapterPurposeSchema, createChapterTaskSheetSchema, } from "../../../../services/novel/volume/volumeGenerationSchemas";
 import { type VolumeChapterDetailPromptInput } from "./shared";
 import { buildVolumeChapterDetailContextBlocks } from "./contextBlocks";
 import { NOVEL_PROMPT_BUDGETS } from "../promptBudgetProfiles";
-
 const TITLE_EVENT_ANCHOR_HINTS = [
-  "激活",
-  "入手",
-  "兑现",
-  "暴露",
-  "发现",
-  "转向",
-  "升级",
-  "查账",
-  "接管",
-  "请缨",
-  "破局",
-  "反压",
-  "发难",
-  "露白",
-  "启动",
-  "异响",
-  "得手",
-  "松动",
+    "activate",
+    "Get it",
+    "cash out",
+    "exposed",
+    "discover",
+    "turn",
+    "Upgrade",
+    "Check accounts",
+    "take over",
+    "Please take a tassel",
+    "Break the situation",
+    "backpressure",
+    "Make a fuss",
+    "Lu Bai",
+    "start",
+    "Abnormal noise",
+    "Succeed",
+    "loose",
 ];
-
 function normalizeComparableText(value: string | null | undefined): string {
-  return value?.replace(/\s+/g, " ").trim() || "";
+    return value?.replace(/\s+/g, " ").trim() || "";
 }
-
 function cleanAnchorFragment(value: string): string {
-  return value.replace(/[《》【】「」『』“”"'‘’]/g, "").trim();
+    return value.replace(/[《》【】「」『』“”"'‘’]/g, "").trim();
 }
-
 function extractEventAnchorsFromTitle(title: string | null | undefined): string[] {
-  const normalized = normalizeComparableText(title);
-  if (!normalized) {
-    return [];
-  }
-  const seen = new Set<string>();
-  const fragments = normalized
-    .split(/[，,。；;：:、|/\\\-\s（）()]+/g)
-    .map((item) => cleanAnchorFragment(item))
-    .filter((item) => item.length >= 4 && item.length <= 16)
-    .filter((item) => TITLE_EVENT_ANCHOR_HINTS.some((hint) => item.includes(hint)));
-
-  for (const fragment of fragments) {
-    seen.add(fragment);
-  }
-  return [...seen];
+    const normalized = normalizeComparableText(title);
+    if (!normalized) {
+        return [];
+    }
+    const seen = new Set<string>();
+    const fragments = normalized
+        .split(/[，,。；;：:、|/\\\-\s（）()]+/g)
+        .map((item) => cleanAnchorFragment(item))
+        .filter((item) => item.length >= 4 && item.length <= 16)
+        .filter((item) => TITLE_EVENT_ANCHOR_HINTS.some((hint) => item.includes(hint)));
+    for (const fragment of fragments) {
+        seen.add(fragment);
+    }
+    return [...seen];
 }
-
 function buildCurrentChapterContractText(input: VolumeChapterDetailPromptInput): string {
-  const { targetChapter } = input;
-  return normalizeComparableText([
-    targetChapter.title,
-    targetChapter.summary,
-    targetChapter.purpose,
-    targetChapter.exclusiveEvent,
-    targetChapter.endingState,
-    targetChapter.nextChapterEntryState,
-    targetChapter.payoffRefs.join(" "),
-  ].filter(Boolean).join("\n"));
+    const { targetChapter } = input;
+    return normalizeComparableText([
+        targetChapter.title,
+        targetChapter.summary,
+        targetChapter.purpose,
+        targetChapter.exclusiveEvent,
+        targetChapter.endingState,
+        targetChapter.nextChapterEntryState,
+        targetChapter.payoffRefs.join(" "),
+    ].filter(Boolean).join("\n"));
 }
-
-function validateBoundaryContract(
-  output: {
+function validateBoundaryContract(output: {
     exclusiveEvent: string;
     endingState: string;
     nextChapterEntryState: string;
@@ -81,303 +68,262 @@ function validateBoundaryContract(
     targetWordCount: number;
     mustAvoid: string;
     payoffRefs: string[];
-  },
-  input: VolumeChapterDetailPromptInput,
-): {
-  exclusiveEvent: string;
-  endingState: string;
-  nextChapterEntryState: string;
-  conflictLevel: number;
-  revealLevel: number;
-  targetWordCount: number;
-  mustAvoid: string;
-  payoffRefs: string[];
+}, input: VolumeChapterDetailPromptInput): {
+    exclusiveEvent: string;
+    endingState: string;
+    nextChapterEntryState: string;
+    conflictLevel: number;
+    revealLevel: number;
+    targetWordCount: number;
+    mustAvoid: string;
+    payoffRefs: string[];
 } {
-  const sortedChapters = input.targetVolume.chapters
-    .slice()
-    .sort((left, right) => left.chapterOrder - right.chapterOrder);
-  const targetIndex = sortedChapters.findIndex((chapter) => chapter.id === input.targetChapter.id);
-  if (targetIndex < 0) {
+    const sortedChapters = input.targetVolume.chapters
+        .slice()
+        .sort((left, right) => left.chapterOrder - right.chapterOrder);
+    const targetIndex = sortedChapters.findIndex((chapter) => chapter.id === input.targetChapter.id);
+    if (targetIndex < 0) {
+        return output;
+    }
+    const previousChapter = targetIndex > 0 ? sortedChapters[targetIndex - 1] : null;
+    const nextChapter = targetIndex < sortedChapters.length - 1 ? sortedChapters[targetIndex + 1] : null;
+    const currentContractText = buildCurrentChapterContractText(input);
+    if (previousChapter?.exclusiveEvent?.trim()
+        && output.exclusiveEvent.includes(previousChapter.exclusiveEvent.trim())
+        && !currentContractText.includes(previousChapter.exclusiveEvent.trim())) {
+        throw new Error(`Exclusive events in the current chapter and exclusive events in the previous chapter "${previousChapter.exclusiveEvent.trim()}"Conflict. One-time nodes cannot be occupied repeatedly across chapters.`);
+    }
+    const leakedNextAnchor = nextChapter
+        ? extractEventAnchorsFromTitle(nextChapter.title).find((anchor) => (output.exclusiveEvent.includes(anchor)
+            || output.endingState.includes(anchor)
+            || output.nextChapterEntryState.includes(anchor)))
+        : null;
+    if (leakedNextAnchor && !currentContractText.includes(leakedNextAnchor)) {
+        throw new Error(`The boundary contract of the current chapter is suspected of occupying the one-time event anchor point in the title of the next chapter in advance "${leakedNextAnchor}」。`);
+    }
+    if (normalizeComparableText(output.endingState) === normalizeComparableText(output.nextChapterEntryState)) {
+        throw new Error("endingState and nextChapterEntryState cannot be exactly the same. The former is the end state of this chapter, and the latter is the entry state of the next chapter. It must reflect inheritance rather than mechanical repetition.");
+    }
     return output;
-  }
-
-  const previousChapter = targetIndex > 0 ? sortedChapters[targetIndex - 1] : null;
-  const nextChapter = targetIndex < sortedChapters.length - 1 ? sortedChapters[targetIndex + 1] : null;
-  const currentContractText = buildCurrentChapterContractText(input);
-
-  if (
-    previousChapter?.exclusiveEvent?.trim()
-    && output.exclusiveEvent.includes(previousChapter.exclusiveEvent.trim())
-    && !currentContractText.includes(previousChapter.exclusiveEvent.trim())
-  ) {
-    throw new Error(`当前章独占事件与上一章独占事件「${previousChapter.exclusiveEvent.trim()}」冲突。一次性节点不能跨章重复占用。`);
-  }
-  const leakedNextAnchor = nextChapter
-    ? extractEventAnchorsFromTitle(nextChapter.title).find((anchor) => (
-      output.exclusiveEvent.includes(anchor)
-      || output.endingState.includes(anchor)
-      || output.nextChapterEntryState.includes(anchor)
-    ))
-    : null;
-  if (leakedNextAnchor && !currentContractText.includes(leakedNextAnchor)) {
-    throw new Error(`当前章边界合同疑似提前占用了下一章标题中的一次性事件锚点「${leakedNextAnchor}」。`);
-  }
-  if (normalizeComparableText(output.endingState) === normalizeComparableText(output.nextChapterEntryState)) {
-    throw new Error("endingState 与 nextChapterEntryState 不能完全相同。前者是本章结束态，后者是下章入口态，必须体现承接而不是机械重复。");
-  }
-
-  return output;
 }
-
 function buildTaskSheetSemanticText(output: {
-  taskSheet: string;
-  sceneCards: Array<{
-    title: string;
-    purpose: string;
-    entryState: string;
-    exitState: string;
-    mustAdvance: string[];
-    forbiddenExpansion: string[];
-  }>;
+    taskSheet: string;
+    sceneCards: Array<{
+        title: string;
+        purpose: string;
+        entryState: string;
+        exitState: string;
+        mustAdvance: string[];
+        forbiddenExpansion: string[];
+    }>;
 }): string {
-  return normalizeComparableText([
-    output.taskSheet,
-    ...output.sceneCards.flatMap((scene) => [
-      scene.title,
-      scene.purpose,
-      scene.entryState,
-      scene.exitState,
-      scene.mustAdvance.join(" "),
-      scene.forbiddenExpansion.join(" "),
-    ]),
-  ].join("\n"));
+    return normalizeComparableText([
+        output.taskSheet,
+        ...output.sceneCards.flatMap((scene) => [
+            scene.title,
+            scene.purpose,
+            scene.entryState,
+            scene.exitState,
+            scene.mustAdvance.join(" "),
+            scene.forbiddenExpansion.join(" "),
+        ]),
+    ].join("\n"));
 }
-
 function validateAdjacentChapterBoundary<T extends {
     taskSheet: string;
     sceneCards: Array<{
-      title: string;
-      purpose: string;
-      entryState: string;
-      exitState: string;
-      mustAdvance: string[];
-      forbiddenExpansion: string[];
+        title: string;
+        purpose: string;
+        entryState: string;
+        exitState: string;
+        mustAdvance: string[];
+        forbiddenExpansion: string[];
     }>;
-  }>(
-  output: T,
-  input: VolumeChapterDetailPromptInput,
-): T {
-  const sortedChapters = input.targetVolume.chapters
-    .slice()
-    .sort((left, right) => left.chapterOrder - right.chapterOrder);
-  const targetIndex = sortedChapters.findIndex((chapter) => chapter.id === input.targetChapter.id);
-  if (targetIndex < 0) {
+}>(output: T, input: VolumeChapterDetailPromptInput): T {
+    const sortedChapters = input.targetVolume.chapters
+        .slice()
+        .sort((left, right) => left.chapterOrder - right.chapterOrder);
+    const targetIndex = sortedChapters.findIndex((chapter) => chapter.id === input.targetChapter.id);
+    if (targetIndex < 0) {
+        return output;
+    }
+    const currentContractText = buildCurrentChapterContractText(input);
+    const outputText = buildTaskSheetSemanticText(output);
+    const adjacentChapters = [
+        { label: "Previous chapter", chapter: targetIndex > 0 ? sortedChapters[targetIndex - 1] : null },
+        { label: "next chapter", chapter: targetIndex < sortedChapters.length - 1 ? sortedChapters[targetIndex + 1] : null },
+    ];
+    for (const adjacent of adjacentChapters) {
+        const chapter = adjacent.chapter;
+        if (!chapter) {
+            continue;
+        }
+        const leakedAnchor = extractEventAnchorsFromTitle(chapter.title)
+            .find((anchor) => outputText.includes(anchor) && !currentContractText.includes(anchor));
+        if (leakedAnchor) {
+            throw new Error(`${adjacent.label}One-time event anchor in title "${leakedAnchor}\u201D Suspected of crossing the line and entering the current chapter to execute the contract. The current chapter can only inherit the status of adjacent chapters, and cannot assume the key first events of adjacent chapters in advance, late, or repeatedly.`);
+        }
+    }
     return output;
-  }
-
-  const currentContractText = buildCurrentChapterContractText(input);
-  const outputText = buildTaskSheetSemanticText(output);
-  const adjacentChapters = [
-    { label: "上一章", chapter: targetIndex > 0 ? sortedChapters[targetIndex - 1] : null },
-    { label: "下一章", chapter: targetIndex < sortedChapters.length - 1 ? sortedChapters[targetIndex + 1] : null },
-  ];
-
-  for (const adjacent of adjacentChapters) {
-    const chapter = adjacent.chapter;
-    if (!chapter) {
-      continue;
-    }
-    const leakedAnchor = extractEventAnchorsFromTitle(chapter.title)
-      .find((anchor) => outputText.includes(anchor) && !currentContractText.includes(anchor));
-    if (leakedAnchor) {
-      throw new Error(
-        `${adjacent.label}标题中的一次性事件锚点「${leakedAnchor}」疑似越界进入当前章节执行合同。当前章只能承接相邻章节状态，不能提前、滞后或重复承担相邻章节的关键首次事件。`,
-      );
-    }
-  }
-
-  return output;
 }
-
 function createVolumeDetailSystemPrompt(detailMode: VolumeChapterDetailPromptInput["detailMode"]): string {
-  if (detailMode === "purpose") {
+    if (detailMode === "purpose") {
+        return [
+            "You are a senior online article section editor.",
+            "The current task is to wrap up the single chapter purpose.",
+            "Only output strict JSON, containing only the purpose field.",
+            "The purpose must state what the chapter is going to advance; do not recite the summary.",
+        ].join("\n");
+    }
+    if (detailMode === "boundary") {
+        return [
+            "You are a senior online article section editor.",
+            "The current task is to define execution boundaries for a single chapter.",
+            "Only output strict JSON and contain only exclusiveEvent, endingState, nextChapterEntryState, conflictLevel, revealLevel, targetWordCount, mustAvoid, payoffRefs.",
+            "exclusiveEvent represents a one-time milestone event that can only be undertaken by this chapter. It must be specific and cannot be written as a general theme.",
+            "endingState represents the stable situation when this chapter is written.",
+            "nextChapterEntryState represents the entry state that should be taken over when the next chapter opens. It must be strongly related to endingState but cannot be repeated verbatim.",
+            "The boundary contract must ensure that: exclusive events completed in the previous chapter will not be repeated, exclusive events in this chapter will not sneak into the next chapter, and the next chapter will only inherit the status without repeating the milestones of this chapter.",
+            "Each field must be consistent with the current volume pace and adjacent chapters.",
+            "If conflict_level_curve marks a user-anchored conflictLevel, this value is a hard constraint and must not be overridden.",
+        ].join("\n");
+    }
     return [
-      "你是资深网文章节编辑。",
-      "当前任务是收束单章 purpose。",
-      "只输出严格 JSON，且只包含 purpose 字段。",
-      "purpose 必须说明这一章要推进什么，不要复述摘要。",
+        "You are a senior online article section editor.",
+        "The current task is to generate a chapter execution contract that can be handed directly to the text generator.",
+        "Only strict JSON is output, and only contains three fields: taskSheet, readerExperience, and sceneCards.",
+        "The taskSheet is a concise executive summary that is read to the user and needs to cover the emotional tone, conflicting objects, key advancements, and closing requirements.",
+        "readerExperience is the only reader experience contract in this chapter and must contain readerQuestion, promisedReward, rewardLevel, protagonistWant, primaryResistance, keyTurn, emotionalShift, informationReveal, netChange, inheritedHookResponsibilities, endingHook.",
+        "rewardLevel can only be setup, partial, or major; it is determined by the responsibilities of this chapter in the volume rhythm. Do not write major in every chapter.",
+        "inheritedHookResponsibilities must first inherit the questions that have been raised in adjacent chapters; when the old hook is not specified, an empty array is returned, do not make it up.",
+        "promisedReward and netChange must be rewards and changes that readers can see in the text, and cannot be written as the author's intention or abstract theme.",
+        "sceneCards must be an array of 3-8 scene cards. Each scene card must contain key, title, purpose, mustAdvance, mustPreserve, entryState, exitState, forbiddenExpansion, targetWordCount, resistance, turn, emotionalShift, readerValue.",
+        "Each scene must have specific resistance and twists; readerValue describes the progression, revelation, emotional, or relational value the scene brings to the reader.",
+        "SceneCards must completely cover the entire chapter's progression and ending hook, and do not compress the entire chapter into one scene.",
+        "The title, summary, purpose, exclusiveEvent, endingState, nextChapterEntryState, conflictLevel, revealLevel, mustAvoid, payoffRefs of the current chapter together form the hard boundary contract of this chapter. taskSheet and sceneCards can only execute the current chapter contract and cannot rewrite or overwrite it.",
+        "You must treat chapter_neighbors as adjacent chapter boundaries. Tip: Key first events that have been completed in the previous chapter cannot be rewritten in this chapter, and key first events in the title or summary of the next chapter cannot be written into this chapter in advance.",
+        "The end of this chapter can only push the situation to the entrance of the next chapter, but cannot directly complete the core milestone promised by the title of the next chapter.",
+        "If the title of an adjacent chapter has clearly marked a one-time node, such as system activation, first resource acquisition, identity exposure, key audit, formal application, etc., this chapter shall not bear this node repeatedly unless the current chapter's own contract has explicitly required it.",
+        "You must prioritize identifying narrative duplication risks between the most recent chapter execution contract and the current chapter, focusing on checking whether the opening method, advancement method, status changes, and ending hooks are continuously reused.",
+        "If the same type of opening or the same type of advancement has been used continuously in recent chapters, this chapter must actively switch and must not continue to use the same number.",
+        "Differentiation requirements must be implemented in taskSheet and sceneCards, rather than staying in abstract reminders.",
+        "The first sceneCard must explicitly avoid repeated openings of the most recent chapter via purpose, entryState, or forbiddenExpansion.",
+        "The mustAdvance of at least one mid-stage sceneCard must explicitly require an advancement outcome that is different from that of the most recent chapter, such as active exploration, relationship establishment, resource acquisition, rule recognition, or plan diversion.",
+        "If recent chapters have been continuously written about external oppression or passive escape, this chapter must not continue to advance solely by the same type of oppression, but must provide a new advancement mechanism.",
     ].join("\n");
-  }
-  if (detailMode === "boundary") {
-    return [
-      "你是资深网文章节编辑。",
-      "当前任务是为单章定义执行边界。",
-      "只输出严格 JSON，且只包含 exclusiveEvent、endingState、nextChapterEntryState、conflictLevel、revealLevel、targetWordCount、mustAvoid、payoffRefs。",
-      "exclusiveEvent 表示只能由本章承担的一次性里程碑事件，必须具体，不能写成空泛主题。",
-      "endingState 表示本章写完时的稳定局面。",
-      "nextChapterEntryState 表示下一章开场时应承接的入口状态，必须与 endingState 强关联但不能逐字重复。",
-      "边界合同必须保证：上一章已完成的独占事件不重复，本章独占事件不偷跑到下一章，下一章只承接状态不重演本章里程碑。",
-      "各字段必须与当前卷节奏和相邻章节保持一致。",
-      "如果 conflict_level_curve 标出用户锚定的 conflictLevel，该数值是硬约束，不得改写。",
-    ].join("\n");
-  }
-  return [
-    "你是资深网文章节编辑。",
-    "当前任务是生成可直接交给正文生成器的章节执行合同。",
-    "只输出严格 JSON，且只包含 taskSheet、readerExperience、sceneCards 三个字段。",
-    "taskSheet 是给用户读的简洁执行摘要，需要覆盖情绪基调、冲突对象、关键推进和收尾要求。",
-    "readerExperience 是本章唯一的读者体验合同，必须包含 readerQuestion、promisedReward、rewardLevel、protagonistWant、primaryResistance、keyTurn、emotionalShift、informationReveal、netChange、inheritedHookResponsibilities、endingHook。",
-    "rewardLevel 只能是 setup、partial、major；由本章在卷节奏中的职责决定，不要每章都写成 major。",
-    "inheritedHookResponsibilities 必须优先承接相邻章已经提出的问题；没有明确旧钩子时返回空数组，不要编造。",
-    "promisedReward 与 netChange 必须是读者在正文中能看见的回报和变化，不能写成作者意图或抽象主题。",
-    "sceneCards 必须是 3-8 个场景卡数组，每个场景卡都必须包含 key、title、purpose、mustAdvance、mustPreserve、entryState、exitState、forbiddenExpansion、targetWordCount、resistance、turn、emotionalShift、readerValue。",
-    "每个场景都必须有具体阻力和转折；readerValue 要说明该场景给读者带来的推进、揭示、情绪或关系价值。",
-    "sceneCards 必须完整覆盖整章推进和结尾 hook，不要把整章压成一个场景。",
-    "当前章节的 title、summary、purpose、exclusiveEvent、endingState、nextChapterEntryState、conflictLevel、revealLevel、mustAvoid、payoffRefs 共同组成了本章硬边界合同。taskSheet 和 sceneCards 只能执行当前章合同，不能改写或覆盖它。",
-    "你必须把 chapter_neighbors 视为相邻章边界提示：上一章已经完成的关键首次事件不能在本章重写一次，下一章标题或摘要中的关键首次事件也不能提前写进本章。",
-    "本章结尾只能把局面推到下一章入口，不能直接落完下一章标题所承诺的核心里程碑。",
-    "如果相邻章标题已经明确标出一次性节点，例如系统激活、第一笔资源入手、身份暴露、关键查账、正式请缨等，本章不得重复承担该节点，除非当前章自己的合同已经明确要求。",
-    "你必须优先识别最近章节执行合同与当前章节之间的叙事重复风险，重点检查开场方式、推进方式、状态变化和结尾钩子是否连续复用。",
-    "如果最近章节已经连续使用同类开场或同类推进，本章必须主动切换，不得继续沿用同一路数。",
-    "差异化要求必须落实到 taskSheet 和 sceneCards 里，而不是停留在抽象提醒。",
-    "首个 sceneCard 必须通过 purpose、entryState 或 forbiddenExpansion 明确避开最近章节的重复开场。",
-    "至少一个中段 sceneCard 的 mustAdvance 必须明确要求不同于最近章节的推进结果，例如主动试探、关系建立、资源获得、规则认知或计划转向。",
-    "如果最近章节已经连续写成外部压迫或被动逃离，本章不得继续只靠同类压迫推进，必须给出新的推进机制。",
-  ].join("\n");
 }
-
 function createExecutionContractSystemPromptGarbledBackup(): string {
-  return [
-    "浣犳槸璧勬繁缃戞枃绔犺妭缂栬緫銆?",
-    "褰撳墠浠诲姟鏄竴娆℃€х敓鎴愬彲鐩存帴浜ょ粰鍐欎綔鍣ㄧ殑绔犺妭鎵ц鍚堝悓銆?",
-    "鍙緭鍑轰弗鏍?JSON锛屽繀椤诲悓鏃跺寘鍚?purpose銆乪xclusiveEvent銆乪ndingState銆乶extChapterEntryState銆乧onflictLevel銆乺evealLevel銆乼argetWordCount銆乵ustAvoid銆乸ayoffRefs銆乼askSheet銆乻ceneCards銆?",
-    "purpose 鐢ㄤ竴鍙ヨ瘽璇存槑鏈珷鍒板簳瑕佹帹杩涗粈涔堬紝涓嶈鍐欐垚鎽樿澶嶈堪銆?",
-    "exclusiveEvent / endingState / nextChapterEntryState 绛夊瓧娈典笉鍙己澶憋紝瀹冧滑鏄珷鑺傜殑纭竟鐣屽悎鍚屻€?",
-    "taskSheet 鏄粰姝ｆ枃鍐欎綔鍣ㄧ殑绠€娲佹墽琛屾寚浠わ紝sceneCards 鏄?3-8 涓満鏅崱鐨勬墽琛屾媶瑙ｃ€?",
-    "taskSheet 鍜?sceneCards 鍙兘鎵ц褰撳墠绔犵殑鍚堝悓锛屼笉寰楁彁鍓嶅崰鐢ㄧ浉閭荤珷鐨勪竴娆℃€т簨浠讹紝涔熶笉寰楅噸鍐欎笂涓€绔犲凡缁忓畬鎴愮殑閲岀▼纰戙€?",
-    "濡傛灉鏈€杩戠珷鑺傚凡缁忚繛缁娇鐢ㄧ浉鍚屽紑鍦恒€佺浉鍚屾帹杩涜矾鏁版垨鍚岀被閽╁瓙锛屾湰绔犲繀椤婚€氳繃 sceneCards 涓诲姩鍋氬嚭宸紓鍖栥€?",
-  ].join("\n");
+    return [
+        "What is the meaning of the word?",
+        "Generate a chapter execution contract that can be handed directly to the prose writer.",
+        "Error code? JSON Error code nflictLevel?evealLevel?argetWordCount?ustAvoid?ayoffRefs?askSheet?ceneCards?",
+        "purpose?",
+        "exclusiveEvent / endingState / nextChapterEntryState",
+        "taskSheet is the concise execution brief for the prose writer; sceneCards divide it into 3-8 executable scenes.",
+        "taskSheet and sceneCards govern only the current chapter. They must not consume one-time events reserved for adjacent chapters or rewrite content already completed in the previous chapter.",
+        "If recent chapters repeat the same opening, progression route, or hook, use sceneCards to create deliberate structural and tonal contrast.",
+    ].join("\n");
 }
-
 function createExecutionContractSystemPrompt(): string {
-  return [
-    "你是资深网文章节编辑。",
-    "当前任务是一次性生成可直接交给写作器的章节执行合同。",
-    "只输出严格 JSON，必须同时包含 purpose、exclusiveEvent、endingState、nextChapterEntryState、conflictLevel、revealLevel、targetWordCount、mustAvoid、payoffRefs、taskSheet、readerExperience、sceneCards。",
-    "purpose 用一句话说明本章到底要推进什么，不要写成摘要复述。",
-    "exclusiveEvent / endingState / nextChapterEntryState 等字段不可缺失，它们是章节的硬边界合同。",
-    "taskSheet 是给正文写作器的简洁执行指令，sceneCards 是 3-8 个场景卡的执行拆解。",
-    "readerExperience 是本章唯一的读者体验合同，必须完整包含 readerQuestion、promisedReward、rewardLevel、protagonistWant、primaryResistance、keyTurn、emotionalShift、informationReveal、netChange、inheritedHookResponsibilities、endingHook。",
-    "rewardLevel 只能使用 setup、partial、major；promisedReward 和 netChange 必须能在正文中被读者直接感知。",
-    "sceneCards 除原字段外还必须包含 resistance、turn、emotionalShift、readerValue，确保每个场景都有阻力、转折和读者价值。",
-    "taskSheet 和 sceneCards 只能执行当前章的合同，不得提前占用相邻章的一次性事件，也不得重写上一章已经完成的里程碑。",
-    "如果 conflict_level_curve 标出用户锚定的 conflictLevel，该数值是硬约束，不得改写。",
-    "如果最近章节已经连续使用相同开场、相同推进路数或同类钩子，本章必须通过 sceneCards 主动做出差异化。",
-    "purpose、边界字段和 readerExperience 各字段只写 1 句，单字段不超过 120 个汉字；taskSheet 不超过 300 个汉字。",
-    "每个 sceneCard 的文本字段只写执行所需信息，单字段不超过 120 个汉字；不得扩写正文或对白。",
-    "targetWordCount 必须沿用当前目标章节的字数预算，范围只能是 200-20000，不能误用全书或全卷字数。",
-    "完成最后一个 sceneCard 后立即结束 JSON，禁止续写解释、复读或自我修正。",
-  ].join("\n");
+    return [
+        "You are a senior online article section editor.",
+        "The current task is to generate a chapter execution contract in one go that can be directly handed over to the writer.",
+        "Only output strict JSON, which must contain purpose, exclusiveEvent, endingState, nextChapterEntryState, conflictLevel, revealLevel, targetWordCount, mustAvoid, payoffRefs, taskSheet, readerExperience, sceneCards.",
+        "purpose Use one sentence to describe what exactly this chapter is going to advance, rather than a summary retelling.",
+        "Fields such as exclusiveEvent / endingState / nextChapterEntryState cannot be missing. They are the hard boundary contracts of chapters.",
+        "taskSheet is a concise execution instruction for the text writer, and sceneCards is an execution disassembly of 3-8 scene cards.",
+        "readerExperience is the only reader experience contract in this chapter and must completely contain readerQuestion, promisedReward, rewardLevel, protagonistWant, primaryResistance, keyTurn, emotionalShift, informationReveal, netChange, inheritedHookResponsibilities, and endingHook.",
+        "rewardLevel can only use setup, partial, and major; promisedReward and netChange must be directly perceived by readers in the text.",
+        "In addition to the original fields, sceneCards must also contain resistance, turn, emotionalShift, and readerValue to ensure that each scene has resistance, turn, and reader value.",
+        "taskSheet and sceneCards can only execute the contract of the current chapter, and may not occupy one-time events of adjacent chapters in advance, nor may they overwrite the completed milestones of the previous chapter.",
+        "If conflict_level_curve marks a user-anchored conflictLevel, this value is a hard constraint and must not be overridden.",
+        "If recent chapters have used the same opening, the same number of advancements, or the same kind of hooks consecutively, this chapter must be actively differentiated through sceneCards.",
+        "Only one sentence should be written for each field of purpose, boundary field and readerExperience, and a single field should not exceed 120 words; taskSheet should not exceed 300 words.",
+        "Only the information required for execution is written in the text field of each sceneCard, and a single field cannot exceed 120 words; no extension of text or dialogue is allowed.",
+        "targetWordCount must follow the word count budget of the current target chapter, and the range can only be 200-20000. The word count of the whole book or volume cannot be misused.",
+        "End JSON immediately after completing the last sceneCard, prohibiting continued interpretation, rereading or self-correction.",
+    ].join("\n");
 }
-
 function buildChapterDetailPrompt(contextText: string, detailMode: VolumeChapterDetailPromptInput["detailMode"]): string {
-  return [
-    `detail mode: ${detailMode}`,
-    "",
-    "chapter detail context:",
-    contextText,
-  ].join("\n");
+    return [
+        `detail mode: ${detailMode}`,
+        "",
+        "chapter detail context:",
+        contextText,
+    ].join("\n");
 }
-
 const baseContextPolicy = {
-  maxTokensBudget: NOVEL_PROMPT_BUDGETS.volumeChapterDetail,
-  requiredGroups: ["book_contract", "target_volume", "chapter_neighbors", "chapter_detail_draft"],
-  preferredGroups: ["recent_execution_contracts", "macro_constraints", "target_beat_sheet", "volume_window"],
-  dropOrder: ["volume_window"],
+    maxTokensBudget: NOVEL_PROMPT_BUDGETS.volumeChapterDetail,
+    requiredGroups: ["book_contract", "target_volume", "chapter_neighbors", "chapter_detail_draft"],
+    preferredGroups: ["recent_execution_contracts", "macro_constraints", "target_beat_sheet", "volume_window"],
+    dropOrder: ["volume_window"],
 };
-
-export const volumeChapterPurposePrompt: PromptAsset<
-  VolumeChapterDetailPromptInput,
-  ReturnType<typeof createChapterPurposeSchema>["_output"]
-> = {
-  id: "novel.volume.chapter_purpose",
-  version: "v1",
-  taskType: "planner",
-  mode: "structured",
-  language: "zh",
-  contextPolicy: baseContextPolicy,
-  outputSchema: createChapterPurposeSchema(),
-  render: (input, context) => [
-    new SystemMessage(createVolumeDetailSystemPrompt("purpose")),
-    new HumanMessage(buildChapterDetailPrompt(renderSelectedContextBlocks(context), input.detailMode)),
-  ],
+export const volumeChapterPurposePrompt: PromptAsset<VolumeChapterDetailPromptInput, ReturnType<typeof createChapterPurposeSchema>["_output"]> = {
+    id: "novel.volume.chapter_purpose",
+    version: "v2",
+    taskType: "planner",
+    mode: "structured",
+    language: "ka",
+    contextPolicy: baseContextPolicy,
+    outputSchema: createChapterPurposeSchema(),
+    render: (input, context) => [
+        new SystemMessage(createVolumeDetailSystemPrompt("purpose")),
+        new HumanMessage(buildChapterDetailPrompt(renderSelectedContextBlocks(context), input.detailMode)),
+    ]
 };
-
-export const volumeChapterBoundaryPrompt: PromptAsset<
-  VolumeChapterDetailPromptInput,
-  ReturnType<typeof createChapterBoundarySchema>["_output"]
-> = {
-  id: "novel.volume.chapter_boundary",
-  version: "v1",
-  taskType: "planner",
-  mode: "structured",
-  language: "zh",
-  contextPolicy: baseContextPolicy,
-  semanticRetryPolicy: {
-    maxAttempts: 2,
-  },
-  outputSchema: createChapterBoundarySchema(),
-  render: (input, context) => [
-    new SystemMessage(createVolumeDetailSystemPrompt("boundary")),
-    new HumanMessage(buildChapterDetailPrompt(renderSelectedContextBlocks(context), input.detailMode)),
-  ],
-  postValidate: (output, input) => validateBoundaryContract(output, input),
+export const volumeChapterBoundaryPrompt: PromptAsset<VolumeChapterDetailPromptInput, ReturnType<typeof createChapterBoundarySchema>["_output"]> = {
+    id: "novel.volume.chapter_boundary",
+    version: "v2",
+    taskType: "planner",
+    mode: "structured",
+    language: "ka",
+    contextPolicy: baseContextPolicy,
+    semanticRetryPolicy: {
+        maxAttempts: 2,
+    },
+    outputSchema: createChapterBoundarySchema(),
+    render: (input, context) => [
+        new SystemMessage(createVolumeDetailSystemPrompt("boundary")),
+        new HumanMessage(buildChapterDetailPrompt(renderSelectedContextBlocks(context), input.detailMode)),
+    ],
+    postValidate: (output, input) => validateBoundaryContract(output, input)
 };
-
-export const volumeChapterTaskSheetPrompt: PromptAsset<
-  VolumeChapterDetailPromptInput,
-  ReturnType<typeof createChapterTaskSheetSchema>["_output"]
-> = {
-  id: "novel.volume.chapter_task_sheet",
-  version: "v3",
-  taskType: "planner",
-  mode: "structured",
-  language: "zh",
-  contextPolicy: baseContextPolicy,
-  semanticRetryPolicy: {
-    maxAttempts: 2,
-  },
-  outputSchema: createChapterTaskSheetSchema(),
-  render: (input, context) => [
-    new SystemMessage(createVolumeDetailSystemPrompt("task_sheet")),
-    new HumanMessage(buildChapterDetailPrompt(renderSelectedContextBlocks(context), input.detailMode)),
-  ],
-  postValidate: (output, input) => validateAdjacentChapterBoundary(output, input),
+export const volumeChapterTaskSheetPrompt: PromptAsset<VolumeChapterDetailPromptInput, ReturnType<typeof createChapterTaskSheetSchema>["_output"]> = {
+    id: "novel.volume.chapter_task_sheet",
+    version: "v4",
+    taskType: "planner",
+    mode: "structured",
+    language: "ka",
+    contextPolicy: baseContextPolicy,
+    semanticRetryPolicy: {
+        maxAttempts: 2,
+    },
+    outputSchema: createChapterTaskSheetSchema(),
+    render: (input, context) => [
+        new SystemMessage(createVolumeDetailSystemPrompt("task_sheet")),
+        new HumanMessage(buildChapterDetailPrompt(renderSelectedContextBlocks(context), input.detailMode)),
+    ],
+    postValidate: (output, input) => validateAdjacentChapterBoundary(output, input)
 };
-
-export const volumeChapterExecutionContractPrompt: PromptAsset<
-  VolumeChapterDetailPromptInput,
-  ReturnType<typeof createChapterExecutionContractSchema>["_output"]
-> = {
-  id: "novel.volume.chapter_execution_contract",
-  version: "v3",
-  taskType: "planner",
-  mode: "structured",
-  language: "zh",
-  contextPolicy: baseContextPolicy,
-  semanticRetryPolicy: {
-    maxAttempts: 2,
-  },
-  outputSchema: createChapterExecutionContractSchema(),
-  render: (input, context) => [
-    new SystemMessage(createExecutionContractSystemPrompt()),
-    new HumanMessage(buildChapterDetailPrompt(renderSelectedContextBlocks(context), input.detailMode)),
-  ],
-  postValidate: (output, input) => {
-    validateBoundaryContract(output, input);
-    validateAdjacentChapterBoundary(output, input);
-    return output;
-  },
+export const volumeChapterExecutionContractPrompt: PromptAsset<VolumeChapterDetailPromptInput, ReturnType<typeof createChapterExecutionContractSchema>["_output"]> = {
+    id: "novel.volume.chapter_execution_contract",
+    version: "v4",
+    taskType: "planner",
+    mode: "structured",
+    language: "ka",
+    contextPolicy: baseContextPolicy,
+    semanticRetryPolicy: {
+        maxAttempts: 2,
+    },
+    outputSchema: createChapterExecutionContractSchema(),
+    render: (input, context) => [
+        new SystemMessage(createExecutionContractSystemPrompt()),
+        new HumanMessage(buildChapterDetailPrompt(renderSelectedContextBlocks(context), input.detailMode)),
+    ],
+    postValidate: (output, input) => {
+        validateBoundaryContract(output, input);
+        validateAdjacentChapterBoundary(output, input);
+        return output;
+    }
 };
-
 export { buildVolumeChapterDetailContextBlocks };

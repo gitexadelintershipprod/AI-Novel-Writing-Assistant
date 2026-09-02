@@ -13,6 +13,7 @@ import { buildSyntheticPayoffIssues } from "../../payoff/payoffLedgerShared";
 import type { ChapterRuntimeRequestInput } from "./chapterRuntimeSchema";
 import type { StyleReviewResult } from "./PostGenerationStyleReviewRunner";
 import type { ChapterTimelineGateResult } from "./ChapterTimelineFinalizationService";
+import { countGeorgianWords } from "@ai-novel/shared/utils/georgianTextMetrics";
 
 export type TimelineGateResult = ChapterTimelineGateResult;
 
@@ -89,7 +90,7 @@ export function parseStringArray(value: string | null | undefined): string[] {
 }
 
 export function countChapterCharacters(content: string): number {
-  return content.replace(/\s+/g, "").trim().length;
+  return countGeorgianWords(content);
 }
 
 export function hashContent(content: string): string {

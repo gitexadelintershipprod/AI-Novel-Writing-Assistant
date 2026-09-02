@@ -179,20 +179,20 @@ export default function CreationStudioPage() {
           />
           <div className="flex flex-col gap-3 border-t border-border/60 pt-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex min-w-0 items-center gap-2 text-sm text-muted-foreground">
-              <span className="shrink-0">目标平台</span>
+              <span className="shrink-0">Writing profile</span>
               <Select
                 value={initialPlatformPreference}
                 onValueChange={(value) => setInitialPlatformPreference(value as WritingPlatformPreference)}
               >
-                <SelectTrigger aria-label="选择目标平台" className="h-9 min-w-[11rem] rounded-md px-2.5 text-sm">
+                <SelectTrigger aria-label="Select writing profile" className="h-9 min-w-[11rem] rounded-md px-2.5 text-sm">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ai_recommend">让 AI 推荐</SelectItem>
-                  <SelectItem value="fanqie_free">番茄免费网文</SelectItem>
-                  {!shortStoryEntry ? <SelectItem value="qidian_male">起点男频</SelectItem> : null}
-                  {!shortStoryEntry ? <SelectItem value="jinjiang_female">晋江女频</SelectItem> : null}
-                  <SelectItem value="zhihu_story">知乎短故事</SelectItem>
+                  <SelectItem value="ai_recommend">Let AI recommend</SelectItem>
+                  <SelectItem value="fanqie_free">Georgian Serial</SelectItem>
+                  {!shortStoryEntry ? <SelectItem value="qidian_male">Progression &amp; Adventure</SelectItem> : null}
+                  {!shortStoryEntry ? <SelectItem value="jinjiang_female">Character &amp; Relationship</SelectItem> : null}
+                  <SelectItem value="zhihu_story">Georgian Short Story</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -218,7 +218,7 @@ export default function CreationStudioPage() {
                 <div className="text-xs font-medium uppercase tracking-wider text-primary">AI 对作品的理解</div>
                 <p className="mt-2 text-sm leading-7 text-foreground">{interpretation.understanding}</p>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">{interpretation.recommendationReason}</p>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">平台建议：{interpretation.writingPlatformReason}</p>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">Writing profile: {interpretation.writingPlatformReason}</p>
                 {interpretation.productionFoundation ? (
                   <div className="mt-4 border-t border-border/60 pt-3">
                     <div className="text-xs text-muted-foreground">AI 建议的创作底座</div>
@@ -241,7 +241,7 @@ export default function CreationStudioPage() {
                 targetWordCount={targetWordCount}
                 onFormChange={(form) => {
                   setNarrativeForm(form);
-                  setTargetWordCount(form === "short_story" ? 8000 : 200000);
+                  setTargetWordCount(form === "short_story" ? 5000 : 80000);
                   setWritingPlatform("fanqie_free");
                 }}
                 onTargetChange={setTargetWordCount}
@@ -377,7 +377,7 @@ function ScaleControls(props: {
         </Button>
       </div>
       <label className="block">
-        <span className="text-xs text-muted-foreground">目标字数</span>
+        <span className="text-xs text-muted-foreground">Target words</span>
         <Input
           className="mt-1"
           type="number"
@@ -389,7 +389,7 @@ function ScaleControls(props: {
         />
       </label>
       <div className="block">
-        <span className="text-xs text-muted-foreground">目标平台</span>
+        <span className="text-xs text-muted-foreground">Writing profile</span>
         <Select
           value={props.writingPlatform}
           onValueChange={(value) => props.onPlatformChange(value as WritingPlatform)}
@@ -398,13 +398,13 @@ function ScaleControls(props: {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="fanqie_free">番茄免费网文</SelectItem>
-            {props.narrativeForm === "long_novel" ? <SelectItem value="qidian_male">起点男频</SelectItem> : null}
-            {props.narrativeForm === "long_novel" ? <SelectItem value="jinjiang_female">晋江女频</SelectItem> : null}
-            {props.narrativeForm === "short_story" ? <SelectItem value="zhihu_story">知乎短故事</SelectItem> : null}
+            <SelectItem value="fanqie_free">Georgian Serial</SelectItem>
+            {props.narrativeForm === "long_novel" ? <SelectItem value="qidian_male">Progression &amp; Adventure</SelectItem> : null}
+            {props.narrativeForm === "long_novel" ? <SelectItem value="jinjiang_female">Character &amp; Relationship</SelectItem> : null}
+            {props.narrativeForm === "short_story" ? <SelectItem value="zhihu_story">Georgian Short Story</SelectItem> : null}
           </SelectContent>
         </Select>
-        <p className="mt-2 text-[11px] leading-5 text-muted-foreground">AI 会按平台调整开篇、推进、回报和语言读感。</p>
+        <p className="mt-2 text-[11px] leading-5 text-muted-foreground">AI adapts the opening, pacing, payoff, and Georgian prose to this profile.</p>
       </div>
     </div>
   );

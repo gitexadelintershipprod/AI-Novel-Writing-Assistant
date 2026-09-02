@@ -36,7 +36,7 @@ export function parseWritingPlatformSnapshot(raw: string | null | undefined): Wr
 }
 
 export function shortStoryPlatformText(snapshot: WritingPlatformSnapshot | null, stage: "planning" | "drafting" | "auditing" | "repairing"): string {
-  if (!snapshot) return "沿用通用中文商业网文写法，优先保证事件推进、因果清晰、人物主动和完整结局。";
+  if (!snapshot) return "Use natural Georgian serial-fiction craft: prioritize event progression, clear causality, active characters, and a complete ending.";
   return `${snapshot.label}（配置版本 ${snapshot.profileVersion}）：${snapshot.guidance[stage]}`;
 }
 

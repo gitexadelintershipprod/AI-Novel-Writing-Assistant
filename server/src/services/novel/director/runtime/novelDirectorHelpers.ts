@@ -240,7 +240,7 @@ export function normalizeCandidate(
 ): DirectorCandidate {
   return {
     id: randomUUID(),
-    workingTitle: candidate.workingTitle.trim() || `方案 ${index + 1}`,
+    workingTitle: candidate.workingTitle.trim() || `Candidate ${index + 1}`,
     titleOptions: [],
     logline: candidate.logline.trim(),
     positioning: candidate.positioning.trim(),
@@ -299,33 +299,33 @@ function buildCandidateTitleBrief(
   excludedTitles: string[] = [],
 ): string {
   const lines = [
-    `故事灵感：${context.idea.trim()}`,
-    `方案定位：${candidate.positioning}`,
-    `核心卖点：${candidate.sellingPoint}`,
-    `主线冲突：${candidate.coreConflict}`,
-    `主角路径：${candidate.protagonistPath}`,
-    `开篇钩子：${candidate.hookStrategy}`,
-    `推进循环：${candidate.progressionLoop}`,
-    `结局方向：${candidate.endingDirection}`,
-    `推荐发布平台：${candidate.recommendedWritingPlatform === "qidian_male"
-      ? "起点男频"
+    `Story inspiration: ${context.idea.trim()}`,
+    `Candidate positioning: ${candidate.positioning}`,
+    `Core appeal: ${candidate.sellingPoint}`,
+    `Main conflict: ${candidate.coreConflict}`,
+    `Protagonist path: ${candidate.protagonistPath}`,
+    `Opening hook: ${candidate.hookStrategy}`,
+    `Progression loop: ${candidate.progressionLoop}`,
+    `Ending direction: ${candidate.endingDirection}`,
+    `Recommended writing profile: ${candidate.recommendedWritingPlatform === "qidian_male"
+      ? "Qidian male channel"
       : candidate.recommendedWritingPlatform === "jinjiang_female"
-        ? "晋江女频"
-        : "番茄免费网文"}`,
-    candidate.writingPlatformReason?.trim() ? `平台判断理由：${candidate.writingPlatformReason.trim()}` : "",
-    context.request.readerChannelPreference === "male_oriented" ? "读者频道：男频向" : "",
-    context.request.readerChannelPreference === "female_oriented" ? "读者频道：女频向" : "",
-    context.request.readerChannelPreference === "general" ? "读者频道：泛读者" : "",
-    context.request.targetAudience?.trim() ? `目标读者：${context.request.targetAudience.trim()}` : "",
-    context.request.marketBriefPrompt?.trim() ? `开书市场简报：\n${context.request.marketBriefPrompt.trim()}` : "",
-    candidate.toneKeywords.length > 0 ? `气质关键词：${candidate.toneKeywords.join("、")}` : "",
-    context.request.title?.trim() ? `用户当前草拟标题：${context.request.title.trim()}` : "",
-    `当前方案原始命名：${candidate.workingTitle}`,
-    excludedTitles.length > 0 ? `其他方案已占用书名：${excludedTitles.join("、")}` : "",
-    "请先确定一个最适合当前平台、读者与故事方向的主书名，再给出三个不同角度的备选。",
-    "主书名必须保留这套故事独有的具体资产，不能只剩抽象情绪、泛化反差或一句悬念文案。",
-    "不要写成策划案标题、世界观概念短语、流水线土味套壳名，也不要为了文艺感牺牲点击感。",
-    excludedTitles.length > 0 ? "不得复用或近似改写其他方案已占用的书名。" : "",
+        ? "Jinjiang female channel"
+        : "Tomato free web articles"}`,
+    candidate.writingPlatformReason?.trim() ? `Profile rationale: ${candidate.writingPlatformReason.trim()}` : "",
+    context.request.readerChannelPreference === "male_oriented" ? "Audience orientation: progression-oriented" : "",
+    context.request.readerChannelPreference === "female_oriented" ? "Audience orientation: relationship-oriented" : "",
+    context.request.readerChannelPreference === "general" ? "Audience orientation: broad audience" : "",
+    context.request.targetAudience?.trim() ? `Target audience: ${context.request.targetAudience.trim()}` : "",
+    context.request.marketBriefPrompt?.trim() ? `Market brief: \n${context.request.marketBriefPrompt.trim()}` : "",
+    candidate.toneKeywords.length > 0 ? `Tone keywords: ${candidate.toneKeywords.join(", ")}` : "",
+    context.request.title?.trim() ? `User's draft title: ${context.request.title.trim()}` : "",
+    `Current candidate's original title: ${candidate.workingTitle}`,
+    excludedTitles.length > 0 ? `Titles already used by other candidates: ${excludedTitles.join(", ")}` : "",
+    "Choose the strongest main title for the current writing profile, audience, and story direction, then provide three alternatives from distinct angles.",
+    "The main title must retain concrete assets unique to this story rather than collapsing into an abstract mood, generic contrast, or teaser line.",
+    "Do not use a planning-document title, a bare worldbuilding phrase, or a formulaic shell; do not sacrifice immediate appeal for decorative literary tone.",
+    excludedTitles.length > 0 ? "Do not reuse or closely paraphrase titles already assigned to other candidates." : "",
   ].filter(Boolean);
   return lines.join("\n");
 }
@@ -398,8 +398,8 @@ function buildFallbackTitleOption(candidate: DirectorCandidate): TitleFactorySug
     title: candidate.workingTitle,
     clickRate: 60,
     style: "high_concept",
-    angle: "原始方案书名",
-    reason: "沿用导演候选原始命名。",
+    angle: "Original candidate title",
+    reason: "Keep the original Auto Director candidate title.",
   };
 }
 
@@ -437,34 +437,34 @@ export function buildRefinementSummary(
     DIRECTOR_CORRECTION_PRESETS.find((item) => item.value === preset)?.label ?? preset
   ));
   const fragments = [
-    presetSummary.length > 0 ? `预设修正：${presetSummary.join("、")}` : "",
-    feedback?.trim() ? `补充说明：${feedback.trim()}` : "",
+    presetSummary.length > 0 ? `Preset corrections: ${presetSummary.join(", ")}` : "",
+    feedback?.trim() ? `Additional note: ${feedback.trim()}` : "",
   ].filter(Boolean);
-  return fragments.join("；") || "按上一轮意见重新生成";
+  return fragments.join("; ") || "Regenerate from the previous feedback";
 }
 
 export function buildStoryInput(input: DirectorConfirmRequest, bookSpec: BookSpec): string {
   const lines = [
     input.idea.trim(),
-    input.description?.trim() ? `补充概述：${input.description.trim()}` : "",
-    input.targetAudience?.trim() ? `目标读者：${input.targetAudience.trim()}` : "",
-    input.bookSellingPoint?.trim() ? `书级卖点：${input.bookSellingPoint.trim()}` : "",
-    input.competingFeel?.trim() ? `对标气质：${input.competingFeel.trim()}` : "",
-    input.first30ChapterPromise?.trim() ? `前30章承诺：${input.first30ChapterPromise.trim()}` : "",
-    input.commercialTags && input.commercialTags.length > 0 ? `商业标签：${input.commercialTags.join("、")}` : "",
-    input.genreId?.trim() ? `题材基底：${input.genreId.trim()}` : "",
-    input.primaryStoryModeId?.trim() ? `主推进模式：${input.primaryStoryModeId.trim()}` : "",
-    input.secondaryStoryModeId?.trim() ? `副推进模式：${input.secondaryStoryModeId.trim()}` : "",
-    `确认方案：${input.candidate.workingTitle}`,
-    `作品定位：${bookSpec.positioning}`,
-    `核心卖点：${bookSpec.sellingPoint}`,
-    `主线冲突：${bookSpec.coreConflict}`,
-    `主角路径：${bookSpec.protagonistPath}`,
-    `主钩子：${bookSpec.hookStrategy}`,
-    `推进循环：${bookSpec.progressionLoop}`,
-    `结局方向：${bookSpec.endingDirection}`,
+    input.description?.trim() ? `Additional description: ${input.description.trim()}` : "",
+    input.targetAudience?.trim() ? `Target audience: ${input.targetAudience.trim()}` : "",
+    input.bookSellingPoint?.trim() ? `Book-level appeal: ${input.bookSellingPoint.trim()}` : "",
+    input.competingFeel?.trim() ? `Reference tone: ${input.competingFeel.trim()}` : "",
+    input.first30ChapterPromise?.trim() ? `First-30-chapter promise: ${input.first30ChapterPromise.trim()}` : "",
+    input.commercialTags && input.commercialTags.length > 0 ? `Commercial tags: ${input.commercialTags.join(", ")}` : "",
+    input.genreId?.trim() ? `Genre foundation: ${input.genreId.trim()}` : "",
+    input.primaryStoryModeId?.trim() ? `Primary story mode: ${input.primaryStoryModeId.trim()}` : "",
+    input.secondaryStoryModeId?.trim() ? `Secondary story mode: ${input.secondaryStoryModeId.trim()}` : "",
+    `Confirmed candidate: ${input.candidate.workingTitle}`,
+    `Work positioning: ${bookSpec.positioning}`,
+    `Core appeal: ${bookSpec.sellingPoint}`,
+    `Main conflict: ${bookSpec.coreConflict}`,
+    `Protagonist path: ${bookSpec.protagonistPath}`,
+    `Main hook: ${bookSpec.hookStrategy}`,
+    `Progression loop: ${bookSpec.progressionLoop}`,
+    `Ending direction: ${bookSpec.endingDirection}`,
     input.stepCalibrationInstruction?.trim()
-      ? `当前步骤校准要求：${input.stepCalibrationInstruction.trim()}`
+      ? `Current-step calibration: ${input.stepCalibrationInstruction.trim()}`
       : "",
   ].filter(Boolean);
   return lines.join("\n");
@@ -502,7 +502,7 @@ export function buildWorkflowSeedPayload(
     bookSellingPoint: input.bookSellingPoint?.trim() || "",
     competingFeel: input.competingFeel?.trim() || "",
     first30ChapterPromise: input.first30ChapterPromise?.trim() || "",
-    commercialTagsText: input.commercialTags?.join("，") || "",
+    commercialTagsText: input.commercialTags?.join(", ") || "",
     genreId: input.genreId ?? "",
     primaryStoryModeId: input.primaryStoryModeId ?? "",
     secondaryStoryModeId: input.secondaryStoryModeId ?? "",

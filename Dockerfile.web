@@ -12,6 +12,7 @@ WORKDIR /app
 RUN rm -rf /app/* /app/.[!.]* /app/..?* || true
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json .npmrc ./
 COPY client/package.json ./client/package.json
+COPY desktop/package.json ./desktop/package.json
 COPY shared/package.json ./shared/package.json
 RUN pnpm install --frozen-lockfile --filter @ai-novel/shared --filter @ai-novel/client
 
@@ -24,6 +25,8 @@ ENV VITE_MARKET_RADAR_ENABLED=${VITE_MARKET_RADAR_ENABLED}
 COPY shared/package.json shared/tsconfig.json ./shared/
 COPY shared/*.ts ./shared/
 COPY shared/types ./shared/types
+COPY shared/utils ./shared/utils
+COPY desktop/package.json ./desktop/package.json
 COPY client/package.json client/tsconfig.json client/vite.config.ts client/tailwind.config.ts client/postcss.config.js client/components.json client/index.html ./client/
 COPY client/public ./client/public
 COPY client/src ./client/src

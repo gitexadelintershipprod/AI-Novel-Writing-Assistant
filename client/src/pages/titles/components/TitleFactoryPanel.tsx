@@ -315,7 +315,7 @@ export default function TitleFactoryPanel({ genreTree, novels }: TitleFactoryPan
         <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
           <h3 className="text-base font-semibold text-foreground">候选结果</h3>
           <div className="text-xs text-muted-foreground">
-            {suggestions.length > 0 ? `已按点击潜力排序，共 ${suggestions.length} 个` : "结果会在生成后显示"}
+            {suggestions.length > 0 ? `Sorted by AI hook score · ${suggestions.length} titles` : "Results appear here after generation"}
           </div>
         </div>
         <TitleSuggestionList

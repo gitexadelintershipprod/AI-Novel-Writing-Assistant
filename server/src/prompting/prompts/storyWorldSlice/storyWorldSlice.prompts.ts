@@ -1,179 +1,175 @@
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { z } from "zod";
-import type {
-  StoryWorldSliceBuilderMode,
-  StoryWorldSliceOverrides,
-} from "@ai-novel/shared/types/storyWorldSlice";
-import type {
-  WorldBindingSupport,
-  WorldStructuredData,
-} from "@ai-novel/shared/types/world";
+import type { StoryWorldSliceBuilderMode, StoryWorldSliceOverrides, } from "@ai-novel/shared/types/storyWorldSlice";
+import type { WorldBindingSupport, WorldStructuredData, } from "@ai-novel/shared/types/world";
 import type { PromptAsset } from "../../core/promptTypes";
 import { buildBookFramingSummary } from "../../../services/novel/bookFraming";
 import { storyWorldSliceRawPayloadSchema } from "./storyWorldSlice.promptSchemas";
-
 export interface StoryWorldSlicePromptInput {
-  novel: {
-    id: string;
-    title: string;
-    description?: string | null;
-    targetAudience?: string | null;
-    bookSellingPoint?: string | null;
-    competingFeel?: string | null;
-    first30ChapterPromise?: string | null;
-    commercialTagsJson?: string | null;
-    styleTone?: string | null;
-    narrativePov?: string | null;
-    pacePreference?: string | null;
-    emotionIntensity?: string | null;
-  };
-  structure: WorldStructuredData;
-  bindingSupport: WorldBindingSupport;
-  storyInput: string;
-  overrides: StoryWorldSliceOverrides;
-  builderMode: StoryWorldSliceBuilderMode;
+    novel: {
+        id: string;
+        title: string;
+        description?: string | null;
+        targetAudience?: string | null;
+        bookSellingPoint?: string | null;
+        competingFeel?: string | null;
+        first30ChapterPromise?: string | null;
+        commercialTagsJson?: string | null;
+        styleTone?: string | null;
+        narrativePov?: string | null;
+        pacePreference?: string | null;
+        emotionIntensity?: string | null;
+    };
+    structure: WorldStructuredData;
+    bindingSupport: WorldBindingSupport;
+    storyInput: string;
+    overrides: StoryWorldSliceOverrides;
+    builderMode: StoryWorldSliceBuilderMode;
 }
-
 function formatRules(structure: WorldStructuredData): string {
-  if (structure.rules.axioms.length === 0) {
-    return "暂无明确规则。";
-  }
-  return structure.rules.axioms
-    .map((rule) => [
-      `- [${rule.id}] ${rule.name}`,
-      rule.summary && `说明: ${rule.summary}`,
-      rule.cost && `代价: ${rule.cost}`,
-      rule.boundary && `边界: ${rule.boundary}`,
-      rule.enforcement && `执行后果: ${rule.enforcement}`,
+    if (structure.rules.axioms.length === 0) {
+        return "There are no clear rules yet.";
+    }
+    return structure.rules.axioms
+        .map((rule) => [
+        `- [${rule.id}] ${rule.name}`,
+        rule.summary && `Description: ${rule.summary}`,
+        rule.cost && `Price: ${rule.cost}`,
+        rule.boundary && `Border: ${rule.boundary}`,
+        rule.enforcement && `Execution consequences: ${rule.enforcement}`,
     ].filter(Boolean).join(" | "))
-    .join("\n");
+        .join("\n");
 }
-
 function formatForces(structure: WorldStructuredData): string {
-  if (structure.forces.length === 0) {
-    return "暂无明确势力。";
-  }
-  return structure.forces
-    .map((force) => [
-      `- [${force.id}] ${force.name}`,
-      force.type && `类型: ${force.type}`,
-      force.summary && `概述: ${force.summary}`,
-      force.currentObjective && `当前目标: ${force.currentObjective}`,
-      force.pressure && `施压方式: ${force.pressure}`,
-      force.narrativeRole && `叙事作用: ${force.narrativeRole}`,
+    if (structure.forces.length === 0) {
+        return "No clear force yet.";
+    }
+    return structure.forces
+        .map((force) => [
+        `- [${force.id}] ${force.name}`,
+        force.type && `Type: ${force.type}`,
+        force.summary && `Overview: ${force.summary}`,
+        force.currentObjective && `Current goals: ${force.currentObjective}`,
+        force.pressure && `Pressure method: ${force.pressure}`,
+        force.narrativeRole && `Narrative function: ${force.narrativeRole}`,
     ].filter(Boolean).join(" | "))
-    .join("\n");
+        .join("\n");
 }
-
 function formatLocations(structure: WorldStructuredData): string {
-  if (structure.locations.length === 0) {
-    return "暂无明确地点。";
-  }
-  return structure.locations
-    .map((location) => [
-      `- [${location.id}] ${location.name}`,
-      location.terrain && `地形: ${location.terrain}`,
-      location.summary && `概述: ${location.summary}`,
-      location.narrativeFunction && `叙事功能: ${location.narrativeFunction}`,
-      location.risk && `风险: ${location.risk}`,
-      location.entryConstraint && `进入限制: ${location.entryConstraint}`,
-      location.exitCost && `离开代价: ${location.exitCost}`,
+    if (structure.locations.length === 0) {
+        return "No specific location yet.";
+    }
+    return structure.locations
+        .map((location) => [
+        `- [${location.id}] ${location.name}`,
+        location.terrain && `Terrain: ${location.terrain}`,
+        location.summary && `Overview: ${location.summary}`,
+        location.narrativeFunction && `Narrative function: ${location.narrativeFunction}`,
+        location.risk && `Risk: ${location.risk}`,
+        location.entryConstraint && `Access restrictions: ${location.entryConstraint}`,
+        location.exitCost && `Cost of leaving: ${location.exitCost}`,
     ].filter(Boolean).join(" | "))
-    .join("\n");
+        .join("\n");
 }
-
-function buildStoryWorldSlicePrompt(input: StoryWorldSlicePromptInput): { system: string; user: string } {
-  const { novel, structure, bindingSupport, storyInput, overrides, builderMode } = input;
-  const bookFramingSummary = buildBookFramingSummary(novel);
-  return {
-    system: [
-      "你是小说世界接入规划器。",
-      "你的任务不是复述整个世界百科，而是把上游世界设定裁剪成『这本书会真正用到的世界设定』。",
-      "必须优先保留：会实际影响这本书冲突、地点调度、规则约束、悬念来源和压力来源的部分。",
-      "裁剪时必须优先围绕目标读者、核心卖点、商业标签和前 30 章承诺决定保留什么世界内容。",
-      "不要把所有世界设定都塞进结果。必须主动删掉和当前故事无关的设定。",
-      "如果用户输入的故事想法与世界边界或禁止搭配明显冲突，必须在 storyScopeBoundary 和 forbiddenCombinations 中体现冲突风险。",
-      "只允许输出严格 JSON，不要解释。",
-      "activeElements 首期只允许提炼为可叙事使用的线索、规则片段、地点线索或势力线索，不要发明新的世界模型。",
-      "activeForces、activeLocations、appliedRules 都必须引用现有的 id。",
-      "recommendedEntryPoints、pressureSources、conflictCandidates 可直接结合 bindingSupport 和当前故事意图裁剪。",
-      "【防止世界设定污染故事文本的关键约束】",
-      "coreWorldFrame、pressureSources、conflictCandidates、suggestedStoryAxes、recommendedEntryPoints、",
-      "storyScopeBoundary、mysterySources 等所有自由文本字段，必须使用故事内通用叙事语言描述，",
-      "例如「地方权贵」「执法机构」「同行竞争者」「市场管理规则」，",
-      "而不是直接搬用世界资产的专有名称（势力 id 对应的 name 字段、地点 id 对应的 name 字段等）。",
-      "专有名称只允许出现在 appliedRules/activeForces/activeLocations 的 id 引用字段中，",
-      "不得出现在上述自由文本字段里，以避免来自其他时代或地域的世界专有词汇污染当前故事文本生成。",
-      "如果世界来源与小说故事背景存在明显时代/地域不匹配（如历史战争世界 vs 现代都市故事），",
-      "必须在 storyScopeBoundary 中明确写出映射说明：「世界中的 X 在本书中映射为 Y」，",
-      "并在 forbiddenCombinations 中写出不应直接使用的原始世界专有词。",
-      "JSON 结构必须是：",
-      "{",
-      '  "coreWorldFrame": "这本书真正会用到的舞台概括",',
-      '  "appliedRules": [{"id":"rule-id","whyItMatters":"为什么这条规则会真实影响这本书"}],',
-      '  "activeForces": [{"id":"force-id","roleInStory":"在这本书中的作用","pressure":"这股力量会给主角/主线带来什么压力"}],',
-      '  "activeLocations": [{"id":"location-id","storyUse":"这个地点适合承载什么剧情","risk":"在这里会出什么问题"}],',
-      '  "activeElements": [{"id":"element-id","label":"元素名","type":"rule|force|location|binding","summary":"一句话说明"}],',
-      '  "conflictCandidates": ["可直接展开的冲突"],',
-      '  "pressureSources": ["主要压力源"],',
-      '  "mysterySources": ["适合持续吊读者的问题"],',
-      '  "suggestedStoryAxes": ["建议重点推进的故事轴"],',
-      '  "recommendedEntryPoints": ["适合开局的切入口"],',
-      '  "forbiddenCombinations": ["不应同时出现或会明显跑偏的搭配"],',
-      '  "storyScopeBoundary": "这本书应该把故事控制在什么边界内"',
-      "}",
-    ].join("\n"),
-    user: [
-      `小说标题：${novel.title}`,
-      novel.description?.trim() ? `小说简介：${novel.description.trim()}` : "",
-      bookFramingSummary ? `书级 framing：\n${bookFramingSummary}` : "",
-      storyInput.trim() ? `当前故事想法：${storyInput.trim()}` : "当前故事想法：暂无，按小说已知简介和世界设定裁剪。",
-      `当前用途：${builderMode}`,
-      novel.styleTone ? `风格倾向：${novel.styleTone}` : "",
-      novel.narrativePov ? `叙事人称：${novel.narrativePov}` : "",
-      novel.pacePreference ? `节奏偏好：${novel.pacePreference}` : "",
-      novel.emotionIntensity ? `情绪强度：${novel.emotionIntensity}` : "",
-      `世界概要：${structure.profile.summary || structure.profile.identity || "暂无"}`,
-      structure.profile.coreConflict ? `世界核心冲突：${structure.profile.coreConflict}` : "",
-      `可用规则：\n${formatRules(structure)}`,
-      `可用势力：\n${formatForces(structure)}`,
-      `可用地点：\n${formatLocations(structure)}`,
-      bindingSupport.recommendedEntryPoints.length > 0
-        ? `绑定建议里的入口：\n${bindingSupport.recommendedEntryPoints.map((item) => `- ${item}`).join("\n")}`
-        : "",
-      bindingSupport.highPressureForces.length > 0
-        ? `绑定建议里的高压来源：\n${bindingSupport.highPressureForces.map((item) => `- ${item}`).join("\n")}`
-        : "",
-      bindingSupport.compatibleConflicts.length > 0
-        ? `绑定建议里的冲突候选：\n${bindingSupport.compatibleConflicts.map((item) => `- ${item}`).join("\n")}`
-        : "",
-      bindingSupport.forbiddenCombinations.length > 0
-        ? `绑定建议里的禁配：\n${bindingSupport.forbiddenCombinations.map((item) => `- ${item}`).join("\n")}`
-        : "",
-      `小说侧强制保留项：${JSON.stringify(overrides)}`,
-      "请基于这本小说真正需要用到的部分进行裁剪，不要把世界全量复制下来。",
-    ].filter(Boolean).join("\n\n"),
-  };
+function buildStoryWorldSlicePrompt(input: StoryWorldSlicePromptInput): {
+    system: string;
+    user: string;
+} {
+    const { novel, structure, bindingSupport, storyInput, overrides, builderMode } = input;
+    const bookFramingSummary = buildBookFramingSummary(novel);
+    return {
+        system: [
+            "You are the novel world access planner.",
+            "Your task is not to recite the entire world encyclopedia, but to tailor the upstream world setting into \"the world setting that this book will actually use.\"",
+            "Priority must be reserved: the parts that will actually affect the book's conflicts, locations, rules, sources of suspense, and sources of stress.",
+            "When cutting, decisions about what world to keep must be prioritized around target readers, core selling points, commercial tags, and the promise of the first 30 chapters.",
+            "Don't cram all the world setting into the outcome. Settings that are irrelevant to the current story must be actively deleted.",
+            "If a user-entered story idea clearly conflicts with world boundaries or forbidden combinations, the risk of conflict must be reflected in storyScopeBoundary and forbiddenCombinations.",
+            "Only strict JSON output is allowed, no interpretation.",
+            "The first issue of activeElements is only allowed to be refined into clues, rule fragments, location clues or force clues that can be used in narratives. No new world models are allowed to be invented.",
+            "activeForces, activeLocations, appliedRules must all reference existing ids.",
+            "recommendedEntryPoints, pressureSources, conflictCandidates can be directly combined with bindingSupport and current story intent tailoring.",
+            "[Key constraints to prevent the world setting from contaminating the story text]",
+            "coreWorldFrame、pressureSources、conflictCandidates、suggestedStoryAxes、recommendedEntryPoints、",
+            "All free text fields such as storyScopeBoundary and mysterySources must be described using the common narrative language within the story.",
+            "For example, \"local dignitaries\", \"law enforcement agencies\", \"competitors\", \"market management rules\",",
+            "Instead of directly copying the proprietary names of world assets (the name field corresponding to the force id, the name field corresponding to the location id, etc.).",
+            "Distinguished names are only allowed in the id reference field of appliedRules/activeForces/activeLocations,",
+            "It must not appear in the above-mentioned free text fields to prevent world-specific words from other eras or regions from contaminating the current story text generation.",
+            "If there is an obvious era/region mismatch between the world source and the novel's story background (such as a historical war world vs a modern urban story),",
+            "The mapping description must be clearly written in the storyScopeBoundary: \"X in the world is mapped to Y in this book\",",
+            "And write the original world-specific words in forbiddenCombinations that should not be used directly.",
+            "The JSON structure must be:",
+            "{",
+            "  \"coreWorldFrame\": \"A stage summary that this book will actually use\",",
+            "  \"appliedRules\": [{\"id\":\"rule-id\",\"whyItMatters\":\"Why this rule really affects this book\"}],",
+            "  \"activeForces\": [{\"id\":\"force-id\",\"roleInStory\":\"Role in this book\",\"pressure\":\"What pressure will this force bring to the protagonist/main line\"}],",
+            "  \"activeLocations\": [{\"id\":\"location-id\",\"storyUse\":\"What plot is this location suitable for?\",\"risk\":\"What problems will occur here\"}],",
+            "  \"activeElements\": [{\"id\":\"element-id\",\"label\":\"Element name\",\"type\":\"rule|force|location|binding\",\"summary\":\"One sentence description\"}],",
+            "  \"conflictCandidates\": [\"Directly expandable conflicts\"],",
+            "  \"pressureSources\": [\"Main pressure sources\"],",
+            "  \"mysterySources\": [\"Questions suitable for continuing to amaze readers\"],",
+            "  \"suggestedStoryAxes\": [\"Suggested story axes to focus on\"],",
+            "  \"recommendedEntryPoints\": [\"A suitable entry point for the start\"],",
+            "  \"forbiddenCombinations\": [\"combinations that should not appear at the same time or will obviously deviate\"],",
+            "  \"storyScopeBoundary\": \"What boundaries should this book control the story within?\"",
+            "}",
+        ].join("\n"),
+        user: [
+            `Novel title:${novel.title}`,
+            novel.description?.trim() ? `Introduction to the novel:${novel.description.trim()}` : "",
+            bookFramingSummary ? `Book-level framing:
+${bookFramingSummary}` : "",
+            storyInput.trim() ? `Current story ideas:${storyInput.trim()}` : "Current story ideas: None yet, tailored according to the known introduction and world setting of the novel.",
+            `Current use:${builderMode}`,
+            novel.styleTone ? `Style tendencies:${novel.styleTone}` : "",
+            novel.narrativePov ? `Narrator:${novel.narrativePov}` : "",
+            novel.pacePreference ? `Rhythm preference:${novel.pacePreference}` : "",
+            novel.emotionIntensity ? `Emotional intensity:${novel.emotionIntensity}` : "",
+            `World Summary:${structure.profile.summary || structure.profile.identity || "None yet"}`,
+            structure.profile.coreConflict ? `World Core Conflict:${structure.profile.coreConflict}` : "",
+            `Available rules:
+${formatRules(structure)}`,
+            `Available forces:
+${formatForces(structure)}`,
+            `Available locations:
+${formatLocations(structure)}`,
+            bindingSupport.recommendedEntryPoints.length > 0
+                ? `Entry in the binding suggestion:
+${bindingSupport.recommendedEntryPoints.map((item) => `- ${item}`).join("\n")}`
+                : "",
+            bindingSupport.highPressureForces.length > 0
+                ? `Sources of high voltage in binding recommendations:
+${bindingSupport.highPressureForces.map((item) => `- ${item}`).join("\n")}`
+                : "",
+            bindingSupport.compatibleConflicts.length > 0
+                ? `Conflict candidates in binding suggestions:
+${bindingSupport.compatibleConflicts.map((item) => `- ${item}`).join("\n")}`
+                : "",
+            bindingSupport.forbiddenCombinations.length > 0
+                ? `Prohibitions in binding recommendations:
+${bindingSupport.forbiddenCombinations.map((item) => `- ${item}`).join("\n")}`
+                : "",
+            `Mandatory reserved items on the novel side:${JSON.stringify(overrides)}`,
+            "Please cut based on the parts that are really needed for this novel, and do not copy the entire world.",
+        ].filter(Boolean).join("\n\n"),
+    };
 }
-
-export const storyWorldSlicePrompt: PromptAsset<
-  StoryWorldSlicePromptInput,
-  z.infer<typeof storyWorldSliceRawPayloadSchema>
-> = {
-  id: "storyWorldSlice.generate",
-  version: "v1",
-  taskType: "planner",
-  mode: "structured",
-  language: "zh",
-  contextPolicy: {
-    maxTokensBudget: 0,
-  },
-  outputSchema: storyWorldSliceRawPayloadSchema,
-  render: (input) => {
-    const prompt = buildStoryWorldSlicePrompt(input);
-    return [
-      new SystemMessage(prompt.system),
-      new HumanMessage(prompt.user),
-    ];
-  },
+export const storyWorldSlicePrompt: PromptAsset<StoryWorldSlicePromptInput, z.infer<typeof storyWorldSliceRawPayloadSchema>> = {
+    id: "storyWorldSlice.generate",
+    version: "v2",
+    taskType: "planner",
+    mode: "structured",
+    language: "ka",
+    contextPolicy: {
+        maxTokensBudget: 0,
+    },
+    outputSchema: storyWorldSliceRawPayloadSchema,
+    render: (input) => {
+        const prompt = buildStoryWorldSlicePrompt(input);
+        return [
+            new SystemMessage(prompt.system),
+            new HumanMessage(prompt.user),
+        ];
+    }
 };

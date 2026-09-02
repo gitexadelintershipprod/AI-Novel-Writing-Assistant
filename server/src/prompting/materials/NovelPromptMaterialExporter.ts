@@ -34,10 +34,10 @@ function truncateText(value: string | null | undefined, maxChars: number): strin
   if (text.length <= maxChars) {
     return text;
   }
-  return `${text.slice(0, Math.max(0, maxChars - 20)).trimEnd()}\n...[已裁剪]`;
+  return `${text.slice(0, Math.max(0, maxChars - 20)).trimEnd()}\n...[was truncated]`;
 }
 
-function jsonArrayPreview(value: string | null | undefined, fallback = "无"): string {
+function jsonArrayPreview(value: string | null | undefined, fallback = "None"): string {
   if (!value?.trim()) {
     return fallback;
   }
@@ -208,16 +208,16 @@ export class NovelPromptMaterialExporter {
       sourceId: novel.id,
       updatedAt: novel.updatedAt,
       content: compactLines([
-        `书名：${novel.title}`,
-        novel.description ? `简介：${novel.description}` : null,
-        novel.genre?.name ? `题材：${novel.genre.name}` : null,
-        novel.targetAudience ? `目标读者：${novel.targetAudience}` : null,
-        novel.bookSellingPoint ? `核心卖点：${novel.bookSellingPoint}` : null,
-        novel.first30ChapterPromise ? `前 30 章承诺：${novel.first30ChapterPromise}` : null,
-        novel.estimatedChapterCount ? `预计章节数：${novel.estimatedChapterCount}` : null,
-        novel.defaultChapterLength ? `默认章节长度：${novel.defaultChapterLength}` : null,
-        novel.primaryStoryMode?.name ? `主推进模式：${novel.primaryStoryMode.name}` : null,
-        novel.secondaryStoryMode?.name ? `辅助推进模式：${novel.secondaryStoryMode.name}` : null,
+        `Title: ${novel.title}`,
+        novel.description ? `Description: ${novel.description}` : null,
+        novel.genre?.name ? `Genre: ${novel.genre.name}` : null,
+        novel.targetAudience ? `Target audience: ${novel.targetAudience}` : null,
+        novel.bookSellingPoint ? `Core appeal: ${novel.bookSellingPoint}` : null,
+        novel.first30ChapterPromise ? `First-30-chapter promise: ${novel.first30ChapterPromise}` : null,
+        novel.estimatedChapterCount ? `Estimated chapters: ${novel.estimatedChapterCount}` : null,
+        novel.defaultChapterLength ? `Default chapter length: ${novel.defaultChapterLength}` : null,
+        novel.primaryStoryMode?.name ? `Primary story mode: ${novel.primaryStoryMode.name}` : null,
+        novel.secondaryStoryMode?.name ? `Secondary story mode: ${novel.secondaryStoryMode.name}` : null,
       ]),
     });
   }
@@ -240,18 +240,18 @@ export class NovelPromptMaterialExporter {
       sourceId: contract?.id ?? novel.storyMacroPlan?.id ?? novel.id,
       updatedAt: contract?.updatedAt ?? novel.storyMacroPlan?.updatedAt ?? novel.updatedAt,
       content: compactLines([
-        contract?.readingPromise ? `读者承诺：${contract.readingPromise}` : null,
-        contract?.coreSellingPoint ? `核心卖点：${contract.coreSellingPoint}` : null,
-        contract?.protagonistFantasy ? `主角爽点：${contract.protagonistFantasy}` : null,
-        contract?.relationshipMainline ? `关系主线：${contract.relationshipMainline}` : null,
-        contract?.escalationLadder ? `升级阶梯：${contract.escalationLadder}` : null,
-        contract?.chapter3Payoff ? `第 3 章回报：${contract.chapter3Payoff}` : null,
-        contract?.chapter10Payoff ? `第 10 章回报：${contract.chapter10Payoff}` : null,
-        contract?.chapter30Payoff ? `第 30 章回报：${contract.chapter30Payoff}` : null,
-        contract?.absoluteRedLinesJson ? `绝对红线：\n${jsonArrayPreview(contract.absoluteRedLinesJson)}` : null,
-        novel.storyMacroPlan?.storyInput ? `故事输入：${novel.storyMacroPlan.storyInput}` : null,
+        contract?.readingPromise ? `Reader promise: ${contract.readingPromise}` : null,
+        contract?.coreSellingPoint ? `Core appeal: ${contract.coreSellingPoint}` : null,
+        contract?.protagonistFantasy ? `Protagonist payoff fantasy: ${contract.protagonistFantasy}` : null,
+        contract?.relationshipMainline ? `Relationship mainline: ${contract.relationshipMainline}` : null,
+        contract?.escalationLadder ? `Escalation ladder: ${contract.escalationLadder}` : null,
+        contract?.chapter3Payoff ? `Chapter 3 payoff: ${contract.chapter3Payoff}` : null,
+        contract?.chapter10Payoff ? `Chapter 10 payoff: ${contract.chapter10Payoff}` : null,
+        contract?.chapter30Payoff ? `Chapter 30 payoff: ${contract.chapter30Payoff}` : null,
+        contract?.absoluteRedLinesJson ? `Absolute red lines: \n${jsonArrayPreview(contract.absoluteRedLinesJson)}` : null,
+        novel.storyMacroPlan?.storyInput ? `Story input: ${novel.storyMacroPlan.storyInput}` : null,
         novel.storyMacroPlan?.decompositionJson
-          ? `宏观拆解：\n${truncateText(novel.storyMacroPlan.decompositionJson, 1800)}`
+          ? `Macro decomposition: \n${truncateText(novel.storyMacroPlan.decompositionJson, 1800)}`
           : null,
       ]),
     });
@@ -276,13 +276,13 @@ export class NovelPromptMaterialExporter {
       sourceId: chapter.id,
       updatedAt: chapter.updatedAt,
       content: compactLines([
-        `章节：第 ${chapter.order} 章《${chapter.title}》`,
-        chapter.expectation ? `章节目标：${chapter.expectation}` : null,
-        chapter.taskSheet ? `任务单：\n${truncateText(chapter.taskSheet, 2200)}` : null,
-        chapter.sceneCards ? `场景卡：\n${truncateText(chapter.sceneCards, 1800)}` : null,
-        chapter.targetWordCount ? `目标字数：${chapter.targetWordCount}` : null,
-        chapter.mustAvoid ? `必须避免：${chapter.mustAvoid}` : null,
-        chapter.hook ? `章节钩子：${chapter.hook}` : null,
+        `Chapter: Chapter  ${chapter.order} “${chapter.title}”`,
+        chapter.expectation ? `Chapter objective: ${chapter.expectation}` : null,
+        chapter.taskSheet ? `Task sheet: \n${truncateText(chapter.taskSheet, 2200)}` : null,
+        chapter.sceneCards ? `Scene cards: \n${truncateText(chapter.sceneCards, 1800)}` : null,
+        chapter.targetWordCount ? `Target words: ${chapter.targetWordCount}` : null,
+        chapter.mustAvoid ? `Must avoid: ${chapter.mustAvoid}` : null,
+        chapter.hook ? `Chapter hook: ${chapter.hook}` : null,
       ]),
     });
   }
@@ -313,13 +313,13 @@ export class NovelPromptMaterialExporter {
       sourceId: chapter.id,
       updatedAt: chapter.updatedAt,
       content: compactLines([
-        `章节：第 ${chapter.order} 章《${chapter.title}》`,
-        `正文状态：${chapter.content?.trim() ? "已有正文" : "暂无正文"}`,
-        chapter.targetWordCount ? `目标字数：${chapter.targetWordCount}` : null,
-        summary?.summary ? `章节摘要：${summary.summary}` : null,
-        summary?.keyEvents ? `关键事件：${summary.keyEvents}` : null,
-        summary?.characterStates ? `角色状态：${summary.characterStates}` : null,
-        chapter.content ? `正文片段：\n${truncateText(chapter.content, 2600)}` : null,
+        `Chapter: Chapter  ${chapter.order} “${chapter.title}”`,
+        `Prose status: ${chapter.content?.trim() ? "Prose exists" : "No text yet"}`,
+        chapter.targetWordCount ? `Target words: ${chapter.targetWordCount}` : null,
+        summary?.summary ? `Chapter summary: ${summary.summary}` : null,
+        summary?.keyEvents ? `Key events: ${summary.keyEvents}` : null,
+        summary?.characterStates ? `Character states: ${summary.characterStates}` : null,
+        chapter.content ? `Prose excerpt: \n${truncateText(chapter.content, 2600)}` : null,
       ]),
     });
   }
@@ -347,10 +347,10 @@ export class NovelPromptMaterialExporter {
       return null;
     }
     const rows = recent.reverse().map((item) => compactLines([
-      `第 ${item.order} 章《${item.title}》`,
-      item.chapterSummary?.summary ? `摘要：${item.chapterSummary.summary}` : null,
-      item.chapterSummary?.keyEvents ? `关键事件：${item.chapterSummary.keyEvents}` : null,
-      !item.chapterSummary?.summary && item.content ? `正文片段：${truncateText(item.content, 500)}` : null,
+      `Chapter  ${item.order} “${item.title}”`,
+      item.chapterSummary?.summary ? `Summary: ${item.chapterSummary.summary}` : null,
+      item.chapterSummary?.keyEvents ? `Key events: ${item.chapterSummary.keyEvents}` : null,
+      !item.chapterSummary?.summary && item.content ? `Prose excerpt: ${truncateText(item.content, 500)}` : null,
     ]));
     return block({
       group,
@@ -389,15 +389,15 @@ export class NovelPromptMaterialExporter {
       sourceId: novelId,
       content: compactLines([
         characters.length > 0
-          ? `角色：\n${characters.map((character) => compactLines([
-            `- ${character.name}${character.role ? `（${character.role}）` : ""}`,
-            character.currentState ? `  当前状态：${character.currentState}` : null,
-            character.currentGoal ? `  当前目标：${character.currentGoal}` : null,
-            character.development ? `  成长线：${truncateText(character.development, 180)}` : null,
+          ? `Characters: \n${characters.map((character) => compactLines([
+            `- ${character.name}${character.role ? ` (${character.role})` : ""}`,
+            character.currentState ? `  Current state: ${character.currentState}` : null,
+            character.currentGoal ? `  Current objective: ${character.currentGoal}` : null,
+            character.development ? `  Development arc: ${truncateText(character.development, 180)}` : null,
           ])).join("\n")}`
           : null,
         resources.length > 0
-          ? `资源：\n${resources.map((item) => `- ${item.name}：${item.status}；${item.summary}`).join("\n")}`
+          ? `Resources: \n${resources.map((item) => `- ${item.name}: ${item.status}; ${item.summary}`).join("\n")}`
           : null,
       ]),
     });
@@ -421,14 +421,14 @@ export class NovelPromptMaterialExporter {
       sourceId: world.id,
       updatedAt: world.updatedAt,
       content: compactLines([
-        `世界观：${world.name}`,
-        world.description ? `简介：${world.description}` : null,
-        world.axioms ? `硬规则：${world.axioms}` : null,
-        world.background ? `背景：${truncateText(world.background, 900)}` : null,
-        world.magicSystem ? `能力/魔法体系：${truncateText(world.magicSystem, 900)}` : null,
-        world.politics ? `政治/秩序：${truncateText(world.politics, 700)}` : null,
-        world.factions ? `势力：${truncateText(world.factions, 700)}` : null,
-        world.conflicts ? `核心冲突：${truncateText(world.conflicts, 700)}` : null,
+        `World: ${world.name}`,
+        world.description ? `Description: ${world.description}` : null,
+        world.axioms ? `Hard rules: ${world.axioms}` : null,
+        world.background ? `Background: ${truncateText(world.background, 900)}` : null,
+        world.magicSystem ? `Ability/magic system: ${truncateText(world.magicSystem, 900)}` : null,
+        world.politics ? `Politics/order: ${truncateText(world.politics, 700)}` : null,
+        world.factions ? `Forces: ${truncateText(world.factions, 700)}` : null,
+        world.conflicts ? `Core conflict: ${truncateText(world.conflicts, 700)}` : null,
       ]),
     });
   }
@@ -471,11 +471,11 @@ export class NovelPromptMaterialExporter {
         .filter(Boolean)
         .slice(0, 6);
       return compactLines([
-        `写法资产：${profile.name}`,
-        profile.description ? `说明：${profile.description}` : null,
-        profile.narrativeRulesJson ? `叙事规则：${jsonArrayPreview(profile.narrativeRulesJson)}` : null,
-        profile.languageRulesJson ? `语言规则：${jsonArrayPreview(profile.languageRulesJson)}` : null,
-        antiAiRules.length > 0 ? `反 AI 味规则：\n${antiAiRules.map((item) => `- ${item}`).join("\n")}` : null,
+        `Writing asset: ${profile.name}`,
+        profile.description ? `Description: ${profile.description}` : null,
+        profile.narrativeRulesJson ? `Narrative rules: ${jsonArrayPreview(profile.narrativeRulesJson)}` : null,
+        profile.languageRulesJson ? `Language rules: ${jsonArrayPreview(profile.languageRulesJson)}` : null,
+        antiAiRules.length > 0 ? `Anti-AI rules: \n${antiAiRules.map((item) => `- ${item}`).join("\n")}` : null,
       ]);
     });
     return block({
@@ -528,10 +528,10 @@ export class NovelPromptMaterialExporter {
       sourceId: chapterId,
       content: compactLines([
         issues.length > 0
-          ? `审校问题：\n${issues.map((issue) => `- [${issue.severity}/${issue.code}] ${issue.evidence}；建议：${issue.fixSuggestion}`).join("\n")}`
+          ? `Review issues: \n${issues.map((issue) => `- [${issue.severity}/${issue.code}] ${issue.evidence}; Suggestion: ${issue.fixSuggestion}`).join("\n")}`
           : null,
         conflicts.length > 0
-          ? `开放冲突：\n${conflicts.map((conflict) => `- [${conflict.severity}] ${conflict.title}：${conflict.summary}`).join("\n")}`
+          ? `Open conflicts: \n${conflicts.map((conflict) => `- [${conflict.severity}] ${conflict.title}: ${conflict.summary}`).join("\n")}`
           : null,
       ]),
     });
@@ -561,13 +561,13 @@ export class NovelPromptMaterialExporter {
       sourceId: task.id,
       updatedAt: task.updatedAt,
       content: compactLines([
-        `任务：${task.title}`,
-        `状态：${task.status}`,
-        `进度：${Math.round(task.progress * 100)}%`,
-        task.currentStage ? `当前阶段：${task.currentStage}` : null,
-        task.currentItemLabel ? `当前事项：${task.currentItemLabel}` : null,
-        task.checkpointSummary ? `检查点：${task.checkpointSummary}` : null,
-        task.lastError ? `最近错误：${task.lastError}` : null,
+        `Task: ${task.title}`,
+        `Status: ${task.status}`,
+        `Progress: ${Math.round(task.progress * 100)}%`,
+        task.currentStage ? `Current stage: ${task.currentStage}` : null,
+        task.currentItemLabel ? `Current item: ${task.currentItemLabel}` : null,
+        task.checkpointSummary ? `Checkpoint: ${task.checkpointSummary}` : null,
+        task.lastError ? `Latest error: ${task.lastError}` : null,
       ]),
     });
   }
@@ -602,7 +602,7 @@ function applyTokenLimit(input: {
   const limited: NovelMaterialBlock[] = [];
   for (const item of input.blocks) {
     if (remaining <= 0) {
-      input.warnings.push(`${item.title} 未进入导出结果：超过本次资料预算。`);
+      input.warnings.push(`${item.title} was omitted from the export: exceeds this material budget.`);
       continue;
     }
     if (item.estimatedTokens <= remaining) {
@@ -612,7 +612,7 @@ function applyTokenLimit(input: {
     }
     const allowedChars = Math.max(60, remaining * 3);
     const content = truncateText(item.content, allowedChars);
-    input.warnings.push(`${item.title} 已裁剪：超过本次资料预算。`);
+    input.warnings.push(`${item.title} was truncated: exceeds this material budget.`);
     limited.push({
       ...item,
       content,

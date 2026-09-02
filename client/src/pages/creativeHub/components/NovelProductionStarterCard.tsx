@@ -116,7 +116,7 @@ function buildProductionPrompt(input: {
   const projectMode = input.projectMode.trim();
   const emotionIntensity = input.emotionIntensity.trim();
   const aiFreedom = input.aiFreedom.trim();
-  const defaultChapterLength = Math.max(500, Math.min(10000, Math.floor(input.defaultChapterLength || 2500)));
+  const defaultChapterLength = Math.max(500, Math.min(10000, Math.floor(input.defaultChapterLength || 1500)));
   const worldType = input.worldType.trim();
   const targetChapterCount = Math.max(1, Math.min(200, Math.floor(input.targetChapterCount || 20)));
   if (input.currentNovelId) {
@@ -206,7 +206,7 @@ export default function NovelProductionStarterCard({
   const [projectMode, setProjectMode] = useState("");
   const [emotionIntensity, setEmotionIntensity] = useState("");
   const [aiFreedom, setAiFreedom] = useState("");
-  const [defaultChapterLength, setDefaultChapterLength] = useState(2500);
+  const [defaultChapterLength, setDefaultChapterLength] = useState(1500);
   const [worldType, setWorldType] = useState("");
   const submitInFlightRef = useRef(false);
 
@@ -228,7 +228,7 @@ export default function NovelProductionStarterCard({
     setProjectMode("");
     setEmotionIntensity("");
     setAiFreedom("");
-    setDefaultChapterLength(2500);
+    setDefaultChapterLength(1500);
     setWorldType("");
   }, [currentNovelId]);
 
@@ -251,7 +251,7 @@ export default function NovelProductionStarterCard({
     setProjectMode(fromProjectMode(novel.projectMode));
     setEmotionIntensity(fromLevel(novel.emotionIntensity));
     setAiFreedom(fromLevel(novel.aiFreedom));
-    setDefaultChapterLength(novel.defaultChapterLength ?? 2500);
+    setDefaultChapterLength(novel.defaultChapterLength ?? 1500);
   }, [currentNovelId, novelDetailQuery.data]);
 
   const resolvedTitle = currentNovelTitle?.trim() || "";
@@ -508,7 +508,7 @@ export default function NovelProductionStarterCard({
               max={10000}
               value={defaultChapterLength}
               disabled={formDisabled}
-              onChange={(event) => setDefaultChapterLength(Number(event.target.value || 2500))}
+              onChange={(event) => setDefaultChapterLength(Number(event.target.value || 1500))}
             />
           </ProductionField>
           <ProductionField htmlFor="creative-hub-production-world" label="世界观类型（可选）">

@@ -15,6 +15,7 @@ import {
 } from "../../../prompting/prompts/novel/chapterAcceptance.prompts";
 import { openConflictService } from "../../state/OpenConflictService";
 import { normalizeScore, ruleScore } from "../novelP0Utils";
+import { countGeorgianWords } from "@ai-novel/shared/utils/georgianTextMetrics";
 
 export interface ChapterAcceptanceAssessmentInput {
   novelId: string;
@@ -99,7 +100,7 @@ function missingObligationToReviewIssue(obligation: ChapterExecutionMissingOblig
 }
 
 function countChapterCharacters(content: string): number {
-  return content.replace(/\s+/g, "").trim().length;
+  return countGeorgianWords(content);
 }
 
 function includesAnyMarker(text: string, markers: string[]): boolean {

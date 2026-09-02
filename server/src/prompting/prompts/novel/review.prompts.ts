@@ -5,259 +5,247 @@ import { renderSelectedContextBlocks } from "../../core/renderContextBlocks";
 import { fullAuditOutputSchema } from "../../../services/audit/auditSchemas";
 import { chapterSummaryOutputSchema } from "../../../services/novel/chapterSummarySchemas";
 import { NOVEL_PROMPT_BUDGETS } from "./promptBudgetProfiles";
-
 export interface ChapterSummaryPromptInput {
-  novelTitle: string;
-  chapterOrder: number;
-  chapterTitle: string;
-  content: string;
+    novelTitle: string;
+    chapterOrder: number;
+    chapterTitle: string;
+    content: string;
 }
-
 export interface ChapterReviewPromptInput {
-  novelTitle: string;
-  chapterTitle: string;
-  content: string;
-  ragContext: string;
+    novelTitle: string;
+    chapterTitle: string;
+    content: string;
+    ragContext: string;
 }
-
 export interface ChapterRepairPromptInput {
-  novelTitle: string;
-  bibleContent: string;
-  chapterTitle: string;
-  chapterContent: string;
-  issuesJson: string;
-  ragContext: string;
-  modeHint?: string;
+    novelTitle: string;
+    bibleContent: string;
+    chapterTitle: string;
+    chapterContent: string;
+    issuesJson: string;
+    ragContext: string;
+    modeHint?: string;
 }
-
-export const chapterSummaryPrompt: PromptAsset<
-  ChapterSummaryPromptInput,
-  z.infer<typeof chapterSummaryOutputSchema>
-> = {
-  id: "novel.chapter.summary",
-  version: "v1",
-  taskType: "summary",
-  mode: "structured",
-  language: "zh",
-  contextPolicy: {
-    maxTokensBudget: NOVEL_PROMPT_BUDGETS.chapterSummary,
-  },
-  outputSchema: chapterSummaryOutputSchema,
-  render: (input) => [
-    new SystemMessage([
-      "你是中文网络小说章节摘要助手。",
-      "你的任务不是评价章节，也不是改写正文，而是基于当前章节内容提炼一个可用于记录、检索与回顾的章节摘要。",
-      "",
-      "【任务边界】",
-      "只输出符合 schema 的严格 JSON。",
-      "输出格式固定为：{\"summary\":\"...\",\"concreteFacts\":[{\"text\":\"...\",\"category\":\"...\"}]}。",
-      "不要输出 Markdown、解释、注释、代码块或任何额外文本。",
-      "",
-      "【摘要要求】",
-      "1. summary 必须使用简体中文，长度控制在 80-180 字。",
-      "2. 摘要必须覆盖本章最关键的事件推进，而不是泛泛概述氛围。",
-      "3. 摘要应尽量同时体现以下信息中的主要部分：关键事件、冲突推进、人物状态变化、本章结果或留下的悬念。",
-      "4. 摘要必须基于正文实际内容提炼，不得臆造正文中不存在的发展。",
-      "5. 摘要应写成自然可读的完整概述，不要写成要点列表或标签堆砌。",
-      "",
-      "【concreteFacts 抽取要求 — 至关重要，用于防止后续章节自相矛盾】",
-      "concreteFacts 用于记录本章正文【即兴产生、且后续章节必须保持一致】的硬事实。请逐条抽取，每条不超过 40 字：",
-      "1. 主角（或关键角色）做出的承诺、约定、交易条款——必须带上具体的金额/数量/时间/地点/方式。",
-      "   例：‘与王家庄约定后天晚上私下放映一场电影，收3块辛苦费，不走厂里流程’。",
-      "2. 本章确立的事件性质——尤其是‘私下行为 vs 公开/官方行为’这类一旦定下不可更改的属性。",
-      "   例：‘这次放映是私活，未走厂里加班审批’。",
-      "3. 关键数字、日期、场次、票据编号、人物身份等硬细节，后文不得漂移。",
-      "4. category 取值：completed=本章已完成的过程性目标；revealed=本章已揭示的信息/秘密；state_changed=关系/状态/约定/交易的变化。",
-      "5. 只抽取正文真实写到的内容，不得臆造；本章若无明确硬事实，concreteFacts 可为空数组。",
-      "6. 不要把抽象目标（如‘主角要翻身’）写进来，只记可被后文违背的【具体】事实。",
-      "",
-      "【质量要求】",
-      "1. 优先写‘本章发生了什么变化’，而不是背景信息重复。",
-      "2. 不要照抄正文原句，要做压缩与重组。",
-      "3. 不要写成空泛句式，例如“剧情继续推进”“冲突进一步升级”。",
-      "4. 若本章结尾留下明确钩子，应在摘要末尾体现其结果或悬念方向。",
-    ].join("\n")),
-    new HumanMessage([
-      `小说：${input.novelTitle}`,
-      `章节：第 ${input.chapterOrder} 章 ${input.chapterTitle}`,
-      "",
-      "【正文】",
-      input.content,
-      "",
-      "请输出章节摘要 JSON。",
-    ].join("\n")),
-  ],
-};
-
-export const chapterReviewPrompt: PromptAsset<
-  ChapterReviewPromptInput,
-  z.infer<typeof fullAuditOutputSchema>
-> = {
-  id: "novel.review.chapter",
-  version: "v2",
-  taskType: "critical_review",
-  mode: "structured",
-  language: "zh",
-  contextPolicy: {
-    maxTokensBudget: NOVEL_PROMPT_BUDGETS.chapterReview,
-    preferredGroups: [
-      "chapter_mission",
-      "reader_experience",
-      "structure_obligations",
-      "world_rules",
-    ],
-    dropOrder: [
-      "recent_chapters",
-      "participant_subset",
-    ],
-  },
-  outputSchema: fullAuditOutputSchema,
-  render: (input, context) => [
-    new SystemMessage([
-      "repetition scoring: 0 means heavily repetitive, 100 means repetition is well controlled; higher is better.",
-      "你是资深网络小说章节审校编辑。",
-      "你的任务不是重写章节，而是基于正文与给定上下文，对当前章节做结构化质量评估，并输出可供后续修文使用的审查结果。",
-      "",
-      "【任务边界】",
-      "只输出符合 schema 的严格 JSON。",
-      "不要输出 Markdown、解释、注释、代码块或任何额外文本。",
-      "不能脑补未给出的前文、设定或隐藏剧情。",
-      "",
-      "【评分要求】",
-      "score 必须完整包含：coherence、repetition、pacing、voice、engagement、overall。",
-      "每项评分都应基于正文实际表现，不得凭印象打分。",
-      "",
-      "【审查重点】",
-      "1. coherence：事件衔接、人物行为、因果推进是否清楚稳定。",
-      "2. repetition：是否存在信息重复、表达重复、动作重复或功能重复。",
-      "3. pacing：节奏是否松散、失衡、过快跳跃或关键处压缩不足。",
-      "4. voice：文风、叙述口吻、人物表达是否稳定且适配当前内容。",
-      "5. engagement：是否具有持续阅读动力，结尾钩子、冲突推进与信息揭示是否有效。",
-      "6. overall：综合质量判断，应反映本章是否达到可发布或需重点修整的水平。",
-      "",
-      "【issues 要求】",
-      "1. issues 必须只抓真正影响阅读与连载质量的问题，避免吹毛求疵式碎问题泛滥。",
-      "2. 每条 issue 都必须具体，不能只写“节奏不好”“描写偏弱”“有点重复”这种空泛判断。",
-      "3. evidence 必须指向正文中的可观察现象，可以是某类段落问题、某种重复模式、某处逻辑断裂或某段失速现象。",
-      "4. fixSuggestion 必须可执行，应该说明‘如何修’，而不是只说‘加强张力’‘优化表达’。",
-      "",
-      "【上下文使用规则】",
-      "1. chapter_mission、structure_obligations、world_rules 只用于判断是否偏离任务或设定，不得拿来脑补正文未写出的内容。",
-      "2. ragContext 仅作补充校验参考，优先以当前正文和分层上下文为准。",
-      "3. 若某项上下文不足，允许保守判断，但不要凭空制造问题。",
-      "",
-      "【质量要求】",
-      "1. 重点关注：是否完成本章任务、是否有新推进、是否存在明显冗余、是否留下有效钩子。",
-      "2. 同类问题不要拆成多条近义 issue。",
-      "3. 审查结果应服务后续修文，既要指出问题，也要保留本章已经有效的部分。",
-    ].join("\n")),
-    new HumanMessage([
-      `小说：${input.novelTitle}`,
-      `章节：${input.chapterTitle}`,
-      "",
-      "【分层上下文】",
-      renderSelectedContextBlocks(context),
-      "",
-      "【正文】",
-      input.content,
-      "",
-      "【检索补充】",
-      input.ragContext || "none",
-      "",
-      "请输出章节审查 JSON。",
-    ].join("\n")),
-  ],
-};
-
-export const chapterRepairPrompt: PromptAsset<ChapterRepairPromptInput, string, string> = {
-  id: "novel.review.repair",
-  version: "v2",
-  taskType: "repair",
-  mode: "text",
-  language: "zh",
-  contextPolicy: {
-    maxTokensBudget: NOVEL_PROMPT_BUDGETS.chapterRepair,
-    preferredGroups: [
-      "repair_issues",
-      "chapter_boundary",
-      "chapter_mission",
-      "reader_experience",
-      "repair_boundaries",
-      "world_rules",
-    ],
-    dropOrder: [
-      "recent_chapters",
-      "participant_subset",
-      "continuation_constraints",
-    ],
-  },
-  slots: [
-    {
-      kind: "append" as const,
-      key: "repair.customConstraints",
-      label: "自定义修文补充要求",
-      description: "追加对本次修文的额外约束，作为上下文块注入修文过程。留空则不追加。",
-      anchor: "repair_issues",
-      default: "",
-      maxLength: 2000,
-      placeholderHint: "例如：修复时禁止改动对话内容；只允许压缩重复句式，不得引入新信息……",
+export const chapterSummaryPrompt: PromptAsset<ChapterSummaryPromptInput, z.infer<typeof chapterSummaryOutputSchema>> = {
+    id: "novel.chapter.summary",
+    version: "v2",
+    taskType: "summary",
+    mode: "structured",
+    language: "ka",
+    contextPolicy: {
+        maxTokensBudget: NOVEL_PROMPT_BUDGETS.chapterSummary,
     },
-  ],
-  render: (input, context) => [
-    new SystemMessage([
-      "你是资深网络小说修文编辑。",
-      "你的任务是根据问题清单与分层上下文，对当前章节进行最小必要修复，使其更符合任务要求、结构要求与阅读体验。",
-      "",
-      "【任务边界】",
-      "只输出修复后的完整章节正文，不要输出解释、提纲、注释或任何额外文本。",
-      "修文以‘最小必要修改’为原则，不要无关重写，不要把原章整体推翻重来。",
-      "不得引入新的核心角色、重大设定、主线转向或与上下文冲突的内容。",
-      "",
-      "【修复原则】",
-      "1. 优先修复 issuesJson 中明确指出的关键问题。",
-      "2. 优先保证 chapter_mission、repair_boundaries、world_rules 的约束被满足。",
-      "2a. 同时保留 reader_experience 中已经兑现的读者价值，并定向补齐 promisedReward、主角主动性、关键转折、净变化或旧钩子承接缺口。",
-      "3. 保留原章已经有效的推进、情绪、细节与角色状态，不要把有用内容一起洗掉。",
-      "4. 若多个问题冲突，优先修复影响主线推进、逻辑连贯和阅读节奏的问题。",
-      "",
-      "【具体要求】",
-      "1. 修复后章节必须仍然是自然可读的完整正文，而不是拼补痕迹明显的修改稿。",
-      "2. 必须尽量保留本章原有核心事件顺序，除非问题清单明确指出结构需要调整。",
-      "3. 若存在重复、空转、失速问题，应通过压缩、合并、替换无效段落来修，不要只做表面润色。",
-      "4. 若存在逻辑、动机、衔接问题，应补足必要过桥与因果，而不是额外发明大设定。",
-      "5. 若存在钩子不足、结尾无力问题，应在不违背既有走向的前提下加强章末压力、悬念或决策点。",
-      input.modeHint ? `6. 本次修复重点：${input.modeHint}` : "",
-      "",
-      "【风格要求】",
-      "1. 保持与原章相近的叙述视角、语言风格与人物说话方式。",
-      "2. 不要把修文写成另一种风格的新章。",
-      "3. 控制 AI 味、总结味和说明味，优先用具体动作、对话、细节与局面变化完成修复。",
-      "",
-      "【禁止事项】",
-      "禁止加入问题清单未要求的大幅扩写。",
-      "禁止通过新增大事件掩盖原问题。",
-      "禁止输出‘修改说明’‘修复点如下’等额外内容。",
-    ].join("\n")),
-    new HumanMessage([
-      `小说：${input.novelTitle}`,
-      `章节：${input.chapterTitle}`,
-      "",
-      "【分层上下文】",
-      renderSelectedContextBlocks(context),
-      "",
-      "【作品圣经】",
-      input.bibleContent || "none",
-      "",
-      "【当前正文】",
-      input.chapterContent,
-      "",
-      "【问题清单】",
-      input.issuesJson,
-      "",
-      "【检索补充】",
-      input.ragContext || "none",
-      "",
-      "请直接输出修复后的完整章节正文。",
-    ].join("\n")),
-  ],
+    outputSchema: chapterSummaryOutputSchema,
+    render: (input) => [
+        new SystemMessage([
+            "You are a Georgian-language serial novel chapter summary assistant.",
+            "Your task is not to evaluate the chapter or rewrite the text, but to refine a chapter summary based on the current chapter content that can be used for recording, retrieval and review.",
+            "",
+            "[Task Boundary]",
+            "Only output strict JSON that conforms to the schema.",
+            "The output format is fixed to: {\"summary\":\"...\",\"concreteFacts\":[{\"text\":\"...\",\"category\":\"...\"}]}.",
+            "Do not output Markdown, explanations, comments, code blocks, or any extra text.",
+            "",
+            "[Abstract requirements]",
+            "1. The summary must be in natural Georgian and the length should be limited to 80-180 words.",
+            "2. The summary must cover the most critical events in this chapter, rather than giving a general overview of the atmosphere.",
+            "3. The summary should try to reflect the main parts of the following information at the same time: key events, conflict progression, character status changes, the results of this chapter, or the suspense left behind.",
+            "4. The abstract must be based on the actual content of the text and must not invent developments that do not exist in the text.",
+            "5. The abstract should be written as a natural and readable complete overview, not a bullet point list or a stack of tags.",
+            "",
+            "[concreteFacts extraction requirements - very important to prevent self-contradiction in subsequent chapters]",
+            "concreteFacts is used to record the hard facts of the main text of this chapter [which are improvised and must be consistent in subsequent chapters]. Please extract each item one by one, each item should not exceed 40 words:",
+            "1. Commitments, agreements, and transaction terms made by the protagonist (or key role)\u2014the specific amount/quantity/time/place/method must be brought.",
+            "   For example: \u2018We made an agreement with Wangjiazhuang to have a private screening of a movie the night after tomorrow for a hard fee of 3 yuan, without following the factory procedures\u2019.",
+            "2. The nature of the event established in this chapter - especially the attributes such as 'private behavior vs. public/official behavior' that cannot be changed once determined.",
+            "   For example: \u2018This screening is a private job and has not gone to the factory for overtime approval\u2019.",
+            "3. Hard details such as key figures, dates, events, ticket numbers, and person identities must not be left out later in the text.",
+            "4. Category values: completed = the completed procedural goals of this chapter; revealed = the information/secrets revealed in this chapter; state_changed = changes in relationships/status/agreement/transactions.",
+            "5. Extract only the content that is actually written in the text, and do not make up stuff; if there are no clear hard facts in this chapter, concreteFacts can be an empty array.",
+            "6. Don\u2019t write down abstract goals (such as \u2018the protagonist wants to stand up\u2019), only remember [specific] facts that can be violated later.",
+            "",
+            "\u3010Quality requirements\u3011",
+            "1. Prioritize writing \u2018what changed in this chapter\u2019 rather than repeating background information.",
+            "2. Do not copy the original sentences of the text, but compress and reorganize them.",
+            "3. Do not write in empty sentences, such as \"the plot continues to advance\" and \"the conflict escalates further.\"",
+            "4. If there is a clear hook at the end of this chapter, its result or suspense direction should be reflected at the end of the summary.",
+        ].join("\n")),
+        new HumanMessage([
+            `Novel:${input.novelTitle}`,
+            `Chapter: Chapter ${input.chapterOrder} Chapter ${input.chapterTitle}`,
+            "",
+            "\u3010Text\u3011",
+            input.content,
+            "",
+            "Please output chapter summary JSON.",
+        ].join("\n")),
+    ]
+};
+export const chapterReviewPrompt: PromptAsset<ChapterReviewPromptInput, z.infer<typeof fullAuditOutputSchema>> = {
+    id: "novel.review.chapter",
+    version: "v3",
+    taskType: "critical_review",
+    mode: "structured",
+    language: "ka",
+    contextPolicy: {
+        maxTokensBudget: NOVEL_PROMPT_BUDGETS.chapterReview,
+        preferredGroups: [
+            "chapter_mission",
+            "reader_experience",
+            "structure_obligations",
+            "world_rules",
+        ],
+        dropOrder: [
+            "recent_chapters",
+            "participant_subset",
+        ],
+    },
+    outputSchema: fullAuditOutputSchema,
+    render: (input, context) => [
+        new SystemMessage([
+            "repetition scoring: 0 means heavily repetitive, 100 means repetition is well controlled; higher is better.",
+            "You are a senior online novel chapter review editor.",
+            "Your task is not to rewrite the chapter, but to conduct a structured quality assessment of the current chapter based on the text and the given context, and to output the review results that can be used for subsequent revisions.",
+            "",
+            "[Task Boundary]",
+            "Only output strict JSON that conforms to the schema.",
+            "Do not output Markdown, explanations, comments, code blocks, or any extra text.",
+            "You cannot make up for the previous text, settings or hidden plots that are not given.",
+            "",
+            "[Grading requirements]",
+            "Score must completely include: coherence, repetition, pacing, voice, engagement, overall.",
+            "Each rating should be based on the actual performance of the text and should not be based on impressions.",
+            "",
+            "[Key points of review]",
+            "1. Coherence: Whether the connection of events, character behavior, and causal progression are clear and stable.",
+            "2. Repetition: Whether there is repetition of information, repetition of expressions, repetition of actions or repetition of functions.",
+            "3. Pacing: Whether the rhythm is loose, unbalanced, jumping too fast, or insufficiently compressed at key points.",
+            "4. Voice: Whether the writing style, narrative tone, and character expression are stable and suitable for the current content.",
+            "5. Engagement: Whether it has continuous reading motivation, whether the ending hook, conflict advancement and information disclosure are effective.",
+            "6. Overall: Comprehensive quality judgment, which should reflect whether this chapter has reached a level that can be published or needs to be revised.",
+            "",
+            "\u3010issues request\u3011",
+            "1. Issues must only capture issues that really affect the quality of reading and serialization, and avoid the proliferation of nit-picky issues.",
+            "2. Each issue must be specific. You cannot just write general judgments such as \"poor rhythm\", \"weak description\" and \"a bit repetitive\".",
+            "3. Evidence must point to observable phenomena in the text, which can be a certain type of paragraph problem, a certain repetitive pattern, a certain logical break, or a certain stall phenomenon.",
+            "4. fixSuggestion must be executable and should explain \u2018how to fix it\u2019 instead of just \u2018strengthening tension\u2019 and \u2018optimizing expression\u2019.",
+            "",
+            "[Context usage rules]",
+            "1. Chapter_mission, structure_obligations, and world_rules are only used to determine whether they deviate from the mission or settings and are not allowed to be used to fill in content that is not written in the text.",
+            "2. ragContext is only used as a supplementary verification reference, and the current text and hierarchical context shall prevail.",
+            "3. If the context of a certain item is insufficient, conservative judgment is allowed, but do not create problems out of thin air.",
+            "",
+            "\u3010Quality requirements\u3011",
+            "1. Focus on: whether the tasks in this chapter are completed, whether there is new advancement, whether there are obvious redundancies, and whether effective hooks are left.",
+            "2. Do not split similar issues into multiple similar issues.",
+            "3. The review results should serve for subsequent revisions, not only to point out problems but also to retain the already valid parts of this chapter.",
+        ].join("\n")),
+        new HumanMessage([
+            `Novel:${input.novelTitle}`,
+            `Chapter:${input.chapterTitle}`,
+            "",
+            "[Hierarchical context]",
+            renderSelectedContextBlocks(context),
+            "",
+            "\u3010Text\u3011",
+            input.content,
+            "",
+            "[Search supplement]",
+            input.ragContext || "none",
+            "",
+            "Please output the chapter review JSON.",
+        ].join("\n")),
+    ]
+};
+export const chapterRepairPrompt: PromptAsset<ChapterRepairPromptInput, string, string> = {
+    id: "novel.review.repair",
+    version: "v3",
+    taskType: "repair",
+    mode: "text",
+    language: "ka",
+    contextPolicy: {
+        maxTokensBudget: NOVEL_PROMPT_BUDGETS.chapterRepair,
+        preferredGroups: [
+            "repair_issues",
+            "chapter_boundary",
+            "chapter_mission",
+            "reader_experience",
+            "repair_boundaries",
+            "world_rules",
+        ],
+        dropOrder: [
+            "recent_chapters",
+            "participant_subset",
+            "continuation_constraints",
+        ],
+    },
+    slots: [
+        {
+            kind: "append" as const,
+            key: "repair.customConstraints",
+            label: "Supplementary requirements for custom revision",
+            description: "Add additional constraints to this revision and inject them into the revision process as context blocks. Leave blank to not append.",
+            anchor: "repair_issues",
+            default: "",
+            maxLength: 2000,
+            placeholderHint: "For example: it is forbidden to change the dialogue content during repair; only repeated sentences are allowed to be compressed, and new information is not allowed to be introduced...",
+        },
+    ],
+    render: (input, context) => [
+        new SystemMessage([
+            "You are a senior online novel editing editor.",
+            "Your task is to make the minimum necessary repairs to the current chapter based on the issue list and layered context to make it more consistent with task requirements, structural requirements, and reading experience.",
+            "",
+            "[Task Boundary]",
+            "Output only the repaired complete chapter text, not explanations, outlines, notes, or any additional text.",
+            "The principle of \"minimum necessary revision\" should be used when revising the text. Do not rewrite irrelevantly or overturn the entire original chapter.",
+            "No new core characters, major settings, plot changes, or content that conflicts with the context may be introduced.",
+            "",
+            "[Repair Principle]",
+            "1. Prioritize fixing the key issues clearly pointed out in issuesJson.",
+            "2. Prioritize ensuring that the constraints of chapter_mission, repair_boundaries, and world_rules are satisfied.",
+            "2a. At the same time, retain the reader value that has been realized in reader_experience, and fill in the promisedReward, protagonist initiative, key turning point, net change, or old hook inheritance gap.",
+            "3. Keep the effective advancement, emotions, details and character status of the original chapter, and do not wash away the useful content together.",
+            "4. If multiple issues conflict, priority should be given to fixing the issues that affect the advancement of the main line, logical coherence, and reading rhythm.",
+            "",
+            "\u3010Specific requirements\u3011",
+            "1. The repaired chapter must still be a complete text that is naturally readable, rather than a revised draft with obvious patchwork marks.",
+            "2. The original sequence of core events in this chapter must be preserved as much as possible, unless the question list clearly indicates that the structure needs to be adjusted.",
+            "3. If there are duplication, idling, and stalling problems, they should be repaired by compressing, merging, and replacing invalid paragraphs, not just superficial polishing.",
+            "4. If there are problems with logic, motivation, and connection, the necessary bridges and causes and effects should be supplemented instead of creating extra large settings.",
+            "5. If there are problems with insufficient hooks and weak endings, the pressure, suspense or decision-making points at the end of the chapter should be strengthened without violating the existing direction.",
+            input.modeHint ? `6. Key points of this repair:${input.modeHint}` : "",
+            "",
+            "\u3010Style Requirements\u3011",
+            "1. Maintain the narrative perspective, language style and character speaking style that are similar to the original chapter.",
+            "2. Do not write the revised article as a new chapter in another style.",
+            "3. Control the AI flavor, summary flavor, and explanation flavor, and prioritize using specific actions, dialogues, details, and situation changes to complete repairs.",
+            "",
+            "\u3010Prohibited matters\u3011",
+            "Substantial expansions not required by the question list are prohibited.",
+            "It is prohibited to cover up original problems by adding new major events.",
+            "It is prohibited to output additional content such as \u2018modification instructions\u2019 and \u2018fix points are as follows\u2019.",
+        ].join("\n")),
+        new HumanMessage([
+            `Novel:${input.novelTitle}`,
+            `Chapter:${input.chapterTitle}`,
+            "",
+            "[Hierarchical context]",
+            renderSelectedContextBlocks(context),
+            "",
+            "\u3010Work Bible\u3011",
+            input.bibleContent || "none",
+            "",
+            "\u3010Current text\u3011",
+            input.chapterContent,
+            "",
+            "\u3010Question list\u3011",
+            input.issuesJson,
+            "",
+            "[Search supplement]",
+            input.ragContext || "none",
+            "",
+            "Please directly output the repaired complete chapter text.",
+        ].join("\n")),
+    ]
 };

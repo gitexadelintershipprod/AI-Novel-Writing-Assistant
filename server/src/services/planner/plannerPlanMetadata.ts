@@ -73,10 +73,10 @@ function buildDefaultChapterPlanRole(input: ChapterPlanFallbackInput): StoryPlan
 
 function buildDefaultPhaseLabel(level: StoryPlanLevel, input: ChapterPlanFallbackInput): string | null {
   if (level === "book") {
-    return "全书主线";
+    return "Book mainline";
   }
   if (level === "arc") {
-    return "阶段推进";
+    return "Stage advancement";
   }
 
   const chapterOrder = input.chapterOrder ?? 1;
@@ -84,15 +84,15 @@ function buildDefaultPhaseLabel(level: StoryPlanLevel, input: ChapterPlanFallbac
   const progress = chapterOrder / total;
 
   if (progress <= 0.2) {
-    return "开篇铺垫";
+    return "Opening setup";
   }
   if (progress <= 0.5) {
-    return "中段推进";
+    return "Middle progression";
   }
   if (progress <= 0.8) {
-    return "冲突加压";
+    return "Conflict escalation";
   }
-  return "终局兑现";
+  return "Final payoff";
 }
 
 function buildDefaultMustAdvance(level: StoryPlanLevel, input: ChapterPlanFallbackInput): string[] {
@@ -105,7 +105,7 @@ function buildDefaultMustAdvance(level: StoryPlanLevel, input: ChapterPlanFallba
 
 function buildDefaultMustPreserve(level: StoryPlanLevel): string[] {
   if (level === "chapter") {
-    return ["保持主角目标连续", "不要跳过关键因果"];
+    return ["Keep the protagonist's goal continuous", "Do not skip essential causality"];
   }
   return [];
 }

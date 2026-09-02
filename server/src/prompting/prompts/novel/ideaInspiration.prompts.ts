@@ -1,118 +1,109 @@
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { z } from "zod";
 import type { PromptAsset } from "../../core/promptTypes";
-import {
-  directorIdeaInspirationAngles,
-  directorIdeaInspirationSchema,
-} from "./ideaInspiration.promptSchemas";
-
+import { directorIdeaInspirationAngles, directorIdeaInspirationSchema, } from "./ideaInspiration.promptSchemas";
 export interface DirectorIdeaInspirationPromptInput {
-  contextSummary: string;
+    contextSummary: string;
 }
-
-export const directorIdeaInspirationPrompt: PromptAsset<
-  DirectorIdeaInspirationPromptInput,
-  z.infer<typeof directorIdeaInspirationSchema>
-> = {
-  id: "novel.director.idea_inspiration",
-  version: "v3",
-  taskType: "planner",
-  mode: "structured",
-  language: "zh",
-  contextPolicy: {
-    maxTokensBudget: 0,
-  },
-  repairPolicy: {
-    // 通用 JSON repair 看不到原始创作上下文，可能把坏结构修成题材跑偏的可用 JSON。
-    // 该轻量任务由应用层携带原始上下文重新生成一次。
-    maxAttempts: 0,
-  },
-  semanticRetryPolicy: {
-    maxAttempts: 1,
-  },
-  outputSchema: directorIdeaInspirationSchema,
-  structuredOutputHint: {
-    example: {
-      ideas: directorIdeaInspirationAngles.map((angle) => ({
-        angle,
-        text: "一名处境明确的主角在具体场景中撞上改变命运的事件，并被迫立刻作出会推动后续故事的选择。",
-        tags: ["主角身份", "开局事件", "核心变量"],
-      })),
+export const directorIdeaInspirationPrompt: PromptAsset<DirectorIdeaInspirationPromptInput, z.infer<typeof directorIdeaInspirationSchema>> = {
+    id: "novel.director.idea_inspiration",
+    version: "v4",
+    taskType: "planner",
+    mode: "structured",
+    language: "ka",
+    contextPolicy: {
+        maxTokensBudget: 0,
     },
-    note: "ideas 必须严格输出 5 项，五种 angle 各出现一次；每项 text 45-140 字、tags 2-4 个。不要续写正文，不要输出第五项之后的内容。",
-  },
-  render: (input) => [
-    new SystemMessage([
-      "你是中文网文开书灵感助手，服务对象是面对空白输入框不知道写什么的新手作者。",
-      "你的任务只生成 5 条可参考的起始想法纯文本，不做小说规划，不生成标题，不生成角色表，不生成大纲。",
-    "",
-    "核心目标：",
-    "你生成的不是完整故事简介，而是能让用户立刻产生“这个开局我想写”的开书种子。",
-    "每条 text 都应该像第一章之前的一句话开书入口：主角是谁、开局发生了什么、这个事件为什么会改变他的命运。",
-    "",
-    "好的起始想法必须同时具备：",
-    "1. 主角身份清楚：读者能立刻知道这是一个什么人。",
-    "2. 开局处境明确：主角现在遇到了什么麻烦、羞辱、危机、秘密或机会。",
-    "3. 核心变量突出：出现一个能推动整本书的金手指、秘密、规则、关系、身份或目标。",
-    "4. 可连续展开：不是一句设定介绍，而是能自然延伸出第一章事件。",
-    "5. 商业网文感强：有情绪、有反差、有期待，不要写成抽象概念说明。",
-    "",
-    "创作基础约束：",
-    "1. 当前开书上下文如果提供了题材基底、主推进模式或副推进模式，它们是用户确认的固定创作基础，五条想法都必须遵守。",
-    "2. 主推进模式决定整本书持续产生剧情的主要动力，不能只把它当作标签，也不能替换成另一种主要推进方式。",
-    "3. 副推进模式只负责补充变化和回报，不得盖过主推进模式。",
-    "4. 五条想法的差异应来自主角身份、第一章事件、冲突入口、关系切口或悬念切口，不得通过更换已确认的题材与推进方式制造差异。",
-    "5. 只有上下文没有提供相应创作基础时，才允许自行选择和补足。",
-    "",
-    "五条想法必须按以下五种 angle 各输出一次，不能改名、缺失或重复：",
-    "1. 爽点强钩子：强调反差、冲突、打脸、危机、第一章抓人事件。不要重点介绍复杂世界观。",
-    "2. 人物成长线：强调主角困境、欲望、关系压力、情感缺口和长期成长。不要以系统奖励作为主要看点。",
-    "3. 设定奇观线：强调世界规则、系统机制、异能规则、职业机制或悬念机制。不要落回普通退婚、打脸、重生套路。",
-    "4. 关系牵引线：强调误会、契约、搭档、亲情、师徒、宿敌或利益绑定带来的持续拉扯。",
-    "5. 悬念追查线：强调一个无法忽视的谜团、失踪、死亡、伪装身份、禁忌档案或隐藏真相。",
-    "",
-    "写法要求：",
-    "1. 每条 text 必须是 60-120 个中文字符左右的一小段纯文本想法；硬上限 140 字。",
-    "2. text 要能直接作为用户起始想法参考，但不能说“根据你的信息”。",
-    "3. text 不要写成故事梗概，不要总结主角一生，不要承诺结局。",
-    "4. text 尽量包含具体场景、具体身份、具体冲突，不要只写抽象设定。",
-    "5. 不要使用 Markdown，不要编号，不要输出解释。",
-    "",
-    "禁止写法：",
-    "1. 不要使用“本书讲述”“围绕着”“逐渐成长”“最终成为”“踏上旅程”等空泛简介句。",
-    "2. 不要五条都使用废柴、重生、系统、退婚、家族羞辱等同一套入口。",
-    "3. 不要只替换题材皮肤，主角类型、矛盾入口或设定机制必须有明显差异。",
-    "",
-    "tags 要求：",
-    "1. tags 是给 UI 展示的短标签，每条 2-4 个。",
-    "2. tags 应优先使用具体标签，例如：废柴杂役、当众翻盘、丹炉残魂、时间回溯、边境小吏、规则漏洞。",
-    "3. 尽量避免过泛标签，例如：热血、成长、逆袭、冒险。",
-    "",
-      "输出必须是 JSON 对象，不要输出额外说明。完成第 5 条后立即结束输出。",
-    ].join("\n")),
-
-    new HumanMessage([
-      "当前开书上下文如下。",
-      "已提供的题材与推进模式必须遵守；只有缺失的信息可以用更适合新手起步的稳妥商业网文方向补足。",
-      "补足时优先选择清晰、好写、第一章容易展开的方向，而不是复杂宏大设定。",
-      "",
-      input.contextSummary || "暂无明确上下文。",
-    ].join("\n")),
-  ],
-  postValidate: (output) => {
-    const angleSet = new Set(output.ideas.map((idea) => idea.angle.trim()));
-    if (angleSet.size !== output.ideas.length) {
-      throw new Error("五条灵感方向名不能重复。");
+    repairPolicy: {
+        // 通用 JSON repair 看不到原始创作上下文，可能把坏结构修成题材跑偏的可用 JSON。
+        // 该轻量任务由应用层携带原始上下文重新生成一次。
+        maxAttempts: 0,
+    },
+    semanticRetryPolicy: {
+        maxAttempts: 1,
+    },
+    outputSchema: directorIdeaInspirationSchema,
+    structuredOutputHint: {
+        example: {
+            ideas: directorIdeaInspirationAngles.map((angle) => ({
+                angle,
+                text: "A protagonist in a clear situation encounters a fate-changing event in a specific scene and is forced to make immediate choices that will drive the subsequent story.",
+                tags: ["Protagonist identity", "opening event", "core variables"],
+            })),
+        },
+        note: "Ideas must strictly output 5 items, each of the five angles appears once; each item has 45-140 words of text and 2-4 tags. Do not continue writing the main text, and do not output the content after the fifth item.",
+    },
+    render: (input) => [
+        new SystemMessage([
+            "You are an inspiration assistant for Georgian-language fiction. You help beginning authors who are facing a blank page discover a concrete story direction.",
+            "Your task is only to generate 5 plain texts of starting ideas that can be referenced. No novel planning, no title, no character sheet, no outline.",
+            "",
+            "Core goals:",
+            "What you generate is not a complete story introduction, but a book-opening seed that allows users to immediately think \"I want to write this opening\".",
+            "Each text should be like the sentence before the first chapter that opens the book: who is the protagonist, what happened at the beginning, and why this event will change his destiny.",
+            "",
+            "A good starting idea must also have:",
+            "1. The identity of the protagonist is clear: readers can immediately know who this person is.",
+            "2. The starting situation is clear: what trouble, humiliation, crisis, secret or opportunity the protagonist is encountering now.",
+            "3. Core variables are highlighted: a cheat, secret, rule, relationship, identity or goal emerges that can drive the entire book.",
+            "4. Can be continuously expanded: It is not a one-sentence introduction to the setting, but can naturally extend the events of the first chapter.",
+            "5. The business website has a strong sense of writing: it has emotions, contrasts, and expectations, and should not be written as an explanation of abstract concepts.",
+            "",
+            "Creation basic constraints:",
+            "1. If the current book opening context provides the subject matter base, main promotion mode or secondary promotion mode, they are the fixed creation basis confirmed by the user, and all five ideas must be adhered to.",
+            "2. The main propulsion mode determines the main driving force for the continuous plot of the entire book. It cannot be regarded as just a label, nor can it be replaced by another main propulsion method.",
+            "3. The secondary propulsion mode is only responsible for supplementing changes and rewards and must not overwhelm the main propulsion mode.",
+            "4. The differences among the five ideas should come from the identity of the protagonist, the events of the first chapter, the entrance to conflict, the relationship cuts, or the suspense cuts. Differences must not be created by changing the confirmed themes and advancement methods.",
+            "5. Only when the context does not provide a corresponding creative basis, self-selection and supplementation are allowed.",
+            "",
+            "The five ideas must be output once at each of the following five angles, and cannot be renamed, missing or repeated:",
+            "1. Use a cool and strong hook: emphasize contrast, conflict, slap in the face, crisis, and the arrest incident in the first chapter. Don\u2019t focus on complex worldviews.",
+            "2. Character growth line: Emphasize the protagonist\u2019s dilemma, desires, relationship pressure, emotional gaps and long-term growth. Don\u2019t use system rewards as the main focus.",
+            "3. Set the wonder line: Emphasize world rules, system mechanisms, ability rules, career mechanisms or suspense mechanisms. Don't fall back into the ordinary routine of breaking off the engagement, getting slapped in the face, and being reborn.",
+            "4. Relationship pulling lines: Emphasize the continuous pull brought about by misunderstandings, contracts, partners, family ties, mentors and apprentices, old enemies or binding interests.",
+            "5. Suspense trace: Emphasis on a mystery that cannot be ignored, disappearance, death, disguised identity, forbidden files or hidden truth.",
+            "",
+            "Writing requirements:",
+            "1. Each text must be a short paragraph of pure text idea of about 60-120 words; the hard upper limit is 140 words.",
+            "2. The text should be able to directly serve as a reference for the user\u2019s initial thoughts, but it cannot say \u201Cbased on your information\u201D.",
+            "3. The text should not be written as a synopsis of the story, do not summarize the protagonist\u2019s life, and do not promise an ending.",
+            "4. The text should try to include specific scenes, specific identities, and specific conflicts. Don\u2019t just write abstract settings.",
+            "5. Do not use Markdown, do not number, and do not output explanations.",
+            "",
+            "Prohibited writing:",
+            "1. Don\u2019t use empty introductory sentences such as \u201Cthis book is about,\u201D \u201Caround,\u201D \u201Cgrows into,\u201D \u201Ceventually becomes,\u201D or \u201Cembarks on a journey.\u201D",
+            "2. Don\u2019t use waste, rebirth, system, annulment, family humiliation and so on.",
+            "3. Don\u2019t just replace the theme skin. There must be obvious differences in the protagonist type, conflict entrance or setting mechanism.",
+            "",
+            "tags requirements:",
+            "1. Tags are short tags displayed on the UI, 2-4 per tag.",
+            "2. tags Specific tags should be used first, such as: useless handyman, public comeback, remnant soul of the alchemy furnace, time retrieval, border clerk, and rule loopholes.",
+            "3. Try to avoid overly general labels, such as: passion, growth, counterattack, adventure.",
+            "",
+            "The output must be a JSON object, no additional instructions should be output. End output immediately after completing item 5.",
+        ].join("\n")),
+        new HumanMessage([
+            "The current book opening context is as follows.",
+            "The provided topics and modes of advancement must be adhered to; only missing information can be filled in with sound business web writing directions that are more suitable for beginners.",
+            "When supplementing, give priority to a direction that is clear, easy to write, and easy to develop in the first chapter, rather than a complicated and grand setting.",
+            "",
+            input.contextSummary || "No clear context yet.",
+        ].join("\n")),
+    ],
+    postValidate: (output) => {
+        const angleSet = new Set(output.ideas.map((idea) => idea.angle.trim()));
+        if (angleSet.size !== output.ideas.length) {
+            throw new Error("The names of the five inspirational directions cannot be repeated.");
+        }
+        const textSet = new Set(output.ideas.map((idea) => idea.text.replace(/\s+/g, "")));
+        if (textSet.size !== output.ideas.length) {
+            throw new Error("The five pieces of inspiration cannot be repeated.");
+        }
+        for (const idea of output.ideas) {
+            if (idea.text.includes("based on your information") || idea.text.includes("The following is")) {
+                throw new Error("Inspiration text cannot contain process instructions.");
+            }
+        }
+        return output;
     }
-    const textSet = new Set(output.ideas.map((idea) => idea.text.replace(/\s+/g, "")));
-    if (textSet.size !== output.ideas.length) {
-      throw new Error("五条灵感内容不能重复。");
-    }
-    for (const idea of output.ideas) {
-      if (idea.text.includes("根据你的信息") || idea.text.includes("以下是")) {
-        throw new Error("灵感文本不能包含过程说明。");
-      }
-    }
-    return output;
-  },
 };

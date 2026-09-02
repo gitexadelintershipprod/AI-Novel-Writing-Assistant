@@ -235,7 +235,11 @@ export default function NovelAutoDirectorCandidateBatches(props: NovelAutoDirect
                           <div className="mt-1 line-clamp-5 break-words leading-6 text-foreground/90 [overflow-wrap:anywhere]">{candidate.whyItFits}</div>
                           {candidate.writingPlatformReason ? (
                             <div className="mt-2 rounded-lg bg-muted/45 px-3 py-2 text-xs leading-5 text-muted-foreground">
-                              平台建议：{candidate.recommendedWritingPlatform === "qidian_male" ? "起点男频" : candidate.recommendedWritingPlatform === "jinjiang_female" ? "晋江女频" : "番茄免费网文"} · {candidate.writingPlatformReason}
+                              Writing profile: {candidate.recommendedWritingPlatform === "qidian_male"
+                                ? "Progression & Adventure"
+                                : candidate.recommendedWritingPlatform === "jinjiang_female"
+                                  ? "Character & Relationship"
+                                  : "Georgian Serial"} · {candidate.writingPlatformReason}
                             </div>
                           ) : null}
                         </div>

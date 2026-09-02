@@ -101,7 +101,7 @@ function buildTargetedTitleBrief(input: {
     input.context.competingFeel?.trim() ? `对标气质：${input.context.competingFeel.trim()}` : "",
     currentTitleGroup ? `当前标题组：${currentTitleGroup}` : "",
     `标题修正意见：${input.feedback.trim()}`,
-    "请围绕同一套故事方向重做一组更合适的中文网文书名。",
+    "Create a more suitable set of Georgian titles for the same story direction.",
     "优先响应用户要求的气质修正，比如更都市、更悬疑、更轻巧、更高级感或没那么土。",
     "不要重复当前这组标题，也不要回退成概念短语、口号名或老套模板名。",
   ].filter(Boolean).join("\n");

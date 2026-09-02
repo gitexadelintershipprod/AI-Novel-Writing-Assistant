@@ -564,7 +564,7 @@ export default function StructuredOutlineWorkspace(props: StructuredTabViewProps
 
                     <div className="flex flex-wrap gap-2">
                       <Button size="sm" variant="outline" onClick={() => onApplyBatch({ conflictLevel: 60 })}>统一冲突等级 60</Button>
-                      <Button size="sm" variant="outline" onClick={() => onApplyBatch({ targetWordCount: 2500 })}>统一字数 2500</Button>
+                      <Button size="sm" variant="outline" onClick={() => onApplyBatch({ targetWordCount: 1500 })}>Set all to 1,500 words</Button>
                       <AiButton size="sm" onClick={() => onApplyBatch({ generateTaskSheet: true })}>批量补任务单</AiButton>
                       <Button onClick={() => onApplySync(syncOptions)} disabled={isApplyingSync}>
                         {isApplyingSync ? "修复中..." : "修复章节连接"}

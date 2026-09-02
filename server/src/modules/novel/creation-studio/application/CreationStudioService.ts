@@ -44,8 +44,10 @@ function parseInterpretation(value: string): CreationIntentInterpretation {
   return JSON.parse(value) as CreationIntentInterpretation;
 }
 
-function targetChapterCount(targetWordCount: number): number {
-  return Math.max(30, Math.min(2000, Math.ceil(targetWordCount / 2500)));
+const DEFAULT_CHAPTER_WORD_COUNT = 1500;
+
+function targetChapterCount(targetWordCount: number, chapterWordCount = DEFAULT_CHAPTER_WORD_COUNT): number {
+  return Math.max(1, Math.min(2000, Math.ceil(targetWordCount / Math.max(1, chapterWordCount))));
 }
 
 function toDirectorCandidate(direction: CreationDirection, targetWordCount: number, writingPlatform: WritingPlatform): DirectorCandidate {
@@ -58,11 +60,11 @@ function toDirectorCandidate(direction: CreationDirection, targetWordCount: numb
     coreConflict: direction.centralConflict,
     protagonistPath: direction.protagonist,
     endingDirection: direction.endingPromise,
-    hookStrategy: `围绕“${direction.centralConflict}”尽快建立第一轮追读问题。`,
-    progressionLoop: "通过冲突升级、人物选择与阶段回报持续推进。",
-    whyItFits: "该方向来自用户在创作工作室确认的意图。",
+    hookStrategy: `„${direction.centralConflict}“ კონფლიქტის გარშემო სწრაფად ჩამოაყალიბე პირველი მკაფიო კითხვა, რომელიც მკითხველს გაგრძელებისკენ უბიძგებს.`,
+    progressionLoop: "სიუჟეტი განავითარე კონფლიქტის გამწვავებით, პერსონაჟის არჩევანით, შედეგითა და ეტაპობრივი ანაზღაურებით.",
+    whyItFits: "ეს მიმართულება ეფუძნება მომხმარებლის მიერ Creation Studio-ში დადასტურებულ შემოქმედებით ჩანაფიქრს.",
     recommendedWritingPlatform: writingPlatform === "zhihu_story" ? "fanqie_free" : writingPlatform,
-    writingPlatformReason: "平台已在创作工作室由用户确认，自动导演沿用该选择。",
+    writingPlatformReason: "წერის პროფილი მომხმარებელმა Creation Studio-ში დაადასტურა და Auto Director ამ არჩევანს ინარჩუნებს.",
     toneKeywords: direction.styleKeywords,
     targetChapterCount: targetChapterCount(targetWordCount),
   };
@@ -126,7 +128,7 @@ export class CreationStudioService {
     return this.runInterpretation(task.id, {
       idea,
       preferredNarrativeForm: "long_novel",
-      targetWordCount: 200000,
+      targetWordCount: 80000,
       source: "derived",
     });
   }
@@ -449,8 +451,8 @@ export class CreationStudioService {
         description: direction.premise,
         bookSellingPoint: direction.coreExperience,
         styleTone: direction.styleKeywords.join("、"),
-        estimatedChapterCount: targetChapterCount(input.targetWordCount),
-        defaultChapterLength: 2500,
+        estimatedChapterCount: targetChapterCount(input.targetWordCount, DEFAULT_CHAPTER_WORD_COUNT),
+        defaultChapterLength: DEFAULT_CHAPTER_WORD_COUNT,
         projectMode: "auto_pipeline",
         writingMode: "original",
         writingPlatformPreference: input.writingPlatform,
@@ -533,13 +535,13 @@ export class CreationStudioService {
 
   private assertTarget(form: NarrativeForm, targetWordCount: number): void {
     if (!Number.isInteger(targetWordCount)) {
-      throw new AppError("目标字数必须是整数。", 400);
+      throw new AppError("Target word count must be an integer.", 400);
     }
     if (form === "short_story" && (targetWordCount < 3000 || targetWordCount > 30000)) {
-      throw new AppError("短篇目标字数需在 3000～30000 字之间。", 400);
+      throw new AppError("Short-story target length must be between 3,000 and 30,000 words.", 400);
     }
     if (form === "long_novel" && (targetWordCount <= 30000 || targetWordCount > 3_000_000)) {
-      throw new AppError("长篇目标字数需高于 30000 字。", 400);
+      throw new AppError("Long-form target length must be above 30,000 words.", 400);
     }
   }
 

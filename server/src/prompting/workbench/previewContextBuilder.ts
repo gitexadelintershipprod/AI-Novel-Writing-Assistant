@@ -137,14 +137,14 @@ export async function prepareWorkbenchPreviewExecutionContext(input: {
     });
     const intentRow = novel?.intentVersions[0];
     const planRow = novel?.shortStoryPlan;
-    if (!novel || !intentRow || !planRow) return { executionContext, notes: ["所选小说没有可用的短篇生产上下文。"] };
+    if (!novel || !intentRow || !planRow) return { executionContext, notes: ["The selected novel has no usable short-story production context."] };
     const interpretation = JSON.parse(intentRow.structuredIntentJson) as CreationIntentInterpretation;
     const selectedId = (JSON.parse(intentRow.impactScopeJson || "{}") as { selectedDirectionId?: string }).selectedDirectionId;
     const direction = interpretation.directions.find((item) => item.id === selectedId) ?? interpretation.directions[0];
     const plan = JSON.parse(planRow.structureJson) as ShortStoryPlanContract;
     const row = planRow.segments.find((item) => item.status !== "completed") ?? planRow.segments[0];
     const segment = plan.segments.find((item) => item.order === row?.order) ?? plan.segments[0];
-    if (!direction || !segment) return { executionContext, notes: ["短篇计划没有可预览的内部片段。"] };
+    if (!direction || !segment) return { executionContext, notes: ["The short-story plan has no internal segment available for preview."] };
     const earlier = planRow.segments.filter((item) => item.order < segment.order);
     const previousContentTail = earlier.map((item) => item.content).join("\n\n").slice(-1800);
     const blocks = buildShortStoryWriterContextBlocks({
@@ -153,7 +153,7 @@ export async function prepareWorkbenchPreviewExecutionContext(input: {
       direction,
       plan,
       segment,
-      previousContinuity: "使用已完成片段正文作为连续性依据。",
+      previousContinuity: "Use completed segment prose as the continuity source.",
       previousContentTail,
       platform: parseWritingPlatformSnapshot(novel.writingPlatformSnapshotJson),
       bookStyle: novel.styleTone,
@@ -161,7 +161,7 @@ export async function prepareWorkbenchPreviewExecutionContext(input: {
     });
     return {
       executionContext: { ...executionContext, metadata: { ...(executionContext.metadata ?? {}), extraContextBlocks: blocks } },
-      notes: [`使用《${novel.title}》内部片段 ${segment.order} 组装真实短篇预览；普通创作工作室仍不展示片段技术结构。`],
+      notes: [`Built the real short-story preview from internal segment ${segment.order} of “${novel.title}”; the regular studio still hides technical segment structure.`],
     };
   }
   const supportsSelectedChapterContext = isAuditPreviewPrompt(asset) || isChapterWriterPreviewPrompt(asset);
@@ -185,7 +185,7 @@ export async function prepareWorkbenchPreviewExecutionContext(input: {
   if (!novel || !chapter) {
     return {
       executionContext,
-      notes: ["未找到所选小说或章节，按手动预览处理。"],
+      notes: ["The selected novel or chapter was not found; using a manual preview."],
     };
   }
 
@@ -199,8 +199,8 @@ export async function prepareWorkbenchPreviewExecutionContext(input: {
         },
       },
       notes: [
-        `使用《${novel.title}》第 ${chapter.order} 章《${chapter.title || "未命名章节"}》组装本书预览上下文。`,
-        chapter.content?.trim() ? "" : "该章节暂无正文，审校预览使用章节任务和任务单展示上下文。",
+        `Built the book preview context from chapter ${chapter.order}, “${chapter.title || "Untitled chapter"}”, of “${novel.title}”.`,
+        chapter.content?.trim() ? "" : "This chapter has no prose yet; the review preview uses its task and task sheet as context.",
       ].filter(Boolean),
     };
   }
@@ -218,18 +218,18 @@ export async function prepareWorkbenchPreviewExecutionContext(input: {
           priority: 105,
           required: true,
           content: (() => {
-            if (!novel.writingPlatformSnapshotJson) return "沿用通用中文商业网文写法。";
+            if (!novel.writingPlatformSnapshotJson) return "Use the default Georgian serial-fiction writing profile.";
             try {
               const snapshot = JSON.parse(novel.writingPlatformSnapshotJson) as WritingPlatformSnapshot;
-              return `${snapshot.label}（配置版本 ${snapshot.profileVersion}）：${snapshot.guidance.drafting}`;
-            } catch { return "沿用通用中文商业网文写法。"; }
+              return `${snapshot.label} (profile version ${snapshot.profileVersion}): ${snapshot.guidance.drafting}`;
+            } catch { return "Use the default Georgian serial-fiction writing profile."; }
           })(),
         })],
       },
     },
     notes: [
-      `使用《${novel.title}》第 ${chapter.order} 章《${chapter.title || "未命名章节"}》组装正文写作预览上下文。`,
-      "预览只读取小说和章节资料，不会启动正文生成或改写章节计划。",
+      `Built the prose preview context from chapter ${chapter.order}, “${chapter.title || "Untitled chapter"}”, of “${novel.title}”.`,
+      "The preview only reads novel and chapter data; it does not start prose generation or rewrite the chapter plan.",
     ],
   };
 }

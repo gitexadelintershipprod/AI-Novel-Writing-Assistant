@@ -2,195 +2,182 @@ import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { z } from "zod";
 import type { PromptAsset } from "../../core/promptTypes";
 import { renderSelectedContextBlocks } from "../../core/renderContextBlocks";
-import {
-  characterCastAutoMembersResponseSchema,
-  characterCastAutoRelationsResponseSchema,
-} from "./characterPreparation.promptSchemas";
-
-export interface CharacterCastAutoMembersPromptInput {}
-
-export interface CharacterCastAutoRelationsPromptInput {
-  storyInput: string;
-  optionTitle: string;
-  optionSummary: string;
-  protagonistName: string;
-  memberNames: string[];
-  memberRosterText: string;
+import { characterCastAutoMembersResponseSchema, characterCastAutoRelationsResponseSchema, } from "./characterPreparation.promptSchemas";
+export interface CharacterCastAutoMembersPromptInput {
 }
-
-export const characterCastAutoMembersPrompt: PromptAsset<
-  CharacterCastAutoMembersPromptInput,
-  z.infer<typeof characterCastAutoMembersResponseSchema>
-> = {
-  id: "novel.character.castAuto.members",
-  version: "v1",
-  taskType: "planner",
-  mode: "structured",
-  language: "zh",
-  contextPolicy: {
-    maxTokensBudget: 0,
-    requiredGroups: ["idea_seed", "protagonist_anchor", "output_policy"],
-    preferredGroups: [
-      "hidden_identity_anchor",
-      "project_context",
-      "book_contract",
-      "macro_constraints",
-      "world_stage",
-      "forbidden_names",
+export interface CharacterCastAutoRelationsPromptInput {
+    storyInput: string;
+    optionTitle: string;
+    optionSummary: string;
+    protagonistName: string;
+    memberNames: string[];
+    memberRosterText: string;
+}
+export const characterCastAutoMembersPrompt: PromptAsset<CharacterCastAutoMembersPromptInput, z.infer<typeof characterCastAutoMembersResponseSchema>> = {
+    id: "novel.character.castAuto.members",
+    version: "v2",
+    taskType: "planner",
+    mode: "structured",
+    language: "ka",
+    contextPolicy: {
+        maxTokensBudget: 0,
+        requiredGroups: ["idea_seed", "protagonist_anchor", "output_policy"],
+        preferredGroups: [
+            "hidden_identity_anchor",
+            "project_context",
+            "book_contract",
+            "macro_constraints",
+            "world_stage",
+            "forbidden_names",
+        ],
+    },
+    repairPolicy: {
+        maxAttempts: 1,
+    },
+    semanticRetryPolicy: {
+        maxAttempts: 1,
+    },
+    outputSchema: characterCastAutoMembersResponseSchema,
+    render: (_input, context) => [
+        new SystemMessage([
+            "You are the character lineup planner for long-form serial fiction, and your service targets novice users who do not understand the writing process.",
+            "Your task is to first produce character member skeletons that can be directly dropped into the library. Do not generate relations at this step.",
+            "",
+            "Only return strict JSON, no Markdown, explanations, comments, code blocks, or extra text.",
+            "The final JSON can only contain: title, summary, whyItWorks, recommendedReason, members.",
+            "",
+            "Hard rules:",
+            "1. members must be 3-6 roles.",
+            "2. There must be and can only be 1 protagonist.",
+            "3. Each role must output gender, and the only allowed values are male, female, other, and unknown.",
+            "4. CastRole can only use: protagonist, antagonist, ally, foil, mentor, love_interest, pressure_source, catalyst.",
+            "5. Name can only be written as a person's name or stable title that can be directly entered into the text. Functional names are prohibited.",
+            "6. If the story contains hidden identities, historical real names, disguised identities, or identity reversals in the end, this line must be explicitly inherited in the member information.",
+            "7. Each role must output personality, background, development and role hard fact fields: identityLabel, factorLabel, stanceLabel, powerLevel, realm, currentLocation, availability, prohibitions.",
+            "8. Don't print relations, and don't pretend to stuff relational arrays in fields.",
+            "",
+            "Express a request:",
+            "1. All field values use natural Georgian.",
+            "2. Except for summary, whyItWorks, and recommendedReason, try to keep the rest of the text in short sentences or short phrases.",
+            "3. StoryFunction must write responsibilities, and name does not carry function description.",
+            "4. The hard facts of the character are given priority to identity, camp, realm/combat power, current location and available status; it is not allowed to fill in empty strings or empty arrays.",
+        ].join("\n")),
+        new HumanMessage([
+            "Please generate character member skeletons to be directly adopted by the automatic director based on the following context.",
+            "",
+            "[Hierarchical context]",
+            renderSelectedContextBlocks(context),
+            "",
+            "[Output requirements]",
+            "- Only output member skeletons, not relations.",
+            "- The protagonist must be unique and stable",
+            "- name must be directly accessible",
+            "- Only output strict JSON",
+        ].join("\n")),
     ],
-  },
-  repairPolicy: {
-    maxAttempts: 1,
-  },
-  semanticRetryPolicy: {
-    maxAttempts: 1,
-  },
-  outputSchema: characterCastAutoMembersResponseSchema,
-  render: (_input, context) => [
-    new SystemMessage([
-      "你是长篇中文网文的角色阵容策划师，服务对象是不懂写作流程的新手用户。",
-      "你的任务是先产出可直接落库的角色成员骨架，不要在这一步生成 relations。",
-      "",
-      "只返回严格 JSON，不要输出 Markdown、解释、注释、代码块或额外文本。",
-      "最终 JSON 只能包含：title、summary、whyItWorks、recommendedReason、members。",
-      "",
-      "硬规则：",
-      "1. members 必须是 3-6 个角色。",
-      "2. 必须有且只能有 1 个 protagonist。",
-      "3. 每个角色都必须输出 gender，允许值只有 male、female、other、unknown。",
-      "4. castRole 只能使用：protagonist, antagonist, ally, foil, mentor, love_interest, pressure_source, catalyst。",
-      "5. name 只能写可直接进入正文的人名或稳定称谓，禁止功能位式名字。",
-      "6. 如果故事存在隐藏身份、历史真名、伪装身份或终局身份反转，成员信息里必须显式承接这条线。",
-      "7. 每个角色必须输出 personality、background、development 和角色硬事实字段：identityLabel、factionLabel、stanceLabel、powerLevel、realm、currentLocation、availability、prohibitions。",
-      "8. 不要输出 relations，也不要在字段里假装塞关系数组。",
-      "",
-      "表达要求：",
-      "1. 所有字段值使用简体中文。",
-      "2. 除 summary、whyItWorks、recommendedReason 外，其余文本尽量控制在短句或短词组。",
-      "3. storyFunction 要写职责，name 不承载功能说明。",
-      "4. 角色硬事实优先承接身份、阵营、境界/战力、当前地点和可出场状态；拿不准填空字符串或空数组。",
-    ].join("\n")),
-    new HumanMessage([
-      "请基于以下上下文生成自动导演要直接采用的角色成员骨架。",
-      "",
-      "【分层上下文】",
-      renderSelectedContextBlocks(context),
-      "",
-      "【输出要求】",
-      "- 只输出成员骨架，不输出 relations",
-      "- protagonist 必须唯一且稳定",
-      "- name 必须可直接入戏",
-      "- 只输出严格 JSON",
-    ].join("\n")),
-  ],
-  postValidate: (output) => {
-    const protagonistCount = output.members.filter((member) => member.castRole === "protagonist").length;
-    if (protagonistCount !== 1) {
-      throw new Error(`成员骨架必须且只能包含 1 个 protagonist，当前为 ${protagonistCount} 个。`);
+    postValidate: (output) => {
+        const protagonistCount = output.members.filter((member) => member.castRole === "protagonist").length;
+        if (protagonistCount !== 1) {
+            throw new Error(`The member skeleton must and can only contain 1 protagonist, currently ${protagonistCount} .`);
+        }
+        const seenNames = new Set<string>();
+        for (const member of output.members) {
+            const normalizedName = member.name.trim();
+            if (seenNames.has(normalizedName)) {
+                throw new Error(`Duplicate character names appear in the member skeleton:${member.name}`);
+            }
+            seenNames.add(normalizedName);
+        }
+        return output;
     }
-
-    const seenNames = new Set<string>();
-    for (const member of output.members) {
-      const normalizedName = member.name.trim();
-      if (seenNames.has(normalizedName)) {
-        throw new Error(`成员骨架里出现了重复角色名：${member.name}`);
-      }
-      seenNames.add(normalizedName);
-    }
-
-    return output;
-  },
 };
-
-export const characterCastAutoRelationsPrompt: PromptAsset<
-  CharacterCastAutoRelationsPromptInput,
-  z.infer<typeof characterCastAutoRelationsResponseSchema>
-> = {
-  id: "novel.character.castAuto.relations",
-  version: "v1",
-  taskType: "planner",
-  mode: "structured",
-  language: "zh",
-  contextPolicy: {
-    maxTokensBudget: 0,
-  },
-  repairPolicy: {
-    maxAttempts: 1,
-  },
-  semanticRetryPolicy: {
-    maxAttempts: 1,
-  },
-  outputSchema: characterCastAutoRelationsResponseSchema,
-  render: (input) => [
-    new SystemMessage([
-      "你是长篇中文网文的角色关系策划师。",
-      "你的任务是基于已经锁定的成员名单，补出可直接落库的 relations。",
-      "",
-      "只返回严格 JSON，不要输出 Markdown、解释、注释、代码块或额外文本。",
-      "最终 JSON 只能包含 relations。",
-      "",
-      "硬规则：",
-      "1. sourceName 和 targetName 必须逐字复用给定成员名单里的名字，不得改名、加括号说明、写别名或新增角色。",
-      "2. 不得新增、删除或改写成员设定；你只负责关系层。",
-      "3. 每条关系都必须连接两个不同角色，禁止自指关系。",
-      "4. 不要输出重复关系对。",
-      "5. relations 必须体现长期关系动力、冲突来源、信息不对称或下一步转折，不能写空话。",
-      "6. 主角必须进入至少一条关系。",
-      "",
-      "表达要求：",
-      "1. 所有字段值使用简体中文。",
-      "2. 每条关系都要服务长篇推进，而不是一次性事件说明。",
-    ].join("\n")),
-    new HumanMessage([
-      "请基于下面已经锁定的角色成员骨架生成 relations。",
-      "",
-      `【故事输入】\n${input.storyInput || "暂无"}`,
-      "",
-      `【阵容标题】\n${input.optionTitle}`,
-      "",
-      `【阵容摘要】\n${input.optionSummary}`,
-      "",
-      `【主角】\n${input.protagonistName}`,
-      "",
-      `【允许使用的角色名】\n${input.memberNames.join("、")}`,
-      "",
-      `【成员简表】\n${input.memberRosterText}`,
-      "",
-      "【输出要求】",
-      "- 只输出 relations",
-      "- 名字必须逐字复用给定名单",
-      "- 不新增角色，不改成员设定",
-      "- 只输出严格 JSON",
-    ].join("\n")),
-  ],
-  postValidate: (output, input) => {
-    const allowedNames = new Set(input.memberNames.map((name) => name.trim()).filter(Boolean));
-    const seenPairs = new Set<string>();
-    let protagonistLinked = false;
-
-    for (const relation of output.relations) {
-      if (!allowedNames.has(relation.sourceName) || !allowedNames.has(relation.targetName)) {
-        throw new Error(`relations 使用了未注册成员名：${relation.sourceName} -> ${relation.targetName}`);
-      }
-      if (relation.sourceName === relation.targetName) {
-        throw new Error(`relations 出现了自指关系：${relation.sourceName}`);
-      }
-
-      const pairKey = `${relation.sourceName}=>${relation.targetName}`;
-      if (seenPairs.has(pairKey)) {
-        throw new Error(`relations 出现了重复关系对：${pairKey}`);
-      }
-      seenPairs.add(pairKey);
-
-      if (relation.sourceName === input.protagonistName || relation.targetName === input.protagonistName) {
-        protagonistLinked = true;
-      }
+export const characterCastAutoRelationsPrompt: PromptAsset<CharacterCastAutoRelationsPromptInput, z.infer<typeof characterCastAutoRelationsResponseSchema>> = {
+    id: "novel.character.castAuto.relations",
+    version: "v2",
+    taskType: "planner",
+    mode: "structured",
+    language: "ka",
+    contextPolicy: {
+        maxTokensBudget: 0,
+    },
+    repairPolicy: {
+        maxAttempts: 1,
+    },
+    semanticRetryPolicy: {
+        maxAttempts: 1,
+    },
+    outputSchema: characterCastAutoRelationsResponseSchema,
+    render: (input) => [
+        new SystemMessage([
+            "You are the character relationship planner for a long-form Georgian-language serial novel.",
+            "Your task is to make up relations that can be directly dropped into the library based on the locked member list.",
+            "",
+            "Only return strict JSON, no Markdown, explanations, comments, code blocks, or extra text.",
+            "The final JSON can only contain relations.",
+            "",
+            "Hard rules:",
+            "1. SourceName and targetName must reuse the names in the given member list verbatim, and may not be renamed, bracketed, aliased, or added.",
+            "2. You are not allowed to add, delete or rewrite member settings; you are only responsible for the relationship layer.",
+            "3. Each relationship must connect two different roles, and self-referential relationships are prohibited.",
+            "4. Do not output duplicate relationship pairs.",
+            "5. Relations must reflect long-term relationship dynamics, sources of conflict, information asymmetry, or the next turning point, and cannot be empty words.",
+            "6. The protagonist must enter into at least one relationship.",
+            "",
+            "Express a request:",
+            "1. All field values use natural Georgian.",
+            "2. Each relationship should serve the purpose of long-form promotion, rather than a one-time event description.",
+        ].join("\n")),
+        new HumanMessage([
+            "Please generate relations based on the locked character member skeleton below.",
+            "",
+            `\u3010Story input\u3011
+${input.storyInput || "None yet"}`,
+            "",
+            `\u3010Lineup title\u3011
+${input.optionTitle}`,
+            "",
+            `\u3010Lineup summary\u3011
+${input.optionSummary}`,
+            "",
+            `\u3010Protagonist\u3011
+${input.protagonistName}`,
+            "",
+            `[Permitted character names]
+${input.memberNames.join("、")}`,
+            "",
+            `\u3010Member Profile\u3011
+${input.memberRosterText}`,
+            "",
+            "[Output requirements]",
+            "- only output relations",
+            "- Names must be reused verbatim in the given list",
+            "- No new roles will be added and no member settings will be changed.",
+            "- Only output strict JSON",
+        ].join("\n")),
+    ],
+    postValidate: (output, input) => {
+        const allowedNames = new Set(input.memberNames.map((name) => name.trim()).filter(Boolean));
+        const seenPairs = new Set<string>();
+        let protagonistLinked = false;
+        for (const relation of output.relations) {
+            if (!allowedNames.has(relation.sourceName) || !allowedNames.has(relation.targetName)) {
+                throw new Error(`relations uses an unregistered member name:${relation.sourceName} -> ${relation.targetName}`);
+            }
+            if (relation.sourceName === relation.targetName) {
+                throw new Error(`relations A self-referential relationship appears:${relation.sourceName}`);
+            }
+            const pairKey = `${relation.sourceName}=>${relation.targetName}`;
+            if (seenPairs.has(pairKey)) {
+                throw new Error(`relations Duplicate relationship pairs appear:${pairKey}`);
+            }
+            seenPairs.add(pairKey);
+            if (relation.sourceName === input.protagonistName || relation.targetName === input.protagonistName) {
+                protagonistLinked = true;
+            }
+        }
+        if (input.protagonistName && !protagonistLinked) {
+            throw new Error(`relations must explicitly contain the protagonist "${input.protagonistName}」。`);
+        }
+        return output;
     }
-
-    if (input.protagonistName && !protagonistLinked) {
-      throw new Error(`relations 必须显式包含主角「${input.protagonistName}」。`);
-    }
-
-    return output;
-  },
 };

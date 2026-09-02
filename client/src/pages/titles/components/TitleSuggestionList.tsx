@@ -109,7 +109,7 @@ export default function TitleSuggestionList({
                   {metadata.map((item) => <span key={`${suggestion.title}-${item}`}>{item}</span>)}
                 </div>
                 <span className="shrink-0 rounded-full bg-muted/60 px-2.5 py-1 font-medium tabular-nums text-foreground">
-                  潜力 {suggestion.clickRate}
+                  AI hook score {suggestion.clickRate}
                 </span>
               </div>
               <h4 className="mt-4 text-xl font-semibold leading-8 tracking-normal text-foreground">{suggestion.title}</h4>
@@ -130,7 +130,7 @@ export default function TitleSuggestionList({
           >
             <div className="grid gap-3 lg:grid-cols-[64px_minmax(0,1fr)_auto] lg:items-start">
               <div className="text-xs leading-5 text-muted-foreground">
-                <div className="font-medium text-foreground">预估</div>
+                <div className="font-medium text-foreground">AI hook score</div>
                 <div className="text-lg font-semibold tabular-nums text-foreground">{suggestion.clickRate}</div>
               </div>
 

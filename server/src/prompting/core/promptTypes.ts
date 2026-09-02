@@ -6,7 +6,7 @@ import type { LlmTokenUsageSnapshot } from "../../llm/usageTracking";
 import type { PromptSlotDef, ResolvedSlots } from "../slots/slotTypes";
 
 export type PromptMode = "structured" | "text";
-export type PromptLanguage = "zh" | "en";
+export type PromptLanguage = "zh" | "en" | "ka";
 
 export interface PromptContextBlock {
   id: string;

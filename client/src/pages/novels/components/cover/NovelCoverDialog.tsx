@@ -84,7 +84,7 @@ export function NovelCoverDialog(props: NovelCoverDialogProps) {
   const [promptMode, setPromptMode] = useState<NovelCoverPromptMode>("novel_cover_chain");
   const [directPrompt, setDirectPrompt] = useState("");
   const [directPromptSource, setDirectPromptSource] = useState<DirectPromptSource | null>(null);
-  const [optimizedPromptLanguage, setOptimizedPromptLanguage] = useState<ImagePromptOutputLanguage>("zh");
+  const optimizedPromptLanguage: ImagePromptOutputLanguage = "en";
   const [imageForm, setImageForm] = useState({
     stylePreset: DEFAULT_NOVEL_COVER_STYLE_PRESET,
     negativePrompt: DEFAULT_NOVEL_COVER_NEGATIVE_PROMPT,
@@ -150,7 +150,6 @@ export function NovelCoverDialog(props: NovelCoverDialogProps) {
     setPromptMode("novel_cover_chain");
     setDirectPrompt("");
     setDirectPromptSource(null);
-    setOptimizedPromptLanguage("zh");
   }, [draftInput, props.open]);
 
   useEffect(() => {
@@ -367,28 +366,9 @@ export function NovelCoverDialog(props: NovelCoverDialogProps) {
 
           <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-              <div className="space-y-2">
-                <div className="text-xs font-medium uppercase tracking-[0.14em] text-slate-400">优化输出语言</div>
-                <div className="inline-flex w-full rounded-xl border border-slate-200 bg-slate-50 p-1 sm:w-auto">
-                  <Button
-                    type="button"
-                    variant={optimizedPromptLanguage === "zh" ? "default" : "ghost"}
-                    size="sm"
-                    className="min-w-[92px] flex-1 rounded-lg sm:flex-none"
-                    onClick={() => setOptimizedPromptLanguage("zh")}
-                  >
-                    中文
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={optimizedPromptLanguage === "en" ? "default" : "ghost"}
-                    size="sm"
-                    className="min-w-[92px] flex-1 rounded-lg sm:flex-none"
-                    onClick={() => setOptimizedPromptLanguage("en")}
-                  >
-                    English
-                  </Button>
-                </div>
+              <div className="space-y-1">
+                <div className="text-xs font-medium uppercase tracking-[0.14em] text-slate-400">Provider prompt language</div>
+                <div className="text-sm text-slate-600">English (for image-model compatibility)</div>
               </div>
 
               <div className="flex min-w-0 flex-col gap-3 xl:items-end">

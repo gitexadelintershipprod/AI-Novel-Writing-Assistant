@@ -4,286 +4,281 @@ import type { PromptAsset } from "../../core/promptTypes";
 import { renderSelectedContextBlocks } from "../../core/renderContextBlocks";
 import { fullAuditOutputSchema, lightAuditOutputSchema } from "../../../services/audit/auditSchemas";
 import { NOVEL_PROMPT_BUDGETS } from "../novel/promptBudgetProfiles";
-
 const AUDIT_CHAPTER_EXAMPLE = {
-  score: {
-    coherence: 82,
-    repetition: 76,
-    pacing: 79,
-    voice: 84,
-    engagement: 81,
-    overall: 80,
-  },
-  issues: [
-    {
-      severity: "medium",
-      category: "pacing",
-      evidence: "中段连续两段都在解释处境，但没有新增推进。",
-      fixSuggestion: "压缩第二段解释，把信息并入动作或对话里。",
+    score: {
+        coherence: 82,
+        repetition: 76,
+        pacing: 79,
+        voice: 84,
+        engagement: 81,
+        overall: 80,
     },
-  ],
-  auditReports: [
-    {
-      auditType: "plot",
-      overallScore: 78,
-      summary: "主线推进存在，但中段阻力升级还不够明确。",
-      issues: [
+    issues: [
         {
-          severity: "medium",
-          code: "plot_escalation_soft",
-          description: "主线冲突已经出现，但代价抬升还不够。",
-          evidence: "帮派威胁出现后，主角很快脱身，压力没有持续停留。",
-          fixSuggestion: "补一个无法立刻摆脱的代价或后续追踪后果。",
+            severity: "medium",
+            category: "pacing",
+            evidence: "Two consecutive paragraphs in the middle section explain the situation, but there is no new advancement.",
+            fixSuggestion: "Condensate the second paragraph of explanation and incorporate the information into action or dialogue.",
         },
-      ],
-    },
-  ],
+    ],
+    auditReports: [
+        {
+            auditType: "plot",
+            overallScore: 78,
+            summary: "The main line advancement exists, but the resistance upgrade in the middle is not clear enough.",
+            issues: [
+                {
+                    severity: "medium",
+                    code: "plot_escalation_soft",
+                    description: "The main conflict has emerged, but the price has not been raised enough.",
+                    evidence: "After the gang threat emerged, the protagonist escaped quickly and the pressure did not linger.",
+                    fixSuggestion: "Make up for a price or follow-up consequence that cannot be avoided immediately.",
+                },
+            ],
+        },
+    ],
 };
-
 const LIGHT_AUDIT_EXAMPLE = {
-  score: {
-    coherence: 84,
-    repetition: 82,
-    pacing: 82,
-    voice: 85,
-    engagement: 83,
-    overall: 84,
-  },
-  summary: "本章可以继续推进，但中段有两处可优化的节奏拖沓问题。",
-  issues: [
-    {
-      severity: "medium",
-      category: "pacing",
-      evidence: "中段连续两段都在解释现状，信息重复且没有新的推进。",
-      fixSuggestion: "压缩说明段，把关键信息并入动作或对话里。",
+    score: {
+        coherence: 84,
+        repetition: 82,
+        pacing: 82,
+        voice: 85,
+        engagement: 83,
+        overall: 84,
     },
-  ],
-  continueRecommendation: "suggest_repair",
-  shouldRunFullAudit: false,
-  triggerReasons: [],
+    summary: "This chapter can continue to progress, but there are two pacing issues in the middle that could be optimized.",
+    issues: [
+        {
+            severity: "medium",
+            category: "pacing",
+            evidence: "Two consecutive paragraphs in the middle section explain the current situation, with repeated information and no new advancement.",
+            fixSuggestion: "Condensed explanatory paragraphs to incorporate key information into actions or dialogue.",
+        },
+    ],
+    continueRecommendation: "suggest_repair",
+    shouldRunFullAudit: false,
+    triggerReasons: [],
 };
-
 export interface AuditChapterPromptInput {
-  novelTitle: string;
-  chapterTitle: string;
-  requestedTypes: string[];
-  storyModeContext: string;
-  content: string;
-  ragContext: string;
+    novelTitle: string;
+    chapterTitle: string;
+    requestedTypes: string[];
+    storyModeContext: string;
+    content: string;
+    ragContext: string;
 }
-
 export const auditChapterLightPrompt: PromptAsset<AuditChapterPromptInput, z.infer<typeof lightAuditOutputSchema>> = {
-  id: "audit.chapter.light",
-  version: "v1",
-  taskType: "light_review",
-  mode: "structured",
-  language: "zh",
-  contextPolicy: {
-    maxTokensBudget: NOVEL_PROMPT_BUDGETS.chapterLightAudit,
-    preferredGroups: [
-      "chapter_boundary",
-      "chapter_mission",
-      "structure_obligations",
-      "local_state",
-    ],
-    dropOrder: [
-      "recent_chapters",
-      "participant_subset",
-      "world_rules",
-      "historical_issues",
-    ],
-  },
-  contextRequirements: [
-    { group: "chapter_mission", priority: 100 },
-    { group: "chapter_boundary", required: true, priority: 99 },
-    { group: "structure_obligations", priority: 94 },
-    { group: "local_state", priority: 89 },
-    { group: "world_rules", priority: 84 },
-    { group: "historical_issues", priority: 82 },
-    { group: "recent_chapters", priority: 70 },
-    { group: "participant_subset", priority: 68 },
-  ],
-  slots: [
-    {
-      kind: "replace" as const,
-      key: "audit.reportStyle",
-      label: "轻审校报告表达",
-      description: "调整轻审校结果的表达侧重和判断偏向。",
-      default: "问题必须具体且可执行，默认优先让章节继续推进。",
-      maxLength: 500,
+    id: "audit.chapter.light",
+    version: "v2",
+    taskType: "light_review",
+    mode: "structured",
+    language: "ka",
+    contextPolicy: {
+        maxTokensBudget: NOVEL_PROMPT_BUDGETS.chapterLightAudit,
+        preferredGroups: [
+            "chapter_boundary",
+            "chapter_mission",
+            "structure_obligations",
+            "local_state",
+        ],
+        dropOrder: [
+            "recent_chapters",
+            "participant_subset",
+            "world_rules",
+            "historical_issues",
+        ],
     },
-    {
-      kind: "append" as const,
-      key: "audit.light.customConstraints",
-      label: "自定义审校补充要求",
-      description: "追加对轻审校的额外关注点或限制，作为上下文块注入审校过程。留空则不追加。",
-      anchor: "chapter_boundary",
-      default: "",
-      maxLength: 2000,
-      placeholderHint: "例如：本书禁用「第一卷」这个说法，出现时视为风格问题；每章必须检查是否有角色口语误用书面语……",
+    contextRequirements: [
+        { group: "chapter_mission", priority: 100 },
+        { group: "chapter_boundary", required: true, priority: 99 },
+        { group: "structure_obligations", priority: 94 },
+        { group: "local_state", priority: 89 },
+        { group: "world_rules", priority: 84 },
+        { group: "historical_issues", priority: 82 },
+        { group: "recent_chapters", priority: 70 },
+        { group: "participant_subset", priority: 68 },
+    ],
+    slots: [
+        {
+            kind: "replace" as const,
+            key: "audit.reportStyle",
+            label: "Expression of light review report",
+            description: "Adjust the expression emphasis and judgment bias of light review results.",
+            default: "Questions must be specific and actionable, with default priority given to moving the chapter forward.",
+            maxLength: 500,
+        },
+        {
+            kind: "append" as const,
+            key: "audit.light.customConstraints",
+            label: "Custom review supplementary requirements",
+            description: "Append additional concerns or constraints to light review as contextual blocks injected into the review process. Leave blank to not append.",
+            anchor: "chapter_boundary",
+            default: "",
+            maxLength: 2000,
+            placeholderHint: "For example: the term \"Volume 1\" is prohibited in this book, and it is regarded as a style problem when it occurs; each chapter must be checked to see if there are any characters who misuse written language for their spoken language...",
+        },
+    ],
+    structuredOutputHint: {
+        example: LIGHT_AUDIT_EXAMPLE,
+        note: "The light reviewer only makes a quick judgment on whether to proceed. Set continueRecommendation to full_audit only when there are obvious structural abnormalities, serious deviations from the contract, or out-of-control hard lengths.",
     },
-  ],
-  structuredOutputHint: {
-    example: LIGHT_AUDIT_EXAMPLE,
-    note: "轻审校只做是否继续推进的快速判断。只有明显结构异常、严重偏离合同、硬性长度失控等情况才把 continueRecommendation 设为 full_audit。",
-  },
-  outputSchema: lightAuditOutputSchema,
-  render: (input, context) => {
-    const reportStyle = context.slots?.text("audit.reportStyle")
-      ?? "问题必须具体且可执行，默认优先让章节继续推进。";
-    return [
-    new SystemMessage([
-      "你是中文长篇小说章节轻审校助手。",
-      "你的任务是快速判断当前章节是否可以继续推进，还是必须升级到完整审校。",
-      "",
-      "只输出一个合法 JSON 对象，不要输出 Markdown、解释、注释或额外文本。",
-      "",
-      "判断规则：",
-      "1. 默认优先让章节继续推进，不要把普通质量建议升级成阻塞。",
-      "2. 只有在明显结构异常、严重偏离章节任务、关键信息断裂、长度明显失控时，才建议 full_audit。",
-      "3. issues 报告要求：" + reportStyle,
-      "4. continueRecommendation 只能是 continue、suggest_repair、full_audit。",
-      "5. shouldRunFullAudit 只有在确实需要完整重审校时才设为 true。",
-    ].join("\n")),
-    new HumanMessage([
-      `小说：${input.novelTitle}`,
-      `章节：${input.chapterTitle}`,
-      `审校范围：${input.requestedTypes.join(", ")}`,
-      "",
-      "分层上下文：",
-      renderSelectedContextBlocks(context),
-      "",
-      "故事模式约束：",
-      input.storyModeContext || "none",
-      "",
-      "正文：",
-      input.content,
-      "",
-      "检索补充：",
-      input.ragContext || "none",
-    ].join("\n")),
-  ];
-  },
+    outputSchema: lightAuditOutputSchema,
+    render: (input, context) => {
+        const reportStyle = context.slots?.text("audit.reportStyle")
+            ?? "Questions must be specific and actionable, with default priority given to moving the chapter forward.";
+        return [
+            new SystemMessage([
+                "You are a light proofreading assistant for chapters of Georgian-language novels.",
+                "Your job is to quickly determine whether the current chapter can be moved forward, or whether it must be upgraded to a full review.",
+                "",
+                "Output only a valid JSON object, no Markdown, explanations, comments, or extra text.",
+                "",
+                "Judgment rules:",
+                "1. The default priority is to keep chapters moving forward, and do not upgrade ordinary quality suggestions to blocking.",
+                "2. Full_audit is recommended only when there are obvious structural abnormalities, serious deviations from chapter tasks, key information fragmentation, and obviously out-of-control length.",
+                "3. Issues reporting requirements:" + reportStyle,
+                "4. continueRecommendation can only be continue, suggest_repair, full_audit.",
+                "5. shouldRunFullAudit is only set to true when a complete re-audit is really needed.",
+            ].join("\n")),
+            new HumanMessage([
+                `Novel:${input.novelTitle}`,
+                `Chapter:${input.chapterTitle}`,
+                `Scope of review:${input.requestedTypes.join(", ")}`,
+                "",
+                "Hierarchical context:",
+                renderSelectedContextBlocks(context),
+                "",
+                "Story mode constraints:",
+                input.storyModeContext || "none",
+                "",
+                "Text:",
+                input.content,
+                "",
+                "Search supplement:",
+                input.ragContext || "none",
+            ].join("\n")),
+        ];
+    }
 };
-
 export const auditChapterPrompt: PromptAsset<AuditChapterPromptInput, z.infer<typeof fullAuditOutputSchema>> = {
-  id: "audit.chapter.full",
-  version: "v2",
-  taskType: "critical_review",
-  mode: "structured",
-  language: "zh",
-  contextPolicy: {
-    maxTokensBudget: NOVEL_PROMPT_BUDGETS.chapterReview,
-    preferredGroups: [
-      "chapter_boundary",
-      "chapter_mission",
-      "structure_obligations",
-      "world_rules",
-      "historical_issues",
+    id: "audit.chapter.full",
+    version: "v3",
+    taskType: "critical_review",
+    mode: "structured",
+    language: "ka",
+    contextPolicy: {
+        maxTokensBudget: NOVEL_PROMPT_BUDGETS.chapterReview,
+        preferredGroups: [
+            "chapter_boundary",
+            "chapter_mission",
+            "structure_obligations",
+            "world_rules",
+            "historical_issues",
+        ],
+        dropOrder: [
+            "recent_chapters",
+            "participant_subset",
+            "open_conflicts",
+        ],
+    },
+    contextRequirements: [
+        { group: "chapter_mission", priority: 100 },
+        { group: "chapter_boundary", required: true, priority: 99 },
+        { group: "structure_obligations", required: true, priority: 94 },
+        { group: "local_state", priority: 89 },
+        { group: "world_rules", priority: 84 },
+        { group: "historical_issues", priority: 82 },
+        { group: "recent_chapters", priority: 70 },
+        { group: "participant_subset", priority: 68 },
+        { group: "open_conflicts", priority: 66 },
     ],
-    dropOrder: [
-      "recent_chapters",
-      "participant_subset",
-      "open_conflicts",
+    editableSlots: [
+        {
+            key: "audit.reportStyle",
+            label: "Complete review report expression",
+            description: "Adjust the reporting expression and standards for complete review.",
+            riskLevel: "low",
+            maxLength: 600,
+            defaultValue: "All questions must be specific, the evidence must point to a clear phenomenon, and the fixSuggestion must be executable.",
+        },
     ],
-  },
-  contextRequirements: [
-    { group: "chapter_mission", priority: 100 },
-    { group: "chapter_boundary", required: true, priority: 99 },
-    { group: "structure_obligations", required: true, priority: 94 },
-    { group: "local_state", priority: 89 },
-    { group: "world_rules", priority: 84 },
-    { group: "historical_issues", priority: 82 },
-    { group: "recent_chapters", priority: 70 },
-    { group: "participant_subset", priority: 68 },
-    { group: "open_conflicts", priority: 66 },
-  ],
-  editableSlots: [
-    {
-      key: "audit.reportStyle",
-      label: "完整审校报告表达",
-      description: "调整完整审校的报告表达方式和标准。",
-      riskLevel: "low",
-      maxLength: 600,
-      defaultValue: "所有问题都必须具体，evidence 指向明确现象，fixSuggestion 必须可执行。",
+    slots: [
+        {
+            kind: "replace" as const,
+            key: "audit.reportStyle",
+            label: "Complete review report expression",
+            description: "Adjust the reporting expression and standards for complete review.",
+            default: "All questions must be specific, the evidence must point to a clear phenomenon, and the fixSuggestion must be executable.",
+            maxLength: 600,
+        },
+        {
+            kind: "append" as const,
+            key: "audit.full.customConstraints",
+            label: "Custom review supplementary requirements",
+            description: "Append additional concerns or constraints to a complete review as contextual blocks injected into the review process. Leave blank to not append.",
+            anchor: "chapter_boundary",
+            default: "",
+            maxLength: 2000,
+            placeholderHint: "For example: Each chapter of this book must check the continuity of foreshadowing; focus on the consistency of the protagonist's motivations for action...",
+        },
+    ],
+    structuredOutputHint: {
+        example: AUDIT_CHAPTER_EXAMPLE,
+        note: "severity can only be low/medium/high/critical; issues.category can only be coherence/repetition/pacing/voice/engagement/logic. Do not output plot, character or Chinese category name.",
     },
-  ],
-  slots: [
-    {
-      kind: "replace" as const,
-      key: "audit.reportStyle",
-      label: "完整审校报告表达",
-      description: "调整完整审校的报告表达方式和标准。",
-      default: "所有问题都必须具体，evidence 指向明确现象，fixSuggestion 必须可执行。",
-      maxLength: 600,
-    },
-    {
-      kind: "append" as const,
-      key: "audit.full.customConstraints",
-      label: "自定义审校补充要求",
-      description: "追加对完整审校的额外关注点或限制，作为上下文块注入审校过程。留空则不追加。",
-      anchor: "chapter_boundary",
-      default: "",
-      maxLength: 2000,
-      placeholderHint: "例如：本书每章必须检查伏笔延续性；重点关注主角行动动机的一致性……",
-    },
-  ],
-  structuredOutputHint: {
-    example: AUDIT_CHAPTER_EXAMPLE,
-    note: "severity 只能是 low/medium/high/critical；issues.category 只能是 coherence/repetition/pacing/voice/engagement/logic，不要输出 plot、character 或中文分类名。",
-  },
-  outputSchema: fullAuditOutputSchema,
-  render: (input, context) => {
-    const reportStyle = context.slots?.text("audit.reportStyle")
-      ?? "所有问题都必须具体，evidence 指向明确现象，fixSuggestion 必须可执行。";
-    return [
-    new SystemMessage([
-      "repetition scoring: 0 means heavily repetitive, 100 means repetition is well controlled; higher is better.",
-      "你是中文长篇小说章节审校助手。",
-      "你的任务是基于章节正文、分层上下文、故事模式约束和检索补充，输出可被系统直接消费的严格 JSON 审校结果。",
-      "",
-      "只输出一个合法 JSON 对象，不要输出 Markdown、解释、注释或额外文本。",
-      "",
-      "硬性枚举要求：",
-      "1. 顶层 issues.category 只能是 coherence、repetition、pacing、voice、engagement、logic。",
-      "2. 不要输出 plot、character、中文分类名或任何自定义类别。",
-      "3. auditReports.auditType 只能使用 continuity、character、plot、mode_fit。",
-      "",
-      "审校原则：",
-      "1. 只根据给定正文和上下文判断，不得脑补未提供的剧情、设定或作者意图。",
-      "2. " + reportStyle,
-      "3. score、issues、auditReports 三部分必须彼此一致，不能互相矛盾。",
-      "4. requestedTypes 中要求的类型必须全部覆盖；即使问题不明显，也要给出简短结论。",
-      "",
-      "评分维度：",
-      "1. coherence：连贯性、因果与信息自洽。",
-      "2. repetition：表达或信息重复。",
-      "3. pacing：推进效率与节奏平衡。",
-      "4. voice：叙事声音与文本稳定性。",
-      "5. engagement：吸引力、张力和追读动力。",
-      "6. overall：综合评分，必须与前述维度大体匹配。",
-      "",
-      "输出必须严格符合 fullAuditOutputSchema。",
-    ].join("\n")),
-    new HumanMessage([
-      `小说：${input.novelTitle}`,
-      `章节：${input.chapterTitle}`,
-      `审校范围：${input.requestedTypes.join(", ")}`,
-      "",
-      "分层上下文：",
-      renderSelectedContextBlocks(context),
-      "",
-      "故事模式约束：",
-      input.storyModeContext || "none",
-      "",
-      "正文：",
-      input.content,
-      "",
-      "检索补充：",
-      input.ragContext || "none",
-      "",
-      "输出提醒：顶层 issues.category 只能使用 coherence/repetition/pacing/voice/engagement/logic。",
-    ].join("\n")),
-  ];
-  },
+    outputSchema: fullAuditOutputSchema,
+    render: (input, context) => {
+        const reportStyle = context.slots?.text("audit.reportStyle")
+            ?? "All questions must be specific, the evidence must point to a clear phenomenon, and the fixSuggestion must be executable.";
+        return [
+            new SystemMessage([
+                "repetition scoring: 0 means heavily repetitive, 100 means repetition is well controlled; higher is better.",
+                "You are a chapter review assistant for a Georgian-language novel.",
+                "Your task is to output rigorous JSON review results that can be directly consumed by the system based on the chapter body, hierarchical context, story mode constraints, and search supplements.",
+                "",
+                "Output only a valid JSON object, no Markdown, explanations, comments, or extra text.",
+                "",
+                "Hard enumeration requirements:",
+                "1. Top-level issues.category can only be coherence, repetition, pacing, voice, engagement, and logic.",
+                "2. Do not output plot, character, Chinese category name or any custom category.",
+                "3. auditReports.auditType can only use continuity, character, plot, mode_fit.",
+                "",
+                "Review principles:",
+                "1. Make judgments only based on the given text and context, and do not infer plots, settings or authorial intentions that are not provided.",
+                "2. " + reportStyle,
+                "3. The three parts score, issues, and auditReports must be consistent with each other and cannot contradict each other.",
+                "4. All types requested in requestedTypes must be covered; even if the problem is not obvious, a brief conclusion must be given.",
+                "",
+                "Rating dimensions:",
+                "1. coherence: coherence, cause and effect, and self-consistency of information.",
+                "2. repetition: repetition of expression or information.",
+                "3. Pacing: Promoting efficiency and rhythm balance.",
+                "4. Voice: narrative voice and text stability.",
+                "5. Engagement: attraction, tension and motivation to read.",
+                "6. Overall: comprehensive score, which must generally match the aforementioned dimensions.",
+                "",
+                "Output must strictly conform to fullAuditOutputSchema.",
+            ].join("\n")),
+            new HumanMessage([
+                `Novel:${input.novelTitle}`,
+                `Chapter:${input.chapterTitle}`,
+                `Scope of review:${input.requestedTypes.join(", ")}`,
+                "",
+                "Hierarchical context:",
+                renderSelectedContextBlocks(context),
+                "",
+                "Story mode constraints:",
+                input.storyModeContext || "none",
+                "",
+                "Text:",
+                input.content,
+                "",
+                "Search supplement:",
+                input.ragContext || "none",
+                "",
+                "Output reminder: Top-level issues.category can only use coherence/repetition/pacing/voice/engagement/logic.",
+            ].join("\n")),
+        ];
+    }
 };

@@ -97,25 +97,25 @@ function buildPlanTaskSheet(input: PersistPlanInput): string | undefined {
   const riskNotes = input.riskNotes.map((item) => sanitizePlanText(item)).filter(Boolean);
 
   if (objective) {
-    lines.push(`章节目标：${objective}`);
+    lines.push(`Chapter objective: ${objective}`);
   }
   if (participants.length > 0) {
-    lines.push(`关键角色：${participants.join("、")}`);
+    lines.push(`Key characters: ${participants.join(", ")}`);
   }
   if (mustAdvance.length > 0) {
-    lines.push("必须推进：");
+    lines.push("Must advance: ");
     lines.push(...mustAdvance.map((item) => `- ${item}`));
   }
   if (mustPreserve.length > 0) {
-    lines.push("必须保留：");
+    lines.push("Must be retained:");
     lines.push(...mustPreserve.map((item) => `- ${item}`));
   }
   if (riskNotes.length > 0) {
-    lines.push("风险提醒：");
+    lines.push("Risk notes: ");
     lines.push(...riskNotes.map((item) => `- ${item}`));
   }
   if (hookTarget) {
-    lines.push(`收尾钩子：${hookTarget}`);
+    lines.push(`Ending hook: ${hookTarget}`);
   }
 
   return lines.length > 0 ? lines.join("\n") : undefined;
@@ -139,11 +139,11 @@ function buildPlanSceneCards(input: PersistPlanInput): string | undefined {
     const emotionBeat = sanitizePlanText(scene.emotionBeat);
     const previousScene = index > 0 ? input.scenes[index - 1] : null;
     const entryState = index === 0
-      ? sanitizePlanText(input.objective) || `进入${input.title}`
+      ? sanitizePlanText(input.objective) || `Enter ${input.title}`
       : sanitizePlanText(previousScene?.reveal)
         || sanitizePlanText(previousScene?.objective)
-        || `承接上一场进入${title}`;
-    const exitState = reveal || emotionBeat || objective || `完成${title}`;
+        || `Continue from the previous scene into ${title}`;
+    const exitState = reveal || emotionBeat || objective || `Complete ${title}`;
     return {
       key: `plan_scene_${index + 1}`,
       title,
@@ -309,7 +309,7 @@ export async function persistStoryPlan(input: PersistPlanInput) {
     },
   });
   if (!persistedPlan) {
-    throw new Error("章节规划持久化失败。");
+    throw new Error("Chapter-plan persistence failed.");
   }
   return enrichStoryPlan(persistedPlan as any);
 }

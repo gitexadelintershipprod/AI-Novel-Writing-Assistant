@@ -1,0 +1,57 @@
+services:
+  database:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ai_novel
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ai_novel"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    volumes:
+      - ai_novel_postgres_data:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    restart: unless-stopped
+    command:
+      - sh
+      - -c
+      - /app/node_modules/.bin/prisma db push --accept-data-loss && exec node ./server/dist/app.js
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 3000
+      DATABASE_URL: postgresql://postgres:postgres@database:5432/ai_novel
+      AI_NOVEL_DATABASE_MODE: postgresql
+      MARKET_RADAR_ENABLED: "false"
+      CORS_ORIGIN: http://127.0.0.1:8045,http://localhost:8045
+    ports:
+      - "127.0.0.1:3165:3000"
+    volumes:
+      - ai_novel_storage:/app/storage
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+      args:
+        VITE_API_BASE_URL: http://127.0.0.1:3165/api
+        VITE_MARKET_RADAR_ENABLED: "false"
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "127.0.0.1:8045:8080"
+
+volumes:
+  ai_novel_postgres_data:
+  ai_novel_storage:

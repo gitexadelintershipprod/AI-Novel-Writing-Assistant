@@ -2,12 +2,7 @@ import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { z } from "zod";
 import type { PromptAsset } from "../../core/promptTypes";
 import { renderSelectedContextBlocks } from "../../core/renderContextBlocks";
-import {
-  characterCastAutoResponseSchema,
-  characterCastOptionResponseSchema,
-  supplementalCharacterGenerationResponseSchema,
-} from "./characterPreparation.promptSchemas";
-
+import { characterCastAutoResponseSchema, characterCastOptionResponseSchema, supplementalCharacterGenerationResponseSchema, } from "./characterPreparation.promptSchemas";
 const CHARACTER_CAST_OPTION_RESPONSE_TEMPLATE = `{
   "options": [
     {
@@ -60,7 +55,6 @@ const CHARACTER_CAST_OPTION_RESPONSE_TEMPLATE = `{
     }
   ]
 }`;
-
 const CHARACTER_CAST_AUTO_RESPONSE_TEMPLATE = `{
   "option": {
     "title": "string",
@@ -111,7 +105,6 @@ const CHARACTER_CAST_AUTO_RESPONSE_TEMPLATE = `{
     ]
   }
 }`;
-
 const SUPPLEMENTAL_CHARACTER_RESPONSE_TEMPLATE = `{
   "mode": "linked",
   "recommendedCount": 2,
@@ -161,462 +154,421 @@ const SUPPLEMENTAL_CHARACTER_RESPONSE_TEMPLATE = `{
     }
   ]
 }`;
-
 export interface CharacterCastOptionPromptInput {
-  optionCount: number;
+    optionCount: number;
 }
-
 export interface CharacterCastOptionRepairPromptInput {
-  payloadJson: string;
-  failureReasons: string[];
+    payloadJson: string;
+    failureReasons: string[];
 }
-
 export interface CharacterCastOptionNormalizePromptInput {
-  payloadJson: string;
+    payloadJson: string;
 }
-
-export interface CharacterCastAutoPromptInput {}
-
+export interface CharacterCastAutoPromptInput {
+}
 export interface CharacterCastAutoRepairPromptInput {
-  payloadJson: string;
-  failureReasons: string[];
+    payloadJson: string;
+    failureReasons: string[];
 }
-
 export interface CharacterCastAutoNormalizePromptInput {
-  payloadJson: string;
+    payloadJson: string;
 }
-
-export interface SupplementalCharacterPromptInput {}
-
+export interface SupplementalCharacterPromptInput {
+}
 export interface SupplementalCharacterNormalizePromptInput {
-  payloadJson: string;
+    payloadJson: string;
 }
-
-export const characterCastOptionPrompt: PromptAsset<
-  CharacterCastOptionPromptInput,
-  z.infer<typeof characterCastOptionResponseSchema>
-> = {
-  id: "novel.character.castOptions",
-  version: "v2",
-  taskType: "planner",
-  mode: "structured",
-  language: "zh",
-  contextPolicy: {
-    maxTokensBudget: 0,
-    requiredGroups: ["idea_seed", "protagonist_anchor", "output_policy"],
-    preferredGroups: [
-      "hidden_identity_anchor",
-      "project_context",
-      "book_contract",
-      "macro_constraints",
-      "world_stage",
-      "forbidden_names",
-    ],
-  },
-  repairPolicy: {
-    maxAttempts: 2,
-  },
-  outputSchema: characterCastOptionResponseSchema,
-  render: (input, context) => [
-    new SystemMessage([
-      "你是长篇中文网文的角色阵容策划师，服务对象是不懂写作流程的新手用户。",
-      "你的任务是为当前小说生成可直接进入正文规划的核心角色阵容，而不是输出抽象功能网络。",
-      "",
-      "只返回严格 JSON，不要输出 Markdown、解释、注释、代码块或额外文本。",
-      `必须精确输出 ${input.optionCount} 套方案，不可少于或多于 ${input.optionCount} 套。`,
-      "",
-      "【结构硬规则】",
-      "1. 必须严格遵守给定 JSON 结构。",
-      "2. 字段名必须保持英文，字段值内容使用简体中文。",
-      "3. 每套方案必须包含 3-6 个成员、2-12 条关系。",
-      "4. 每个角色都必须输出 gender，允许值只有 male、female、other、unknown。",
-      "5. castRole 只能使用：protagonist, antagonist, ally, foil, mentor, love_interest, pressure_source, catalyst。",
-      "6. 每个角色必须输出 personality、background、development，不得只给 shortDescription。",
-      "7. 每个角色必须输出角色硬事实字段：identityLabel、factionLabel、stanceLabel、powerLevel、realm、currentLocation、availability、prohibitions；拿不准可填空字符串或空数组，但不得编造超过书级设定的重大事实。",
-      "",
-      "【命名硬规则】",
-      "1. name 只能写可直接进入正文的真实人物名、稳定称谓、历史官职称呼、宫廷称呼、江湖称号或阵营身份称呼。",
-      "2. 绝对禁止把功能词写进 name，例如：谜团催化剂、知识导师位、外部威胁位、情感位、关系变量、功能位。",
-      "3. storyFunction 才负责写叙事职责，name 不负责承载功能描述。",
-      "4. 同一方案内的角色名必须彼此可区分，不要出现一批抽象模板称呼。",
-      "",
-      "【阵容质量要求】",
-      "1. 每套方案都必须有明确主角锚点，主角不能写成功能位。",
-      "2. 如果故事存在隐藏身份、历史真名、伪装身份或终局身份反转，这条线必须被角色阵容显式承接。",
-      "3. 每套方案都要体现真正的人物关系动力、压力来源、成长代价和长期冲突，而不是角色说明书堆砌。",
-      "4. 同一方案内不要让多个角色承担几乎相同的 storyFunction。",
-      "5. 角色组合必须能支撑长篇推进，而不是只服务开篇一次性爆点。",
-      "6. 角色硬事实要优先承接题材设定与阵营关系，例如身份、阵营、境界/战力、当前可出场状态，避免后续正文把阵营、修为或身份写反。",
-      "",
-      "【题材约束】",
-      "如果上下文是历史、穿越、宫廷、官场或强制度环境题材，阵容必须体现时代身份、制度压迫、权力链条和身份反差，不能退化成通用功能网络。",
-      "",
-      "【表达要求】",
-      "1. 所有描述必须具体，避免“人物鲜明”“关系复杂”“推动剧情”这类空话。",
-      "2. 除 summary、whyItWorks、recommendedReason 外，其余文本字段优先控制在短句或短词组。",
-      "3. 如果拿不准 gender，填 unknown，不允许留空。",
-      "",
-      "固定模板如下：",
-      CHARACTER_CAST_OPTION_RESPONSE_TEMPLATE,
-    ].join("\n")),
-    new HumanMessage([
-      "请基于以下上下文生成角色阵容方案。",
-      "",
-      "【分层上下文】",
-      renderSelectedContextBlocks(context),
-      "",
-      "【输出要求】",
-      `- 精确输出 ${input.optionCount} 套方案`,
-      "- name 必须是可入戏角色名或稳定称谓",
-      "- storyFunction 负责写功能，name 不能写成功能位",
-      "- 每个角色必须带 gender",
-      "- 只输出严格 JSON",
-    ].join("\n")),
-  ],
+export const characterCastOptionPrompt: PromptAsset<CharacterCastOptionPromptInput, z.infer<typeof characterCastOptionResponseSchema>> = {
+    id: "novel.character.castOptions",
+    version: "v3",
+    taskType: "planner",
+    mode: "structured",
+    language: "ka",
+    contextPolicy: {
+        maxTokensBudget: 0,
+        requiredGroups: ["idea_seed", "protagonist_anchor", "output_policy"],
+        preferredGroups: [
+            "hidden_identity_anchor",
+            "project_context",
+            "book_contract",
+            "macro_constraints",
+            "world_stage",
+            "forbidden_names",
+        ],
+    },
+    repairPolicy: {
+        maxAttempts: 2,
+    },
+    outputSchema: characterCastOptionResponseSchema,
+    render: (input, context) => [
+        new SystemMessage([
+            "You are the character lineup planner for long-form serial fiction, and your service targets novice users who do not understand the writing process.",
+            "Your task is to generate a core cast of characters for the current novel that can go directly into text planning, not to output an abstract functional network.",
+            "",
+            "Only return strict JSON, no Markdown, explanations, comments, code blocks, or extra text.",
+            `Must be output accurately ${input.optionCount} set of plans, not less than or more than ${input.optionCount} set.`,
+            "",
+            "[Structural Hard Rules]",
+            "1. The given JSON structure must be strictly adhered to.",
+            "2. Field names must remain in English, and field value contents must be in natural Georgian.",
+            "3. Each plan must contain 3-6 members and 2-12 relationships.",
+            "4. Each role must output gender, and the only allowed values are male, female, other, and unknown.",
+            "5. CastRole can only use: protagonist, antagonist, ally, foil, mentor, love_interest, pressure_source, catalyst.",
+            "6. Each character must output personality, background, and development, and must not only give shortDescription.",
+            "7. Each role must output the role hard fact fields: identityLabel, factorLabel, stanceLabel, powerLevel, realm, currentLocation, availability, prohibitions; if you are unsure, you can fill in empty strings or empty arrays, but you are not allowed to make up important facts that exceed the book-level settings.",
+            "",
+            "[Hard naming rules]",
+            "1. Name can only be written as a real person's name, stable title, historical official title, palace title, Jianghu title or camp status title that can be directly entered into the text.",
+            "2. It is absolutely forbidden to write function words into the name, such as: mystery catalyst, knowledge mentor, external threat, emotion, relationship variable, and function.",
+            "3. storyFunction is responsible for writing narrative responsibilities, and name is not responsible for carrying function descriptions.",
+            "4. Role names in the same scheme must be distinguishable from each other, and there should not be a batch of abstract template names.",
+            "",
+            "[Lineup quality requirements]",
+            "1. Each plan must have a clear protagonist anchor point, and the protagonist cannot be written as a functional position.",
+            "2. If the story has a hidden identity, historical real name, disguised identity, or identity reversal in the end, this line must be explicitly picked up by the character cast.",
+            "3. Each plan should reflect real character relationship dynamics, sources of stress, growth costs, and long-term conflicts, rather than a stack of character descriptions.",
+            "4. Do not let multiple characters assume almost the same storyFunction in the same scheme.",
+            "5. The combination of characters must be able to support the advancement of the feature, rather than just serve the one-time hit point in the opening chapter.",
+            "6. The hard facts of the character should give priority to the theme setting and camp relationship, such as identity, camp, realm/combat power, and current playable status, to avoid writing camp, cultivation level, or identity backwards in subsequent text.",
+            "",
+            "[Subject matter restrictions]",
+            "If the context is history, time travel, palace, officialdom or strong institutional environment, the lineup must reflect the identity of the era, institutional oppression, power chains and identity contrast, and cannot degenerate into a general functional network.",
+            "",
+            "\u3010Express request\u3011",
+            "1. All descriptions must be specific and avoid empty words such as \"distinct characters\", \"complex relationships\" and \"promoting the plot\".",
+            "2. Except for summary, whyItWorks, and recommendedReason, the remaining text fields are preferably controlled to short sentences or short phrases.",
+            "3. If you are not sure about your gender, fill in unknown and leave it blank.",
+            "",
+            "The fixed template is as follows:",
+            CHARACTER_CAST_OPTION_RESPONSE_TEMPLATE,
+        ].join("\n")),
+        new HumanMessage([
+            "Please generate a character lineup based on the following context.",
+            "",
+            "[Hierarchical context]",
+            renderSelectedContextBlocks(context),
+            "",
+            "[Output requirements]",
+            `- Accurate output ${input.optionCount} set of plans`,
+            "- name must be a playable character name or a stable title",
+            "- storyFunction is responsible for writing functions, name cannot be written as function bits",
+            "- Each character must have gender",
+            "- Only output strict JSON",
+        ].join("\n")),
+    ]
 };
-
-export const characterCastOptionRepairPrompt: PromptAsset<
-  CharacterCastOptionRepairPromptInput,
-  z.infer<typeof characterCastOptionResponseSchema>
-> = {
-  id: "novel.character.castOptions.repair",
-  version: "v1",
-  taskType: "planner",
-  mode: "structured",
-  language: "zh",
-  contextPolicy: {
-    maxTokensBudget: 0,
-  },
-  outputSchema: characterCastOptionResponseSchema,
-  render: (input, context) => [
-    new SystemMessage([
-      "你是中文网文角色策划修复编辑，负责把一份已经生成出来但质量不合格的角色阵容 JSON 修正为可直接入库的版本。",
-      "你只能修正内容，不要改变整体故事方向。",
-      "",
-      "只输出一个合法 JSON，不要输出 Markdown、解释、注释或额外文本。",
-      "",
-      "硬规则：",
-      "1. 必须保留原 JSON 的最外层结构和 options 数量。",
-      "2. 可以改写 title、summary、members、relations 的内容，但不能删除方案，也不能把 3 套改成别的数量。",
-      "3. 必须修正所有功能位式角色名，把它们改成真实可入戏的人名或稳定称谓。",
-      "4. 每个角色都必须有 gender，允许值只有 male、female、other、unknown。",
-      "5. 所有展示文本必须是自然简体中文，不要保留明显英文残留。",
-      "6. 必须保持同一故事方向、主角锚点、核心冲突和隐藏身份线索，不要重写成另一套书。",
-      "",
-      "重点修复原则：",
-      "1. name 不能再出现“某某位、催化剂、威胁源、功能位、关系变量”这类抽象槽位。",
-      "2. 如果上下文存在主角当前身份或隐藏身份线索，至少要让主角方案显式承接这些线索。",
-      "3. 同一方案内避免多人承担同一故事功能。",
-    ].join("\n")),
-    new HumanMessage([
-      "下面这份 JSON 需要修复。",
-      "",
-      "【分层上下文】",
-      renderSelectedContextBlocks(context),
-      "",
-      "【失败原因】",
-      input.failureReasons.map((reason, index) => `${index + 1}. ${reason}`).join("\n") || "未提供",
-      "",
-      "【待修复 JSON】",
-      input.payloadJson,
-      "",
-      "请输出修复后的完整 JSON。",
-    ].join("\n")),
-  ],
+export const characterCastOptionRepairPrompt: PromptAsset<CharacterCastOptionRepairPromptInput, z.infer<typeof characterCastOptionResponseSchema>> = {
+    id: "novel.character.castOptions.repair",
+    version: "v2",
+    taskType: "planner",
+    mode: "structured",
+    language: "ka",
+    contextPolicy: {
+        maxTokensBudget: 0,
+    },
+    outputSchema: characterCastOptionResponseSchema,
+    render: (input, context) => [
+        new SystemMessage([
+            "You are a Georgian-language fiction character planning and repair editor. Correct a generated but underqualified character-lineup JSON into a version that can be stored directly without changing the schema.",
+            "You can only fix the content, not change the overall story direction.",
+            "",
+            "Output only valid JSON, no Markdown, explanations, comments, or extra text.",
+            "",
+            "Hard rules:",
+            "1. The outermost structure and number of options of the original JSON must be retained.",
+            "2. You can rewrite the contents of title, summary, members, and relations, but you cannot delete the plan, nor can you change the 3 sets to other quantities.",
+            "3. All functional character names must be corrected and changed into real playable names or stable titles.",
+            "4. Each role must have a gender, and the only allowed values are male, female, other, and unknown.",
+            "5. All displayed text must be in natural natural Georgian, and no obvious English residue should be retained.",
+            "6. The same story direction, protagonist anchor, core conflict, and hidden identity clues must be maintained and not rewritten into another set of books.",
+            "",
+            "Key repair principles:",
+            "1. Abstract slots such as \"a certain position, catalyst, threat source, functional position, relationship variable\" can no longer appear in name.",
+            "2. If there are clues about the protagonist\u2019s current identity or hidden identity in the context, at least let the protagonist plan explicitly take over these clues.",
+            "3. Avoid multiple people taking on the same story function within the same plan.",
+        ].join("\n")),
+        new HumanMessage([
+            "The following JSON needs fixing.",
+            "",
+            "[Hierarchical context]",
+            renderSelectedContextBlocks(context),
+            "",
+            "[Cause of failure]",
+            input.failureReasons.map((reason, index) => `${index + 1}. ${reason}`).join("\n") || "Not provided",
+            "",
+            "[JSON to be fixed]",
+            input.payloadJson,
+            "",
+            "Please output the complete repaired JSON.",
+        ].join("\n")),
+    ]
 };
-
-export const characterCastOptionNormalizePrompt: PromptAsset<
-  CharacterCastOptionNormalizePromptInput,
-  z.infer<typeof characterCastOptionResponseSchema>
-> = {
-  id: "novel.character.castOptions.zhNormalize",
-  version: "v1",
-  taskType: "planner",
-  mode: "structured",
-  language: "zh",
-  contextPolicy: {
-    maxTokensBudget: 0,
-  },
-  outputSchema: characterCastOptionResponseSchema,
-  render: (input) => [
-    new SystemMessage([
-      "你是中文小说角色策划编辑，负责对角色阵容 JSON 做语言归一化。",
-      "你的任务是把所有面向用户展示的文本值改写为自然、流畅、可直接阅读的简体中文表达。",
-      "",
-      "只输出一个合法 JSON，不要输出 Markdown、解释、注释、代码块或额外文本。",
-      "",
-      "结构硬规则：",
-      "1. 必须严格保留原有 JSON 结构、字段名、层级关系与数组长度。",
-      "2. 不得新增字段、删除字段、重命名字段或调整字段顺序。",
-      "3. 不得新增或删除数组元素，只允许改写内容。",
-      "",
-      "内容改写规则：",
-      "1. 所有展示文本必须改写为自然简体中文。",
-      "2. 保留原有语义、关系含义和角色功能，不得改变设定逻辑。",
-      "3. castRole 和 gender 枚举值必须保持原样，不得翻译或改写。",
-      "4. 已有中文人名和称谓应尽量保持稳定，不要擅自换名。",
-      "5. 不得补写新的剧情、世界设定或关系。",
-    ].join("\n")),
-    new HumanMessage(
-      `请将下面 JSON 中所有展示给用户的文本内容改写为简体中文，并保持结构与含义不变：\n${input.payloadJson}`,
-    ),
-  ],
+export const characterCastOptionNormalizePrompt: PromptAsset<CharacterCastOptionNormalizePromptInput, z.infer<typeof characterCastOptionResponseSchema>> = {
+    id: "novel.character.castOptions.zhNormalize",
+    version: "v2",
+    taskType: "planner",
+    mode: "structured",
+    language: "ka",
+    contextPolicy: {
+        maxTokensBudget: 0,
+    },
+    outputSchema: characterCastOptionResponseSchema,
+    render: (input) => [
+        new SystemMessage([
+            "You are the character planning editor for Georgian-language novels, responsible for language normalization of the character lineup JSON.",
+            "Your task is to rewrite all text values displayed to users into natural, smooth, and directly readable natural Georgian expressions.",
+            "",
+            "Output only valid JSON, no Markdown, explanations, comments, code blocks, or extra text.",
+            "",
+            "Hard rules for structure:",
+            "1. The original JSON structure, field names, hierarchical relationships and array length must be strictly retained.",
+            "2. It is not allowed to add fields, delete fields, rename fields or adjust the order of fields.",
+            "3. Array elements are not allowed to be added or deleted, only the content is allowed to be rewritten.",
+            "",
+            "Content rewriting rules:",
+            "1. All display text must be rewritten into natural natural Georgian.",
+            "2. Retain the original semantics, relationship meanings and role functions, and the setting logic must not be changed.",
+            "3. The castRole and gender enumeration values must remain intact and may not be translated or rewritten.",
+            "4. Existing proper names and titles should be kept as stable as possible and do not change names without authorization.",
+            "5. No new plots, world settings or relationships are allowed.",
+        ].join("\n")),
+        new HumanMessage(`Please rewrite all text content displayed to users in the JSON below into natural Georgian, and keep the structure and meaning unchanged:
+${input.payloadJson}`),
+    ]
 };
-
-export const characterCastAutoPrompt: PromptAsset<
-  CharacterCastAutoPromptInput,
-  z.infer<typeof characterCastAutoResponseSchema>
-> = {
-  id: "novel.character.castAuto",
-  version: "v1",
-  taskType: "planner",
-  mode: "structured",
-  language: "zh",
-  contextPolicy: {
-    maxTokensBudget: 0,
-    requiredGroups: ["idea_seed", "protagonist_anchor", "output_policy"],
-    preferredGroups: [
-      "hidden_identity_anchor",
-      "project_context",
-      "book_contract",
-      "macro_constraints",
-      "world_stage",
-      "forbidden_names",
-    ],
-  },
-  repairPolicy: {
-    maxAttempts: 2,
-  },
-  outputSchema: characterCastAutoResponseSchema,
-  render: (_input, context) => [
-    new SystemMessage([
-      "你是长篇中文网文的角色阵容策划师，服务对象是不懂写作流程的新手用户。",
-      "你的任务是直接产出 1 套可自动落库、可直接进入正文规划的核心角色阵容，而不是提供多套待选方案。",
-      "",
-      "只返回严格 JSON，不要输出 Markdown、解释、注释、代码块或额外文本。",
-      "",
-      "【结构硬规则】",
-      "1. 必须严格遵守给定 JSON 结构。",
-      "2. 字段名必须保持英文，字段值内容使用简体中文。",
-      "3. 阵容必须包含 3-6 个成员、2-12 条关系。",
-      "4. 每个角色都必须输出 gender，允许值只有 male、female、other、unknown。",
-      "5. castRole 只能使用：protagonist, antagonist, ally, foil, mentor, love_interest, pressure_source, catalyst。",
-      "6. 每个角色必须输出 personality、background、development，不得只给 shortDescription。",
-      "7. 每个角色必须输出角色硬事实字段：identityLabel、factionLabel、stanceLabel、powerLevel、realm、currentLocation、availability、prohibitions；拿不准可填空字符串或空数组，但不得编造超过书级设定的重大事实。",
-      "",
-      "【命名硬规则】",
-      "1. name 只能写可直接进入正文的真实人名、稳定称谓、历史官职称谓、宫廷称谓、江湖称号或阵营身份称呼。",
-      "2. 绝对禁止把功能词写进 name，例如：谜团催化剂、知识导师位、外部威胁位、情感位、关系变量、功能位。",
-      "3. storyFunction 才负责写叙事职责，name 不负责承载功能描述。",
-      "4. 同一套阵容内的角色名必须彼此可区分，不要出现一批抽象模板称谓。",
-      "",
-      "【阵容质量要求】",
-      "1. 必须有明确主角锚点，主角不能写成功能位。",
-      "2. 如果故事存在隐藏身份、历史真名、伪装身份或终局身份反转，这条线必须被角色阵容显式承接。",
-      "3. 关系必须体现真实的人物动力、压力来源、成长代价和长期冲突，而不是角色说明书堆砌。",
-      "4. 不要让多个角色承担几乎相同的 storyFunction。",
-      "5. 这套阵容必须能支撑长篇推进，而不是只服务开篇一次性爆点。",
-      "6. 角色硬事实要优先承接题材设定与阵营关系，例如身份、阵营、境界/战力、当前可出场状态，避免后续正文把阵营、修为或身份写反。",
-      "",
-      "【题材约束】",
-      "如果上下文是历史、穿越、宫廷、官场或强制度环境题材，阵容必须体现时代身份、制度压迫、权力链条和身份反差，不能退化成通用功能网络。",
-      "",
-      "【表达要求】",
-      "1. 所有描述必须具体，避免“人物鲜明”“关系复杂”“推动剧情”这类空话。",
-      "2. 除 summary、whyItWorks、recommendedReason 外，其余文本字段优先控制在短句或短词组。",
-      "3. 如果拿不准 gender，填 unknown，不允许留空。",
-      "",
-      "固定模板如下：",
-      CHARACTER_CAST_AUTO_RESPONSE_TEMPLATE,
-    ].join("\n")),
-    new HumanMessage([
-      "请基于以下上下文生成自动导演要直接采用的角色阵容。",
-      "",
-      "【分层上下文】",
-      renderSelectedContextBlocks(context),
-      "",
-      "【输出要求】",
-      "- 只输出 1 套角色阵容",
-      "- name 必须是可入戏角色名或稳定称谓",
-      "- storyFunction 负责写功能，name 不能写成功能位",
-      "- 每个角色必须带 gender",
-      "- 只输出严格 JSON",
-    ].join("\n")),
-  ],
+export const characterCastAutoPrompt: PromptAsset<CharacterCastAutoPromptInput, z.infer<typeof characterCastAutoResponseSchema>> = {
+    id: "novel.character.castAuto",
+    version: "v2",
+    taskType: "planner",
+    mode: "structured",
+    language: "ka",
+    contextPolicy: {
+        maxTokensBudget: 0,
+        requiredGroups: ["idea_seed", "protagonist_anchor", "output_policy"],
+        preferredGroups: [
+            "hidden_identity_anchor",
+            "project_context",
+            "book_contract",
+            "macro_constraints",
+            "world_stage",
+            "forbidden_names",
+        ],
+    },
+    repairPolicy: {
+        maxAttempts: 2,
+    },
+    outputSchema: characterCastAutoResponseSchema,
+    render: (_input, context) => [
+        new SystemMessage([
+            "You are the character lineup planner for long-form serial fiction, and your service targets novice users who do not understand the writing process.",
+            "Your task is to directly produce a set of core character lineups that can be automatically dropped into the inventory and can directly enter the main text planning, rather than providing multiple sets of alternative plans.",
+            "",
+            "Only return strict JSON, no Markdown, explanations, comments, code blocks, or extra text.",
+            "",
+            "[Structural Hard Rules]",
+            "1. The given JSON structure must be strictly adhered to.",
+            "2. Field names must remain in English, and field value contents must be in natural Georgian.",
+            "3. The lineup must contain 3-6 members and 2-12 relationships.",
+            "4. Each role must output gender, and the only allowed values are male, female, other, and unknown.",
+            "5. CastRole can only use: protagonist, antagonist, ally, foil, mentor, love_interest, pressure_source, catalyst.",
+            "6. Each character must output personality, background, and development, and must not only give shortDescription.",
+            "7. Each role must output the role hard fact fields: identityLabel, factorLabel, stanceLabel, powerLevel, realm, currentLocation, availability, prohibitions; if you are unsure, you can fill in empty strings or empty arrays, but you are not allowed to make up important facts that exceed the book-level settings.",
+            "",
+            "[Hard naming rules]",
+            "1. Name can only be written as a real person\u2019s name, stable title, historical official title, palace title, Jianghu title or camp status title that can be directly entered into the text.",
+            "2. It is absolutely forbidden to write function words into the name, such as: mystery catalyst, knowledge mentor, external threat, emotion, relationship variable, and function.",
+            "3. storyFunction is responsible for writing narrative responsibilities, and name is not responsible for carrying function descriptions.",
+            "4. Character names in the same lineup must be distinguishable from each other, and there should not be a batch of abstract template titles.",
+            "",
+            "[Lineup quality requirements]",
+            "1. There must be a clear anchor point for the protagonist, and the protagonist cannot be written as a functional position.",
+            "2. If the story has a hidden identity, historical real name, disguised identity, or identity reversal in the end, this line must be explicitly picked up by the character cast.",
+            "3. Relationships must reflect real character dynamics, stressors, growth costs, and long-term conflicts rather than just character descriptions.",
+            "4. Don\u2019t have multiple characters responsible for almost the same storyFunction.",
+            "5. This lineup must be able to support the advancement of the long-form story, rather than just serve the one-time hit point in the opening chapter.",
+            "6. The hard facts of the character should give priority to the theme setting and camp relationship, such as identity, camp, realm/combat power, and current playable status, to avoid writing camp, cultivation level, or identity backwards in subsequent text.",
+            "",
+            "[Subject matter restrictions]",
+            "If the context is history, time travel, palace, officialdom or strong institutional environment, the lineup must reflect the identity of the era, institutional oppression, power chains and identity contrast, and cannot degenerate into a general functional network.",
+            "",
+            "\u3010Express request\u3011",
+            "1. All descriptions must be specific and avoid empty words such as \"distinct characters\", \"complex relationships\" and \"promoting the plot\".",
+            "2. Except for summary, whyItWorks, and recommendedReason, the remaining text fields are preferably controlled to short sentences or short phrases.",
+            "3. If you are not sure about your gender, fill in unknown and leave it blank.",
+            "",
+            "The fixed template is as follows:",
+            CHARACTER_CAST_AUTO_RESPONSE_TEMPLATE,
+        ].join("\n")),
+        new HumanMessage([
+            "Please generate a cast of characters to be directly adopted by the automatic director based on the following context.",
+            "",
+            "[Hierarchical context]",
+            renderSelectedContextBlocks(context),
+            "",
+            "[Output requirements]",
+            "- Only output 1 set of character lineup",
+            "- name must be a playable character name or a stable title",
+            "- storyFunction is responsible for writing functions, name cannot be written as function bits",
+            "- Each character must have gender",
+            "- Only output strict JSON",
+        ].join("\n")),
+    ]
 };
-
-export const characterCastAutoRepairPrompt: PromptAsset<
-  CharacterCastAutoRepairPromptInput,
-  z.infer<typeof characterCastAutoResponseSchema>
-> = {
-  id: "novel.character.castAuto.repair",
-  version: "v1",
-  taskType: "planner",
-  mode: "structured",
-  language: "zh",
-  contextPolicy: {
-    maxTokensBudget: 0,
-  },
-  outputSchema: characterCastAutoResponseSchema,
-  render: (input, context) => [
-    new SystemMessage([
-      "你是中文网文角色策划修复编辑，负责把一份已经生成出来但质量不合格的角色阵容 JSON 修正为可直接入库的版本。",
-      "你只能修正内容，不要改变整体故事方向。",
-      "",
-      "只输出一个合法 JSON，不要输出 Markdown、解释、注释或额外文本。",
-      "",
-      "硬规则：",
-      "1. 必须保留原 JSON 的最外层结构和 option 对象。",
-      "2. 可以改写 title、summary、members、relations 的内容，但不能改成多套方案。",
-      "3. 必须修正所有功能位式角色名，把它们改成真实可入戏的人名或稳定称谓。",
-      "4. 每个角色都必须有 gender，允许值只有 male、female、other、unknown。",
-      "5. 所有展示文本必须是自然简体中文，不要保留明显英文残留。",
-      "6. 必须保持同一故事方向、主角锚点、核心冲突和隐藏身份线索，不要重写成另一套书。",
-      "",
-      "重点修复原则：",
-      "1. name 不能再出现“某某位、催化剂、威胁源、功能位、关系变量”这类抽象槽位。",
-      "2. 如果上下文存在主角当前身份或隐藏身份线索，至少要让主角方案显式承接这些线索。",
-      "3. 同一阵容内避免多人承担同一个故事功能。",
-    ].join("\n")),
-    new HumanMessage([
-      "下面这份 JSON 需要修复。",
-      "",
-      "【分层上下文】",
-      renderSelectedContextBlocks(context),
-      "",
-      "【失败原因】",
-      input.failureReasons.map((reason, index) => `${index + 1}. ${reason}`).join("\n") || "未提供",
-      "",
-      "【待修复 JSON】",
-      input.payloadJson,
-      "",
-      "请输出修复后的完整 JSON。",
-    ].join("\n")),
-  ],
+export const characterCastAutoRepairPrompt: PromptAsset<CharacterCastAutoRepairPromptInput, z.infer<typeof characterCastAutoResponseSchema>> = {
+    id: "novel.character.castAuto.repair",
+    version: "v2",
+    taskType: "planner",
+    mode: "structured",
+    language: "ka",
+    contextPolicy: {
+        maxTokensBudget: 0,
+    },
+    outputSchema: characterCastAutoResponseSchema,
+    render: (input, context) => [
+        new SystemMessage([
+            "You are a Georgian-language fiction character planning and repair editor. Correct a generated but underqualified character-lineup JSON into a version that can be stored directly without changing the schema.",
+            "You can only fix the content, not change the overall story direction.",
+            "",
+            "Output only valid JSON, no Markdown, explanations, comments, or extra text.",
+            "",
+            "Hard rules:",
+            "1. The outermost structure and option object of the original JSON must be retained.",
+            "2. You can rewrite the content of title, summary, members, and relations, but you cannot change it to multiple plans.",
+            "3. All functional character names must be corrected and changed into real playable names or stable titles.",
+            "4. Each role must have a gender, and the only allowed values are male, female, other, and unknown.",
+            "5. All displayed text must be in natural natural Georgian, and no obvious English residue should be retained.",
+            "6. The same story direction, protagonist anchor, core conflict, and hidden identity clues must be maintained and not rewritten into another set of books.",
+            "",
+            "Key repair principles:",
+            "1. Abstract slots such as \"a certain position, catalyst, threat source, functional position, relationship variable\" can no longer appear in name.",
+            "2. If there are clues about the protagonist\u2019s current identity or hidden identity in the context, at least let the protagonist plan explicitly take over these clues.",
+            "3. Avoid multiple people in the same lineup taking on the same story function.",
+        ].join("\n")),
+        new HumanMessage([
+            "The following JSON needs fixing.",
+            "",
+            "[Hierarchical context]",
+            renderSelectedContextBlocks(context),
+            "",
+            "[Cause of failure]",
+            input.failureReasons.map((reason, index) => `${index + 1}. ${reason}`).join("\n") || "Not provided",
+            "",
+            "[JSON to be fixed]",
+            input.payloadJson,
+            "",
+            "Please output the complete repaired JSON.",
+        ].join("\n")),
+    ]
 };
-
-export const characterCastAutoNormalizePrompt: PromptAsset<
-  CharacterCastAutoNormalizePromptInput,
-  z.infer<typeof characterCastAutoResponseSchema>
-> = {
-  id: "novel.character.castAuto.zhNormalize",
-  version: "v1",
-  taskType: "planner",
-  mode: "structured",
-  language: "zh",
-  contextPolicy: {
-    maxTokensBudget: 0,
-  },
-  outputSchema: characterCastAutoResponseSchema,
-  render: (input) => [
-    new SystemMessage([
-      "你是中文小说角色策划编辑，负责对角色阵容 JSON 做语言归一化。",
-      "你的任务是把所有面向用户展示的文本值改写为自然、流畅、可直接阅读的简体中文表达。",
-      "",
-      "只输出一个合法 JSON，不要输出 Markdown、解释、注释、代码块或额外文本。",
-      "",
-      "结构硬规则：",
-      "1. 必须严格保留原有 JSON 结构、字段名、层级关系与对象顺序。",
-      "2. 不得新增字段、删除字段、重命名字段或调整字段顺序。",
-      "3. 不得补出第二套方案，只能改写现有 option 的内容。",
-      "",
-      "内容改写规则：",
-      "1. 所有展示文本必须改写为自然简体中文。",
-      "2. 保留原有语义、关系含义和角色功能，不得改变设定逻辑。",
-      "3. castRole 和 gender 枚举值必须保持原样，不得翻译或改写。",
-      "4. 已有人名和称谓应尽量保持稳定，不要擅自换名。",
-      "5. 不得补写新的剧情、世界设定或关系。",
-    ].join("\n")),
-    new HumanMessage(
-      `请将下面 JSON 中所有展示给用户的文本内容改写为简体中文，并保持结构与含义不变：\n${input.payloadJson}`,
-    ),
-  ],
+export const characterCastAutoNormalizePrompt: PromptAsset<CharacterCastAutoNormalizePromptInput, z.infer<typeof characterCastAutoResponseSchema>> = {
+    id: "novel.character.castAuto.zhNormalize",
+    version: "v2",
+    taskType: "planner",
+    mode: "structured",
+    language: "ka",
+    contextPolicy: {
+        maxTokensBudget: 0,
+    },
+    outputSchema: characterCastAutoResponseSchema,
+    render: (input) => [
+        new SystemMessage([
+            "You are the character planning editor for Georgian-language novels, responsible for language normalization of the character lineup JSON.",
+            "Your task is to rewrite all text values displayed to users into natural, smooth, and directly readable natural Georgian expressions.",
+            "",
+            "Output only valid JSON, no Markdown, explanations, comments, code blocks, or extra text.",
+            "",
+            "Hard rules for structure:",
+            "1. The original JSON structure, field names, hierarchical relationships and object order must be strictly retained.",
+            "2. It is not allowed to add fields, delete fields, rename fields or adjust the order of fields.",
+            "3. You are not allowed to make up a second set of plans, you can only rewrite the content of the existing option.",
+            "",
+            "Content rewriting rules:",
+            "1. All display text must be rewritten into natural natural Georgian.",
+            "2. Retain the original semantics, relationship meanings and role functions, and the setting logic must not be changed.",
+            "3. The castRole and gender enumeration values must remain intact and may not be translated or rewritten.",
+            "4. Existing names and titles should be kept as stable as possible and do not change names without authorization.",
+            "5. No new plots, world settings or relationships are allowed.",
+        ].join("\n")),
+        new HumanMessage(`Please rewrite all text content displayed to users in the JSON below into natural Georgian, and keep the structure and meaning unchanged:
+${input.payloadJson}`),
+    ]
 };
-
-export const supplementalCharacterPrompt: PromptAsset<
-  SupplementalCharacterPromptInput,
-  z.infer<typeof supplementalCharacterGenerationResponseSchema>
-> = {
-  id: "novel.character.supplemental",
-  version: "v1",
-  taskType: "planner",
-  mode: "structured",
-  language: "zh",
-  contextPolicy: {
-    maxTokensBudget: 0,
-  },
-  outputSchema: supplementalCharacterGenerationResponseSchema,
-  render: (_input, context) => [
-    new SystemMessage([
-      "你是长篇中文小说项目的补充角色策划师。",
-      "你的任务不是重建整套阵容，而是在现有角色系统基础上，精准补足人物压力、情感张力、关系牵引或功能缺口。",
-      "",
-      "只返回严格 JSON，不要输出 Markdown、解释、注释、代码块或额外文本。",
-      "",
-      "硬规则：",
-      "1. 候选角色必须能直接进入正文使用，不得写成功能占位词。",
-      "2. 每个候选都必须输出 gender；拿不准时填 unknown，不得省略。",
-      "3. 所有展示文本值必须使用自然、流畅的简体中文。",
-      "4. 禁止复用 forbidden names 里的现有角色名。",
-      "5. castRole 只能使用：protagonist, antagonist, ally, foil, mentor, love_interest, pressure_source, catalyst。",
-      "6. 每个候选都必须输出 personality、background、development 和角色硬事实字段：identityLabel、factionLabel、stanceLabel、powerLevel、realm、currentLocation、availability、prohibitions。",
-      "",
-      "补位要求：",
-      "1. 候选角色必须真正补足现有阵容缺口，而不是机械再造一个同功能位。",
-      "2. mode=linked 时优先形成可持续关系推进；mode=independent 时优先承担独立但高价值的故事职责。",
-      "3. 生成结果要服务长篇推进，而不是一次性工具人。",
-      "4. 硬事实必须能帮助后续正文避免身份、阵营、境界、所在地或可出场状态写错；拿不准时填空字符串或空数组。",
-      "",
-      "固定模板如下：",
-      SUPPLEMENTAL_CHARACTER_RESPONSE_TEMPLATE,
-    ].join("\n")),
-    new HumanMessage([
-      "请基于以下上下文生成补充角色候选。",
-      "",
-      "【分层上下文】",
-      renderSelectedContextBlocks(context),
-      "",
-      "【输出要求】",
-      "- 角色名必须是具体人名或稳定称谓",
-      "- 每个角色必须带 gender",
-      "- 只输出严格 JSON",
-    ].join("\n")),
-  ],
+export const supplementalCharacterPrompt: PromptAsset<SupplementalCharacterPromptInput, z.infer<typeof supplementalCharacterGenerationResponseSchema>> = {
+    id: "novel.character.supplemental",
+    version: "v2",
+    taskType: "planner",
+    mode: "structured",
+    language: "ka",
+    contextPolicy: {
+        maxTokensBudget: 0,
+    },
+    outputSchema: supplementalCharacterGenerationResponseSchema,
+    render: (_input, context) => [
+        new SystemMessage([
+            "You are the complementary character planner for a full-length Georgian-language novel project.",
+            "Your task is not to rebuild the entire lineup, but to accurately fill the character pressure, emotional tension, relationship pull or functional gaps based on the existing character system.",
+            "",
+            "Only return strict JSON, no Markdown, explanations, comments, code blocks, or extra text.",
+            "",
+            "Hard rules:",
+            "1. Candidate roles must be used directly in the main text and must not be written as function placeholders.",
+            "2. Each candidate must output gender; if in doubt, fill in unknown and cannot be omitted.",
+            "3. All display text values must be in natural and smooth natural Georgian.",
+            "4. It is forbidden to reuse existing character names in forbidden names.",
+            "5. CastRole can only use: protagonist, antagonist, ally, foil, mentor, love_interest, pressure_source, catalyst.",
+            "6. Each candidate must output personality, background, development, and role hard fact fields: identityLabel, factorLabel, stanceLabel, powerLevel, realm, currentLocation, availability, prohibitions.",
+            "",
+            "Filling requirements:",
+            "1. The candidate character must truly fill the gap in the existing lineup, rather than mechanically recreating a position with the same function.",
+            "2. When mode=linked, priority is given to forming sustainable relationships; when mode=independent, priority is given to independent but high-value story responsibilities.",
+            "3. The generated results should serve the purpose of long-form development, rather than being a one-time tool.",
+            "4. The hard facts must be able to help the subsequent text avoid errors in identity, camp, realm, location or available status; fill in empty strings or empty arrays when in doubt.",
+            "",
+            "The fixed template is as follows:",
+            SUPPLEMENTAL_CHARACTER_RESPONSE_TEMPLATE,
+        ].join("\n")),
+        new HumanMessage([
+            "Please generate candidates for complementary roles based on the following context.",
+            "",
+            "[Hierarchical context]",
+            renderSelectedContextBlocks(context),
+            "",
+            "[Output requirements]",
+            "- The character name must be a specific person's name or a stable title",
+            "- Each character must have gender",
+            "- Only output strict JSON",
+        ].join("\n")),
+    ]
 };
-
-export const supplementalCharacterNormalizePrompt: PromptAsset<
-  SupplementalCharacterNormalizePromptInput,
-  z.infer<typeof supplementalCharacterGenerationResponseSchema>
-> = {
-  id: "novel.character.supplemental.zhNormalize",
-  version: "v1",
-  taskType: "planner",
-  mode: "structured",
-  language: "zh",
-  contextPolicy: {
-    maxTokensBudget: 0,
-  },
-  outputSchema: supplementalCharacterGenerationResponseSchema,
-  render: (input) => [
-    new SystemMessage([
-      "你是中文小说角色策划编辑，负责对补充角色 JSON 做语言归一化与润色。",
-      "你的任务是把所有展示给用户的文本值改写为自然、流畅、可直接阅读的简体中文表达。",
-      "",
-      "只输出一个合法 JSON，不要输出 Markdown、解释、注释、代码块或额外文本。",
-      "",
-      "结构硬规则：",
-      "1. 必须严格保留原有 JSON 结构、字段名、层级关系与数组长度。",
-      "2. 不得新增字段、删除字段、重命名字段或调整字段顺序。",
-      "3. 不得新增或删除数组元素，只允许改写内容。",
-      "",
-      "内容改写规则：",
-      "1. 所有展示文本必须改写为自然简体中文。",
-      "2. 改写时必须保留原有语义、角色功能、关系含义和冲突指向，不得改变设定逻辑。",
-      "3. castRole 和 gender 枚举值必须保持原样，不得翻译或改写。",
-      "4. 不得补写新的设定、剧情或关系。",
-    ].join("\n")),
-    new HumanMessage(
-      `请将下面 JSON 中所有展示给用户的文本内容改写为简体中文，并保持结构与含义不变：\n${input.payloadJson}`,
-    ),
-  ],
+export const supplementalCharacterNormalizePrompt: PromptAsset<SupplementalCharacterNormalizePromptInput, z.infer<typeof supplementalCharacterGenerationResponseSchema>> = {
+    id: "novel.character.supplemental.zhNormalize",
+    version: "v2",
+    taskType: "planner",
+    mode: "structured",
+    language: "ka",
+    contextPolicy: {
+        maxTokensBudget: 0,
+    },
+    outputSchema: supplementalCharacterGenerationResponseSchema,
+    render: (input) => [
+        new SystemMessage([
+            "You are the Georgian-language novel character planning editor, responsible for language normalization and polishing of the supplementary character JSON.",
+            "Your task is to rewrite all text values displayed to users into natural, smooth, and directly readable natural Georgian expressions.",
+            "",
+            "Output only valid JSON, no Markdown, explanations, comments, code blocks, or extra text.",
+            "",
+            "Hard rules for structure:",
+            "1. The original JSON structure, field names, hierarchical relationships and array length must be strictly retained.",
+            "2. It is not allowed to add fields, delete fields, rename fields or adjust the order of fields.",
+            "3. Array elements are not allowed to be added or deleted, only the content is allowed to be rewritten.",
+            "",
+            "Content rewriting rules:",
+            "1. All display text must be rewritten into natural natural Georgian.",
+            "2. When rewriting, the original semantics, role functions, relationship meanings and conflict directions must be retained, and the setting logic must not be changed.",
+            "3. The castRole and gender enumeration values must remain intact and may not be translated or rewritten.",
+            "4. No new settings, plots or relationships may be added.",
+        ].join("\n")),
+        new HumanMessage(`Please rewrite all text content displayed to users in the JSON below into natural Georgian, and keep the structure and meaning unchanged:
+${input.payloadJson}`),
+    ]
 };

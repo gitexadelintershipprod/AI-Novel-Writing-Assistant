@@ -104,7 +104,7 @@ export default function TitleLibraryPanel({ genreOptions }: TitleLibraryPanelPro
           >
             <option value="newest">最新加入</option>
             <option value="hot">使用次数</option>
-            <option value="clickRate">点击潜力</option>
+            <option value="clickRate">AI hook score</option>
           </SelectControl>
         </label>
       </div>
@@ -132,10 +132,10 @@ export default function TitleLibraryPanel({ genreOptions }: TitleLibraryPanelPro
                   <div className="flex flex-wrap gap-x-2 gap-y-1">
                   {entry.genre?.name ? <span>{entry.genre.name}</span> : null}
                   <span>使用 {entry.usedCount}</span>
-                  <span>{new Date(entry.createdAt).toLocaleDateString("zh-CN")}</span>
+                  <span>{new Date(entry.createdAt).toLocaleDateString("en")}</span>
                   </div>
                   <span className="rounded-full bg-muted/60 px-2.5 py-1 font-medium tabular-nums text-foreground">
-                    潜力 {typeof entry.clickRate === "number" ? entry.clickRate : "-"}
+                    AI hook score {typeof entry.clickRate === "number" ? entry.clickRate : "-"}
                   </span>
                 </div>
                 <div className="pt-2 text-xl font-semibold leading-8 tracking-normal text-foreground">{entry.title}</div>

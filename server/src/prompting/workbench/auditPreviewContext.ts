@@ -22,7 +22,7 @@ export function buildChapterPreviewBlocks(input: {
   const mustAdvance = scenes.flatMap((scene) => readStringList(scene.mustAdvance)).slice(0, 8);
   const mustPreserve = scenes.flatMap((scene) => readStringList(scene.mustPreserve)).slice(0, 8);
   const forbiddenExpansion = scenes.flatMap((scene) => readStringList(scene.forbiddenExpansion)).slice(0, 8);
-  const chapterLabel = `第 ${chapter.order} 章《${chapter.title || "未命名章节"}》`;
+  const chapterLabel = `Chapter ${chapter.order}, “${chapter.title || "Untitled chapter"}”`;
 
   return [
     createContextBlock({
@@ -32,7 +32,7 @@ export function buildChapterPreviewBlocks(input: {
       content: [
         `Chapter mission: ${chapterLabel}`,
         chapter.expectation ? `Objective: ${chapter.expectation}` : "",
-        chapter.targetWordCount ? `Target length: around ${chapter.targetWordCount} Chinese characters.` : "",
+        chapter.targetWordCount ? `Target length: around ${chapter.targetWordCount} Georgian words.` : "",
         previewListBlock("Must advance", mustAdvance.length > 0 ? mustAdvance : [chapter.expectation]),
         previewListBlock("Must preserve", mustPreserve),
         chapter.taskSheet ? `Original task sheet:\n${truncatePreviewText(chapter.taskSheet, 2200)}` : "",
@@ -48,13 +48,13 @@ export function buildChapterPreviewBlocks(input: {
       content: [
         "Chapter boundary:",
         chapter.expectation ? `Exclusive event: ${chapter.expectation}` : `Exclusive event: ${chapterLabel}`,
-        firstScene ? `Entry state: ${readString(firstScene.entryState) || "未提供场景入口状态"}` : "",
-        lastScene ? `Ending state: ${readString(lastScene.exitState) || compactPreviewText(chapter.hook) || "未提供场景结束状态"}` : "",
+        firstScene ? `Entry state: ${readString(firstScene.entryState) || "No scene entry state provided"}` : "",
+        lastScene ? `Ending state: ${readString(lastScene.exitState) || compactPreviewText(chapter.hook) || "No scene ending state provided"}` : "",
         chapter.hook ? `Next chapter entry state: ${chapter.hook}` : "",
         previewListBlock("Do not cross", [
           chapter.mustAvoid,
           ...forbiddenExpansion,
-          chapter.hook ? `不得直接展开钩子之后的后续事件：${chapter.hook}` : "",
+          chapter.hook ? `Do not continue beyond this hook: ${chapter.hook}` : "",
         ]),
         previewListBlock("Protected reveals", []),
       ].filter(Boolean).join("\n"),
@@ -85,7 +85,7 @@ export function buildChapterPreviewBlocks(input: {
         `Chapter: ${chapterLabel}`,
         chapter.content?.trim()
           ? `Current draft excerpt:\n${truncatePreviewText(chapter.content, 1800)}`
-          : "Current draft excerpt: 该章节暂无正文，预览使用章节任务和任务单展示上下文。",
+          : "Current draft excerpt: this chapter has no prose yet; the preview uses its task and task sheet as context.",
       ].join("\n"),
     }),
     createContextBlock({
@@ -94,10 +94,10 @@ export function buildChapterPreviewBlocks(input: {
       priority: 84,
       content: [
         "Relevant book rules:",
-        novel.description ? `简介：${truncatePreviewText(novel.description, 600)}` : "",
-        novel.targetAudience ? `目标读者：${novel.targetAudience}` : "",
-        novel.bookSellingPoint ? `核心卖点：${novel.bookSellingPoint}` : "",
-        novel.first30ChapterPromise ? `前 30 章承诺：${novel.first30ChapterPromise}` : "",
+        novel.description ? `Description: ${truncatePreviewText(novel.description, 600)}` : "",
+        novel.targetAudience ? `Target audience: ${novel.targetAudience}` : "",
+        novel.bookSellingPoint ? `Core appeal: ${novel.bookSellingPoint}` : "",
+        novel.first30ChapterPromise ? `First-30-chapter promise: ${novel.first30ChapterPromise}` : "",
       ].filter(Boolean).join("\n"),
     }),
   ].filter((block) => block.content.trim().length > 0);

@@ -5,539 +5,316 @@ import { createVolumeChapterBeatBlockSchema } from "../../../../services/novel/v
 import { type VolumeChapterListPromptInput } from "./shared";
 import { buildVolumeChapterListContextBlocks } from "./contextBlocks";
 import { NOVEL_PROMPT_BUDGETS } from "../promptBudgetProfiles";
-import {
-  getChapterTitleCollisionIssue,
-  getChapterTitleDiversityIssue,
-  isBlockingChapterTitleQualityIssue,
-  isChapterTitleDuplicateIssue,
-  isChapterTitleDiversityIssue,
-} from "../../../../services/novel/volume/chapterTitleDiversity";
-
+import { getChapterTitleCollisionIssue, getChapterTitleDiversityIssue, isBlockingChapterTitleQualityIssue, isChapterTitleDuplicateIssue, isChapterTitleDiversityIssue, } from "../../../../services/novel/volume/chapterTitleDiversity";
+import { countGeorgianWords, normalizeGeorgianText } from "@ai-novel/shared/utils/georgianTextMetrics";
 function safeJsonStringify(value: unknown): string {
-  try {
-    return JSON.stringify(value, null, 2) ?? String(value);
-  } catch {
-    return String(value);
-  }
+    try {
+        return JSON.stringify(value, null, 2) ?? String(value);
+    }
+    catch {
+        return String(value);
+    }
 }
-
 function buildRetryDirective(reason?: string | null): string {
-  const normalizedReason = reason?.trim();
-  if (!normalizedReason) {
-    return "";
-  }
-
-  return [
-    "上一次输出没有通过业务校验，本次必须优先修正：",
-    normalizedReason,
-    "先判断失败类型：标题结构、标题基础质量、章节功能、摘要推进、结尾牵引。",
-    "不要只替换被点名的一章；如果问题来自标题同构或章节功能重复，必须重排整组标题骨架和章节功能分配。",
-  ].join("\n");
+    const normalizedReason = reason?.trim();
+    if (!normalizedReason) {
+        return "";
+    }
+    return [
+        "The last output did not pass business verification, this time it must be corrected first:",
+        normalizedReason,
+        "First determine the type of failure: title structure, basic quality of title, chapter function, summary advancement, and ending traction.",
+        "Don't just replace a named chapter; if the problem arises from title isomorphism or chapter function duplication, the entire set of title skeletons and chapter function assignments must be rearranged.",
+    ].join("\n");
 }
-
 function classifyChapterListRetryIssue(reason: string): string {
-  if (isChapterTitleDiversityIssue(reason)) {
-    return "标题结构：重排整组标题骨架，混用动作推进型、冲突压迫型、异常发现型、结果兑现型、决断转向型和问题钩子型。";
-  }
-  if (isBlockingChapterTitleQualityIssue(reason)) {
-    return "标题基础质量：标题必须短促客观，不能第一人称、不能过长、不能写成完整剧情句。";
-  }
-  if (reason.includes("章节中主角或核心视角角色的主动行动不足") || reason.includes("连续多章呈现被动推进")) {
-    return "章节功能：重排每章职责，让核心视角角色主动选择、试探、反击、布局、交换、隐忍或承担代价。";
-  }
-  if (reason.includes("过多章节摘要偏空泛")) {
-    return "摘要推进：每章 summary 必须写出新增信息、局面变化、冲突推进、关系变化、资源得失或风险转向。";
-  }
-  if (reason.includes("当前节奏段缺少阶段性兑现") || reason.includes("结尾章缺少当前 beat")) {
-    return "结尾牵引：最后一章必须完成当前 beat 的阶段兑现、明确转向或进入下一 beat 的阅读压力。";
-  }
-  return "综合质量：按失败原因重排标题、章节功能和摘要推进，保证每章都有新增变化。";
+    if (isChapterTitleDiversityIssue(reason)) {
+        return "Title structure: Rearrange the entire set of title skeletons, using a mix of action-propelled, conflict-pressing, anomaly discovery, result-fulfilling, decisive turning, and question-hook types.";
+    }
+    if (isBlockingChapterTitleQualityIssue(reason)) {
+        return "Basic title quality: The title must be short and objective. It cannot be in the first person, cannot be too long, and cannot be written as a complete plot sentence.";
+    }
+    if (reason.includes("Insufficient active actions of the protagonist or core perspective character in the chapter") || reason.includes("Multiple consecutive chapters showing passive advancement")) {
+        return "Chapter function: Rearrange the responsibilities of each chapter to allow the core perspective characters to actively choose, test, counterattack, layout, exchange, tolerate or bear the cost.";
+    }
+    if (reason.includes("Too many chapter summaries are too vague")) {
+        return "Summary advancement: The summary of each chapter must include new information, situation changes, conflict advancement, relationship changes, resource gains and losses, or risk shifts.";
+    }
+    if (reason.includes("The current rhythm section lacks phased fulfillment") || reason.includes("The ending chapter is missing the current beat")) {
+        return "Ending Pull: The reading pressure of the last chapter that must complete the current beat to cash in, make a clear turn, or move on to the next beat.";
+    }
+    return "Comprehensive quality: Rearrange titles, chapter functions, and summary advancement according to failure reasons to ensure that each chapter has new changes.";
 }
-
-function resolvePromptConfig(
-  input:
-    | number
-    | {
-      targetChapterCount: number;
-      targetBeatKey?: string;
-      targetBeatLabel?: string | null;
-      isBookFinale?: boolean;
-      reservedChapterTitles?: string[];
-      },
-): {
-  targetChapterCount: number;
-  targetBeatKey: string;
-  targetBeatLabel: string;
-  isBookFinale: boolean;
-  reservedChapterTitles: string[];
+function resolvePromptConfig(input: number | {
+    targetChapterCount: number;
+    targetBeatKey?: string;
+    targetBeatLabel?: string | null;
+    isBookFinale?: boolean;
+    reservedChapterTitles?: string[];
+}): {
+    targetChapterCount: number;
+    targetBeatKey: string;
+    targetBeatLabel: string;
+    isBookFinale: boolean;
+    reservedChapterTitles: string[];
 } {
-  if (typeof input === "number") {
+    if (typeof input === "number") {
+        return {
+            targetChapterCount: input,
+            targetBeatKey: "target_beat",
+            targetBeatLabel: "target rhythm section",
+            isBookFinale: false,
+            reservedChapterTitles: [],
+        };
+    }
     return {
-      targetChapterCount: input,
-      targetBeatKey: "target_beat",
-      targetBeatLabel: "目标节奏段",
-      isBookFinale: false,
-      reservedChapterTitles: [],
+        targetChapterCount: input.targetChapterCount,
+        targetBeatKey: input.targetBeatKey?.trim() || "target_beat",
+        targetBeatLabel: input.targetBeatLabel?.trim() || "target rhythm section",
+        isBookFinale: input.isBookFinale === true,
+        reservedChapterTitles: input.reservedChapterTitles ?? [],
     };
-  }
-
-  return {
-    targetChapterCount: input.targetChapterCount,
-    targetBeatKey: input.targetBeatKey?.trim() || "target_beat",
-    targetBeatLabel: input.targetBeatLabel?.trim() || "目标节奏段",
-    isBookFinale: input.isBookFinale === true,
-    reservedChapterTitles: input.reservedChapterTitles ?? [],
-  };
 }
-
-/**
- * 轻量章节功能质量检测。
- *
- * 目的：
- * - 不代替 LLM Critic；
- * - 只拦截最常见的低质量章节块：
- *   1. 连续多章只是调查/发现/意识到；
- *   2. summary 大量空泛；
- *   3. 缺少主角行动；
- *   4. 结尾章没有兑现/转向/钩子。
- *
- * 后续可以把这个函数升级成：
- * - chapterFunctionDiversity.ts
- * - 或一个独立 LLM quality critic 节点。
- */
-function getChapterFunctionQualityIssue(
-  chapters: Array<{
+/** Deterministic shape guard only; semantic chapter quality remains an LLM judgment. */
+function getChapterFunctionQualityIssue(chapters: Array<{
     title: string;
     summary: string;
     beatKey: string;
-  }>,
-): string | null {
-  if (!chapters.length) {
-    return "章节列表不能为空。";
-  }
-
-  const summaries = chapters.map((chapter) => chapter.summary.trim());
-  const titles = chapters.map((chapter) => chapter.title.trim());
-
-  const vagueSummaryPatterns = [
-    /进一步推动/,
-    /逐渐展开/,
-    /局势变得复杂/,
-    /为后续.*铺垫/,
-    /埋下伏笔/,
-    /产生影响/,
-    /意识到.*重要/,
-    /发现.*不简单/,
-    /开始重视/,
-  ];
-
-  const passivePatterns = [
-    /得知/,
-    /听说/,
-    /被告知/,
-    /发现/,
-    /意识到/,
-    /察觉/,
-    /局势.*变化/,
-    /危机.*出现/,
-  ];
-
-  const activePatterns = [
-    /决定/,
-    /选择/,
-    /试探/,
-    /反击/,
-    /布局/,
-    /交换/,
-    /逼迫/,
-    /隐瞒/,
-    /揭穿/,
-    /设局/,
-    /追查/,
-    /拒绝/,
-    /承认/,
-    /利用/,
-    /夺回/,
-    /放弃/,
-    /承担/,
-    /压下/,
-    /转向/,
-  ];
-
-  const payoffPatterns = [
-    /兑现/,
-    /反转/,
-    /揭开/,
-    /坐实/,
-    /落定/,
-    /反击/,
-    /胜出/,
-    /败露/,
-    /失控/,
-    /转向/,
-    /代价/,
-    /后手/,
-    /陷阱/,
-    /威胁/,
-    /逼到/,
-    /不得不/,
-  ];
-
-  const hookPatterns = [
-    /但/,
-    /却/,
-    /反而/,
-    /没想到/,
-    /真正/,
-    /背后/,
-    /代价/,
-    /后手/,
-    /陷阱/,
-    /更大的/,
-    /新的/,
-    /逼迫/,
-    /不得不/,
-    /暴露/,
-    /留下/,
-  ];
-
-  const vagueCount = summaries.filter((summary) =>
-    vagueSummaryPatterns.some((pattern) => pattern.test(summary)),
-  ).length;
-
-  if (chapters.length >= 4 && vagueCount >= Math.ceil(chapters.length / 2)) {
-    return "过多章节摘要偏空泛，不能大量使用“进一步推动 / 局势复杂 / 为后续铺垫 / 埋下伏笔”等低信息密度表达。";
-  }
-
-  const activeCount = summaries.filter((summary) =>
-    activePatterns.some((pattern) => pattern.test(summary)),
-  ).length;
-
-  if (chapters.length >= 4 && activeCount < Math.ceil(chapters.length / 3)) {
-    return "章节中主角或核心视角角色的主动行动不足，不能让多数章节只是外部事件发生或角色被动得知信息。";
-  }
-
-  let consecutivePassive = 0;
-  for (const summary of summaries) {
-    const isPassive = passivePatterns.some((pattern) => pattern.test(summary));
-    const isActive = activePatterns.some((pattern) => pattern.test(summary));
-
-    if (isPassive && !isActive) {
-      consecutivePassive += 1;
-    } else {
-      consecutivePassive = 0;
+}>): string | null {
+    if (!chapters.length) {
+        return "Chapter list cannot be empty.";
     }
-
-    if (consecutivePassive >= 3) {
-      return "连续多章呈现被动推进，例如只是发现、得知、意识到或局势变化，需要改成主动选择、试探、反击、布局或承担代价。";
+    const summaryKeys = chapters.map((chapter) => normalizeGeorgianText(chapter.summary)
+        .toLocaleLowerCase("ka-GE")
+        .replace(/[^\p{Letter}\p{Number}]+/gu, " ")
+        .trim());
+    if (chapters.some((chapter) => countGeorgianWords(chapter.title) < 1)) {
+        return "Every chapter must have a non-empty title.";
     }
-  }
-
-  if (chapters.length >= 5) {
-    const hasPayoffOrTurn = summaries.some((summary) =>
-      payoffPatterns.some((pattern) => pattern.test(summary)),
-    );
-
-    if (!hasPayoffOrTurn) {
-      return "当前节奏段缺少阶段性兑现、转折、反击、代价或局面反转，不能全是平滑铺垫。";
+    if (chapters.some((chapter) => countGeorgianWords(chapter.summary) < 4)) {
+        return "Every chapter summary must contain at least four meaningful words.";
     }
-  }
-
-  const lastSummary = summaries[summaries.length - 1] ?? "";
-  const lastTitle = titles[titles.length - 1] ?? "";
-
-  const lastHasPayoffOrHook =
-    payoffPatterns.some((pattern) => pattern.test(lastSummary)) ||
-    hookPatterns.some((pattern) => pattern.test(lastSummary)) ||
-    hookPatterns.some((pattern) => pattern.test(lastTitle));
-
-  if (chapters.length >= 3 && !lastHasPayoffOrHook) {
-    return "结尾章缺少当前 beat 的阶段兑现、明确转向或进入下一 beat 的阅读牵引。";
-  }
-
-  return null;
+    if (new Set(summaryKeys).size !== summaryKeys.length) {
+        return "Chapter summaries must not be exact duplicates.";
+    }
+    return null;
 }
-
 function isChapterFunctionQualityIssue(error: unknown): boolean {
-  const message = error instanceof Error ? error.message : String(error);
-
-  return (
-    message.includes("章节中主角或核心视角角色的主动行动不足") ||
-    message.includes("连续多章呈现被动推进") ||
-    message.includes("当前节奏段缺少阶段性兑现") ||
-    message.includes("结尾章缺少当前 beat") ||
-    message.includes("过多章节摘要偏空泛")
-  );
+    const message = error instanceof Error ? error.message : String(error);
+    return message.includes("chapter summary") || message.includes("chapter must have");
 }
-
-export function createVolumeChapterListPrompt(
-  input:
-    | number
-    | {
-        targetChapterCount: number;
-        targetBeatKey?: string;
-        targetBeatLabel?: string | null;
-        isBookFinale?: boolean;
-        reservedChapterTitles?: string[];
-      },
-): PromptAsset<
-  VolumeChapterListPromptInput,
-  ReturnType<typeof createVolumeChapterBeatBlockSchema>["_output"]
-> {
-  const { targetChapterCount, targetBeatKey, targetBeatLabel, isBookFinale = false, reservedChapterTitles } =
-    resolvePromptConfig(input);
-
-  return {
-    id: "novel.volume.chapter_list",
-    version: "v9",
-    taskType: "planner",
-    mode: "structured",
-    language: "zh",
-
-    contextPolicy: {
-      maxTokensBudget: NOVEL_PROMPT_BUDGETS.volumeChapterList,
-      requiredGroups: ["book_contract", "target_volume", "target_beat_contract"],
-      preferredGroups: [
-        "macro_constraints",
-        "beat_context_window",
-        "previous_beat_chapters",
-        "preserved_beat_chapters",
-        "adjacent_volumes",
-        "soft_future_summary",
-      ],
-      dropOrder: ["soft_future_summary"],
-    },
-
-    semanticRetryPolicy: {
-      maxAttempts: 2,
-      buildMessages: ({
-        attempt,
-        baseMessages,
-        parsedOutput,
-        validationError,
-      }) => {
-        const normalizedValidationError = validationError?.trim() || "未通过章节列表业务校验。";
-        const retryIssueClass = classifyChapterListRetryIssue(normalizedValidationError);
-        return [
-          ...baseMessages,
-          new HumanMessage(
-            [
-              `上一次章节块通过了 JSON 结构校验，但没有通过业务校验。这是第 ${attempt} 次语义重试。`,
-              `失败原因：${normalizedValidationError}`,
-              `失败类型：${retryIssueClass}`,
-              "",
-              "重写要求：",
-              "1. 只重写当前节奏段的章节列表，不得越界生成其他节奏段章节。",
-              "2. 必须保留原有章节位数，最终 chapters.length 仍然必须等于目标章数。",
-              "3. 必须先按失败类型修复：标题结构问题重排整组标题骨架；标题基础质量问题重写所有不合格标题；章节功能问题重排每章职责；摘要推进问题重写所有空泛摘要；结尾牵引问题重写末章的兑现和转向。",
-              "4. 不要只局部替换触发校验的一章；需要保证整组章节的标题骨架、章节功能、摘要推进和结尾牵引同时通过。",
-              "5. 若失败原因是标题重复或标题骨架集中，必须重写所有命中重复骨架的标题，而不是只局部修补几章。",
-              "6. 若失败原因是章节功能重复，必须重新分配章节功能，避免连续多章只做调查、发现、意识到或铺垫。",
-              "7. 每章 summary 必须体现新增推进，优先体现核心视角角色的选择、试探、反击、布局、交换、隐忍或承担代价。",
-              "8. 明确避免大量使用“X的Y / X中的Y / 在X中Y”骨架。",
-              "9. 明确避免整批标题继续塌成“A，B / 四字动作，四字结果”并列模板。",
-              "10. 标题必须是客观章名，不用第一人称，不写成完整剧情句，核心字数不超过 16 个。",
-              "11. 每章 beatKey 必须保持为当前目标 beatKey。",
-              "12. 摘要必须体现本章造成的局面变化，不得空泛复述标题。",
-              isBookFinale
-                ? "13. 全书终章必须完成结局合同，不得创建必须续写的新主线或下一 beat 钩子。"
-                : "13. 最后一章必须完成当前 beat 的 mustDeliver，同时留下阅读牵引，但不得提前兑现下一 beat 的核心事件。",
-              "",
-              "上一次的 JSON 输出：",
-              safeJsonStringify(parsedOutput),
-              "",
-              "请重新输出完整 JSON 对象。",
-            ].join("\n"),
-          ),
-        ];
-      },
-    },
-
-    outputSchema: createVolumeChapterBeatBlockSchema({
-      exactChapterCount: targetChapterCount,
-      expectedBeatKey: targetBeatKey,
-      expectedBeatLabel: targetBeatLabel,
-    }),
-
-    render: (promptInput, context) => [
-      new SystemMessage(
-        [
-          "你是网文章节拆分规划助手。",
-          "你的任务不是写正文，也不是扩写细纲，而是只为当前卷的单个节奏段生成一块可执行的章节列表。",
-          "你必须同时满足：结构化输出正确、章节功能清晰、标题像章节名、摘要有真实推进。",
-          "",
-          "一、任务边界",
-          `1. 你当前只能为「${targetBeatLabel}」生成 ${targetChapterCount} 章，数量不得多也不得少。`,
-          "2. 只允许覆盖当前目标 beat，不得越界生成相邻 beat 的章节。",
-          "3. 不得把两个章节合并成一章摘要，也不得用空泛占位章来凑数。",
-          "4. 若 beat 信息不足，也必须补齐到精确章数，但只能做保守过渡，不得发明重大新设定。",
-          "5. 本任务只生成章节列表，不写正文，不写详细场景，不写完整对白。",
-          "",
-          "二、硬性输出约束",
-          "1. 顶层必须输出 beatKey、beatLabel、chapterCount、chapters 四个字段。",
-          "2. 每章只能包含 title、summary、beatKey 三个字段，不得新增字段。",
-          `3. beatKey 必须严格等于 ${targetBeatKey}。`,
-          `4. beatLabel 必须严格等于 ${targetBeatLabel}。`,
-          `5. chapterCount 与 chapters.length 必须严格等于 ${targetChapterCount}。`,
-          `6. 每章 beatKey 都必须严格等于 ${targetBeatKey}。`,
-          "7. 不得输出 Markdown、注释、解释或任何额外文本。",
-          "8. 每章 summary 控制在 40-120 个汉字，只写核心行动、阻力和造成的新局面；禁止扩写场景、对白或正文。",
-          "9. 写完指定数量的最后一章后立即结束 JSON，不得追加分析、自检过程或候选版本。",
-          "",
-          "三、章节规划核心原则",
-          "1. 章节列表必须严格服从当前卷骨架与当前目标 beat 合同，不能偷跑到相邻 beat。",
-          "2. 每章都必须回答：这一章为什么必须存在，它推进了什么，它造成了什么新的局面变化。",
-          "3. 当前节奏段的章节拆分要体现网文阅读感，但不能机械平均切分。",
-          "4. 章节必须形成连续递进，不能出现只是换说法、没有新增推进的信息重复章。",
-          "5. 每章 summary 不只要写“发生了什么”，还要写“因此改变了什么”。",
-          "",
-          "四、章节功能分配要求",
-          "1. 生成前必须在脑内把当前 beat 拆成若干章节功能：承接、加压、试探、发现、转折、反击、兑现、余波或钩子。",
-          "2. 实际输出时不要暴露这些功能标签，但每章 summary 必须体现清晰功能。",
-          "3. 连续章节不能承担完全相同的功能，尤其不能连续多章只做调查、讨论、铺垫、等待、意识到或发现。",
-          "4. 若目标章数大于等于 5，至少应包含一次局面加压、一次关键发现或判断反转、一次阶段性兑现或明确转向。",
-          "5. 关键推进可以占更多章节，过渡章要短促有力，不要为了凑数制造低信息密度章节。",
-          isBookFinale
-            ? "6. 全书终章必须完成结局合同中的主冲突、关系变化、核心回报与主题落点，不得留下必须续写的新主线。"
-            : "6. 最后一章必须完成当前 beat 的 mustDeliver，同时留下进入下一 beat 的阅读牵引，但不得提前兑现下一 beat 的核心事件。",
-          "",
-          "五、章节推进质量要求",
-          "1. 每章 summary 都要体现核心视角角色的选择、试探、反击、隐忍、交换、布局、揭穿、妥协或承担代价，避免角色只是旁观外部事件。",
-          "2. 每章 summary 应包含至少一种有效推进：新情报、风险升级、关系变化、资源得失、误判修正、对手后手、阶段兑现。",
-          "3. 不要把章节写成“发现问题—意识到危险—继续调查”的重复链条。",
-          "4. 可以制造或利用信息差、误判、反常发现、表面胜利下的暗中代价，但不要把完整因果句塞进标题。",
-          "5. 每章结尾应隐含新的问题、威胁、机会、误判或选择压力，使下一章有继续阅读的理由。",
-          "6. 当前 beat 内不能所有章节都只做铺垫；必须有实际推进、局面变化或阶段兑现。",
-          "",
-          "六、标题要求",
-          "1. 每章 title 必须像真实章名，优先体现事件锚点、地点、冲突、异常发现、局面变化、阶段兑现、关系异动或问题钩子。",
-          "2. 标题默认使用客观表达，不使用“我 / 我的 / 我却 / 我用 / 替我 / 追杀我”等第一人称自述。",
-          "3. 在开始写 chapters 之前，先在脑内完成一次“标题句法配比规划”，再按配比输出，不要边想边重复套模板。",
-          "4. 同一批标题必须主动混用动作推进型、冲突压迫型、异常发现型、结果兑现型、决断转向型、问题钩子型、关系异动型等不同句法。",
-          "5. 标题核心字数不超过 16 个，推荐 4-12 个字；不要写成长句、完整因果句或剧情梗概。",
-          "6. 标题可以有反差，但要短促，例如“密令失真”“断魂钉现”“阵眼裂缝”；不要写成“某人做了某事，所以某结果发生”。",
-          "7. 避免只有抽象词：风暴、暗流、危机、真相、抉择、变局等，除非标题里同时有具体对象、动作或反差。",
-          "8. 若当前节奏段有 6 章及以上：任何单一表层骨架都不要超过一半；不能大量重复“X的Y / X中的Y / 在X中Y”这类骨架，最多只占约三成。",
-          "9. 明确避免让大部分标题继续塌成“A，B / 四字动作，四字结果”并列模板。",
-          "10. 相邻章节标题不要连续 3 章以上套用同一语法骨架。",
-          "11. 标题要有推进感与可读性，避免空泛文学化、抽象抒情化、口号化或模板味过重。",
-          "12. 主角主动性、选择和代价主要写在 summary 中，不要为了体现主角行动把标题写成第一人称爽点句。",
-          "13. 生成前先自检一遍：是否出现第一人称标题、标题过长、过多“的字结构”、过多逗号并列结构、或连续多章同骨架；若出现，先改再输出。",
-          "",
-          "七、摘要要求",
-          "1. 每章 summary 必须写清本章具体推进了什么，以及它在当前目标 beat 中承担什么作用。",
-          "2. summary 必须体现新增信息、局面变化、冲突推进、关系变化、代价上升、风险转向或阶段兑现中的至少一种。",
-          "3. summary 必须体现本章造成的不可逆变化：人物判断改变、资源状态改变、敌我关系改变、风险等级改变、计划方向改变或读者认知改变。",
-          "4. 不要把 summary 写成空泛口号，也不要写成详细剧情复述。",
-          "5. 相邻章节 summary 不能只是同义重复。",
-          "6. 不要大量使用“进一步推动剧情”“局势更加复杂”“为后续埋下伏笔”等低信息密度表达。",
-          "",
-          "八、beat 承接要求",
-          "1. 本次只覆盖当前目标 beat，不得为相邻 beats 生成章节。",
-          "2. 开头章节要承接前序已生成章节状态，不能把已经发生的推进重新起一遍。",
-          "3. 中段章节要围绕当前 beat 的核心矛盾持续加压、试探、转折或兑现。",
-          isBookFinale
-            ? "4. 全书终章必须完成结局合同，不再要求下一阶段牵引。"
-            : "4. 结尾章节要把当前 beat 的 mustDeliver 落到位，但不要提前偷跑下一 beat 的核心兑现。",
-          "",
-          "九、质量自检要求",
-          "1. 输出前在脑内检查：章节数量是否精确、beatKey 是否一致、是否越界、是否有重复功能章。",
-          "2. 输出前在脑内检查：标题是否过度同构，summary 是否有真实推进，结尾章是否有阶段兑现或阅读牵引。",
-          "3. 若发现章节只是换说法、无新增推进、无主角行动、无局面变化，必须先改再输出。",
-          "",
-          buildRetryDirective(promptInput.retryReason),
-        ]
-          .filter(Boolean)
-          .join("\n"),
-      ),
-
-      new HumanMessage(
-        [
-          "请基于以下上下文，输出当前节奏段的章节块。",
-          "",
-          "输出要求：",
-          "- 只输出严格 JSON",
-          `- beatKey 必须严格等于 ${targetBeatKey}`,
-          `- beatLabel 必须严格等于 ${targetBeatLabel}`,
-          `- chapterCount 与 chapters.length 必须严格等于 ${targetChapterCount}`,
-          "- 每章只能包含 title、summary、beatKey",
-          "- 不得生成任何相邻 beat 的章节",
-          "- 先在脑内规划章节功能分配与标题骨架配比，再输出完整章节块",
-          "- 优先保证章节推进感、节奏承接、标题结构分散、摘要中的角色主动性与结尾牵引",
-          "- 标题必须短促客观，不使用第一人称，不写成长句或剧情梗概",
-          "",
-          "当前卷拆章上下文：",
-          renderSelectedContextBlocks(context),
-        ].join("\n"),
-      ),
-    ],
-
-    postValidate: (output) => {
-      if (output.beatKey !== targetBeatKey) {
-        throw new Error(`beatKey 必须严格等于 ${targetBeatKey}。`);
-      }
-
-      if (output.beatLabel !== targetBeatLabel) {
-        throw new Error(`beatLabel 必须严格等于 ${targetBeatLabel}。`);
-      }
-
-      if (
-        output.chapterCount !== targetChapterCount ||
-        output.chapters.length !== targetChapterCount
-      ) {
-        throw new Error(
-          `chapterCount 与 chapters.length 必须严格等于 ${targetChapterCount}。`,
-        );
-      }
-
-      output.chapters.forEach((chapter, index) => {
-        if (chapter.beatKey !== targetBeatKey) {
-          throw new Error(
-            `第 ${index + 1} 条章节的 beatKey 必须严格等于 ${targetBeatKey}。`,
-          );
+export function createVolumeChapterListPrompt(input: number | {
+    targetChapterCount: number;
+    targetBeatKey?: string;
+    targetBeatLabel?: string | null;
+    isBookFinale?: boolean;
+    reservedChapterTitles?: string[];
+}): PromptAsset<VolumeChapterListPromptInput, ReturnType<typeof createVolumeChapterBeatBlockSchema>["_output"]> {
+    const { targetChapterCount, targetBeatKey, targetBeatLabel, isBookFinale = false, reservedChapterTitles } = resolvePromptConfig(input);
+    return {
+        id: "novel.volume.chapter_list",
+        version: "v10",
+        taskType: "planner",
+        mode: "structured",
+        language: "ka",
+        contextPolicy: {
+            maxTokensBudget: NOVEL_PROMPT_BUDGETS.volumeChapterList,
+            requiredGroups: ["book_contract", "target_volume", "target_beat_contract"],
+            preferredGroups: [
+                "macro_constraints",
+                "beat_context_window",
+                "previous_beat_chapters",
+                "preserved_beat_chapters",
+                "adjacent_volumes",
+                "soft_future_summary",
+            ],
+            dropOrder: ["soft_future_summary"],
+        },
+        semanticRetryPolicy: {
+            maxAttempts: 2,
+            buildMessages: ({ attempt, baseMessages, parsedOutput, validationError, }) => {
+                const normalizedValidationError = validationError?.trim() || "Failed the chapter list service verification.";
+                const retryIssueClass = classifyChapterListRetryIssue(normalizedValidationError);
+                return [
+                    ...baseMessages,
+                    new HumanMessage([
+                        `The last time the chapter block passed the JSON structure verification, but failed the business verification. This is the first ${attempt} Semantic retry.`,
+                        `Reason for failure:${normalizedValidationError}`,
+                        `Failure type:${retryIssueClass}`,
+                        "",
+                        "Rewrite requirements:",
+                        "1. Only rewrite the chapter list of the current rhythm section, and do not cross the boundary to generate other rhythm section chapters.",
+                        "2. The original number of chapters must be retained, and the final chapters.length must still be equal to the target number of chapters.",
+                        "3. It must be repaired according to the failure type first: the title structure problem re-arranges the entire set of title skeletons; the title basic quality problem rewrites all unqualified titles; the chapter function problem re-arranges the responsibilities of each chapter; the abstract advancement problem rewrites all empty summaries; the ending pulling problem rewrites the fulfillment and direction of the last chapter.",
+                        "4. Don\u2019t just partially replace a chapter that triggers verification; you need to ensure that the title skeleton, chapter function, summary advancement, and ending traction of the entire set of chapters pass at the same time.",
+                        "5. If the reason for failure is duplicate titles or concentrated title skeletons, all titles that hit duplicate skeletons must be rewritten instead of only partially patching a few chapters.",
+                        "6. If the reason for failure is duplication of chapter functions, the chapter functions must be reassigned to avoid having multiple consecutive chapters that are just investigation, discovery, realization, or foreshadowing.",
+                        "7. The summary of each chapter must reflect the new advancement, giving priority to the choices, temptations, counterattacks, layouts, exchanges, tolerance or bearing costs of the core perspective characters.",
+                        "8. Explicitly avoid extensive use of the \"Y of X/Y in X/Y in X\" skeleton.",
+                        "9. Clearly prevent the whole batch of titles from collapsing into the \"A, B / four-word action, four-word result\" parallel template.",
+                        "10. The title must be an objective chapter title, not in the first person, not written as a complete plot sentence, and the number of core words should not exceed 16.",
+                        "11. The beatKey of each chapter must remain the current target beatKey.",
+                        "12. The abstract must reflect the changes in the situation caused by this chapter and must not restate the title in vain.",
+                        isBookFinale
+                            ? "13. The final chapter of the book must complete the ending contract and may not create a new main line or next beat hook that must be continued." : "13. The last chapter must complete mustDeliver of the current beat while leaving reading traction, but must not fulfill the core event of the next beat in advance.",
+                        "",
+                        "Last JSON output:",
+                        safeJsonStringify(parsedOutput),
+                        "",
+                        "Please re-output the complete JSON object.",
+                    ].join("\n")),
+                ];
+            },
+        },
+        outputSchema: createVolumeChapterBeatBlockSchema({
+            exactChapterCount: targetChapterCount,
+            expectedBeatKey: targetBeatKey,
+            expectedBeatLabel: targetBeatLabel,
+        }),
+        render: (promptInput, context) => [
+            new SystemMessage([
+                "You are an online article section splitting planning assistant.",
+                "Your task is not to write the main text, nor to expand on the detailed outline, but to generate an executable chapter list for only a single rhythm section of the current volume.",
+                "You must meet the following requirements at the same time: the structured output is correct, the chapter functions are clear, the title is like the chapter name, and the abstract has real advancement.",
+                "",
+                "1. Task Boundaries",
+                `1. You can currently only do "${targetBeatLabel}"Generate ${targetChapterCount} Chapter, the number cannot be too much or too little.`,
+                "2. Only the current target beat is allowed to be overwritten, and chapters of adjacent beats are not allowed to cross the boundary.",
+                "3. Do not combine two chapters into one summary chapter, nor use empty placeholder chapters to make up the number.",
+                "4. If the beat information is insufficient, it must be completed to the exact number of chapters, but only conservative transitions can be made, and no major new settings can be created.",
+                "5. This task only generates a list of chapters, without writing the main text, detailed scenes, or complete dialogue.",
+                "",
+                "2. Hard output constraints",
+                "1. The top level must output four fields: beatKey, beatLabel, chapterCount, and chapters.",
+                "2. Each chapter can only contain three fields: title, summary, and beatKey, and no new fields are allowed.",
+                `3. beatKey must be strictly equal to ${targetBeatKey}。`,
+                `4. beatLabel must be strictly equal to ${targetBeatLabel}。`,
+                `5. chapterCount and chapters.length must be strictly equal to ${targetChapterCount}。`,
+                `6. The beatKey of each chapter must be strictly equal to ${targetBeatKey}。`,
+                "7. No Markdown, comments, explanations, or any additional text may be output.",
+                "8. The summary of each chapter should be limited to 40-120 words. Only the core actions, resistance and new situations created should be written; expansion of scenes, dialogue or main text is prohibited.",
+                "9. End the JSON immediately after writing the specified number of final chapters, without additional analysis, self-checking processes, or release candidates.",
+                "",
+                "3. Core principles of chapter planning",
+                "1. The chapter list must strictly obey the current volume skeleton and the current target beat contract, and cannot sneak into adjacent beats.",
+                "2. Each chapter must answer: why this chapter must exist, what it advances, and what new changes it creates.",
+                "3. The division of chapters in the current rhythm section should reflect the sense of reading the online text, but it cannot be divided evenly mechanically.",
+                "4. The chapters must form a continuous progression, and there cannot be repeated chapters that just change the words without adding new information.",
+                "5. In each chapter summary, write not only \u201Cwhat happened\u201D but also \u201Cwhat changed as a result\u201D.",
+                "",
+                "4. Chapter function allocation requirements",
+                "1. Before generating, the current beat must be divided into several chapter functions in the mind: undertaking, pressure, testing, discovery, turning, counterattack, cashing out, aftermath or hook.",
+                "2. Do not expose these function labels during actual output, but the summary of each chapter must reflect clear functions.",
+                "3. Consecutive chapters cannot assume exactly the same function, especially multiple consecutive chapters that only do investigation, discussion, foreshadowing, waiting, realization or discovery.",
+                "4. If the target number of chapters is greater than or equal to 5, it should include at least one situation pressure, one key discovery or reversal of judgment, one phased realization or clear turn.",
+                "5. Key advancements can take up more chapters, and transitional chapters should be short and powerful. Do not create low-information-density chapters just to make up the numbers.",
+                isBookFinale
+                    ? "6. The final chapter of the book must complete the main conflict, relationship changes, core rewards and theme points in the ending contract, and must not leave any new main lines that must be continued." : "6. The last chapter must complete the mustDeliver of the current beat while leaving the reading pull to enter the next beat, but the core event of the next beat must not be fulfilled in advance.",
+                "",
+                "5. Chapter promotion quality requirements",
+                "1. The summary of each chapter should reflect the core perspective character\u2019s choices, temptations, counterattacks, tolerance, exchanges, layouts, revelations, compromises, or bearing costs, to prevent characters from just watching external events.",
+                "2. Each chapter summary should contain at least one effective advancement: new intelligence, risk escalation, relationship changes, resource gains and losses, misjudgment correction, opponent's back-up, and stage realization.",
+                "3. Don\u2019t write chapters as a repetitive chain of \u201Cfind the problem \u2013 realize the danger \u2013 continue investigating\u201D.",
+                "4. You can create or exploit information gaps, misjudgments, abnormal discoveries, and hidden costs of apparent victory, but do not stuff complete cause-and-effect sentences into the title.",
+                "5. The end of each chapter should imply new problems, threats, opportunities, misjudgments, or choice pressures, giving the next chapter a reason to continue reading.",
+                "6. All chapters in the current beat cannot be just foreshadowing; there must be actual advancement, situation changes, or stage fulfillment.",
+                "",
+                "6. Title requirements",
+                "1. The title of each chapter must be like the real chapter name, giving priority to the event anchor, location, conflict, abnormal discovery, situation change, stage realization, relationship change or problem hook.",
+                "2. The title uses objective expression by default, and does not use first-person self-narration such as \"I/my/I am/I use/for me/chasing me\".",
+                "3. Before starting to write chapters, first complete the \"title syntax matching planning\" in your mind, and then output according to the matching ratio. Do not repeat the template while thinking.",
+                "4. The same batch of titles must actively mix different syntaxes such as action-promoting type, conflict-pressing type, exception-finding type, result-fulfilling type, decision-making type, question-hook type, and relationship-changing type.",
+                "5. The number of core words in the title should not exceed 16, and 4-12 words are recommended; do not write long sentences, complete cause-and-effect sentences, or plot summaries.",
+                "6. The title can be contrasting, but it should be short, such as \"Secret Order Distorted\", \"Soul-Destroying Nail Appears\", \"Crack in the Formation Eye\"; do not write \"Someone did something, so a certain result happened\".",
+                "7. Avoid only abstract words: storm, undercurrent, crisis, truth, choice, change, etc., unless there are specific objects, actions or contrasts in the title.",
+                "8. If the current rhythm section has 6 chapters or more: any single surface skeleton should not exceed half; skeletons such as \"Y of X / Y in X / Y in",
+                "9. Clearly avoid letting most titles continue to collapse into the \"A, B / four-word action, four-word result\" parallel template.",
+                "10. Adjacent chapter titles should not use the same grammatical skeleton for more than 3 consecutive chapters.",
+                "11. The title should have a sense of advancement and readability, and avoid being literary, abstract, lyrical, slogan-like, or overly templated.",
+                "12. The protagonist\u2019s initiative, choices and costs are mainly written in the summary. Do not write the title in the first person to reflect the actions of the protagonist.",
+                "13. Self-check before generating: whether there is a first-person title, a title that is too long, too many \"word structures\", too many commas in parallel structures, or multiple consecutive chapters with the same skeleton; if so, change it first and then output.",
+                "",
+                "7. Abstract requirements",
+                "1. The summary of each chapter must clearly state what the chapter specifically advances and what role it plays in the current target beat.",
+                "2. The summary must reflect at least one of new information, situation changes, conflict advancement, relationship changes, cost increases, risk shifts, or stage realizations.",
+                "3. The summary must reflect the irreversible changes caused by this chapter: changes in character judgment, changes in resource status, changes in the relationship between enemies and enemies, changes in risk levels, changes in plan direction, or changes in readers' cognition.",
+                "4. Don\u2019t write the summary as a vague slogan, nor as a detailed plot retelling.",
+                "5. Adjacent chapter summaries cannot be mere tautology.",
+                "6. Don\u2019t use a lot of low-information-density expressions such as \u201Cfurther promote the plot\u201D, \u201Cmake the situation more complicated\u201D, and \u201Clay the groundwork for the follow-up\u201D.",
+                "",
+                "8. beat acceptance requirements",
+                "1. This time only the current target beat will be covered, and chapters for adjacent beats will not be generated.",
+                "2. The beginning chapter must inherit the status of the chapter that has been generated in the previous sequence, and cannot restart the advancement that has already occurred.",
+                "3. The middle chapter should focus on the core contradiction of the current beat to continuously increase pressure, test, turn or realize.",
+                isBookFinale
+                    ? "4. The final chapter of the book must complete the ending contract and no longer requires the next stage of traction." : "4. At the end of the chapter, the mustDeliver of the current beat must be put in place, but do not steal the core of the next beat in advance.",
+                "",
+                "9. Quality self-inspection requirements",
+                "1. Check in your mind before output: whether the number of chapters is accurate, whether the beatKey is consistent, whether it is out of bounds, and whether there are repeated function chapters.",
+                "2. Check in your mind before outputting: whether the title is too isomorphic, whether the summary has real advancement, and whether the final chapter has stage fulfillment or reading traction.",
+                "3. If you find that the chapter is just a change of narrative, no new advancement, no protagonist action, and no situation change, you must change it first and then output it.",
+                "",
+                buildRetryDirective(promptInput.retryReason),
+            ]
+                .filter(Boolean)
+                .join("\n")),
+            new HumanMessage([
+                "Please output the chapter block of the current rhythm section based on the following context.",
+                "",
+                "Output requirements:",
+                "- Only output strict JSON",
+                `- beatKey must be strictly equal to ${targetBeatKey}`,
+                `- beatLabel must be strictly equal to ${targetBeatLabel}`,
+                `- chapterCount and chapters.length must be strictly equal ${targetChapterCount}`,
+                "- Each chapter can only contain title, summary, beatKey",
+                "- No chapters with adjacent beats may be generated",
+                "- Plan the chapter function allocation and title skeleton ratio in your mind first, and then output the complete chapter block",
+                "- Prioritize the sense of chapter advancement, rhythm continuity, decentralized title structure, character initiative and ending traction in the summary",
+                "- The title must be short and objective, do not use the first person, do not write long sentences or plot synopses",
+                "",
+                "Current volume and chapter context:",
+                renderSelectedContextBlocks(context),
+            ].join("\n")),
+        ],
+        postValidate: (output) => {
+            if (output.beatKey !== targetBeatKey) {
+                throw new Error(`beatKey must be strictly equal to ${targetBeatKey}。`);
+            }
+            if (output.beatLabel !== targetBeatLabel) {
+                throw new Error(`beatLabel must be strictly equal to ${targetBeatLabel}。`);
+            }
+            if (output.chapterCount !== targetChapterCount ||
+                output.chapters.length !== targetChapterCount) {
+                throw new Error(`chapterCount and chapters.length must be strictly equal to ${targetChapterCount}。`);
+            }
+            output.chapters.forEach((chapter, index) => {
+                if (chapter.beatKey !== targetBeatKey) {
+                    throw new Error(`No. ${index + 1} The beatKey of each chapter must be strictly equal to ${targetBeatKey}。`);
+                }
+            });
+            const titleDiversityIssue = getChapterTitleDiversityIssue(output.chapters.map((chapter) => chapter.title));
+            if (titleDiversityIssue) {
+                throw new Error(titleDiversityIssue);
+            }
+            const titleCollisionIssue = getChapterTitleCollisionIssue(reservedChapterTitles, output.chapters.map((chapter) => chapter.title));
+            if (titleCollisionIssue) {
+                throw new Error(titleCollisionIssue);
+            }
+            const chapterFunctionQualityIssue = getChapterFunctionQualityIssue(output.chapters);
+            if (chapterFunctionQualityIssue) {
+                throw new Error(chapterFunctionQualityIssue);
+            }
+            return output;
+        },
+        postValidateFailureRecovery: ({ rawOutput, validationError }) => {
+            if (isBlockingChapterTitleQualityIssue(validationError) || isChapterTitleDuplicateIssue(validationError)) {
+                throw new Error(validationError);
+            }
+            if (isChapterTitleDiversityIssue(validationError) || isChapterFunctionQualityIssue(validationError)) {
+                return rawOutput;
+            }
+            throw new Error(validationError);
         }
-      });
-
-      const titleDiversityIssue = getChapterTitleDiversityIssue(
-        output.chapters.map((chapter) => chapter.title),
-      );
-
-      if (titleDiversityIssue) {
-        throw new Error(titleDiversityIssue);
-      }
-
-      const titleCollisionIssue = getChapterTitleCollisionIssue(
-        reservedChapterTitles,
-        output.chapters.map((chapter) => chapter.title),
-      );
-
-      if (titleCollisionIssue) {
-        throw new Error(titleCollisionIssue);
-      }
-
-      const chapterFunctionQualityIssue = getChapterFunctionQualityIssue(
-        output.chapters,
-      );
-
-      if (chapterFunctionQualityIssue) {
-        throw new Error(chapterFunctionQualityIssue);
-      }
-
-      return output;
-    },
-
-    postValidateFailureRecovery: ({ rawOutput, validationError }) => {
-      if (isBlockingChapterTitleQualityIssue(validationError) || isChapterTitleDuplicateIssue(validationError)) {
-        throw new Error(validationError);
-      }
-
-      if (isChapterTitleDiversityIssue(validationError) || isChapterFunctionQualityIssue(validationError)) {
-        return rawOutput;
-      }
-
-      throw new Error(validationError);
-    },
-  };
+    };
 }
-
 export { buildVolumeChapterListContextBlocks };

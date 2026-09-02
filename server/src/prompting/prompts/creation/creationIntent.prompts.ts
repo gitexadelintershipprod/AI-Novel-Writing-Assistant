@@ -1,106 +1,92 @@
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { z } from "zod";
-import type {
-  CreationIntentInterpretation,
-  NarrativeForm,
-} from "@ai-novel/shared/types/creationStudio";
+import type { CreationIntentInterpretation, NarrativeForm, } from "@ai-novel/shared/types/creationStudio";
 import type { PromptAsset } from "../../core/promptTypes";
 import type { WritingPlatformPreference } from "@ai-novel/shared/types/writingPlatform";
 import { supportsWritingPlatformForm } from "../../../modules/novel/writing-platform";
-
 export interface CreationIntentPromptInput {
-  idea: string;
-  preferredNarrativeForm?: NarrativeForm;
-  targetWordCount?: number;
-  feedback?: string;
-  writingPlatformPreference?: WritingPlatformPreference;
+    idea: string;
+    preferredNarrativeForm?: NarrativeForm;
+    targetWordCount?: number;
+    feedback?: string;
+    writingPlatformPreference?: WritingPlatformPreference;
 }
-
 const directionSchema = z.object({
-  id: z.string().min(1).max(80),
-  title: z.string().min(1).max(100),
-  premise: z.string().min(10).max(1000),
-  coreExperience: z.string().min(4).max(500),
-  protagonist: z.string().min(4).max(500),
-  centralConflict: z.string().min(4).max(500),
-  endingPromise: z.string().min(4).max(500),
-  styleKeywords: z.array(z.string().min(1).max(30)).min(2).max(8),
+    id: z.string().min(1).max(80),
+    title: z.string().min(1).max(100),
+    premise: z.string().min(10).max(1000),
+    coreExperience: z.string().min(4).max(500),
+    protagonist: z.string().min(4).max(500),
+    centralConflict: z.string().min(4).max(500),
+    endingPromise: z.string().min(4).max(500),
+    styleKeywords: z.array(z.string().min(1).max(30)).min(2).max(8),
 }).strict();
-
 const creationIntentSchema = z.object({
-  understanding: z.string().min(10).max(1000),
-  recommendedNarrativeForm: z.enum(["short_story", "long_novel"]),
-  recommendedTargetWordCount: z.number().int().min(3000).max(3_000_000),
-  confidence: z.number().min(0).max(1),
-  recommendationReason: z.string().min(10).max(800),
-  recommendedWritingPlatform: z.enum(["fanqie_free", "qidian_male", "jinjiang_female", "zhihu_story"]),
-  writingPlatformConfidence: z.number().min(0).max(1),
-  writingPlatformReason: z.string().min(10).max(800),
-  directions: z.tuple([directionSchema, directionSchema]),
+    understanding: z.string().min(10).max(1000),
+    recommendedNarrativeForm: z.enum(["short_story", "long_novel"]),
+    recommendedTargetWordCount: z.number().int().min(3000).max(3000000),
+    confidence: z.number().min(0).max(1),
+    recommendationReason: z.string().min(10).max(800),
+    recommendedWritingPlatform: z.enum(["fanqie_free", "qidian_male", "jinjiang_female", "zhihu_story"]),
+    writingPlatformConfidence: z.number().min(0).max(1),
+    writingPlatformReason: z.string().min(10).max(800),
+    directions: z.tuple([directionSchema, directionSchema]),
 }).strict();
-
 function validateInterpretation(output: z.output<typeof creationIntentSchema>): CreationIntentInterpretation {
-  const [first, second] = output.directions;
-  if (first.id === second.id || first.title === second.title || first.premise === second.premise) {
-    throw new Error("两个创作方向必须具有不同标识、标题和故事前提。");
-  }
-  if (
-    output.recommendedNarrativeForm === "short_story"
-    && (output.recommendedTargetWordCount < 3000 || output.recommendedTargetWordCount > 30000)
-  ) {
-    throw new Error("短篇推荐字数必须在 3000 到 30000 字之间。");
-  }
-  if (output.recommendedNarrativeForm === "long_novel" && output.recommendedTargetWordCount <= 30000) {
-    throw new Error("长篇推荐字数必须高于 30000 字。");
-  }
-  if (!supportsWritingPlatformForm(output.recommendedWritingPlatform, output.recommendedNarrativeForm)) {
-    throw new Error("推荐平台必须支持推荐的作品规模。");
-  }
-  return output;
+    const [first, second] = output.directions;
+    if (first.id === second.id || first.title === second.title || first.premise === second.premise) {
+        throw new Error("The two creative directions must have different logos, titles, and story premises.");
+    }
+    if (output.recommendedNarrativeForm === "short_story"
+        && (output.recommendedTargetWordCount < 3000 || output.recommendedTargetWordCount > 30000)) {
+        throw new Error("The recommended word count for short stories must be between 3,000 and 30,000 words.");
+    }
+    if (output.recommendedNarrativeForm === "long_novel" && output.recommendedTargetWordCount <= 30000) {
+        throw new Error("Long-form recommendations must exceed 30,000 words.");
+    }
+    if (!supportsWritingPlatformForm(output.recommendedWritingPlatform, output.recommendedNarrativeForm)) {
+        throw new Error("The recommendation platform must support the scale of recommended works.");
+    }
+    return output;
 }
-
-export const creationIntentInterpretPrompt: PromptAsset<
-  CreationIntentPromptInput,
-  z.output<typeof creationIntentSchema>,
-  CreationIntentInterpretation
-> = {
-  id: "creation.intent.interpret",
-  version: "v2",
-  taskType: "planner",
-  mode: "structured",
-  language: "zh",
-  contextPolicy: { maxTokensBudget: 0 },
-  outputSchema: creationIntentSchema,
-  repairPolicy: { maxAttempts: 1 },
-  semanticRetryPolicy: { maxAttempts: 1 },
-  render: (input) => [
-    new SystemMessage([
-      "你是面向零写作经验用户的创作意图导演。",
-      "你的任务是理解用户真正想写的体验，并推荐适合一次完成的短篇或适合长期发展的长篇。",
-      "不得用关键词、题材名称或固定规则机械判断体量；要根据冲突容量、人物变化跨度、世界展开需要和结尾兑现成本综合判断。",
-      "短篇范围是 3000～30000 字；长篇必须高于 30000 字。",
-      "同时从番茄免费网文、起点男频、晋江女频、知乎短故事中推荐目标平台，并说明依据。番茄支持长短篇，起点和晋江只支持长篇，知乎短故事只支持短篇。",
-      "本产品中的短篇默认指篇幅更短但完整收束的中文网络小说，不是散文、纯文学小品、剧本梗概或只有氛围的故事摘要。",
-      "必须守住用户原始想法的核心体验、核心资源或核心困境。可以补足冲突和结局，但不得为了显得宏大而把“囤粮、交换、复仇、恋爱”等用户明确主题偷换成未铺垫的核战阴谋、救世任务或另一套故事。",
-      "短篇方向必须具备可立刻进入正文的开篇钩子、主动行动的主角、持续升级的阻力、题材匹配的阶段回报和明确结局。",
-      "回报可以是破局、反击、真相揭晓、身份变化、关系兑现或强烈情绪释放，不要把所有题材机械写成打脸爽文。",
-      "输出两个差异明确、都能落地的创作方向。差异要体现在核心体验、冲突推进或结尾回报，而不只是换标题和人名。",
-      "服务对象是新手，表达必须清楚、具体、少术语。",
-      "只输出严格 JSON，不要输出 Markdown、解释、注释或额外字段。",
-    ].join("\n")),
-    new HumanMessage([
-      `用户想法：${input.idea.trim()}`,
-      `用户偏好的作品规模：${input.preferredNarrativeForm ?? "未指定，由你推荐"}`,
-      `用户调整的目标字数：${input.targetWordCount ?? "未指定，由你推荐"}`,
-      `补充反馈：${input.feedback?.trim() || "无"}`,
-      `用户的平台选择：${input.writingPlatformPreference ?? "ai_recommend"}`,
-      "",
-      "请返回：简明理解、推荐规模、目标字数、0～1 置信度、推荐理由、推荐平台、平台置信度、平台理由，以及两个完整方向。",
-      "每个方向必须包含 id、title、premise、coreExperience、protagonist、centralConflict、endingPromise、styleKeywords。",
-      "短篇的 styleKeywords 必须包含可执行的网文阅读节奏与题材气质，不能只写细腻、治愈、诗意等抽象文学标签。",
-      "若用户明确调整了规模或字数，两个方向必须重新适配该选择，但 recommendationReason 仍应诚实说明取舍。",
-      "若用户明确选择平台，recommendedWritingPlatform 必须采用该平台，并让两个方向匹配该平台；若该平台不支持作品规模，应在方向中按用户指定的作品规模重新给出相容推荐，不得静默硬套。",
-    ].join("\n")),
-  ],
-  postValidate: validateInterpretation,
+export const creationIntentInterpretPrompt: PromptAsset<CreationIntentPromptInput, z.output<typeof creationIntentSchema>, CreationIntentInterpretation> = {
+    id: "creation.intent.interpret",
+    version: "v3",
+    taskType: "planner",
+    mode: "structured",
+    language: "ka",
+    contextPolicy: { maxTokensBudget: 0 },
+    outputSchema: creationIntentSchema,
+    repairPolicy: { maxAttempts: 1 },
+    semanticRetryPolicy: { maxAttempts: 1 },
+    render: (input) => [
+        new SystemMessage([
+            "You are the director of creative intent for users with zero writing experience.",
+            "Your task is to understand the experience that users really want to write about, and recommend short stories that are suitable for one-time completion or long stories that are suitable for long-term development.",
+            "Do not use keywords, theme names or fixed rules to mechanically judge the size; it must be comprehensively judged based on the conflict capacity, character change span, world development needs and ending realization cost.",
+            "The range of short stories is 3,000 to 30,000 words; long stories must be more than 30,000 words.",
+            "Recommend one writing profile and explain the basis: fanqie_free is Georgian Serial (long or short), qidian_male is Progression & Adventure (long), jinjiang_female is Character & Relationship (long), and zhihu_story is Georgian Short Story (short). These codes are compatibility identifiers, not market platforms.",
+            "By default, short stories in this product refer to shorter but complete Georgian-language serial novels, not essays, pure literary sketches, script outlines or story summaries with only atmosphere.",
+            "The core experience, core resources or core dilemma of the user\u2019s original idea must be preserved. Conflicts and endings can be supplemented, but user-specific themes such as \"food hoarding, exchange, revenge, and love\" must not be replaced by unprepared nuclear war plots, salvation missions, or another set of stories in order to appear grand.",
+            "The short story direction must have an opening hook that can immediately enter the main text, a protagonist who takes the initiative, resistance that continues to escalate, stage rewards that match the theme, and a clear ending.",
+            "The reward can be breaking a situation, counterattacking, revealing the truth, changing your identity, realizing a relationship, or releasing strong emotions. Don\u2019t mechanically write all themes into a slap-in-the-face article.",
+            "Output two creative directions that are clearly different and can be implemented. The difference should be reflected in the core experience, conflict progression or ending reward, not just changing the title and names.",
+            "The service target is novices, and the expression must be clear, specific, and with few jargon.",
+            "Output only strict JSON, no Markdown, explanations, comments or extra fields.",
+        ].join("\n")),
+        new HumanMessage([
+            `User thoughts:${input.idea.trim()}`,
+            `User preferred work size:${input.preferredNarrativeForm ?? "Not specified, recommended by you"}`,
+            `User-adjusted target word count:${input.targetWordCount ?? "Not specified, recommended by you"}`,
+            `Additional feedback:${input.feedback?.trim() || "None"}`,
+            `User\u2019s platform choice:${input.writingPlatformPreference ?? "ai_recommend"}`,
+            "",
+            "Please return: concise understanding, recommendation scale, target word count, 0 to 1 confidence, recommendation reasons, recommendation platform, platform confidence, platform reasons, and two complete directions.",
+            "Each direction must contain id, title, premise, coreExperience, protagonist, centralConflict, endingPromise, styleKeywords.",
+            "The styleKeywords of short stories must include executable online reading rhythm and subject matter temperament, and cannot only include abstract literary labels such as delicate, healing, and poetic.",
+            "If the user explicitly adjusts the size or word count, both directions must re-adapt the choice, but the recommendationReason should still state the trade-off honestly.",
+            "If the user explicitly selects a platform, the recommendedWritingPlatform must use the platform and allow both directions to match the platform; if the platform does not support the scale of the work, compatible recommendations should be made again in the direction based on the scale of the work specified by the user, and should not be applied silently.",
+        ].join("\n")),
+    ],
+    postValidate: validateInterpretation
 };

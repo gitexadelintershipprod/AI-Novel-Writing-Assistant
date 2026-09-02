@@ -54,29 +54,11 @@ export class StyleDetectionService {
     if (!styleContractText && antiRules.length === 0) {
       return {
         riskScore: 0,
-        summary: "当前没有可执行的写法检测约束，未执行写法违规检测。",
+        summary: "No executable style constraints are configured, so semantic style review was not run.",
         violations: [],
         canAutoRewrite: false,
         appliedRuleIds,
       };
-    }
-
-    const forbiddenRules = antiRules.filter((rule) => rule.type === "forbidden" && rule.enabled);
-    const literalPatterns = forbiddenRules.flatMap((rule) => (
-      rule.detectPatterns.filter((pattern) => !/[\\^$.*+?()[\]{}|]/.test(pattern))
-    ));
-    if (literalPatterns.length > 0) {
-      const hasHit = literalPatterns.some((pattern) => input.content.includes(pattern));
-      if (!hasHit) {
-        console.debug("[style-detect] fast-scan:skip-llm, no literal forbidden pattern matched");
-        return {
-          riskScore: 0,
-          summary: "快扫未检出字面量违禁词，跳过 LLM 深度检测。",
-          violations: [],
-          canAutoRewrite: false,
-          appliedRuleIds,
-        };
-      }
     }
 
     const result = await runStructuredPrompt({

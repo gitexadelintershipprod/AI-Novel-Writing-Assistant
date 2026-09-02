@@ -14,13 +14,13 @@ function line(label: string, value: string | null | undefined): string {
 function readerChannelPreferenceLabel(value: DirectorIdeaContextRequest["readerChannelPreference"]): string {
   switch (value) {
     case "ai_judge":
-      return "AI 判断";
+      return "AI recommendation";
     case "male_oriented":
-      return "男频向";
+      return "Action-oriented audience";
     case "female_oriented":
-      return "女频向";
+      return "Character-oriented audience";
     case "general":
-      return "泛读者 / 不限定";
+      return "General audience / unrestricted";
     default:
       return "";
   }
@@ -35,23 +35,23 @@ export function buildDirectorIdeaContextSummary(input: DirectorIdeaContextReques
     commercialTags: input.commercialTags,
   });
   return [
-    line("当前输入框草稿", input.currentIdea),
-    line("暂定标题", input.title),
-    line("已有概述", input.description),
-    line("题材基底", input.genreLabel ?? input.genreId),
-    line("题材说明", input.genreDescription),
-    line("主推进模式", input.primaryStoryModeLabel ?? input.primaryStoryModeId),
-    line("主推进说明", input.primaryStoryModeDescription),
-    line("副推进模式", input.secondaryStoryModeLabel ?? input.secondaryStoryModeId),
-    line("副推进说明", input.secondaryStoryModeDescription),
-    line("世界观", input.worldName ?? input.worldId),
-    marketBriefPrompt.trim() ? `开书市场简报：\n${marketBriefPrompt.trim()}` : "",
-    line("读者频道倾向", readerChannelPreferenceLabel(input.readerChannelPreference)),
-    input.narrativePov ? `叙事视角：${input.narrativePov}` : "",
-    input.pacePreference ? `节奏偏好：${input.pacePreference}` : "",
-    input.emotionIntensity ? `情绪浓度：${input.emotionIntensity}` : "",
-    line("文风关键词", input.styleTone),
-    framing ? `书级 framing：\n${framing}` : "",
+    line("Current idea draft", input.currentIdea),
+    line("Working title", input.title),
+    line("Existing summary", input.description),
+    line("Genre foundation", input.genreLabel ?? input.genreId),
+    line("Genre guidance", input.genreDescription),
+    line("Primary story mode", input.primaryStoryModeLabel ?? input.primaryStoryModeId),
+    line("Primary story mode guidance", input.primaryStoryModeDescription),
+    line("Secondary story mode", input.secondaryStoryModeLabel ?? input.secondaryStoryModeId),
+    line("Secondary story mode guidance", input.secondaryStoryModeDescription),
+    line("World", input.worldName ?? input.worldId),
+    marketBriefPrompt.trim() ? `Market brief:\n${marketBriefPrompt.trim()}` : "",
+    line("Audience orientation", readerChannelPreferenceLabel(input.readerChannelPreference)),
+    input.narrativePov ? `Narrative point of view: ${input.narrativePov}` : "",
+    input.pacePreference ? `Pacing preference: ${input.pacePreference}` : "",
+    input.emotionIntensity ? `Emotional intensity: ${input.emotionIntensity}` : "",
+    line("Style keywords", input.styleTone),
+    framing ? `Book-level framing:\n${framing}` : "",
   ].filter(Boolean).join("\n");
 }
 

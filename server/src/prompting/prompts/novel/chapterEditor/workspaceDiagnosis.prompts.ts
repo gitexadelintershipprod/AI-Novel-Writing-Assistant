@@ -1,106 +1,91 @@
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import type { PromptAsset } from "../../../core/promptTypes";
 import { NOVEL_PROMPT_BUDGETS } from "../promptBudgetProfiles";
-import {
-  chapterEditorWorkspaceDiagnosisSchema,
-  type ChapterEditorWorkspaceDiagnosisParsed,
-} from "./workspaceDiagnosis.promptSchemas";
-
+import { chapterEditorWorkspaceDiagnosisSchema, type ChapterEditorWorkspaceDiagnosisParsed, } from "./workspaceDiagnosis.promptSchemas";
 export interface ChapterEditorWorkspaceDiagnosisPromptInput {
-  chapterTitle: string;
-  chapterMission: string;
-  volumePositionLabel: string;
-  volumePhaseLabel: string;
-  paceDirective: string;
-  previousChapterBridge: string;
-  nextChapterBridge: string;
-  activePlotThreads: string[];
-  paragraphs: Array<{
-    index: number;
-    text: string;
-  }>;
-  openIssues: Array<{
-    severity: "low" | "medium" | "high" | "critical";
-    auditType: string;
-    code: string;
-    evidence: string;
-    fixSuggestion: string;
-  }>;
+    chapterTitle: string;
+    chapterMission: string;
+    volumePositionLabel: string;
+    volumePhaseLabel: string;
+    paceDirective: string;
+    previousChapterBridge: string;
+    nextChapterBridge: string;
+    activePlotThreads: string[];
+    paragraphs: Array<{
+        index: number;
+        text: string;
+    }>;
+    openIssues: Array<{
+        severity: "low" | "medium" | "high" | "critical";
+        auditType: string;
+        code: string;
+        evidence: string;
+        fixSuggestion: string;
+    }>;
 }
-
 function renderList(title: string, rows: string[]): string {
-  return `${title}\n${rows.length > 0 ? rows.join("\n") : "无"}`;
+    return `${title}\n${rows.length > 0 ? rows.join("\n") : "None"}`;
 }
-
-export const chapterEditorWorkspaceDiagnosisPrompt: PromptAsset<
-  ChapterEditorWorkspaceDiagnosisPromptInput,
-  ChapterEditorWorkspaceDiagnosisParsed
-> = {
-  id: "novel.chapter_editor.workspace_diagnosis",
-  version: "v1",
-  taskType: "writer",
-  mode: "structured",
-  language: "zh",
-  contextPolicy: {
-    maxTokensBudget: NOVEL_PROMPT_BUDGETS.chapterEditorWorkspaceDiagnosis,
-  },
-  contextRequirements: [
-    { group: "chapter_mission", required: true, priority: 100, sourceHint: "Chapter task shown in the editor workspace." },
-    { group: "volume_window", priority: 90, sourceHint: "Volume position and adjacent chapter direction." },
-    { group: "open_conflicts", priority: 84, sourceHint: "Active conflicts and unresolved pressure." },
-    { group: "participant_subset", priority: 78, sourceHint: "Characters that matter to current edit decisions." },
-    { group: "current_draft_excerpt", priority: 72, sourceHint: "Current chapter draft excerpt for diagnosis preview." },
-  ],
-  outputSchema: chapterEditorWorkspaceDiagnosisSchema,
-  structuredOutputHint: {
-    mode: "auto",
-    note: [
-      "输出 1 到 4 个适合初学作者立即处理的问题卡，并只保留一个最优先任务。",
-      "recommendedAction 只能使用英文枚举：polish、expand、compress、emotion、conflict。",
-    ].join(" "),
-  },
-  render: (input) => [
-    new SystemMessage([
-      "你是中文网络小说章节编辑页中的修文导演。",
-      "你的任务是阅读本章的宏观定位、开放问题和段落摘录，为写作新手挑出最值得先处理的问题。",
-      "",
-      "必须遵守：",
-      "1. 面向写作新手，语言直接，不要使用内部系统标签。",
-      "2. 问题卡必须可执行，但 recommendedAction 只能输出英文枚举值：compress（精简）、polish（优化表达）、emotion（强化情绪）、conflict（强化冲突）、expand（扩写）。",
-      "3. 优先选择真正影响阅读推进、情绪承接或卷内节奏的问题。",
-      "4. paragraphStart / paragraphEnd 必须引用提供的段落编号；整章问题可留空。",
-      "5. 不要输出 schema 之外的任何解释。",
-      "6. 不要输出中文动作词本身；只能输出对应的英文枚举值。",
-      "",
-      "推荐逻辑：",
-      "1. 如果存在明显的节奏、冲突、情绪或承接问题，优先选择这类问题。",
-      "2. 推荐任务只能保留一个，且必须是当前最值得用户先动手的任务。",
-      "3. 对于问题卡，problemSummary 说明问题本身，whyItMatters 说明为什么现在要改。",
-    ].join("\n")),
-    new HumanMessage([
-      `【章节】${input.chapterTitle}`,
-      `【本章任务】${input.chapterMission}`,
-      `【卷内位置】${input.volumePositionLabel}`,
-      `【阶段定位】${input.volumePhaseLabel}`,
-      `【节奏建议】${input.paceDirective}`,
-      `【承接上一章】${input.previousChapterBridge}`,
-      `【铺向下一章】${input.nextChapterBridge}`,
-      renderList("【当前主线/伏笔】", input.activePlotThreads.map((item) => `- ${item}`)),
-      "",
-      renderList(
-        "【开放问题】",
-        input.openIssues.map((issue, index) => `- ${index + 1}. [${issue.severity}/${issue.auditType}/${issue.code}] ${issue.evidence}；建议：${issue.fixSuggestion}`),
-      ),
-      "",
-      renderList(
-        "【段落摘录】",
-        input.paragraphs.map((paragraph) => `- P${paragraph.index}: ${paragraph.text}`),
-      ),
-      "",
-      "【最小合法示例】",
-      "{\"cards\":[{\"title\":\"节奏偏慢\",\"problemSummary\":\"中段静态描写过多。\",\"whyItMatters\":\"会拖慢读者进入主冲突。\",\"recommendedAction\":\"compress\",\"recommendedScope\":\"selection\",\"paragraphStart\":12,\"paragraphEnd\":18,\"severity\":\"medium\",\"sourceTags\":[\"节奏\"]}],\"recommendedTask\":{\"title\":\"先压缩中段静态描写\",\"summary\":\"优先删减重复日常描写，让冲突更早顶上来。\",\"recommendedAction\":\"compress\",\"recommendedScope\":\"selection\",\"paragraphStart\":12,\"paragraphEnd\":18}}",
-      "",
-      "请只返回 JSON。",
-    ].join("\n")),
-  ],
+export const chapterEditorWorkspaceDiagnosisPrompt: PromptAsset<ChapterEditorWorkspaceDiagnosisPromptInput, ChapterEditorWorkspaceDiagnosisParsed> = {
+    id: "novel.chapter_editor.workspace_diagnosis",
+    version: "v2",
+    taskType: "writer",
+    mode: "structured",
+    language: "ka",
+    contextPolicy: {
+        maxTokensBudget: NOVEL_PROMPT_BUDGETS.chapterEditorWorkspaceDiagnosis,
+    },
+    contextRequirements: [
+        { group: "chapter_mission", required: true, priority: 100, sourceHint: "Chapter task shown in the editor workspace." },
+        { group: "volume_window", priority: 90, sourceHint: "Volume position and adjacent chapter direction." },
+        { group: "open_conflicts", priority: 84, sourceHint: "Active conflicts and unresolved pressure." },
+        { group: "participant_subset", priority: 78, sourceHint: "Characters that matter to current edit decisions." },
+        { group: "current_draft_excerpt", priority: 72, sourceHint: "Current chapter draft excerpt for diagnosis preview." },
+    ],
+    outputSchema: chapterEditorWorkspaceDiagnosisSchema,
+    structuredOutputHint: {
+        mode: "auto",
+        note: [
+            "Output 1 to 4 question cards that are suitable for beginning writers to work on immediately, and keep only one top priority task.",
+            "recommendedAction can only use English enumerations: polish, expand, compress, emotion, conflict.",
+        ].join(" "),
+    },
+    render: (input) => [
+        new SystemMessage([
+            "You are the editing director on the Georgian-language serial novel chapter editing page.",
+            "Your task is to read the chapter's macro positioning, open questions, and paragraph excerpts, and pick out the issues worth addressing first for novice writers.",
+            "",
+            "Must comply with:",
+            "1. For novice writers, the language is direct and do not use internal system tags.",
+            "2. The question card must be executable, but recommendedAction can only output English enumeration values: compress (simplified), polish (optimized expression), emotion (strengthened emotion), conflict (strengthened conflict), expand (expanded).",
+            "3. Prioritize questions that really affect reading advancement, emotional susceptibility, or the pace of the paper.",
+            "4. paragraphStart / paragraphEnd must reference the paragraph number provided; the entire chapter question can be left blank.",
+            "5. Do not output any explanation other than the schema.",
+            "6. Do not output the Chinese action words themselves; only output the corresponding English enumeration values.",
+            "",
+            "Recommended logic:",
+            "1. If there are obvious pacing, conflict, emotion, or continuity issues, prioritize these issues.",
+            "2. Only one recommended task can be retained, and it must be the most worthy task for the user to do first.",
+            "3. For the problem card, problemSummary describes the problem itself, and whyItMatters explains why it needs to be changed now.",
+        ].join("\n")),
+        new HumanMessage([
+            `\u3010Chapter\u3011${input.chapterTitle}`,
+            `[Tasks in this chapter]${input.chapterMission}`,
+            `\u3010Location in volume\u3011${input.volumePositionLabel}`,
+            `\u3010Stage positioning\u3011${input.volumePhaseLabel}`,
+            `[Rhythm suggestions]${input.paceDirective}`,
+            `[Continue from the previous chapter]${input.previousChapterBridge}`,
+            `[Pave to the next chapter]${input.nextChapterBridge}`,
+            renderList("[Current Main Line/Foreshadowing]", input.activePlotThreads.map((item) => `- ${item}`)),
+            "",
+            renderList("\u3010Open question\u3011", input.openIssues.map((issue, index) => `- ${index + 1}. [${issue.severity}/${issue.auditType}/${issue.code}] ${issue.evidence};Suggestions:${issue.fixSuggestion}`)),
+            "",
+            renderList("[Excerpt from passage]", input.paragraphs.map((paragraph) => `- P${paragraph.index}: ${paragraph.text}`)),
+            "",
+            "[Minimum legal example]",
+            "{\"cards\":[{\"title\":\"Slow pace\",\"problemSummary\":\"Too much static description in the middle.\",\"whyItMatters\":\"It will slow down the reader into the main conflict.\",\"recommendedAction\":\"compress\",\"recommendedScope\":\"selection\",\"paragraphStart\":12,\"paragraphEnd\":18,\"severity\":\"med ium\",\"sourceTags\":[\"Rhythm\"]}],\"recommendedTask\":{\"title\":\"Compress the static description in the middle first\",\"summary\":\"Prioritize deleting repeated daily descriptions so that conflicts can arise earlier.\",\"recommendedAction\":\"compress\",\"recommendedScope\":\"selection\",\"paragraphStart\":12,\"paragraphEnd\":18}}",
+            "",
+            "Please return JSON only.",
+        ].join("\n")),
+    ]
 };

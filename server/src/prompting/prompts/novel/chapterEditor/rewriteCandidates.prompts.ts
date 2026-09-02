@@ -1,149 +1,140 @@
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import type { PromptAsset } from "../../../core/promptTypes";
 import { NOVEL_PROMPT_BUDGETS } from "../promptBudgetProfiles";
-import {
-  chapterEditorRewriteCandidatesSchema,
-  type ChapterEditorRewriteCandidatesParsed,
-} from "./rewriteCandidates.promptSchemas";
-
+import { chapterEditorRewriteCandidatesSchema, type ChapterEditorRewriteCandidatesParsed, } from "./rewriteCandidates.promptSchemas";
 export interface ChapterEditorRewriteCandidatesPromptInput {
-  operation: "polish" | "expand" | "compress" | "emotion" | "conflict" | "custom";
-  operationLabel: string;
-  scope: "selection" | "chapter";
-  customInstruction?: string;
-  selectedText: string;
-  beforeParagraphs: string[];
-  afterParagraphs: string[];
-  goalSummary?: string | null;
-  chapterSummary?: string | null;
-  styleSummary?: string | null;
-  characterStateSummary?: string | null;
-  worldConstraintSummary?: string | null;
-  macroContextSummary: string;
-  resolvedIntentSummary: string;
-  constraintsText: string;
+    operation: "polish" | "expand" | "compress" | "emotion" | "conflict" | "custom";
+    operationLabel: string;
+    scope: "selection" | "chapter";
+    customInstruction?: string;
+    selectedText: string;
+    beforeParagraphs: string[];
+    afterParagraphs: string[];
+    goalSummary?: string | null;
+    chapterSummary?: string | null;
+    styleSummary?: string | null;
+    characterStateSummary?: string | null;
+    worldConstraintSummary?: string | null;
+    macroContextSummary: string;
+    resolvedIntentSummary: string;
+    constraintsText: string;
 }
-
 function renderOptionalBlock(title: string, value?: string | null): string {
-  const text = value?.trim() ?? "";
-  return `${title}\n${text || "无"}`;
+    const text = value?.trim() ?? "";
+    return `${title}\n${text || "None"}`;
 }
-
-export const chapterEditorRewriteCandidatesPrompt: PromptAsset<
-  ChapterEditorRewriteCandidatesPromptInput,
-  ChapterEditorRewriteCandidatesParsed
-> = {
-  id: "novel.chapter_editor.rewrite_candidates",
-  version: "v2",
-  taskType: "writer",
-  mode: "structured",
-  language: "zh",
-  contextPolicy: {
-    maxTokensBudget: NOVEL_PROMPT_BUDGETS.chapterEditorRewrite,
-  },
-  contextRequirements: [
-    { group: "chapter_mission", priority: 100, sourceHint: "Chapter goal and current editing task." },
-    { group: "style_contract", priority: 88, sourceHint: "Current style profile and anti-AI guidance." },
-    { group: "participant_subset", priority: 82, sourceHint: "Relevant character state for local rewrite." },
-    { group: "world_slice", priority: 76, sourceHint: "World constraints that local edits must preserve." },
-    { group: "recent_chapters", priority: 64, sourceHint: "Nearby continuity for editor preview." },
-  ],
-  editableSlots: [
-    {
-      key: "chapterEditor.candidateStyle",
-      label: "候选改写风格",
-      description: "调整候选版本之间的差异化方向和表达偏向。",
-      riskLevel: "low",
-      maxLength: 600,
-      defaultValue: "候选要形成清晰差异，例如更自然、更克制、更强化情绪，但都要可用。",
+export const chapterEditorRewriteCandidatesPrompt: PromptAsset<ChapterEditorRewriteCandidatesPromptInput, ChapterEditorRewriteCandidatesParsed> = {
+    id: "novel.chapter_editor.rewrite_candidates",
+    version: "v3",
+    taskType: "writer",
+    mode: "structured",
+    language: "ka",
+    contextPolicy: {
+        maxTokensBudget: NOVEL_PROMPT_BUDGETS.chapterEditorRewrite,
     },
-  ],
-  slots: [
-    {
-      kind: "replace" as const,
-      key: "chapterEditor.candidateStyle",
-      label: "候选改写风格",
-      description: "调整候选版本之间的差异化方向和表达偏向。",
-      default: "候选要形成清晰差异，例如更自然、更克制、更强化情绪，但都要可用。",
-      maxLength: 600,
+    contextRequirements: [
+        { group: "chapter_mission", priority: 100, sourceHint: "Chapter goal and current editing task." },
+        { group: "style_contract", priority: 88, sourceHint: "Current style profile and anti-AI guidance." },
+        { group: "participant_subset", priority: 82, sourceHint: "Relevant character state for local rewrite." },
+        { group: "world_slice", priority: 76, sourceHint: "World constraints that local edits must preserve." },
+        { group: "recent_chapters", priority: 64, sourceHint: "Nearby continuity for editor preview." },
+    ],
+    editableSlots: [
+        {
+            key: "chapterEditor.candidateStyle",
+            label: "Candidate rewrite style",
+            description: "Adjust the differentiation direction and expression bias between candidate versions.",
+            riskLevel: "low",
+            maxLength: 600,
+            defaultValue: "Candidates should have clear distinctions, such as being more natural, more restrained, and more emotionally intensifying, but still usable.",
+        },
+    ],
+    slots: [
+        {
+            kind: "replace" as const,
+            key: "chapterEditor.candidateStyle",
+            label: "Candidate rewrite style",
+            description: "Adjust the differentiation direction and expression bias between candidate versions.",
+            default: "Candidates should have clear distinctions, such as being more natural, more restrained, and more emotionally intensifying, but still usable.",
+            maxLength: 600,
+        },
+    ],
+    outputSchema: chapterEditorRewriteCandidatesSchema,
+    structuredOutputHint: {
+        mode: "auto",
+        note: "Returns 2 to 3 candidate rewrites to keep JSON stable.",
     },
-  ],
-  outputSchema: chapterEditorRewriteCandidatesSchema,
-  structuredOutputHint: {
-    mode: "auto",
-    note: "返回 2 到 3 个候选改写方案，保持 JSON 稳定。",
-  },
-  render: (input, context) => {
-    const candidateStyle = context.slots?.text("chapterEditor.candidateStyle")
-      ?? "候选要形成清晰差异，例如更自然、更克制、更强化情绪，但都要可用。";
-    return [
-    new SystemMessage([
-      "你是中文网络小说章节编辑器里的局部改写助手。",
-      "你的职责是围绕用户选中的一段正文，给出 2 到 3 个可直接比较的候选改写版本。",
-      "",
-      "任务边界：",
-      "1. 只改写选中片段，不要重写整章。",
-      "2. 改写必须贴合前后文语气、人物状态和本章目标。",
-      "3. 不要解释过程，不要输出 Markdown，不要输出候选以外的额外文本。",
-      "4. 必须返回符合 schema 的 JSON。",
-      "",
-      "硬性约束：",
-      "1. 不改剧情事实。",
-      "2. 不改变人称和叙事视角。",
-      "3. 不新增未授权设定。",
-      "4. 尽量保留原段核心信息与上下文承接。",
-      "5. 不要把文本改得明显像模板化 AI 文风。",
-      "",
-      "候选要求：",
-      "1. 返回 2 到 3 个候选。",
-      "2. 每个候选都必须是完整可替换的片段文本。",
-      "3. rationale 用一句话说明这版主要改法。",
-      "4. riskNotes 列出 0 到 3 条需要用户注意的风险。",
-      "5. macroAlignmentNote 用一句话说明这些候选如何服务本章/本卷目标。",
-      "6. label 要短，适合在编辑器里做候选切换。",
-      "7. summary 用一句话概括主要改动。",
-      "8. semanticTags 只保留 2 到 4 个高价值标签，例如“增强情绪”“压缩重复”“补足动作细节”。",
-      "",
-      "改写范围：",
-      "1. selection 表示只改写选中片段。",
-      "2. chapter 表示改写整章，但依旧要保持章节事实、主线和卷内定位。",
-      "3. " + candidateStyle,
-      "",
-      `本次改写意图：${input.operationLabel}`,
-      `改写范围：${input.scope === "selection" ? "选中片段" : "整章"}`,
-      input.customInstruction?.trim()
-        ? `用户补充要求：${input.customInstruction.trim()}`
-        : "用户补充要求：无",
-    ].join("\n")),
-    new HumanMessage([
-      renderOptionalBlock("【本章目标】", input.goalSummary),
-      "",
-      renderOptionalBlock("【本章摘要】", input.chapterSummary),
-      "",
-      renderOptionalBlock("【写法与语气】", input.styleSummary),
-      "",
-      renderOptionalBlock("【角色状态】", input.characterStateSummary),
-      "",
-      renderOptionalBlock("【世界与设定约束】", input.worldConstraintSummary),
-      "",
-      renderOptionalBlock("【宏观定位】", input.macroContextSummary),
-      "",
-      renderOptionalBlock("【已解析的修改目标】", input.resolvedIntentSummary),
-      "",
-      "【改写硬约束】",
-      input.constraintsText,
-      "",
-      "【前文片段】",
-      input.beforeParagraphs.length > 0 ? input.beforeParagraphs.join("\n\n") : "无",
-      "",
-      "【待改写原文】",
-      input.selectedText,
-      "",
-      "【后文片段】",
-      input.afterParagraphs.length > 0 ? input.afterParagraphs.join("\n\n") : "无",
-      "",
-      "请只返回 JSON。",
-    ].join("\n")),
-  ];
-  },
+    render: (input, context) => {
+        const candidateStyle = context.slots?.text("chapterEditor.candidateStyle")
+            ?? "Candidates should have clear distinctions, such as being more natural, more restrained, and more emotionally intensifying, but still usable.";
+        return [
+            new SystemMessage([
+                "You are a partial rewriting assistant in the Georgian-language serial novel chapter editor.",
+                "Your job is to come up with 2 to 3 directly comparable candidate rewrites of a piece of text selected by the user.",
+                "",
+                "Task boundaries:",
+                "1. Only rewrite selected fragments, do not rewrite the entire chapter.",
+                "2. The rewriting must fit the context, tone, character status, and goals of this chapter.",
+                "3. Do not explain the process, do not output Markdown, and do not output additional text other than candidates.",
+                "4. JSON that conforms to the schema must be returned.",
+                "",
+                "Hard constraints:",
+                "1. Do not change the facts of the plot.",
+                "2. Do not change the person's name or narrative perspective.",
+                "3. Do not add unauthorized settings.",
+                "4. Try to retain the core information and context of the original paragraph.",
+                "5. Don\u2019t change the text to look like a templated AI style.",
+                "",
+                "Candidate requirements:",
+                "1. Return 2 to 3 candidates.",
+                "2. Each candidate must be a complete replaceable fragment of text.",
+                "3. rationale Use one sentence to explain the moderator's main changes.",
+                "4. riskNotes lists 0 to 3 risks that require user attention.",
+                "5. macroAlignmentNote In one sentence, describe how these candidates serve the goals of this chapter/volume.",
+                "6. The label should be short, suitable for candidate switching in the editor.",
+                "7. summary Summarize the main changes in one sentence.",
+                "8. SemanticTags only retains 2 to 4 high-value tags, such as \"enhance mood\", \"compress repetition\" and \"complement action details\".",
+                "",
+                "Rewriting range:",
+                "1. selection means only overwriting the selected fragment.",
+                "2. Chapter means rewriting the entire chapter, but still maintaining the chapter facts, main line, and positioning within the volume.",
+                "3. " + candidateStyle,
+                "",
+                `The intention of this rewrite:${input.operationLabel}`,
+                `Rewriting range:${input.scope === "selection" ? "Select clip" : "whole chapter"}`,
+                input.customInstruction?.trim()
+                    ? `Additional user requirements:${input.customInstruction.trim()}`
+                    : "User supplementary requirements: None",
+            ].join("\n")),
+            new HumanMessage([
+                renderOptionalBlock("[Goal of this chapter]", input.goalSummary),
+                "",
+                renderOptionalBlock("[Summary of this chapter]", input.chapterSummary),
+                "",
+                renderOptionalBlock("[Writing and Tone]", input.styleSummary),
+                "",
+                renderOptionalBlock("\u3010Character status\u3011", input.characterStateSummary),
+                "",
+                renderOptionalBlock("[World and setting constraints]", input.worldConstraintSummary),
+                "",
+                renderOptionalBlock("[Macro positioning]", input.macroContextSummary),
+                "",
+                renderOptionalBlock("[Resolved modification target]", input.resolvedIntentSummary),
+                "",
+                "[Rewrite hard constraints]",
+                input.constraintsText,
+                "",
+                "[Previous excerpt]",
+                input.beforeParagraphs.length > 0 ? input.beforeParagraphs.join("\n\n") : "None",
+                "",
+                "[Original text to be rewritten]",
+                input.selectedText,
+                "",
+                "[fragment of the following text]",
+                input.afterParagraphs.length > 0 ? input.afterParagraphs.join("\n\n") : "None",
+                "",
+                "Please return JSON only.",
+            ].join("\n")),
+        ];
+    }
 };

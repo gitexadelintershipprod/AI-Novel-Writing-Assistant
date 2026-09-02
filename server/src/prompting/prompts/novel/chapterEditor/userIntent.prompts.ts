@@ -1,62 +1,54 @@
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import type { PromptAsset } from "../../../core/promptTypes";
 import { NOVEL_PROMPT_BUDGETS } from "../promptBudgetProfiles";
-import {
-  chapterEditorUserIntentSchema,
-  type ChapterEditorUserIntentParsed,
-} from "./userIntent.promptSchemas";
-
+import { chapterEditorUserIntentSchema, type ChapterEditorUserIntentParsed, } from "./userIntent.promptSchemas";
 export interface ChapterEditorUserIntentPromptInput {
-  scope: "selection" | "chapter";
-  instruction: string;
-  selectedText?: string | null;
-  macroContextSummary: string;
-  mustKeepConstraints: string[];
+    scope: "selection" | "chapter";
+    instruction: string;
+    selectedText?: string | null;
+    macroContextSummary: string;
+    mustKeepConstraints: string[];
 }
-
-export const chapterEditorUserIntentPrompt: PromptAsset<
-  ChapterEditorUserIntentPromptInput,
-  ChapterEditorUserIntentParsed
-> = {
-  id: "novel.chapter_editor.user_intent",
-  version: "v1",
-  taskType: "writer",
-  mode: "structured",
-  language: "zh",
-  contextPolicy: {
-    maxTokensBudget: NOVEL_PROMPT_BUDGETS.chapterEditorUserIntent,
-  },
-  contextRequirements: [
-    { group: "chapter_mission", priority: 100, sourceHint: "Chapter goal for edit-intent interpretation." },
-    { group: "style_contract", priority: 82, sourceHint: "Current prose style constraints." },
-    { group: "local_state", priority: 78, sourceHint: "Current chapter state and continuity boundaries." },
-  ],
-  outputSchema: chapterEditorUserIntentSchema,
-  structuredOutputHint: {
-    mode: "auto",
-    note: "把用户自然语言修正意见解析成可执行的章节编辑意图。",
-  },
-  render: (input) => [
-    new SystemMessage([
-      "你是中文网络小说章节编辑器里的修正意图解析器。",
-      "你的职责是把用户的自然语言修改意见，转换成稳定、可执行的结构化修文意图。",
-      "",
-      "规则：",
-      "1. 不要照抄用户原话，需归纳成编辑目标。",
-      "2. 必须考虑宏观上下文，避免局部修改破坏卷内节奏或章节任务。",
-      "3. mustPreserve 必须保留用户明确提出的保留项，以及宏观上下文中的关键不可破坏约束。",
-      "4. mustAvoid 写会破坏这次修订目标的风险。",
-      "5. strength 只允许 light / medium / strong。",
-      "6. 只输出 schema 对应 JSON。",
-    ].join("\n")),
-    new HumanMessage([
-      `【修改范围】${input.scope === "selection" ? "选中片段" : "整章"}`,
-      `【用户意见】${input.instruction}`,
-      `【当前片段】${input.selectedText?.trim() || "整章模式，无单独片段。"}`,
-      `【宏观上下文】${input.macroContextSummary}`,
-      `【必须守住】${input.mustKeepConstraints.length > 0 ? input.mustKeepConstraints.join("；") : "保持现有事实、叙事视角和核心信息。"}`,
-      "",
-      "请只返回 JSON。",
-    ].join("\n")),
-  ],
+export const chapterEditorUserIntentPrompt: PromptAsset<ChapterEditorUserIntentPromptInput, ChapterEditorUserIntentParsed> = {
+    id: "novel.chapter_editor.user_intent",
+    version: "v2",
+    taskType: "writer",
+    mode: "structured",
+    language: "ka",
+    contextPolicy: {
+        maxTokensBudget: NOVEL_PROMPT_BUDGETS.chapterEditorUserIntent,
+    },
+    contextRequirements: [
+        { group: "chapter_mission", priority: 100, sourceHint: "Chapter goal for edit-intent interpretation." },
+        { group: "style_contract", priority: 82, sourceHint: "Current prose style constraints." },
+        { group: "local_state", priority: 78, sourceHint: "Current chapter state and continuity boundaries." },
+    ],
+    outputSchema: chapterEditorUserIntentSchema,
+    structuredOutputHint: {
+        mode: "auto",
+        note: "Parse users' natural language correction opinions into executable chapter editing intentions.",
+    },
+    render: (input) => [
+        new SystemMessage([
+            "You are the correction intent parser in the Georgian-language serial novel chapter editor.",
+            "Your responsibility is to convert users' natural language modification opinions into stable and executable structured revision intentions.",
+            "",
+            "Rules:",
+            "1. Don\u2019t copy the user\u2019s original words, summarize them into editing goals.",
+            "2. The macro context must be considered to avoid local modifications that disrupt the rhythm of the volume or the chapter tasks.",
+            "3. mustPreserve must preserve reservations explicitly proposed by the user, as well as key indestructible constraints in the macro context.",
+            "4. The risk of writing mustAvoid will destroy the goal of this revision.",
+            "5. strength only allows light / medium / strong.",
+            "6. Only output the JSON corresponding to the schema.",
+        ].join("\n")),
+        new HumanMessage([
+            `\u3010Scope of modification\u3011${input.scope === "selection" ? "Select clip" : "whole chapter"}`,
+            `\u3010User Opinions\u3011${input.instruction}`,
+            `\u3010Current segment\u3011${input.selectedText?.trim() || "Whole chapter mode, no individual segments."}`,
+            `[Macro context]${input.macroContextSummary}`,
+            `\u3010Must guard\u3011${input.mustKeepConstraints.length > 0 ? input.mustKeepConstraints.join("；") : "Maintain existing facts, narrative perspective, and core messages."}`,
+            "",
+            "Please return JSON only.",
+        ].join("\n")),
+    ]
 };

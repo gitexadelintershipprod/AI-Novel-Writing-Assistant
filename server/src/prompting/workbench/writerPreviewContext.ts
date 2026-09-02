@@ -38,27 +38,27 @@ function buildPreviewStyleContract(input: {
   chapter: PreviewChapterRow;
 }): NonNullable<ChapterWriteContext["styleContract"]> {
   const { chapter, novel } = input;
-  const narrative = buildPreviewStyleSection("narrative", "叙事约束", [
-    novel.narrativePov ? `叙事视角：${novel.narrativePov}` : "使用清晰稳定的叙事视角，不随意跳出本章场景。",
-    novel.description ? `故事底盘：${novel.description}` : "",
+  const narrative = buildPreviewStyleSection("narrative", "Narrative constraints", [
+    novel.narrativePov ? `Narrative viewpoint: ${novel.narrativePov}` : "Use a clear, stable viewpoint without leaving the current chapter scene arbitrarily.",
+    novel.description ? `Story foundation: ${novel.description}` : "",
   ]);
-  const character = buildPreviewStyleSection("character", "角色表达", [
-    "角色行动服务本章目标，避免只用解释性总结替代行动和选择。",
-    chapter.expectation ? `人物行为围绕章节任务展开：${chapter.expectation}` : "",
+  const character = buildPreviewStyleSection("character", "Character expression", [
+    "Make character actions serve the chapter objective; do not replace action and choice with explanatory summary.",
+    chapter.expectation ? `Character behavior follows the chapter task: ${chapter.expectation}` : "",
   ]);
-  const language = buildPreviewStyleSection("language", "语言", [
-    "使用简体中文，语言自然流畅，适合网文阅读节奏。",
-    novel.styleTone ? `书级语气：${novel.styleTone}` : "",
+  const language = buildPreviewStyleSection("language", "Language", [
+    "Write in natural, fluent Georgian with readable serial-fiction pacing.",
+    novel.styleTone ? `Book-level tone: ${novel.styleTone}` : "",
   ]);
-  const rhythm = buildPreviewStyleSection("rhythm", "节奏", [
-    novel.pacePreference ? `节奏偏好：${novel.pacePreference}` : "保持推进感，避免长段空泛铺陈。",
-    chapter.targetWordCount ? `围绕 ${chapter.targetWordCount} 字目标组织场景密度。` : "",
+  const rhythm = buildPreviewStyleSection("rhythm", "Pacing", [
+    novel.pacePreference ? `Pacing preference: ${novel.pacePreference}` : "Maintain forward movement and avoid long, empty exposition.",
+    chapter.targetWordCount ? `Organize scene density around a target of ${chapter.targetWordCount} Georgian words.` : "",
   ]);
-  const antiAi = buildPreviewStyleSection("antiAi", "反 AI 味", [
-    "控制无效修饰，避免总结腔、模板化转折和重复回顾。",
+  const antiAi = buildPreviewStyleSection("antiAi", "Anti-AI", [
+    "Limit empty modifiers; avoid summary-like prose, formulaic turns, and repeated recaps.",
   ]);
-  const selfCheck = buildPreviewStyleSection("selfCheck", "自检", [
-    "输出前检查本章任务、角色硬事实、边界和章末钩子是否被落实。",
+  const selfCheck = buildPreviewStyleSection("selfCheck", "Self-check", [
+    "Before output, verify the chapter task, character facts, boundaries, and ending hook.",
   ]);
 
   return {
@@ -72,7 +72,7 @@ function buildPreviewStyleContract(input: {
       effectiveStyleProfileId: null,
       taskStyleProfileId: null,
       activeSourceTargets: ["novel", "chapter"],
-      activeSourceLabels: ["Prompt Workbench 预览"],
+      activeSourceLabels: ["Prompt Workbench preview"],
       writerIncludedSections: ["narrative", "character", "language", "rhythm", "antiAi", "selfCheck"],
       plannerIncludedSections: ["narrative", "character", "language", "antiAi"],
       droppedSections: [],
@@ -87,7 +87,7 @@ function buildPreviewStyleContract(input: {
 function buildRuntimeCharacters(characters: NonNullable<PreviewNovelRow["characters"]>): GenerationContextPackage["characterRoster"] {
   return characters.map((character) => ({
     id: character.id,
-    name: compactPreviewText(character.name, "未命名角色"),
+    name: compactPreviewText(character.name, "Unnamed character"),
     role: compactPreviewText(character.role, "supporting"),
     personality: character.personality ?? null,
     background: character.background ?? null,
@@ -145,11 +145,11 @@ function buildPreviewPlan(input: {
   ].map((item) => compactPreviewText(item)).filter(Boolean).slice(0, 8);
   const mustPreserve = [
     ...scenes.flatMap((scene) => readStringList(scene.mustPreserve)),
-    chapter.mustAvoid ? `不得越界：${chapter.mustAvoid}` : "",
+    chapter.mustAvoid ? `Do not cross this boundary: ${chapter.mustAvoid}` : "",
   ].map((item) => compactPreviewText(item)).filter(Boolean).slice(0, 8);
   const objective = compactPreviewText(
     chapter.expectation || chapter.taskSheet,
-    `推进第 ${chapter.order} 章《${chapter.title || "未命名章节"}》的章节任务。`,
+    `Advance the task for chapter ${chapter.order}, “${chapter.title || "Untitled chapter"}”.`,
   );
 
   return {
@@ -157,7 +157,7 @@ function buildPreviewPlan(input: {
     chapterId: chapter.id,
     planRole: "progress",
     phaseLabel: null,
-    title: compactPreviewText(chapter.title, `第 ${chapter.order} 章`),
+    title: compactPreviewText(chapter.title, `Chapter ${chapter.order}`),
     objective,
     participants: characters.slice(0, 6).map((character) => character.name),
     reveals: [],
@@ -166,12 +166,12 @@ function buildPreviewPlan(input: {
     mustPreserve,
     sourceIssueIds: [],
     replannedFromPlanId: null,
-    hookTarget: compactPreviewText(chapter.hook, "保留新的章末压力或悬念。"),
+    hookTarget: compactPreviewText(chapter.hook, "Leave fresh pressure or suspense at the chapter ending."),
     rawPlanJson: null,
     scenes: scenes.map((scene, index) => ({
       id: `workbench-preview-scene:${chapter.id}:${index + 1}`,
       sortOrder: index + 1,
-      title: readString(scene.title) || `场景 ${index + 1}`,
+      title: readString(scene.title) || `Scene ${index + 1}`,
       objective: readString(scene.purpose) || readStringList(scene.mustAdvance)[0] || null,
       conflict: readString(scene.conflict) || null,
       reveal: readString(scene.reveal) || null,
@@ -193,10 +193,10 @@ function buildPreviewStateSnapshot(input: {
     novelId: novel.id,
     sourceChapterId: chapter.id,
     summary: [
-      `小说：${novel.title}`,
-      `章节：第 ${chapter.order} 章《${chapter.title || "未命名章节"}》`,
-      chapter.expectation ? `章节目标：${chapter.expectation}` : "",
-      chapter.hook ? `章末钩子：${chapter.hook}` : "",
+      `Novel: ${novel.title}`,
+      `Chapter: ${chapter.order}, “${chapter.title || "Untitled chapter"}”`,
+      chapter.expectation ? `Chapter objective: ${chapter.expectation}` : "",
+      chapter.hook ? `Ending hook: ${chapter.hook}` : "",
     ].filter(Boolean).join("\n"),
     rawStateJson: null,
     characterStates: characters.slice(0, 6).map((character) => ({
@@ -254,7 +254,7 @@ function buildPreviewGenerationContextPackage(input: {
     openAuditIssues: [],
     previousChaptersSummary: [],
     previousChapterTail: null,
-    openingHint: "使用章节任务或场景卡直接开场，避免重复解释设定。",
+    openingHint: "Open directly from the chapter task or scene card; do not repeat setting exposition.",
     continuation: {
       enabled: false,
       sourceType: null,
@@ -285,7 +285,7 @@ function buildPreviewGenerationContextPackage(input: {
       effectiveStyleProfileId: null,
       taskStyleProfileId: null,
       activeSourceTargets: ["novel", "chapter"],
-      activeSourceLabels: ["Prompt Workbench 预览"],
+      activeSourceLabels: ["Prompt Workbench preview"],
       maturity: "summary_only",
       usesGlobalAntiAiBaseline: false,
       globalAntiAiRuleIds: [],
@@ -298,7 +298,7 @@ function buildPreviewGenerationContextPackage(input: {
     macroConstraints: null,
     volumeWindow: null,
     narrativeProgressHint: novel.estimatedChapterCount
-      ? `第 ${chapter.order} 章 / 预计共 ${novel.estimatedChapterCount} 章。`
+      ? `Chapter ${chapter.order} / approximately ${novel.estimatedChapterCount} chapters total.`
       : null,
     ledgerPendingItems: [],
     ledgerUrgentItems: [],

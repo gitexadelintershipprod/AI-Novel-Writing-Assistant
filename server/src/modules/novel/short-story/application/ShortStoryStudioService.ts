@@ -6,6 +6,7 @@ import type {
   ShortStoryRevisionImpact,
   ShortStorySegmentUpdateRequest,
 } from "@ai-novel/shared/types/creationStudio";
+import { countGeorgianWords, estimateGeorgianOutputTokens } from "@ai-novel/shared/utils/georgianTextMetrics";
 import { prisma } from "../../../../db/prisma";
 import { AppError } from "../../../../middleware/errorHandler";
 import { runStructuredPrompt } from "../../../../prompting/core/promptRunner";
@@ -34,7 +35,7 @@ function parseJson<T>(value: string | null | undefined, fallback: T): T {
 }
 
 function wordCount(content: string): number {
-  return content.replace(/\s+/g, "").length;
+  return countGeorgianWords(content);
 }
 
 function appendSnapshot(raw: string | null, content: string, version: number): string {
@@ -508,7 +509,7 @@ export class ShortStoryStudioService {
           itemKey: `revision_segment:${segment.order}`,
           entrypoint: "short_story_studio",
           temperature: 0.75,
-          maxTokens: Math.min(12000, Math.max(2500, segmentPlan.targetWordCount * 2)),
+          maxTokens: Math.max(2500, estimateGeorgianOutputTokens(segmentPlan.targetWordCount, 12000)),
         },
       });
       await prisma.shortStorySegment.update({

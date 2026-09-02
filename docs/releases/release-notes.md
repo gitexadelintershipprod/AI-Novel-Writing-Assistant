@@ -10,6 +10,10 @@
 - Source-provided book titles, author names, and categories remain intact while surrounding Market Radar controls and fallback messages stay in English.
 - Failed Auto Director tasks continue to show their terminal state instead of being presented as an active dashboard run.
 - Market Radar is temporarily unavailable while suitable Georgian or international sources are prepared; Auto Director remains available and starts directly from the writer's own idea.
+- Active creative and analysis prompts now produce natural Georgian (`ka-GE`) while preserving JSON schemas, API contracts, identifiers, and stored compatibility values.
+- Georgian-aware word and title metrics replace Chinese-character assumptions across long-form writing, short stories, title generation, review, and token budgeting.
+- Genres, Story Modes, Writing Profiles, Style Engine, Anti-AI, Title Studio, Book Analysis/RAG, Creative Hub, comics, and drama workflows remain enabled and are adapted for Georgian writing.
+- A dedicated Georgian-content audit rejects new Chinese-output instructions or Chinese-length semantics outside the exact disabled-Market-Radar and compatibility allowlist.
 
 ### 2026-08-31 (English-only interface)
 

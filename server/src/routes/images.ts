@@ -53,14 +53,14 @@ const optimizePromptSchema = z.discriminatedUnion("sceneType", [
     sceneId: z.string().trim().min(1),
     sourcePrompt: z.string().trim().min(1),
     stylePreset: z.string().trim().optional(),
-    outputLanguage: z.enum(IMAGE_PROMPT_OUTPUT_LANGUAGES).default("zh"),
+    outputLanguage: z.enum(IMAGE_PROMPT_OUTPUT_LANGUAGES).default("en"),
   }),
   z.object({
     sceneType: z.literal("novel_cover"),
     sceneId: z.string().trim().min(1),
     sourcePrompt: z.string().trim().min(1),
     stylePreset: z.string().trim().optional(),
-    outputLanguage: z.enum(IMAGE_PROMPT_OUTPUT_LANGUAGES).default("zh"),
+    outputLanguage: z.enum(IMAGE_PROMPT_OUTPUT_LANGUAGES).default("en"),
   }),
 ]);
 

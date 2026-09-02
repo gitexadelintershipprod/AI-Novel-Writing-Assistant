@@ -110,10 +110,10 @@ export const READER_CHANNEL_OPTIONS: BasicInfoOption<NovelBasicFormState["reader
 ];
 
 export const WRITING_PLATFORM_OPTIONS: BasicInfoOption<NovelBasicFormState["writingPlatformPreference"]>[] = [
-  { value: "ai_recommend", label: "AI 推荐", summary: "AI 根据故事体验、受众和长期推进方式推荐平台写法。", recommended: true },
-  { value: "fanqie_free", label: "番茄免费网文", summary: "快速入戏、移动端短段落、高冲突和明确回报。" },
-  { value: "qidian_male", label: "起点男频", summary: "成长目标、资源能力变化、稳定升级和伏笔兑现。" },
-  { value: "jinjiang_female", label: "晋江女频", summary: "人物关系、情绪因果、角色声音和关系状态变化。" },
+  { value: "ai_recommend", label: "AI recommendation", summary: "AI chooses a writing profile from the intended experience, audience, pacing, and long-term story engine.", recommended: true },
+  { value: "fanqie_free", label: "Georgian Serial", summary: "An accessible serial with an early hook, clear stakes, compact chapters, and visible payoffs." },
+  { value: "qidian_male", label: "Progression & Adventure", summary: "Growth, exploration, changing resources, escalating challenges, and earned payoffs." },
+  { value: "jinjiang_female", label: "Character & Relationship", summary: "Character voice, emotional causality, relationship change, and continuing external action." },
 ];
 
 export const POV_OPTIONS: BasicInfoOption<NovelBasicFormState["narrativePov"]>[] = [
@@ -228,7 +228,7 @@ export const BASIC_INFO_FIELD_HINTS = {
   emotionIntensity: "决定后续生成时情绪爆发和冲突的频率，不是越高越好。",
   aiFreedom: "决定 AI 可以偏离既有规划和设定的程度。前期建议保持低或中。",
   postGenerationStyleReviewEnabled: "控制正文生成后的去 AI 味检测与自动修正。生成前的写法和反 AI 提示仍按规则库执行。",
-  defaultChapterLength: "这是章节规划和生成时的参考字数，不是硬限制。常见推荐值是 2500 到 3500。",
+  defaultChapterLength: "Reference word count for chapter planning and generation, not a hard limit. The recommended Georgian range is 1,200 to 2,000 words.",
   estimatedChapterCount: "这是项目预估的总章节数，会作为结构化大纲、剧情拍点和流水线默认范围的参考，不是硬限制。",
   resourceReadyScore: "用于标记设定、角色、主线资料是否充分。数值越高，越适合进入自动化生产阶段。",
   styleTone: "写几个关键词即可，例如冷峻、克制、黑色幽默。它会影响生成的语言风格。",
@@ -265,7 +265,7 @@ export function createDefaultNovelBasicFormState(): NovelBasicFormState {
     emotionIntensity: "medium",
     aiFreedom: "medium",
     postGenerationStyleReviewEnabled: true,
-    defaultChapterLength: 2800,
+    defaultChapterLength: 1500,
     estimatedChapterCount: DEFAULT_ESTIMATED_CHAPTER_COUNT,
     projectStatus: "not_started",
     storylineStatus: "not_started",

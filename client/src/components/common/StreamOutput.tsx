@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { countGeorgianWords } from "@ai-novel/shared/utils/georgianTextMetrics";
 import { Button } from "@/components/ui/button";
 import MarkdownViewer from "./MarkdownViewer";
 
@@ -11,7 +12,7 @@ interface StreamOutputProps {
 }
 
 export default function StreamOutput({ isStreaming, content, onAbort, title = "AI 输出", emptyText = "等待流式输出..." }: StreamOutputProps) {
-  const wordCount = content.trim().length;
+  const wordCount = countGeorgianWords(content);
 
   return (
     <motion.div
@@ -26,7 +27,7 @@ export default function StreamOutput({ isStreaming, content, onAbort, title = "A
           {isStreaming ? (
             <span className="text-xs text-muted-foreground">正在生成...</span>
           ) : (
-            <span className="text-xs text-muted-foreground">字数：{wordCount}</span>
+            <span className="text-xs text-muted-foreground">Words: {wordCount}</span>
           )}
           {isStreaming && onAbort ? (
             <Button size="sm" variant="secondary" onClick={onAbort}>

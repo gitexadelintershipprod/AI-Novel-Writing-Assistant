@@ -43,15 +43,15 @@ export async function resolveAdvancedPromptMessages<I, O, R = O>(input: {
   });
   if (hasBlockingPromptTemplateDiagnostics(compiled.diagnostics)) {
     const details = [
-      compiled.diagnostics.invalidMessages.join("；"),
+      compiled.diagnostics.invalidMessages.join("; "),
       compiled.diagnostics.unknownTokens.length > 0
-        ? `未知 token：${compiled.diagnostics.unknownTokens.join("、")}`
+        ? `Unknown tokens: ${compiled.diagnostics.unknownTokens.join(", ")}`
         : "",
       compiled.diagnostics.missingRequiredGroups.length > 0
-        ? `缺少必需上下文组：${compiled.diagnostics.missingRequiredGroups.join("、")}`
+        ? `Missing required context groups: ${compiled.diagnostics.missingRequiredGroups.join(", ")}`
         : "",
-    ].filter(Boolean).join("；");
-    throw new Error(`正文写作高级模板渲染失败：${details}`);
+    ].filter(Boolean).join("; ");
+    throw new Error(`Advanced prose template rendering failed: ${details}`);
   }
   return compiled.messages;
 }

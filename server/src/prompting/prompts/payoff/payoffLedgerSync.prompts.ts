@@ -2,215 +2,201 @@ import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { z } from "zod";
 import type { PromptAsset } from "../../core/promptTypes";
 import { payoffLedgerSyncOutputSchema } from "./payoffLedgerSync.promptSchemas";
-
 const PAYOFF_LEDGER_SYNC_EXAMPLE = {
-  items: [
-    {
-      ledgerKey: "system_hidden_rules",
-      title: "系统隐藏规则浮出水面",
-      summary: "主角第一次确认隐藏规则真实存在，后续必须继续推进并兑现其代价。",
-      scopeType: "book",
-      currentStatus: "setup",
-      targetStartChapterOrder: 3,
-      targetEndChapterOrder: 40,
-      firstSeenChapterOrder: 3,
-      lastTouchedChapterOrder: 9,
-      setupChapterOrder: 3,
-      sourceRefs: [
+    items: [
         {
-          kind: "major_payoff",
-          refLabel: "第一次看见系统异常提示",
-          chapterOrder: 3,
-          volumeSortOrder: 1,
+            ledgerKey: "system_hidden_rules",
+            title: "System hidden rules surfaced",
+            summary: "The protagonist confirms for the first time that the hidden rules really exist, and must continue to advance and realize their costs.",
+            scopeType: "book",
+            currentStatus: "setup",
+            targetStartChapterOrder: 3,
+            targetEndChapterOrder: 40,
+            firstSeenChapterOrder: 3,
+            lastTouchedChapterOrder: 9,
+            setupChapterOrder: 3,
+            sourceRefs: [
+                {
+                    kind: "major_payoff",
+                    refLabel: "The first time I saw a system exception prompt",
+                    chapterOrder: 3,
+                    volumeSortOrder: 1,
+                },
+            ],
+            evidence: [
+                {
+                    summary: "In Chapter 3, it is clear that abnormal prompts appear and affect the protagonist's judgment.",
+                    chapterOrder: 3,
+                },
+            ],
+            riskSignals: [
+                {
+                    code: "payoff_missing_progress",
+                    severity: "medium",
+                    summary: "It has entered a stage that should be continued, but there is still a lack of new touch actions in the future.",
+                },
+            ],
+            statusReason: "The core foundation has been established, but the clear redemption window has not yet entered.",
+            confidence: 0.82,
         },
-      ],
-      evidence: [
-        {
-          summary: "第三章已经明确出现异常提示并影响主角判断。",
-          chapterOrder: 3,
-        },
-      ],
-      riskSignals: [
-        {
-          code: "payoff_missing_progress",
-          severity: "medium",
-          summary: "已经进入应持续推进阶段，但后续还缺少新的触碰动作。",
-        },
-      ],
-      statusReason: "已建立核心铺垫，但仍未进入明确兑现窗口。",
-      confidence: 0.82,
-    },
-  ],
+    ],
 };
-
 export interface PayoffLedgerSyncPromptInput {
-  novelTitle: string;
-  bookContractPayoffs?: Array<{
-    refId: string;
-    refLabel: string;
-    payoff: string;
-    targetStartChapterOrder: number;
-    targetEndChapterOrder: number;
-  }>;
-  activeVolumeSummary: string;
-  latestChapterContext: string;
-  majorPayoffsText: string;
-  openPayoffsText: string;
-  chapterPayoffRefsText: string;
-  foreshadowStatesText: string;
-  payoffConflictsText: string;
-  payoffAuditIssuesText: string;
+    novelTitle: string;
+    bookContractPayoffs?: Array<{
+        refId: string;
+        refLabel: string;
+        payoff: string;
+        targetStartChapterOrder: number;
+        targetEndChapterOrder: number;
+    }>;
+    activeVolumeSummary: string;
+    latestChapterContext: string;
+    majorPayoffsText: string;
+    openPayoffsText: string;
+    chapterPayoffRefsText: string;
+    foreshadowStatesText: string;
+    payoffConflictsText: string;
+    payoffAuditIssuesText: string;
 }
-
-export const payoffLedgerSyncPrompt: PromptAsset<
-  PayoffLedgerSyncPromptInput,
-  z.infer<typeof payoffLedgerSyncOutputSchema>
-> = {
-  id: "novel.payoff_ledger.sync",
-  version: "v6",
-  taskType: "planner",
-  mode: "structured",
-  language: "zh",
-  contextPolicy: {
-    maxTokensBudget: 0,
-  },
-  semanticRetryPolicy: {
-    maxAttempts: 1,
-  },
-  structuredOutputHint: {
-    example: PAYOFF_LEDGER_SYNC_EXAMPLE,
-    note: [
-      "sourceRefs、evidence、riskSignals 始终必须是数组。",
-      "sourceRefs.kind 只能是 major_payoff、volume_open_payoff、chapter_payoff_ref、foreshadow_state、open_conflict、audit_issue。",
-      "禁止输出旧别名 chapter_payoff 或 volume_open。",
-      "scopeType 只能是 book、volume、chapter。",
-      "confidence 只能是 0-1 数字；拿不准就省略。",
-    ].join(" "),
-  },
-  outputSchema: payoffLedgerSyncOutputSchema,
-  render: (input) => [
-    new SystemMessage([
-      "你是小说伏笔账本同步器，负责把多个来源中的伏笔、兑现安排、兑现证据和异常信号，收敛成唯一的 canonical payoff ledger。",
-      "产品服务对象是写作新手，所以你的输出必须稳定、可执行、易于后续系统继续规划，而不是写成长篇分析。",
-      "",
-      "只输出一个合法 JSON 对象，不要输出 Markdown、解释、注释或任何额外文本。",
-      "顶层固定格式只能是 {\"items\":[...]}。",
-      "",
-      "硬性字段约束：",
-      "1. sourceRefs.kind 只能是：major_payoff、volume_open_payoff、chapter_payoff_ref、foreshadow_state、open_conflict、audit_issue。",
-      "2. 不要输出旧别名 chapter_payoff 或 volume_open。",
-      "3. scopeType 只能是：book、volume、chapter。",
-      "4. confidence 不是必填；只有明确有把握时才写，而且必须是 0-1 的数字。",
-      "5. sourceRefs、evidence、riskSignals 即使只有一项也必须输出数组，不能输出对象或字符串。",
-      "",
-      "任务目标：",
-      "1. 把 major payoffs、open payoffs、chapter payoff refs、foreshadow states、open conflicts 和 payoff audit issues 归并成唯一账本项。",
-      "2. 避免把同义重复项拆成多个 ledger item，也不要把明显不同的伏笔强行合并。",
-      "3. 账本项必须保守、稳定，不能编造输入中不存在的新剧情。",
-      "",
-      "状态定义：",
-      "- setup：刚建立，还未形成明确兑现窗口。",
-      "- hinted：已经有铺垫，但还未进入明确待兑现阶段。",
-      "- pending_payoff：已经进入应持续跟进、临近兑现或正在推进的阶段。",
-      "- paid_off：已经被明确兑现。",
-      "- failed：已经明确失效、作废或被推翻。",
-      "- overdue：已经超过合理目标窗口仍未兑现，必须被系统重点提醒。",
-      "",
-      "章节定位规则：",
-      "1. 优先返回 setupChapterOrder / payoffChapterOrder。",
-      "2. 只有当输入里明确出现了可验证的真实 chapterId 时，才填写 setupChapterId / payoffChapterId。",
-      "3. 不要编造 chapterId；拿不准时返回 chapterOrder，不要伪造 ID。",
-      "",
-      "压缩输出规则：",
-      "1. sourceRefs 只保留最强的 0-4 个来源；Book Contract 固定来源不得在压缩时丢失。",
-      "2. evidence 只保留最关键的 0-1 条证据。",
-      "3. riskSignals 只在确有风险时填写，最多保留 2 条。",
-      "4. statusReason 用一句短句说明当前状态判断依据，不要写长段。",
-      "",
-      "判断原则：",
-      "0. Book Contract 第 3/10/30 章回报是稳定书级承诺。每个非空来源都必须出现在某个账项的 sourceRefs 中，kind=major_payoff，refId 必须原样保留；允许与语义相同的其他承诺合并，但不得遗漏来源或放宽其截止章。",
-      "1. major payoffs 是书级提示源，但只有映射到卷/章窗口后，才允许进入 pending_payoff 或 overdue。",
-      "2. 同一 canonical payoff 若同时有卷级窗口和章节窗口，以章节窗口为更强约束。",
-      "3. 如果已经有明确兑现证据，应优先标成 paid_off。",
-      "4. 如果没有足够铺垫就直接兑现，要保留该项并输出风险信号。",
-      "5. 如果已经过了明确目标窗口仍未兑现，要标成 overdue；没有 targetStartChapterOrder / targetEndChapterOrder / payoffChapterOrder / payoffChapterId 时，不要标成 overdue，只能用 pending_payoff 加 riskSignals 提醒。",
-      "6. 如果输入里只有提示和铺垫，没有明确兑现证据，不要误判为 paid_off。",
-      "",
-      "输出必须严格符合 payoffLedgerSyncOutputSchema。",
-    ].join("\n")),
-    new HumanMessage([
-      `小说标题：${input.novelTitle}`,
-      "",
-      "Book Contract 阶段回报（稳定书级来源）：",
-      (input.bookContractPayoffs ?? []).length > 0
-        ? (input.bookContractPayoffs ?? []).map((item) => (
-            `${item.refLabel} | refId=${item.refId} | 目标窗口=${item.targetStartChapterOrder}-${item.targetEndChapterOrder} | 承诺=${item.payoff}`
-          )).join("\n")
-        : "无",
-      "",
-      "当前激活卷与章节窗口：",
-      input.activeVolumeSummary,
-      "",
-      "最近章节上下文：",
-      input.latestChapterContext,
-      "",
-      "书级 major payoffs：",
-      input.majorPayoffsText,
-      "",
-      "当前卷 open payoffs：",
-      input.openPayoffsText,
-      "",
-      "当前卷 chapter payoff refs：",
-      input.chapterPayoffRefsText,
-      "",
-      "最新 foreshadow states：",
-      input.foreshadowStatesText,
-      "",
-      "相关 open conflicts：",
-      input.payoffConflictsText,
-      "",
-      "最近 payoff 审校问题：",
-      input.payoffAuditIssuesText,
-      "",
-      "输出提醒：",
-      "1. kind 只能用规定枚举，禁止使用 chapter_payoff / volume_open。",
-      "2. confidence 如填写，必须是数字，不要写成字符串。",
-      "3. scopeType 只能是 book、volume、chapter。",
-    ].join("\n")),
-  ],
-  postValidate: (output, input) => {
-    const ledgerKeySet = new Set<string>();
-    for (const item of output.items) {
-      if (ledgerKeySet.has(item.ledgerKey)) {
-        throw new Error(`重复的 ledgerKey：${item.ledgerKey}`);
-      }
-      ledgerKeySet.add(item.ledgerKey);
-      if (
-        item.targetStartChapterOrder
-        && item.targetEndChapterOrder
-        && item.targetStartChapterOrder > item.targetEndChapterOrder
-      ) {
-        throw new Error(`伏笔 ${item.ledgerKey} 的目标章节窗口非法。`);
-      }
-      if (item.currentStatus === "paid_off" && !item.payoffChapterId && item.payoffChapterOrder == null) {
-        throw new Error(`伏笔 ${item.ledgerKey} 已兑现时必须返回 payoffChapterOrder 或 payoffChapterId。`);
-      }
+export const payoffLedgerSyncPrompt: PromptAsset<PayoffLedgerSyncPromptInput, z.infer<typeof payoffLedgerSyncOutputSchema>> = {
+    id: "novel.payoff_ledger.sync",
+    version: "v7",
+    taskType: "planner",
+    mode: "structured",
+    language: "ka",
+    contextPolicy: {
+        maxTokensBudget: 0,
+    },
+    semanticRetryPolicy: {
+        maxAttempts: 1,
+    },
+    structuredOutputHint: {
+        example: PAYOFF_LEDGER_SYNC_EXAMPLE,
+        note: [
+            "sourceRefs, evidence, riskSignals must always be arrays.",
+            "sourceRefs.kind can only be major_payoff, volume_open_payoff, chapter_payoff_ref, foreshadow_state, open_conflict, audit_issue.",
+            "Disable output of old aliases chapter_payoff or volume_open.",
+            "scopeType can only be book, volume, chapter.",
+            "Confidence can only be a 0-1 number; omit it if you are not sure.",
+        ].join(" "),
+    },
+    outputSchema: payoffLedgerSyncOutputSchema,
+    render: (input) => [
+        new SystemMessage([
+            "You are the novel foreshadowing ledger synchronizer, responsible for converging the foreshadowing, redemption arrangements, redemption evidence and abnormal signals from multiple sources into a single canonical payoff ledger.",
+            "The product serves novice writers, so your output must be stable, executable, and easy for subsequent system planning, rather than writing a long analysis.",
+            "",
+            "Output only a valid JSON object, no Markdown, explanations, comments, or any extra text.",
+            "The top-level fixed format can only be {\"items\":[...]}.",
+            "",
+            "Hard field constraints:",
+            "1. sourceRefs.kind can only be: major_payoff, volume_open_payoff, chapter_payoff_ref, foreshadow_state, open_conflict, audit_issue.",
+            "2. Do not export the old aliases chapter_payoff or volume_open.",
+            "3. scopeType can only be: book, volume, chapter.",
+            "4. Confidence is not required; only write it when you are clearly confident, and it must be a number from 0-1.",
+            "5. sourceRefs, evidence, and riskSignals must output arrays even if there is only one item, and cannot output objects or strings.",
+            "",
+            "Mission objectives:",
+            "1. Consolidate major payoffs, open payoffs, chapter payoff refs, foreshadow states, open conflicts and payoff audit issues into unique ledger items.",
+            "2. Avoid splitting synonymous duplicate items into multiple ledger items, and do not forcibly merge obviously different foreshadowings.",
+            "3. Ledger items must be conservative and stable, and new plots that do not exist in the input cannot be fabricated.",
+            "",
+            "Status definition:",
+            "- setup: Just established, no clear redemption window has been formed yet.",
+            "- hinted: There has been a foreshadowing, but it has not yet entered the stage of clear implementation.",
+            "- pending_payoff: It has entered a stage that should be followed up, is about to be cashed out, or is being advanced.",
+            "- paid_off: Has been explicitly honored.",
+            "- failed: has been clearly invalidated, invalidated or overturned.",
+            "- Overdue: It has exceeded the reasonable target window and has not yet been fulfilled, and must be reminded by the system.",
+            "",
+            "Chapter positioning rules:",
+            "1. Return to setupChapterOrder / payoffChapterOrder first.",
+            "2. Fill in setupChapterId / payoffChapterId only when the verifiable real chapterId clearly appears in the input.",
+            "3. Do not make up chapterId; if you are unsure about returning chapterOrder on time, do not make up ID.",
+            "",
+            "Compressed output rules:",
+            "1. sourceRefs only retains the strongest 0-4 sources; Book Contract fixed sources must not be lost during compression.",
+            "2. Evidence Only retain the most critical 0-1 pieces of evidence.",
+            "3. riskSignals is only filled in when there is a real risk, and a maximum of 2 entries are retained.",
+            "4. statusReason Use a short sentence to explain the basis for judging the current status, do not write a long paragraph.",
+            "",
+            "Judgment principles:",
+            "0. Book Contract Chapter 3/10/30 The reward is a stable book-level commitment. Each non-empty source must appear in an account's sourceRefs, kind=major_payoff, and the refId must be left intact; merging with other promises with the same semantics is allowed, but the source must not be omitted or its cutoff relaxed.",
+            "1. Major payoffs is a book-level prompt source, but it is only allowed to enter pending_payoff or overdue after being mapped to the volume/chapter window.",
+            "2. If the same canonical payoff has both a volume-level window and a chapter window, the chapter window will be the stronger constraint.",
+            "3. If there is clear evidence of redemption, it should be marked as paid_off first.",
+            "4. If you cash out without sufficient preparation, keep the item and output a risk signal.",
+            "5. If the clear target window has passed and has not yet been fulfilled, mark it as overdue; when there is no targetStartChapterOrder / targetEndChapterOrder / payoffChapterOrder / payoffChapterId, do not mark it as overdue. You can only use pending_payoff plus riskSignals to remind you.",
+            "6. If there are only hints and foreshadowing in the input without clear evidence of fulfillment, do not misjudge it as paid_off.",
+            "",
+            "The output must strictly conform to payoffLedgerSyncOutputSchema.",
+        ].join("\n")),
+        new HumanMessage([
+            `Novel title:${input.novelTitle}`,
+            "",
+            "Book Contract stage returns (stable book-level source):",
+            (input.bookContractPayoffs ?? []).length > 0
+                ? (input.bookContractPayoffs ?? []).map((item) => (`${item.refLabel} | refId=${item.refId} | target window =${item.targetStartChapterOrder}-${item.targetEndChapterOrder} | Commitment =${item.payoff}`)).join("\n")
+                : "None",
+            "",
+            "Currently active volume and chapter windows:",
+            input.activeVolumeSummary,
+            "",
+            "Recent chapter context:",
+            input.latestChapterContext,
+            "",
+            "Book-level major payoffs:",
+            input.majorPayoffsText,
+            "",
+            "Current volume open payoffs:",
+            input.openPayoffsText,
+            "",
+            "Current volume chapter payoff refs:",
+            input.chapterPayoffRefsText,
+            "",
+            "Latest foreshadow states:",
+            input.foreshadowStatesText,
+            "",
+            "Related open conflicts:",
+            input.payoffConflictsText,
+            "",
+            "Recent payoff review questions:",
+            input.payoffAuditIssuesText,
+            "",
+            "Output reminder:",
+            "1. Kind can only be used in specified enumerations, chapter_payoff / volume_open is prohibited.",
+            "2. If confidence is filled in, it must be a number, not a string.",
+            "3. scopeType can only be book, volume, chapter.",
+        ].join("\n")),
+    ],
+    postValidate: (output, input) => {
+        const ledgerKeySet = new Set<string>();
+        for (const item of output.items) {
+            if (ledgerKeySet.has(item.ledgerKey)) {
+                throw new Error(`Duplicate ledgerKey:${item.ledgerKey}`);
+            }
+            ledgerKeySet.add(item.ledgerKey);
+            if (item.targetStartChapterOrder
+                && item.targetEndChapterOrder
+                && item.targetStartChapterOrder > item.targetEndChapterOrder) {
+                throw new Error(`Foreshadowing ${item.ledgerKey} The target chapter window is illegal.`);
+            }
+            if (item.currentStatus === "paid_off" && !item.payoffChapterId && item.payoffChapterOrder == null) {
+                throw new Error(`Foreshadowing ${item.ledgerKey} Must return payoffChapterOrder or payoffChapterId when redeemed.`);
+            }
+        }
+        for (const requiredSource of input?.bookContractPayoffs ?? []) {
+            const coveringItem = output.items.find((item) => item.sourceRefs.some((source) => (source.kind === "major_payoff" && source.refId === requiredSource.refId)));
+            if (!coveringItem) {
+                throw new Error(`Missing Book Contract commitment source:${requiredSource.refId}`);
+            }
+            if (coveringItem.scopeType !== "book"
+                || coveringItem.targetEndChapterOrder == null
+                || coveringItem.targetEndChapterOrder > requiredSource.targetEndChapterOrder) {
+                throw new Error(`Book Contract Commitment ${requiredSource.refId} Must maintain book level scope and no later than ${requiredSource.targetEndChapterOrder} Chapter deadline window.`);
+            }
+        }
+        return output;
     }
-    for (const requiredSource of input?.bookContractPayoffs ?? []) {
-      const coveringItem = output.items.find((item) => item.sourceRefs.some((source) => (
-        source.kind === "major_payoff" && source.refId === requiredSource.refId
-      )));
-      if (!coveringItem) {
-        throw new Error(`缺少 Book Contract 承诺来源：${requiredSource.refId}`);
-      }
-      if (
-        coveringItem.scopeType !== "book"
-        || coveringItem.targetEndChapterOrder == null
-        || coveringItem.targetEndChapterOrder > requiredSource.targetEndChapterOrder
-      ) {
-        throw new Error(`Book Contract 承诺 ${requiredSource.refId} 必须保持书级范围和不晚于第 ${requiredSource.targetEndChapterOrder} 章的截止窗口。`);
-      }
-    }
-    return output;
-  },
 };

@@ -29,6 +29,7 @@ import {
   type PromptQualityFailureKind,
 } from "./promptQualityTelemetry";
 import { appendStructuredOutputHintMessages } from "./structuredOutputHint";
+import { applyContentLanguagePolicy } from "./contentLanguagePolicy";
 import type {
   PromptAsset,
   PromptExecutionOptions,
@@ -225,17 +226,17 @@ function buildDefaultSemanticRetryMessages<I, R>(input: {
   return [
     ...input.baseMessages,
     new HumanMessage([
-      `上一次输出虽然通过了 JSON 结构校验，但没有通过业务校验。这是第 ${input.attempt} 次语义重试。`,
-      `失败原因：${input.validationError}`,
+      `The previous output passed JSON validation but failed semantic validation. This is semantic retry ${input.attempt}.`,
+      `Validation failure: ${input.validationError}`,
       "",
-      "上一次的 JSON 输出：",
+      "Previous JSON output:",
       safeJsonStringify(input.parsedOutput),
       "",
-      "请基于同一任务重新生成完整 JSON 对象。",
-      "硬要求：",
-      "1. 只输出最终 JSON 对象。",
-      "2. 不要输出 Markdown、解释、注释或额外文本。",
-      "3. 必须修正上面的业务校验失败点。",
+      "Regenerate the complete JSON object for the same task.",
+      "Hard requirements:",
+      "1. Output only the final JSON object.",
+      "2. Do not output Markdown, explanations, comments, or extra text.",
+      "3. Correct the semantic validation failure above.",
     ].join("\n")),
   ];
 }
@@ -279,13 +280,14 @@ export function preparePromptExecution<I, O, R = O>(input: {
     input.resolvedSlots,
   );
   const renderedMessages = input.asset.render(input.promptInput, context);
+  const messagesWithOutputHint = appendStructuredOutputHintMessages({
+    asset: input.asset,
+    promptInput: input.promptInput,
+    context,
+    messages: renderedMessages,
+  });
   return {
-    messages: appendStructuredOutputHintMessages({
-      asset: input.asset,
-      promptInput: input.promptInput,
-      context,
-      messages: renderedMessages,
-    }),
+    messages: applyContentLanguagePolicy(input.asset, messagesWithOutputHint),
     context,
     invocation: buildPromptInvocationMeta(
       input.asset as PromptAsset<unknown, unknown, unknown>,
@@ -735,7 +737,7 @@ export async function runStructuredPrompt<I, O, R = O>(input: {
     officialMessages: prepared.messages,
     novelId: input.options?.novelId,
   });
-  const messages = resolvedTemplateMessages === prepared.messages
+  const messagesWithOutputHint = resolvedTemplateMessages === prepared.messages
     ? prepared.messages
     : appendStructuredOutputHintMessages({
     asset: input.asset,
@@ -743,6 +745,9 @@ export async function runStructuredPrompt<I, O, R = O>(input: {
     context: prepared.context,
     messages: resolvedTemplateMessages,
   });
+  const messages = resolvedTemplateMessages === prepared.messages
+    ? messagesWithOutputHint
+    : applyContentLanguagePolicy(input.asset, messagesWithOutputHint);
   logPromptEvent({
     event: "started",
     asset: input.asset as PromptAsset<unknown, unknown, unknown>,
@@ -858,13 +863,16 @@ export async function runTextPrompt<I>(input: {
     resolvedSlots: overlays.resolvedSlots,
   });
   const startedAt = Date.now();
-  const messages = await resolveAdvancedPromptMessages({
+  const resolvedTemplateMessages = await resolveAdvancedPromptMessages({
     asset: input.asset,
     promptInput: input.promptInput,
     context: prepared.context,
     officialMessages: prepared.messages,
     novelId: input.options?.novelId,
   });
+  const messages = resolvedTemplateMessages === prepared.messages
+    ? prepared.messages
+    : applyContentLanguagePolicy(input.asset, resolvedTemplateMessages);
   const renderedPromptChars = estimateRenderedPromptChars(messages);
   const liveSession = beginLlmLiveSession({
     label: input.asset.id + "@" + input.asset.version,
@@ -883,7 +891,7 @@ export async function runTextPrompt<I>(input: {
       taskType: input.asset.taskType,
       promptMeta: prepared.invocation,
     });
-    liveSession.phase("streaming", "模型正在返回内容");
+    liveSession.phase("streaming", "The model is returning content");
     const stream = await llm.stream(messages, buildPromptCallOptions(input.options));
     let rawOutput = "";
     let tokenUsage: LlmTokenUsageSnapshot | null = null;
@@ -893,7 +901,7 @@ export async function runTextPrompt<I>(input: {
       liveSession.delta(content);
       tokenUsage = mergeStreamTokenUsage(tokenUsage, extractLlmTokenUsage(chunk));
     }
-    liveSession.phase("validating", "正在整理生成结果");
+    liveSession.phase("validating", "Preparing the generated result");
     const output = applyPromptPostValidate({
       asset: input.asset,
       promptInput: input.promptInput,
@@ -957,13 +965,16 @@ export async function streamTextPrompt<I>(input: {
     resolvedSlots: overlays.resolvedSlots,
   });
   const startedAt = Date.now();
-  const messages = await resolveAdvancedPromptMessages({
+  const resolvedTemplateMessages = await resolveAdvancedPromptMessages({
     asset: input.asset,
     promptInput: input.promptInput,
     context: prepared.context,
     officialMessages: prepared.messages,
     novelId: input.options?.novelId,
   });
+  const messages = resolvedTemplateMessages === prepared.messages
+    ? prepared.messages
+    : applyContentLanguagePolicy(input.asset, resolvedTemplateMessages);
   const renderedPromptChars = estimateRenderedPromptChars(messages);
   const liveSession = beginLlmLiveSession({
     label: input.asset.id + "@" + input.asset.version,
@@ -983,7 +994,7 @@ export async function streamTextPrompt<I>(input: {
       taskType: input.asset.taskType,
       promptMeta: prepared.invocation,
     });
-    liveSession.phase("streaming", "模型正在返回内容");
+    liveSession.phase("streaming", "The model is returning content");
     const rawStream = await llm.stream(messages, buildPromptCallOptions(input.options));
     captured = captureStreamOutput(rawStream as AsyncIterable<BaseMessageChunk>, (content) => liveSession.delta(content));
   } catch (error) {
@@ -1004,7 +1015,7 @@ export async function streamTextPrompt<I>(input: {
   return {
     stream: captured.stream,
     complete: captured.completedText.then(async (content) => {
-      liveSession.phase("validating", "正在整理生成结果");
+      liveSession.phase("validating", "Preparing the generated result");
       const output = applyPromptPostValidate({
         asset: input.asset,
         promptInput: input.promptInput,
@@ -1116,7 +1127,7 @@ export async function streamStructuredPrompt<I, O, R = O>(input: {
     if (input.options?.signal) {
       invokeOptions.signal = input.options.signal;
     }
-    liveSession.phase("streaming", "模型正在返回结构化结果");
+    liveSession.phase("streaming", "The model is returning structured output");
     const rawStream = await llm.stream(prepared.messages, invokeOptions);
     captured = captureStreamOutput(rawStream as AsyncIterable<BaseMessageChunk>, (content) => liveSession.delta(content));
   } catch (error) {
@@ -1137,7 +1148,7 @@ export async function streamStructuredPrompt<I, O, R = O>(input: {
   return {
     stream: captured.stream,
     complete: captured.completedText.then(async (rawContent) => {
-      liveSession.phase("validating", "正在检查生成结果");
+      liveSession.phase("validating", "Validating the generated result");
       let repairStarted = false;
       const parsed = await parseStructuredLlmRawContentDetailed({
         rawContent,
@@ -1155,7 +1166,7 @@ export async function streamStructuredPrompt<I, O, R = O>(input: {
         onRepairOutputDelta: (content) => {
           if (!repairStarted) {
             repairStarted = true;
-            liveSession.phase("repairing", "正在修复生成结果");
+            liveSession.phase("repairing", "Repairing the generated result");
           }
           liveSession.delta(content);
         },

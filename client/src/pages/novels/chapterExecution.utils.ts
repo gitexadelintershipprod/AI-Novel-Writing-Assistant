@@ -10,12 +10,12 @@ export interface ChapterExecutionStrategy {
 
 export function resolveTargetWordCount(strategy: ChapterExecutionStrategy): number {
   if (strategy.wordSize === "short") {
-    return 1500;
+    return 1200;
   }
   if (strategy.wordSize === "long") {
-    return 3500;
+    return 2000;
   }
-  return 2500;
+  return 1500;
 }
 
 export function buildRepairIssue(category: ReviewIssue["category"], fixSuggestion: string, evidence: string): ReviewIssue {
