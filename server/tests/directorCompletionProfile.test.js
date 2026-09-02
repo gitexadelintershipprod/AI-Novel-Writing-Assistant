@@ -28,6 +28,6 @@ test("61 chapters keep serial compatibility and legacy payloads normalize determ
 
 test("compact planning and ending audit prompts are registered", () => {
   const keys = new Set(listRegisteredPromptAssets().map((asset) => `${asset.id}@${asset.version}`));
-  assert.equal(keys.has("novel.compact_book.structure@v1"), true);
-  assert.equal(keys.has("novel.compact_book.ending_audit@v1"), true);
+  assert.equal(keys.has("novel.compact_book.structure@v2"), true);
+  assert.equal(keys.has("novel.compact_book.ending_audit@v2"), true);
 });

@@ -1599,11 +1599,6 @@
     },
     {
       "path": "client/src/components/common/StreamOutput.tsx",
-      "text": "字数：{wordCount}",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/components/common/StreamOutput.tsx",
       "text": "正在生成...",
       "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
     },
@@ -82769,17 +82764,7 @@
     },
     {
       "path": "client/src/pages/characters/components/CharacterImageDialog.tsx",
-      "text": "中文",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/characters/components/CharacterImageDialog.tsx",
       "text": "优化中...",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/characters/components/CharacterImageDialog.tsx",
-      "text": "优化输出语言",
       "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
     },
     {
@@ -85514,11 +85499,6 @@
     },
     {
       "path": "client/src/pages/creationStudio/CreationStudioPage.tsx",
-      "text": "AI 会按平台调整开篇、推进、回报和语言读感。",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/creationStudio/CreationStudioPage.tsx",
       "text": "AI 创作工作室",
       "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
     },
@@ -85619,11 +85599,6 @@
     },
     {
       "path": "client/src/pages/creationStudio/CreationStudioPage.tsx",
-      "text": "平台建议：{interpretation.writingPlatformReason}",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/creationStudio/CreationStudioPage.tsx",
       "text": "开始创作失败。",
       "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
     },
@@ -85640,11 +85615,6 @@
     {
       "path": "client/src/pages/creationStudio/CreationStudioPage.tsx",
       "text": "方向已按新的作品规模更新。",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/creationStudio/CreationStudioPage.tsx",
-      "text": "晋江女频",
       "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
     },
     {
@@ -85674,26 +85644,6 @@
     },
     {
       "path": "client/src/pages/creationStudio/CreationStudioPage.tsx",
-      "text": "番茄免费网文",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/creationStudio/CreationStudioPage.tsx",
-      "text": "目标字数",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/creationStudio/CreationStudioPage.tsx",
-      "text": "目标平台",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/creationStudio/CreationStudioPage.tsx",
-      "text": "知乎短故事",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/creationStudio/CreationStudioPage.tsx",
       "text": "短篇",
       "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
     },
@@ -85714,11 +85664,6 @@
     },
     {
       "path": "client/src/pages/creationStudio/CreationStudioPage.tsx",
-      "text": "让 AI 推荐",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/creationStudio/CreationStudioPage.tsx",
       "text": "请先选择一个方向。",
       "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
     },
@@ -85734,17 +85679,7 @@
     },
     {
       "path": "client/src/pages/creationStudio/CreationStudioPage.tsx",
-      "text": "起点男频",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/creationStudio/CreationStudioPage.tsx",
       "text": "返回作品列表",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/creationStudio/CreationStudioPage.tsx",
-      "text": "选择目标平台",
       "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
     },
     {
@@ -101639,17 +101574,7 @@
     },
     {
       "path": "client/src/pages/novels/components/cover/NovelCoverDialog.tsx",
-      "text": "中文",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/novels/components/cover/NovelCoverDialog.tsx",
       "text": "优化中...",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/novels/components/cover/NovelCoverDialog.tsx",
-      "text": "优化输出语言",
       "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
     },
     {
@@ -101869,27 +101794,27 @@
     },
     {
       "path": "client/src/pages/novels/components/cover/novelCoverDraft.test.mjs",
-      "text": "assert.match(prompt, /世界氛围：高压雾港里，审判机构与地下交易同时运作。/);",
+      "text": "assert.match(prompt, /Cover goal: emphasize the story's strongest visual promise.*exact Georgian title “雾港审判局”/);",
       "reason": "Test fixture or contract text; it is not rendered as product UI."
     },
     {
       "path": "client/src/pages/novels/components/cover/novelCoverDraft.test.mjs",
-      "text": "assert.match(prompt, /商业标签：强冲突、都市奇诡、持续追更/);",
+      "text": "assert.match(prompt, /Primary fiction-cover artwork for 雾港审判局/);",
       "reason": "Test fixture or contract text; it is not rendered as product UI."
     },
     {
       "path": "client/src/pages/novels/components/cover/novelCoverDraft.test.mjs",
-      "text": "assert.match(prompt, /封面目标：突出这本书最抓人的视觉卖点，生成带有准确书名“雾港审判局”的竖版完整小说封面。/);",
+      "text": "assert.match(prompt, /Story tags: 强冲突, 都市奇诡, 持续追更/);",
       "reason": "Test fixture or contract text; it is not rendered as product UI."
     },
     {
       "path": "client/src/pages/novels/components/cover/novelCoverDraft.test.mjs",
-      "text": "assert.match(prompt, /目标读者：喜欢都市悬疑和高压追更感的读者/);",
+      "text": "assert.match(prompt, /Target audience: 喜欢都市悬疑和高压追更感的读者/);",
       "reason": "Test fixture or contract text; it is not rendered as product UI."
     },
     {
       "path": "client/src/pages/novels/components/cover/novelCoverDraft.test.mjs",
-      "text": "assert.match(prompt, /雾港审判局 的小说封面主画面/);",
+      "text": "assert.match(prompt, /World atmosphere: 高压雾港里，审判机构与地下交易同时运作。/);",
       "reason": "Test fixture or contract text; it is not rendered as product UI."
     },
     {
@@ -103309,11 +103234,6 @@
     },
     {
       "path": "client/src/pages/novels/components/NovelAutoDirectorCandidateBatches.tsx",
-      "text": "晋江女频",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/novels/components/NovelAutoDirectorCandidateBatches.tsx",
       "text": "核心卖点",
       "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
     },
@@ -103330,11 +103250,6 @@
     {
       "path": "client/src/pages/novels/components/NovelAutoDirectorCandidateBatches.tsx",
       "text": "生成中...",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/novels/components/NovelAutoDirectorCandidateBatches.tsx",
-      "text": "番茄免费网文",
       "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
     },
     {
@@ -103365,11 +103280,6 @@
     {
       "path": "client/src/pages/novels/components/NovelAutoDirectorCandidateBatches.tsx",
       "text": "调整方向",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/novels/components/NovelAutoDirectorCandidateBatches.tsx",
-      "text": "起点男频",
       "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
     },
     {
@@ -103865,11 +103775,6 @@
     {
       "path": "client/src/pages/novels/components/NovelBasicInfoForm.tsx",
       "text": "拆书结果需要搭配要注入的拆书章节。",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/novels/components/NovelBasicInfoForm.tsx",
-      "text": "推荐先设为 2500-3500，后续仍可按章节单独调整。",
       "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
     },
     {
@@ -110199,11 +110104,6 @@
     },
     {
       "path": "client/src/pages/novels/components/StructuredOutlineWorkspace.tsx",
-      "text": "统一字数 2500",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/novels/components/StructuredOutlineWorkspace.tsx",
       "text": "编辑紧张度曲线",
       "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
     },
@@ -112194,16 +112094,6 @@
     },
     {
       "path": "client/src/pages/novels/novelBasicInfo.shared.ts",
-      "text": "AI 推荐",
-      "reason": "Domain, protocol, or persisted source value; the English label is applied at the presentation boundary."
-    },
-    {
-      "path": "client/src/pages/novels/novelBasicInfo.shared.ts",
-      "text": "AI 根据故事体验、受众和长期推进方式推荐平台写法。",
-      "reason": "Domain, protocol, or persisted source value; the English label is applied at the presentation boundary."
-    },
-    {
-      "path": "client/src/pages/novels/novelBasicInfo.shared.ts",
       "text": "AI 负责主推进，你在关键节点审核，适合已有明确目标的项目。",
       "reason": "Domain, protocol, or persisted source value; the English label is applied at the presentation boundary."
     },
@@ -112230,11 +112120,6 @@
     {
       "path": "client/src/pages/novels/novelBasicInfo.shared.ts",
       "text": "主推进模式回答“这本书靠什么持续推进和兑现”，例如系统流、无敌流、种田流。后续规划和生成会优先服从它。",
-      "reason": "Domain, protocol, or persisted source value; the English label is applied at the presentation boundary."
-    },
-    {
-      "path": "client/src/pages/novels/novelBasicInfo.shared.ts",
-      "text": "人物关系、情绪因果、角色声音和关系状态变化。",
       "reason": "Domain, protocol, or persisted source value; the English label is applied at the presentation boundary."
     },
     {
@@ -112394,17 +112279,7 @@
     },
     {
       "path": "client/src/pages/novels/novelBasicInfo.shared.ts",
-      "text": "快速入戏、移动端短段落、高冲突和明确回报。",
-      "reason": "Domain, protocol, or persisted source value; the English label is applied at the presentation boundary."
-    },
-    {
-      "path": "client/src/pages/novels/novelBasicInfo.shared.ts",
       "text": "慢节奏",
-      "reason": "Domain, protocol, or persisted source value; the English label is applied at the presentation boundary."
-    },
-    {
-      "path": "client/src/pages/novels/novelBasicInfo.shared.ts",
-      "text": "成长目标、资源能力变化、稳定升级和伏笔兑现。",
       "reason": "Domain, protocol, or persisted source value; the English label is applied at the presentation boundary."
     },
     {
@@ -112420,11 +112295,6 @@
     {
       "path": "client/src/pages/novels/novelBasicInfo.shared.ts",
       "text": "推进和铺垫兼顾，适合作为默认选择。",
-      "reason": "Domain, protocol, or persisted source value; the English label is applied at the presentation boundary."
-    },
-    {
-      "path": "client/src/pages/novels/novelBasicInfo.shared.ts",
-      "text": "晋江女频",
       "reason": "Domain, protocol, or persisted source value; the English label is applied at the presentation boundary."
     },
     {
@@ -112504,11 +112374,6 @@
     },
     {
       "path": "client/src/pages/novels/novelBasicInfo.shared.ts",
-      "text": "番茄免费网文",
-      "reason": "Domain, protocol, or persisted source value; the English label is applied at the presentation boundary."
-    },
-    {
-      "path": "client/src/pages/novels/novelBasicInfo.shared.ts",
       "text": "第一人称",
       "reason": "Domain, protocol, or persisted source value; the English label is applied at the presentation boundary."
     },
@@ -112549,17 +112414,7 @@
     },
     {
       "path": "client/src/pages/novels/novelBasicInfo.shared.ts",
-      "text": "起点男频",
-      "reason": "Domain, protocol, or persisted source value; the English label is applied at the presentation boundary."
-    },
-    {
-      "path": "client/src/pages/novels/novelBasicInfo.shared.ts",
       "text": "返工",
-      "reason": "Domain, protocol, or persisted source value; the English label is applied at the presentation boundary."
-    },
-    {
-      "path": "client/src/pages/novels/novelBasicInfo.shared.ts",
-      "text": "这是章节规划和生成时的参考字数，不是硬限制。常见推荐值是 2500 到 3500。",
       "reason": "Domain, protocol, or persisted source value; the English label is applied at the presentation boundary."
     },
     {
@@ -115305,176 +115160,6 @@
     {
       "path": "client/src/pages/promptWorkbench/components/VisualTemplateEditor.tsx",
       "text": "返回可视化编辑",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/promptWorkbench/components/WritingPlatformProfileManager.tsx",
-      "text": "· 使用中",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/promptWorkbench/components/WritingPlatformProfileManager.tsx",
-      "text": "{detail?.source === \"custom\" ? `自定义版本 ${detail.activeVersion}` : `官方版本 ${detail?.activeVersion ?? \"-\"}`}",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/promptWorkbench/components/WritingPlatformProfileManager.tsx",
-      "text": "{form === \"long_novel\" ? \"长篇写法\" : \"短篇写法\"}",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/promptWorkbench/components/WritingPlatformProfileManager.tsx",
-      "text": "{version.notes || \"无版本说明\"}",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/promptWorkbench/components/WritingPlatformProfileManager.tsx",
-      "text": "作品定位",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/promptWorkbench/components/WritingPlatformProfileManager.tsx",
-      "text": "保存失败。",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/promptWorkbench/components/WritingPlatformProfileManager.tsx",
-      "text": "保存新版本",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/promptWorkbench/components/WritingPlatformProfileManager.tsx",
-      "text": "修复指导",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/promptWorkbench/components/WritingPlatformProfileManager.tsx",
-      "text": "同一套生产链会按这里的版本调整定位、规划、正文、审校和修复。已有作品继续使用创建时保存的快照。",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/promptWorkbench/components/WritingPlatformProfileManager.tsx",
-      "text": "名称",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/promptWorkbench/components/WritingPlatformProfileManager.tsx",
-      "text": "官方版本 ${detail?.activeVersion ?? \"-\"}",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/promptWorkbench/components/WritingPlatformProfileManager.tsx",
-      "text": "审校指导",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/promptWorkbench/components/WritingPlatformProfileManager.tsx",
-      "text": "已恢复官方平台写法。",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/promptWorkbench/components/WritingPlatformProfileManager.tsx",
-      "text": "平台写法",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/promptWorkbench/components/WritingPlatformProfileManager.tsx",
-      "text": "平台写法尚未加载。",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/promptWorkbench/components/WritingPlatformProfileManager.tsx",
-      "text": "平台写法已保存为新版本。",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/promptWorkbench/components/WritingPlatformProfileManager.tsx",
-      "text": "平台写法版本已启用。",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/promptWorkbench/components/WritingPlatformProfileManager.tsx",
-      "text": "平台说明",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/promptWorkbench/components/WritingPlatformProfileManager.tsx",
-      "text": "当前状态",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/promptWorkbench/components/WritingPlatformProfileManager.tsx",
-      "text": "恢复官方写法",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/promptWorkbench/components/WritingPlatformProfileManager.tsx",
-      "text": "无版本说明",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/promptWorkbench/components/WritingPlatformProfileManager.tsx",
-      "text": "晋江女频",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/promptWorkbench/components/WritingPlatformProfileManager.tsx",
-      "text": "正在读取平台写法…",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/promptWorkbench/components/WritingPlatformProfileManager.tsx",
-      "text": "正文指导",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/promptWorkbench/components/WritingPlatformProfileManager.tsx",
-      "text": "版本 {version.versionNo}{version.active ? \" · 使用中\" : \"\"}",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/promptWorkbench/components/WritingPlatformProfileManager.tsx",
-      "text": "版本说明",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/promptWorkbench/components/WritingPlatformProfileManager.tsx",
-      "text": "番茄免费网文",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/promptWorkbench/components/WritingPlatformProfileManager.tsx",
-      "text": "知乎短故事",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/promptWorkbench/components/WritingPlatformProfileManager.tsx",
-      "text": "短篇写法",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/promptWorkbench/components/WritingPlatformProfileManager.tsx",
-      "text": "自定义版本 ${detail.activeVersion}",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/promptWorkbench/components/WritingPlatformProfileManager.tsx",
-      "text": "规划指导",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/promptWorkbench/components/WritingPlatformProfileManager.tsx",
-      "text": "说明这次希望改善的读感",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/promptWorkbench/components/WritingPlatformProfileManager.tsx",
-      "text": "起点男频",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/promptWorkbench/components/WritingPlatformProfileManager.tsx",
-      "text": "长篇写法",
       "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
     },
     {
@@ -121239,11 +120924,6 @@
     },
     {
       "path": "client/src/pages/titles/components/TitleFactoryPanel.tsx",
-      "text": "已按点击潜力排序，共 ${suggestions.length} 个",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/titles/components/TitleFactoryPanel.tsx",
       "text": "已生成 ${next.length} 个标题候选。",
       "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
     },
@@ -121310,11 +120990,6 @@
     {
       "path": "client/src/pages/titles/components/TitleFactoryPanel.tsx",
       "text": "类型过滤",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/titles/components/TitleFactoryPanel.tsx",
-      "text": "结果会在生成后显示",
       "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
     },
     {
@@ -121444,16 +121119,6 @@
     },
     {
       "path": "client/src/pages/titles/components/TitleLibraryPanel.tsx",
-      "text": "潜力 {typeof entry.clickRate === \"number\" ? entry.clickRate : \"-\"}",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/titles/components/TitleLibraryPanel.tsx",
-      "text": "点击潜力",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/titles/components/TitleLibraryPanel.tsx",
       "text": "确认删除标题「${entry.title}」？",
       "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
     },
@@ -121499,22 +121164,12 @@
     },
     {
       "path": "client/src/pages/titles/components/TitleSuggestionList.tsx",
-      "text": "潜力 {suggestion.clickRate}",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/titles/components/TitleSuggestionList.tsx",
       "text": "等待第一批标题灵感",
       "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
     },
     {
       "path": "client/src/pages/titles/components/TitleSuggestionList.tsx",
       "text": "还没有生成任何标题。",
-      "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
-    },
-    {
-      "path": "client/src/pages/titles/components/TitleSuggestionList.tsx",
-      "text": "预估",
       "reason": "Legacy source text translated by the English-only presentation boundary; retained for upstream compatibility."
     },
     {

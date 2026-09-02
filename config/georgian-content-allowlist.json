@@ -1,0 +1,449 @@
+{
+  "policy": "Every Han-containing active content literal requires an exact path, text, category, and reason entry.",
+  "entries": [
+    {
+      "path": "server/src/prompting/prompts/marketRadar/marketRadar.prompts.ts",
+      "text": "kind 只能使用 genre、protagonist、advantage、opening、relationship、title_pattern、opportunity、crowding；不得创造近义枚举值。",
+      "category": "disabled-market-radar-source",
+      "reason": "Market Radar is disabled by both client and server flags; its source-specific Chinese assets are retained for future replacement."
+    },
+    {
+      "path": "server/src/prompting/prompts/marketRadar/marketRadar.prompts.ts",
+      "text": "promptBlock 必须能直接指导题材推荐、金手指、首章爆点、整书方向和网文书名。",
+      "category": "disabled-market-radar-source",
+      "reason": "Market Radar is disabled by both client and server flags; its source-specific Chinese assets are retained for future replacement."
+    },
+    {
+      "path": "server/src/prompting/prompts/marketRadar/marketRadar.prompts.ts",
+      "text": "不要要求后续质量复审补救，目标是提高第一次生成质量。",
+      "category": "disabled-market-radar-source",
+      "reason": "Market Radar is disabled by both client and server flags; its source-specific Chinese assets are retained for future replacement."
+    },
+    {
+      "path": "server/src/prompting/prompts/marketRadar/marketRadar.prompts.ts",
+      "text": "严禁复用榜单作品的人名、专有设定、简介句子和完整书名；只能提炼读者需求、爽点机制和结构机会。",
+      "category": "disabled-market-radar-source",
+      "reason": "Market Radar is disabled by both client and server flags; its source-specific Chinese assets are retained for future replacement."
+    },
+    {
+      "path": "server/src/prompting/prompts/marketRadar/marketRadar.prompts.ts",
+      "text": "优先贴合当前热门满足点，但仍禁止复制具体作品。",
+      "category": "disabled-market-radar-source",
+      "reason": "Market Radar is disabled by both client and server flags; its source-specific Chinese assets are retained for future replacement."
+    },
+    {
+      "path": "server/src/prompting/prompts/marketRadar/marketRadar.prompts.ts",
+      "text": "你是中文网络文学市场分析师。只分析输入中的公开榜单元数据，不补写作品正文，不假装知道未提供的信息。",
+      "category": "disabled-market-radar-source",
+      "reason": "Market Radar is disabled by both client and server flags; its source-specific Chinese assets are retained for future replacement."
+    },
+    {
+      "path": "server/src/prompting/prompts/marketRadar/marketRadar.prompts.ts",
+      "text": "你是自动导演的开书市场简报编辑。把用户选择的市场信号整理成第一次创意生成可执行的约束。",
+      "category": "disabled-market-radar-source",
+      "reason": "Market Radar is disabled by both client and server flags; its source-specific Chinese assets are retained for future replacement."
+    },
+    {
+      "path": "server/src/prompting/prompts/marketRadar/marketRadar.prompts.ts",
+      "text": "保留热门读者满足点，同时至少替换主角身份、舞台或金手指机制中的一项。",
+      "category": "disabled-market-radar-source",
+      "reason": "Market Radar is disabled by both client and server flags; its source-specific Chinese assets are retained for future replacement."
+    },
+    {
+      "path": "server/src/prompting/prompts/marketRadar/marketRadar.prompts.ts",
+      "text": "可根据历史比较判断 rising、stable、falling；证据不足时仍使用 current。",
+      "category": "disabled-market-radar-source",
+      "reason": "Market Radar is disabled by both client and server flags; its source-specific Chinese assets are retained for future replacement."
+    },
+    {
+      "path": "server/src/prompting/prompts/marketRadar/marketRadar.prompts.ts",
+      "text": "同时输出 productionFoundation，把市场结论收束成一个题材基底、一个主要推进模式和可选的辅助推进模式。",
+      "category": "disabled-market-radar-source",
+      "reason": "Market Radar is disabled by both client and server flags; its source-specific Chinese assets are retained for future replacement."
+    },
+    {
+      "path": "server/src/prompting/prompts/marketRadar/marketRadar.prompts.ts",
+      "text": "如果资源库中已有语义等价项，必须填写对应 existingId 并沿用它的名称；只有确实缺少合适资产时 existingId 才能为 null，并输出可直接进入资源库的完整说明、模板和推进模式 profile。",
+      "category": "disabled-market-radar-source",
+      "reason": "Market Radar is disabled by both client and server flags; its source-specific Chinese assets are retained for future replacement."
+    },
+    {
+      "path": "server/src/prompting/prompts/marketRadar/marketRadar.prompts.ts",
+      "text": "市场信号只作次要参考，用户自身想法和已选题材优先。",
+      "category": "disabled-market-radar-source",
+      "reason": "Market Radar is disabled by both client and server flags; its source-specific Chinese assets are retained for future replacement."
+    },
+    {
+      "path": "server/src/prompting/prompts/marketRadar/marketRadar.prompts.ts",
+      "text": "平台归纳：",
+      "category": "disabled-market-radar-source",
+      "reason": "Market Radar is disabled by both client and server flags; its source-specific Chinese assets are retained for future replacement."
+    },
+    {
+      "path": "server/src/prompting/prompts/marketRadar/marketRadar.prompts.ts",
+      "text": "平台榜单归纳引用了不存在的证据。",
+      "category": "disabled-market-radar-source",
+      "reason": "Market Radar is disabled by both client and server flags; its source-specific Chinese assets are retained for future replacement."
+    },
+    {
+      "path": "server/src/prompting/prompts/marketRadar/marketRadar.prompts.ts",
+      "text": "总计输出8到12项。recommended=true 应优先给一项差异化机会和最多三项支撑信号；高度拥挤的套路通常不应推荐。",
+      "category": "disabled-market-radar-source",
+      "reason": "Market Radar is disabled by both client and server flags; its source-specific Chinese assets are retained for future replacement."
+    },
+    {
+      "path": "server/src/prompting/prompts/marketRadar/marketRadar.prompts.ts",
+      "text": "所有结论都必须引用输入中存在的 evidenceItemIds。不得捏造作品、人名、数据或证据ID。",
+      "category": "disabled-market-radar-source",
+      "reason": "Market Radar is disabled by both client and server flags; its source-specific Chinese assets are retained for future replacement."
+    },
+    {
+      "path": "server/src/prompting/prompts/marketRadar/marketRadar.prompts.ts",
+      "text": "无",
+      "category": "disabled-market-radar-source",
+      "reason": "Market Radar is disabled by both client and server flags; its source-specific Chinese assets are retained for future replacement."
+    },
+    {
+      "path": "server/src/prompting/prompts/marketRadar/marketRadar.prompts.ts",
+      "text": "榜单高频不等于适合照搬。机会建议必须说明读者满足点，同时避开直接复制具体作品。",
+      "category": "disabled-market-radar-source",
+      "reason": "Market Radar is disabled by both client and server flags; its source-specific Chinese assets are retained for future replacement."
+    },
+    {
+      "path": "server/src/prompting/prompts/marketRadar/marketRadar.prompts.ts",
+      "text": "每类只保留有多条证据或商业意义明确的信号，总计输出5到10项；id 使用简短稳定的英文短横线格式。",
+      "category": "disabled-market-radar-source",
+      "reason": "Market Radar is disabled by both client and server flags; its source-specific Chinese assets are retained for future replacement."
+    },
+    {
+      "path": "server/src/prompting/prompts/marketRadar/marketRadar.prompts.ts",
+      "text": "没有历史快照时不能声称趋势变化。",
+      "category": "disabled-market-radar-source",
+      "reason": "Market Radar is disabled by both client and server flags; its source-specific Chinese assets are retained for future replacement."
+    },
+    {
+      "path": "server/src/prompting/prompts/marketRadar/marketRadar.prompts.ts",
+      "text": "没有可比较历史，所有信号 direction 必须使用 current，禁止声称升温或退潮。",
+      "category": "disabled-market-radar-source",
+      "reason": "Market Radar is disabled by both client and server flags; its source-specific Chinese assets are retained for future replacement."
+    },
+    {
+      "path": "server/src/prompting/prompts/marketRadar/marketRadar.prompts.ts",
+      "text": "现有推进模式库：",
+      "category": "disabled-market-radar-source",
+      "reason": "Market Radar is disabled by both client and server flags; its source-specific Chinese assets are retained for future replacement."
+    },
+    {
+      "path": "server/src/prompting/prompts/marketRadar/marketRadar.prompts.ts",
+      "text": "现有题材基底库：",
+      "category": "disabled-market-radar-source",
+      "reason": "Market Radar is disabled by both client and server flags; its source-specific Chinese assets are retained for future replacement."
+    },
+    {
+      "path": "server/src/prompting/prompts/marketRadar/marketRadar.prompts.ts",
+      "text": "生产底座引用了不存在的推进模式。",
+      "category": "disabled-market-radar-source",
+      "reason": "Market Radar is disabled by both client and server flags; its source-specific Chinese assets are retained for future replacement."
+    },
+    {
+      "path": "server/src/prompting/prompts/marketRadar/marketRadar.prompts.ts",
+      "text": "生产底座引用了不存在的题材基底。",
+      "category": "disabled-market-radar-source",
+      "reason": "Market Radar is disabled by both client and server flags; its source-specific Chinese assets are retained for future replacement."
+    },
+    {
+      "path": "server/src/prompting/prompts/marketRadar/marketRadar.prompts.ts",
+      "text": "生产底座推荐引用了不存在的证据。",
+      "category": "disabled-market-radar-source",
+      "reason": "Market Radar is disabled by both client and server flags; its source-specific Chinese assets are retained for future replacement."
+    },
+    {
+      "path": "server/src/prompting/prompts/marketRadar/marketRadar.prompts.ts",
+      "text": "空",
+      "category": "disabled-market-radar-source",
+      "reason": "Market Radar is disabled by both client and server flags; its source-specific Chinese assets are retained for future replacement."
+    },
+    {
+      "path": "server/src/prompting/prompts/marketRadar/marketRadar.prompts.ts",
+      "text": "语义分类、套路归纳和机会判断必须由你完成；不能只按标题关键词机械计数。",
+      "category": "disabled-market-radar-source",
+      "reason": "Market Radar is disabled by both client and server flags; its source-specific Chinese assets are retained for future replacement."
+    },
+    {
+      "path": "server/src/prompting/prompts/marketRadar/marketRadar.prompts.ts",
+      "text": "请归纳这个平台当前榜单的市场信号。首次横截面分析的 direction 一律使用 current。",
+      "category": "disabled-market-radar-source",
+      "reason": "Market Radar is disabled by both client and server flags; its source-specific Chinese assets are retained for future replacement."
+    },
+    {
+      "path": "server/src/prompting/prompts/marketRadar/marketRadar.prompts.ts",
+      "text": "请综合各平台归纳结果，保留平台差异，不要把男频、女频和免费阅读市场混成一个结论。",
+      "category": "disabled-market-radar-source",
+      "reason": "Market Radar is disabled by both client and server flags; its source-specific Chinese assets are retained for future replacement."
+    },
+    {
+      "path": "server/src/prompting/prompts/marketRadar/marketRadar.prompts.ts",
+      "text": "资源名称必须稳定、可复用，不能包含日期、热度、榜单或‘当前热门’等短期字样。",
+      "category": "disabled-market-radar-source",
+      "reason": "Market Radar is disabled by both client and server flags; its source-specific Chinese assets are retained for future replacement."
+    },
+    {
+      "path": "server/src/prompting/prompts/marketRadar/marketRadar.prompts.ts",
+      "text": "跨平台分析引用了不存在的证据。",
+      "category": "disabled-market-radar-source",
+      "reason": "Market Radar is disabled by both client and server flags; its source-specific Chinese assets are retained for future replacement."
+    },
+    {
+      "path": "server/src/prompting/prompts/marketRadar/marketRadar.prompts.ts",
+      "text": "输入是各平台已经压缩的新书信号；只做跨平台合并、取舍和差异判断，不要逐条复制平台结果。",
+      "category": "disabled-market-radar-source",
+      "reason": "Market Radar is disabled by both client and server flags; its source-specific Chinese assets are retained for future replacement."
+    },
+    {
+      "path": "server/src/prompting/prompts/marketRadar/marketRadar.prompts.ts",
+      "text": "输入有新书榜或新晋作者榜时只分析这些新书证据；成熟榜单只会在没有可用新书榜时作为回退数据。",
+      "category": "disabled-market-radar-source",
+      "reason": "Market Radar is disabled by both client and server flags; its source-specific Chinese assets are retained for future replacement."
+    },
+    {
+      "path": "server/src/prompting/prompts/marketRadar/marketRadar.prompts.ts",
+      "text": "重点分析：热门题材组合、主角身份、金手指机制、开篇危机、关系卖点、标题句式、拥挤套路和差异化机会。",
+      "category": "disabled-market-radar-source",
+      "reason": "Market Radar is disabled by both client and server flags; its source-specific Chinese assets are retained for future replacement."
+    },
+    {
+      "path": "server/src/prompting/prompts/marketRadar/marketRadar.prompts.ts",
+      "text": "题材基底回答‘这是什么书’，推进模式回答‘这本书靠什么持续推进和兑现’，两者不能混用。",
+      "category": "disabled-market-radar-source",
+      "reason": "Market Radar is disabled by both client and server flags; its source-specific Chinese assets are retained for future replacement."
+    },
+    {
+      "path": "server/src/prompting/prompts/marketRadar/marketRadar.promptSchemas.ts",
+      "text": "主推进模式和辅助推进模式不能引用同一个资源。",
+      "category": "disabled-market-radar-source",
+      "reason": "Market Radar is disabled by both client and server flags; its source-specific Chinese assets are retained for future replacement."
+    },
+    {
+      "path": "server/src/prompting/prompts/novel/timelineExtractor.prompts.ts",
+      "text": "下一章",
+      "category": "legacy-compatibility-alias",
+      "reason": "Input-only aliases preserve parsing compatibility with imported legacy Chinese timeline payloads; generated output remains Georgian."
+    },
+    {
+      "path": "server/src/prompting/prompts/novel/timelineExtractor.prompts.ts",
+      "text": "世界",
+      "category": "legacy-compatibility-alias",
+      "reason": "Input-only aliases preserve parsing compatibility with imported legacy Chinese timeline payloads; generated output remains Georgian."
+    },
+    {
+      "path": "server/src/prompting/prompts/novel/timelineExtractor.prompts.ts",
+      "text": "世界状态",
+      "category": "legacy-compatibility-alias",
+      "reason": "Input-only aliases preserve parsing compatibility with imported legacy Chinese timeline payloads; generated output remains Georgian."
+    },
+    {
+      "path": "server/src/prompting/prompts/novel/timelineExtractor.prompts.ts",
+      "text": "中",
+      "category": "legacy-compatibility-alias",
+      "reason": "Input-only aliases preserve parsing compatibility with imported legacy Chinese timeline payloads; generated output remains Georgian."
+    },
+    {
+      "path": "server/src/prompting/prompts/novel/timelineExtractor.prompts.ts",
+      "text": "中等",
+      "category": "legacy-compatibility-alias",
+      "reason": "Input-only aliases preserve parsing compatibility with imported legacy Chinese timeline payloads; generated output remains Georgian."
+    },
+    {
+      "path": "server/src/prompting/prompts/novel/timelineExtractor.prompts.ts",
+      "text": "主线",
+      "category": "legacy-compatibility-alias",
+      "reason": "Input-only aliases preserve parsing compatibility with imported legacy Chinese timeline payloads; generated output remains Georgian."
+    },
+    {
+      "path": "server/src/prompting/prompts/novel/timelineExtractor.prompts.ts",
+      "text": "人物",
+      "category": "legacy-compatibility-alias",
+      "reason": "Input-only aliases preserve parsing compatibility with imported legacy Chinese timeline payloads; generated output remains Georgian."
+    },
+    {
+      "path": "server/src/prompting/prompts/novel/timelineExtractor.prompts.ts",
+      "text": "人际",
+      "category": "legacy-compatibility-alias",
+      "reason": "Input-only aliases preserve parsing compatibility with imported legacy Chinese timeline payloads; generated output remains Georgian."
+    },
+    {
+      "path": "server/src/prompting/prompts/novel/timelineExtractor.prompts.ts",
+      "text": "伏笔",
+      "category": "legacy-compatibility-alias",
+      "reason": "Input-only aliases preserve parsing compatibility with imported legacy Chinese timeline payloads; generated output remains Georgian."
+    },
+    {
+      "path": "server/src/prompting/prompts/novel/timelineExtractor.prompts.ts",
+      "text": "低",
+      "category": "legacy-compatibility-alias",
+      "reason": "Input-only aliases preserve parsing compatibility with imported legacy Chinese timeline payloads; generated output remains Georgian."
+    },
+    {
+      "path": "server/src/prompting/prompts/novel/timelineExtractor.prompts.ts",
+      "text": "兑现",
+      "category": "legacy-compatibility-alias",
+      "reason": "Input-only aliases preserve parsing compatibility with imported legacy Chinese timeline payloads; generated output remains Georgian."
+    },
+    {
+      "path": "server/src/prompting/prompts/novel/timelineExtractor.prompts.ts",
+      "text": "关系",
+      "category": "legacy-compatibility-alias",
+      "reason": "Input-only aliases preserve parsing compatibility with imported legacy Chinese timeline payloads; generated output remains Georgian."
+    },
+    {
+      "path": "server/src/prompting/prompts/novel/timelineExtractor.prompts.ts",
+      "text": "关键",
+      "category": "legacy-compatibility-alias",
+      "reason": "Input-only aliases preserve parsing compatibility with imported legacy Chinese timeline payloads; generated output remains Georgian."
+    },
+    {
+      "path": "server/src/prompting/prompts/novel/timelineExtractor.prompts.ts",
+      "text": "冲突",
+      "category": "legacy-compatibility-alias",
+      "reason": "Input-only aliases preserve parsing compatibility with imported legacy Chinese timeline payloads; generated output remains Georgian."
+    },
+    {
+      "path": "server/src/prompting/prompts/novel/timelineExtractor.prompts.ts",
+      "text": "决定",
+      "category": "legacy-compatibility-alias",
+      "reason": "Input-only aliases preserve parsing compatibility with imported legacy Chinese timeline payloads; generated output remains Georgian."
+    },
+    {
+      "path": "server/src/prompting/prompts/novel/timelineExtractor.prompts.ts",
+      "text": "决策",
+      "category": "legacy-compatibility-alias",
+      "reason": "Input-only aliases preserve parsing compatibility with imported legacy Chinese timeline payloads; generated output remains Georgian."
+    },
+    {
+      "path": "server/src/prompting/prompts/novel/timelineExtractor.prompts.ts",
+      "text": "剧情",
+      "category": "legacy-compatibility-alias",
+      "reason": "Input-only aliases preserve parsing compatibility with imported legacy Chinese timeline payloads; generated output remains Georgian."
+    },
+    {
+      "path": "server/src/prompting/prompts/novel/timelineExtractor.prompts.ts",
+      "text": "势力",
+      "category": "legacy-compatibility-alias",
+      "reason": "Input-only aliases preserve parsing compatibility with imported legacy Chinese timeline payloads; generated output remains Georgian."
+    },
+    {
+      "path": "server/src/prompting/prompts/novel/timelineExtractor.prompts.ts",
+      "text": "地点",
+      "category": "legacy-compatibility-alias",
+      "reason": "Input-only aliases preserve parsing compatibility with imported legacy Chinese timeline payloads; generated output remains Georgian."
+    },
+    {
+      "path": "server/src/prompting/prompts/novel/timelineExtractor.prompts.ts",
+      "text": "场景",
+      "category": "legacy-compatibility-alias",
+      "reason": "Input-only aliases preserve parsing compatibility with imported legacy Chinese timeline payloads; generated output remains Georgian."
+    },
+    {
+      "path": "server/src/prompting/prompts/novel/timelineExtractor.prompts.ts",
+      "text": "战斗",
+      "category": "legacy-compatibility-alias",
+      "reason": "Input-only aliases preserve parsing compatibility with imported legacy Chinese timeline payloads; generated output remains Georgian."
+    },
+    {
+      "path": "server/src/prompting/prompts/novel/timelineExtractor.prompts.ts",
+      "text": "揭示",
+      "category": "legacy-compatibility-alias",
+      "reason": "Input-only aliases preserve parsing compatibility with imported legacy Chinese timeline payloads; generated output remains Georgian."
+    },
+    {
+      "path": "server/src/prompting/prompts/novel/timelineExtractor.prompts.ts",
+      "text": "揭露",
+      "category": "legacy-compatibility-alias",
+      "reason": "Input-only aliases preserve parsing compatibility with imported legacy Chinese timeline payloads; generated output remains Georgian."
+    },
+    {
+      "path": "server/src/prompting/prompts/novel/timelineExtractor.prompts.ts",
+      "text": "物品",
+      "category": "legacy-compatibility-alias",
+      "reason": "Input-only aliases preserve parsing compatibility with imported legacy Chinese timeline payloads; generated output remains Georgian."
+    },
+    {
+      "path": "server/src/prompting/prompts/novel/timelineExtractor.prompts.ts",
+      "text": "短线",
+      "category": "legacy-compatibility-alias",
+      "reason": "Input-only aliases preserve parsing compatibility with imported legacy Chinese timeline payloads; generated output remains Georgian."
+    },
+    {
+      "path": "server/src/prompting/prompts/novel/timelineExtractor.prompts.ts",
+      "text": "立即",
+      "category": "legacy-compatibility-alias",
+      "reason": "Input-only aliases preserve parsing compatibility with imported legacy Chinese timeline payloads; generated output remains Georgian."
+    },
+    {
+      "path": "server/src/prompting/prompts/novel/timelineExtractor.prompts.ts",
+      "text": "紧急",
+      "category": "legacy-compatibility-alias",
+      "reason": "Input-only aliases preserve parsing compatibility with imported legacy Chinese timeline payloads; generated output remains Georgian."
+    },
+    {
+      "path": "server/src/prompting/prompts/novel/timelineExtractor.prompts.ts",
+      "text": "背景",
+      "category": "legacy-compatibility-alias",
+      "reason": "Input-only aliases preserve parsing compatibility with imported legacy Chinese timeline payloads; generated output remains Georgian."
+    },
+    {
+      "path": "server/src/prompting/prompts/novel/timelineExtractor.prompts.ts",
+      "text": "角色",
+      "category": "legacy-compatibility-alias",
+      "reason": "Input-only aliases preserve parsing compatibility with imported legacy Chinese timeline payloads; generated output remains Georgian."
+    },
+    {
+      "path": "server/src/prompting/prompts/novel/timelineExtractor.prompts.ts",
+      "text": "资源",
+      "category": "legacy-compatibility-alias",
+      "reason": "Input-only aliases preserve parsing compatibility with imported legacy Chinese timeline payloads; generated output remains Georgian."
+    },
+    {
+      "path": "server/src/prompting/prompts/novel/timelineExtractor.prompts.ts",
+      "text": "转场",
+      "category": "legacy-compatibility-alias",
+      "reason": "Input-only aliases preserve parsing compatibility with imported legacy Chinese timeline payloads; generated output remains Georgian."
+    },
+    {
+      "path": "server/src/prompting/prompts/novel/timelineExtractor.prompts.ts",
+      "text": "过渡",
+      "category": "legacy-compatibility-alias",
+      "reason": "Input-only aliases preserve parsing compatibility with imported legacy Chinese timeline payloads; generated output remains Georgian."
+    },
+    {
+      "path": "server/src/prompting/prompts/novel/timelineExtractor.prompts.ts",
+      "text": "道具",
+      "category": "legacy-compatibility-alias",
+      "reason": "Input-only aliases preserve parsing compatibility with imported legacy Chinese timeline payloads; generated output remains Georgian."
+    },
+    {
+      "path": "server/src/prompting/prompts/novel/timelineExtractor.prompts.ts",
+      "text": "铺垫",
+      "category": "legacy-compatibility-alias",
+      "reason": "Input-only aliases preserve parsing compatibility with imported legacy Chinese timeline payloads; generated output remains Georgian."
+    },
+    {
+      "path": "server/src/prompting/prompts/novel/timelineExtractor.prompts.ts",
+      "text": "长线",
+      "category": "legacy-compatibility-alias",
+      "reason": "Input-only aliases preserve parsing compatibility with imported legacy Chinese timeline payloads; generated output remains Georgian."
+    },
+    {
+      "path": "server/src/prompting/prompts/novel/timelineExtractor.prompts.ts",
+      "text": "阵营",
+      "category": "legacy-compatibility-alias",
+      "reason": "Input-only aliases preserve parsing compatibility with imported legacy Chinese timeline payloads; generated output remains Georgian."
+    },
+    {
+      "path": "server/src/prompting/prompts/novel/timelineExtractor.prompts.ts",
+      "text": "高",
+      "category": "legacy-compatibility-alias",
+      "reason": "Input-only aliases preserve parsing compatibility with imported legacy Chinese timeline payloads; generated output remains Georgian."
+    }
+  ]
+}

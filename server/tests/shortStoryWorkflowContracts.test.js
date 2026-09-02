@@ -52,12 +52,12 @@ test("creation studio resume routes preserve pre-creation tasks and short story 
 test("all creation and short story prompts are registered structured assets", () => {
   const assets = new Map(listRegisteredPromptAssets().map((asset) => [`${asset.id}@${asset.version}`, asset]));
   const keys = [
-    "creation.intent.interpret@v2",
-    "novel.short_story.plan@v2",
-    "novel.short_story.segment.write@v2",
-    "novel.short_story.full.audit@v2",
-    "novel.short_story.patch.repair@v2",
-    "novel.short_story.revision.impact@v2",
+    "creation.intent.interpret@v3",
+    "novel.short_story.plan@v3",
+    "novel.short_story.segment.write@v3",
+    "novel.short_story.full.audit@v3",
+    "novel.short_story.patch.repair@v3",
+    "novel.short_story.revision.impact@v3",
   ];
 
   for (const key of keys) {
@@ -66,29 +66,29 @@ test("all creation and short story prompts are registered structured assets", ()
     assert.equal(asset.mode, "structured");
     assert.ok(asset.outputSchema, `${key} must declare outputSchema`);
   }
-  const writer = assets.get("novel.short_story.segment.write@v2");
+  const writer = assets.get("novel.short_story.segment.write@v3");
   assert.equal(writer.management?.proseGeneration, true);
   assert.ok(writer.management?.editModes.includes("advanced_template"));
   assert.ok(writer.slots?.length >= 7);
 });
 
-test("short story prompt contract targets completed Chinese web fiction instead of literary miniatures", () => {
+test("short story prompt contract targets complete Georgian serial fiction instead of literary miniatures", () => {
   const promptSource = fs.readFileSync(
     path.join(SERVER_ROOT, "src", "prompting", "prompts", "shortStory", "shortStory.prompts.ts"),
     "utf8",
   );
 
-  assert.match(promptSource, /篇幅更短、能一次读完并完整收束的网络小说/);
-  assert.match(promptSource, /前 300～500 字必须进入压力、异常、冲突或决定点/);
+  assert.match(promptSource, /shorter online novels that can be read and concluded in one go/);
+  assert.match(promptSource, /first 300 to 500 words.*pressure, anomaly, conflict, or decision point/);
   assert.match(promptSource, /progressionBeats/);
-  assert.match(promptSource, /题材匹配的 payoff/);
+  assert.match(promptSource, /theme-matching payoff/);
   assert.match(promptSource, /causalContract/);
-  assert.match(promptSource, /不得在危机发生时突然新增万能道具/);
-  assert.match(promptSource, /关键因果\/事实矛盾不得降级为普通建议/);
-  assert.match(promptSource, /手机阅读组织中文段落/);
-  assert.match(promptSource, /不得写成散文、纯文学小品或剧情梗概/);
+  assert.match(promptSource, /Do not suddenly add universal props/);
+  assert.match(promptSource, /critical causal\/factual inconsistencies may not be downgraded/);
+  assert.match(promptSource, /Organize Georgian paragraphs for mobile reading/);
+  assert.match(promptSource, /must not be written as prose, pure literary sketches, or plot outlines/);
   assert.match(promptSource, /productionFoundation/);
-  assert.match(promptSource, /【创作底座】/);
+  assert.match(promptSource, /Creative base/);
 });
 
 test("short story planning, prose, audit and repair share the resolved production foundation", () => {
@@ -131,7 +131,7 @@ test("short story audit cannot accept a draft with critical causal contradiction
     direction: {},
     plan: { targetWordCount: 3000 },
     content: "正文".repeat(2500),
-  }), /关键因果或事实问题/);
+  }), /key causal or factual issues/);
 });
 
 test("PostgreSQL and SQLite keep the short story persistence contract aligned", () => {

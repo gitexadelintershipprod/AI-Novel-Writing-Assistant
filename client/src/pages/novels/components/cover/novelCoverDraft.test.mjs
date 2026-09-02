@@ -100,9 +100,9 @@ test("novel cover draft source prompt includes beginner-facing cover cues", () =
     },
   });
 
-  assert.match(prompt, /雾港审判局 的小说封面主画面/);
-  assert.match(prompt, /目标读者：喜欢都市悬疑和高压追更感的读者/);
-  assert.match(prompt, /商业标签：强冲突、都市奇诡、持续追更/);
-  assert.match(prompt, /世界氛围：高压雾港里，审判机构与地下交易同时运作。/);
-  assert.match(prompt, /封面目标：突出这本书最抓人的视觉卖点，生成带有准确书名“雾港审判局”的竖版完整小说封面。/);
+  assert.match(prompt, /Primary fiction-cover artwork for 雾港审判局/);
+  assert.match(prompt, /Target audience: 喜欢都市悬疑和高压追更感的读者/);
+  assert.match(prompt, /Story tags: 强冲突, 都市奇诡, 持续追更/);
+  assert.match(prompt, /World atmosphere: 高压雾港里，审判机构与地下交易同时运作。/);
+  assert.match(prompt, /Cover goal: emphasize the story's strongest visual promise.*exact Georgian title “雾港审判局”/);
 });

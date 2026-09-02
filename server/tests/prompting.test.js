@@ -147,65 +147,65 @@ function getSinglePromptQualityEntry() {
 
 test("prompt registry exposes versioned planning assets", () => {
   const keys = [
-    "planner.intent.parse@v1",
-    "agent.runtime.fallback_answer@v1",
-    "agent.runtime.setup_guidance@v1",
-    "agent.runtime.setup_ideation@v1",
-    "planner.chapter.plan@v1",
-    "novel.director.candidates@v2",
-    "novel.director.candidate_patch@v1",
-    "novel.director.blueprint@v1",
-    "novel.character.castOptions@v2",
-    "novel.character.castOptions.repair@v1",
-    "novel.character.castOptions.zhNormalize@v1",
-    "novel.character.supplemental@v1",
-    "novel.character.supplemental.zhNormalize@v1",
-    "novel.character.mind.snapshot@v1",
-    "novel.character.influence.options@v1",
-    "novel.character.dialogue.turn@v1",
-    "novel.story_macro.decomposition@v1",
-    "novel.volume.strategy@v2",
-    "novel.volume.strategy.critique@v1",
-    "novel.volume.skeleton@v3",
-    "title.generation@v2",
-    "audit.chapter.full@v2",
-    "bookAnalysis.source.note@v1",
-    "character.base.skeleton@v1",
-    "novel.continuation.rewrite_similarity@v1",
-    "novel.draft_optimize.selection@v1",
-    "novel.draft_optimize.full@v1",
-    "novel.framing.suggest@v1",
-    "novel.production.characters@v1",
-    "state.snapshot.extract@v4",
-    "novel.payoff_ledger.sync@v6",
-    "novel.characterDynamics.volumeProjection@v3",
-    "novel.character_resource.extract_updates@v1",
-    "storyMode.child.generate@v1",
-    "storyMode.expansion.recommend@v1",
-    "storyMode.tree.generate@v1",
-    "storyWorldSlice.generate@v1",
+    "planner.intent.parse@v2",
+    "agent.runtime.fallback_answer@v2",
+    "agent.runtime.setup_guidance@v2",
+    "agent.runtime.setup_ideation@v2",
+    "planner.chapter.plan@v2",
+    "novel.director.candidates@v3",
+    "novel.director.candidate_patch@v2",
+    "novel.director.blueprint@v2",
+    "novel.character.castOptions@v3",
+    "novel.character.castOptions.repair@v2",
+    "novel.character.castOptions.zhNormalize@v2",
+    "novel.character.supplemental@v2",
+    "novel.character.supplemental.zhNormalize@v2",
+    "novel.character.mind.snapshot@v2",
+    "novel.character.influence.options@v2",
+    "novel.character.dialogue.turn@v2",
+    "novel.story_macro.decomposition@v2",
+    "novel.volume.strategy@v3",
+    "novel.volume.strategy.critique@v2",
+    "novel.volume.skeleton@v4",
+    "title.generation@v4",
+    "audit.chapter.full@v3",
+    "bookAnalysis.source.note@v2",
+    "character.base.skeleton@v2",
+    "novel.continuation.rewrite_similarity@v2",
+    "novel.draft_optimize.selection@v2",
+    "novel.draft_optimize.full@v2",
+    "novel.framing.suggest@v2",
+    "novel.production.characters@v2",
+    "state.snapshot.extract@v5",
+    "novel.payoff_ledger.sync@v7",
+    "novel.characterDynamics.volumeProjection@v4",
+    "novel.character_resource.extract_updates@v2",
+    "storyMode.child.generate@v2",
+    "storyMode.expansion.recommend@v2",
+    "storyMode.tree.generate@v2",
+    "storyWorldSlice.generate@v2",
     promptKey(styleDetectionPrompt),
-    "style.generate@v1",
+    "style.generate@v2",
     promptKey(styleRewritePrompt),
     promptKey(styleProfileExtractionPrompt),
     promptKey(styleProfileFromBookAnalysisPrompt),
-    "style.recommendation@v1",
-    "novel.review.chapter@v2",
+    "style.recommendation@v2",
+    "novel.review.chapter@v3",
     promptKey(chapterWriterPrompt),
     promptKey(chapterArtifactDeltaPrompt),
-    "world.draft.generate@v1",
-    "world.draft.refine@v1",
-    "world.draft.refine_alternatives@v1",
-    "world.inspiration.concept_card@v1",
-    "world.inspiration.localize_concept_card@v1",
-    "world.property_options.generate@v1",
-    "world.deepening.questions@v1",
-    "world.consistency.check@v1",
-    "world.layer.generate@v1",
-    "world.layer.localize@v1",
-    "world.import.extract@v1",
-    "world.reference.inspiration@v1",
-    "world.structure.generate@v1",
+    "world.draft.generate@v2",
+    "world.draft.refine@v2",
+    "world.draft.refine_alternatives@v2",
+    "world.inspiration.concept_card@v2",
+    "world.inspiration.localize_concept_card@v2",
+    "world.property_options.generate@v2",
+    "world.deepening.questions@v2",
+    "world.consistency.check@v2",
+    "world.layer.generate@v2",
+    "world.layer.localize@v2",
+    "world.import.extract@v2",
+    "world.reference.inspiration@v2",
+    "world.structure.generate@v2",
   ];
 
   for (const key of keys) {
@@ -213,7 +213,7 @@ test("prompt registry exposes versioned planning assets", () => {
     assert.ok(getRegisteredPromptAsset(id, version), `missing prompt asset ${key}`);
   }
 
-  const chapterAsset = getRegisteredPromptAsset("planner.chapter.plan", "v1");
+  const chapterAsset = getRegisteredPromptAsset("planner.chapter.plan", "v2");
   assert.ok(chapterAsset);
   assert.equal(chapterAsset.taskType, "planner");
 });
@@ -317,8 +317,8 @@ test("character mind snapshot prompt keeps subjective reasoning evidence-backed"
     summarizedBlockIds: [],
     estimatedInputTokens: 0,
   });
-  assert.match(String(messages[0].content), /主观推断/);
-  assert.match(String(messages[0].content), /不得新增角色、身份、资源、事件、关系或秘密/);
+  assert.match(String(messages[0].content), /subjective inferences/);
+  assert.match(String(messages[0].content), /no new characters, identities, resources, events, relationships, or secrets may be added/);
 
   const contextBlocks = buildCharacterMindContextBlocks({
     roster: "程秩",
@@ -365,8 +365,8 @@ test("character influence prompt produces evidence-backed soft guidance", () => 
     estimatedInputTokens: 0,
   });
   const systemText = String(messages[0].content);
-  assert.match(systemText, /严禁新增或改写身份、阵营、资源、地点、已发生事件/);
-  assert.match(systemText, /软性角色行为倾向/);
+  assert.match(systemText, /strictly prohibited to add or rewrite identities, camps, resources, locations, events/);
+  assert.match(systemText, /soft character behavioral tendencies/);
 });
 
 test("character dialogue prompt preserves character agency and only extracts evidenced soft influence", () => {
@@ -401,8 +401,8 @@ test("character dialogue prompt preserves character agency and only extracts evi
     estimatedInputTokens: 0,
   });
   const systemText = String(messages[0].content);
-  assert.match(systemText, /可以拒绝、隐瞒、误解、反问/);
-  assert.match(systemText, /不是客观事实/);
+  assert.match(systemText, /can refuse, conceal, misunderstand, ask questions/);
+  assert.match(systemText, /not objective facts/);
 });
 
 test("prompt registry resolves style prompts by their declared asset versions", () => {
@@ -417,7 +417,7 @@ test("prompt registry resolves style prompts by their declared asset versions", 
 });
 
 test("character cast prompt hardens real-name constraints and required gender output", () => {
-  const asset = getRegisteredPromptAsset("novel.character.castOptions", "v2");
+  const asset = getRegisteredPromptAsset("novel.character.castOptions", "v3");
   assert.ok(asset);
 
   const messages = asset.render({
@@ -453,10 +453,10 @@ test("character cast prompt hardens real-name constraints and required gender ou
   });
 
   assert.equal(messages.length, 2);
-  assert.match(String(messages[0].content), /绝对禁止把功能词写进 name/);
-  assert.match(String(messages[0].content), /每个角色都必须输出 gender/);
-  assert.match(String(messages[0].content), /历史、穿越、宫廷、官场/);
-  assert.match(String(messages[1].content), /storyFunction 负责写功能，name 不能写成功能位/);
+  assert.match(String(messages[0].content), /Name can only be written as a real person's name/);
+  assert.match(String(messages[0].content), /Each role must output gender/);
+  assert.match(String(messages[0].content), /history, time travel, palace, officialdom/);
+  assert.match(String(messages[0].content), /storyFunction is responsible for writing narrative responsibilities/);
 });
 
 test("volume strategy prompt renders volume count guidance and fixed-count constraints", () => {
@@ -516,16 +516,16 @@ test("volume strategy prompt renders volume count guidance and fixed-count const
   });
 
   assert.equal(messages.length, 2);
-  assert.match(String(messages[0].content), /recommendedVolumeCount 必须严格等于 10/);
-  assert.match(String(messages[0].content), /hardPlannedVolumeCount 必须落在 2-4 之间/);
-  assert.match(String(messages[0].content), /60 章以上默认至少保留三段结构/);
-  assert.match(String(messages[0].content), /超长篇必须避免把大量章节压成少数巨卷/);
+  assert.match(String(messages[0].content), /recommendedVolumeCount must be strictly equal to 10/);
+  assert.match(String(messages[0].content), /hardPlannedVolumeCount must fall within 2-4/);
+  assert.match(String(messages[0].content), /chapters 60 and above, at least a three-part structure/);
+  assert.match(String(messages[0].content), /avoid compressing a large number of chapters into a few huge volumes/);
   assert.match(String(messages[1].content), /decision volume count range: 8-13/);
   assert.match(String(messages[1].content), /user preferred volume count: 10/);
 });
 
 test("registered volume strategy prompt uses the shared 24-volume ceiling", () => {
-  const asset = getRegisteredPromptAsset("novel.volume.strategy", "v2");
+  const asset = getRegisteredPromptAsset("novel.volume.strategy", "v3");
   assert.ok(asset);
   const messages = asset.render({}, {
     blocks: [],
@@ -535,7 +535,7 @@ test("registered volume strategy prompt uses the shared 24-volume ceiling", () =
     estimatedInputTokens: 0,
   });
 
-  assert.match(String(messages[0].content), /recommendedVolumeCount 必须落在结构建议区间 1-24 之间/);
+  assert.match(String(messages[0].content), /recommendedVolumeCount must fall within the structure recommendation range 1-24/);
 });
 
 test("volume skeleton prompt protects compact and long-form volume structures", () => {
@@ -546,8 +546,8 @@ test("volume skeleton prompt protects compact and long-form volume structures", 
     summarizedBlockIds: [],
     estimatedInputTokens: 0,
   });
-  assert.match(String(compactMessages[0].content), /3-4 卷/);
-  assert.match(String(compactMessages[0].content), /三幕式或四段式结构/);
+  assert.match(String(compactMessages[0].content), /number of volumes is 3-4/);
+  assert.match(String(compactMessages[0].content), /three-act or four-part structure/);
 
   const longMessages = createVolumeSkeletonPrompt(12).render({}, {
     blocks: [],
@@ -556,12 +556,12 @@ test("volume skeleton prompt protects compact and long-form volume structures", 
     summarizedBlockIds: [],
     estimatedInputTokens: 0,
   });
-  assert.match(String(longMessages[0].content), /12 卷以上/);
-  assert.match(String(longMessages[0].content), /卖点轮换、压力源轮换和阶段兑现密度/);
+  assert.match(String(longMessages[0].content), /number of volumes is 12 or more/);
+  assert.match(String(longMessages[0].content), /rotation of selling points, pressure sources, and stage redemption density/);
 });
 
 test("workspace diagnosis prompt requires english recommendedAction enum values", () => {
-  const asset = getRegisteredPromptAsset("novel.chapter_editor.workspace_diagnosis", "v1");
+  const asset = getRegisteredPromptAsset("novel.chapter_editor.workspace_diagnosis", "v2");
   assert.ok(asset);
 
   const messages = asset.render({
@@ -583,16 +583,16 @@ test("workspace diagnosis prompt requires english recommendedAction enum values"
     }],
   });
 
-  assert.match(String(messages[0].content), /recommendedAction 只能输出英文枚举值/);
-  assert.match(String(messages[0].content), /compress（精简）/);
-  assert.match(String(messages[0].content), /polish（优化表达）/);
-  assert.match(String(messages[0].content), /不要输出中文动作词本身/);
+  assert.match(String(messages[0].content), /recommendedAction can only output English enumeration values/);
+  assert.match(String(messages[0].content), /compress \(simplified\)/);
+  assert.match(String(messages[0].content), /polish \(optimized expression\)/);
+  assert.match(String(messages[0].content), /Do not output the Chinese action words themselves/);
   assert.match(String(messages[1].content), /"recommendedAction":"compress"/);
 });
 
 test("character dynamics prompts harden plannedChapterOrders and confidence output contracts", () => {
-  const volumeAsset = getRegisteredPromptAsset("novel.characterDynamics.volumeProjection", "v3");
-  const chapterAsset = getRegisteredPromptAsset("novel.characterDynamics.chapterExtract", "v1");
+  const volumeAsset = getRegisteredPromptAsset("novel.characterDynamics.volumeProjection", "v4");
+  const chapterAsset = getRegisteredPromptAsset("novel.characterDynamics.chapterExtract", "v2");
   assert.ok(volumeAsset);
   assert.ok(chapterAsset);
 
@@ -622,12 +622,12 @@ test("character dynamics prompts harden plannedChapterOrders and confidence outp
     chapterContent: "赵高第一次被要求处理脏活。",
   });
 
-  assert.match(String(volumeMessages[0].content), /plannedChapterOrders 如果填写，必须是正整数数组/);
-  assert.match(String(volumeMessages[0].content), /绝不能输出 null、\[null\] 或字符串数组/);
-  assert.match(String(volumeMessages[0].content), /不要输出 confidence/);
+  assert.match(String(volumeMessages[0].content), /plannedChapterOrders, if filled in, must be an array of positive integers/);
+  assert.match(String(volumeMessages[0].content), /never output null, \[null\] or a string array/);
+  assert.match(String(volumeMessages[0].content), /Do not output confidence/);
 
-  assert.match(String(chapterMessages[0].content), /confidence 是可选字段；如果填写，必须是 0-1 数字/);
-  assert.match(String(chapterMessages[0].content), /不要输出 5、10、80、百分数、中文等级或字符串化置信度/);
+  assert.match(String(chapterMessages[0].content), /Confidence is an optional field; if filled in, it must be a number between 0 and 1/);
+  assert.match(String(chapterMessages[0].content), /Do not output 5, 10, 80, percentile, localized rating, or stringified confidence/);
   assert.match(String(chapterMessages[0].content), /"confidence":0.8/);
 });
 
@@ -658,8 +658,8 @@ test("chapter writer prompt does not expose scene contract controls", () => {
 
   const systemContent = String(messages[0].content);
   const humanContent = String(messages[1].content);
-  assert.match(systemContent, /本章目标长度：约 3000 字/);
-  assert.match(systemContent, /不得明显超过上限/);
+  assert.match(systemContent, /Target length of this chapter: approx\. 3000 words/);
+  assert.match(systemContent, /must not.*significantly exceed the upper limit/);
   assert.doesNotMatch(systemContent, /当前场景合同/);
   assert.doesNotMatch(systemContent, /场景标题/);
   assert.doesNotMatch(systemContent, /控字数模式/);
@@ -669,24 +669,24 @@ test("chapter writer prompt does not expose scene contract controls", () => {
 
 test("novel main-chain prompt assets declare explicit non-zero context budgets", () => {
   const expectedBudgets = new Map([
-    ["novel.director.candidates@v2", NOVEL_PROMPT_BUDGETS.directorCandidates],
-    ["novel.director.candidate_patch@v1", NOVEL_PROMPT_BUDGETS.directorCandidatePatch],
-    ["novel.director.blueprint@v1", NOVEL_PROMPT_BUDGETS.directorBlueprint],
-    ["novel.story_macro.decomposition@v1", NOVEL_PROMPT_BUDGETS.storyMacroDecomposition],
-    ["novel.story_macro.field_regeneration@v1", NOVEL_PROMPT_BUDGETS.storyMacroFieldRegeneration],
-    ["novel.volume.strategy@v2", NOVEL_PROMPT_BUDGETS.volumeStrategy],
-    ["novel.volume.strategy.critique@v1", NOVEL_PROMPT_BUDGETS.volumeStrategyCritique],
-    ["novel.volume.skeleton@v3", NOVEL_PROMPT_BUDGETS.volumeSkeleton],
-    ["novel.volume.beat_sheet@v3", NOVEL_PROMPT_BUDGETS.volumeBeatSheet],
-    ["novel.volume.chapter_list@v9", NOVEL_PROMPT_BUDGETS.volumeChapterList],
-    ["novel.volume.chapter_purpose@v1", NOVEL_PROMPT_BUDGETS.volumeChapterDetail],
-    ["novel.volume.chapter_boundary@v1", NOVEL_PROMPT_BUDGETS.volumeChapterDetail],
-    ["novel.volume.chapter_task_sheet@v3", NOVEL_PROMPT_BUDGETS.volumeChapterDetail],
-    ["novel.volume.rebalance.adjacent@v1", NOVEL_PROMPT_BUDGETS.volumeRebalance],
+    ["novel.director.candidates@v3", NOVEL_PROMPT_BUDGETS.directorCandidates],
+    ["novel.director.candidate_patch@v2", NOVEL_PROMPT_BUDGETS.directorCandidatePatch],
+    ["novel.director.blueprint@v2", NOVEL_PROMPT_BUDGETS.directorBlueprint],
+    ["novel.story_macro.decomposition@v2", NOVEL_PROMPT_BUDGETS.storyMacroDecomposition],
+    ["novel.story_macro.field_regeneration@v2", NOVEL_PROMPT_BUDGETS.storyMacroFieldRegeneration],
+    ["novel.volume.strategy@v3", NOVEL_PROMPT_BUDGETS.volumeStrategy],
+    ["novel.volume.strategy.critique@v2", NOVEL_PROMPT_BUDGETS.volumeStrategyCritique],
+    ["novel.volume.skeleton@v4", NOVEL_PROMPT_BUDGETS.volumeSkeleton],
+    ["novel.volume.beat_sheet@v4", NOVEL_PROMPT_BUDGETS.volumeBeatSheet],
+    ["novel.volume.chapter_list@v10", NOVEL_PROMPT_BUDGETS.volumeChapterList],
+    ["novel.volume.chapter_purpose@v2", NOVEL_PROMPT_BUDGETS.volumeChapterDetail],
+    ["novel.volume.chapter_boundary@v2", NOVEL_PROMPT_BUDGETS.volumeChapterDetail],
+    ["novel.volume.chapter_task_sheet@v4", NOVEL_PROMPT_BUDGETS.volumeChapterDetail],
+    ["novel.volume.rebalance.adjacent@v2", NOVEL_PROMPT_BUDGETS.volumeRebalance],
     [promptKey(chapterWriterPrompt), NOVEL_PROMPT_BUDGETS.chapterWriter],
-    ["novel.review.chapter@v2", NOVEL_PROMPT_BUDGETS.chapterReview],
-    ["novel.review.repair@v2", NOVEL_PROMPT_BUDGETS.chapterRepair],
-    ["audit.chapter.full@v2", NOVEL_PROMPT_BUDGETS.chapterReview],
+    ["novel.review.chapter@v3", NOVEL_PROMPT_BUDGETS.chapterReview],
+    ["novel.review.repair@v3", NOVEL_PROMPT_BUDGETS.chapterRepair],
+    ["audit.chapter.full@v3", NOVEL_PROMPT_BUDGETS.chapterReview],
   ]);
 
   for (const [key, budget] of expectedBudgets.entries()) {
@@ -744,8 +744,8 @@ test("chapter writer prompt carries explicit target length and continuation inst
     summarizedBlockIds: [],
     estimatedInputTokens: 0,
   });
-  assert.match(String(draftMessages[0].content), /本章目标长度：约 3000 字/);
-  assert.match(String(draftMessages[0].content), /2550-3450/);
+  assert.match(String(draftMessages[0].content), /Target length of this chapter: approx\. 3000 words/);
+  assert.match(String(draftMessages[0].content), /2550-3450 words/);
 
   const continueMessages = asset.render({
     novelTitle: "霜轨档案",
@@ -763,9 +763,9 @@ test("chapter writer prompt carries explicit target length and continuation inst
     summarizedBlockIds: [],
     estimatedInputTokens: 0,
   });
-  assert.match(String(continueMessages[0].content), /不得重写章节开头/);
-  assert.match(String(continueMessages[0].content), /至少缺少约 900 字/);
-  assert.match(String(continueMessages[1].content), /任务模式：补写当前章节/);
+  assert.match(String(continueMessages[0].content), /forbidden to rewrite the beginning/);
+  assert.match(String(continueMessages[0].content), /lack of at least approx\. 900/);
+  assert.match(String(continueMessages[1].content), /Mission mode: Make up the current chapter/);
 });
 
 test("director blueprint schema accepts chapter shells without scenes", () => {
@@ -1068,8 +1068,8 @@ test("genre prompt render hardens retry instructions and forced JSON mode", () =
   });
 
   assert.equal(messages.length, 2);
-  assert.match(String(messages[0].content), /只能返回一个 JSON 对象/);
-  assert.match(String(messages[0].content), /支持稳定 JSON 输出/);
+  assert.match(String(messages[0].content), /Only one JSON object body can be returned/);
+  assert.match(String(messages[0].content), /supports stable JSON output/);
   assert.match(String(messages[1].content), /都市异能/);
 });
 
@@ -1098,7 +1098,7 @@ test("title prompt render includes retry reason for regeneration attempts", () =
 
   assert.equal(messages.length, 2);
   assert.match(String(messages[0].content), /标题风格分布过窄/);
-  assert.match(String(messages[0].content), /支持稳定 JSON 输出/);
+  assert.match(String(messages[0].content), /Return the JSON object directly without a code fence/);
   assert.match(String(messages[1].content), /赛博修仙/);
 });
 
@@ -1132,11 +1132,11 @@ test("story mode child prompt render includes parent and sibling grounding", () 
   });
 
   assert.equal(messages.length, 2);
-  assert.match(String(messages[0].content), /必须精确生成 3 个子类节点/);
-  assert.match(String(messages[0].content), /children 必须是 \[\]/);
-  assert.match(String(messages[1].content), /父类名称：种田流/);
-  assert.match(String(messages[1].content), /现有兄弟节点：基建种田流、日常治愈种田流/);
-  assert.match(String(messages[1].content), /无。请直接基于父类逻辑和现有兄弟节点进行衍生/);
+  assert.match(String(messages[0].content), /Must be accurately generated 3 For subclass nodes/);
+  assert.match(String(messages[0].content), /children of each node must be \[\]/);
+  assert.match(String(messages[1].content), /Parent class name:种田流/);
+  assert.match(String(messages[1].content), /Existing sibling nodes:基建种田流、日常治愈种田流/);
+  assert.match(String(messages[1].content), /None\. Please derive directly based on parent class logic and existing sibling nodes/);
 });
 
 test("story mode child prompt post validator rejects duplicate sibling names and grandchildren", () => {
@@ -1207,7 +1207,7 @@ test("story mode expansion prompt uses the library summary to find distinct addi
     prompt: "增加更强调探索回报的玩法。",
   });
   const rendered = messages.map((message) => String(message.content)).join("\n");
-  assert.match(rendered, /当前推进模式库摘要/);
+  assert.match(rendered, /Summary of current advancement pattern library/);
   assert.match(rendered, /增长|探索/);
   assert.throws(() => storyModeExpansionPrompt.postValidate([{
     name: "升级成长",
@@ -1286,11 +1286,11 @@ test("book analysis source note prompt exposes reader and weakness signal extrac
   });
 
   assert.equal(messages.length, 2);
-  assert.match(String(messages[0].content), /只提取片段里明确存在或可做低风险归纳的信息/);
-  assert.match(String(messages[0].content), /禁止补写原文没有直接体现的人物深层动机、隐藏因果、作者意图、整书级结论或过强市场判断/);
+  assert.match(String(messages[0].content), /Only extract information that is clearly present in the clip or can be summarized with low risk/);
+  assert.match(String(messages[0].content), /prohibited to make up the characters’ deep motivations, hidden causes and effects, author’s intentions, book-level conclusions, or overly strong market judgments/);
   assert.match(String(messages[0].content), /"readerSignals": \["\.\.\."\]/);
   assert.match(String(messages[0].content), /"weaknessSignals": \["\.\.\."\]/);
-  assert.match(String(messages[0].content), /evidence：提供最多 3 条证据/);
+  assert.match(String(messages[0].content), /evidence has a maximum of 3 items/);
 });
 
 test("book analysis overview prompt encourages low-risk synthesis with direct section structure", () => {
@@ -1310,10 +1310,10 @@ test("book analysis overview prompt encourages low-risk synthesis with direct se
   assert.equal(messages.length, 2);
   assert.match(String(messages[0].content), /oneLinePositioning/);
   assert.match(String(messages[0].content), /genreTags/);
-  assert.match(String(messages[0].content), /## 一句话定位/);
-  assert.match(String(messages[0].content), /不要写成“总体判断 \/ 重点分析 \/ 保留判断或局限说明”这种审计报告结构/);
-  assert.match(String(messages[0].content), /允许基于多条 notes 做低风险综合判断/);
-  assert.match(String(messages[0].content), /evidence 只保留最能支撑结论的 3-8 条证据/);
+  assert.match(String(messages[0].content), /## Positioning in one sentence/);
+  assert.match(String(messages[0].content), /Do not write an audit report in the structure/);
+  assert.match(String(messages[0].content), /allowed to make low-risk comprehensive judgments based on multiple notes/);
+  assert.match(String(messages[0].content), /Evidence Only retain the 3-8 pieces of evidence that best support the conclusion/);
 });
 
 test("world draft generation post validator requires requested dimension coverage", () => {
@@ -1367,11 +1367,11 @@ test("world skeleton prompt keeps large world output within a recoverable one-sh
     estimatedInputTokens: 0,
   });
 
-  assert.equal(worldSkeletonGenerationPrompt.version, "v2");
+  assert.equal(worldSkeletonGenerationPrompt.version, "v3");
   assert.equal(worldSkeletonGenerationPrompt.repairPolicy.maxAttempts, 0);
   assert.equal(worldSkeletonGenerationPrompt.semanticRetryPolicy.maxAttempts, 0);
-  assert.match(String(messages[0].content), /输出容量硬约束/);
-  assert.match(String(messages[0].content), /3,200 个汉字以内/);
+  assert.match(String(messages[0].content), /Hard constraints on output capacity/);
+  assert.match(String(messages[0].content), /approximately 3,200 words/);
 });
 
 test("world draft refine alternatives post validator enforces exact alternative count", () => {
@@ -1534,7 +1534,7 @@ test("runStructuredPrompt retries semantically after postValidate failure", asyn
     assert.equal(calls[1].promptMeta.semanticRetryUsed, true);
     assert.equal(calls[1].promptMeta.semanticRetryAttempts, 1);
     assert.match(String(calls[1].messages[calls[1].messages.length - 1].content), /Planner output is missing objective/);
-    assert.match(String(calls[1].messages[calls[1].messages.length - 1].content), /上一次的 JSON 输出/);
+    assert.match(String(calls[1].messages[calls[1].messages.length - 1].content), /Previous JSON output/);
     assert.equal(result.output.planRole, "progress");
     assert.equal(result.meta.invocation.repairUsed, true);
     assert.equal(result.meta.invocation.repairAttempts, 1);
@@ -1868,10 +1868,10 @@ test("advanced prompt template expands referenced context and appends required f
   const rendered = compiled.messages.map((message) => String(message.content)).join("\n");
   assert.match(rendered, /异常提交/);
   assert.match(rendered, /chapter_mission 测试内容/);
-  assert.match(rendered, /【必需上下文保底】/);
-  assert.match(rendered, /【书级合约】\nbook_contract 测试内容/);
-  assert.match(rendered, /【读者体验合同】\nreader_experience 测试内容/);
-  assert.doesNotMatch(rendered, /【reader_experience】/);
+  assert.match(rendered, /\[Required context fallback\]/);
+  assert.match(rendered, /\[Book contract\]\nbook_contract 测试内容/);
+  assert.match(rendered, /\[Reader experience contract\]\nreader_experience 测试内容/);
+  assert.doesNotMatch(rendered, /\[reader_experience\]/);
   assert.deepEqual(compiled.diagnostics.missingRequiredGroups, []);
   assert.ok(compiled.diagnostics.fallbackRequiredGroups.includes("book_contract"));
   assert.ok(compiled.diagnostics.fallbackRequiredGroups.includes("reader_experience"));
@@ -1891,11 +1891,11 @@ test("chapter writer context text uses reader-facing labels instead of raw machi
     hardConstraints: ["不能提前解释数字来源"],
   });
 
-  assert.match(bookContract, /标题：数字猎杀/);
-  assert.match(bookContract, /题材：末世异能/);
-  assert.match(bookContract, /叙事视角：第三人称/);
-  assert.doesNotMatch(bookContract, /Title:/);
-  assert.doesNotMatch(bookContract, /Genre:/);
+  assert.match(bookContract, /Title:数字猎杀/);
+  assert.match(bookContract, /Subject:末世异能/);
+  assert.match(bookContract, /Narrative perspective:third person/);
+  assert.doesNotMatch(bookContract, /title=/);
+  assert.doesNotMatch(bookContract, /genre=/);
 
   const stateSummary = summarizeStateSnapshot({
     characterRoster: [
@@ -1915,8 +1915,8 @@ test("chapter writer context text uses reader-facing labels instead of raw machi
     },
   });
 
-  assert.match(stateSummary, /陈默：目标：寻找下一个数字/);
-  assert.match(stateSummary, /状态：刚恢复部分意识/);
+  assert.match(stateSummary, /陈默: Goal:寻找下一个数字/);
+  assert.match(stateSummary, /Status:刚恢复部分意识/);
   assert.doesNotMatch(stateSummary, /cmqyvxq0w0044q8v1xsifezci/);
   assert.doesNotMatch(stateSummary, /goal=/);
 });
@@ -2065,7 +2065,7 @@ test("runTextPrompt uses active book-scoped advanced template for chapter writer
     assert.match(rendered, /CUSTOM SYSTEM/);
     assert.match(rendered, /CUSTOM HUMAN 高级模板章节/);
     assert.match(rendered, /chapter_mission 测试内容/);
-    assert.match(rendered, /【必需上下文保底】/);
+    assert.match(rendered, /\[Required context fallback\]/);
     assert.doesNotMatch(rendered, /你是中文长篇网络小说写作助手。/);
   } finally {
     promptTemplateOverrideService.getActiveCustomTemplate = originalGetActiveCustomTemplate;

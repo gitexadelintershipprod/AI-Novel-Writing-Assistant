@@ -21,6 +21,21 @@ test("official platform profiles cover the four locked launch profiles", () => {
   assert.equal(supportsWritingPlatformForm("jinjiang_female", "short_story"), false);
   assert.equal(supportsWritingPlatformForm("zhihu_story", "short_story"), true);
   assert.equal(supportsWritingPlatformForm("zhihu_story", "long_novel"), false);
+  assert.deepEqual(
+    Object.fromEntries(Object.entries(OFFICIAL_WRITING_PLATFORM_PROFILES).map(([id, profile]) => [id, profile.label])),
+    {
+      fanqie_free: "Georgian Serial",
+      qidian_male: "Progression & Adventure",
+      jinjiang_female: "Character & Relationship",
+      zhihu_story: "Georgian Short Story",
+    },
+  );
+  for (const profile of Object.values(OFFICIAL_WRITING_PLATFORM_PROFILES)) {
+    assert.equal(profile.officialVersion, 2);
+    for (const guidance of Object.values(profile.guidance)) {
+      assert.match(Object.values(guidance).join(" "), /Georgian/);
+    }
+  }
 });
 
 test("long and short prose prompts declare slots and advanced templates", () => {

@@ -62,14 +62,14 @@ function buildAuditWorkbenchSampleContextBlocks() {
 test("prompt workbench catalog exposes registered prompts without override execution", () => {
   const service = new PromptWorkbenchService();
   const catalog = service.listCatalog({ keyword: "planner.intent.parse" });
-  const planner = catalog.find((item) => item.key === "planner.intent.parse@v1");
+  const planner = catalog.find((item) => item.key === "planner.intent.parse@v2");
 
   assert.ok(planner);
   assert.equal(planner.slotSupported, false);
   assert.equal(planner.managementStatus, "missing_slots");
   assert.deepEqual(planner.slots, []);
-  assert.ok(planner.description.includes("意图"));
-  assert.equal(planner.shortDescription, "规划意图理解");
+  assert.ok(planner.description.includes("intent"));
+  assert.equal(planner.shortDescription, "Understanding planning intentions");
   assert.equal(planner.outputType, "structured");
   assert.ok(planner.contextRequirements.some((requirement) => requirement.group === "creative_hub.bindings"));
   assert.equal(planner.mode, "structured");
@@ -79,18 +79,18 @@ test("prompt workbench catalog exposes registered prompts without override execu
   assert.ok(planner.lockedFields.includes("approvalBoundary"));
 
   const chapterWriter = service.listCatalog({ keyword: "novel.chapter.writer" })
-    .find((item) => item.key === "novel.chapter.writer@v6");
+    .find((item) => item.key === "novel.chapter.writer@v7");
   assert.ok(chapterWriter);
   assert.equal(chapterWriter.slotSupported, true);
   assert.equal(chapterWriter.managementStatus, "complete");
-  assert.ok(chapterWriter.description.includes("章节正文"));
-  assert.equal(chapterWriter.shortDescription, "章节正文生成");
+  assert.ok(chapterWriter.description.includes("chapter text"));
+  assert.equal(chapterWriter.shortDescription, "Chapter text generation");
   assert.ok(chapterWriter.slots.some((slot) => slot.key === "writer.antiAiRules"));
   assert.ok(chapterWriter.lockedFields.includes("contextPolicy"));
 
   const completeCatalog = service.listCatalog();
-  assert.equal(completeCatalog.some((item) => item.shortDescription === "内部提示词"), false);
-  assert.equal(completeCatalog.every((item) => item.shortDescription.length <= 12), true);
+  assert.equal(completeCatalog.some((item) => item.shortDescription === "Internal prompt"), false);
+  assert.equal(completeCatalog.every((item) => item.shortDescription.length <= 48), true);
 });
 
 test("prompt workbench catalog lists slot-supported prompts first", () => {
@@ -139,7 +139,7 @@ test("context broker resolves creative hub bindings and supplied recent messages
 test("prompt preview renders base prompt messages with resolved context but does not call the LLM", async () => {
   const service = new PromptWorkbenchService();
   const preview = await service.preview({
-    promptKey: "planner.intent.parse@v1",
+    promptKey: "planner.intent.parse@v2",
     promptInput: buildPlannerPromptInput(),
     executionContext: {
       entrypoint: "creative_hub",
@@ -155,7 +155,7 @@ test("prompt preview renders base prompt messages with resolved context but does
     maxContextTokens: 2000,
   });
 
-  assert.equal(preview.prompt.key, "planner.intent.parse@v1");
+  assert.equal(preview.prompt.key, "planner.intent.parse@v2");
   assert.equal(preview.prompt.slotSupported, false);
   assert.ok(preview.messages.length >= 2);
   assert.ok(preview.messages.some((message) => message.role === "system"));
@@ -172,7 +172,7 @@ test("prompt preview renders base prompt messages with resolved context but does
 test("prompt preview reports missing required context for manager diagnosis", async () => {
   const service = new PromptWorkbenchService();
   const preview = await service.preview({
-    promptKey: "novel.chapter_editor.workspace_diagnosis@v1",
+    promptKey: "novel.chapter_editor.workspace_diagnosis@v2",
     promptInput: {
       chapterTitle: "第 3 章",
       chapterMission: "让主角发现关键线索。",
@@ -203,7 +203,7 @@ test("prompt preview reports missing required context for manager diagnosis", as
 test("prompt preview renders audit prompts with complete workbench sample input", async () => {
   const service = new PromptWorkbenchService();
   const preview = await service.preview({
-    promptKey: "audit.chapter.full@v2",
+    promptKey: "audit.chapter.full@v3",
     promptInput: {
       novelTitle: "示例小说",
       chapterTitle: "示例章节",
@@ -224,8 +224,8 @@ test("prompt preview renders audit prompts with complete workbench sample input"
     maxContextTokens: 2000,
   });
 
-  assert.equal(preview.prompt.key, "audit.chapter.full@v2");
-  assert.ok(preview.messages.some((message) => message.content.includes("审校范围：plot, character, continuity")));
+  assert.equal(preview.prompt.key, "audit.chapter.full@v3");
+  assert.ok(preview.messages.some((message) => message.content.includes("Scope of review:plot, character, continuity")));
   assert.deepEqual(preview.diagnostics.missingRequiredGroups, []);
   assert.ok(preview.context.selectedBlockIds.includes("chapter_boundary"));
   assert.ok(preview.context.selectedBlockIds.includes("structure_obligations"));
@@ -270,7 +270,7 @@ test("prompt preview prefers selected novel chapter context over audit sample co
   });
 
   const preview = await service.preview({
-    promptKey: "audit.chapter.full@v2",
+    promptKey: "audit.chapter.full@v3",
     promptInput: {
       novelTitle: "当代码开始杀人",
       chapterTitle: "第 3 章 异常提交",
@@ -300,7 +300,7 @@ test("prompt preview prefers selected novel chapter context over audit sample co
     && block.content.includes("代码提交与现实犯罪互相映照")
   )));
   assert.ok(preview.messages.some((message) => message.content.includes("当代码开始杀人")));
-  assert.ok(preview.diagnostics.notes.some((note) => note.includes("使用《当代码开始杀人》第 3 章")));
+  assert.ok(preview.diagnostics.notes.some((note) => note.includes("chapter 3, “异常提交”, of “当代码开始杀人”")));
 });
 
 test("prompt preview assembles selected novel chapter write context for chapter writer", async () => {
@@ -377,7 +377,7 @@ test("prompt preview assembles selected novel chapter write context for chapter 
   });
 
   const preview = await service.preview({
-    promptKey: "novel.chapter.writer@v6",
+    promptKey: "novel.chapter.writer@v7",
     promptInput: {
       novelTitle: "当代码开始杀人",
       chapterOrder: 3,
@@ -426,7 +426,7 @@ test("prompt preview assembles selected novel chapter write context for chapter 
     block.group === "chapter_mission"
     && block.content.includes("确认代码提交与命案有关")
   )));
-  assert.ok(preview.diagnostics.notes.some((note) => note.includes("正文写作预览上下文")));
+  assert.ok(preview.diagnostics.notes.some((note) => note.includes("prose preview context")));
 });
 
 test("prompt preview renders unsaved advanced template draft without reading active template", async () => {
@@ -501,7 +501,7 @@ test("prompt preview renders unsaved advanced template draft without reading act
 
   try {
     const preview = await service.preview({
-      promptKey: "novel.chapter.writer@v6",
+      promptKey: "novel.chapter.writer@v7",
       promptInput: {
         novelTitle: "模板测试书",
         chapterOrder: 2,

@@ -590,6 +590,37 @@ test("StyleDetectionService can test preview anti-ai rules without a style profi
   }
 });
 
+test("StyleDetectionService always runs semantic review when a rule is active", async () => {
+  const originalFindMany = prisma.antiAiRule.findMany;
+  let invocationCount = 0;
+
+  prisma.antiAiRule.findMany = async () => [buildAntiAiRuleRow("semantic-review", {
+    detectPatternsJson: JSON.stringify(["გააცნობიერა, რომ"]),
+    promptInstruction: "Review unnatural Georgian word order and translation-like phrasing.",
+  })];
+  promptRunner.setPromptRunnerStructuredInvokerForTests(async () => {
+    invocationCount += 1;
+    return {
+      data: { riskScore: 0, summary: "ტექსტი ბუნებრივად ჟღერს.", violations: [], canAutoRewrite: false },
+      repairUsed: false,
+      repairAttempts: 0,
+    };
+  });
+
+  try {
+    const result = await new StyleDetectionService().check({
+      content: "ქალი ფანჯარასთან გაჩერდა და ქუჩის ხმაურს მოუსმინა.",
+      previewAntiAiRuleIds: ["semantic-review"],
+    });
+    assert.equal(invocationCount, 1);
+    assert.equal(result.riskScore, 0);
+    assert.deepEqual(result.appliedRuleIds, ["semantic-review"]);
+  } finally {
+    prisma.antiAiRule.findMany = originalFindMany;
+    promptRunner.setPromptRunnerStructuredInvokerForTests();
+  }
+});
+
 test("StyleRewriteService includes preview anti-ai rules in the repair prompt", async () => {
   const originalFindMany = prisma.antiAiRule.findMany;
   let capturedPrompt = "";
@@ -600,9 +631,9 @@ test("StyleRewriteService includes preview anti-ai rules in the repair prompt", 
     rewriteSuggestion: "改成具体动作和对白。",
   })];
   promptRunner.setPromptRunnerLLMFactoryForTests(async () => ({
-    invoke: async (messages) => {
+    stream: async function* (messages) {
       capturedPrompt = messages.map((message) => String(message.content)).join("\n");
-      return { content: "他扶住桌沿，半晌才开口。" };
+      yield { content: "მან მაგიდის კიდეს ხელი მოჰკიდა და მხოლოდ ცოტა ხნის შემდეგ ალაპარაკდა." };
     },
   }));
 
@@ -619,7 +650,7 @@ test("StyleRewriteService includes preview anti-ai rules in the repair prompt", 
 
     assert.match(capturedPrompt, /Temporary anti-AI test rules/);
     assert.match(capturedPrompt, /Preview rewrite instruction/);
-    assert.equal(result.content, "他扶住桌沿，半晌才开口。");
+    assert.equal(result.content, "მან მაგიდის კიდეს ხელი მოჰკიდა და მხოლოდ ცოტა ხნის შემდეგ ალაპარაკდა.");
   } finally {
     prisma.antiAiRule.findMany = originalFindMany;
     promptRunner.setPromptRunnerLLMFactoryForTests();
@@ -638,11 +669,11 @@ test("style detection prompt requires broad anti-ai recall and non-copyable sugg
   });
   const promptText = rendered.messages.map((message) => String(message.content)).join("\n");
 
-  assert.match(promptText, /必须通读全文做召回/);
-  assert.match(promptText, /高频模板表达/);
-  assert.match(promptText, /仿佛、似乎、极其、完美、深不见底/);
-  assert.match(promptText, /通常不应低于 60/);
-  assert.match(promptText, /禁止输出完整可复制替换句/);
+  assert.match(promptText, /read the entire text for recall/i);
+  assert.match(promptText, /Georgian-specific risks/i);
+  assert.match(promptText, /case or agreement errors/i);
+  assert.match(promptText, /should usually not be lower than 60/i);
+  assert.match(promptText, /complete and reproducible replacement sentences/i);
 });
 
 test("style rewrite prompt avoids suggestion copying and factual hook injection", () => {
@@ -656,12 +687,12 @@ test("style rewrite prompt avoids suggestion copying and factual hook injection"
   });
   const promptText = rendered.messages.map((message) => String(message.content)).join("\n");
 
-  assert.match(promptText, /suggestion 只表示修改方向/);
-  assert.match(promptText, /禁止直接照抄 suggestion/);
-  assert.match(promptText, /相邻段落存在同类明显 AI 痕迹/);
-  assert.match(promptText, /自然化不是口语化/);
-  assert.match(promptText, /不得新增事实型设定/);
-  assert.match(promptText, /地图批注、密信、死人、刺客、失踪者/);
+  assert.match(promptText, /suggestion in issuesBlock only indicates the modification direction/i);
+  assert.match(promptText, /Direct copying of example sentences/i);
+  assert.match(promptText, /adjacent paragraphs/i);
+  assert.match(promptText, /Naturalization is not colloquialism/i);
+  assert.match(promptText, /Do not introduce new settings/i);
+  assert.match(promptText, /map annotations, secret messages, dead people, assassins, missing persons/i);
 });
 
 test("knowledge document style extraction uses representative sample by default", () => {

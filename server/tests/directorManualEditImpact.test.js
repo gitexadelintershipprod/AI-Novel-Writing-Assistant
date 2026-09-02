@@ -180,7 +180,7 @@ test("workspace analyzer uses structured AI interpretation when requested", asyn
   });
 
   assert.equal(structuredCalls.length, 1);
-  assert.equal(structuredCalls[0].label, "novel.director.workspace_analysis@v1");
+  assert.equal(structuredCalls[0].label, "novel.director.workspace_analysis@v2");
   assert.equal(analysis.prompt.promptId, "novel.director.workspace_analysis");
   assert.equal(analysis.interpretation.summary, "AI workspace summary");
   assert.equal(analysis.recommendation.reason, "AI 判断应先建立书约。");

@@ -98,6 +98,6 @@ test("auto structured output hint preserves array fields in the example skeleton
     promptInput: createPromptInput(4),
   });
 
-  assert.equal(prepared.messages.length, 3);
-  assert.match(String(prepared.messages[2].content), /"chapters": \[/);
+  assert.equal(prepared.messages.length, 4);
+  assert.match(String(prepared.messages[3].content), /"chapters": \[/);
 });

@@ -515,7 +515,7 @@ test("volume beat sheet prompt render includes explicit JSON field contract", ()
   assert.match(systemPrompt, /"chapterSpanHint"/);
   assert.match(systemPrompt, /"mustDeliver"/);
   assert.match(systemPrompt, /6-8/);
-  assert.match(systemPrompt, /固定职能槽位/);
+  assert.match(systemPrompt, /Fixed functional slots/);
   assert.match(systemPrompt, /Current volume target chapter count: 18/);
   assert.match(systemPrompt, /volume-local numbering only/);
 });
@@ -642,8 +642,8 @@ test("volume rebalance prompt render explains order-based id contract and enum d
   });
 
   const systemPrompt = String(messages[0].content);
-  assert.match(systemPrompt, /卷序号字符串/);
-  assert.match(systemPrompt, /pull_forward、push_back、tighten_current、expand_adjacent、hold/);
+  assert.match(systemPrompt, /volume serial number strings/);
+  assert.match(systemPrompt, /pull_forward, push_back, tighten_current, expand_adjacent, hold/);
   assert.match(systemPrompt, /"decisions"/);
 });
 
