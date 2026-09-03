@@ -883,24 +883,24 @@ test("chapter writer blocks enforce enabled critical context contracts", () => {
     enabled: true,
     sourceType: "knowledge_document",
     sourceId: "doc-1",
-    sourceTitle: "参考作品",
-    systemRule: "必须承接前作因果与角色弧线，但禁止复刻关键桥段。",
-    humanBlock: `续写模式已开启，请承接前作并避免复刻。
-续写来源：知识库小说
-知识库文档标题：参考作品
-拆书分析：参考作品完整拆书
-前作核心角色状态：
-- 主角：终局时保留创伤和未兑现目标
-- 女二：掌握关键证据但没有直接交付
+    sourceTitle: "საცნობარო ნაწარმოები",
+    systemRule: "გააგრძელე მიზეზ-შედეგობრივი ხაზი და პერსონაჟთა განვითარება, მაგრამ ნუ გაიმეორებ საკვანძო ეპიზოდებს.",
+    humanBlock: `Continue the previous work without repeating its key scenes.
+Continuation source: Knowledge base novel
+Knowledge base document title: საცნობარო ნაწარმოები
+Book split analysis: საცნობარო ნაწარმოების სრული ანალიზი
+The status of the core characters in the previous game:
+- პროტაგონისტს ფინალში ტრავმა და შეუსრულებელი მიზანი რჩება
+- მეორე პერსონაჟი მნიშვნელოვან მტკიცებულებას ფლობს, მაგრამ ჯერ არ გადაუცია
 
-前作终局章节摘要：
-- 终局停在主角拿到入口但还没有反击成功
+Summary of the final chapters of the previous game:
+- ფინალში პროტაგონისტმა შესასვლელი იპოვა, თუმცა საპასუხო მოქმედება ჯერ არ დაუწყია
 
-前作关键事实（用于承接因果）：
-- 维修通道钥匙仍然有效
+Key facts from the previous work:
+- ტექნიკური გასასვლელის გასაღები კვლავ მოქმედებს
 
-前作未完线索（可推进，不可照抄桥段）：
-- 黑市账户异常还没有解释`,
+Unfinished clues from the previous work:
+- შავი ბაზრის ანგარიშის ანომალია ჯერ აუხსნელია`,
     antiCopyCorpus: [],
   };
 
@@ -920,9 +920,9 @@ test("chapter writer blocks enforce enabled critical context contracts", () => {
   assert.equal(continuationBlock.required, true);
   assert.equal(continuationBlock.allowSummary, false);
   assert.equal(continuationBlock.priority, 74);
-  assert.match(continuationBlock.content, /Continuation source constraints:知识库小说/);
-  assert.match(continuationBlock.content, /主角：终局时保留创伤和未兑现目标/);
-  assert.match(continuationBlock.content, /黑市账户异常还没有解释/);
+  assert.match(continuationBlock.content, /Continuation source constraints:Knowledge base novel/);
+  assert.match(continuationBlock.content, /პროტაგონისტს ფინალში ტრავმა და შეუსრულებელი მიზანი რჩება/);
+  assert.match(continuationBlock.content, /შავი ბაზრის ანგარიშის ანომალია ჯერ აუხსნელია/);
 
   const hardFactsBlock = assertNonEmptyBlock(writerBlocks, "character_hard_facts");
   assert.equal(hardFactsBlock.required, true);

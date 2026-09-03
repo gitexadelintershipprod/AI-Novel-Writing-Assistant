@@ -47,25 +47,15 @@ function normalizeTimelineHook(value: unknown): unknown {
     const title = readString(record, ["title", "name", "hook", "summary", "text"]) ?? "Follow-up hook";
     const description = readString(record, ["description", "summary", "detail", "text"]) ?? title;
     const priority = normalizeEnumAlias(record.priority ?? record.severity, {
-        低: "low",
-        中: "medium",
-        中等: "medium",
-        高: "high",
-        紧急: "critical",
-        关键: "critical",
         normal: "medium",
     });
     const resolveMode = normalizeEnumAlias(record.resolveMode ?? record.mode, {
         immediate_next: "immediate",
         next: "immediate",
-        立即: "immediate",
-        下一章: "immediate",
         short: "short_arc",
         short_term: "short_arc",
-        短线: "short_arc",
         long: "long_arc",
         long_term: "long_arc",
-        长线: "long_arc",
     });
     return {
         ...record,
@@ -83,20 +73,7 @@ function normalizeTimelineStateChange(value: unknown): unknown {
     const record = value as Record<string, unknown>;
     return {
         ...record,
-        targetType: normalizeEnumAlias(record.targetType, {
-            角色: "character",
-            人物: "character",
-            地点: "location",
-            场景: "location",
-            势力: "faction",
-            阵营: "faction",
-            关系: "relationship",
-            道具: "item",
-            物品: "item",
-            资源: "item",
-            世界: "world",
-            世界状态: "world",
-        }),
+        targetType: normalizeEnumAlias(record.targetType, {}),
     };
 }
 function normalizeTimelineEvent(value: unknown): unknown {
@@ -106,25 +83,7 @@ function normalizeTimelineEvent(value: unknown): unknown {
     const record = value as Record<string, unknown>;
     return {
         ...record,
-        type: normalizeEnumAlias(record.type, {
-            剧情: "plot",
-            主线: "plot",
-            关系: "relationship",
-            人际: "relationship",
-            冲突: "conflict",
-            揭示: "reveal",
-            揭露: "reveal",
-            战斗: "battle",
-            决策: "decision",
-            决定: "decision",
-            伏笔: "setup",
-            铺垫: "setup",
-            兑现: "payoff",
-            转场: "transition",
-            过渡: "transition",
-            背景: "background",
-            世界状态: "world_state",
-        }),
+        type: normalizeEnumAlias(record.type, {}),
         stateChanges: Array.isArray(record.stateChanges)
             ? record.stateChanges.map((item) => normalizeTimelineStateChange(item))
             : record.stateChanges,

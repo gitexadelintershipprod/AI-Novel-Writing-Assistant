@@ -315,50 +315,50 @@ test("chapter acceptance schema normalizes obligation and policy aliases", () =>
   assert.equal(parsed.continuePolicy, "repair_once");
 });
 
-test("timeline extractor schema normalizes enum aliases and hook shorthand", () => {
+test("timeline extractor schema accepts canonical enums and hook shorthand", () => {
   const parsed = timelineExtractorOutputSchema.parse({
-    timeAnchor: { storyDayIndex: 2, label: "第二日夜" },
+    timeAnchor: { storyDayIndex: 2, label: "მეორე ღამე" },
     addressedHookIds: [],
     resolvedHookIds: [],
     events: [{
-      title: "主角识破试探",
-      summary: "主角发现敌方留下的药渣线索。",
-      type: "剧情",
-      participantNames: ["武曌"],
-      locationName: "寝殿",
+      title: "პროტაგონისტმა გამოცდა ამოიცნო",
+      summary: "პროტაგონისტმა მოწინააღმდეგის დატოვებული კვალი აღმოაჩინა.",
+      type: "plot",
+      participantNames: ["ნინო"],
+      locationName: "დარბაზი",
       stateChanges: [{
-        targetType: "角色",
-        targetId: "武曌",
-        field: "认知",
-        before: "不确定敌方手段",
-        after: "确认药渣陷害方向",
+        targetType: "character",
+        targetId: "ნინო",
+        field: "knowledge",
+        before: "მოწინააღმდეგის მეთოდი უცნობია",
+        after: "მოწინააღმდეგის გეგმა დადასტურებულია",
         certainty: "confirmed",
       }],
-      possibleHooks: ["敌方眼线尚未暴露"],
+      possibleHooks: ["მოწინააღმდეგის მზირი ჯერ არ გამოვლენილა"],
       occurred: true,
       confidence: 0.9,
       matchedPlannedEventIds: [],
     }],
     hooks: [{
-      hook: "春桃下一章追踪眼线",
-      summary: "春桃需要继续追踪可疑宫女。",
-      severity: "高",
-      mode: "短线",
+      hook: "ნინო მომდევნო თავში მზირს გაჰყვება",
+      summary: "ნინომ საეჭვო მსახურის თვალთვალი უნდა გააგრძელოს.",
+      priority: "high",
+      resolveMode: "short_arc",
     }],
     stateChanges: [{
-      targetType: "地点",
-      targetId: "寝殿",
-      field: "风险",
-      after: "已被敌方眼线渗透",
+      targetType: "location",
+      targetId: "დარბაზი",
+      field: "risk",
+      after: "მოწინააღმდეგის მზირი უკვე შეღწეულია",
       certainty: "likely",
     }],
   });
 
   assert.equal(parsed.events[0].type, "plot");
   assert.equal(parsed.events[0].stateChanges[0].targetType, "character");
-  assert.equal(parsed.events[0].possibleHooks[0].title, "敌方眼线尚未暴露");
+  assert.equal(parsed.events[0].possibleHooks[0].title, "მოწინააღმდეგის მზირი ჯერ არ გამოვლენილა");
   assert.equal(parsed.events[0].possibleHooks[0].priority, "medium");
-  assert.equal(parsed.hooks[0].title, "春桃下一章追踪眼线");
+  assert.equal(parsed.hooks[0].title, "ნინო მომდევნო თავში მზირს გაჰყვება");
   assert.equal(parsed.hooks[0].priority, "high");
   assert.equal(parsed.hooks[0].resolveMode, "short_arc");
   assert.equal(parsed.stateChanges[0].targetType, "location");

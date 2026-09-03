@@ -158,6 +158,7 @@
 - Book Analysis labels and active resource/reference context builders now use English control text while preserving source content and generating Georgian results.
 - Comic continuity facts now use the governed Georgian prompt registry, so durable visual constraints are recorded in Georgian without changing stored fact categories.
 - Server test files run in isolated processes so provider configuration and runtime mocks cannot leak between unrelated checks.
+- Chapter diagnosis, timeline extraction, continuation context, title analysis, and information-boundary parsing now accept only the current English control contracts; legacy Chinese input aliases are no longer supported.
 
 完整历史更新见 [docs/releases/release-notes.md](./docs/releases/release-notes.md)。
 

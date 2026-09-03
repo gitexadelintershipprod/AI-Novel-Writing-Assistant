@@ -39,25 +39,6 @@ const TITLE_EVENT_ANCHOR_HINTS = [
     "Abnormal noise",
     "Succeed",
     "loose",
-    // Legacy title anchors remain parser-only compatibility values.
-    "激活",
-    "入手",
-    "兑现",
-    "暴露",
-    "发现",
-    "转向",
-    "升级",
-    "查账",
-    "接管",
-    "请缨",
-    "破局",
-    "反压",
-    "发难",
-    "露白",
-    "启动",
-    "异响",
-    "得手",
-    "松动",
 ];
 function normalizeComparableText(value: string | null | undefined): string {
     return value?.replace(/\s+/g, " ").trim() || "";

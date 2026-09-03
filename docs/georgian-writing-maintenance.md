@@ -12,6 +12,12 @@ The fork keeps its application interface in English and fixes generated creative
 
 The policy requires natural Georgian syntax, correct case and agreement, appropriate verb forms, and avoidance of English or Russian calques. JSON keys, schemas, protocol values, IDs, provider names, and persisted compatibility enums must remain unchanged.
 
+## Input compatibility boundary
+
+Active creative parsers accept the current English schema values and Georgian content only. Do not add Chinese aliases for timeline event types, state targets, hook priorities, editor actions, continuation-section labels, chapter-title anchors, or information-boundary markers. This fork has no legacy Chinese projects or Chinese import path to preserve.
+
+The Georgian-content allowlist must therefore contain no `legacy-compatibility-alias` or `legacy-compatibility-parser` entries. While Market Radar remains disabled, its source-specific entries are the only permitted Han-containing production literals.
+
 ## Preserved systems
 
 Genres, Story Modes, Writing Profiles, Style Engine, Anti-AI, Title Studio, Auto Director, chapter planning and writing, short stories, Creative Hub, Book Analysis/RAG, comics, and drama remain enabled. The four built-in Writing Profile IDs are deliberately stable:
@@ -50,7 +56,7 @@ pnpm build:desktop:all
 pnpm verify:desktop-package
 ```
 
-`check:georgian-content` scans active prompt assets, context builders, built-in profiles, story-mode/style seeds, and selected production call sites. Its allowlist entries are exact path/text/category/reason records. Do not broaden the allowlist to silence a new active Chinese instruction; fix the source instead.
+`check:georgian-content` scans active prompt assets, context builders, built-in profiles, story-mode/style seeds, and selected production call sites. Its allowlist entries are exact path/text/category/reason records. Do not broaden the allowlist to silence a new active Chinese instruction or restore a legacy parser alias; fix the source instead.
 
 ## Upstream synchronization
 

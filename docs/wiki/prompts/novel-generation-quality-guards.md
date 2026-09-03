@@ -105,6 +105,12 @@ keyMilestoneGuards: z.array(volumeKeyMilestoneGuardSchema).default([])
 - `server/src/prompting/prompts/novel/chapterWriter.prompts.ts`
 - `shared/types/chapterRuntime.ts`（`ChapterWriteContext`、`VolumeWindowContext`）
 
+## Georgian fork input compatibility boundary
+
+The Georgian writing fork has no legacy Chinese projects or Chinese import workflow. Structured creative outputs use canonical English enum values, while prose and analysis content use Georgian. Timeline normalization, chapter-editor diagnostics, continuation-context extraction, chapter-title anchors, and information-boundary replacement must not accept Chinese aliases or labels.
+
+This is a deliberate fail-closed boundary: an unexpected translated enum or legacy label should fail schema validation instead of being silently normalized. The Georgian-content audit permits Han literals only inside the disabled Market Radar source assets; parser compatibility is not an allowlist category.
+
 ## 源文档
 
 - 2026-06-08 小说生成质量问题分析与优化方案（内部设计评审）

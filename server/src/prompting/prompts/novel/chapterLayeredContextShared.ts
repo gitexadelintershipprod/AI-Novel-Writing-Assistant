@@ -225,25 +225,16 @@ export function summarizeContinuationConstraints(contextPackage: GenerationConte
     const humanBlock = contextPackage.continuation.humanBlock ?? "";
     const sourceLine = takeUnique([
         findInlineValue(humanBlock, "Continuation source"),
-        findInlineValue(humanBlock, "续写来源"),
         findInlineValue(humanBlock, "Previous title"),
-        findInlineValue(humanBlock, "前作标题"),
         findInlineValue(humanBlock, "Knowledge base document title"),
-        findInlineValue(humanBlock, "知识库文档标题"),
         findInlineValue(humanBlock, "Book split analysis"),
-        findInlineValue(humanBlock, "拆书分析"),
     ], 4);
     const sectionLines = [
         ...extractContinuationSectionLines(humanBlock, "The status of the core characters in the previous game", 3),
-        ...extractContinuationSectionLines(humanBlock, "前作核心角色状态", 3),
         ...extractContinuationSectionLines(humanBlock, "Summary of the final chapters of the previous game", 3),
-        ...extractContinuationSectionLines(humanBlock, "前作终局章节摘要", 3),
         ...extractContinuationSectionLines(humanBlock, "Key facts from the previous work", 3),
-        ...extractContinuationSectionLines(humanBlock, "前作关键事实", 3),
         ...extractContinuationSectionLines(humanBlock, "Unfinished clues from the previous work", 3),
-        ...extractContinuationSectionLines(humanBlock, "前作未完线索", 3),
         ...extractContinuationSectionLines(humanBlock, "Summary of acceptable information", 4),
-        ...extractContinuationSectionLines(humanBlock, "可承接信息摘要", 4),
     ];
     return takeUnique([
         compactText(contextPackage.continuation.systemRule),

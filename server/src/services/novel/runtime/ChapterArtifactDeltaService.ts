@@ -182,7 +182,7 @@ export function mergeKnowledgeBoundaryState(
   boundaryLine: string,
 ): string {
   const base = String(currentState ?? "")
-    .replace(/\n?(?:【Information Boundary】|【信息边界】)[^\n]*/g, "")
+    .replace(/\n?【Information Boundary】[^\n]*/g, "")
     .trim();
   const cappedBoundary = boundaryLine.slice(0, 1200);
   const baseBudget = Math.max(0, 1200 - cappedBoundary.length - (base ? 1 : 0));

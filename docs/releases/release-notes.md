@@ -11,6 +11,7 @@
 - Supplemental-character generation now supplies English control labels and Georgian-governed creative context throughout cast, relationship, and world inputs.
 - The compatibility `NovelService` facade now preserves application-service method binding across isolated and production runtimes.
 - Resource recommendation, timeline-reference, and previous-chapter context builders no longer inject Chinese control labels into active creative prompts.
+- Chapter diagnosis, timeline extraction, continuation context, chapter-title analysis, and information-boundary parsing no longer accept legacy Chinese aliases; current English control values and Georgian content are now the only supported input path.
 - Continuation and contextual-RAG services avoid initialization cycles, and book-analysis token accounting remains atomic across concurrent section workers.
 - Server test files now run in isolated processes so provider settings, database mocks, and mutable runtime singletons cannot leak between unrelated checks.
 

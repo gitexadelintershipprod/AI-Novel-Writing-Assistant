@@ -11,17 +11,6 @@ function classify(relativePath) {
       reason: "Market Radar is disabled by both client and server flags; its source-specific Chinese assets are retained for future replacement.",
     };
   }
-  if ([
-    "server/src/prompting/prompts/novel/timelineExtractor.prompts.ts",
-    "server/src/prompting/prompts/novel/chapterEditor/workspaceDiagnosis.promptSchemas.ts",
-    "server/src/prompting/prompts/novel/chapterLayeredContextShared.ts",
-    "server/src/prompting/prompts/novel/volume/chapterDetail.prompts.ts",
-  ].includes(relativePath)) {
-    return {
-      category: "legacy-compatibility-alias",
-      reason: "Input-only aliases preserve compatibility with legacy Chinese persisted values; generated output and active instructions remain Georgian.",
-    };
-  }
   throw new Error(`Refusing to auto-classify active Han text in ${relativePath}.`);
 }
 

@@ -255,8 +255,8 @@ function sleep(ms) {
 }
 
 test("mergeKnowledgeBoundaryState preserves boundary line when current state is long", () => {
-  const base = "甲".repeat(1190);
-  const boundary = "【信息边界】已知：铜钥匙用途；未知/不应超前知情：库房守卫布置";
+  const base = "ა".repeat(1190);
+  const boundary = "【Information Boundary】Known: copper key purpose; Unknown: storage guard positions";
   const merged = mergeKnowledgeBoundaryState(base, boundary);
 
   assert.ok(merged.length <= 1200);
