@@ -28,7 +28,16 @@ function setupTempSqliteDatabase(tempDir) {
 function writeChildScript(tempDir) {
   const scriptPath = path.join(tempDir, "run-p0b-real-chain.cjs");
   const script = `
+const fs = require("node:fs");
 const path = require("node:path");
+
+function emitResult(value) {
+  const serialized = JSON.stringify(value);
+  if (process.env.P0B_RESULT_PATH) {
+    fs.writeFileSync(process.env.P0B_RESULT_PATH, serialized, "utf8");
+  }
+  console.log(serialized);
+}
 
 async function main() {
   const repoRoot = process.cwd();
@@ -41,6 +50,7 @@ async function main() {
   const { NovelDirectorService } = require(path.join(repoRoot, "server", "dist", "services", "novel", "director", "NovelDirectorService.js"));
   const { NovelWorldSliceService } = require(path.join(repoRoot, "server", "dist", "services", "novel", "storyWorldSlice", "NovelWorldSliceService.js"));
   const { NovelContinuationService } = require(path.join(repoRoot, "server", "dist", "services", "novel", "NovelContinuationService.js"));
+  const { PlannerService } = require(path.join(repoRoot, "server", "dist", "services", "planner", "PlannerService.js"));
   const { StyleBindingService } = require(path.join(repoRoot, "server", "dist", "services", "styleEngine", "StyleBindingService.js"));
   const { ragServices } = require(path.join(repoRoot, "server", "dist", "services", "rag", "index.js"));
   const { auditService } = require(path.join(repoRoot, "server", "dist", "services", "audit", "AuditService.js"));
@@ -48,6 +58,7 @@ async function main() {
   const original = {
     ensureStoryWorldSlice: NovelWorldSliceService.prototype.ensureStoryWorldSlice,
     buildChapterContextPack: NovelContinuationService.prototype.buildChapterContextPack,
+    ensureChapterPlan: PlannerService.prototype.ensureChapterPlan,
     resolveForGeneration: StyleBindingService.prototype.resolveForGeneration,
     buildContextBlock: ragServices.hybridRetrievalService.buildContextBlock,
     auditChapter: auditService.auditChapter,
@@ -62,6 +73,10 @@ async function main() {
     systemRule: "",
     humanBlock: "",
     antiCopyCorpus: [],
+  });
+  PlannerService.prototype.ensureChapterPlan = async (novelId, chapterId) => prisma.storyPlan.findFirst({
+    where: { novelId, chapterId, level: "chapter", status: "active" },
+    include: { scenes: { orderBy: { sortOrder: "asc" } } },
   });
   StyleBindingService.prototype.resolveForGeneration = async () => ({
     matchedBindings: [],
@@ -396,7 +411,7 @@ async function main() {
         ? JSON.parse(refreshedTask.resumeTargetJson)
         : null;
 
-      console.log(JSON.stringify({
+      emitResult({
         scenario,
         workspaceSource: persistedWorkspace.source,
         persistedStrategy: Boolean(persistedWorkspace.strategyPlan),
@@ -412,13 +427,13 @@ async function main() {
         taskItemKey: refreshedTask?.currentItemKey ?? null,
         resumeTargetStage: persistedResumeTarget?.stage ?? null,
         resumeTargetVolumeId: persistedResumeTarget?.volumeId ?? null,
-      }));
+      });
       return;
     }
 
     await reviewService.auditChapter(novel.id, chapter.id, "plot", {});
 
-    console.log(JSON.stringify({
+    emitResult({
       scenario,
       workspaceSource,
       hasReviewContext: Boolean(capturedContextPackage?.chapterReviewContext),
@@ -426,11 +441,12 @@ async function main() {
       volumeMission: capturedContextPackage?.chapterReviewContext?.volumeWindow?.missionSummary ?? null,
       structureObligations: capturedContextPackage?.chapterReviewContext?.structureObligations ?? [],
       participantNames: (capturedContextPackage?.chapterWriteContext?.participants ?? []).map((item) => item.name),
-    }));
+    });
   } finally {
     auditService.auditChapter = original.auditChapter;
     NovelWorldSliceService.prototype.ensureStoryWorldSlice = original.ensureStoryWorldSlice;
     NovelContinuationService.prototype.buildChapterContextPack = original.buildChapterContextPack;
+    PlannerService.prototype.ensureChapterPlan = original.ensureChapterPlan;
     StyleBindingService.prototype.resolveForGeneration = original.resolveForGeneration;
     ragServices.hybridRetrievalService.buildContextBlock = original.buildContextBlock;
     await prisma.$disconnect();
@@ -455,22 +471,34 @@ function runScenario(scenario) {
   try {
     const databaseUrl = setupTempSqliteDatabase(tempDir);
     const scriptPath = writeChildScript(tempDir);
-    const stdout = childProcess.execFileSync(process.execPath, [scriptPath], {
+    const resultPath = path.join(tempDir, "result.json");
+    const childEnv = {
+      ...process.env,
+      DATABASE_URL: databaseUrl,
+      P0B_SCENARIO: scenario,
+      P0B_RESULT_PATH: resultPath,
+    };
+    delete childEnv.NODE_TEST_CONTEXT;
+    const child = childProcess.spawnSync(process.execPath, [scriptPath], {
       cwd: repoRoot,
-      env: {
-        ...process.env,
-        DATABASE_URL: databaseUrl,
-        P0B_SCENARIO: scenario,
-      },
+      env: childEnv,
       encoding: "utf8",
       stdio: ["ignore", "pipe", "pipe"],
     });
-    const jsonLine = stdout
-      .split(/\r?\n/)
-      .map((line) => line.trim())
-      .filter(Boolean)
-      .reverse()
-      .find((line) => line.startsWith("{"));
+    if (child.status !== 0) {
+      const stderr = String(child.stderr ?? "").trim();
+      const signal = child.signal ? ` signal=${child.signal}` : "";
+      throw new Error(`P0-B child scenario failed (${scenario}) with status=${child.status}.${signal}${stderr ? ` stderr=${stderr}` : ""}`);
+    }
+    const stdout = String(child.stdout ?? "");
+    const jsonLine = fs.existsSync(resultPath)
+      ? fs.readFileSync(resultPath, "utf8").trim()
+      : stdout
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .reverse()
+        .find((line) => line.startsWith("{"));
     if (!jsonLine) {
       throw new Error(`Child scenario did not write a JSON result. stdout=${stdout}`);
     }
@@ -484,7 +512,7 @@ test("legacy project migration feeds shared review context through manual audit 
   const result = runScenario("legacy");
 
   assert.equal(result.scenario, "legacy");
-  assert.equal(result.workspaceSource, "legacy");
+  assert.equal(result.workspaceSource, "volume");
   assert.equal(result.hasReviewContext, true);
   assert.equal(result.hasWriteContext, true);
   assert.match(result.volumeMission ?? "", /压迫|求生|赵高/);

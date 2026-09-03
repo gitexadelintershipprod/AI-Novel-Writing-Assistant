@@ -1,6 +1,53 @@
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { z } from "zod";
 import type { PromptAsset } from "../../core/promptTypes";
+
+export const comicFactExtractionOutputSchema = z.object({
+    facts: z.array(z.object({
+        text: z.string().trim().min(1).max(200),
+        category: z.enum(["completed", "revealed", "state_changed"]).default("completed"),
+    })).max(10),
+});
+
+export interface ComicFactExtractionPromptInput {
+    projectTitle: string;
+    episodeOrder: number;
+    episodeTitle: string;
+    panelSummary: string;
+    existingFacts: string;
+}
+
+export const comicFactExtractionPrompt: PromptAsset<
+    ComicFactExtractionPromptInput,
+    z.infer<typeof comicFactExtractionOutputSchema>
+> = {
+    id: "comic.factExtraction",
+    version: "v2",
+    taskType: "chapter_drafting",
+    mode: "structured",
+    language: "ka",
+    contextPolicy: { maxTokensBudget: 3000 },
+    outputSchema: comicFactExtractionOutputSchema,
+    render(input) {
+        return [
+            new SystemMessage(`You maintain visual continuity for a serialized comic.
+Extract only durable visual facts that constrain future episodes. Ignore incidental details.
+Use category "completed" for consequential events, "revealed" for first appearances, and "state_changed" for persistent character-state changes.
+Write every fact naturally and concisely in Georgian.`),
+            new HumanMessage(`Comic project: ${input.projectTitle}
+Episode ${input.episodeOrder}: ${input.episodeTitle}
+
+## Current episode panel summary
+${input.panelSummary}
+
+${input.existingFacts ? `## Existing cross-episode facts (do not repeat)\n${input.existingFacts}\n` : ""}
+## Task
+Return a facts array containing only new visual constraints that future image generation must preserve.
+Keep each fact within 200 Unicode characters. State the constraint directly and in Georgian.
+Do not repeat existing facts. Return an empty array when the episode introduces no durable visual fact.`),
+        ];
+    },
+};
 // ─── 分话规划 ───────────────────────────────────────────────────────────────
 export const comicEpisodeOutlineOutputSchema = z.object({
     episodes: z.array(z.object({

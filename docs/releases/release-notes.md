@@ -7,6 +7,8 @@
 ### 2026-09-03 (Georgian pipeline hardening)
 
 - Book Analysis section names, presets, and active analytical context labels now use English control text while preserving source material and Georgian generated results.
+- Comic cross-episode fact extraction now runs through a registered Georgian prompt while preserving the existing fact schema and category values.
+- The compatibility `NovelService` facade now preserves application-service method binding across isolated and production runtimes.
 - Resource recommendation, timeline-reference, and previous-chapter context builders no longer inject Chinese control labels into active creative prompts.
 - Continuation and contextual-RAG services avoid initialization cycles, and book-analysis token accounting remains atomic across concurrent section workers.
 - Server test files now run in isolated processes so provider settings, database mocks, and mutable runtime singletons cannot leak between unrelated checks.
