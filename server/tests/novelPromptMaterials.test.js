@@ -219,8 +219,8 @@ test("novel material exporter reports unknown groups and trims over-budget conte
   });
 
   assert.ok(result.missingGroups.includes("unknown_group"));
-  assert.ok(result.warnings.some((item) => item.includes("已裁剪")));
-  assert.ok(result.blocks[0].content.includes("已裁剪"));
+  assert.ok(result.warnings.some((item) => item.includes("was truncated")));
+  assert.ok(result.blocks[0].content.includes("was truncated"));
 });
 
 test("novel material group registry has no duplicate public names or aliases", () => {

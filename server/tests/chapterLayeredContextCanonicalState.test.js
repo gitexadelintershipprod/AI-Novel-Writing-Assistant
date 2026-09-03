@@ -112,9 +112,9 @@ test("chapter layered context summaries prefer canonical state when present", ()
   assert.doesNotMatch(stateSummary, /legacy state/);
   assert.equal(conflictSummary[0], "first counterattack still unresolved | the protagonist still owes readers a visible win | resolution hint: land a clear payoff in this chapter");
   assert.deepEqual(worldSummary.slice(0, 3), [
-    "连续性记录：capital pressure and hidden powers",
-    "连续性规则记录：resources decide leverage",
-    "连续性规则记录：public exposure has cost",
+    "Continuity record:capital pressure and hidden powers",
+    "Continuity rule record:resources decide leverage",
+    "Continuity rule record:public exposure has cost",
   ]);
 });
 

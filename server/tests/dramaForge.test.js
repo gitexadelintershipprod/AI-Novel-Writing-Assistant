@@ -7,18 +7,18 @@ const path = require("node:path");
 test("drama prompt assets are registered", () => {
   const { hasRegisteredPromptAsset } = require("../dist/prompting/registry.js");
   const prompts = [
-    ["drama.source.original_bundle", "v1"],
-    ["drama.source.text_bundle", "v1"],
-    ["drama.track.recommendation", "v1"],
-    ["drama.source.supplement", "v1"],
-    ["drama.strategy", "v1"],
-    ["drama.episodeOutline", "v1"],
-    ["drama.episode.script", "v1"],
-    ["drama.episode.quality", "v1"],
-    ["drama.episode.compliance", "v1"],
-    ["drama.episode.repair", "v1"],
-    ["drama.storyboard", "v1"],
-    ["drama.video.prompt", "v1"],
+    ["drama.source.original_bundle", "v2"],
+    ["drama.source.text_bundle", "v2"],
+    ["drama.track.recommendation", "v2"],
+    ["drama.source.supplement", "v2"],
+    ["drama.strategy", "v2"],
+    ["drama.episodeOutline", "v2"],
+    ["drama.episode.script", "v2"],
+    ["drama.episode.quality", "v2"],
+    ["drama.episode.compliance", "v2"],
+    ["drama.episode.repair", "v2"],
+    ["drama.storyboard", "v2"],
+    ["drama.video.prompt", "v2"],
   ];
   for (const [id, version] of prompts) {
     assert.equal(hasRegisteredPromptAsset(id, version), true, `${id}@${version} should be registered`);

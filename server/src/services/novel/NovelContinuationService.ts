@@ -156,8 +156,8 @@ function compactStructuredValue(value: unknown): string[] {
     const nodeLabel = typeof record.label === "string" ? record.label.trim() : "";
     if (nodeLabel) {
       const meta = [
-        typeof record.phase === "string" && record.phase.trim() ? `阶段=${record.phase.trim()}` : "",
-        typeof record.timeHint === "string" && record.timeHint.trim() ? `时间=${record.timeHint.trim()}` : "",
+        typeof record.phase === "string" && record.phase.trim() ? `phase=${record.phase.trim()}` : "",
+        typeof record.timeHint === "string" && record.timeHint.trim() ? `time=${record.timeHint.trim()}` : "",
       ].filter(Boolean).join("；");
       return [meta ? `${nodeLabel}（${meta}）` : nodeLabel];
     }
@@ -219,21 +219,21 @@ function buildAnalysisHumanBlock(input: {
   const factLines = selectAnalysisLines(sections, ["overview", "worldbuilding", "themes"], 6);
   const unresolvedLines = selectAnalysisLines(sections, ["plot_structure", "timeline", "market_highlights"], 6);
 
-  return `续写模式已开启，请承接前作并避免复刻。
-续写来源：${input.sourceType === "novel" ? "站内小说" : "知识库小说"}
-前作标题：${input.sourceTitle || input.analysis.documentTitle}
-拆书分析：${input.analysis.title}
-前作核心角色状态：
-${characterLines.map((item) => `- ${item}`).join("\n") || "暂无"}
+  return `Continuation mode is enabled. Continue the source work without imitating it.
+Continuation source: ${input.sourceType === "novel" ? "project novel" : "knowledge-base novel"}
+Source title: ${input.sourceTitle || input.analysis.documentTitle}
+Book analysis: ${input.analysis.title}
+Core character states from the source:
+${characterLines.map((item) => `- ${item}`).join("\n") || "- None available"}
 
-前作终局章节摘要：
-${endingLines.map((item) => `- ${item}`).join("\n") || "暂无"}
+Ending chapter summaries from the source:
+${endingLines.map((item) => `- ${item}`).join("\n") || "- None available"}
 
-前作关键事实（用于承接因果）：
-${factLines.map((item) => `- ${item}`).join("\n") || "暂无"}
+Key source facts for causal continuity:
+${factLines.map((item) => `- ${item}`).join("\n") || "- None available"}
 
-前作未完线索（可推进，不可照抄桥段）：
-${unresolvedLines.map((item) => `- ${item}`).join("\n") || "暂无"}`;
+Unresolved source threads (may be advanced, but scenes must not be copied):
+${unresolvedLines.map((item) => `- ${item}`).join("\n") || "- None available"}`;
 }
 
 interface ContinuationContextPack {
@@ -429,7 +429,7 @@ export class NovelContinuationService {
       sourceType: input.sourceType,
       sourceId: input.sourceId,
       sourceTitle: input.sourceTitle || input.analysis.documentTitle,
-      systemRule: "若为续写模式：必须承接前作因果与角色弧线，但禁止复刻前作关键桥段顺序、标志性台词和句式。",
+      systemRule: "In continuation mode, preserve causal continuity and character arcs from the source, but never reproduce its scene order, signature dialogue, or sentence patterns.",
       humanBlock,
       antiCopyCorpus,
     };
@@ -464,43 +464,43 @@ export class NovelContinuationService {
     const characterText = sourceNovel.characters.length > 0
       ? sourceNovel.characters
         .map((item) => {
-          const state = item.currentState?.trim() ? ` | 当前状态: ${item.currentState.slice(0, 80)}` : "";
+          const state = item.currentState?.trim() ? ` | Current state: ${item.currentState.slice(0, 80)}` : "";
           return `- ${item.name} (${item.role})${state}`;
         })
         .join("\n")
-      : "暂无";
+      : "- None available";
 
     const endingSummaryText = sourceNovel.chapterSummaries.length > 0
       ? sourceNovel.chapterSummaries
         .sort((a, b) => b.chapter.order - a.chapter.order)
         .slice(0, 4)
-        .map((item) => `- 第${item.chapter.order}章《${item.chapter.title}》: ${item.summary.slice(0, 140)}`)
+        .map((item) => `- Chapter ${item.chapter.order}, "${item.chapter.title}": ${item.summary.slice(0, 140)}`)
         .join("\n")
-      : "暂无";
+      : "- None available";
 
     const factText = sourceNovel.facts.length > 0
       ? sourceNovel.facts.map((item) => `- [${item.category}] ${item.content.slice(0, 120)}`).join("\n")
-      : "暂无";
+      : "- None available";
 
     const unresolvedBeatText = sourceNovel.plotBeats.length > 0
       ? sourceNovel.plotBeats
         .map((item) => `- ${item.title}: ${item.content.slice(0, 100)}`)
         .join("\n")
-      : "暂无";
+      : "- None available";
 
-    const humanBlock = `续写模式已开启，请承接前作并避免复刻。
-续写来源：站内小说
-前作标题：${sourceNovel.title}
-前作核心角色状态：
+    const humanBlock = `Continuation mode is enabled. Continue the source work without imitating it.
+Continuation source: project novel
+Source title: ${sourceNovel.title}
+Core character states from the source:
 ${characterText}
 
-前作终局章节摘要：
+Ending chapter summaries from the source:
 ${endingSummaryText}
 
-前作关键事实（用于承接因果）：
+Key source facts for causal continuity:
 ${factText}
 
-前作未完线索（可推进，不可照抄桥段）：
+Unresolved source threads (may be advanced, but scenes must not be copied):
 ${unresolvedBeatText}`;
 
     const antiCopyCorpus = dedupeNonEmpty([
@@ -516,7 +516,7 @@ ${unresolvedBeatText}`;
       sourceType: "novel",
       sourceId: sourceNovel.id,
       sourceTitle: sourceNovel.title,
-      systemRule: "若为续写模式：必须承接前作因果与角色弧线，但禁止复刻前作关键桥段顺序、标志性台词和句式。",
+      systemRule: "In continuation mode, preserve causal continuity and character arcs from the source, but never reproduce its scene order, signature dialogue, or sentence patterns.",
       humanBlock,
       antiCopyCorpus,
     };
@@ -540,18 +540,18 @@ ${unresolvedBeatText}`;
       knowledgeContent.slice(0, 1000),
     ]);
 
-    const humanBlock = `续写模式已开启，请承接前作并避免复刻。
-续写来源：知识库小说
-知识库文档标题：${knowledgeDoc.title}
-可承接信息摘要：
-${summaryBlock || "暂无"}`;
+    const humanBlock = `Continuation mode is enabled. Continue the source work without imitating it.
+Continuation source: knowledge-base novel
+Knowledge document title: ${knowledgeDoc.title}
+Continuity-ready information summary:
+${summaryBlock || "- None available"}`;
 
     return {
       enabled: true,
       sourceType: "knowledge_document",
       sourceId: knowledgeDoc.id,
       sourceTitle: knowledgeDoc.title,
-      systemRule: "若为续写模式：必须承接前作因果与角色弧线，但禁止复刻前作关键桥段顺序、标志性台词和句式。",
+      systemRule: "In continuation mode, preserve causal continuity and character arcs from the source, but never reproduce its scene order, signature dialogue, or sentence patterns.",
       humanBlock,
       antiCopyCorpus,
     };

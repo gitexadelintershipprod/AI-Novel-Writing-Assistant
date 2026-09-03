@@ -34,14 +34,14 @@ test("read-only character conversation rejects influence drafts", () => {
   assert.equal(parsed.influenceDraft, null);
 
   const systemText = String(render("read_only")[0].content);
-  assert.match(systemText, /只读访谈/);
-  assert.match(systemText, /influenceDraft 必须为 null/);
+  assert.match(systemText, /read-only interview/);
+  assert.match(systemText, /influenceDraft must be null/);
 });
 
 test("evidence interview prompt prohibits post-anchor knowledge", () => {
   const systemText = String(render("evidence_interview")[0].content);
-  assert.match(systemText, /不得使用章节锚点之后的内容/);
-  assert.match(systemText, /缺乏依据时必须在 uncertainty 说明无法确认/);
+  assert.match(systemText, /may not use content after the chapter anchor point/);
+  assert.match(systemText, /lack of basis.*uncertainty.*cannot be confirmed/);
 });
 
 test("novel conversation can retain one evidenced soft influence", () => {
@@ -65,5 +65,5 @@ test("novel conversation can retain one evidenced soft influence", () => {
     },
   });
   assert.equal(parsed.influenceDraft.behaviorGuidance, "先提出可撤回的小交换，再决定是否合作。");
-  assert.match(String(render("novel_influence")[0].content), /待作者确认的非正史软引导/);
+  assert.match(String(render("novel_influence")[0].content), /non-canonical soft guide to be confirmed by the author/);
 });

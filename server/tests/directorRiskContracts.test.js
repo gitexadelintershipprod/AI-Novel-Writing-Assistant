@@ -62,8 +62,8 @@ test("director risk assessment prompt is registered with a strict structured con
     replanDecisionJson: "null",
     existingQualityDebtJson: "[]",
   }, { blocks: [], selectedBlockIds: [], droppedBlockIds: [], summarizedBlockIds: [], estimatedInputTokens: 0 });
-  assert.match(String(messages[0].content), /canPause 必须为 false/);
-  assert.match(String(messages[0].content), /数据完整性/);
+  assert.match(String(messages[0].content), /canPause must be false/);
+  assert.match(String(messages[0].content), /data integrity/);
 });
 
 test("forced stops use the capped 8-point score and local quality debt never pauses the book", () => {

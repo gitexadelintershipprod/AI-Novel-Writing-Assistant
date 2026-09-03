@@ -100,13 +100,13 @@ test("book framing summary flows into story macro context and world slice prompt
   };
 
   const summary = buildBookFramingSummary(novel);
-  assert.match(summary, /目标读者：爱看都市高压逆袭和关系拉扯的读者/);
-  assert.match(summary, /核心商业标签：逆袭、强冲突、职场博弈/);
-  assert.match(summary, /前 30 章承诺/);
+  assert.match(summary, /Target audience: 爱看都市高压逆袭和关系拉扯的读者/);
+  assert.match(summary, /Core story tags: 逆袭, 强冲突, 职场博弈/);
+  assert.match(summary, /First 30 chapters promise/);
 
   const projectContext = formatProjectContext(novel, "世界切片：现实都市基底");
-  assert.match(projectContext, /书级 framing/);
-  assert.match(projectContext, /本书核心卖点/);
+  assert.match(projectContext, /Book-level framing/);
+  assert.match(projectContext, /core selling point/i);
   assert.match(projectContext, /世界切片：现实都市基底/);
 
   const structure = buildStructuredWorld();
@@ -129,7 +129,7 @@ test("book framing summary flows into story macro context and world slice prompt
     user: typeof rendered[1]?.content === "string" ? rendered[1].content : String(rendered[1]?.content ?? ""),
   };
 
-  assert.match(prompt.user, /书级 framing/);
-  assert.match(prompt.user, /目标读者：爱看都市高压逆袭和关系拉扯的读者/);
-  assert.match(prompt.user, /前 30 章承诺：前 30 章必须让主角站稳第一阶段立场/);
+  assert.match(prompt.user, /Book-level framing/);
+  assert.match(prompt.user, /Target audience: 爱看都市高压逆袭和关系拉扯的读者/);
+  assert.match(prompt.user, /First 30 chapters promise: 前 30 章必须让主角站稳第一阶段立场/);
 });

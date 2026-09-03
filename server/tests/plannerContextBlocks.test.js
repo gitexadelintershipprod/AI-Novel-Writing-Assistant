@@ -89,14 +89,14 @@ test("chapter planner context prioritizes framing, story macro and current volum
   const blocks = buildChapterPlanContextBlocks(createInput());
   const byId = new Map(blocks.map((block) => [block.id, block]));
 
-  assert.match(byId.get("book_framing").content, /目标读者：新手向男频读者/);
-  assert.match(byId.get("book_framing").content, /题材基底：都市异能/);
-  assert.match(byId.get("book_framing").content, /前30章承诺：前三十章稳定兑现压迫与反压快感/);
+  assert.match(byId.get("book_framing").content, /target audience: 新手向男频读者/);
+  assert.match(byId.get("book_framing").content, /Theme base: 都市异能/);
+  assert.match(byId.get("book_framing").content, /First-30-chapter promise: 前三十章稳定兑现压迫与反压快感/);
   assert.match(byId.get("style_engine").content, /当前命中写法：冷峻现实派/);
   assert.match(byId.get("story_macro").content, /核心冲突：主角在压迫中夺回主动权/);
   assert.match(byId.get("current_volume_window").content, /卷使命：建立压迫源并完成第一次反压/);
-  assert.match(byId.get("chapter_target").content, /章节目标字数：3000 字/);
-  assert.match(byId.get("volume_summary").content, /卷级工作台展开/);
+  assert.match(byId.get("chapter_target").content, /Chapter target words: 3000 words/);
+  assert.match(byId.get("volume_summary").content, /Expanded volume workspace/);
   assert.match(byId.get("character_dynamics_summary").content, /当前卷核心角色：主角、女二/);
   assert.match(byId.get("character_volume_assignments").content, /卷级职责=完成第一次反压/);
   assert.match(byId.get("character_relation_stages").content, /互试探合作/);
@@ -105,7 +105,7 @@ test("chapter planner context prioritizes framing, story macro and current volum
   assert.match(byId.get("state_driven_goal").content, /禁止提前泄露：幕后黑手身份/);
   assert.match(byId.get("payoff_ledger").content, /账本摘要：待兑现=2，紧急=1，逾期=1，已兑现=1/);
   assert.match(byId.get("payoff_ledger").content, /当前逾期项：黑市账户异常/);
-  assert.match(byId.get("legacy_outline_source").content, /兼容性旧主线大纲（仅作迁移参考）/);
+  assert.match(byId.get("legacy_outline_source").content, /Legacy main outline \(migration reference only\)/);
   assert.equal(byId.get("legacy_outline_source").required, false);
   assert.ok(byId.get("book_framing").priority > byId.get("legacy_outline_source").priority);
   assert.ok(byId.get("current_volume_window").priority > byId.get("legacy_outline_source").priority);

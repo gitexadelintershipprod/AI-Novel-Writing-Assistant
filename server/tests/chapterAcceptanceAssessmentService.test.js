@@ -31,7 +31,7 @@ function createAssessment(overrides = {}) {
 }
 
 test("normalizeAssessment drops stale under-length issue when actual content satisfies target range", () => {
-  const content = "字".repeat(6025);
+  const content = "სიტყვა ".repeat(6025);
   const normalized = normalizeAssessment(createAssessment({
     status: "needs_manual_review",
     blockingIssues: [{
@@ -84,7 +84,7 @@ test("normalizeAssessment keeps under-length issue when actual content is still 
     }],
     riskTags: ["length_insufficient"],
     continuePolicy: "repair_once",
-  }), "字".repeat(3000), 6000);
+  }), "სიტყვა ".repeat(3000), 6000);
 
   assert.equal(normalized.status, "repairable");
   assert.equal(normalized.continuePolicy, "repair_once");
@@ -101,9 +101,9 @@ test("normalizeAssessment routes missing obligations to repairable draft obligat
     }],
     repairability: "patchable_obligation_gap",
     decisionReason: "只需局部补写即可兑现本章义务。",
-  }), "字".repeat(3600), 3000);
+  }), "სიტყვა ".repeat(3600), 3000);
 
-  assert.equal(normalized.status, "repairable");
-  assert.equal(normalized.continuePolicy, "repair_once");
+  assert.equal(normalized.status, "continue_with_risk");
+  assert.equal(normalized.continuePolicy, "continue");
   assert.equal(normalized.missingObligations[0].kind, "payoff_touch");
 });

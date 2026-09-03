@@ -6,14 +6,20 @@ function normalizeWorkspaceDiagnosticAction(value: unknown): unknown {
     const normalized = value.trim();
     switch (normalized) {
         case "Optimize expression":
+        case "表达优化":
+        case "优化表达":
             return "polish";
         case "Expand":
+        case "扩写":
             return "expand";
         case "Streamline":
+        case "精简":
             return "compress";
         case "Strengthen mood":
+        case "强化情绪":
             return "emotion";
         case "intensify conflict":
+        case "强化冲突":
             return "conflict";
         default:
             return normalized;

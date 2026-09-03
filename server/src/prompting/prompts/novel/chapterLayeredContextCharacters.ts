@@ -1,6 +1,6 @@
 import type { ChapterWriteContext, GenerationContextPackage, } from "@ai-novel/shared/types/chapterRuntime";
 import { compactText, takeUnique } from "./chapterLayeredContextShared";
-function buildVisibleProfileSummary(character: GenerationContextPackage["characterRoster"][number] | undefined): string | null {
+export function buildVisibleProfileSummary(character: GenerationContextPackage["characterRoster"][number] | undefined): string | null {
     if (!character) {
         return null;
     }
@@ -9,8 +9,8 @@ function buildVisibleProfileSummary(character: GenerationContextPackage["charact
             ? `appearance/body=${compactText([character.appearance, character.physique].filter(Boolean).join("；"))}`
             : "",
         character.attireStyle ? `Common wear=${compactText(character.attireStyle)}` : "",
-        character.signatureDetail ? `flag =${compactText(character.signatureDetail)}` : "",
-        character.voiceTexture ? `sound =${compactText(character.voiceTexture)}` : "",
+        character.signatureDetail ? `signature detail=${compactText(character.signatureDetail)}` : "",
+        character.voiceTexture ? `voice=${compactText(character.voiceTexture)}` : "",
         character.presenceImpression ? `Appearance impression=${compactText(character.presenceImpression)}` : "",
     ], 6);
     return parts.length > 0 ? parts.join(" | ") : null;

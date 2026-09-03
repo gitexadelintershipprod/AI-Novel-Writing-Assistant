@@ -150,9 +150,9 @@ export function createVolumeChapterListPrompt(input: number | {
                         "5. If the reason for failure is duplicate titles or concentrated title skeletons, all titles that hit duplicate skeletons must be rewritten instead of only partially patching a few chapters.",
                         "6. If the reason for failure is duplication of chapter functions, the chapter functions must be reassigned to avoid having multiple consecutive chapters that are just investigation, discovery, realization, or foreshadowing.",
                         "7. The summary of each chapter must reflect the new advancement, giving priority to the choices, temptations, counterattacks, layouts, exchanges, tolerance or bearing costs of the core perspective characters.",
-                        "8. Explicitly avoid extensive use of the \"Y of X/Y in X/Y in X\" skeleton.",
-                        "9. Clearly prevent the whole batch of titles from collapsing into the \"A, B / four-word action, four-word result\" parallel template.",
-                        "10. The title must be an objective chapter title, not in the first person, not written as a complete plot sentence, and the number of core words should not exceed 16.",
+                        "8. Vary natural Georgian syntax; do not overuse identical genitive, comma-split, or two-clause frames.",
+                        "9. Mix concise event, conflict, discovery, outcome, decision, location, relationship-change, and question-hook titles.",
+                        "10. Each title must be objective Georgian prose, contain 1-10 words, stay within 80 Unicode code points, avoid first-person slogans, and not read like a plot synopsis.",
                         "11. The beatKey of each chapter must remain the current target beatKey.",
                         "12. The abstract must reflect the changes in the situation caused by this chapter and must not restate the title in vain.",
                         isBookFinale
@@ -178,7 +178,7 @@ export function createVolumeChapterListPrompt(input: number | {
                 "You must meet the following requirements at the same time: the structured output is correct, the chapter functions are clear, the title is like the chapter name, and the abstract has real advancement.",
                 "",
                 "1. Task Boundaries",
-                `1. You can currently only do "${targetBeatLabel}"Generate ${targetChapterCount} Chapter, the number cannot be too much or too little.`,
+                `1. Generate exactly ${targetChapterCount} chapters for the "${targetBeatLabel}" beat, no more and no fewer.`,
                 "2. Only the current target beat is allowed to be overwritten, and chapters of adjacent beats are not allowed to cross the boundary.",
                 "3. Do not combine two chapters into one summary chapter, nor use empty placeholder chapters to make up the number.",
                 "4. If the beat information is insufficient, it must be completed to the exact number of chapters, but only conservative transitions can be made, and no major new settings can be created.",
@@ -187,10 +187,10 @@ export function createVolumeChapterListPrompt(input: number | {
                 "2. Hard output constraints",
                 "1. The top level must output four fields: beatKey, beatLabel, chapterCount, and chapters.",
                 "2. Each chapter can only contain three fields: title, summary, and beatKey, and no new fields are allowed.",
-                `3. beatKey must be strictly equal to ${targetBeatKey}。`,
-                `4. beatLabel must be strictly equal to ${targetBeatLabel}。`,
-                `5. chapterCount and chapters.length must be strictly equal to ${targetChapterCount}。`,
-                `6. The beatKey of each chapter must be strictly equal to ${targetBeatKey}。`,
+                `3. beatKey must be strictly equal to ${targetBeatKey}.`,
+                `4. beatLabel must be strictly equal to ${targetBeatLabel}.`,
+                `5. chapterCount and chapters.length must be strictly equal to ${targetChapterCount}.`,
+                `6. The beatKey of each chapter must be strictly equal to ${targetBeatKey}.`,
                 "7. No Markdown, comments, explanations, or any additional text may be output.",
                 "8. The summary of each chapter should be limited to 40-120 words. Only the core actions, resistance and new situations created should be written; expansion of scenes, dialogue or main text is prohibited.",
                 "9. End the JSON immediately after writing the specified number of final chapters, without additional analysis, self-checking processes, or release candidates.",
@@ -221,18 +221,18 @@ export function createVolumeChapterListPrompt(input: number | {
                 "",
                 "6. Title requirements",
                 "1. The title of each chapter must be like the real chapter name, giving priority to the event anchor, location, conflict, abnormal discovery, situation change, stage realization, relationship change or problem hook.",
-                "2. The title uses objective expression by default, and does not use first-person self-narration such as \"I/my/I am/I use/for me/chasing me\".",
-                "3. Before starting to write chapters, first complete the \"title syntax matching planning\" in your mind, and then output according to the matching ratio. Do not repeat the template while thinking.",
-                "4. The same batch of titles must actively mix different syntaxes such as action-promoting type, conflict-pressing type, exception-finding type, result-fulfilling type, decision-making type, question-hook type, and relationship-changing type.",
-                "5. The number of core words in the title should not exceed 16, and 4-12 words are recommended; do not write long sentences, complete cause-and-effect sentences, or plot summaries.",
-                "6. The title can be contrasting, but it should be short, such as \"Secret Order Distorted\", \"Soul-Destroying Nail Appears\", \"Crack in the Formation Eye\"; do not write \"Someone did something, so a certain result happened\".",
-                "7. Avoid only abstract words: storm, undercurrent, crisis, truth, choice, change, etc., unless there are specific objects, actions or contrasts in the title.",
-                "8. If the current rhythm section has 6 chapters or more: any single surface skeleton should not exceed half; skeletons such as \"Y of X / Y in X / Y in",
-                "9. Clearly avoid letting most titles continue to collapse into the \"A, B / four-word action, four-word result\" parallel template.",
-                "10. Adjacent chapter titles should not use the same grammatical skeleton for more than 3 consecutive chapters.",
-                "11. The title should have a sense of advancement and readability, and avoid being literary, abstract, lyrical, slogan-like, or overly templated.",
-                "12. The protagonist\u2019s initiative, choices and costs are mainly written in the summary. Do not write the title in the first person to reflect the actions of the protagonist.",
-                "13. Self-check before generating: whether there is a first-person title, a title that is too long, too many \"word structures\", too many commas in parallel structures, or multiple consecutive chapters with the same skeleton; if so, change it first and then output.",
+                "2. Use natural Georgian objective phrasing; do not use first-person openings such as \"მე\", \"ჩვენ\", \"ჩემი\", or \"ჩვენი\".",
+                "3. Plan title variety before output and avoid repeating the same grammatical frame.",
+                "4. Mix concise event, conflict, discovery, outcome, decision, location, relationship-change, and question-hook titles.",
+                "5. Each title must contain 1-10 words and no more than 80 Unicode code points; do not write a long sentence, full cause-and-effect statement, or plot synopsis.",
+                "6. Prefer short Georgian titles such as \"გატეხილი ბრძანება\", \"ნაპრალი კარიბჭეში\", or \"ვინ წაიღო გასაღები?\".",
+                "7. Avoid a title made only of abstract words unless a concrete object, action, place, or contrast anchors it.",
+                "8. When a beat has six or more chapters, no non-plain surface frame should dominate more than half of the batch.",
+                "9. Do not let most titles collapse into the same comma-split or two-clause parallel template.",
+                "10. Do not repeat the same marked grammatical frame for more than three adjacent chapters.",
+                "11. Titles should create forward motion and readability without becoming vague, lyrical, slogan-like, or mechanical.",
+                "12. Put the protagonist's initiative, choice, and cost in the summary rather than turning the title into first-person narration.",
+                "13. Self-check for first-person wording, excessive length, repeated genitive or comma-split frames, and near-duplicate wording; repair these before output.",
                 "",
                 "7. Abstract requirements",
                 "1. The summary of each chapter must clearly state what the chapter specifically advances and what role it plays in the current target beat.",
@@ -265,10 +265,10 @@ export function createVolumeChapterListPrompt(input: number | {
                 "- Only output strict JSON",
                 `- beatKey must be strictly equal to ${targetBeatKey}`,
                 `- beatLabel must be strictly equal to ${targetBeatLabel}`,
-                `- chapterCount and chapters.length must be strictly equal ${targetChapterCount}`,
+                `- chapterCount and chapters.length must be strictly equal to ${targetChapterCount}`,
                 "- Each chapter can only contain title, summary, beatKey",
                 "- No chapters with adjacent beats may be generated",
-                "- Plan the chapter function allocation and title skeleton ratio in your mind first, and then output the complete chapter block",
+                "- Plan chapter functions and Georgian title-frame variety before outputting the complete chapter block",
                 "- Prioritize the sense of chapter advancement, rhythm continuity, decentralized title structure, character initiative and ending traction in the summary",
                 "- The title must be short and objective, do not use the first person, do not write long sentences or plot synopses",
                 "",
@@ -278,18 +278,18 @@ export function createVolumeChapterListPrompt(input: number | {
         ],
         postValidate: (output) => {
             if (output.beatKey !== targetBeatKey) {
-                throw new Error(`beatKey must be strictly equal to ${targetBeatKey}。`);
+                throw new Error(`beatKey must be strictly equal to ${targetBeatKey}.`);
             }
             if (output.beatLabel !== targetBeatLabel) {
-                throw new Error(`beatLabel must be strictly equal to ${targetBeatLabel}。`);
+                throw new Error(`beatLabel must be strictly equal to ${targetBeatLabel}.`);
             }
             if (output.chapterCount !== targetChapterCount ||
                 output.chapters.length !== targetChapterCount) {
-                throw new Error(`chapterCount and chapters.length must be strictly equal to ${targetChapterCount}。`);
+                throw new Error(`chapterCount and chapters.length must be strictly equal to ${targetChapterCount}.`);
             }
             output.chapters.forEach((chapter, index) => {
                 if (chapter.beatKey !== targetBeatKey) {
-                    throw new Error(`No. ${index + 1} The beatKey of each chapter must be strictly equal to ${targetBeatKey}。`);
+                    throw new Error(`Chapter ${index + 1} beatKey must be strictly equal to ${targetBeatKey}.`);
                 }
             });
             const titleDiversityIssue = getChapterTitleDiversityIssue(output.chapters.map((chapter) => chapter.title));

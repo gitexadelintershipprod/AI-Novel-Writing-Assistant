@@ -38,15 +38,15 @@ export function formatProjectContext(novel: StoryMacroNovelContext, worldSliceCo
   });
 
   return [
-    novel.title ? `项目标题：${novel.title}` : "",
-    novel.genre?.name ? `预设题材：${novel.genre.name}` : "",
-    bookFramingSummary ? `书级 framing：\n${bookFramingSummary}` : "",
+    novel.title ? `Project title: ${novel.title}` : "",
+    novel.genre?.name ? `Genre foundation: ${novel.genre.name}` : "",
+    bookFramingSummary ? `Book-level framing:\n${bookFramingSummary}` : "",
     storyModeBlock,
-    novel.styleTone ? `风格倾向：${novel.styleTone}` : "",
-    novel.narrativePov ? `叙事人称：${novel.narrativePov}` : "",
-    novel.pacePreference ? `节奏偏好：${novel.pacePreference}` : "",
-    novel.emotionIntensity ? `情绪强度：${novel.emotionIntensity}` : "",
-    novel.estimatedChapterCount ? `预计章节数：${novel.estimatedChapterCount}` : "",
+    novel.styleTone ? `Style tendency: ${novel.styleTone}` : "",
+    novel.narrativePov ? `Narrative point of view: ${novel.narrativePov}` : "",
+    novel.pacePreference ? `Pace preference: ${novel.pacePreference}` : "",
+    novel.emotionIntensity ? `Emotional intensity: ${novel.emotionIntensity}` : "",
+    novel.estimatedChapterCount ? `Estimated chapter count: ${novel.estimatedChapterCount}` : "",
     worldSliceContext.trim(),
   ].filter(Boolean).join("\n");
 }
@@ -73,7 +73,7 @@ export function normalizeRegeneratedFieldValue(field: StoryMacroField, value: un
   if (field === "conflict_layers") {
     const layers = normalizeConflictLayers(value);
     if (!layers.external || !layers.internal || !layers.relational) {
-      throw new Error("AI 未返回完整的冲突层。");
+      throw new Error("The AI did not return every required conflict layer.");
     }
     return layers;
   }
@@ -82,12 +82,12 @@ export function normalizeRegeneratedFieldValue(field: StoryMacroField, value: un
       ? normalizeConstraints(value)
       : normalizeStringList(value, field === "setpiece_seeds" ? 3 : 5);
     if (arrayValue.length === 0) {
-      throw new Error(`AI 未返回有效的 ${field} 列表。`);
+      throw new Error(`The AI did not return a valid ${field} list.`);
     }
     return arrayValue;
   }
   if (typeof value !== "string" || !value.trim()) {
-    throw new Error(`AI 未返回有效的 ${field}。`);
+    throw new Error(`The AI did not return a valid ${field} value.`);
   }
   return value.trim();
 }

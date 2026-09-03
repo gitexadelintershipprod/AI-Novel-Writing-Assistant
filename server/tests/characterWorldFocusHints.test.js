@@ -18,7 +18,7 @@ test("character cast context includes world focus hints", () => {
   const worldBlock = blocks.find((block) => block.id === "character_cast_world_stage");
   assert.ok(worldBlock);
   assert.match(worldBlock.content, /天机阁/);
-  assert.match(worldBlock.content, /必须进行世界规则合规检查/);
+  assert.match(worldBlock.content, /World rules compliance checks must be carried out/);
 });
 
 test("supplemental character context includes world focus hints", () => {
@@ -35,5 +35,5 @@ test("supplemental character context includes world focus hints", () => {
   const worldBlock = blocks.find((block) => block.id === "supplemental_character_world_stage");
   assert.ok(worldBlock);
   assert.match(worldBlock.content, /北境冰原/);
-  assert.match(worldBlock.content, /身份、能力来源、阵营归属、地点和禁忌搭配/);
+  assert.match(worldBlock.content, /identity, ability source, camp affiliation, location and taboo combinations/);
 });

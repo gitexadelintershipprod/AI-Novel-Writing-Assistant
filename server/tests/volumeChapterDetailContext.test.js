@@ -412,6 +412,6 @@ test("boundary post-validate rejects duplicated exclusive event and mirrored sta
       mustAvoid: "不要直接暴露财富。",
       payoffRefs: [],
     }, input, context),
-    /独占事件|endingState 与 nextChapterEntryState/,
+    /Exclusive events|endingState and nextChapterEntryState/,
   );
 });

@@ -6,8 +6,8 @@ const {
   pickApplicableVisibleProfileFields,
 } = require("../dist/services/novel/characterProfile/CharacterVisibleProfileService");
 const {
-  buildCharactersContextText,
-} = require("../dist/services/novel/runtime/runtimeContextBlocks");
+  buildVisibleProfileSummary,
+} = require("../dist/prompting/prompts/novel/chapterLayeredContextCharacters");
 const {
   characterVisibleProfileCompletionPrompt,
 } = require("../dist/prompting/prompts/novel/characterVisibleProfile.prompts");
@@ -51,22 +51,19 @@ test("visible profile validator treats generic prose as vague", () => {
 });
 
 test("chapter character context includes compact visible profile summary", () => {
-  const text = buildCharactersContextText([
-    {
-      name: "林照",
-      role: "主角",
-      personality: "谨慎但不退让",
-      appearance: "眼尾狭长，额前总有被火燎卷的碎发",
-      physique: "少年感偏瘦，肩背却很稳",
-      signatureDetail: "思考时会用拇指摩挲旧铜戒",
-      voiceTexture: "声音偏低，短句多，越危险越慢",
-    },
-  ]);
+  const text = buildVisibleProfileSummary({
+    name: "林照",
+    role: "主角",
+    personality: "谨慎但不退让",
+    appearance: "眼尾狭长，额前总有被火燎卷的碎发",
+    physique: "少年感偏瘦，肩背却很稳",
+    signatureDetail: "思考时会用拇指摩挲旧铜戒",
+    voiceTexture: "声音偏低，短句多，越危险越慢",
+  });
 
-  assert.match(text, /外显/);
-  assert.match(text, /样貌\/体态=/);
-  assert.match(text, /标志=/);
-  assert.match(text, /声音=/);
+  assert.match(text, /appearance\/body=/);
+  assert.match(text, /signature detail=/);
+  assert.match(text, /voice=/);
 });
 
 test("visible profile prompt carries author guidance into the request", () => {
@@ -89,6 +86,6 @@ test("visible profile prompt carries author guidance into the request", () => {
   });
   const rendered = messages.map((message) => String(message.content)).join("\n");
 
-  assert.match(rendered, /作者补全倾向/);
+  assert.match(rendered, /author.*completion tendency/i);
   assert.match(rendered, /医疗队里的疲惫感/);
 });

@@ -722,10 +722,10 @@ test("chapter layered contexts carry volume mission, character duties and repair
   assert.ok(writeContext.characterHardFacts.some((item) => item.name === "女二"));
   assert.ok(writeContext.characterBehaviorGuides.some((item) => item.volumeResponsibility.includes("反压机会")));
   assert.ok(writeContext.characterBehaviorGuides.some((item) => item.absenceRisk === "high"));
-  assert.ok(writeContext.characterBehaviorGuides.some((item) => item.visibleProfileSummary?.includes("常见穿着=洗旧的深灰工装外套")));
-  assert.ok(writeContext.characterBehaviorGuides.some((item) => item.visibleProfileSummary?.includes("登场印象=沉默克制")));
-  assert.ok(writeContext.obligationContract.requiredCharacterAppearances.includes("女二（已缺席 3 章，宜自然带出）"));
-  assert.match(writeContext.narrativeProgressHint, /第 5 章 \/ 预计共 20 章/);
+  assert.ok(writeContext.characterBehaviorGuides.some((item) => item.visibleProfileSummary?.includes("Common wear=洗旧的深灰工装外套")));
+  assert.ok(writeContext.characterBehaviorGuides.some((item) => item.visibleProfileSummary?.includes("Appearance impression=沉默克制")));
+  assert.ok(writeContext.obligationContract.requiredCharacterAppearances.includes("女二(Absent 3 Chapter, should be brought out naturally)"));
+  assert.match(writeContext.narrativeProgressHint, /Chapter 5 Chapters \/ Estimated total 20 Chapter/);
   assert.ok(writeContext.pendingCandidateGuards.some((item) => item.proposedName === "林策"));
   assert.ok(writeContext.openConflictSummaries.some((item) => item.includes("第一次反压仍未落地")));
   assert.equal(writeContext.ledgerSummary.overdueCount, 1);
@@ -782,7 +782,7 @@ test("chapter layered contexts carry volume mission, character duties and repair
   )));
   assert.ok(writerBlocks.some((block) => (
     block.id === "chapter_mission"
-    && /原始任务单/.test(block.content)
+    && /Original task order/.test(block.content)
     && /维修通道钥匙/.test(block.content)
   )));
   assert.ok(writerBlocks.some((block) => (
@@ -795,7 +795,7 @@ test("chapter layered contexts carry volume mission, character duties and repair
     block.id === "narrative_progress_hint"
     && block.priority === 98
     && block.required === false
-    && /发展阶段/.test(block.content)
+    && /Development stage/.test(block.content)
   )));
   assert.ok(!writerBlocks.some((block) => block.id === "scene_plan"));
   assert.ok(writerBlocks.some((block) => (
@@ -821,8 +821,8 @@ test("chapter layered contexts carry volume mission, character duties and repair
   )));
   assert.ok(reviewBlocks.some((block) => (
     block.id === "character_dynamics"
-    && /角色行为指导/.test(block.content)
-    && /候选角色护栏/.test(block.content)
+    && /Role behavior guidance/.test(block.content)
+    && /Candidate role guardrails/.test(block.content)
   )));
   assert.ok(reviewBlocks.some((block) => (
     block.id === "chapter_boundary"
@@ -838,8 +838,8 @@ test("chapter layered contexts carry volume mission, character duties and repair
   )));
   assert.ok(reviewBlocks.some((block) => (
     block.id === "chapter_mission"
-    && /目标篇幅：约 3000 个中文字符/.test(block.content)
-    && /状态驱动的下一步动作：write_chapter/.test(block.content)
+    && /Target length: approx. 3000 words/.test(block.content)
+    && /State-driven next action:write_chapter/.test(block.content)
     && /2550-3450/.test(block.content)
   )));
   assert.ok(writerBlocks.some((block) => (
@@ -869,11 +869,11 @@ test("chapter layered character hard facts soften pending review state and goal 
   const hardFactsBlock = writerBlocks.find((block) => block.id === "character_hard_facts");
 
   assert.ok(hardFactsBlock);
-  assert.match(hardFactsBlock.content, /标记为待确认的当前状态\/当前目标只作参考/);
-  assert.match(hardFactsBlock.content, /当前状态\(待确认，如与最新剧情冲突可按合理逻辑调整\)=待确认：已经开始反压/);
-  assert.match(hardFactsBlock.content, /当前目标\(待确认，如与最新剧情冲突可按合理逻辑调整\)=待确认：追查黑市账户/);
-  assert.match(hardFactsBlock.content, /当前位置=外城维修区/);
-  assert.doesNotMatch(hardFactsBlock.content, /当前位置\(待确认/);
+  assert.match(hardFactsBlock.content, /current status\/current goal marked as pending confirmation is for reference only/i);
+  assert.match(hardFactsBlock.content, /Current status \(to be confirmed.*\) =待确认：已经开始反压/);
+  assert.match(hardFactsBlock.content, /Current goal \(to be confirmed.*\) =待确认：追查黑市账户/);
+  assert.match(hardFactsBlock.content, /Current location=外城维修区/);
+  assert.doesNotMatch(hardFactsBlock.content, /Current location \(to be confirmed/);
 });
 
 test("chapter writer blocks enforce enabled critical context contracts", () => {
@@ -920,9 +920,9 @@ test("chapter writer blocks enforce enabled critical context contracts", () => {
   assert.equal(continuationBlock.required, true);
   assert.equal(continuationBlock.allowSummary, false);
   assert.equal(continuationBlock.priority, 74);
-  assert.match(continuationBlock.content, /续写来源约束：知识库小说/);
-  assert.match(continuationBlock.content, /前作核心角色状态：主角：终局时保留创伤和未兑现目标/);
-  assert.match(continuationBlock.content, /前作未完线索：黑市账户异常还没有解释/);
+  assert.match(continuationBlock.content, /Continuation source constraints:知识库小说/);
+  assert.match(continuationBlock.content, /主角：终局时保留创伤和未兑现目标/);
+  assert.match(continuationBlock.content, /黑市账户异常还没有解释/);
 
   const hardFactsBlock = assertNonEmptyBlock(writerBlocks, "character_hard_facts");
   assert.equal(hardFactsBlock.required, true);
@@ -1043,8 +1043,8 @@ test("chapter context only supplies mind and active dialogue guidance to actual 
   assert.equal(observerGuide.mindGuidance, null);
   assert.match(protagonistGuide.authorInfluenceGuidance, /先利用维修通道确认退路/);
   assert.equal(observerGuide.authorInfluenceGuidance, null);
-  assert.match(guidanceBlock.content, /主观倾向（非客观事实）/);
-  assert.match(guidanceBlock.content, /角色对话后确认的软性行为倾向（非客观事实）/);
+  assert.match(guidanceBlock.content, /Subjective tendencies \(not objective facts\)/);
+  assert.match(guidanceBlock.content, /Soft behavioral tendencies confirmed after character dialogue \(not objective facts\)/);
   assert.doesNotMatch(guidanceBlock.content, /旁观者以为自己无需卷入/);
   assert.doesNotMatch(guidanceBlock.content, /暂时避开冲突/);
   assert.ok(writeContext.characterHardFacts.some((fact) => fact.characterId === "char-1"));

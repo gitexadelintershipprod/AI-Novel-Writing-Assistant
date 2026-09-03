@@ -450,8 +450,8 @@ test("composeAssistantMessage asks a warm kickoff question when create_novel lac
       },
     );
     assert.equal(text, "当然可以。你想先给这本书起个暂定名字，还是先告诉我你更想写什么类型、谁来当主角？");
-    assert.match(captured[0][1].content, /当前还没有创建成功的小说/);
-    assert.match(captured[0][1].content, /用户还没有明确标题/);
+    assert.match(captured[0].at(-1).content, /当前还没有创建成功的小说/);
+    assert.match(captured[0].at(-1).content, /用户还没有明确标题/);
   } finally {
     setNovelSetupGuidanceLLMFactoryForTests();
   }
@@ -509,8 +509,8 @@ test("composeAssistantMessage guides setup after create_novel", async () => {
       },
     );
     assert.equal(text, "《风雪断桥》已经开好了，我们先把故事抓手定稳一点。你更想先聊主角是谁、他卡在什么冲突里，还是我先给你几种题材方向做选择？");
-    assert.match(captured[0][1].content, /题材与风格、叙事配置、世界观基础/);
-    assert.match(captured[0][1].content, /系统建议提问：这本书想讲谁、遇到什么冲突、最后要把故事推向哪里？/);
+    assert.match(captured[0].at(-1).content, /题材与风格、叙事配置、世界观基础/);
+    assert.match(captured[0].at(-1).content, /系统建议提问：这本书想讲谁、遇到什么冲突、最后要把故事推向哪里？/);
   } finally {
     setNovelSetupGuidanceLLMFactoryForTests();
   }
@@ -605,9 +605,9 @@ test("composeAssistantMessage generates setup options from grounded novel facts"
     );
     assert.match(text, /方案一/);
     assert.match(text, /挑最接近的一版/);
-    assert.match(captured[0][1].content, /妻子的秘密交易/);
-    assert.match(captured[0][1].content, /都市婚姻危机题材/);
-    assert.match(captured[0][1].content, /婚姻与忠诚不断被利益侵蚀/);
+    assert.match(captured[0].at(-1).content, /妻子的秘密交易/);
+    assert.match(captured[0].at(-1).content, /都市婚姻危机题材/);
+    assert.match(captured[0].at(-1).content, /婚姻与忠诚不断被利益侵蚀/);
   } finally {
     setNovelSetupIdeationLLMFactoryForTests();
   }

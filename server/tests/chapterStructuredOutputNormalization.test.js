@@ -227,8 +227,8 @@ test("chapter acceptance prompt forbids status alias values", () => {
   });
   const systemText = String(messages[0].content);
 
-  assert.match(systemText, /status 只能使用 accepted、repairable、needs_manual_review、continue_with_risk/);
-  assert.match(systemText, /不得输出 acceptable、pass、passed、ok、approved/);
+  assert.match(systemText, /Status can only use accepted, repairable, needs_manual_review, continue_with_risk/);
+  assert.match(systemText, /aliases such as acceptable, pass, passed, ok, approved/);
 });
 
 test("chapter acceptance schema accepts obligation diagnostics", () => {

@@ -157,21 +157,21 @@ test.skip("chapter title diversity accepts mixed chapter title surfaces", { skip
 
 test("chapter title quality rejects first-person and synopsis-like titles", () => {
   const firstPersonIssue = getChapterTitleDiversityIssue([
-    "我亲手掐断了那句要命的话",
-    "断魂钉现",
-    "阵眼裂缝",
+    "მე გავწყვიტე საბედისწერო სიტყვა",
+    "დაკარგული ბეჭედი",
+    "ნაპრალი კარიბჭეში",
   ]);
 
-  assert.match(firstPersonIssue, /第一人称/);
+  assert.match(firstPersonIssue, /first-person/);
   assert.equal(isBlockingChapterTitleQualityIssue(firstPersonIssue), true);
 
   const longTitleIssue = getChapterTitleDiversityIssue([
-    "龙须虎临阵反水，姜子牙的第一次收徒成了三界笑话",
-    "断魂钉现",
-    "阵眼裂缝",
+    "მხედარმა ბრძოლაში მხარე შეიცვალა და პირველი ფიცი მთელი სამეფოს დაცინვად იქცა",
+    "დაკარგული ბეჭედი",
+    "ნაპრალი კარიბჭეში",
   ]);
 
-  assert.match(longTitleIssue, /标题过长|剧情梗概/);
+  assert.match(longTitleIssue, /too long|plot synopsis/);
   assert.equal(isBlockingChapterTitleQualityIssue(longTitleIssue), true);
 });
 
@@ -186,17 +186,15 @@ test("volume chapter list prompt render hardens title diversity rules", () => {
   }, EMPTY_CONTEXT);
 
   assert.equal(messages.length, 2);
-  assert.match(String(messages[0].content), /只能为「开卷抓手」生成 6 章/);
-  assert.match(String(messages[0].content), /beatKey 必须严格等于 open_hook/);
-  assert.match(String(messages[0].content), /chapterCount 与 chapters\.length 必须严格等于 6/);
+  assert.match(String(messages[0].content), /Generate exactly 6 chapters for the "开卷抓手" beat/);
+  assert.match(String(messages[0].content), /beatKey must be strictly equal to open_hook/);
+  assert.match(String(messages[0].content), /chapterCount and chapters\.length must be strictly equal to 6/);
   const rendered = String(messages[0].content);
-  assert.ok(
-    rendered.includes("X的Y") && rendered.includes("X中的Y") && rendered.includes("在X中Y") && rendered.includes("最多只占约三成"),
-    "prompt should keep the X的Y title-skeleton diversity cap line",
-  );
-  assert.match(String(messages[0].content), /A，B \/ 四字动作，四字结果/);
-  assert.match(String(messages[0].content), /不使用“我 \/ 我的/);
-  assert.match(String(messages[0].content), /核心字数不超过 16 个/);
+  assert.match(rendered, /natural Georgian objective phrasing/);
+  assert.match(rendered, /1-10 words/);
+  assert.match(rendered, /80 Unicode code points/);
+  assert.match(rendered, /comma-split or two-clause parallel template/);
+  assert.match(rendered, /do not use first-person openings/);
   assert.match(String(messages[0].content), /章名结构过于集中/);
 });
 
@@ -300,10 +298,10 @@ test("volume chapter list prompt degrades title diversity failure after semantic
     assert.equal(result.meta.invocation.semanticRetryAttempts, 2);
 
     const retryMessage = String(calls[1].messages[calls[1].messages.length - 1].content);
-    assert.match(retryMessage, /失败原因：章节标题结构过于集中/);
-    assert.match(retryMessage, /失败类型：标题结构/);
-    assert.match(retryMessage, /不要只局部替换触发校验的一章/);
-    assert.match(retryMessage, /重排整组标题骨架/);
+    assert.match(retryMessage, /Reason for failure:Chapter title structure is too concentrated/);
+    assert.match(retryMessage, /Failure type:Title structure/);
+    assert.match(retryMessage, /Don.t just partially replace a chapter/);
+    assert.match(retryMessage, /Rearrange the entire set of title skeletons/);
   } finally {
     setPromptRunnerStructuredInvokerForTests();
   }
@@ -320,7 +318,7 @@ test("volume chapter list prompt keeps first-person title failures blocking afte
         beatLabel: "开卷抓手",
         chapterCount: 3,
         chapters: [
-          { beatKey: "open_hook", title: "我亲手掐断了那句要命的话", summary: "主角主动避开死劫，改变当前局面。" },
+          { beatKey: "open_hook", title: "მე გავწყვიტე საბედისწერო სიტყვა", summary: "მთავარი გმირი საფრთხეს გაურბის და ვითარებას ცვლის." },
           { beatKey: "open_hook", title: "断魂钉现", summary: "新的危险落到台前，迫使主角调整计划。" },
           { beatKey: "open_hook", title: "阵眼裂缝", summary: "本段危机出现阶段性转向，并留下后续牵引。" },
         ],
@@ -338,7 +336,7 @@ test("volume chapter list prompt keeps first-person title failures blocking afte
         targetBeatLabel: "开卷抓手",
       }),
       promptInput: createPromptInput(3),
-    }), /第一人称/);
+    }), /first-person/);
 
     assert.equal(calls.length, 3);
   } finally {
@@ -376,7 +374,7 @@ test("volume chapter list prompt keeps hard contract failures blocking after sem
         targetBeatLabel: "开卷抓手",
       }),
       promptInput: createPromptInput(4),
-    }), /beatKey 必须严格等于 open_hook/);
+    }), /beatKey must be strictly equal to open_hook/);
 
     assert.equal(calls.length, 3);
   } finally {
@@ -414,7 +412,7 @@ test("volume chapter list prompt blocks copied titles from earlier beats after s
         reservedChapterTitles: ["夜探旧温室"],
       }),
       promptInput: createPromptInput(3),
-    }), /章节标题出现重复：夜探旧温室/);
+    }), /Duplicate or near-duplicate chapter title: 夜探旧温室/);
     assert.equal(calls.length, 3);
   } finally {
     setPromptRunnerStructuredInvokerForTests();

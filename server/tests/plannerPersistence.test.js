@@ -245,9 +245,9 @@ test("persistStoryPlan syncs chapter assets and promotes empty chapters to pendi
     assert.equal(captured.persistedSceneRows.length, 3);
     assert.equal(captured.chapterUpdate.expectation, "推进主线冲突并建立章节悬念");
     assert.equal(captured.chapterUpdate.chapterStatus, "pending_generation");
-    assert.match(captured.chapterUpdate.taskSheet, /章节目标：推进主线冲突并建立章节悬念/);
-    assert.match(captured.chapterUpdate.taskSheet, /必须推进：/);
-    assert.match(captured.chapterUpdate.taskSheet, /收尾钩子：结尾抛出更大的风险/);
+    assert.match(captured.chapterUpdate.taskSheet, /Chapter objective: 推进主线冲突并建立章节悬念/);
+    assert.match(captured.chapterUpdate.taskSheet, /Must advance:/);
+    assert.match(captured.chapterUpdate.taskSheet, /Ending hook: 结尾抛出更大的风险/);
     const parsedScenePlan = parseChapterScenePlan(captured.chapterUpdate.sceneCards, {
       targetWordCount: 3600,
     });
@@ -359,7 +359,7 @@ test("persistStoryPlan skips sceneCards sync when planner scenes cannot form a c
 
     assert.equal(chapterUpdate.expectation, "推进单一场景冲突");
     assert.equal(chapterUpdate.sceneCards, undefined);
-    assert.match(chapterUpdate.taskSheet, /章节目标：推进单一场景冲突/);
+    assert.match(chapterUpdate.taskSheet, /Chapter objective: 推进单一场景冲突/);
     assert.equal(chapterUpdate.chapterStatus, "pending_generation");
   } finally {
     prisma.storyPlan.findFirst = original.findFirst;

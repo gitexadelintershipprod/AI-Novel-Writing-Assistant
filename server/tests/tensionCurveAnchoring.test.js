@@ -198,7 +198,7 @@ test("volume chapter detail prompt context includes user anchor and adjacent tre
   const curveBlock = blocks.find((block) => block.id === "conflict_level_curve");
   assert.ok(curveBlock);
   assert.match(curveBlock.content, /target chapter 2/);
-  assert.match(curveBlock.content, /constraint=用户锚定，不可更改/);
+  assert.match(curveBlock.content, /constraint=user-anchored, cannot be changed/);
   assert.match(curveBlock.content, /fromPrevious=rise/);
   assert.match(curveBlock.content, /toNext=fall/);
 });

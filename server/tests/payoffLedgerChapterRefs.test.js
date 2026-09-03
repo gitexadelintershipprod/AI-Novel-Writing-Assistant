@@ -134,12 +134,12 @@ test("payoffLedgerSyncPrompt requires every book contract payoff source and its 
     () => payoffLedgerSyncPrompt.postValidate({
       items: [{ ...validItem, sourceRefs: [] }],
     }, input),
-    /缺少 Book Contract 承诺来源/,
+    /Missing Book Contract commitment source/,
   );
   assert.throws(
     () => payoffLedgerSyncPrompt.postValidate({
       items: [{ ...validItem, targetEndChapterOrder: 4 }],
     }, input),
-    /不晚于第 3 章/,
+    /no later than 3 Chapter/,
   );
 });
