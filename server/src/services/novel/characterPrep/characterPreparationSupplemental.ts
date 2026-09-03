@@ -27,26 +27,26 @@ import { characterMindService } from "../characterMind/CharacterMindService";
 type CharacterRowForOutput = Awaited<ReturnType<typeof prisma.character.create>>;
 
 const SUPPLEMENTAL_MODE_PROMPT_LABELS: Record<NonNullable<SupplementalCharacterGenerateInput["mode"]>, string> = {
-  auto: "由 AI 自行判断最合适的补位方式",
-  linked: "围绕现有角色衍生关系角色",
-  independent: "生成相对独立但仍有明确故事作用的角色",
+  auto: "Let AI choose the most useful way to fill the cast gap",
+  linked: "Create a relationship-driven character connected to the existing cast",
+  independent: "Create a relatively independent character with a clear story function",
 };
 
 const CAST_ROLE_PROMPT_LABELS: Record<CharacterCastRole | "auto", string> = {
-  auto: "由 AI 自行判断",
-  protagonist: "主角",
-  antagonist: "主对手",
-  ally: "同盟",
-  foil: "镜像角色",
-  mentor: "导师",
-  love_interest: "情感牵引",
-  pressure_source: "压力源",
-  catalyst: "催化者",
+  auto: "Let AI choose",
+  protagonist: "Protagonist",
+  antagonist: "Primary antagonist",
+  ally: "Ally",
+  foil: "Foil",
+  mentor: "Mentor",
+  love_interest: "Relationship focus",
+  pressure_source: "Pressure source",
+  catalyst: "Catalyst",
 };
 
 function getCastRolePromptLabel(castRole: string | null | undefined): string {
   if (!castRole) {
-    return "未指定";
+    return "Not specified";
   }
   if (castRole in CAST_ROLE_PROMPT_LABELS) {
     return CAST_ROLE_PROMPT_LABELS[castRole as CharacterCastRole | "auto"];
@@ -224,82 +224,82 @@ export class CharacterPreparationSupplementalService {
       )
       : novel.characterRelations.slice(0, 12);
     const targetCountText = typeof options.count === "number"
-      ? `本次必须生成 ${options.count} 个候选角色。`
-      : "如果用户没有指定数量，请根据当前角色网络的缺口，自行判断更适合生成 1 个、2 个还是 3 个候选，并把建议数量写入 recommendedCount。";
+      ? `Generate exactly ${options.count} candidate character(s) in this run.`
+      : "When the user does not specify a count, infer whether the cast needs one, two, or three candidates and place that number in recommendedCount.";
     const contextBlocks = buildSupplementalCharacterContextBlocks({
       projectTitle: novel.title,
-      modeLabel: `${mode}（${SUPPLEMENTAL_MODE_PROMPT_LABELS[mode]}）`,
-      targetRoleLabel: `${options.targetCastRole ?? "auto"}（${getCastRolePromptLabel(options.targetCastRole ?? "auto")}）`,
+      modeLabel: `${mode} (${SUPPLEMENTAL_MODE_PROMPT_LABELS[mode]})`,
+      targetRoleLabel: `${options.targetCastRole ?? "auto"} (${getCastRolePromptLabel(options.targetCastRole ?? "auto")})`,
       requestedCountText: targetCountText,
-      userPrompt: toPromptFallback(options.userPrompt, "无"),
+      userPrompt: toPromptFallback(options.userPrompt, "None"),
       storyInput: toPromptFallback(
         novel.storyMacroPlan?.storyInput?.trim() || novel.description?.trim(),
-        "暂无明确故事输入，请结合题材、本书世界和已有角色自行推断补位方向。",
+        "No explicit story input is available. Infer the most useful cast addition from the genre, story world, and existing characters.",
       ),
-      genreName: novel.genre?.name ?? "未指定",
+      genreName: novel.genre?.name ?? "Not specified",
       storyModeBlock,
-      styleTone: novel.styleTone ?? "未指定",
-      narrativePov: novel.narrativePov ?? "未指定",
-      pacePreference: novel.pacePreference ?? "未指定",
-      emotionIntensity: novel.emotionIntensity ?? "未指定",
-      corePromise: novel.bible?.mainPromise ?? "暂无",
-      coreSetting: novel.bible?.coreSetting ?? "暂无",
-      characterArcs: novel.bible?.characterArcs ?? "暂无",
-      worldRules: worldContext?.worldRulesText ?? "暂无",
-      worldStage: worldContext?.worldStageText ?? "本书世界未整理，请优先根据故事输入和书级约束推断人物舞台。",
+      styleTone: novel.styleTone ?? "Not specified",
+      narrativePov: novel.narrativePov ?? "Not specified",
+      pacePreference: novel.pacePreference ?? "Not specified",
+      emotionIntensity: novel.emotionIntensity ?? "Not specified",
+      corePromise: novel.bible?.mainPromise ?? "None",
+      coreSetting: novel.bible?.coreSetting ?? "None",
+      characterArcs: novel.bible?.characterArcs ?? "None",
+      worldRules: worldContext?.worldRulesText ?? "None",
+      worldStage: worldContext?.worldStageText ?? "The story world is not yet organized. Infer the character's stage from the story input and book-level constraints.",
       worldFocusHints: options.useWorldContext === false ? null : options.worldFocusHints,
-      storyDecomposition: novel.storyMacroPlan?.decompositionJson ?? "暂无",
-      constraintEngine: novel.storyMacroPlan?.constraintEngineJson ?? "暂无",
+      storyDecomposition: novel.storyMacroPlan?.decompositionJson ?? "None",
+      constraintEngine: novel.storyMacroPlan?.constraintEngineJson ?? "None",
       existingCharactersText: novel.characters.length > 0
         ? novel.characters
           .map((character) => [
             `${character.name} (${character.role})`,
-            character.castRole ? `阵容位=${getCastRolePromptLabel(character.castRole)} (${character.castRole})` : "",
-            character.storyFunction ? `故事作用=${character.storyFunction}` : "",
-            character.relationToProtagonist ? `与主角关系=${character.relationToProtagonist}` : "",
-            character.personality ? `性格=${character.personality}` : "",
-            character.background ? `背景=${character.background}` : "",
-            character.development ? `成长=${character.development}` : "",
-            character.identityLabel ? `身份=${character.identityLabel}` : "",
-            character.factionLabel ? `阵营=${character.factionLabel}` : "",
-            character.stanceLabel ? `立场=${character.stanceLabel}` : "",
-            character.powerLevel ? `境界=${character.powerLevel}` : "",
-            character.realm ? `境界层=${character.realm}` : "",
-            character.currentLocation ? `地点=${character.currentLocation}` : "",
-            character.availability ? `可出场=${character.availability}` : "",
-            character.prohibitionsJson ? `禁止=${parseCharacterProhibitionsJson(character.prohibitionsJson).join(" / ")}` : "",
-            character.outerGoal ? `外在目标=${character.outerGoal}` : "",
-            character.currentState ? `当前状态=${character.currentState}` : "",
-            character.currentGoal ? `当前目标=${character.currentGoal}` : "",
+            character.castRole ? `castRole=${getCastRolePromptLabel(character.castRole)} (${character.castRole})` : "",
+            character.storyFunction ? `storyFunction=${character.storyFunction}` : "",
+            character.relationToProtagonist ? `relationToProtagonist=${character.relationToProtagonist}` : "",
+            character.personality ? `personality=${character.personality}` : "",
+            character.background ? `background=${character.background}` : "",
+            character.development ? `development=${character.development}` : "",
+            character.identityLabel ? `identity=${character.identityLabel}` : "",
+            character.factionLabel ? `faction=${character.factionLabel}` : "",
+            character.stanceLabel ? `stance=${character.stanceLabel}` : "",
+            character.powerLevel ? `powerLevel=${character.powerLevel}` : "",
+            character.realm ? `realm=${character.realm}` : "",
+            character.currentLocation ? `location=${character.currentLocation}` : "",
+            character.availability ? `availability=${character.availability}` : "",
+            character.prohibitionsJson ? `prohibitions=${parseCharacterProhibitionsJson(character.prohibitionsJson).join(" / ")}` : "",
+            character.outerGoal ? `outerGoal=${character.outerGoal}` : "",
+            character.currentState ? `currentState=${character.currentState}` : "",
+            character.currentGoal ? `currentGoal=${character.currentGoal}` : "",
           ].filter(Boolean).join(" | "))
           .join("\n")
-        : "当前还没有已创建角色。",
+        : "No characters have been created yet.",
       anchorCharactersText: anchorCharacters.length > 0
         ? anchorCharacters
           .map((character) => [
             `${character.name} (${character.role})`,
-            character.storyFunction ? `故事作用=${character.storyFunction}` : "",
-            character.relationToProtagonist ? `与主角关系=${character.relationToProtagonist}` : "",
-            character.identityLabel ? `身份=${character.identityLabel}` : "",
-            character.factionLabel ? `阵营=${character.factionLabel}` : "",
-            character.powerLevel ? `境界=${character.powerLevel}` : "",
-            character.currentState ? `当前状态=${character.currentState}` : "",
-            character.currentGoal ? `当前目标=${character.currentGoal}` : "",
+            character.storyFunction ? `storyFunction=${character.storyFunction}` : "",
+            character.relationToProtagonist ? `relationToProtagonist=${character.relationToProtagonist}` : "",
+            character.identityLabel ? `identity=${character.identityLabel}` : "",
+            character.factionLabel ? `faction=${character.factionLabel}` : "",
+            character.powerLevel ? `powerLevel=${character.powerLevel}` : "",
+            character.currentState ? `currentState=${character.currentState}` : "",
+            character.currentGoal ? `currentGoal=${character.currentGoal}` : "",
           ].filter(Boolean).join(" | "))
           .join("\n")
-        : "当前没有明确选中的锚点角色。",
+        : "No anchor character was selected.",
       relationsText: relevantRelations.length > 0
         ? relevantRelations
           .map((relation) => [
             `${relation.sourceCharacter.name} -> ${relation.targetCharacter.name}`,
-            `表层关系=${relation.surfaceRelation}`,
-            relation.hiddenTension ? `隐藏张力=${relation.hiddenTension}` : "",
-            relation.conflictSource ? `冲突来源=${relation.conflictSource}` : "",
-            relation.dynamicLabel ? `动态标签=${relation.dynamicLabel}` : "",
-            relation.nextTurnPoint ? `下一步转折=${relation.nextTurnPoint}` : "",
+            `surfaceRelation=${relation.surfaceRelation}`,
+            relation.hiddenTension ? `hiddenTension=${relation.hiddenTension}` : "",
+            relation.conflictSource ? `conflictSource=${relation.conflictSource}` : "",
+            relation.dynamicLabel ? `dynamicLabel=${relation.dynamicLabel}` : "",
+            relation.nextTurnPoint ? `nextTurnPoint=${relation.nextTurnPoint}` : "",
           ].filter(Boolean).join(" | "))
           .join("\n")
-        : "暂无。",
+        : "None.",
       forbiddenNames: novel.characters.map((character) => character.name),
     });
 
@@ -379,7 +379,7 @@ export class CharacterPreparationSupplementalService {
     });
 
     if (existingCharacters.some((character) => character.name === parsedCandidate.name)) {
-      throw new Error(`角色「${parsedCandidate.name}」已存在，请重新生成或修改名称后再创建。`);
+      throw new Error(`A character named "${parsedCandidate.name}" already exists. Generate another candidate or rename it before creating the character.`);
     }
 
     const created = await this.novelContextService.createCharacter(novelId, {
@@ -462,7 +462,7 @@ export class CharacterPreparationSupplementalService {
     }).catch(() => null);
 
     void characterMindService.bootstrapMindStates(novelId, [created.id]).catch((error) => {
-      console.warn("[supplemental-character] 角色思路线补齐失败", {
+      console.warn("[supplemental-character] failed to bootstrap character mind state", {
         novelId,
         characterId: created.id,
         error,

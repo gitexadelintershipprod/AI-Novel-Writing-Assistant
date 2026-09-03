@@ -21,6 +21,7 @@ const SCAN_TARGETS = [
   "server/src/services/novel/director/runtime/novelDirectorHelpers.ts",
   "server/src/services/novel/bookFraming.ts",
   "server/src/services/novel/NovelContinuationService.ts",
+  "server/src/services/novel/characterPrep/characterPreparationSupplemental.ts",
   "server/src/services/novel/NovelCreateResourceRecommendationService.ts",
   "server/src/services/novel/NovelReferenceService.ts",
   "server/src/services/novel/runtime/runtimeContextBlocks.ts",
