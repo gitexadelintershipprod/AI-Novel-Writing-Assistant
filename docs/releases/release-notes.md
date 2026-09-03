@@ -4,6 +4,10 @@
 
 ## 更新历史
 
+### 2026-09-04 (Georgian usage guide)
+
+- A Georgian user guide now explains every Creation, Assets, and System navigation item, the recommended first-project workflow, model requirements, and advanced-tool cautions.
+
 ### 2026-09-03 (Georgian pipeline hardening)
 
 - Book Analysis section names, presets, and active analytical context labels now use English control text while preserving source material and Georgian generated results.

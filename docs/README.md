@@ -80,6 +80,12 @@ Wiki 不替代计划、检查点或发布说明：
 
 - [Release Notes](./releases/release-notes.md)
 
+### `docs/public`
+
+用于保存面向使用者的介绍、安装、操作与排障文档。
+
+- [გზამკვლევი — გამოყენების ინსტრუქცია](./public/georgian-user-guide.md)
+
 ### `docs/archive`
 
 用于放历史初始化方案、已不再作为主执行依据但仍需要保留的资料。

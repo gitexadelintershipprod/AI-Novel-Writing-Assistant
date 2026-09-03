@@ -147,18 +147,9 @@
 
 ## 最新更新
 
-### 2026-09-03
+### 2026-09-04
 
-- Dynamic counters, progress messages, provider status text, and task guidance stay in English as their values change.
-- Source-provided book information remains intact while surrounding controls and fallback messages stay in English.
-- Failed Auto Director tasks keep their terminal state visible instead of appearing as an active run.
-- Market Radar is temporarily unavailable while suitable Georgian or international sources are prepared; Auto Director continues to work from the writer's own idea.
-- Active creative pipelines now generate and review natural Georgian (`ka-GE`) while the application interface remains English.
-- Genres, Story Modes, Writing Profiles, Style Engine, Anti-AI, Title Studio, long-form writing, short stories, analysis, and derivative workflows remain available with Georgian-oriented guidance and word metrics.
-- Book Analysis labels and active resource/reference context builders now use English control text while preserving source content and generating Georgian results.
-- Comic continuity facts now use the governed Georgian prompt registry, so durable visual constraints are recorded in Georgian without changing stored fact categories.
-- Server test files run in isolated processes so provider configuration and runtime mocks cannot leak between unrelated checks.
-- Chapter diagnosis, timeline extraction, continuation context, title analysis, and information-boundary parsing now accept only the current English control contracts; legacy Chinese input aliases are no longer supported.
+- [Georgian user guide](./docs/public/georgian-user-guide.md) explains every Creation, Assets, and System navigation item, recommended workflows, model requirements, and advanced-tool cautions.
 
 完整历史更新见 [docs/releases/release-notes.md](./docs/releases/release-notes.md)。
 
