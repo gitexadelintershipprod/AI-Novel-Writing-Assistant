@@ -13,7 +13,7 @@ router.get("/", (_req, res) => {
       status: "ok",
       timestamp: new Date().toISOString(),
     },
-    message: "服务运行正常。",
+    message: "Service is running normally.",
   };
   res.status(200).json(response);
 });
