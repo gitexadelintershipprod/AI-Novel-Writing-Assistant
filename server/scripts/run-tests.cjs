@@ -53,16 +53,21 @@ if (files.length === 0) {
   process.exit(1);
 }
 
-if (mode === "fast") {
-  for (const file of files) {
-    require(file);
+// Run each test file in its own worker process. Loading every fast test through
+// require() shared module-level provider configuration, Prisma mocks, and other
+// mutable singletons across otherwise unrelated files.
+let failedFiles = 0;
+for (const file of files) {
+  const result = spawnSync(process.execPath, ["--test", file], {
+    cwd: serverRoot,
+    stdio: "inherit",
+  });
+  if ((result.status ?? 1) !== 0) {
+    failedFiles += 1;
   }
-  return;
 }
 
-const result = spawnSync(process.execPath, ["--test", ...files], {
-  cwd: serverRoot,
-  stdio: "inherit",
-});
-
-process.exit(result.status ?? 1);
+if (failedFiles > 0) {
+  console.error(`${failedFiles} test file(s) failed in ${mode} mode.`);
+}
+process.exit(failedFiles > 0 ? 1 : 0);

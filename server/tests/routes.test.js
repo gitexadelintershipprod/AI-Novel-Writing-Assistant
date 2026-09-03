@@ -12,6 +12,8 @@ const {
   DefaultNovelApplicationServices,
 } = require("../dist/services/novel/application/NovelApplicationServices.js");
 const { NovelFramingSuggestionService } = require("../dist/services/novel/NovelFramingSuggestionService.js");
+const { novelCreateResourceRecommendationService } = require("../dist/services/novel/NovelCreateResourceRecommendationService.js");
+const { ensureSystemResourceStarterData } = require("../dist/services/bootstrap/SystemResourceBootstrapService.js");
 const { ragServices } = require("../dist/services/rag/index.js");
 const { providerBalanceService } = require("../dist/services/settings/ProviderBalanceService.js");
 const { STYLE_EXTRACTION_TIMEOUT_MS_KEY } = require("../dist/services/settings/StyleEngineRuntimeSettingsService.js");
@@ -1147,6 +1149,15 @@ test("creative hub thread create and state routes return success payloads", asyn
 });
 
 test("novel routes preserve book framing fields through create-get-update cycle", async () => {
+  await ensureSystemResourceStarterData();
+  const originalResolveRequired = novelCreateResourceRecommendationService.resolveRequired;
+  novelCreateResourceRecommendationService.resolveRequired = async () => ({
+    genreId: "genre_urban_workplace",
+    primaryStoryModeId: "story_mode_power_root",
+    secondaryStoryModeId: undefined,
+    recommendation: {},
+    promptBlock: "Test production foundation",
+  });
   const app = createApp();
   const server = http.createServer(app);
   const port = await listen(server);
@@ -1206,6 +1217,7 @@ test("novel routes preserve book framing fields through create-get-update cycle"
     assert.equal(detailAfterUpdatePayload.data.first30ChapterPromise, "前 30 章必须让主角完成第一次强反压。");
     assert.deepEqual(detailAfterUpdatePayload.data.commercialTags, ["关系拉扯", "现实高压", "持续钩子"]);
   } finally {
+    novelCreateResourceRecommendationService.resolveRequired = originalResolveRequired;
     await safeDeleteNovel(port, novelId);
     await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
   }

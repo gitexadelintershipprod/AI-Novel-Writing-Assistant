@@ -294,7 +294,7 @@ test("single-beat generation rejects a title copied from a completed beat before
       options: { targetVolumeId: "volume-1", generationMode: "single_beat", targetBeatKey: "midpoint_turn" },
       notifyPhase: async () => {},
       notifyIntermediateDocument: async () => { intermediateDocumentCount += 1; },
-    }), /章节标题出现重复：旧开卷一/);
+    }), /Duplicate or near-duplicate chapter title: 旧开卷一/);
     assert.equal(intermediateDocumentCount, 0);
   } finally {
     promptRunner.runStructuredPrompt = originalRunStructuredPrompt;

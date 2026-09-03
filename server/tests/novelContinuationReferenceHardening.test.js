@@ -68,10 +68,10 @@ test("continuation chapter pack prefers bound structured book analysis sections"
     assert.equal(pack.sourceType, "knowledge_document");
     assert.equal(pack.sourceId, "doc-1");
     assert.equal(pack.sourceTitle, "参考作品");
-    assert.match(pack.humanBlock, /拆书分析：参考作品完整拆书/);
-    assert.match(pack.humanBlock, /人物系统\/主角定位: 终局时仍背负旧伤的破局者/);
-    assert.match(pack.humanBlock, /故事时间线\/关键时间节点: 主角拿到维修通道钥匙/);
-    assert.match(pack.humanBlock, /剧情结构\/主线梗概: 压迫链在终局转成第一次反压入口/);
+    assert.match(pack.humanBlock, /Book analysis: 参考作品完整拆书/);
+    assert.match(pack.humanBlock, /人物系统\/Protagonist positioning: 终局时仍背负旧伤的破局者/);
+    assert.match(pack.humanBlock, /故事时间线\/Key timeline nodes: 主角拿到维修通道钥匙/);
+    assert.match(pack.humanBlock, /剧情结构\/Main plot summary: 压迫链在终局转成第一次反压入口/);
     assert.doesNotMatch(pack.humanBlock, /不应读取这段粗文本/);
     assert.ok(pack.antiCopyCorpus.some((item) => item.includes("先压迫再给局部反手")));
   } finally {

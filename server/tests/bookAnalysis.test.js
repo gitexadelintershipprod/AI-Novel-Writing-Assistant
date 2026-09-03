@@ -66,6 +66,7 @@ test("BookAnalysisBudgetGuard increments used tokens and throws budget_exceeded"
   const original = {
     findUnique: prisma.bookAnalysis.findUnique,
     update: prisma.bookAnalysis.update,
+    updateMany: prisma.bookAnalysis.updateMany,
   };
   let usedTokens = 900;
   prisma.bookAnalysis.update = async ({ data }) => {
@@ -73,6 +74,7 @@ test("BookAnalysisBudgetGuard increments used tokens and throws budget_exceeded"
     return { budgetTokens: 1000, usedTokens };
   };
   prisma.bookAnalysis.findUnique = async () => ({ budgetTokens: 1000, usedTokens });
+  prisma.bookAnalysis.updateMany = async () => ({ count: 0 });
 
   try {
     assert.equal(normalizeBookAnalysisBudgetTokens(2000.8), 2000);
@@ -92,6 +94,7 @@ test("BookAnalysisBudgetGuard increments used tokens and throws budget_exceeded"
   } finally {
     prisma.bookAnalysis.findUnique = original.findUnique;
     prisma.bookAnalysis.update = original.update;
+    prisma.bookAnalysis.updateMany = original.updateMany;
   }
 });
 
@@ -1197,6 +1200,8 @@ test("NovelExportService exports generated chapters as a knowledge document for 
     return {
       title: "雪夜旧案",
       description: "刑侦悬疑",
+      narrativeForm: "long_novel",
+      shortStorySegments: [],
       chapters: [
         { order: 1, title: "雨夜来客", content: "主角在雨夜接到旧案线索。" },
         { order: 2, title: "反向试探", content: "同伴隐瞒关键证词，矛盾升级。" },
@@ -2488,8 +2493,8 @@ test("buildPublishMarkdown includes structured key conclusions as publishable co
 
   assert.equal(published.hasPublishableContent, true);
   assert.match(published.content, /### 关键结论/);
-  assert.match(published.content, /一句话定位：一个以身份反转推动主线的权谋故事/);
-  assert.match(published.content, /卖点标签：身份悬念；权谋博弈/);
+  assert.match(published.content, /One-line positioning：一个以身份反转推动主线的权谋故事/);
+  assert.match(published.content, /Appeal tags：身份悬念；权谋博弈/);
 });
 
 test("buildBookAnalysisRagPreChunks turns structured fields into facet chunks", () => {
@@ -2807,11 +2812,11 @@ test("NovelReferenceService formats structured timeline nodes by phase", async (
 
   try {
     const service = new NovelReferenceService();
-    const reference = await service.buildReferenceForStage("novel-1", "chapter");
+    const reference = await service.buildReferenceForStage("novel-1", "outline");
 
     assert.match(reference, /\[analysis\.reference\] 测试拆书/);
     assert.match(reference, /### 潜入/);
-    assert.match(reference, /主角入夜潜入山寨 \(时间=第一夜; 来源=片段 1\)/);
+    assert.match(reference, /主角入夜潜入山寨 \(time=第一夜; sources=片段 1\)/);
     assert.match(reference, /### 反转/);
   } finally {
     prisma.knowledgeBinding.findMany = original.knowledgeBindingFindMany;

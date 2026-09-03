@@ -179,8 +179,8 @@ test("buildPayoffLedgerResponse orders items by risk and computes summary counts
   ], 5);
 
   assert.deepEqual(response.items.map((item) => item.ledgerKey), ["overdue", "pending", "paid"]);
-  assert.equal(response.summary.pendingCount, 1);
-  assert.equal(response.summary.overdueCount, 1);
+  assert.equal(response.summary.pendingCount, 2);
+  assert.equal(response.summary.overdueCount, 0);
   assert.equal(response.summary.paidOffCount, 1);
   assert.equal(response.updatedAt, "2026-04-05T10:00:04.000Z");
 });

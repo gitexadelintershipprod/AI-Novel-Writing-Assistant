@@ -151,6 +151,8 @@ test("assembler refreshes chapter execution fields after chapter plan regenerati
     novelBibleFindUnique: prisma.novelBible.findUnique,
     chapterSummaryFindMany: prisma.chapterSummary.findMany,
     consistencyFactFindMany: prisma.consistencyFact.findMany,
+    characterMindSnapshotFindMany: prisma.characterMindSnapshot.findMany,
+    characterDialogueInfluenceFindMany: prisma.characterDialogueInfluence.findMany,
     chapterFindMany: prisma.chapter.findMany,
     creativeDecisionFindMany: prisma.creativeDecision.findMany,
     ensureChapterPlan: plannerService.ensureChapterPlan,
@@ -207,6 +209,8 @@ test("assembler refreshes chapter execution fields after chapter plan regenerati
     prisma.novelBible.findUnique = async () => null;
     prisma.chapterSummary.findMany = async () => [];
     prisma.consistencyFact.findMany = async () => [];
+    prisma.characterMindSnapshot.findMany = async () => [];
+    prisma.characterDialogueInfluence.findMany = async () => [];
     prisma.chapter.findMany = async () => [];
     prisma.creativeDecision.findMany = async () => [];
     plannerService.ensureChapterPlan = async () => ({
@@ -285,8 +289,8 @@ test("assembler refreshes chapter execution fields after chapter plan regenerati
     assert.equal(assembled.chapter.taskSheet, "新任务单");
     assert.equal(assembled.contextPackage.chapter.sceneCards, freshSceneCards);
     assert.equal(assembled.contextPackage.storyWorldSlice, storyWorldSlice);
-    assert.match(assembled.contextPackage.chapter.supportingContextText, /本书世界上下文/);
-    assert.match(assembled.contextPackage.chapter.supportingContextText, /星核枯竭的北境舞台/);
+    assert.equal(assembled.contextPackage.chapter.supportingContextText, "");
+    assert.equal(assembled.contextPackage.storyWorldSlice.coreWorldFrame, "星核枯竭的北境舞台。");
     assert.equal(assembled.contextPackage.chapterWriteContext.chapterBoundary.entryState, "新合同入口1");
     assert.ok(assembled.contextPackage.chapterWriteContext.chapterBoundary.doNotCross.includes("新禁止"));
   } finally {
@@ -298,6 +302,8 @@ test("assembler refreshes chapter execution fields after chapter plan regenerati
     prisma.novelBible.findUnique = originals.novelBibleFindUnique;
     prisma.chapterSummary.findMany = originals.chapterSummaryFindMany;
     prisma.consistencyFact.findMany = originals.consistencyFactFindMany;
+    prisma.characterMindSnapshot.findMany = originals.characterMindSnapshotFindMany;
+    prisma.characterDialogueInfluence.findMany = originals.characterDialogueInfluenceFindMany;
     prisma.chapter.findMany = originals.chapterFindMany;
     prisma.creativeDecision.findMany = originals.creativeDecisionFindMany;
     plannerService.ensureChapterPlan = originals.ensureChapterPlan;

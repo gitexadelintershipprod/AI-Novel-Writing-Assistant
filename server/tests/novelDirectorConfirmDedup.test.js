@@ -3,6 +3,7 @@ const assert = require("node:assert/strict");
 require("../dist/app.js");
 const { NovelDirectorService } = require("../dist/services/novel/director/NovelDirectorService.js");
 const { NovelDirectorConfirmRuntime } = require("../dist/services/novel/director/runtime/novelDirectorConfirmRuntime.js");
+const { novelCreateResourceRecommendationService } = require("../dist/services/novel/NovelCreateResourceRecommendationService.js");
 const { prisma } = require("../dist/db/prisma.js");
 
 function buildDirectorInput(overrides = {}) {
@@ -268,15 +269,25 @@ test("confirm runtime creates the novel through the standard runtime node", asyn
     },
   });
   const originalNovelUpdate = prisma.novel.update;
+  const originalResolveRequired = novelCreateResourceRecommendationService.resolveRequired;
   prisma.novel.update = async ({ where, data }) => {
     calls.push(["updateNovel", where.id, data.creationExperience]);
     return buildNovel(where.id);
   };
+  novelCreateResourceRecommendationService.resolveRequired = async () => ({
+    genreId: "genre-test",
+    primaryStoryModeId: "story-mode-test",
+    secondaryStoryModeId: undefined,
+    recommendation: {},
+    promptBlock: "Test production foundation",
+  });
+  input.candidate.recommendedWritingPlatform = "fanqie_free";
   let result;
   try {
     result = await runtime.confirmCandidate(input);
   } finally {
     prisma.novel.update = originalNovelUpdate;
+    novelCreateResourceRecommendationService.resolveRequired = originalResolveRequired;
   }
 
   assert.equal(result.novel.id, "novel_created_demo");

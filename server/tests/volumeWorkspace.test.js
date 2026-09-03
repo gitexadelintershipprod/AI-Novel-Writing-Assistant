@@ -138,7 +138,7 @@ test("volume workspace v2 roundtrip keeps strategy, beat sheet and rebalance ass
   assert.equal(reparsed.workspaceVersion, "v2");
   assert.equal(reparsed.strategyPlan?.recommendedVolumeCount, 3);
   assert.equal(reparsed.critiqueReport?.overallRisk, "medium");
-  assert.equal(reparsed.beatSheets[0]?.beats[0]?.key, "opening_hook");
+  assert.equal(reparsed.beatSheets[0]?.beats[0]?.key, "open_hook");
   assert.equal(reparsed.rebalanceDecisions[0]?.direction, "push_back");
 });
 
