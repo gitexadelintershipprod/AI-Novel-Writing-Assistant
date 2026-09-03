@@ -116,21 +116,21 @@ function flattenStoryModeOptions(nodes: StoryModeTreeNode[], path: string[] = []
 function buildGenreCatalogText(options: FlattenedGenreOption[]): string {
   return options.map((option, index) => [
     `${index + 1}. ID=${option.id}`,
-    `路径：${option.path}`,
-    option.description ? `说明：${option.description}` : "",
-    option.template ? `使用倾向：${option.template}` : "",
+    `Path: ${option.path}`,
+    option.description ? `Description: ${option.description}` : "",
+    option.template ? `Creative tendency: ${option.template}` : "",
   ].filter(Boolean).join("\n")).join("\n\n");
 }
 
 function buildStoryModeCatalogText(options: FlattenedStoryModeOption[]): string {
   return options.map((option, index) => [
     `${index + 1}. ID=${option.id}`,
-    `路径：${option.path}`,
-    option.description ? `说明：${option.description}` : "",
-    `核心驱动：${option.profile.coreDrive}`,
-    `读者奖励：${option.profile.readerReward}`,
-    `冲突上限：${option.profile.conflictCeiling}`,
-    option.template ? `补充模板：${option.template}` : "",
+    `Path: ${option.path}`,
+    option.description ? `Description: ${option.description}` : "",
+    `Core drive: ${option.profile.coreDrive}`,
+    `Reader reward: ${option.profile.readerReward}`,
+    `Conflict ceiling: ${option.profile.conflictCeiling}`,
+    option.template ? `Supplemental template: ${option.template}` : "",
   ].filter(Boolean).join("\n")).join("\n\n");
 }
 
@@ -143,9 +143,9 @@ function buildCurrentSelectionSummary(input: RecommendNovelCreateResourcesInput,
   const secondaryStoryMode = options.storyModes.find((item) => item.id === input.secondaryStoryModeId);
 
   return [
-    genre ? `当前已选题材基底：${genre.path}` : "",
-    primaryStoryMode ? `当前已选主推进模式：${primaryStoryMode.path}` : "",
-    secondaryStoryMode ? `当前已选副推进模式：${secondaryStoryMode.path}` : "",
+    genre ? `Selected genre foundation: ${genre.path}` : "",
+    primaryStoryMode ? `Selected primary story mode: ${primaryStoryMode.path}` : "",
+    secondaryStoryMode ? `Selected secondary story mode: ${secondaryStoryMode.path}` : "",
   ].filter(Boolean).join("\n");
 }
 
@@ -166,18 +166,18 @@ function buildUserIntentSummary(
   const currentSelectionSummary = buildCurrentSelectionSummary(input, options);
 
   return [
-    input.title?.trim() ? `标题：${input.title.trim()}` : "",
-    input.marketBriefPrompt?.trim() ? `开书市场简报：\n${input.marketBriefPrompt.trim()}` : "",
-    input.description?.trim() ? `一句话概述：${truncateText(input.description, 260)}` : "",
-    input.writingMode ? `创作模式：${input.writingMode}` : "",
-    input.projectMode ? `项目模式：${input.projectMode}` : "",
-    input.narrativePov ? `叙事视角：${input.narrativePov}` : "",
-    input.pacePreference ? `节奏偏好：${input.pacePreference}` : "",
-    input.emotionIntensity ? `情绪浓度：${input.emotionIntensity}` : "",
-    input.aiFreedom ? `AI 自由度：${input.aiFreedom}` : "",
-    input.styleTone?.trim() ? `文风关键词：${input.styleTone.trim()}` : "",
-    bookFramingSummary ? `书级 framing：\n${bookFramingSummary}` : "",
-    currentSelectionSummary ? `当前手动选择：\n${currentSelectionSummary}` : "",
+    input.title?.trim() ? `Title: ${input.title.trim()}` : "",
+    input.marketBriefPrompt?.trim() ? `Market brief: \n${input.marketBriefPrompt.trim()}` : "",
+    input.description?.trim() ? `Logline: ${truncateText(input.description, 260)}` : "",
+    input.writingMode ? `Writing mode: ${input.writingMode}` : "",
+    input.projectMode ? `Project mode: ${input.projectMode}` : "",
+    input.narrativePov ? `Narrative POV: ${input.narrativePov}` : "",
+    input.pacePreference ? `Pace preference: ${input.pacePreference}` : "",
+    input.emotionIntensity ? `Emotional intensity: ${input.emotionIntensity}` : "",
+    input.aiFreedom ? `AI freedom: ${input.aiFreedom}` : "",
+    input.styleTone?.trim() ? `Style keywords: ${input.styleTone.trim()}` : "",
+    bookFramingSummary ? `Book framing: \n${bookFramingSummary}` : "",
+    currentSelectionSummary ? `Current manual selections: \n${currentSelectionSummary}` : "",
   ].filter(Boolean).join("\n");
 }
 
@@ -199,7 +199,7 @@ export class NovelCreateResourceRecommendationService {
     const genres = flattenGenreOptions(genreTree);
     const storyModes = flattenStoryModeOptions(storyModeTree);
     if (genres.length === 0 || storyModes.length === 0) {
-      throw new Error("系统内置资源尚未就绪，暂时无法推荐题材基底和推进模式。");
+      throw new Error("Built-in creative resources are not ready, so a genre and story mode cannot be recommended yet.");
     }
     return { genres, storyModes };
   }
@@ -232,7 +232,7 @@ export class NovelCreateResourceRecommendationService {
       : null;
 
     if (!genre || !primaryStoryMode) {
-      throw new Error("AI 已返回推荐结果，但无法在当前资源库中找到对应项。");
+      throw new Error("The AI recommendation does not match the current creative-resource catalog.");
     }
 
     return {
@@ -254,7 +254,7 @@ export class NovelCreateResourceRecommendationService {
           id: secondaryStoryMode.id,
           name: secondaryStoryMode.name,
           path: secondaryStoryMode.path,
-          reason: parsed.secondaryStoryModeReason?.trim() || "用于补充主推进模式的风味与读者奖励。",
+          reason: parsed.secondaryStoryModeReason?.trim() || "Adds complementary flavor and reader rewards to the primary story mode.",
         }
         : null,
       caution: parsed.caution?.trim() || null,
@@ -280,16 +280,16 @@ export class NovelCreateResourceRecommendationService {
       : null;
 
     if (input.genreId?.trim() && !selectedGenre) {
-      throw new Error("当前选择的题材基底已不可用，请重新选择或让 AI 推荐。");
+      throw new Error("The selected genre foundation is no longer available. Choose another or ask AI to recommend one.");
     }
     if (input.primaryStoryModeId?.trim() && !selectedPrimary) {
-      throw new Error("当前选择的主推进模式已不可用，请重新选择或让 AI 推荐。");
+      throw new Error("The selected primary story mode is no longer available. Choose another or ask AI to recommend one.");
     }
     if (input.secondaryStoryModeId?.trim() && !selectedSecondary) {
-      throw new Error("当前选择的副推进模式已不可用，请重新选择。");
+      throw new Error("The selected secondary story mode is no longer available. Choose another.");
     }
     if (selectedPrimary && selectedSecondary && selectedPrimary.id === selectedSecondary.id) {
-      throw new Error("主推进模式和副推进模式不能相同。");
+      throw new Error("Primary and secondary story modes must be different.");
     }
 
     const aiRecommendation = selectedGenre && selectedPrimary && selectedSecondary
@@ -308,15 +308,15 @@ export class NovelCreateResourceRecommendationService {
         : null);
 
     if (!genre || !primary) {
-      throw new Error("AI 未能确定可用的题材基底和主推进模式，请重试。");
+      throw new Error("AI could not determine a valid genre foundation and primary story mode. Try again.");
     }
     if (secondary?.id === primary.id) {
-      throw new Error("AI 推荐的副推进模式与主推进模式重复，请重试。");
+      throw new Error("AI recommended the same primary and secondary story mode. Try again.");
     }
 
     const recommendation: NovelCreateResourceRecommendation = {
       summary: aiRecommendation?.summary
-        ?? `本书将以“${genre.path}”作为题材基底，并按“${primary.path}”持续推进。`,
+        ?? `This book uses “${genre.path}” as its genre foundation and advances through “${primary.path}”.`,
       genre: {
         id: genre.id,
         name: genre.name,
@@ -324,7 +324,7 @@ export class NovelCreateResourceRecommendationService {
         source: selectedGenre ? "user_selected" : "ai_recommended",
         reason: aiRecommendation?.genre.id === genre.id
           ? aiRecommendation.genre.reason
-          : "沿用你确认的题材基底。",
+          : "Uses the genre foundation you confirmed.",
       },
       primaryStoryMode: {
         id: primary.id,
@@ -333,7 +333,7 @@ export class NovelCreateResourceRecommendationService {
         source: selectedPrimary ? "user_selected" : "ai_recommended",
         reason: aiRecommendation?.primaryStoryMode.id === primary.id
           ? aiRecommendation.primaryStoryMode.reason
-          : "沿用你确认的主推进模式。",
+          : "Uses the primary story mode you confirmed.",
       },
       secondaryStoryMode: secondary
         ? {
@@ -343,7 +343,7 @@ export class NovelCreateResourceRecommendationService {
           source: selectedSecondary ? "user_selected" : "ai_recommended",
           reason: aiRecommendation?.secondaryStoryMode?.id === secondary.id
             ? aiRecommendation.secondaryStoryMode.reason
-            : "沿用你确认的辅助推进模式。",
+            : "Uses the secondary story mode you confirmed.",
         }
         : null,
       caution: aiRecommendation?.caution ?? null,
@@ -359,9 +359,9 @@ export class NovelCreateResourceRecommendationService {
       secondaryStoryModeId: secondary?.id,
       recommendation,
       promptBlock: [
-        `题材基底：${genre.path}`,
-        genre.description ? `题材定位：${genre.description}` : "",
-        genre.template ? `题材使用倾向：${genre.template}` : "",
+        `Genre foundation: ${genre.path}`,
+        genre.description ? `Genre positioning: ${genre.description}` : "",
+        genre.template ? `Genre creative tendency: ${genre.template}` : "",
         storyModeBlock,
       ].filter(Boolean).join("\n\n"),
     };

@@ -171,9 +171,9 @@ function buildKnowledgeBoundaryLine(state: ChapterArtifactKnowledgeState): strin
     return null;
   }
   return [
-    "【信息边界】",
-    knownFacts.length > 0 ? `已知：${knownFacts.join("；")}` : "已知：无新增",
-    hiddenFacts.length > 0 ? `未知/不应超前知情：${hiddenFacts.join("；")}` : "未知/不应超前知情：无",
+    "【Information Boundary】",
+    knownFacts.length > 0 ? `Known: ${knownFacts.join("; ")}` : "Known: no new facts",
+    hiddenFacts.length > 0 ? `Unknown / must not know early: ${hiddenFacts.join("; ")}` : "Unknown / must not know early: none",
   ].join("");
 }
 
@@ -182,7 +182,7 @@ export function mergeKnowledgeBoundaryState(
   boundaryLine: string,
 ): string {
   const base = String(currentState ?? "")
-    .replace(/\n?【信息边界】[^\n]*/g, "")
+    .replace(/\n?(?:【Information Boundary】|【信息边界】)[^\n]*/g, "")
     .trim();
   const cappedBoundary = boundaryLine.slice(0, 1200);
   const baseBudget = Math.max(0, 1200 - cappedBoundary.length - (base ? 1 : 0));
@@ -202,7 +202,7 @@ function normalizeLedgerKey(title: string, fallback: string): string {
 function stringifyChapterResourceText(items: Awaited<ReturnType<typeof characterResourceLedgerService.listResources>>): string {
   return items.slice(0, 20).map((item) => [
     `- ${item.name}`,
-    `holder=${item.holderCharacterName ?? "未知"}`,
+    `holder=${item.holderCharacterName ?? "unknown"}`,
     `status=${item.status}`,
     `function=${item.narrativeFunction}`,
     item.summary,
@@ -232,12 +232,12 @@ function stringifyPayoffText(items: Array<{
 function stringifyActiveCharacterDialogueInfluenceText(items: ActiveCharacterDialogueInfluence[]): string {
   return items.slice(0, 8).map((item) => [
     `- influenceId=${item.id}`,
-    `角色=${item.characterName}`,
-    `对话沉淀=${item.summary}`,
-    `窗口=${item.targetStartChapterOrder}-${item.targetEndChapterOrder}`,
-    `行动倾向=${item.behaviorGuidance}`,
-    item.emotionalGuidance ? `情绪倾向=${item.emotionalGuidance}` : "",
-    item.relationTension ? `关系张力=${item.relationTension}` : "",
+    `character=${item.characterName}`,
+    `dialogue influence=${item.summary}`,
+    `window=${item.targetStartChapterOrder}-${item.targetEndChapterOrder}`,
+    `behavior guidance=${item.behaviorGuidance}`,
+    item.emotionalGuidance ? `emotional guidance=${item.emotionalGuidance}` : "",
+    item.relationTension ? `relationship tension=${item.relationTension}` : "",
   ].filter(Boolean).join(" | ")).join("\n");
 }
 
@@ -260,11 +260,11 @@ function stringifyPreviousState(snapshot: Awaited<ReturnType<typeof stateService
     .map((item) => `${item.title}(${item.status})`)
     .slice(0, 6);
   return [
-    snapshot.summary ? `摘要：${snapshot.summary}` : "",
-    characterLines.length > 0 ? `角色：\n${characterLines.map((item) => `- ${item}`).join("\n")}` : "",
-    relationLines.length > 0 ? `关系：\n${relationLines.map((item) => `- ${item}`).join("\n")}` : "",
-    infoLines.length > 0 ? `信息：\n${infoLines.map((item) => `- ${item}`).join("\n")}` : "",
-    foreshadowLines.length > 0 ? `伏笔：\n${foreshadowLines.map((item) => `- ${item}`).join("\n")}` : "",
+    snapshot.summary ? `Summary: ${snapshot.summary}` : "",
+    characterLines.length > 0 ? `Characters:\n${characterLines.map((item) => `- ${item}`).join("\n")}` : "",
+    relationLines.length > 0 ? `Relationships:\n${relationLines.map((item) => `- ${item}`).join("\n")}` : "",
+    infoLines.length > 0 ? `Information:\n${infoLines.map((item) => `- ${item}`).join("\n")}` : "",
+    foreshadowLines.length > 0 ? `Foreshadowing:\n${foreshadowLines.map((item) => `- ${item}`).join("\n")}` : "",
   ].filter(Boolean).join("\n\n");
 }
 
@@ -272,7 +272,7 @@ export class ChapterArtifactDeltaService {
   async syncChapterArtifacts(input: ChapterArtifactDeltaSyncInput): Promise<ChapterArtifactDeltaSyncResult> {
     const content = compactText(input.content);
     if (!content) {
-      throw new Error("章节正文为空，无法提取资产 delta。");
+      throw new Error("Chapter content is empty, so artifact deltas cannot be extracted.");
     }
 
     const [novel, chapter, chapters, characters, existingResources, payoffRows] = await Promise.all([
@@ -319,7 +319,7 @@ export class ChapterArtifactDeltaService {
     ]);
 
     if (!novel || !chapter) {
-      throw new Error("小说或章节不存在，无法提取资产 delta。");
+      throw new Error("The novel or chapter does not exist, so artifact deltas cannot be extracted.");
     }
 
     const characterDialogueInfluenceExpiredCount = await this.expirePastCharacterDialogueInfluences({
@@ -339,7 +339,7 @@ export class ChapterArtifactDeltaService {
         novelTitle: novel.title,
         chapterOrder: chapter.order,
         chapterTitle: chapter.title,
-        chapterGoal: chapter.taskSheet?.trim() || chapter.expectation?.trim() || "无明确章节目标",
+        chapterGoal: chapter.taskSheet?.trim() || chapter.expectation?.trim() || "No explicit chapter goal",
         characterRosterText: this.buildCharacterRosterText(characters),
         previousStateText: stringifyPreviousState(previousSnapshot),
         existingResourceText: stringifyChapterResourceText(existingResources),
@@ -577,7 +577,7 @@ export class ChapterArtifactDeltaService {
     content: string;
     output: ChapterArtifactDeltaOutput;
   }): Promise<number> {
-    const summary = compactText(input.output.summary) || "暂无可总结正文";
+    const summary = compactText(input.output.summary) || "No chapter content is available to summarize";
     const extractedFacts = extractFacts(input.content || summary);
     const keyEvents = joinFactContents(
       extractedFacts.filter((item) => item.category === "plot").map((item) => item.content),
@@ -802,7 +802,7 @@ export class ChapterArtifactDeltaService {
           : [{
             kind: "chapter_payoff_ref" as const,
             refId: null,
-            refLabel: `第${input.chapterOrder}章《${input.chapterTitle}》`,
+            refLabel: `Chapter ${input.chapterOrder}, “${input.chapterTitle}”`,
             chapterId: input.chapterId,
             chapterOrder: input.chapterOrder,
             volumeId: null,

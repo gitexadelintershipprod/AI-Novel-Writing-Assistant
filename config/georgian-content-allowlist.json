@@ -642,6 +642,12 @@
       "text": "露白",
       "category": "legacy-compatibility-alias",
       "reason": "Input-only aliases preserve compatibility with legacy Chinese persisted values; generated output and active instructions remain Georgian."
+    },
+    {
+      "path": "server/src/services/novel/runtime/ChapterArtifactDeltaService.ts",
+      "text": "/\\n?(?:【Information Boundary】|【信息边界】)[^\\n]*/g",
+      "category": "legacy-compatibility-parser",
+      "reason": "The parser removes a legacy Chinese information-boundary marker from previously persisted state; new prompt context uses the English marker."
     }
   ]
 }

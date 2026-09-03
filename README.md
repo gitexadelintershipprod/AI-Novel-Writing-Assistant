@@ -147,7 +147,7 @@
 
 ## 最新更新
 
-### 2026-09-02
+### 2026-09-03
 
 - Dynamic counters, progress messages, provider status text, and task guidance stay in English as their values change.
 - Source-provided book information remains intact while surrounding controls and fallback messages stay in English.
@@ -155,6 +155,8 @@
 - Market Radar is temporarily unavailable while suitable Georgian or international sources are prepared; Auto Director continues to work from the writer's own idea.
 - Active creative pipelines now generate and review natural Georgian (`ka-GE`) while the application interface remains English.
 - Genres, Story Modes, Writing Profiles, Style Engine, Anti-AI, Title Studio, long-form writing, short stories, analysis, and derivative workflows remain available with Georgian-oriented guidance and word metrics.
+- Book Analysis labels and active resource/reference context builders now use English control text while preserving source content and generating Georgian results.
+- Server test files run in isolated processes so provider configuration and runtime mocks cannot leak between unrelated checks.
 
 完整历史更新见 [docs/releases/release-notes.md](./docs/releases/release-notes.md)。
 

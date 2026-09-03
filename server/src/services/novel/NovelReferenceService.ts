@@ -87,8 +87,8 @@ function formatStructuredData(data: Record<string, unknown>): string {
 
 function formatTimelineNode(node: BookAnalysisTimelineNode): string {
   const meta = [
-    node.timeHint ? `时间=${node.timeHint}` : "",
-    node.sourceRefs?.length ? `来源=${node.sourceRefs.join(", ")}` : "",
+    node.timeHint ? `time=${node.timeHint}` : "",
+    node.sourceRefs?.length ? `sources=${node.sourceRefs.join(", ")}` : "",
   ].filter(Boolean).join("; ");
   return meta ? `- ${node.label} (${meta})` : `- ${node.label}`;
 }

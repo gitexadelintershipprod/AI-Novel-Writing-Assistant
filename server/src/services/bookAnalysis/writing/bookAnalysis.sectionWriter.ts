@@ -156,16 +156,16 @@ function buildSectionTokenUsage(
 
 function renderOverviewContextForPrompt(context: BookAnalysisOverviewContext): string {
   const lines = [
-    context.markdownSummary ? `总览摘要：${context.markdownSummary}` : "",
-    context.oneLinePositioning ? `一句话定位：${context.oneLinePositioning}` : "",
-    context.genreTags.length > 0 ? `题材标签：${context.genreTags.join("、")}` : "",
-    context.sellingPointTags.length > 0 ? `卖点标签：${context.sellingPointTags.join("、")}` : "",
-    context.targetReaders.length > 0 ? `目标读者：${context.targetReaders.join("、")}` : "",
-    context.strengths.length > 0 ? `整体优势：${context.strengths.join("、")}` : "",
-    context.weaknesses.length > 0 ? `整体短板：${context.weaknesses.join("、")}` : "",
+    context.markdownSummary ? `Overview summary: ${context.markdownSummary}` : "",
+    context.oneLinePositioning ? `One-line positioning: ${context.oneLinePositioning}` : "",
+    context.genreTags.length > 0 ? `Genre tags: ${context.genreTags.join(", ")}` : "",
+    context.sellingPointTags.length > 0 ? `Appeal tags: ${context.sellingPointTags.join(", ")}` : "",
+    context.targetReaders.length > 0 ? `Target readers: ${context.targetReaders.join(", ")}` : "",
+    context.strengths.length > 0 ? `Overall strengths: ${context.strengths.join(", ")}` : "",
+    context.weaknesses.length > 0 ? `Overall weaknesses: ${context.weaknesses.join(", ")}` : "",
   ].filter(Boolean);
 
   return lines.length > 0
-    ? ["## 整本定位（来自总览小节）", ...lines].join("\n")
+    ? ["## Whole-book positioning (from the overview section)", ...lines].join("\n")
     : "";
 }

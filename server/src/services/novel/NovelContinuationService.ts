@@ -2,7 +2,6 @@ import type { LLMProvider } from "@ai-novel/shared/types/llm";
 import type { BookAnalysisSectionKey } from "@ai-novel/shared/types/bookAnalysis";
 import { BOOK_ANALYSIS_STRUCTURED_FIELD_LABELS } from "@ai-novel/shared/types/bookAnalysis";
 import { prisma } from "../../db/prisma";
-import { runTextPrompt } from "../../prompting/core/promptRunner";
 import { novelContinuationRewritePrompt } from "../../prompting/prompts/novel/continuation.prompts";
 
 const CONTINUATION_SIMILARITY_THRESHOLD = 0.3;
@@ -640,6 +639,11 @@ ${summaryBlock || "- None available"}`;
     }
 
     try {
+      // Load the runner only when a rewrite is actually needed. Importing the
+      // full prompt registry while this service is initialized creates a cycle
+      // through the chapter runtime graph and leaves this constructor undefined
+      // for consumers that import the continuation service first.
+      const { runTextPrompt } = await import("../../prompting/core/promptRunner");
       const rewritten = await runTextPrompt({
         asset: novelContinuationRewritePrompt,
         promptInput: {

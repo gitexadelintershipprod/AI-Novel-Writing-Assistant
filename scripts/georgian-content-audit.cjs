@@ -21,6 +21,11 @@ const SCAN_TARGETS = [
   "server/src/services/novel/director/runtime/novelDirectorHelpers.ts",
   "server/src/services/novel/bookFraming.ts",
   "server/src/services/novel/NovelContinuationService.ts",
+  "server/src/services/novel/NovelCreateResourceRecommendationService.ts",
+  "server/src/services/novel/NovelReferenceService.ts",
+  "server/src/services/novel/runtime/runtimeContextBlocks.ts",
+  "server/src/services/novel/runtime/ChapterArtifactDeltaService.ts",
+  "server/src/services/bookAnalysis/writing/bookAnalysis.sectionWriter.ts",
   "server/src/services/novel/storyMacro/storyMacroPlanService.shared.ts",
   "server/src/services/novel/volume/chapterTitleDiversity.ts",
   "server/src/services/planner/plannerContextBlocks.ts",
@@ -29,6 +34,7 @@ const SCAN_TARGETS = [
   "server/src/services/styleEngine/defaults.ts",
   "server/src/db/storyModeSeeds.ts",
   "shared/imagePrompt.ts",
+  "shared/types/bookAnalysis.ts",
 ];
 
 function collectFiles(target, output = []) {
