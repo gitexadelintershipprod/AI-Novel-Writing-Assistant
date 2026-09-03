@@ -45,10 +45,10 @@ test("creation entry uses a focused editorial canvas instead of a stacked form c
   assert.match(createSource, /aria-labelledby="creation-idea-heading"/);
   assert.match(createSource, /max-w-4xl/);
   assert.match(createSource, /min-h-\[180px\]/);
-  assert.match(createSource, /目标平台/);
+  assert.match(createSource, /Writing profile/);
   assert.match(createSource, /writingPlatformPreference: initialPlatformPreference/);
   assert.match(createSource, /from "@\/components\/ui\/select"/);
-  assert.match(createSource, /<SelectTrigger aria-label="选择目标平台"/);
+  assert.match(createSource, /<SelectTrigger aria-label="Select writing profile"/);
   assert.doesNotMatch(createSource, /CardHeader|CardTitle/);
 });
 
