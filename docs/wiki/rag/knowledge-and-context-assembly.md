@@ -15,6 +15,8 @@
 ## 当前规则
 
 - `知识库` 是向量化资料的独立管理入口，负责文档、版本、索引任务、健康状态和 Embedding/RAG 配置。
+- 文本文件解码必须先信任 BOM；无 BOM 且字节序列是合法 UTF-8 时，必须直接按 UTF-8 读取，只有 UTF-8 校验失败后才能对 GB18030、GBK、Big5 或 UTF-16 等旧编码评分。不能让 UTF-16 产生的伪 CJK 字符数量覆盖合法 UTF-8 判断。
+- 本地 Docker 栈必须同时启动持久化 Qdrant 服务，API 容器通过 Compose 服务名 `http://qdrant:6333` 访问。容器内的 `127.0.0.1` 只指向 API 容器自身，不能作为跨容器 Qdrant 地址。
 - 上传资料应形成 `KnowledgeDocument` 和版本概念；在线检索只针对当前激活版本。
 - 归档知识文档是可恢复状态，不删除 `KnowledgeDocumentVersion` 原文；归档会移出默认检索、资料选择和拆书入口，并在 RAG 已启用时排队清理已有分块。
 - 文档上传、版本切换、归档恢复和手动重建，只有 RAG 已启用时才能标记为 `queued` 并创建索引任务；RAG 关闭时统一保留 `idle`，不得制造没有消费者的永久排队状态。启用 RAG 后可由用户发起重建索引。
@@ -62,6 +64,8 @@
 ## 失败模式
 
 - 检索结果不符合当前小说：检查是否有显式文档筛选或小说/世界绑定覆盖了全局默认。
+- `.txt` 预览出现大量无意义 CJK 字符且字符数接近源文件一半：对比源文件和激活版本字符数，并检查客户端是否把合法 UTF-8 误判为 UTF-16。
+- 索引任务报 `fetch failed` 且 Embedding 健康：单独检查 Qdrant health、容器是否运行，以及 API 看到的 `qdrantUrl` 是否使用可达的服务名而不是容器内 loopback。
 - 世界观分层生成混入无关小说文档：检查调用方是否只需要 `world` / `world_library_item`，以及 RAG 服务是否错误忽略了显式 `ownerTypes` 范围。
 - Prompt 输入过大：检查 Context Broker 的预算、摘要和 dropped block 记录。
 - 知识库健康正常但生成没引用资料：检查 resolver 是否接入当前 workflow、prompt 是否声明 context requirement。

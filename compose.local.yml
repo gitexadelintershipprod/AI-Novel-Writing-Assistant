@@ -14,6 +14,12 @@ services:
     volumes:
       - ai_novel_postgres_data:/var/lib/postgresql/data
 
+  qdrant:
+    image: qdrant/qdrant:v1.19.0
+    restart: unless-stopped
+    volumes:
+      - ai_novel_qdrant_data:/qdrant/storage
+
   api:
     build:
       context: .
@@ -26,12 +32,15 @@ services:
     depends_on:
       database:
         condition: service_healthy
+      qdrant:
+        condition: service_started
     environment:
       NODE_ENV: production
       HOST: 0.0.0.0
       PORT: 3000
       DATABASE_URL: postgresql://postgres:postgres@database:5432/ai_novel
       AI_NOVEL_DATABASE_MODE: postgresql
+      QDRANT_URL: http://qdrant:6333
       MARKET_RADAR_ENABLED: "false"
       CORS_ORIGIN: http://127.0.0.1:8045,http://localhost:8045
     ports:
@@ -54,4 +63,5 @@ services:
 
 volumes:
   ai_novel_postgres_data:
+  ai_novel_qdrant_data:
   ai_novel_storage:

@@ -183,12 +183,19 @@ function isValidUtf8(bytes: Uint8Array): boolean {
 export async function readTextFile(file: File): Promise<string> {
   const bytes = new Uint8Array(await file.arrayBuffer());
   const bomEncoding = detectTxtBomEncoding(bytes);
-  const shouldPreferUtf8 = !bomEncoding && isValidUtf8(bytes);
-  const encodings = bomEncoding
-    ? [bomEncoding, ...TEXT_FILE_ENCODING_CANDIDATES.filter((encoding) => encoding !== bomEncoding)]
-    : shouldPreferUtf8
-      ? ["utf-8", ...TEXT_FILE_ENCODING_CANDIDATES.filter((encoding) => encoding !== "utf-8")]
-      : [...TEXT_FILE_ENCODING_CANDIDATES];
+  const normalizeDecodedText = (text: string) => text.replace(/\u0000/g, "").trim();
+
+  if (bomEncoding) {
+    return normalizeDecodedText(new TextDecoder(bomEncoding).decode(bytes));
+  }
+
+  // Valid UTF-8 is definitive. Scoring it against legacy encodings can make
+  // ordinary ASCII pairs look like CJK code points when decoded as UTF-16.
+  if (isValidUtf8(bytes)) {
+    return normalizeDecodedText(new TextDecoder("utf-8", { fatal: true }).decode(bytes));
+  }
+
+  const encodings = TEXT_FILE_ENCODING_CANDIDATES.filter((encoding) => encoding !== "utf-8");
 
   let bestDecoded = "";
   let bestScore = Number.NEGATIVE_INFINITY;
@@ -196,7 +203,7 @@ export async function readTextFile(file: File): Promise<string> {
   for (const encoding of encodings) {
     try {
       const decoded = new TextDecoder(encoding).decode(bytes);
-      const score = scoreDecodedTxt(decoded) + (shouldPreferUtf8 && encoding === "utf-8" ? 12 : 0);
+      const score = scoreDecodedTxt(decoded);
       if (score > bestScore) {
         bestDecoded = decoded;
         bestScore = score;
@@ -206,7 +213,7 @@ export async function readTextFile(file: File): Promise<string> {
     }
   }
 
-  return bestDecoded.replace(/\u0000/g, "").trim();
+  return normalizeDecodedText(bestDecoded);
 }
 
 export function isTxtFile(file: File): boolean {

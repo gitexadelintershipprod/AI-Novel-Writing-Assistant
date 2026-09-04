@@ -150,6 +150,8 @@
 ### 2026-09-04
 
 - [Georgian user guide](./docs/public/georgian-user-guide.md) explains every Creation, Assets, and System navigation item, recommended workflows, model requirements, and advanced-tool cautions.
+- Knowledge Library preserves valid UTF-8 `.txt` uploads exactly as authored instead of misreading them as UTF-16.
+- The local Docker stack starts persistent Qdrant storage automatically, keeping document indexing and recall available after restarts.
 
 完整历史更新见 [docs/releases/release-notes.md](./docs/releases/release-notes.md)。
 
