@@ -9,6 +9,7 @@
 - A Georgian user guide now explains every Creation, Assets, and System navigation item, the recommended first-project workflow, model requirements, and advanced-tool cautions.
 - Knowledge Library now preserves valid UTF-8 `.txt` uploads exactly as authored instead of misreading ordinary text as UTF-16.
 - The local Docker stack now starts a persistent Qdrant service automatically, so document indexing and recall work without separate vector-database setup.
+- Book positioning fields and Knowledge Base task records now use complete English copy, including multiline placeholders and progress labels from previously saved indexing jobs.
 
 ### 2026-09-03 (Georgian pipeline hardening)
 

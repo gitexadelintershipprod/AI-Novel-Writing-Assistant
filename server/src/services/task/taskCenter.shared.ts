@@ -43,15 +43,15 @@ export const NOVEL_PIPELINE_STEPS = [
 ] as const;
 
 export const KNOWLEDGE_DOCUMENT_STEPS = [
-  { key: "queued", label: "排队" },
-  { key: "loading_source", label: "读取文档" },
-  { key: "chunking", label: "切分分块" },
-  { key: "embedding", label: "生成向量" },
-  { key: "ensuring_collection", label: "校验集合" },
-  { key: "deleting_existing", label: "清理旧索引" },
-  { key: "upserting_vectors", label: "写入向量库" },
-  { key: "writing_metadata", label: "写入元数据" },
-  { key: "completed", label: "完成" },
+  { key: "queued", label: "Queued" },
+  { key: "loading_source", label: "Loading source" },
+  { key: "chunking", label: "Splitting into chunks" },
+  { key: "embedding", label: "Generating vectors" },
+  { key: "ensuring_collection", label: "Validating vector collection" },
+  { key: "deleting_existing", label: "Removing previous index" },
+  { key: "upserting_vectors", label: "Writing to vector store" },
+  { key: "writing_metadata", label: "Saving index metadata" },
+  { key: "completed", label: "Complete" },
 ] as const;
 
 export const IMAGE_TASK_STEPS = [

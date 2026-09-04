@@ -39,7 +39,7 @@ export class KnowledgeService {
     const errorMap = new Map<string, string | null>();
     for (const row of rows) {
       if (!errorMap.has(row.ownerId)) {
-        errorMap.set(row.ownerId, row.lastError ?? "索引任务失败。请到任务列表查看详情。");
+        errorMap.set(row.ownerId, row.lastError ?? "Indexing failed. Open Task History for details.");
       }
     }
     return errorMap;
@@ -123,7 +123,7 @@ export class KnowledgeService {
       latestIndexStatus: item.latestIndexStatus,
       latestIndexError:
         item.latestIndexStatus === "failed"
-          ? (failedIndexErrors.get(item.id) ?? "索引任务失败。请到任务列表查看详情。")
+          ? (failedIndexErrors.get(item.id) ?? "Indexing failed. Open Task History for details.")
           : null,
       lastIndexedAt: item.lastIndexedAt,
       createdAt: item.createdAt,
@@ -174,7 +174,7 @@ export class KnowledgeService {
       latestIndexStatus: document.latestIndexStatus,
       latestIndexError:
         document.latestIndexStatus === "failed"
-          ? (failedIndexError?.lastError ?? "索引任务失败。请到任务列表查看详情。")
+          ? (failedIndexError?.lastError ?? "Indexing failed. Open Task History for details.")
           : null,
       lastIndexedAt: document.lastIndexedAt,
       createdAt: document.createdAt,

@@ -36,3 +36,25 @@ test("desktop startup, updater, and dialog sources contain no Chinese UI text", 
     assert.equal(han.test(source), false, `${relativePath} still contains Chinese UI text`);
   }
 });
+
+test("book positioning fields and knowledge task summaries use English source copy", () => {
+  const englishOnlyFiles = [
+    "client/src/pages/novels/components/basicInfoForm/BookPositioningStudio.tsx",
+    "client/src/pages/novels/components/basicInfoForm/BookFramingSection.tsx",
+    "server/src/services/task/adapters/KnowledgeTaskAdapter.ts",
+    "server/src/services/knowledge/KnowledgeService.ts",
+    "server/src/services/rag/RagWorker.ts",
+  ];
+  for (const relativePath of englishOnlyFiles) {
+    const source = fs.readFileSync(path.join(repositoryRoot, relativePath), "utf8");
+    assert.equal(han.test(source), false, `${relativePath} still contains Chinese UI text`);
+  }
+
+  const ragIndexSource = fs.readFileSync(
+    path.join(repositoryRoot, "server/src/services/rag/RagIndexService.ts"),
+    "utf8",
+  );
+  for (const legacyLabel of ["读取文档", "切分分块", "生成向量", "校验集合", "清理旧索引", "写入向量库", "索引完成"]) {
+    assert.equal(ragIndexSource.includes(`label: "${legacyLabel}"`), false, `RAG progress label remains Chinese: ${legacyLabel}`);
+  }
+});

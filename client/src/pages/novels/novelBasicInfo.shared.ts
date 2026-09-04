@@ -216,11 +216,11 @@ export const PROJECT_STATUS_OPTIONS: Array<{ value: NovelBasicFormState["project
 
 export const BASIC_INFO_FIELD_HINTS = {
   writingMode: "决定项目是从零开始，还是基于已有作品继续创作。它会直接影响后续优先使用哪些上下文来源。",
-  targetAudience: "说明这本书最主要写给谁看。不会写专业人群画像也没关系，按直觉描述即可。",
-  bookSellingPoint: "写清楚这本书最抓人的点，例如关系拉扯、逆袭爽点、悬念推进或设定新鲜感。",
-  competingFeel: "写成读者会联想到的阅读感，不是要求你模仿具体作品。",
-  first30ChapterPromise: "写清楚前 30 章一定要让读者看到什么、爽到什么、相信什么。",
-  commercialTagsText: "用逗号分隔 3-6 个标签即可，例如逆袭、强冲突、悬念拉满、职场博弈。",
+  targetAudience: "Describe the primary readers for this book. You do not need a formal audience profile—use your own words.",
+  bookSellingPoint: "Describe the book's strongest appeal, such as relationship tension, a comeback payoff, escalating mystery, or a fresh premise.",
+  competingFeel: "Describe the familiar reading experience it evokes; you are not being asked to imitate a specific work.",
+  first30ChapterPromise: "State what readers must see, feel, and come to believe within the first 30 chapters.",
+  commercialTagsText: "Enter 3–6 comma-separated tags, such as comeback, high conflict, suspense, and workplace rivalry.",
   projectMode: "决定你和 AI 的协作方式。会影响后续哪些步骤自动推进、哪些步骤更依赖人工确认。",
   readerChannelPreference: "帮助 AI 判断默认爽点、情绪重心和关系线权重。不确定时保持 AI 判断。",
   narrativePov: "决定章节生成默认采用哪种叙述视角，也会影响信息分发方式。",

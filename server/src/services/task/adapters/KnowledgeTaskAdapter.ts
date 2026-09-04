@@ -4,7 +4,6 @@ import { AppError } from "../../../middleware/errorHandler";
 import { ragServices } from "../../rag";
 import type { RagJobType } from "../../rag/types";
 import {
-  buildTaskRecoveryHint,
   isArchivableTaskStatus,
   normalizeFailureSummary,
 } from "../taskSupport";
@@ -56,12 +55,49 @@ function parseJobProgress(payloadJson: string | null): KnowledgeJobProgressPaylo
 
 function getJobTitle(jobType: RagJobType, documentTitle: string): string {
   if (jobType === "delete") {
-    return `知识库删除：${documentTitle}`;
+    return `Delete knowledge base index: ${documentTitle}`;
   }
   if (jobType === "upsert") {
-    return `知识库更新：${documentTitle}`;
+    return `Update knowledge base index: ${documentTitle}`;
   }
-  return `知识库重建：${documentTitle}`;
+  return `Rebuild knowledge base index: ${documentTitle}`;
+}
+
+const KNOWLEDGE_PROGRESS_LABELS: Record<string, string> = {
+  queued: "Queued",
+  loading_source: "Loading source",
+  chunking: "Splitting into chunks",
+  embedding: "Generating vectors",
+  ensuring_collection: "Validating vector collection",
+  deleting_existing: "Removing previous index",
+  upserting_vectors: "Writing to vector store",
+  writing_metadata: "Saving index metadata",
+  completed: "Index complete",
+  failed: "Index failed",
+  cancelled: "Index cancelled",
+};
+
+function getProgressLabel(progress: KnowledgeJobProgressPayload | null): string | null {
+  if (!progress) {
+    return null;
+  }
+  return progress.stage ? KNOWLEDGE_PROGRESS_LABELS[progress.stage] ?? progress.label ?? progress.stage : progress.label ?? null;
+}
+
+function getRecoveryHint(status: TaskStatus): string {
+  if (status === "failed") {
+    return "Check the document version, chunking result, embedding model, and shared RAG queue before retrying.";
+  }
+  if (status === "running") {
+    return "Indexing is still running. Wait for completion or review the live progress.";
+  }
+  if (status === "queued") {
+    return "Indexing is queued. Check whether earlier jobs are occupying the RAG worker.";
+  }
+  if (status === "cancelled") {
+    return "Indexing was cancelled. Submit a new indexing job if you want to continue.";
+  }
+  return "No recovery action is needed.";
 }
 
 function matchesKeyword(
@@ -139,7 +175,7 @@ export class KnowledgeTaskAdapter {
       .map((row) => {
         const progress = parseJobProgress(row.payloadJson);
         const document = documentMap.get(row.ownerId);
-        const documentTitle = document?.title ?? "未命名知识文档";
+        const documentTitle = document?.title ?? "Untitled knowledge document";
         const statusValue = row.status as TaskStatus;
         const sourceRoute = `/knowledge?id=${row.ownerId}`;
         const updatedAt = row.updatedAt.toISOString();
@@ -153,7 +189,7 @@ export class KnowledgeTaskAdapter {
           status: statusValue,
           progress: progressPercent,
           currentStage: progress?.stage ?? (statusValue === "queued" ? "queued" : statusValue === "running" ? "loading_source" : null),
-          currentItemLabel: progress?.label ?? null,
+          currentItemLabel: getProgressLabel(progress),
           attemptCount: row.attempts,
           maxAttempts: row.maxAttempts,
           lastError: row.lastError,
@@ -165,11 +201,11 @@ export class KnowledgeTaskAdapter {
           sourceRoute,
           failureCode: row.status === "failed" ? "KNOWLEDGE_INDEX_FAILED" : null,
           failureSummary: row.status === "failed"
-            ? normalizeFailureSummary(row.lastError, "知识库索引失败，但没有记录明确错误。")
+            ? normalizeFailureSummary(row.lastError, "Knowledge base indexing failed without a recorded error.")
             : row.status === "cancelled"
-              ? "知识库索引已取消。"
+              ? "Knowledge base indexing was cancelled."
               : row.lastError,
-          recoveryHint: buildTaskRecoveryHint("knowledge_document", statusValue),
+          recoveryHint: getRecoveryHint(statusValue),
           sourceResource: {
             type: "knowledge_document",
             id: row.ownerId,
@@ -209,7 +245,7 @@ export class KnowledgeTaskAdapter {
       },
     });
     const progress = parseJobProgress(row.payloadJson);
-    const documentTitle = document?.title ?? "未命名知识文档";
+    const documentTitle = document?.title ?? "Untitled knowledge document";
     const statusValue = row.status as TaskStatus;
     const sourceRoute = `/knowledge?id=${row.ownerId}`;
     const updatedAt = row.updatedAt.toISOString();
@@ -223,7 +259,7 @@ export class KnowledgeTaskAdapter {
       status: statusValue,
       progress: progressPercent,
       currentStage: progress?.stage ?? (statusValue === "queued" ? "queued" : statusValue === "running" ? "loading_source" : null),
-      currentItemLabel: progress?.label ?? null,
+      currentItemLabel: getProgressLabel(progress),
       attemptCount: row.attempts,
       maxAttempts: row.maxAttempts,
       lastError: row.lastError,
@@ -235,11 +271,11 @@ export class KnowledgeTaskAdapter {
       sourceRoute,
       failureCode: row.status === "failed" ? "KNOWLEDGE_INDEX_FAILED" : null,
       failureSummary: row.status === "failed"
-        ? normalizeFailureSummary(row.lastError, "知识库索引失败，但没有记录明确错误。")
+        ? normalizeFailureSummary(row.lastError, "Knowledge base indexing failed without a recorded error.")
         : row.status === "cancelled"
-          ? "知识库索引已取消。"
+          ? "Knowledge base indexing was cancelled."
           : row.lastError,
-      recoveryHint: buildTaskRecoveryHint("knowledge_document", statusValue),
+      recoveryHint: getRecoveryHint(statusValue),
       sourceResource: {
         type: "knowledge_document",
         id: row.ownerId,

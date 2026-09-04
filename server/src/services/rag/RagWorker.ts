@@ -127,7 +127,7 @@ export class RagWorker {
           });
           return;
         }
-        const message = error instanceof Error ? error.message : "RAG 索引任务失败。";
+        const message = error instanceof Error ? error.message : "RAG indexing job failed.";
         if (nextAttempt >= job.maxAttempts) {
           await this.ragIndexService.updateJobStatus(job.id, {
             status: "failed",
