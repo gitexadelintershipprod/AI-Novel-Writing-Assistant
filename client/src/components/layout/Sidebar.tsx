@@ -12,9 +12,7 @@ import {
   Images,
   LayoutDashboard,
   ListTodo,
-  MonitorPlay,
   Radar,
-  SquareStack,
   ScanSearch,
   Settings2,
   ShieldCheck,
@@ -60,8 +58,6 @@ const navGroups: NavGroup[] = [
         ? [{ to: "/market-radar", labelKey: "items.marketRadar", icon: Radar }]
         : []),
       { to: "/novels", labelKey: "items.novels", icon: BookOpenText },
-      { to: "/drama", labelKey: "items.drama", icon: MonitorPlay, disabled: true },
-      { to: "/comic", labelKey: "items.comic", icon: SquareStack },
       { to: "/creative-hub", labelKey: "items.creativeHub", icon: LayoutDashboard },
       { to: "/book-analysis", labelKey: "items.bookAnalysis", icon: ScanSearch },
     ],
@@ -140,21 +136,6 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const failedIndexCount = knowledgeDocuments.filter((item) => item.latestIndexStatus === "failed").length;
 
   const renderBadge = (to: string) => {
-    if (to === "/comic") {
-      if (collapsed) {
-        return null;
-      }
-      return (
-        <Badge
-          variant="outline"
-          className="ml-auto h-5 border-amber-300 bg-amber-50 px-1.5 text-[10px] font-medium text-amber-700"
-          title={t("controls.comicBeta")}
-        >
-          Beta
-        </Badge>
-      );
-    }
-
     if (to === "/tasks") {
       if (failedTaskCount <= 0) {
         return null;

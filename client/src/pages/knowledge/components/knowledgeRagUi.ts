@@ -3,21 +3,21 @@ import type { RagJobSummary } from "@/api/knowledge";
 export function formatStatus(status: string): string {
   switch (status) {
     case "enabled":
-      return "已启用";
+      return "Enabled";
     case "disabled":
-      return "已停用";
+      return "Disabled";
     case "archived":
-      return "已归档";
+      return "Archived";
     case "idle":
-      return "空闲";
+      return "Idle";
     case "queued":
-      return "排队中";
+      return "Queued";
     case "running":
-      return "执行中";
+      return "Running";
     case "succeeded":
-      return "成功";
+      return "Succeeded";
     case "failed":
-      return "失败";
+      return "Failed";
     default:
       return status;
   }
@@ -37,15 +37,15 @@ export function getRagJobProgressWidth(job: RagJobSummary): string {
 }
 
 export function formatRagJobMeta(job: RagJobSummary): string {
-  const parts = [job.jobType, `尝试 ${job.attempts}/${job.maxAttempts}`];
+  const parts = [job.jobType, `Attempt ${job.attempts}/${job.maxAttempts}`];
   if (job.progress?.current !== undefined && job.progress?.total !== undefined && job.progress.total > 0) {
     parts.push(`${job.progress.current}/${job.progress.total}`);
   }
   if (job.progress?.chunks) {
-    parts.push(`${job.progress.chunks} 分块`);
+    parts.push(`${job.progress.chunks} chunks`);
   }
   if (job.progress?.documents) {
-    parts.push(`${job.progress.documents} 文档`);
+    parts.push(`${job.progress.documents} documents`);
   }
   return parts.join(" | ");
 }

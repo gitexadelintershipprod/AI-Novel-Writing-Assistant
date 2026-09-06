@@ -39,6 +39,9 @@ test("desktop startup, updater, and dialog sources contain no Chinese UI text", 
 
 test("book positioning fields and knowledge task summaries use English source copy", () => {
   const englishOnlyFiles = [
+    "client/src/pages/knowledge/components/KnowledgeLibraryOverview.tsx",
+    "client/src/pages/knowledge/components/KnowledgeDocumentDetailDialog.tsx",
+    "client/src/pages/knowledge/components/knowledgeRagUi.ts",
     "client/src/pages/novels/components/basicInfoForm/BookPositioningStudio.tsx",
     "client/src/pages/novels/components/basicInfoForm/BookFramingSection.tsx",
     "server/src/services/task/adapters/KnowledgeTaskAdapter.ts",

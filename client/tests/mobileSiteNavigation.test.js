@@ -65,14 +65,13 @@ test("mobile primary nav keeps core beginner actions visible", () => {
   );
 });
 
-test("mobile more menu contains all non-primary registered pages", () => {
+test("mobile more menu contains visible non-primary pages", () => {
   const morePaths = getMobileMoreNavGroups().flatMap((group) => group.items.map((item) => item.to));
 
   assert.deepEqual(
     morePaths,
     [
       "/help",
-      "/drama",
       "/book-analysis",
       "/chat-legacy",
       "/knowledge",
@@ -90,4 +89,11 @@ test("mobile more menu contains all non-primary registered pages", () => {
       "/settings",
     ],
   );
+});
+
+test("mobile navigation hides Drama and Comic Studio without removing other creation tools", () => {
+  const items = [...getMobilePrimaryNavItems(), ...getMobileMoreNavGroups().flatMap((group) => group.items)];
+  assert.equal(items.some((item) => /^\/(drama|comic)(\/|$)/.test(item.to)), false);
+  assert.ok(items.some((item) => item.to === "/creative-hub"));
+  assert.ok(items.some((item) => item.to === "/book-analysis"));
 });

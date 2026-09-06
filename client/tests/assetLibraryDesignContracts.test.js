@@ -82,7 +82,7 @@ test("phase one asset pages expose purpose status recommendation and recovery st
 });
 
 test("knowledge library presents a document shelf before maintenance controls", () => {
-  assert.match(knowledgeOverview, /aria-label="知识资料状态"/);
+  assert.match(knowledgeOverview, /aria-label="Knowledge material status"/);
   assert.match(knowledgeOverview, /recommendation\.tone !== "success"/);
   assert.match(knowledgePage, /TabsTrigger value="documents" className="rounded-full/);
   assert.match(knowledgeDocuments, /资料书架/);

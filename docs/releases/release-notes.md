@@ -4,6 +4,12 @@
 
 ## 更新历史
 
+### 2026-09-07
+
+- Knowledge Library progress messages, document previews, retrieval controls, and full-text warnings use complete English text, including changing counts.
+- Drama Studio and Comic Studio are hidden from desktop and mobile navigation. Existing studio data is preserved.
+- The Georgian user guide identifies these hidden tools separately from the visible navigation.
+
 ### 2026-09-04 (Georgian usage and knowledge reliability)
 
 - A Georgian user guide now explains every Creation, Assets, and System navigation item, the recommended first-project workflow, model requirements, and advanced-tool cautions.

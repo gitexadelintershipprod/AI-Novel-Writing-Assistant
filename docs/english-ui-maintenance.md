@@ -45,6 +45,8 @@ pnpm check:english-ui
 
 Do not update the allowlist merely to silence the check. Confirm whether the value is UI copy, a domain value, prompt/content, comment, or fixture first.
 
+The allowlist does not prove that dynamic sentences render fully in English. See [dynamic copy failure modes and regression checks](wiki/debugging/english-ui-dynamic-copy.md), including native confirmation dialogs and count-dependent document previews.
+
 ## Updating the presentation catalog
 
 `scripts/generate-english-ui-catalog.cjs` extracts short static source phrases and refreshes `client/src/locales/en/legacy-ui.json`. It uses a network translation service as a draft source. Review changed translations, preserve placeholders, and add high-value wording to `MANUAL_OVERRIDES` before committing.

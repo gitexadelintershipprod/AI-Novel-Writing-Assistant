@@ -147,12 +147,11 @@
 
 ## 最新更新
 
-### 2026-09-04
+### 2026-09-07
 
-- [Georgian user guide](./docs/public/georgian-user-guide.md) explains every Creation, Assets, and System navigation item, recommended workflows, model requirements, and advanced-tool cautions.
-- Knowledge Library preserves valid UTF-8 `.txt` uploads exactly as authored instead of misreading them as UTF-16.
-- The local Docker stack starts persistent Qdrant storage automatically, keeping document indexing and recall available after restarts.
-- Book positioning fields and Knowledge Base task records now stay fully in English, including multiline placeholders and previously saved indexing progress.
+- Knowledge Library progress messages, document previews, retrieval controls, and full-text warnings use complete English text, including changing counts.
+- Drama Studio and Comic Studio are hidden from desktop and mobile navigation. Existing studio data is preserved.
+- The [Georgian user guide](./docs/public/georgian-user-guide.md) identifies these hidden tools separately from the visible navigation.
 
 完整历史更新见 [docs/releases/release-notes.md](./docs/releases/release-notes.md)。
 

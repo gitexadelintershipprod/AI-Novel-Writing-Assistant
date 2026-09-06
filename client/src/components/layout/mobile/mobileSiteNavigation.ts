@@ -67,7 +67,6 @@ const moreNavGroups: MobileNavGroup[] = [
     title: "创作辅助",
     items: [
       { key: "help", label: "创作向导", to: "/help", group: "more" },
-      { key: "drama", label: "短剧工作台", to: "/drama", group: "creation" },
       { key: "book-analysis", label: "拆书", to: "/book-analysis", group: "creation" },
       ...(featureFlags.marketRadarEnabled
         ? [{ key: "market-radar", label: "热门题材雷达", to: "/market-radar", group: "creation" as const }]
