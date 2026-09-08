@@ -31,7 +31,7 @@ The additive migration is 20260908000000_knowledge_bulk_import in both PostgreSQ
 
 For databases managed by migration history, use the project's normal prisma:deploy command. For an existing db-push deployment with divergent historical migrations, inspect the history first, apply this exact migration in a transaction, and record its checksum in the migration history; do not blindly apply old pending migrations or use --accept-data-loss. Validate schema shape and document/version counts before and after.
 
-compose.local.yml no longer mutates schemas at startup. Provision a fresh database with prisma:deploy before starting the API. Deployment ports remain web 8045 and API 3165; no new queue service is required. Rollback application code if needed, retaining additive tables and import history rather than dropping user data.
+compose.local.yml no longer mutates schemas at startup. A verified empty fresh database can be initialized with prisma:push without data-loss flags; an existing database needs a reviewed migration before starting the new API. Do not assume historical migrations are a complete fresh-install baseline. Deployment ports remain web 8045 and API 3165; no new queue service is required. Rollback application code if needed, retaining additive tables and import history rather than dropping user data.
 
 ## Modules and verification
 

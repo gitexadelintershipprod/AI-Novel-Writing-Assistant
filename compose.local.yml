@@ -28,7 +28,7 @@ services:
     command:
       - sh
       - -c
-      - /app/node_modules/.bin/prisma db push --accept-data-loss && exec node ./server/dist/app.js
+      - exec node ./server/dist/app.js
     depends_on:
       database:
         condition: service_healthy
