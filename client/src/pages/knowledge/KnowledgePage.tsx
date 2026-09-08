@@ -2,7 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ApiResponse } from "@ai-novel/shared/types/api";
 import type { KnowledgeDocumentStatus, KnowledgeRecallTestResult } from "@ai-novel/shared/types/knowledge";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { queryKeys } from "@/api/queryKeys";
 import {
@@ -511,6 +512,7 @@ export default function KnowledgePage() {
 
   return (
     <div className="space-y-5">
+      <div className="flex justify-end"><Button asChild variant="outline"><Link to="/knowledge/imports">Bulk Import</Link></Button></div>
       <KnowledgeLibraryOverview
         activeJobCount={activeKnowledgeJobCount}
         enabledCount={enabledCount}

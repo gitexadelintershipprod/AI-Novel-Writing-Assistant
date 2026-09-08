@@ -39,6 +39,7 @@ Wiki 不记录单次提交改了什么，也不替代 release notes。它只记�
 
 ### RAG
 
+- [Knowledge Bulk Import: storage before indexing](./rag/knowledge-bulk-import.md)
 - [知识库与上下文组装](./rag/knowledge-and-context-assembly.md)
 
 ### Debugging

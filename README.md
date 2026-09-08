@@ -147,11 +147,11 @@
 
 ## 最新更新
 
-### 2026-09-07
+### 2026-09-08
 
-- Knowledge Library progress messages, document previews, retrieval controls, and full-text warnings use complete English text, including changing counts.
-- Drama Studio and Comic Studio are hidden from desktop and mobile navigation. Existing studio data is preserved.
-- The [Georgian user guide](./docs/public/georgian-user-guide.md) identifies these hidden tools separately from the visible navigation.
+- Knowledge Base Bulk Import accepts multiple TXT files or folders, checks duplicates, and saves only selected files without starting paid embedding work.
+- Select saved files separately with checkboxes and use **Add selected to queue** to make them searchable. Uploads and processing have separate pause, resume, and failed-only retry controls.
+- Import history survives reopening the browser; identical content is skipped and matching titles never overwrite existing documents. See the [Georgian user guide](./docs/public/georgian-user-guide.md#bulk-import--ბევრი-ფაილის-დამატება).
 
 完整历史更新见 [docs/releases/release-notes.md](./docs/releases/release-notes.md)。
 

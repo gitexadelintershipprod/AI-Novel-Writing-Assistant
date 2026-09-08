@@ -9,6 +9,8 @@ function backoffMs(attempt: number): number {
 export class RagWorker {
   private timer: NodeJS.Timeout | null = null;
   private isTicking = false;
+  private startGeneration = 0;
+  private started = false;
 
   constructor(private readonly ragIndexService: RagIndexService) {}
 
@@ -35,7 +37,7 @@ export class RagWorker {
   }
 
   start(): void {
-    if (!ragConfig.enabled || this.timer) {
+    if (!ragConfig.enabled || this.started) {
       return;
     }
     this.logInfo("Worker started.", {
@@ -43,11 +45,16 @@ export class RagWorker {
       maxAttempts: ragConfig.workerMaxAttempts,
       retryBaseMs: ragConfig.workerRetryBaseMs,
     });
-    void this.requeueInterruptedJobs();
-    this.timer = setInterval(() => {
+    this.started = true;
+    const generation = ++this.startGeneration;
+    void this.requeueInterruptedJobs().then(() => {
+      if (!this.started || generation !== this.startGeneration) return;
+      this.timer = setInterval(() => { void this.tick(); }, ragConfig.workerPollMs);
       void this.tick();
-    }, ragConfig.workerPollMs);
-    void this.tick();
+    }).catch((error: unknown) => {
+      if (generation === this.startGeneration) this.started = false;
+      console.error("[RAG][Worker] Startup recovery failed; worker not started.", error);
+    });
   }
 
   private async requeueInterruptedJobs(): Promise<void> {
@@ -72,6 +79,8 @@ export class RagWorker {
   }
 
   stop(): void {
+    this.started = false;
+    this.startGeneration += 1;
     if (!this.timer) {
       return;
     }

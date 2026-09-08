@@ -27,6 +27,7 @@ const MarketRadarUnavailablePage = lazy(() => import("@/pages/marketRadar/Market
 const TaskCenterPage = lazy(() => import("@/pages/tasks/TaskCenterPage"));
 const AutoDirectorFollowUpCenterPage = lazy(() => import("@/pages/autoDirectorFollowUps/AutoDirectorFollowUpCenterPage"));
 const KnowledgePage = lazy(() => import("@/pages/knowledge/KnowledgePage"));
+const KnowledgeImportPage = lazy(() => import("@/pages/knowledge/imports/KnowledgeImportPage"));
 const GenreManagementPage = lazy(() => import("@/pages/genres/GenreManagementPage"));
 const StoryModeManagementPage = lazy(() => import("@/pages/storyModes/StoryModeManagementPage"));
 const TitleStudioPage = lazy(() => import("@/pages/titles/TitleStudioPage"));
@@ -77,6 +78,7 @@ const routes: RouteObject[] = [
       { path: "auto-director/follow-up-center", element: <Navigate to="/auto-director/follow-ups" replace /> },
       { path: "auto-director/followup-center", element: <Navigate to="/auto-director/follow-ups" replace /> },
       { path: "knowledge", element: <KnowledgePage /> },
+      { path: "knowledge/imports", element: <KnowledgeImportPage /> },
       { path: "genres", element: <GenreManagementPage /> },
       { path: "story-modes", element: <StoryModeManagementPage /> },
       { path: "titles", element: <TitleStudioPage /> },

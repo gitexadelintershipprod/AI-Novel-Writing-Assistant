@@ -3008,6 +3008,38 @@ model AuditIssue {
   @@index([auditType, severity])
 }
 
+model KnowledgeImportBatch {
+  id               String @id @default(cuid())
+  name             String
+  processingPaused Boolean @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  items            KnowledgeImportItem[]
+  jobs             RagIndexJob[]
+}
+
+model KnowledgeImportItem {
+  id                String @id @default(cuid())
+  batchId           String
+  key               String
+  fileName          String
+  relativePath      String
+  byteSize          Int
+  contentHash       String
+  uploadStatus      String @default("pending")
+  error             String?
+  documentId        String?
+  documentVersionId String?
+  jobId             String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  batch             KnowledgeImportBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  @@unique([batchId, key])
+  @@index([batchId, createdAt])
+  @@index([contentHash])
+}
+
+
 model KnowledgeDocument {
   id                     String                   @id @default(cuid())
   title                  String
@@ -3346,6 +3378,9 @@ model KnowledgeChunk {
 }
 
 model RagIndexJob {
+  importBatchId String?
+  importVersionId String?
+  importBatch KnowledgeImportBatch? @relation(fields: [importBatchId], references: [id], onDelete: SetNull)
   id          String       @id @default(cuid())
   tenantId    String       @default("default")
   jobType     RagJobType

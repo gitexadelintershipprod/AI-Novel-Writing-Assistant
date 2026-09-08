@@ -1,4 +1,5 @@
 import type { RagIndexJob } from "@prisma/client";
+import { claimRagJob } from "./importQueue";
 import { prisma } from "../../db/prisma";
 import { ragConfig } from "../../config/rag";
 import { getRagEmbeddingSettings } from "../settings/RagSettingsService";
@@ -129,13 +130,19 @@ export class RagIndexService {
   private async assertJobNotCancelled(jobId: string): Promise<void> {
     const job = await prisma.ragIndexJob.findUnique({
       where: { id: jobId },
-      select: { status: true },
+      select: { status: true, importVersionId: true, ownerId: true },
     });
     if (!job) {
       throw new Error("RAG job not found.");
     }
     if (job.status === "cancelled") {
       throw new RagJobCancelledError();
+    }
+    if (job.importVersionId) {
+      const document = await prisma.knowledgeDocument.findUnique({ where: { id: job.ownerId }, select: { status: true, activeVersionId: true } });
+      if (!document || document.status === "archived" || document.activeVersionId !== job.importVersionId) {
+        throw new Error("The imported document was removed, archived, or its active version changed. Select the current version explicitly.");
+      }
     }
   }
 
@@ -505,6 +512,9 @@ export class RagIndexService {
         if (!document?.activeVersion || document.status === "archived") {
           return [];
         }
+        if (payload?.importVersionId && document.activeVersionId !== payload.importVersionId) {
+          throw new Error("The imported document's active version changed before indexing.");
+        }
         const content = normalizeRagText(document.activeVersion.content);
         return content
           ? [{
@@ -685,10 +695,12 @@ export class RagIndexService {
       chunks: 0,
       percent: 0.05,
     });
-    const jobPayload = this.parseJobPayload((await prisma.ragIndexJob.findUnique({
+    const sourceJob = await prisma.ragIndexJob.findUnique({
       where: { id: jobId },
-      select: { payloadJson: true },
-    }))?.payloadJson ?? null);
+      select: { payloadJson: true, importVersionId: true },
+    });
+    const jobPayload = this.parseJobPayload(sourceJob?.payloadJson ?? null);
+    if (sourceJob?.importVersionId) jobPayload.importVersionId = sourceJob.importVersionId;
     const docs = await this.loadSourceDocuments(ownerType, ownerId, tenantId, jobPayload);
     await this.assertJobNotCancelled(jobId);
     if (docs.length === 0) {
@@ -1081,13 +1093,7 @@ export class RagIndexService {
   }
 
   async getNextRunnableJob(): Promise<RagIndexJob | null> {
-    return prisma.ragIndexJob.findFirst({
-      where: {
-        status: "queued",
-        runAfter: { lte: new Date() },
-      },
-      orderBy: [{ runAfter: "asc" }, { createdAt: "asc" }],
-    });
+    return claimRagJob(prisma);
   }
 
   async updateJobStatus(jobId: string, payload: {
@@ -1164,6 +1170,7 @@ export class RagIndexService {
       job.ownerId,
       payload.status,
       job.jobType as RagJobType,
+      job.importVersionId,
     );
     return job;
   }
@@ -1214,6 +1221,7 @@ export class RagIndexService {
     ownerId: string,
     status: RagJobStatus,
     jobType: RagJobType,
+    importVersionId?: string | null,
   ): Promise<void> {
     if (ownerType !== "knowledge_document") {
       return;
@@ -1232,7 +1240,7 @@ export class RagIndexService {
               : "failed";
 
     await prisma.knowledgeDocument.updateMany({
-      where: { id: ownerId },
+      where: { id: ownerId, ...(importVersionId ? { activeVersionId: importVersionId, status: { not: "archived" } } : {}) },
       data: {
         latestIndexStatus: nextStatus,
         ...(status === "succeeded" && jobType !== "delete" ? { lastIndexedAt: new Date() } : {}),

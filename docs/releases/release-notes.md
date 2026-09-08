@@ -4,6 +4,12 @@
 
 ## 更新历史
 
+### 2026-09-08
+
+- Knowledge Base Bulk Import accepts multiple TXT files or folders, checks duplicates, and saves only selected files without starting paid embedding work.
+- Select saved files separately with checkboxes and use **Add selected to queue** to make them searchable. Uploads and processing have separate pause, resume, and failed-only retry controls.
+- Import history survives reopening the browser; identical content is skipped and matching titles never overwrite existing documents. The Georgian user guide explains the two-stage workflow.
+
 ### 2026-09-07
 
 - Knowledge Library progress messages, document previews, retrieval controls, and full-text warnings use complete English text, including changing counts.

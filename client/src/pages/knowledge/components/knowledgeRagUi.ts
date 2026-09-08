@@ -9,7 +9,7 @@ export function formatStatus(status: string): string {
     case "archived":
       return "Archived";
     case "idle":
-      return "Idle";
+      return "Not indexed";
     case "queued":
       return "Queued";
     case "running":

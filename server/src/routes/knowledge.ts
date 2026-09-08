@@ -5,6 +5,7 @@ import { authMiddleware } from "../middleware/auth";
 import { validate } from "../middleware/validate";
 import { DocumentChapterService } from "../services/knowledge/DocumentChapterService";
 import { KnowledgeService } from "../services/knowledge/KnowledgeService";
+import knowledgeImportsRouter from "../services/knowledge/imports/router";
 
 const router = Router();
 const knowledgeService = new KnowledgeService();
@@ -64,6 +65,7 @@ const patchDocumentSchema = z.object({
 });
 
 router.use(authMiddleware);
+router.use("/imports", knowledgeImportsRouter);
 
 router.get("/documents", validate({ query: listDocumentsQuerySchema }), async (req, res, next) => {
   try {
