@@ -189,39 +189,25 @@ These areas have the highest priority for wiki accumulation:
 
 ## Development Branch Workflow
 
-- When developing a new feature that may affect the end-to-end product flow, default workflow, shared contracts, or other major system links, do not develop directly on `main`.
-- In these cases, first create or switch to a dedicated feature development branch, complete implementation and functional verification there, then merge into the pre-release `beta` branch for integration verification. Merge back to `main` only after `beta` has been tested and stable enough for release.
+- `main` is the only branch in this repository. Do not create long-lived `beta`, `feature/*`, or `desktop-dev` branches; the previous multi-branch promotion flow has been retired.
+- Develop directly on `main` and rely on verification before publishing rather than on branch isolation. Every change must pass the Remote Deployment Workflow checks before it reaches the remote.
 - For phased development, making an intentional commit after each completed development phase is mandatory. A phase is complete when its scope is coherent, the relevant verification has passed or the remaining verification gap is explicitly documented, and the working tree contains only that phase's intended changes.
 - This phase-completion commit rule also applies to small isolated fixes, documentation-only updates, workflow-rule updates, and low-risk UI polish unless the user explicitly says not to commit yet.
 - Before each phase commit, inspect the Git scope and follow the README Release Notes Workflow when the phase has user-facing impact. If the diff is purely internal, document that release notes were intentionally skipped.
-- After the feature branch has been successfully merged into `beta` and no longer needs follow-up work, clean up that development branch so old feature branches do not accumulate indefinitely.
-- This rule applies in particular to changes that touch cross-stage workflows, shared runtime/prompting/context contracts, automatic director chains, chapter execution chains, data migration behavior, or other changes that can impact the overall chain.
-- Small isolated fixes, copy changes, low-risk UI polish, or documentation-only updates can still be handled without requiring a separate feature development branch unless the user explicitly asks otherwise. If the change is release-facing, still prefer passing through `beta` before `main`.
+- Changes that touch cross-stage workflows, shared runtime/prompting/context contracts, automatic director chains, chapter execution chains, data migration behavior, or desktop packaging carry the highest regression risk. For these, run the targeted verification relevant to the affected chain before committing, and state explicitly which checks were run.
+- Public desktop packaging and release upload is performed from `main` or from a release tag created on `main`.
+- Historical upstream work that predates the single-branch layout is preserved in the `archive/upstream-main-0.4.17` tag. Read from that tag when older behavior needs investigating; do not branch from it for new work.
 
-### Pre-release Beta Branch Workflow
+## Remote Deployment Workflow
 
-- Use `beta` as the stable pre-release integration branch between feature development branches and `main`.
-- The normal release path is: feature branch -> self-test / targeted verification -> merge into `beta` -> integration testing / regression checks / packaging verification -> merge into `main` -> public release or packaging upload.
-- `main` is the stable release branch. Do not merge a feature branch directly into `main` when the change affects product flow, shared contracts, runtime behavior, data migration, desktop packaging, or other end-to-end links.
-- `beta` should represent the next candidate release. Keep it buildable, runnable, and suitable for acceptance testing; do not use it as a dumping ground for unfinished experiments.
-- If multiple feature branches are merged into `beta`, test the combined behavior on `beta` before promoting the batch to `main`, especially around automatic director flow, chapter execution, prompt/runtime contracts, migrations, and desktop startup or packaging.
-- If `beta` validation fails, fix the issue on the original feature branch when the fault is isolated, or on a short-lived `beta-fix` branch when the failure is caused by integration between multiple features. Merge the fix back into `beta` and rerun the failed checks before promoting.
-- Only promote `beta` to `main` when the release candidate has passed the required functional checks, build checks, and any packaging verification relevant to the release. After promotion, keep `beta` aligned with `main` so the next pre-release cycle starts from the released state.
-- For urgent production hotfixes, it is acceptable to branch from `main`, verify narrowly, merge back to `main`, and then immediately merge or cherry-pick the hotfix into `beta` so the pre-release branch does not lose the production fix.
-- Public desktop packaging and release upload should be performed from `main` or from a release tag created after `beta` has been promoted to `main`, not directly from a feature branch or an unverified `beta` state.
-- The branch name is `beta`. Do not create a separate `bate` branch; if such a typo branch appears, migrate any useful work to `beta` and remove the typo branch after confirming nothing is lost.
-
-### Desktop Branch Completion Workflow
-
-- Desktop feature development on `desktop-dev` is considered complete. Do not start new desktop feature work directly on `desktop-dev` unless the user explicitly reopens desktopization as an active development phase.
-- Treat `desktop-dev` as a completion candidate that must move through stabilization, pre-release verification, and branch retirement.
-- Before promoting desktop work, sync any required stable changes from `main` into `desktop-dev` when they affect shared contracts, runtime/state logic, build/dependency setup, desktop startup, packaging, or release verification.
-- Run desktop-focused verification on `desktop-dev` first, including development startup, first-run configuration, core web flow compatibility, build checks, and packaging checks relevant to the target release.
-- After `desktop-dev` passes its focused verification, merge it into `beta` for combined pre-release testing with the rest of the next release candidate.
-- Do not promote desktop work from `desktop-dev` directly to `main`. `beta` must pass integration testing and release packaging verification before the desktop work reaches `main`.
-- If `beta` exposes desktop integration failures, fix them on a short-lived desktop stabilization branch or directly on `desktop-dev` if the desktop branch has not yet been retired, then merge the fix back into `beta` and rerun the failed checks.
-- Once `beta` has been promoted to `main` and the released `main` contains the completed desktop work, retire `desktop-dev` so future desktop changes follow the normal feature branch -> `beta` -> `main` workflow.
-- After retirement, `desktop-dev` should not be reused as a long-lived integration branch. Create short-lived feature branches for future desktop fixes or improvements, and promote them through `beta`.
+- The deployed stack lives in `/opt/ai-novel-writing-assistant` on the remote server and runs from `compose.remote.yml` as the four services `database`, `qdrant`, `api`, and `web`.
+- After any change to the deployed stack, both steps below are mandatory and run in this order: restart the containers, then publish to `main`. Never publish a change that has not been restarted and verified on the server.
+- Run `scripts/deploy-remote.sh "<commit message>"` to perform the whole sequence. It rebuilds images, restarts all four services, verifies each one, then commits and pushes to `main`.
+- `api` and `web` are built from `Dockerfile.api` and `Dockerfile.web`, so a bare `docker restart` does not pick up source changes. Image rebuild via `docker compose up -d --build` is required.
+- A single-file bind mount such as `infra/nginx/ai-novel-remote.conf` stays pinned to the inode it was mounted from. When an edit replaces that file, `nginx -s reload` keeps serving the stale content and the container must be recreated or restarted.
+- Verification gates the push: `pg_isready` for `database`, `/readyz` for `qdrant`, `/api/health` for `api`, and `/` for `web`. If any check fails, the script exits without committing and the failure must be fixed before retrying.
+- The script refuses to publish `.env` and other credential-shaped files, archives and dumps, files over 5MB, and diffs containing credential patterns. When it blocks, treat that as a real finding and move the value into `.env` instead of overriding the guard.
+- Server-local state stays out of Git: `.env` holds every secret and connection string, and `migration/` holds local data dumps. Both are ignored and must remain so.
 
 ## Desktop Packaging Upload Rules
 

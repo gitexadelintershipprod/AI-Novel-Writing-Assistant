@@ -3,13 +3,10 @@ name: English UI
 on:
   push:
     branches:
-      - feature/english-ui
-      - feature/georgian-writing
-      - beta
+      - main
   pull_request:
     branches:
       - main
-      - feature/english-ui
 
 permissions:
   contents: read
