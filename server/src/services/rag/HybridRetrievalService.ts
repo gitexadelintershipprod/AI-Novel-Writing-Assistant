@@ -8,6 +8,8 @@ import { RAG_OWNER_TYPES, type RagOwnerType, type RagSearchOptions, type Retriev
 import { hasRagFacets, normalizeRagFacets, type RagChunkFacets } from "./chunkFacets";
 import { RagRetrievalTracer } from "./RagRetrievalTracer";
 import { RagRerankerService, resolveRerankerCandidateLimit } from "./RagRerankerService";
+import { resolveDatabaseRuntimeConfig } from "../../config/database";
+import { searchKnowledgeKeywords } from "./knowledge-retrieval";
 
 const RRF_K = 60;
 const NON_KNOWLEDGE_OWNER_TYPES = RAG_OWNER_TYPES.filter((item) => item !== "knowledge_document");
@@ -148,7 +150,16 @@ export class HybridRetrievalService {
     }
     const ownerTypes = toOwnerTypes(options.ownerTypes);
     const ownerIds = toOwnerIds(options.ownerIds);
-    const rows = await prisma.knowledgeChunk.findMany({
+    const rows = ownerTypes?.length === 1 && ownerTypes[0] === "knowledge_document"
+      ? await searchKnowledgeKeywords(prisma, resolveDatabaseRuntimeConfig().provider, query, {
+        tenantId: options.tenantId,
+        ownerIds: options.ownerIds,
+        novelId: options.novelId,
+        worldId: options.worldId,
+        facets: options.facets,
+        limit: options.keywordCandidates ?? ragConfig.keywordCandidates,
+      })
+      : await prisma.knowledgeChunk.findMany({
       where: {
         tenantId: options.tenantId,
         ...(options.novelId ? { novelId: options.novelId } : {}),
