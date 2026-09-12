@@ -233,7 +233,7 @@ export default function WorldList() {
   const worlds = worldListQuery.data?.data ?? [];
 
   const handleDelete = (worldId: string, worldName: string) => {
-    const confirmed = window.confirm(`确认删除世界样本「${worldName}」？此操作不可恢复。`);
+    const confirmed = window.confirm(`Delete the world setting "${worldName}"? This action cannot be undone.`);
     if (!confirmed) {
       return;
     }

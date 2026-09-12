@@ -529,8 +529,8 @@ export default function WritingFormulaPage() {
         onUseProfileForClean={(profileId) => openWorkspaceDialog("clean", profileId)}
         onDeleteProfile={(profileId) => {
           const profile = profiles.find((item) => item.id === profileId);
-          const profileName = profile?.name ?? "这套写法";
-          const confirmed = window.confirm(`确认删除“${profileName}”吗？删除后无法恢复。`);
+          const profileName = profile?.name ?? "this writing formula";
+          const confirmed = window.confirm(`Delete "${profileName}"? This cannot be undone.`);
           if (!confirmed) {
             return;
           }

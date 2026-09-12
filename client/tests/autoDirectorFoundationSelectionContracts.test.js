@@ -20,7 +20,7 @@ test("auto-director idea stage uses shared tree dialogs for optional creation fo
 test("changing a creation foundation invalidates persisted and local candidates", () => {
   const source = read("src/pages/novels/autoDirector/useAutoDirectorCreateController.ts");
 
-  assert.match(source, /旧方向需要重新适配/);
+  assert.match(source, /old direction needs to be re-adapted/);
   assert.match(source, /productionFoundation: null/);
   assert.match(source, /batches: \[\]/);
   assert.match(source, /setBatches\(\[\]\)/);

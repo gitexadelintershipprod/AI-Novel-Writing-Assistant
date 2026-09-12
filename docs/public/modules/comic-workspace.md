@@ -1,70 +1,70 @@
-# 漫画工作台
+# Comic Workspace
 
-漫画工作台用于把小说内容延展为漫画分镜、角色视觉资产和画面提示。它适合在小说已有稳定角色、世界和章节片段后使用。
+The Comic Workspace extends novel content into comic panels, character visual assets, and image prompts. It is best used once the novel already has stable characters, a stable world, and chapter fragments.
 
-## 适合什么时候打开
+## When to Open It
 
-- 小说角色比较明确，想生成角色形象资料。
-- 章节场景适合拆成分镜。
-- 想把正文内容转成画面提示。
-- 需要维护角色视觉一致性。
-- 想为封面、宣传图或漫画化探索素材。
+- The novel's characters are fairly settled and you want character visual material.
+- Chapter scenes break down well into panels.
+- You want to turn chapter text into image prompts.
+- You need to maintain character visual consistency.
+- You want to explore material for covers, promotional images, or a comic adaptation.
 
-如果小说主线还没有确定，建议先完成开书方向、角色和第一章，再进入漫画工作台。
+If the novel's main line is not settled yet, finish the book-opening direction, the characters, and the first chapter before entering the Comic Workspace.
 
-## 核心工作流
+## Core Workflow
 
-推荐流程：
+Recommended flow:
 
-1. 选择一本小说。
-2. 选择角色、章节或场景。
-3. 从正文中提取画面信息。
-4. 生成分镜或角色视觉描述。
-5. 关联角色库和参考图。
-6. 生成或调整图片提示。
-7. 保存可复用资产。
+1. Select a novel.
+2. Select characters, chapters, or scenes.
+3. Extract visual information from the chapter text.
+4. Generate panels or character visual descriptions.
+5. Link the character library and reference images.
+6. Generate or adjust image prompts.
+7. Save reusable assets.
 
-漫画工作台的重点是从小说资产中继承信息，而不是脱离小说重新创造一套设定。
+The point of the Comic Workspace is inheriting information from novel assets, not inventing a separate set of settings outside the novel.
 
-## 分镜怎么用
+## How to Use Panels
 
-分镜适合把一段正文拆成连续画面。阅读分镜时关注：
+Panels break a passage of chapter text into a sequence of images. When reading panels, watch for:
 
-- 每格发生什么动作。
-- 出场角色是谁。
-- 场景和镜头重点是什么。
-- 情绪和冲突是否清楚。
-- 是否需要保持前后角色外观一致。
+- What action happens in each panel.
+- Which characters appear.
+- What the scene and camera focus on.
+- Whether emotion and conflict come through clearly.
+- Whether character appearances need to stay consistent from panel to panel.
 
-如果分镜和正文不一致，优先回到小说内容或角色资料确认事实。
+If the panels disagree with the chapter text, go back to the novel content or character material to confirm the facts.
 
-## 角色资产联动
+## Character Asset Linkage
 
-漫画工作台应尽量复用角色库信息：
+The Comic Workspace should reuse character library information wherever possible:
 
-- 角色姓名和身份。
-- 外貌基准。
-- 服装和标志物。
-- 性格和表情范围。
-- 与其他角色的关系。
+- Character name and identity.
+- Appearance baseline.
+- Clothing and signature items.
+- Personality and expression range.
+- Relationships with other characters.
 
-角色视觉资产越稳定，后续封面、分镜和插图越容易保持一致。
+The more stable the character visual assets, the easier it is for later covers, panels, and illustrations to stay consistent.
 
-## 和小说主链的关系
+## Relationship to the Main Novel Chain
 
-漫画工作台属于衍生工坊，不应抢走小说主链的优先级。
+The Comic Workspace is a derivative workshop and should not steal priority from the main novel chain.
 
-推荐顺序：
+Recommended order:
 
-1. 先确定小说方向和核心角色。
-2. 生成前几章，确认世界和人物关系。
-3. 从稳定章节中提取漫画素材。
-4. 把视觉资产回填到角色或项目资料。
+1. Settle the novel direction and core characters first.
+2. Generate the first few chapters and confirm the world and character relationships.
+3. Extract comic material from stable chapters.
+4. Backfill visual assets into character or project material.
 
-如果小说设定还在大幅变化，过早生成大量视觉资产会增加返工。
+If the novel's settings are still changing a lot, generating large amounts of visual assets too early multiplies rework.
 
-## 使用建议
+## Usage Tips
 
-从一章或一个场景开始试用，不要一次把整本书都转成漫画素材。先确认角色外观、画面提示和分镜质量，再扩大范围。
+Start with one chapter or one scene; do not convert the entire book into comic material at once. Confirm character appearance, image prompts, and panel quality first, then expand the scope.
 
-遇到图片效果不稳定时，先检查角色基准图、视觉描述和参考资产，再调整模型或提示。
+When image results are unstable, first check the character baseline images, visual descriptions, and reference assets, then adjust the model or the prompt.

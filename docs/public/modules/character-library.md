@@ -1,76 +1,75 @@
-# 基础角色库
+# Character Library
 
-基础角色库用于保存可复用角色资产。它适合沉淀人物的稳定设定、外貌、身份、性格、能力、关系基础和参考图片，之后可以导入到具体小说中继续使用。
+The character library stores reusable character assets. It is the place to consolidate a character's stable settings, appearance, identity, personality, abilities, relationship foundations, and reference images, which can later be imported into specific novels.
 
-![基础角色库界面截图](../../../images/角色库.png)
 
-## 基础角色库能帮你做什么
+## What the Character Library Can Do for You
 
-- 保存长期可复用角色，而不是只存在于某一本书里。
-- 从小说角色或拆书角色中沉淀稳定人物资产。
-- 管理角色基础形象、主图和候选图。
-- 在新小说中导入已有角色，减少重复创建。
-- 区分角色的“稳定资产”和某本书里的“剧情状态”。
+- Keep characters that are reusable over the long term, instead of characters that exist only inside one book.
+- Consolidate stable character assets from novel characters or book analysis characters.
+- Manage characters' base appearance images, main images, and candidate images.
+- Import existing characters into new novels and cut down on duplicate creation.
+- Keep a character's "stable assets" separate from its "plot state" in a given book.
 
-## 适合什么时候用
+## When to Use It
 
-- 你有常用主角、配角、反派或人物原型。
-- 想把拆书中研究出的角色升格成可复用素材。
-- 想让多个项目共享同一类人物设定。
-- 想维护角色参考图，保证后续视觉生成更一致。
-- 想整理角色的身份标签、立场、能力、禁忌误写项等长期信息。
+- You have go-to protagonists, supporting roles, antagonists, or character archetypes.
+- You want to promote characters studied in book analysis into reusable material.
+- You want several projects to share the same kind of character settings.
+- You want to maintain character reference images so later visual generation stays consistent.
+- You want to organize long-term information such as identity tags, allegiances, abilities, and must-not-miswrite facts.
 
-## 开始前准备
+## Before You Start
 
-创建基础角色时，优先整理稳定信息：
+When creating a library character, prioritize stable information:
 
-- 角色名或代称。
-- 身份、阵营、职业或功能定位。
-- 外貌和标志特征。
-- 性格、目标、能力和弱点。
-- 适合出现的题材或世界。
-- 不希望被误写的硬性事实。
+- Character name or working label.
+- Identity, faction, profession, or functional role.
+- Appearance and signature traits.
+- Personality, goals, abilities, and weaknesses.
+- Genres or worlds where the character fits.
+- Hard facts you do not want miswritten.
 
-不要把某一章的临时状态直接写成永久设定。例如“受伤中”“正在逃亡”“刚失去同伴”更适合留在具体小说里，而不是基础角色库。
+Do not write a chapter's temporary state directly into permanent settings. For example, "injured", "on the run", or "just lost a companion" belongs in the specific novel, not in the character library.
 
-## 推荐使用路径
+## Recommended Workflow
 
-1. 打开“基础角色库”。
-2. 新建角色，或从小说角色、拆书角色沉淀角色。
-3. 补充稳定设定：身份、外貌、性格、能力和使用边界。
-4. 上传或生成角色基础形象图，并设置主图。
-5. 在具体小说中导入这个角色。
-6. 导入后，根据本书世界和剧情目标调整小说内角色状态。
+1. Open "Character Library".
+2. Create a character, or consolidate one from a novel character or a book analysis character.
+3. Fill in stable settings: identity, appearance, personality, abilities, and usage boundaries.
+4. Upload or generate base appearance images for the character, and set the main image.
+5. Import the character into a specific novel.
+6. After import, adjust the in-novel character state to fit this book's world and plot goals.
 
-## 如何进入后续创作链路
+## How It Feeds Into the Creative Chain
 
-基础角色库提供的是可复用资产。角色进入具体小说后，会成为这本书里的角色实例，并继续受到本书世界、剧情、章节状态和关系推进影响。
+The character library provides reusable assets. Once a character enters a specific novel, it becomes a character instance in that book, and keeps being shaped by the book's world, plot, chapter state, and relationship progression.
 
-这样可以避免两个问题：
+This avoids two problems:
 
-- 角色库里的长期设定被某本书的临时剧情污染。
-- 一本书里的角色变化自动影响其他小说。
+- The library's long-term settings getting polluted by one book's temporary plot.
+- A character's changes in one book automatically affecting other novels.
 
-如果你在小说里修改角色当前状态，不等于自动修改基础角色库。需要沉淀为长期资产时，应由你明确保存或同步。
+Editing a character's current state inside a novel does not automatically edit the character library. When something should become a long-term asset, save or sync it explicitly.
 
-## 常见问题
+## FAQ
 
-### 基础角色库和小说里的角色有什么区别
+### What is the difference between the character library and characters in a novel?
 
-基础角色库保存可复用人物资产。小说里的角色是这个资产在当前故事中的使用结果，会带有本书世界、关系进度、章节状态和剧情变化。
+The character library stores reusable character assets. Characters in a novel are the result of using that asset in the current story, carrying that book's world, relationship progress, chapter state, and plot changes.
 
-### 从拆书升格的角色会影响原拆书吗
+### Does a character promoted from book analysis affect the original analysis?
 
-不会。升格后会成为新的基础角色资产，拆书里的证据、场景和图片仍保留在拆书档案中。
+No. After promotion it becomes a new character library asset; the evidence, scenes, and images in the book analysis stay in the book analysis archive.
 
-### 角色主图有什么用
+### What is the main image for?
 
-主图用于帮助你识别角色，也可以作为后续视觉生成的参考。一个角色可以有多张候选图，但建议选择最符合长期设定的一张作为主图。
+The main image helps you recognize the character and serves as a reference for later visual generation. A character can have several candidate images, but you should pick the one that best matches the long-term settings as the main image.
 
-### 什么信息不适合放进基础角色库
+### What information does not belong in the character library?
 
-只属于某本书当前剧情的临时状态不适合放进基础角色库。例如当前章节位置、短期伤势、刚发生的关系冲突、临时伪装等。
+Temporary state that belongs only to the current plot of one book: current chapter position, short-term injuries, a relationship conflict that just happened, a temporary disguise, and so on.
 
-### 角色导入小说后还需要改吗
+### Does a character need changes after being imported into a novel?
 
-通常需要。基础角色只是起点。导入后应根据本书题材、世界规则、主线目标和人物关系调整，避免角色像外来模板。
+Usually yes. The library character is only a starting point. After import, adjust it to this book's genre, world rules, main-line goals, and character relationships so it does not feel like an outside template.

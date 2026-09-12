@@ -241,7 +241,7 @@ export default function KnowledgeEmbeddingSettingsCard({
               placeholder="http://127.0.0.1:6333"
             />
             <div className="text-xs text-muted-foreground">
-              本机默认地址通常是 http://127.0.0.1:6333；云端地址可以直接填写完整 URL。
+              The default local address is usually http://127.0.0.1:6333; for a cloud instance, paste the full URL directly.
             </div>
           </div>
 

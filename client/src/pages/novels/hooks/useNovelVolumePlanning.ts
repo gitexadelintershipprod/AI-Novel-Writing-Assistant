@@ -200,7 +200,7 @@ export function useNovelVolumePlanning({
     if (hasCharacters) {
       return true;
     }
-    return window.confirm("当前小说还没有角色。继续生成会降低后续一致性，是否继续？");
+    return window.confirm("This novel has no characters yet. Continuing generation will reduce later consistency. Continue anyway?");
   };
 
   const startStrategyGeneration = () => {

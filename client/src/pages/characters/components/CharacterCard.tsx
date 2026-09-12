@@ -41,7 +41,7 @@ export function CharacterCard({
   const [previewAsset, setPreviewAsset] = useState<ImageAsset | null>(null);
 
   const handleDeleteAsset = async (asset: ImageAsset) => {
-    const confirmed = window.confirm("确认删除这张形象图？此操作不可恢复。");
+    const confirmed = window.confirm("Delete this appearance image? This action cannot be undone.");
     if (!confirmed) {
       return;
     }

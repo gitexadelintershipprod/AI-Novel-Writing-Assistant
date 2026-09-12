@@ -87,7 +87,7 @@ test("structured recovery, setup and next-suggestion states keep their priority"
     },
     latestTurnSummary: { nextSuggestion: "先写第一章" },
   });
-  assert.equal(recovery.recommendation.prompt, "从检查点恢复");
+  assert.equal(recovery.recommendation.prompt, "Explain the failure cause, execution log, and recommended next steps: 从检查点恢复");
   assert.equal(setup.recommendation.prompt, "继续补齐主角目标");
 });
 
@@ -104,7 +104,7 @@ test("structured thread and turn failures remain recovery actions", () => {
   });
   assert.equal(failedTurn.recommendation.tone, "danger");
   assert.equal(failedTurn.recommendation.action, "send_prompt");
-  assert.equal(failedTurn.recommendation.prompt, "检查模型配置后重试");
+  assert.equal(failedTurn.recommendation.prompt, "Explain the failure cause, execution log, and recommended next steps: 检查模型配置后重试");
   assert.match(failedTurn.recommendation.description, /模型连接已中断/);
 });
 
@@ -137,6 +137,6 @@ test("automatic thread creation failure exposes a persistent retry action", () =
 
 test("an unbound workspace recommends choosing a novel", () => {
   const result = resolveCreativeHubWorkspacePresentation({ isRunning: false });
-  assert.equal(result.objectTitle, "未绑定小说");
+  assert.equal(result.objectTitle, "No novel bound");
   assert.equal(result.recommendation.action, "select_novel");
 });

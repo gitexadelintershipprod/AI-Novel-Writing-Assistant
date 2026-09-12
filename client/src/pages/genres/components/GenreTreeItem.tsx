@@ -49,11 +49,11 @@ export default function GenreTreeItem({
               <div className="flex flex-wrap items-center gap-2">
                 <div className="text-sm font-semibold text-foreground">{node.name}</div>
                 <span className="rounded-md border border-border/70 bg-muted/30 px-2 py-0.5 text-[11px] text-muted-foreground">
-                  {node.novelCount > 0 ? `用于 ${node.novelCount} 本小说` : "未关联小说"}
+                  {node.novelCount > 0 ? `used by ${node.novelCount} novels` : "not linked to any novel"}
                 </span>
                 {node.childCount > 0 ? (
                   <span className="rounded-md border border-border/70 bg-muted/30 px-2 py-0.5 text-[11px] text-muted-foreground">
-                    {node.childCount} 个直接子类
+                    {node.childCount} direct subcategories
                   </span>
                 ) : null}
               </div>

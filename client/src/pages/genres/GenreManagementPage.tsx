@@ -132,8 +132,8 @@ export default function GenreManagementPage() {
   const handleDelete = (genre: GenreTreeNode) => {
     const descendantCount = collectDescendantIds(genre).length;
     const message = descendantCount > 0
-      ? `确认删除题材基底「${genre.name}」？这会同时删除其下 ${descendantCount} 个子分类，此操作不可恢复。`
-      : `确认删除题材基底「${genre.name}」？此操作不可恢复。`;
+      ? `Delete genre base "${genre.name}"? This will also delete ${descendantCount} subcategories under it. This action cannot be undone.`
+      : `Delete genre base "${genre.name}"? This action cannot be undone.`;
     const confirmed = window.confirm(message);
     if (!confirmed) {
       return;

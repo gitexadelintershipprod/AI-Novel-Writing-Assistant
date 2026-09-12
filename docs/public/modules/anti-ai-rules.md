@@ -1,74 +1,73 @@
-# 反 AI 规则
+# Anti-AI Rules
 
-反 AI 规则用于减少正文里常见的模板感、解释感和不自然表达。它不是让文本“完全不像 AI 写的”这种玄学开关，而是把你不希望出现的表达问题整理成可检查、可复用的规则。
+Anti-AI rules reduce the templated feel, over-explanation, and unnatural phrasing that commonly appear in chapter text. This is not a mystical switch that makes text "completely indistinguishable from AI writing" disappear; it turns the expression problems you want to avoid into rules that can be checked and reused.
 
-![反 AI 规则界面截图](../../../images/v2/微信截图_20260813220310.png)
 
-## 反 AI 规则能帮你做什么
+## What Anti-AI Rules Can Do for You
 
-- 压制空泛总结、过度解释、情绪直说和套路化句式。
-- 约束人物台词，让角色说话更像人，而不是像剧情说明。
-- 给正文生成前提供表达边界。
-- 给正文生成后的检测和修正提供检查方向。
-- 和写法资产配合，让作品更接近你想要的叙事味道。
+- Suppress vague summaries, over-explanation, bluntly stated emotions, and formulaic sentence patterns.
+- Constrain character dialogue so characters speak like people, not plot exposition.
+- Set expression boundaries before chapter text is generated.
+- Give post-generation review and correction concrete things to check against.
+- Work with writing formula assets to bring the work closer to the narrative flavor you want.
 
-## 适合什么时候用
+## When to Use It
 
-- 章节内容能写出来，但读起来模板感明显。
-- 人物台词像旁白，缺少角色自己的语气。
-- 描写经常出现空泛形容、口号式总结或解释过度。
-- 想集中维护一套全局默认规则。
-- 想为某套写法准备专属可用规则。
+- Chapter content gets written, but obviously reads as templated.
+- Character dialogue sounds like narration and lacks each character's own voice.
+- Descriptions keep producing vague adjectives, slogan-like summaries, or over-explanation.
+- You want to maintain one set of global default rules in one place.
+- You want to prepare rules dedicated to a particular writing formula.
 
-## 开始前准备
+## Before You Start
 
-先收集你最常遇到的表达问题。不要一开始就写很多规则，过多规则可能互相冲突，也会让正文生成变得僵硬。
+First collect the expression problems you run into most often. Do not write a pile of rules at the start; too many rules can conflict with each other and make chapter text generation stiff.
 
-建议先从这几类问题开始：
+Start with these categories of problems:
 
-- 空泛总结：例如只说“他感到震撼”，但没有具体动作和场景。
-- 过度解释：把人物动机、主题和关系变化直接讲出来。
-- 台词不自然：角色说话像作者解释设定。
-- 重复句式：连续使用相似的情绪和动作表达。
-- 现代词或网感词误入不适合的题材。
+- Vague summaries: for example, only saying "he was stunned" with no concrete actions or scene.
+- Over-explanation: spelling out character motivations, themes, and relationship changes directly.
+- Unnatural dialogue: characters speaking as if the author were explaining the setting.
+- Repeated sentence patterns: similar emotional and action expressions used back to back.
+- Modern or internet-flavored wording slipping into genres where it does not belong.
 
-## 推荐使用路径
+## Recommended Workflow
 
-1. 打开“反 AI 规则”。
-2. 查看已有规则，先理解哪些是全局默认，哪些适合写法专属使用。
-3. 新建或编辑一条规则，写清楚要避免的问题和推荐修正方向。
-4. 需要时使用 AI 帮你生成或优化规则草稿。
-5. 检查草稿内容，确认适合你的作品后再保存。
-6. 使用生效预览查看当前生成会带入哪些规则。
-7. 回到写法引擎或章节执行，观察正文效果。
+1. Open "Anti-AI Rules".
+2. Review the existing rules and understand which are global defaults and which are meant for a specific writing formula.
+3. Create or edit a rule, clearly stating the problem to avoid and the recommended correction.
+4. When needed, use AI to generate or refine a rule draft for you.
+5. Review the draft and confirm it fits your work before saving.
+6. Use the active rules preview to see which rules the current generation will carry.
+7. Return to the writing formula engine or chapter execution and observe the chapter text.
 
-## 如何进入后续创作链路
+## How It Feeds Into the Creative Chain
 
-反 AI 规则可以通过两种方式影响后续写作：
+Anti-AI rules influence later writing in two ways:
 
-- 全局默认规则：适合所有作品都应该避免的问题。
-- 写法专属可用规则：适合某套写法或某类作品的表达约束。
+- Global default rules: for problems every work should avoid.
+- Writing-formula-specific rules: for expression constraints tied to one writing formula or one kind of work.
 
-它会和写法引擎、章节生成、正文检测和修正协同使用。规则不是越多越好，关键是能准确描述你想压制的问题。
+They work together with the writing formula engine, chapter generation, chapter text review, and correction. More rules is not better; the key is accurately describing the problems you want to suppress.
 
-## 常见问题
+## FAQ
 
-### 反 AI 规则是不是越严格越好
+### Are stricter Anti-AI rules always better?
 
-不是。过度严格会让正文变得拘谨，甚至影响角色表达。优先处理最明显、最常出现的问题。
+No. Excessive strictness makes chapter text stiff and can even hurt character voice. Prioritize the most obvious, most frequent problems.
 
-### 能不能让 AI 自动创建规则
+### Can AI create the rules automatically?
 
-可以让 AI 生成或优化规则草稿，但草稿应由你确认后再保存。系统不应该替你无确认地长期改变写作规则。
+AI can generate or refine rule drafts, but you should confirm a draft before saving it. The system should not change your writing rules over the long term without your confirmation.
 
-### 规则和写法资产冲突怎么办
+### What if a rule conflicts with a writing formula asset?
 
-优先判断哪一个更符合当前作品。如果写法要求铺陈情绪，而反 AI 规则禁止所有情绪表达，就需要调松规则，而不是让两者互相拉扯。
+Decide which one fits the current work better. If the writing formula calls for emotional buildup while the Anti-AI rules forbid all emotional expression, loosen the rules instead of letting the two pull against each other.
 
-### 为什么规则生效后正文还是有 AI 味
+### Why does the chapter text still feel AI-written after rules take effect?
 
-反 AI 规则只能处理明确的问题。还需要结合写法资产、角色台词规则、章节任务和人工审读一起调整。
+Anti-AI rules only address clearly defined problems. You also need writing formula assets, character dialogue rules, chapter tasks, and human review working together.
 
-### 哪些规则适合全局默认
+### Which rules belong in the global defaults?
 
-适合所有作品的基础问题，例如避免空泛总结、避免台词解释设定、避免连续重复句式。题材专属或风格专属规则更适合放到写法资产里。
+Basic problems that apply to every work, such as avoiding vague summaries, avoiding dialogue that explains the setting, and avoiding consecutive repeated sentence patterns. Genre-specific or style-specific rules are a better fit inside writing formula assets.

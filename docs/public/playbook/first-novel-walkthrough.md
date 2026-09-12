@@ -35,9 +35,7 @@
 
 启动自动导演时不需要选择正文执行范围。自动导演会固定推进到“可开写”，再让你选择简易创作或专业创作。
 
-![自动导演创建弹窗：起始想法、模型和运行方式](../flow/screenshots/director-create-settings-top.png)
 
-![自动导演创建弹窗：世界处理、书级 framing 和生成按钮](../flow/screenshots/director-create-settings-bottom.png)
 
 ## 第二步：输入灵感
 
@@ -51,7 +49,6 @@
 
 产物：自动导演任务和候选生成输入。
 
-![没有想法时选择灵感卡](../flow/screenshots/director-seed-cards.png)
 
 ## 第三步：生成方向批次
 
@@ -66,7 +63,6 @@
 
 如果都不满意，可以生成下一批或修订候选。
 
-![生成第一批方案的执行进度](../flow/screenshots/director-candidate-progress.png)
 
 ## 第四步：确认方向和标题
 
@@ -81,7 +77,6 @@
 
 确认后，系统进入「创建小说」，并继续完成规划、角色与卷章准备。正文不会提前开始。
 
-![确认书级方案和标题组](../flow/screenshots/director-confirm-candidates.png)
 
 ## 第五步：创建小说
 
@@ -96,7 +91,6 @@
 3. 如果是临时错误，重试。
 4. 如果是数据错误，保留错误信息再反馈。
 
-![确认方案后进入 AI 驾驶舱自动推进](../flow/screenshots/director-cockpit-running.png)
 
 ## 第六步：AI 自动生成故事宏观和书契约
 
@@ -130,7 +124,6 @@
 
 不要在角色明显不合格时强行进入卷规划。
 
-![自动导演推进中可查看角色准备页](../flow/screenshots/director-cockpit-character.png)
 
 ## 第八步：AI 自动应用角色阵容
 
@@ -164,7 +157,6 @@
 
 这些阶段属于高内存任务，同一本书同范围通常不应重复启动多个任务。看到“已有自动导演任务正在处理同一范围”时，先去任务中心看正在运行的任务。
 
-![节奏拆章阶段自动推进](../flow/screenshots/director-cockpit-beat-sheet.png)
 
 ## 第十一步：选择正文生产方式
 

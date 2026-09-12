@@ -76,7 +76,7 @@ export function BookFramingQuickFillButton(props: BookFramingQuickFillButtonProp
       return;
     }
     if (hasExistingFramingContent(basicForm)) {
-      const confirmed = window.confirm("将用 AI 建议覆盖当前读者与卖点填写，是否继续？");
+      const confirmed = window.confirm("AI suggestions will overwrite the current readers and selling points. Continue?");
       if (!confirmed) {
         return;
       }

@@ -172,7 +172,7 @@ export default function BookAnalysisCharacterImagePanel({
                     variant="ghost"
                     className="rounded-full text-muted-foreground hover:text-destructive"
                     onClick={() => {
-                      if (window.confirm("确认删除这张形象图？")) {
+                      if (window.confirm("Delete this appearance image?")) {
                         deleteMutation.mutate(asset);
                       }
                     }}

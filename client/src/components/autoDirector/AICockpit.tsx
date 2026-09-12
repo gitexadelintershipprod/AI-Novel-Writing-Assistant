@@ -358,16 +358,16 @@ export default function AICockpit(props: AICockpitProps) {
   const workerHealth = focusProjection.workerHealth ?? null;
   const artifactInsightLines = [
     focusProjection.artifactSummary.affectedChapterCount
-      ? `影响 ${focusProjection.artifactSummary.affectedChapterCount} 个章节`
+      ? `Affects ${focusProjection.artifactSummary.affectedChapterCount} chapters`
       : null,
     focusProjection.artifactSummary.recentStaleArtifacts?.length
-      ? `${focusProjection.artifactSummary.recentStaleArtifacts.length} 个产物需复核`
+      ? `${focusProjection.artifactSummary.recentStaleArtifacts.length} artifacts need review`
       : null,
     focusProjection.artifactSummary.recentRepairArtifacts?.length
-      ? `${focusProjection.artifactSummary.recentRepairArtifacts.length} 条修复记录`
+      ? `${focusProjection.artifactSummary.recentRepairArtifacts.length} repair records`
       : null,
     focusProjection.artifactSummary.recentVersionedArtifacts?.length
-      ? `${focusProjection.artifactSummary.recentVersionedArtifacts.length} 个产物有新版本`
+      ? `${focusProjection.artifactSummary.recentVersionedArtifacts.length} artifacts have new versions`
       : null,
   ].filter((line): line is string => Boolean(line));
   const reason = focusProjection.userReason?.trim()

@@ -50,4 +50,3 @@ pnpm check:docs-manifest
 
 文档内容由 `src/docsContent.ts` 使用 Vite glob 自动加载，不需要为每篇 Markdown 手写 import。
 
-深度文档中的流程图放在 `docs/public/flow/diagrams/`。站点通过 `src/docsAssets.ts` 把这些 SVG/PNG 解析为构建产物 URL，Markdown 可以使用相对路径引用，例如 `![端到端三层生产链](./diagrams/end-to-end-production.svg)`。

@@ -126,7 +126,7 @@ export default function KnowledgeDocumentPicker(props: KnowledgeDocumentPickerPr
             })}
           </div>
           <div className="text-xs text-muted-foreground">
-            已选择 {selectedIds.length} 个文档。保持为空会显式关闭知识库检索。
+            {selectedIds.length} documents selected. Leaving this empty explicitly disables knowledge base retrieval.
           </div>
         </>
       )}

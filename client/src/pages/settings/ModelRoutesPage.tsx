@@ -91,7 +91,7 @@ export default function ModelRoutesPage() {
       return payloads.length;
     },
     onSuccess: async (count) => {
-      setActionResult(`保存完成，${count} 个任务会使用新路由。`);
+      setActionResult(`Saved; ${count} tasks will use the new routes.`);
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.settings.modelRoutes }),
         queryClient.invalidateQueries({ queryKey: queryKeys.settings.modelRouteConnectivity }),
@@ -221,7 +221,7 @@ export default function ModelRoutesPage() {
       });
       return next;
     });
-    setActionResult(`模型设置填入 ${targetTaskTypes.length} 个任务，保存后生效。`);
+    setActionResult(`Model settings filled into ${targetTaskTypes.length} tasks; they take effect after saving.`);
   }
 
   function getStructuredFallbackDraft(): StructuredFallbackDraft {
@@ -328,7 +328,7 @@ export default function ModelRoutesPage() {
 
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="text-xs text-muted-foreground">
-              待保存任务 {dirtyTaskTypes.length} 个；检测异常任务 {failedTaskTypes.length} 个；空白路由 {emptyRouteTaskTypes.length} 个。
+              {dirtyTaskTypes.length} tasks to save; {failedTaskTypes.length} tasks failed connectivity checks; {emptyRouteTaskTypes.length} tasks with empty routes.
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <Button

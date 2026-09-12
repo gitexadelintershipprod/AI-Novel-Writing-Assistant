@@ -152,7 +152,7 @@ export default function WorldVisualizationBoard({ payload }: WorldVisualizationB
             ))}
           </div>
           <WorldGraphCanvas
-            title={`势力图谱 · ${factionNodes.length} 个节点 · ${factionEdges.length} 条关系`}
+            title={`Faction graph · ${factionNodes.length} nodes · ${factionEdges.length} relations`}
             nodes={factionNodes}
             edges={factionEdges}
             colorByType={(type) => FACTION_TYPE_COLORS[type ?? "other"] ?? FACTION_TYPE_COLORS.other}

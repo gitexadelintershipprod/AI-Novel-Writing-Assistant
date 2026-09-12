@@ -168,7 +168,7 @@ export default function StageIdea({
 
   const useIdeaInspiration = (text: string) => {
     if (idea.trim()) {
-      const confirmed = window.confirm("上方起始想法已有内容。确认使用这条灵感并覆盖原内容吗？");
+      const confirmed = window.confirm("The starting idea above already has content. Use this inspiration and overwrite it?");
       if (!confirmed) return;
     }
     fillIdea(text);

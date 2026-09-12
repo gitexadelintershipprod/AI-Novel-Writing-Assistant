@@ -116,7 +116,7 @@ export default function KnowledgeDocumentsTab({
 
   const confirmArchiveDocument = (document: KnowledgeDocumentSummary) => {
     const confirmed = window.confirm(
-      `确认归档“${document.title}”吗？归档会移出默认检索和资料选择，原文与版本会保留，可在“仅归档”中恢复启用。`,
+      `Archive "${document.title}"? Archiving removes it from default retrieval and material selection; the original text and versions are kept, and you can re-enable it from "Archived only".`,
     );
     if (!confirmed) {
       return;

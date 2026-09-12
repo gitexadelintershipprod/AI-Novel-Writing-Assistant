@@ -60,7 +60,7 @@ export default function CharacterPreparationHero(props: CharacterPreparationHero
           {
             label: "当前焦点",
             value: selectedCharacter?.name ?? "尚未选择角色",
-            description: selectedCharacter?.role || `${baseCharacterCount} 个基础角色可导入`,
+            description: selectedCharacter?.role || `${baseCharacterCount} base characters available to import`,
             tone: selectedCharacter ? "info" : "neutral",
           },
         ]}

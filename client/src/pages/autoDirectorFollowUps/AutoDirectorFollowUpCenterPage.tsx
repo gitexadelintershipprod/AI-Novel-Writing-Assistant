@@ -99,7 +99,7 @@ function shouldConfirmAction(action: AutoDirectorAction): boolean {
   if (!action.requiresConfirm) {
     return false;
   }
-  return window.confirm(`确认执行“${action.label}”？`);
+  return window.confirm(`Run "${action.label}"?`);
 }
 
 function formatActionFeedbackMessage(message: string, fallback: string): string {

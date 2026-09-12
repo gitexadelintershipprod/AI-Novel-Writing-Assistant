@@ -400,15 +400,15 @@ export default function SettingsPage() {
     if (!editingProvider || !editingConfig) {
       return;
     }
-    if (!window.confirm(`确认删除自定义厂商 ${editingConfig.name} 吗？`)) {
+    if (!window.confirm(`Delete custom provider ${editingConfig.name}?`)) {
       return;
     }
     deleteCustomProviderMutation.mutate(editingProvider);
   };
 
   const handleRemoveProvider = (provider: APIKeyStatus) => {
-    const label = provider.kind === "builtin" ? "从列表移除" : "删除";
-    if (!window.confirm(`确认${label} ${provider.name} 吗？`)) {
+    const label = provider.kind === "builtin" ? "remove from the list" : "delete";
+    if (!window.confirm(`Are you sure you want to ${label} ${provider.name}?`)) {
       return;
     }
     removeProviderMutation.mutate(provider);

@@ -375,7 +375,7 @@ function RevisionPreview(props: {
       <p className="mt-2 text-sm leading-6">{impact.understoodGoal}</p>
       <div className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
         <PreviewFact label="建议方式" value={strategyLabel} />
-        <PreviewFact label="影响范围" value={`${impact.affectedSegmentIds.length} 个正文区域`} />
+        <PreviewFact label="影响范围" value={`${impact.affectedSegmentIds.length} text segments`} />
         <PreviewFact label="结尾" value={impact.changesEnding ? "会改变" : "保持"} />
         <PreviewFact label="核心意图" value={impact.changesCoreIntent ? "会改变" : "保持"} />
       </div>

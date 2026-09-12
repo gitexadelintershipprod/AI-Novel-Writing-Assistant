@@ -554,7 +554,7 @@ export function useAutoDirectorCreateController(input: UseAutoDirectorCreateCont
     const shouldInvalidateCandidates = batches.length > 0;
     if (
       shouldInvalidateCandidates
-      && !window.confirm("修改故事类型或推进方式后，旧方向需要重新适配并重新生成。确认修改吗？")
+      && !window.confirm("After changing the story type or progression mode, the old direction needs to be re-adapted and regenerated. Confirm the change?")
     ) {
       return false;
     }

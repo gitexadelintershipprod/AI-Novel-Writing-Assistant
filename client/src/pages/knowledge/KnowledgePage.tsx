@@ -497,14 +497,14 @@ export default function KnowledgePage() {
   };
 
   const handleClearFinishedRagJobs = () => {
-    if (!window.confirm("清理已结束任务记录？排队中和执行中的任务会保留。")) {
+    if (!window.confirm("Clear finished job records? Queued and running jobs will be kept.")) {
       return;
     }
     clearFinishedRagJobsMutation.mutate();
   };
 
   const handleDeleteRagJob = (jobId: string) => {
-    if (!window.confirm("删除这条任务记录？排队中和执行中的任务不能删除。")) {
+    if (!window.confirm("Delete this job record? Queued and running jobs cannot be deleted.")) {
       return;
     }
     deleteRagJobMutation.mutate(jobId);

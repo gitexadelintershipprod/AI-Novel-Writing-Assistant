@@ -316,7 +316,7 @@ export default function WorldHandbookEditor(props: {
           <HandbookPreviewCard
             icon={Castle}
             title="主要势力"
-            description={`${draftStructure.forces.length} 个势力决定角色归属、阵营压力和资源争夺。`}
+            description={`${draftStructure.forces.length} factions determine character allegiances, faction pressure, and resource competition.`}
             action={
               <Button type="button" size="sm" variant="outline" onClick={() => setEditingSection("forces")}>
                 整理势力
@@ -346,7 +346,7 @@ export default function WorldHandbookEditor(props: {
           <HandbookPreviewCard
             icon={MapPinned}
             title="故事舞台"
-            description={`${draftStructure.locations.length} 个地点承载开局、升级、转折、决战和地图资产。`}
+            description={`${draftStructure.locations.length} locations carry the opening, escalation, turning point, final showdown, and map assets.`}
             action={
               <Button type="button" size="sm" variant="outline" onClick={() => setEditingSection("locations")}>
                 整理地点

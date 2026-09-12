@@ -120,8 +120,8 @@ export function getPreferredBookAnalysisSection(
 
 function describeMissingExpectedSections(sections: BookAnalysisSectionSummary): string {
   return sections.missingExpected > 0
-    ? `仍有 ${sections.missingExpected} 个计划小节缺少可读结果。`
-    : "计划范围内没有缺失小节。";
+    ? `${sections.missingExpected} planned sections still lack readable results. `
+    : "No sections are missing from the planned scope. ";
 }
 
 export function resolveBookAnalysisNextAction(input: {
@@ -134,17 +134,17 @@ export function resolveBookAnalysisNextAction(input: {
     if (input.analysesCount > 0) {
       return {
         tone: "info",
-        title: "选择一份拆书分析",
-        description: "从分析列表选择记录后，这里会显示来源、生成阶段和可阅读结果。",
+        title: "Select a book analysis",
+        description: "After you select a record from the analysis list, this area shows its source, generation stage, and readable results.",
         action: "select",
       };
     }
     return {
       tone: "info",
-      title: "创建第一份拆书分析",
-      description: "选择一份知识文档和分析范围，AI 会把结果整理为可阅读、可引用的小节。",
+      title: "Create your first book analysis",
+      description: "Pick a knowledge document and an analysis scope; the AI will organize the results into readable, citable sections.",
       action: "create",
-      actionLabel: "新建拆书",
+      actionLabel: "New book analysis",
     };
   }
 
@@ -154,22 +154,22 @@ export function resolveBookAnalysisNextAction(input: {
     const hasReadableResults = sections.readable > 0;
     return {
       tone: "info",
-      title: status === "queued" ? "拆书分析正在排队" : "拆书分析正在生成",
+      title: status === "queued" ? "Book analysis is queued" : "Book analysis is generating",
       description: hasReadableResults
-        ? `当前进度 ${Math.round(analysis.progress * 100)}%，已有 ${sections.readable} 个小节可阅读；其余计划小节继续生成。`
-        : `当前进度 ${Math.round(analysis.progress * 100)}%。已完成的小节会直接保留，全部完成后可在“拆书内容”中阅读。`,
+        ? `Current progress ${Math.round(analysis.progress * 100)}%; ${sections.readable} sections are readable, and the remaining planned sections are still generating.`
+        : `Current progress ${Math.round(analysis.progress * 100)}%. Completed sections are kept, and you can read them under "Book analysis content" once everything finishes.`,
       action: hasReadableResults ? "view_results" : null,
-      actionLabel: hasReadableResults ? "查看已有结果" : undefined,
+      actionLabel: hasReadableResults ? "View existing results" : undefined,
     };
   }
 
   if ((status === "failed" || status === "cancelled") && isBookAnalysisBudgetExceeded(analysis.lastError)) {
     return {
       tone: "warning",
-      title: "扩容预算后继续生成",
-      description: `已有 ${sections.readable} 个可阅读小节会保留。${describeMissingExpectedSections(sections)}扩容续跑只处理尚未成功的部分。`,
+      title: "Raise the budget to continue generating",
+      description: `${sections.readable} readable sections will be kept. ${describeMissingExpectedSections(sections)}Resuming after a budget raise only processes the sections that have not succeeded yet.`,
       action: "resume_budget",
-      actionLabel: "扩容预算并续跑",
+      actionLabel: "Raise budget and resume",
     };
   }
 
@@ -177,36 +177,36 @@ export function resolveBookAnalysisNextAction(input: {
     if (sections.readable === 0) {
       return {
         tone: "danger",
-        title: "任务完成，但没有可展示的拆书内容",
-        description: "源文档不会受影响。请重新生成分析，或打开任务中心查看这次任务的详细记录。",
+        title: "Task finished, but there is no book analysis content to show",
+        description: "The source document is not affected. Regenerate the analysis, or open Task Center to see this task's detailed record.",
         action: "rebuild",
-        actionLabel: "重新生成分析",
+        actionLabel: "Regenerate analysis",
       };
     }
     if (sections.missingExpected > 0) {
       return {
         tone: "warning",
-        title: "先查看已有拆书结果",
-        description: `已有 ${sections.readableExpected}/${sections.expected} 个计划生成的小节可阅读，仍有 ${sections.missingExpected} 个小节可通过重新生成补齐。`,
+        title: "Review the existing book analysis results first",
+        description: `${sections.readableExpected}/${sections.expected} planned sections are readable; the remaining ${sections.missingExpected} sections can be filled in by regenerating.`,
         action: "view_results",
-        actionLabel: "查看已有结果",
+        actionLabel: "View existing results",
       };
     }
     if (sections.failedExpected > 0) {
       return {
         tone: "warning",
-        title: "结果可阅读，部分小节需要复核",
-        description: `${sections.readableExpected}/${sections.expected} 个计划小节均有可读内容，其中 ${sections.failedExpected} 个小节最近一次生成失败。先检查保留内容，再决定是否重新生成。`,
+        title: "Results are readable, and some sections need review",
+        description: `${sections.readableExpected}/${sections.expected} planned sections have readable content, and ${sections.failedExpected} of them failed on their most recent generation. Check the retained content first, then decide whether to regenerate.`,
         action: "view_results",
-        actionLabel: "查看已有结果",
+        actionLabel: "View existing results",
       };
     }
     return {
       tone: "success",
-      title: "拆书结果可以阅读",
-      description: `共 ${sections.readable} 个小节已生成，可继续查看证据、整理角色，或发布到小说知识库。`,
+      title: "Book analysis results are ready to read",
+      description: `${sections.readable} sections have been generated. You can review the evidence, organize characters, or publish to the novel's knowledge base.`,
       action: "view_results",
-      actionLabel: "查看拆书结果",
+      actionLabel: "View book analysis results",
     };
   }
 
@@ -214,38 +214,38 @@ export function resolveBookAnalysisNextAction(input: {
     if (sections.readable > 0) {
       return {
         tone: "warning",
-        title: "分析已停止，已有结果仍可阅读",
-        description: `已保留 ${sections.readable} 个可阅读小节。${describeMissingExpectedSections(sections)}先检查已有结果，再决定是否重新生成。`,
+        title: "Analysis stopped, but existing results are still readable",
+        description: `${sections.readable} readable sections have been kept. ${describeMissingExpectedSections(sections)}Check the existing results first, then decide whether to regenerate.`,
         action: "view_results",
-        actionLabel: "查看已有结果",
+        actionLabel: "View existing results",
       };
     }
     return {
       tone: "danger",
-      title: "拆书分析需要重新生成",
-      description: analysis.lastError?.trim() || "本次分析没有生成可阅读结果，源文档不会受影响。",
+      title: "This book analysis needs to be regenerated",
+      description: analysis.lastError?.trim() || "This analysis produced no readable results, and the source document is not affected.",
       action: "rebuild",
-      actionLabel: "重新生成分析",
+      actionLabel: "Regenerate analysis",
     };
   }
 
   if (status === "archived") {
     return {
       tone: "neutral",
-      title: sections.readable > 0 ? "查看归档结果" : "复制归档分析后继续",
+      title: sections.readable > 0 ? "View archived results" : "Copy the archived analysis to continue",
       description: sections.readable > 0
-        ? "归档分析保持只读，已有结果、证据和角色档案仍可查看。"
-        : "这份归档分析没有可阅读结果，可复制为新分析后重新生成。",
+        ? "Archived analyses stay read-only, and existing results, evidence, and character profiles remain viewable."
+        : "This archived analysis has no readable results; copy it as a new analysis and regenerate.",
       action: sections.readable > 0 ? "view_results" : "copy",
-      actionLabel: sections.readable > 0 ? "查看归档结果" : "复制为新分析",
+      actionLabel: sections.readable > 0 ? "View archived results" : "Copy as new analysis",
     };
   }
 
   return {
     tone: "info",
-    title: "开始生成拆书结果",
-    description: "AI 会按选定范围逐项生成结构、人物、世界和写法结论，并保留每个已完成小节。",
+    title: "Start generating book analysis results",
+    description: "The AI will generate structure, character, world, and writing-formula conclusions for the selected scope, keeping every completed section.",
     action: "rebuild",
-    actionLabel: "开始生成",
+    actionLabel: "Start generating",
   };
 }

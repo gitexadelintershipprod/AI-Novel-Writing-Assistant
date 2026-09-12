@@ -94,7 +94,7 @@ export default function VersionHistoryTab({ novelId }: VersionHistoryTabProps) {
                   variant="secondary"
                   size="sm"
                   onClick={() => {
-                    const confirmed = window.confirm("恢复前会自动备份当前状态。确认恢复这个版本吗？");
+                    const confirmed = window.confirm("The current state is backed up automatically before restoring. Restore this version?");
                     if (confirmed) {
                       restoreMutation.mutate(snapshot.id);
                     }

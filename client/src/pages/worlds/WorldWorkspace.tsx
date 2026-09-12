@@ -294,7 +294,7 @@ export default function WorldWorkspace() {
     if (!id || !world) {
       return;
     }
-    const confirmed = window.confirm(`确认删除世界样本「${world.name}」？此操作不可恢复。`);
+    const confirmed = window.confirm(`Delete the world setting "${world.name}"? This action cannot be undone.`);
     if (!confirmed) {
       return;
     }

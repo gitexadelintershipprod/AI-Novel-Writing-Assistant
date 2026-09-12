@@ -2224,12 +2224,12 @@ export default function NovelEdit() {
       const committedCount = response.data?.committed.length ?? 0;
       const pendingCount = response.data?.pendingReview.length ?? 0;
       if (pendingCount > 0) {
-        toast.success(`已复查本章资源，${pendingCount} 个变更需要你判断。`);
+        toast.success(`Chapter resources reviewed; ${pendingCount} changes need your decision.`);
         return;
       }
       toast.success(committedCount > 0
-        ? `已复查本章资源，${committedCount} 个变更会用于后续写作。`
-        : "已复查本章资源，未发现需要更新的关键资源。");
+        ? `Chapter resources reviewed; ${committedCount} changes will be used for upcoming writing.`
+        : "Chapter resources reviewed; no key resources needed updating.");
     },
     onError: (error) => {
       toast.error(error instanceof Error ? error.message : "复查本章资源失败。");
@@ -2578,7 +2578,7 @@ export default function NovelEdit() {
     onCreateChapter: () => createChapterMutation.mutate(),
     isCreatingChapter: createChapterMutation.isPending,
     onRemoveChapter: (chapter: Chapter) => {
-      const confirmed = window.confirm(`确认移除「第${chapter.order}章 ${chapter.title || "未命名章节"}」吗？该章节尚未开始写作，移除后不可恢复。`);
+      const confirmed = window.confirm(`Remove "Chapter ${chapter.order}: ${chapter.title || "Untitled chapter"}"? This chapter has not been written yet, and the removal cannot be undone.`);
       if (confirmed) {
         deleteManualChapterMutation.mutate(chapter.id);
       }

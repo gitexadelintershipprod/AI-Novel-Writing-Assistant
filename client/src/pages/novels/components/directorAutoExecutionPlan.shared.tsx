@@ -374,8 +374,8 @@ export function DirectorAutoExecutionPlanFields({
       </div>
 
       <div className={`mt-3 text-xs leading-5 text-muted-foreground ${AUTO_DIRECTOR_MOBILE_CLASSES.wrapText}`}>
-        系统会按你选定的范围，自动准备节奏板、拆章和章节执行资源，再继续写作。
-        当前质量策略：{reviewLabel}。
+        The system will automatically prepare the rhythm board, chapter breakdown, and chapter execution resources for the scope you selected, then continue writing.
+        Current quality strategy: {reviewLabel}.
       </div>
     </div>
   );

@@ -174,12 +174,12 @@ export default function BookAnalysisCharacterPanel(props: BookAnalysisCharacterP
   const freshCandidateCount = candidateCharacters.filter((character) => character.status === "candidate").length;
   const batchButtonTitle = (() => {
     if (failedCandidateCount > 0 && freshCandidateCount > 0) {
-      return `为 ${freshCandidateCount} 个新候选生成档案，并重试 ${failedCandidateCount} 个失败角色`;
+      return `Generate profiles for ${freshCandidateCount} new candidates and retry ${failedCandidateCount} failed characters`;
     }
     if (failedCandidateCount > 0) {
-      return `重试 ${failedCandidateCount} 个失败的角色`;
+      return `Retry ${failedCandidateCount} failed characters`;
     }
-    return `为 ${freshCandidateCount} 个候选生成深度档案`;
+    return `Generate deep profiles for ${freshCandidateCount} candidates`;
   })();
   const operationPending = pending.generate || pending.identify || pending.generateProfile || pending.generateAll;
   const identifyDisabled = disabled || pending.identify;
@@ -386,7 +386,7 @@ export default function BookAnalysisCharacterPanel(props: BookAnalysisCharacterP
               <div>
                 <div className="text-sm font-medium">待生成角色</div>
                 <div className="mt-1 text-xs text-muted-foreground">
-                  {candidateCharacters.length} 个候选，可按需生成深度档案。
+                  {candidateCharacters.length} candidates available for on-demand profile generation.
                 </div>
               </div>
               <span className="text-xs text-muted-foreground">{candidateExpanded ? "收起" : "展开"}</span>

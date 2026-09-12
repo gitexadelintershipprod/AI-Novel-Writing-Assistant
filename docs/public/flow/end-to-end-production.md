@@ -8,7 +8,6 @@
 
 ## 三层生产链
 
-![端到端三层生产链](./diagrams/end-to-end-production.svg)
 
 整条链路可以分成三层：
 

@@ -1097,7 +1097,7 @@ function AssetSection({
         <p className="text-sm font-semibold">角色资产库</p>
         <span className="text-[11px] text-muted-foreground">
           {assets.length > 0
-            ? `${assets.length} 个资产 · 已按类型分组`
+            ? `${assets.length} assets · grouped by type`
             : "服装、武器、道具一旦录入，生格子图会自动注入到参考图，提升一致性"}
         </span>
       </div>

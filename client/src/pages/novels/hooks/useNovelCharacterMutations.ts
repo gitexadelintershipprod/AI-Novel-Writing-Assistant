@@ -196,7 +196,7 @@ export function useNovelCharacterMutations(input: UseNovelCharacterMutationsInpu
       }),
     onSuccess: (response) => {
       const count = response.data?.results.filter((item) => item.hasApplicableChanges).length ?? 0;
-      setCharacterMessage(count > 0 ? `已生成 ${count} 个角色的外显资料建议，请确认后写入。` : "当前角色资料暂时没有需要补写的外显内容。");
+      setCharacterMessage(count > 0 ? `Generated explicit-detail suggestions for ${count} characters; review and confirm to write them in.` : "This character's profile has no explicit content that needs filling in right now.");
     },
     onError: (error) => {
       setCharacterMessage(error instanceof Error ? error.message : "批量外显资料生成失败。");

@@ -308,7 +308,7 @@ export function DramaVisualPanel(props: {
                       <div className="text-sm text-muted-foreground">{shot.action}</div>
                       <div className="flex flex-wrap gap-2">
                         {keyframe.status === "done" ? <Badge variant="outline">首帧 v{keyframe.version ?? 1}</Badge> : null}
-                        {keyframe.history?.length ? <Badge variant="secondary">{keyframe.history.length} 个首帧历史</Badge> : null}
+                        {keyframe.history?.length ? <Badge variant="secondary">{keyframe.history.length} past first frames</Badge> : null}
                         {prompt ? <Badge variant="outline">提示词 v{prompt.version ?? 1}</Badge> : null}
                       </div>
                     </div>

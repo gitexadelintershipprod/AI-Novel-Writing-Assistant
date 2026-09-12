@@ -576,7 +576,7 @@ export default function CreativeHubPage() {
               创作中枢用于查询小说状态、诊断问题和获得下一步建议。完整的 Agent 工作流、工具调用、暂停恢复与本地小说工件，可使用独立项目。
             </p>
             <p className="mt-2 break-all font-mono text-xs text-foreground">git clone https://github.com/ExplosiveCoderflome/ani-book-agent.git</p>
-            <p className="mt-1 text-xs text-muted-foreground">进入 ani-book-agent 目录，依次运行 pnpm install 和 pnpm dev；默认工作台地址为 http://127.0.0.1:5175。</p>
+            <p className="mt-1 text-xs text-muted-foreground">Enter the ani-book-agent directory, run pnpm install and then pnpm dev; the default workspace address is http://127.0.0.1:5175.</p>
             <p className="mt-1 text-xs text-muted-foreground">独立项目使用自己的小说工作区和运行记录，不会直接修改这里的小说。</p>
           </div>
           <Button asChild size="sm" variant="outline" className="shrink-0">

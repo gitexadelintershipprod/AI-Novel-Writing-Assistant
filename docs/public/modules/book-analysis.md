@@ -1,163 +1,161 @@
-# 拆书
+# Book Analysis
 
-拆书用于分析参考作品或自己的稿子。它不是简单生成一篇读后感，而是把作品拆成可阅读、可追溯、可复用的创作经验，帮助你理解一本书为什么能成立，以及哪些结论可以带回自己的小说创作。
+Book analysis is for analyzing reference works or your own drafts. It does not simply generate a book report; it breaks a work down into creative experience that is readable, traceable, and reusable, helping you understand why a book works and which conclusions you can bring back to your own novel writing.
 
-![拆书分析界面截图](../../../images/v2/微信截图_20260813220038.png)
 
-![拆书角色档案界面截图](../../../images/v2/微信截图_20260813220055.png)
 
-## 拆书能帮你做什么
+## What Book Analysis Can Do for You
 
-- 学习参考作品的题材定位、主线推进、人物系统、世界设定、主题表达、写法技巧和商业卖点。
-- 诊断自己的稿子，检查节奏、人物、伏笔、主题和读者期待是否清楚。
-- 把拆书结论发布到知识库，让后续规划、续写和正文生成可以继续使用这些资料。
-- 从“文风与技法”分析生成写法资产，沉淀一套可复用的叙事风格。
-- 深入研究角色，生成角色档案、形象演变、参考图，并在需要时升格到基础角色库。
+- Learn a reference work's genre positioning, main-line progression, character system, world setting, thematic expression, writing techniques, and commercial selling points.
+- Diagnose your own draft, checking whether pacing, characters, foreshadowing, themes, and reader expectations are clear.
+- Publish book analysis conclusions to the knowledge base so later planning, continuation, and chapter text generation can keep using this material.
+- Generate writing formula assets from the "Style and Technique" analysis, building a reusable narrative style.
+- Study characters in depth: generate character profiles, appearance evolution, and reference images, and promote characters to the character library when needed.
 
-## 适合什么时候用
+## When to Use It
 
-- 看到一本想学习的参考作品，想知道它的结构、爽点和人物为什么有效。
-- 写完一段自己的稿子后，想让系统帮你做一次结构化诊断。
-- 准备新书前，想先拆几本同类型作品，积累题材、角色和写法参考。
-- 想把资料从“看过”变成后续创作能检索、能引用的知识库内容。
-- 想单独研究某个角色的外貌、性格、弧线、关系和章节表现。
+- You found a reference work you want to learn from and want to know why its structure, payoff moments, and characters work.
+- You finished a stretch of your own draft and want the system to run a structured diagnosis.
+- Before starting a new book, you want to analyze several same-genre works to accumulate genre, character, and writing formula references.
+- You want to turn material from "read once" into knowledge base content that later creation can retrieve and cite.
+- You want to study a single character's appearance, personality, arc, relationships, and per-chapter performance in isolation.
 
-## 开始前准备
+## Before You Start
 
-拆书需要一个可分析的文本来源。常见来源有两种：
+Book analysis needs an analyzable text source. There are two common sources:
 
-- 知识库文档：适合分析参考作品、资料文本或整理好的小说原文。
-- 你的小说正文：适合使用“诊断稿子”检查自己的稿件。
+- Knowledge base documents: for analyzing reference works, reference texts, or cleaned-up novel text.
+- Your own novel text: for using "Diagnose Draft" to check your own manuscript.
 
-文本越长，分析时间和 token 消耗通常越高。第一次使用时，建议先选择一小段章节范围或使用“快速拆书”，确认结果符合预期后再做完整拆书。
+The longer the text, the higher the analysis time and token cost usually are. On first use, pick a small chapter range or use "quick book analysis" and confirm the results match your expectations before running a full analysis.
 
-如果要使用发布到知识库、证据跳转、角色形象演变等能力，建议先确保知识库和模型配置可用。
+To use capabilities such as publishing to the knowledge base, evidence jumps, or character appearance evolution, first make sure the knowledge base and model configuration are available.
 
-## 创建拆书分析
+## Creating a Book Analysis
 
-点击左侧拆书页里的“新建拆书”，按下面顺序选择：
+Click "New Book Analysis" on the book analysis page in the left navigation, and choose in this order:
 
-1. 选择要分析的文档或进入“诊断稿子”。
-2. 选择分析范围：全文、章节范围，或按字数换算范围。
-3. 选择拆书类型：快速拆书、标准拆书或完整拆书。
-4. 填写本次关注点，例如“重点看群像人物”“重点看开篇钩子”“重点看付费爽点”。
-5. 设置预算上限，避免长文本在不知情的情况下持续消耗模型额度。
-6. 提交后等待任务完成，过程中可以到任务中心查看状态。
+1. Select the document to analyze, or enter "Diagnose Draft".
+2. Choose the analysis range: full text, a chapter range, or a range converted from word count.
+3. Choose the analysis type: quick book analysis, standard book analysis, or full book analysis.
+4. Fill in a focus for this run, such as "focus on the ensemble cast", "focus on the opening hook", or "focus on the paid payoff moments".
+5. Set a budget cap so long texts cannot keep draining your model quota without your knowledge.
+6. Submit and wait for the task to finish; you can check its status in the Task Center in the meantime.
 
-关注点会影响系统优先分析哪些内容，但不会改变证据来源。也就是说，拆书结论仍应尽量来自原文，而不是根据关注点随意发挥。
+The focus influences which content the system analyzes first, but it does not change where evidence comes from. In other words, book analysis conclusions should still come from the original text as much as possible, not be freely invented around the focus.
 
-## 三种拆书怎么选
+## Choosing Among the Three Analysis Types
 
-### 快速拆书
+### Quick Book Analysis
 
-适合先低成本判断一本作品是否值得深入研究。它会优先给出总览、剧情结构、人物系统和写法技法，适合快速看作品定位和可复用价值。
+Suits a low-cost first judgment of whether a work deserves deep study. It prioritizes the overview, plot structure, character system, and writing techniques, which is good for quickly reading a work's positioning and reusable value.
 
-### 标准拆书
+### Standard Book Analysis
 
-适合大多数参考作品分析。它会覆盖总览、剧情结构、人物系统、世界设定、主题表达、写法技法和商业卖点，是推荐的默认选择。
+Suits most reference work analysis. It covers the overview, plot structure, character system, world setting, thematic expression, writing techniques, and commercial selling points — the recommended default choice.
 
-### 完整拆书
+### Full Book Analysis
 
-适合深度复盘或需要时间线分析的作品。它会在标准拆书基础上加入更完整的时间线和阶段梳理，耗时和 token 消耗也会更高。
+Suits deep post-mortems or works that need timeline analysis. It adds a fuller timeline and stage breakdown on top of the standard analysis, with higher time and token cost.
 
-## 阅读拆书结果
+## Reading the Results
 
-拆书详情页主要分为“小节分析”和“角色档案”两个视图。
+The book analysis detail page has two main views: "Section Analysis" and "Character Profiles".
 
-在“小节分析”里，优先阅读每个小节的关键结论。关键结论适合快速判断这份拆书有没有价值；需要更完整解释时，再展开阅读正文。
+In "Section Analysis", read each section's key conclusions first. They are for quickly judging whether the analysis is worth anything; expand into the full text when you need the complete explanation.
 
-如果你想核对结论来源，可以查看“本节证据”。证据会尽量绑定到对应结论，点击后可以看到摘录；带章节定位的证据可以配合“双栏”查看原文章节和高亮位置。
+To check where a conclusion came from, open "Evidence for this section". Evidence is bound to its corresponding conclusion wherever possible; click it to see the excerpt. Evidence with a chapter anchor can be opened in the "two-column" view alongside the source chapter and highlighted position.
 
-“双栏”适合在宽屏下使用：左侧看原文，右侧看拆书结论。阅读参考作品、核对关键证据或诊断自己的稿子时，这个模式会更清楚。
+The "two-column" view suits wide screens: original text on the left, book analysis conclusions on the right. It is clearer when reading a reference work, verifying key evidence, or diagnosing your own draft.
 
-## 角色档案
+## Character Profiles
 
-“角色档案”用于研究作品中的人物。它和“人物系统”小节不是一回事：
+"Character Profiles" are for studying the people in a work. They are not the same thing as the "Character System" section:
 
-- 人物系统小节帮助你快速理解整本书的人物分工和关系张力。
-- 角色档案用于深入研究单个角色的外貌、性格、目标、能力、关系、弧线和关键场景。
+- The character system section helps you quickly grasp the whole book's cast division and relational tension.
+- Character profiles support deep study of a single character's appearance, personality, goals, abilities, relationships, arc, and key scenes.
 
-角色档案通常先识别候选角色，再由你决定是否生成完整档案。这样可以先看哪些人物值得研究，再把预算用在真正重要的角色上。
+Character profiles first identify candidate characters, then you decide whether to generate the full profile. That way you can see who is worth studying before spending budget on the characters that really matter.
 
-角色档案支持简要、标准、深入和完整四种深度。简要和标准适合快速了解角色；深入和完整会更重视原文证据，适合研究主角、反派、重要配角或你准备借鉴的人物设计。
+Character profiles come in four depths: brief, standard, deep, and full. Brief and standard suit a quick read of a character; deep and full lean harder on original-text evidence, suited to studying protagonists, antagonists, key supporting roles, or character designs you intend to borrow.
 
-## 形象演变
+## Appearance Evolution
 
-角色档案里可以继续查看“形象演变”。它适合研究一个角色在不同章节里的外貌、服装、配饰、身体状态、精神面貌和场景状态。
+Inside a character profile you can open "Appearance Evolution". It tracks a character's look, clothing, accessories, physical condition, mental state, and scene context across chapters.
 
-使用时可以选择目标覆盖率，例如 25%、50%、75% 或 100%。系统会按章节增量扫描，已经完成的快照不会反复重跑。
+You can choose a target coverage, for example 25%, 50%, 75%, or 100%. The system scans chapters incrementally, and completed snapshots are not rerun.
 
-形象演变还会沉淀“待确认外貌词条”。这些词条是章节中新发现的外貌信息，例如发色、衣着、伤痕、配饰或气质。它们不会自动写回角色外貌，只有你勾选并选择融合后，才会进入角色档案的稳定外貌描述。
+Appearance evolution also accumulates "appearance entries pending confirmation". These are appearance details newly found in chapters — hair color, clothing, scars, accessories, or aura. They are not written back to the character's appearance automatically; only after you select them and choose to merge do they enter the character profile's stable appearance description.
 
-如果要生成章节形象图，系统会优先参考这个角色已有的基础形象图。角色有多张基础形象图时，可以选择本次要使用的参考图，让不同场景里的同一角色更一致。
+When generating a chapter appearance image, the system first consults the character's existing base appearance images. When a character has several, you can pick which reference images to use this time so the same character stays more consistent across scenes.
 
-## 发布和复用
+## Publishing and Reuse
 
-拆书最有价值的地方，是把结论带回后续创作。
+The most valuable part of book analysis is bringing conclusions back into later creation.
 
-你可以：
+You can:
 
-- 发布到知识库，让后续规划、续写和正文生成能够检索这些结论。
-- 点击“生成写法”，把拆书里的“文风与技法”转成写法资产。
-- 在角色档案中生成参考图、设为主图，或把角色升格到基础角色库。
-- 导出或复制拆书内容，作为外部整理和复盘资料。
+- Publish to the knowledge base so later planning, continuation, and chapter text generation can retrieve these conclusions.
+- Click "Generate Writing Formula" to turn the "Style and Technique" findings into a writing formula asset.
+- Generate reference images in a character profile, set one as the main image, or promote the character to the character library.
+- Export or copy the book analysis content as material for external notes and post-mortems.
 
-同一份拆书可以重复发布到知识库。后续发布会保留来源关系，便于回到原拆书继续查看。
+The same book analysis can be published to the knowledge base repeatedly. Later publishes keep the source relationship, making it easy to return to the original analysis.
 
-## 诊断自己的稿子
+## Diagnosing Your Own Draft
 
-“诊断稿子”适合检查自己的小说正文。它会把当前小说正文作为分析来源，使用拆书的方式检查节奏、人物、主题、伏笔和商业卖点。
+"Diagnose Draft" is for checking your own novel text. It uses the current novel text as the analysis source and applies the book analysis method to check pacing, characters, themes, foreshadowing, and commercial selling points.
 
-诊断结果不会自动修改原小说，也不会直接写回章节正文。它只是帮你发现问题和整理建议。真正改稿时，仍需要你回到章节执行、正文修改、质量修复或其他创作入口中显式操作。
+Diagnosis results do not modify the original novel and are not written back into chapter text. They only surface problems and organize suggestions. Actual revision still has to happen explicitly in chapter execution, chapter text editing, quality repair, or another creative entry point.
 
-## 预算与恢复
+## Budget and Recovery
 
-拆书是长任务，尤其是长篇全文、完整拆书、深度角色档案和形象演变，都会增加模型调用。
+Book analysis is a long-running task; full-text analysis of long works, full book analysis, deep character profiles, and appearance evolution all add model calls.
 
-如果预算用尽，任务会停止在当前边界，并保留已经完成的小节。你可以：
+If the budget runs out, the task stops at the current boundary and keeps the sections already finished. You can:
 
-- 查看预算用量和停止原因。
-- 调整拆书预算。
-- 使用“扩容预算并续跑”，继续处理未完成的小节。
-- 到任务中心查看失败、取消或运行中的任务。
+- Check budget usage and the stop reason.
+- Adjust the book analysis budget.
+- Use "Expand budget and resume" to continue the unfinished sections.
+- Check failed, canceled, or running tasks in the Task Center.
 
-重新生成或续跑时，已经成功的小节通常不会被无故覆盖。遇到问题时，不建议马上重建整份分析，先看是否可以续跑或只重做局部小节。
+When regenerating or resuming, sections that already succeeded are usually not overwritten without reason. If something goes wrong, do not rebuild the whole analysis right away; first check whether you can resume or redo only the affected sections.
 
-## 推荐使用路径
+## Recommended Workflow
 
-第一次使用拆书，可以按这个顺序：
+For your first book analysis, follow this order:
 
-1. 在知识库上传一份参考作品或资料文本。
-2. 打开拆书页，点击“新建拆书”。
-3. 先选择部分章节或较短范围。
-4. 选择“快速拆书”或“标准拆书”。
-5. 填写一个明确关注点，例如“重点看开篇吸引力”。
-6. 阅读“小节分析”里的关键结论和证据。
-7. 如果作品值得深入研究，再生成角色档案或完整拆书。
-8. 把有价值的结论发布到知识库，或从拆书生成写法。
+1. Upload a reference work or reference text to the knowledge base.
+2. Open the book analysis page and click "New Book Analysis".
+3. Start with a partial chapter range or a shorter range.
+4. Choose "quick book analysis" or "standard book analysis".
+5. Fill in one clear focus, for example "focus on the opening's appeal".
+6. Read the key conclusions and evidence in "Section Analysis".
+7. If the work deserves deep study, generate character profiles or a full book analysis.
+8. Publish valuable conclusions to the knowledge base, or generate a writing formula from the analysis.
 
-## 常见问题
+## FAQ
 
-### 任务很慢怎么办
+### What if the task is slow?
 
-先确认文本长度、拆书类型和是否启用了完整拆书。长篇全文、完整拆书、深度角色档案和形象演变都需要更多时间。可以先缩小章节范围，或先用快速拆书看方向。
+First confirm the text length, the analysis type, and whether full book analysis is enabled. Full-text analysis of long works, full book analysis, deep character profiles, and appearance evolution all take longer. Narrow the chapter range first, or run a quick analysis to see the direction.
 
-### 预算用尽怎么办
+### What if the budget runs out?
 
-预算用尽不代表已经完成的内容丢失。先查看预算用量，再使用“扩容预算并续跑”继续未完成的小节。
+Running out of budget does not lose what already finished. Check the budget usage, then use "Expand budget and resume" to continue the unfinished sections.
 
-### 证据找不到原文怎么办
+### What if evidence cannot be located in the original text?
 
-有些历史证据或特殊文本可能没有可跳转章节定位，但证据摘录仍会展示。新生成的拆书会尽量把证据绑定到具体结论，并在可定位时支持双栏高亮查看。
+Some historical evidence or special texts may have no jumpable chapter anchor, but the excerpt is still shown. Newly generated book analysis binds evidence to specific conclusions wherever possible and supports two-column highlighted viewing when an anchor exists.
 
-### 角色档案不够准怎么办
+### What if character profiles are not accurate enough?
 
-先确认角色是否是候选状态。如果只是候选，可以生成更完整的档案；如果已经生成，可以尝试更高深度。深入和完整档案会更适合研究主角、反派和关键配角。
+First check whether the character is still in candidate state. If it is only a candidate, generate the full profile; if it is already generated, try a higher depth. Deep and full profiles are better for studying protagonists, antagonists, and key supporting roles.
 
-### 形象图不一致怎么办
+### What if appearance images are inconsistent?
 
-先为角色准备基础形象图，并在生成章节形象图前确认参考图。存在多张基础图时，选择最符合当前角色设定的一张或几张作为参考。
+Prepare base appearance images for the character first, and confirm the reference images before generating chapter appearance images. When multiple base images exist, pick the one or ones that best match the current character design as references.
 
-### 拆书结果怎么用于自己的写作
+### How do I use book analysis results in my own writing?
 
-优先把有价值的拆书发布到知识库。需要学习文风时，使用“生成写法”。需要复用人物时，可以在角色档案中升格到基础角色库。后续创作时，这些资料会比单纯复制一段分析更容易被系统继续使用。
+Prioritize publishing valuable analyses to the knowledge base. To learn a writing style, use "Generate Writing Formula". To reuse a character, promote it to the character library from its character profile. During later creation, the system can keep using this material far more easily than a copied block of analysis text.

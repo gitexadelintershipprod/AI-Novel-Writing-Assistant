@@ -286,7 +286,7 @@ export default function StoryModeManagementPage() {
     onSuccess: (drafts) => {
       setExpansionCandidates(drafts.map(cloneDraft));
       setSelectedExpansionIndexes(drafts.map((_draft, index) => index));
-      toast.success(`AI 已推荐 ${drafts.length} 个新的推进方向。`);
+      toast.success(`AI recommended ${drafts.length} new progression directions.`);
     },
   });
 
@@ -316,7 +316,7 @@ export default function StoryModeManagementPage() {
     },
     onSuccess: async (response) => {
       await invalidate();
-      toast.success(`已加入 ${response.data?.length ?? selectedExpansionIndexes.length} 个新的推进模式。`);
+      toast.success(`Added ${response.data?.length ?? selectedExpansionIndexes.length} new story modes.`);
       setExpansionDialogOpen(false);
     },
   });
@@ -416,8 +416,8 @@ export default function StoryModeManagementPage() {
   const handleDelete = (node: StoryModeTreeNode) => {
     const descendantCount = collectDescendantIds(node).length;
     const message = descendantCount > 0
-      ? `确认删除推进模式「${node.name}」吗？这会同时删除其下 ${descendantCount} 个子类，此操作不可恢复。`
-      : `确认删除推进模式「${node.name}」吗？此操作不可恢复。`;
+      ? `Delete story mode "${node.name}"? This will also delete ${descendantCount} subcategories under it. This action cannot be undone.`
+      : `Delete story mode "${node.name}"? This action cannot be undone.`;
     const confirmed = window.confirm(message);
     if (!confirmed) {
       return;

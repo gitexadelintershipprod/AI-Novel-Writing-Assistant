@@ -225,8 +225,8 @@ export default function WritingFormulaEditorPanel(props: WritingFormulaEditorPan
             ) : null}
 
             <div className="rounded-2xl border bg-slate-50/70 px-4 py-4 text-sm leading-7 text-slate-700">
-              如果你不想一上来就面对一堆技术字段，先维护这四块最重要：写法名称、简介、适用题材、反 AI 规则。
-              下面四组高级规则是给系统更精细的控制层，不熟悉时可以先少动。
+              If you would rather not face a wall of technical fields right away, keep these four blocks in shape first: writing formula name, description, applicable genres, and anti-AI rules.
+              The four groups of advanced rules below are a finer control layer for the system; touch them lightly until you know them well.
             </div>
 
             <div className="space-y-4 rounded-2xl border p-4">
@@ -295,8 +295,8 @@ export default function WritingFormulaEditorPanel(props: WritingFormulaEditorPan
                 <div className="space-y-1">
                   <div className="text-base font-semibold text-slate-950">原文依据与提取特征</div>
                   <div className="text-sm leading-6 text-slate-500">
-                    这部分是这套写法的“证据层”。从文本或知识库原文提取出来的写法，后续回看和重提取都会依赖这里。
-                    这里会把特征说明、证据、分数、预设建议和推荐规则一起展示出来。
+                    This part is the writing formula's "evidence layer." Formulas extracted from text or knowledge base sources rely on it for later review and re-extraction.
+                    Trait descriptions, evidence, scores, preset suggestions, and recommended rules are all displayed here.
                   </div>
                 </div>
 
@@ -484,8 +484,8 @@ export default function WritingFormulaEditorPanel(props: WritingFormulaEditorPan
               <div className="space-y-1">
                 <div className="text-base font-semibold text-slate-950">高级规则块</div>
                 <div className="text-sm leading-6 text-slate-500">
-                  这四块是系统真正执行时会读取的机器规则层。不了解字段含义时，可以先看标题和说明，再决定是否要改。
-                  如果当前主要显示“总述”字段，说明这次提取更多给出了摘要级规则，细颗粒兼容字段还不算多。
+                  These four blocks are the machine-rule layer the system actually reads at execution time. If you're not sure what a field means, read its title and description first, then decide whether to change it.
+                  If the "overview" field is the main one filled in, this extraction produced mostly summary-level rules, with few fine-grained compatibility fields so far.
                 </div>
               </div>
 

@@ -323,7 +323,7 @@ export default function OutlineTab(props: OutlineTabViewProps) {
                     <div className="rounded-xl bg-background/70 p-3 text-xs leading-6 text-muted-foreground">
                       当前结构档位：{volumeScaleProfileLabel}。{volumeCountGuidance.volumeCountRationale}
                       章节预算仍会参考 {volumeCountGuidance.targetChapterRange.min}-{volumeCountGuidance.targetChapterRange.max} 章 / 卷，
-                      但系统会优先按阶段承诺、卖点切换、局面升级和阶段兑现来建议卷数。
+                      but the system prioritizes stage promises, selling-point switches, escalating stakes, and stage payoffs when recommending a volume count.
                     </div>
 
                     <div className="flex flex-wrap gap-2">

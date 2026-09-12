@@ -359,12 +359,12 @@ function SyncPanel(props: Pick<NovelWorldHandbookDialogProps,
             {props.isLoadingSyncDiff ? "检查中" : syncDiff ? "检查完成" : "等待检查"}
           </div>
           <div className="mt-1 text-xs leading-5 text-muted-foreground">
-            {syncDiff?.differenceCount ? `${syncDiff.differenceCount} 个分区存在差异。` : syncDiff ? "没有发现需要处理的分区差异。" : "打开本书世界时会读取差异摘要。"}
+            {syncDiff?.differenceCount ? `${syncDiff.differenceCount} sections have differences.` : syncDiff ? "No section differences need attention." : "A difference summary loads when you open this novel's world."}
           </div>
         </div>
         <div className="rounded-xl bg-muted/15 p-3">
           <div className="text-xs text-muted-foreground">选择分区</div>
-          <div className="mt-1 text-sm font-medium text-foreground">{hasSyncDiff ? `${selectedSectionCount} 个分区` : "无需选择"}</div>
+          <div className="mt-1 text-sm font-medium text-foreground">{hasSyncDiff ? `${selectedSectionCount} sections selected` : "无需选择"}</div>
           <div className="mt-1 text-xs leading-5 text-muted-foreground">只同步你确认过的概要、规则、势力、地点或关系网络。</div>
         </div>
         <div className="rounded-xl bg-muted/15 p-3">

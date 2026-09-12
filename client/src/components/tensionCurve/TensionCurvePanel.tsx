@@ -71,7 +71,7 @@ export default function TensionCurvePanel(props: TensionCurvePanelProps) {
             <div className="flex flex-wrap items-center gap-2">
               <CardTitle className={cn("leading-none", compact ? "text-sm" : "text-base")}>{title}</CardTitle>
               <Badge variant="outline">只读</Badge>
-              {userAnchorCount > 0 ? <Badge variant="secondary">{userAnchorCount} 个手动固定点</Badge> : null}
+              {userAnchorCount > 0 ? <Badge variant="secondary">{userAnchorCount} manual anchor{userAnchorCount === 1 ? "" : "s"}</Badge> : null}
             </div>
             {subtitle ? <div className="text-xs leading-5 text-muted-foreground">{subtitle}</div> : null}
           </div>

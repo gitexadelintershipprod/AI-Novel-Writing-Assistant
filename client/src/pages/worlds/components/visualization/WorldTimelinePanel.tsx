@@ -33,7 +33,7 @@ export default function WorldTimelinePanel({ items }: WorldTimelinePanelProps) {
 
   return (
     <FullscreenView
-      title={`世界时间线 · ${items.length} 个关键阶段`}
+      title={`World timeline · ${items.length} key stages`}
       description="沿时间顺序阅读关键事件，观察世界局势、势力目标与冲突如何向前推进。"
       fullscreen={isFullscreen}
       onFullscreenChange={setIsFullscreen}

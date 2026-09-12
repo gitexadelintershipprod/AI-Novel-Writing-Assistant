@@ -88,7 +88,7 @@ function StoryReadinessPanel({ tab }: { tab: StoryMacroTabProps }) {
       <div className="flex items-start justify-between gap-3">
         <div>
           <div className="text-sm font-semibold text-foreground">宏观规划就绪度</div>
-          <div className="mt-1 text-xs text-muted-foreground">{readyCount} / {readinessItems.length} 个核心条件已具备</div>
+          <div className="mt-1 text-xs text-muted-foreground">{readyCount} / {readinessItems.length} core conditions ready</div>
         </div>
         <div className="text-2xl font-semibold text-foreground">{percent}%</div>
       </div>
@@ -133,11 +133,11 @@ function StoryReadinessPanel({ tab }: { tab: StoryMacroTabProps }) {
       <div className="grid gap-2 text-xs text-muted-foreground">
         <div className="flex items-start gap-2 rounded-md bg-background/70 p-2">
           <Lock className="mt-0.5 h-3.5 w-3.5 text-primary" />
-          <span>{lockedCount > 0 ? `${lockedCount} 个字段已锁定，重生成时会被保护。` : "确认满意的字段后可以锁定，再让 AI 只重生成其他部分。"}</span>
+          <span>{lockedCount > 0 ? `${lockedCount} fields are locked and will be protected during regeneration.` : "Lock the fields you are happy with, then let the AI regenerate only the rest."}</span>
         </div>
         <div className="flex items-start gap-2 rounded-md bg-background/70 p-2">
           <AlertTriangle className="mt-0.5 h-3.5 w-3.5 text-amber-600" />
-          <span>{tab.issues.length > 0 ? `${tab.issues.length} 条冲突或缺口需要处理。` : "当前没有显式冲突提醒。"}</span>
+          <span>{tab.issues.length > 0 ? `${tab.issues.length} conflicts or gaps need attention.` : "No explicit conflict warnings right now."}</span>
         </div>
       </div>
     </aside>
@@ -250,7 +250,7 @@ export default function StoryEngineStudio({ tab }: StoryEngineStudioProps) {
             <div className="rounded-lg border border-border/60 bg-muted/10 p-3">
               <div className="text-xs font-medium text-muted-foreground">关键兑现点</div>
               <div className="mt-2 text-sm font-semibold leading-6 text-foreground">
-                {payoffs.length > 0 ? `${payoffs.length} 个节点` : "等待拆出兑现节点"}
+                {payoffs.length > 0 ? `${payoffs.length} payoff points` : "Waiting for payoff points to be extracted"}
               </div>
             </div>
           </div>

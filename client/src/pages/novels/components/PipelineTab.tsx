@@ -439,7 +439,7 @@ export default function PipelineTab(props: PipelineTabProps) {
                 </div>
                 {lowScoreRange ? (
                   <div className="text-xs text-muted-foreground">
-                    低分章节 {lowScoreRange.count} 个，可重跑范围：第 {lowScoreRange.startOrder} 章 - 第 {lowScoreRange.endOrder} 章。
+                    {lowScoreRange.count} low-scoring chapters; rerunnable range: chapter {lowScoreRange.startOrder} - chapter {lowScoreRange.endOrder}.
                   </div>
                 ) : (
                   <div className="text-xs text-muted-foreground">当前无低于阈值的章节。</div>

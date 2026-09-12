@@ -282,9 +282,9 @@ export default function DirectorRuntimeProjectionCard({
   const waitingLine = projection.waitingReason ? `等待原因：${projection.waitingReason}` : null;
   const workerHealthLine = projection.workerHealth
     ? [
-      `执行队列：${projection.workerHealth.queuedCommandCount} 个等待`,
-      projection.workerHealth.runningCommandCount > 0 ? `${projection.workerHealth.runningCommandCount} 个处理中` : null,
-      projection.workerHealth.currentWorkerId ? `执行器：${projection.workerHealth.currentWorkerId}` : null,
+      `Execution queue: ${projection.workerHealth.queuedCommandCount} waiting`,
+      projection.workerHealth.runningCommandCount > 0 ? `${projection.workerHealth.runningCommandCount} in progress` : null,
+      projection.workerHealth.currentWorkerId ? `Worker: ${projection.workerHealth.currentWorkerId}` : null,
     ].filter(Boolean).join(" · ")
     : null;
   const helperLines = [

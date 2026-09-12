@@ -44,7 +44,7 @@ test("successful analyses without sections expose the ghost-result recovery", ()
   });
   assert.equal(result.action, "rebuild");
   assert.equal(result.tone, "danger");
-  assert.match(result.title, /没有可展示/);
+  assert.match(result.title, /no book analysis content to show/);
 });
 
 test("partial and failed analyses preserve readable sections", () => {
@@ -73,8 +73,8 @@ test("partial and failed analyses preserve readable sections", () => {
     failed: 1,
   });
   assert.equal(result.action, "view_results");
-  assert.match(result.description, /已保留/);
-  assert.match(result.description, /仍有 1 个计划小节缺少可读结果/);
+  assert.match(result.description, /have been kept/);
+  assert.match(result.description, /1 planned sections still lack readable results/);
 });
 
 test("running analyses keep an entry to every readable partial result", () => {
@@ -90,8 +90,8 @@ test("running analyses keep an entry to every readable partial result", () => {
     analysesCount: 1,
   });
   assert.equal(result.action, "view_results");
-  assert.equal(result.actionLabel, "查看已有结果");
-  assert.match(result.description, /已有 1 个小节可阅读/);
+  assert.equal(result.actionLabel, "View existing results");
+  assert.match(result.description, /1 sections are readable/);
 });
 
 test("cancelled analyses state how many planned sections are still missing", () => {
@@ -107,7 +107,7 @@ test("cancelled analyses state how many planned sections are still missing", () 
     analysesCount: 1,
   });
   assert.equal(result.action, "view_results");
-  assert.match(result.description, /仍有 2 个计划小节缺少可读结果/);
+  assert.match(result.description, /2 planned sections still lack readable results/);
 });
 
 test("budget failures recommend resuming without discarding completed sections", () => {
@@ -121,7 +121,7 @@ test("budget failures recommend resuming without discarding completed sections",
   });
   assert.equal(result.action, "resume_budget");
   assert.equal(result.tone, "warning");
-  assert.match(result.description, /计划范围内没有缺失小节/);
+  assert.match(result.description, /No sections are missing from the planned scope/);
 });
 
 test("archived analyses with readable content remain inspectable", () => {
@@ -133,7 +133,7 @@ test("archived analyses with readable content remain inspectable", () => {
     analysesCount: 1,
   });
   assert.equal(result.action, "view_results");
-  assert.equal(result.actionLabel, "查看归档结果");
+  assert.equal(result.actionLabel, "View archived results");
 });
 
 test("archived analyses without readable content can be copied for regeneration", () => {
@@ -142,7 +142,7 @@ test("archived analyses without readable content can be copied for regeneration"
     analysesCount: 1,
   });
   assert.equal(result.action, "copy");
-  assert.equal(result.actionLabel, "复制为新分析");
+  assert.equal(result.actionLabel, "Copy as new analysis");
 });
 
 test("the preferred section is the first section with actual content", () => {
@@ -193,6 +193,6 @@ test("a failed section with retained content is not described as a zero-size gap
   });
   const result = resolveBookAnalysisNextAction({ analysis: retained, analysesCount: 1 });
   assert.equal(result.action, "view_results");
-  assert.match(result.description, /1 个小节最近一次生成失败/);
-  assert.doesNotMatch(result.description, /仍有 0 个|0 个小节可通过重新生成补齐/);
+  assert.match(result.description, /1 of them failed on their most recent generation/);
+  assert.doesNotMatch(result.description, /0 planned sections still lack|0 sections can be filled in by regenerating/);
 });

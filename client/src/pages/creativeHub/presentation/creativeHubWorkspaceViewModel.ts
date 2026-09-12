@@ -39,17 +39,17 @@ export interface CreativeHubWorkspacePresentation {
 export function formatCreativeHubThreadStatus(
   status: CreativeHubThread["status"] | undefined,
 ): string {
-  if (status === "busy") return "执行中";
-  if (status === "interrupted") return "等待确认";
-  if (status === "error") return "运行异常";
-  if (status === "idle") return "等待指令";
-  return "正在初始化";
+  if (status === "busy") return "Running";
+  if (status === "interrupted") return "Awaiting confirmation";
+  if (status === "error") return "Error";
+  if (status === "idle") return "Idle";
+  return "Initializing";
 }
 
 function formatSetupStage(stage: CreativeHubNovelSetupStatus["stage"] | undefined): string | null {
-  if (stage === "setup_in_progress") return "补齐开书信息";
-  if (stage === "ready_for_planning") return "准备故事规划";
-  if (stage === "ready_for_production") return "准备整本生产";
+  if (stage === "setup_in_progress") return "Completing book setup";
+  if (stage === "ready_for_planning") return "Ready for story planning";
+  if (stage === "ready_for_production") return "Ready for full production";
   return null;
 }
 
@@ -78,14 +78,14 @@ export function resolveCreativeHubWorkspacePresentation(input: {
   const objectTitle = input.currentNovelTitle?.trim()
     || input.productionStatus?.title?.trim()
     || input.novelSetup?.title?.trim()
-    || "未绑定小说";
+    || "No novel bound";
   const stageLabel = input.latestTurnSummary?.currentStage?.trim()
     || input.productionStatus?.currentStage?.trim()
     || formatSetupStage(input.novelSetup?.stage)
-    || "等待创作目标";
+    || "Awaiting creative goal";
   const threadStatusLabel = formatCreativeHubThreadStatus(input.thread?.status);
 
-  const threadsError = errorText(input.threadsError, "创作线程加载失败。");
+  const threadsError = errorText(input.threadsError, "Failed to load creative threads.");
   if (threadsError) {
     return {
       objectTitle,
@@ -93,15 +93,15 @@ export function resolveCreativeHubWorkspacePresentation(input: {
       threadStatusLabel,
       recommendation: {
         tone: "danger",
-        title: "重新加载创作线程",
-        description: `${threadsError} 已保存的小说和线程内容不会被修改。`,
+        title: "Reload creative threads",
+        description: `${threadsError} Saved novels and thread content will not be modified.`,
         action: "retry_threads",
-        actionLabel: "重新加载线程",
+        actionLabel: "Reload threads",
       },
     };
   }
 
-  const createThreadError = errorText(input.createThreadError, "创作线程创建失败。");
+  const createThreadError = errorText(input.createThreadError, "Failed to create creative thread.");
   if (createThreadError) {
     return {
       objectTitle,
@@ -109,16 +109,16 @@ export function resolveCreativeHubWorkspacePresentation(input: {
       threadStatusLabel,
       recommendation: {
         tone: "danger",
-        title: "重新创建创作线程",
-        description: `${createThreadError} 已有小说和创作资料不会被修改。`,
+        title: "Recreate creative thread",
+        description: `${createThreadError} Existing novels and creative data will not be modified.`,
         action: "retry_create_thread",
-        actionLabel: "重新创建线程",
+        actionLabel: "Recreate thread",
       },
     };
   }
 
-  const stateError = errorText(input.stateError, "线程状态加载失败。")
-    || errorText(input.threadLoadError, "线程内容加载失败。");
+  const stateError = errorText(input.stateError, "Failed to load thread state.")
+    || errorText(input.threadLoadError, "Failed to load thread content.");
   if (stateError) {
     return {
       objectTitle,
@@ -126,15 +126,15 @@ export function resolveCreativeHubWorkspacePresentation(input: {
       threadStatusLabel,
       recommendation: {
         tone: "danger",
-        title: "重新加载当前创作现场",
-        description: `${stateError} 为避免混淆，旧线程内容不会继续显示。`,
+        title: "Reload current creative session",
+        description: `${stateError} To avoid confusion, old thread content will no longer be displayed.`,
         action: input.threadLoadError ? "retry_thread" : "retry_state",
-        actionLabel: "重新加载当前线程",
+        actionLabel: "Reload current thread",
       },
     };
   }
 
-  const novelsError = errorText(input.novelsError, "小说列表加载失败。");
+  const novelsError = errorText(input.novelsError, "Failed to load novel list.");
   if (novelsError) {
     return {
       objectTitle,
@@ -142,10 +142,10 @@ export function resolveCreativeHubWorkspacePresentation(input: {
       threadStatusLabel,
       recommendation: {
         tone: "danger",
-        title: "重新加载小说列表",
-        description: `${novelsError} 当前线程内容仍会保留。`,
+        title: "Reload novel list",
+        description: `${novelsError} Current thread content will still be preserved.`,
         action: "retry_novels",
-        actionLabel: "重新加载小说",
+        actionLabel: "Reload novels",
       },
     };
   }
@@ -157,10 +157,10 @@ export function resolveCreativeHubWorkspacePresentation(input: {
       threadStatusLabel,
       recommendation: {
         tone: "warning",
-        title: input.interrupt.title || "处理待确认的创作操作",
-        description: input.interrupt.summary || "本轮执行正在等待你的确认，处理后才能继续当前动作。",
+        title: input.interrupt.title || "Review pending creative operations",
+        description: input.interrupt.summary || "The current run is awaiting your confirmation before proceeding.",
         action: "review_interrupt",
-        actionLabel: "查看待确认项",
+        actionLabel: "Review pending items",
       },
     };
   }
@@ -172,11 +172,11 @@ export function resolveCreativeHubWorkspacePresentation(input: {
       threadStatusLabel,
       recommendation: {
         tone: "warning",
-        title: "查看待确认的创作操作",
+        title: "Review pending creative operations",
         description: input.latestTurnSummary?.nextSuggestion?.trim()
-          || "当前线程仍在等待确认，请先处理待确认项。",
+          || "The current thread is still awaiting confirmation. Please handle pending items first.",
         action: "view_activity",
-        actionLabel: "查看待确认项",
+        actionLabel: "Review pending items",
       },
     };
   }
@@ -188,10 +188,10 @@ export function resolveCreativeHubWorkspacePresentation(input: {
       threadStatusLabel,
       recommendation: {
         tone: "info",
-        title: "AI 正在推进当前创作目标",
-        description: `当前阶段：${stageLabel}。系统会持续更新状态，并在需要时提示你处理。`,
+        title: "AI is advancing the current creative goal",
+        description: `Current stage: ${stageLabel}. The system will keep updating status and prompt you when needed.`,
         action: "view_activity",
-        actionLabel: "查看当前状态",
+        actionLabel: "View current status",
       },
     };
   }
@@ -203,23 +203,23 @@ export function resolveCreativeHubWorkspacePresentation(input: {
     || input.productionStatus?.failureSummary?.trim()
     || input.thread?.latestError?.trim()
     || failedTurn?.impactSummary?.trim()
-    || (input.thread?.status === "error" ? "当前创作线程处于异常状态。" : null);
+    || (input.thread?.status === "error" ? "The current creative thread is in an error state." : null);
   if (failureSummary) {
     const recoveryHint = input.diagnostics?.recoveryHint?.trim()
       || input.productionStatus?.recoveryHint?.trim()
       || failedTurn?.nextSuggestion?.trim()
-      || "分析当前失败原因并给出安全恢复步骤";
+      || "Analyze the current failure and suggest safe recovery steps";
     return {
       objectTitle,
       stageLabel,
       threadStatusLabel,
       recommendation: {
         tone: "danger",
-        title: "查看当前状态异常",
-        description: `${failureSummary} 恢复操作会继续使用现有小说资产和任务记录。`,
+        title: "Review current error state",
+        description: `${failureSummary} Recovery will continue using existing novel assets and task records.`,
         action: "send_prompt",
-        actionLabel: "查看失败原因",
-        prompt: `请解释失败原因、执行记录和正式处理入口：${recoveryHint}`,
+        actionLabel: "View failure details",
+        prompt: `Explain the failure cause, execution log, and recommended next steps: ${recoveryHint}`,
       },
     };
   }
@@ -233,11 +233,11 @@ export function resolveCreativeHubWorkspacePresentation(input: {
       threadStatusLabel,
       recommendation: {
         tone: "warning",
-        title: "继续补齐开书信息",
+        title: "Continue completing book setup",
         description: input.novelSetup.nextQuestion?.trim()
-          || "先补齐影响后续规划的关键信息，再进入整本生产。",
+          || "Complete the key information that affects planning before entering full production.",
         action: prompt ? "send_prompt" : "open_production",
-        actionLabel: prompt ? "按 AI 建议继续" : "查看开书准备",
+        actionLabel: prompt ? "Continue with AI suggestion" : "View book setup",
         ...(prompt ? { prompt } : {}),
       },
     };
@@ -251,26 +251,26 @@ export function resolveCreativeHubWorkspacePresentation(input: {
       threadStatusLabel,
       recommendation: {
         tone: "info",
-        title: "查看当前诊断结果",
+        title: "Review current diagnostics",
         description: nextSuggestion,
         action: "send_prompt",
-        actionLabel: "查看建议",
-        prompt: `请解释当前状态、执行记录和建议入口：${nextSuggestion}`,
+        actionLabel: "View suggestion",
+        prompt: `Explain the current state, execution log, and recommended entry point: ${nextSuggestion}`,
       },
     };
   }
 
-  if (objectTitle === "未绑定小说") {
+  if (objectTitle === "No novel bound") {
     return {
       objectTitle,
       stageLabel,
       threadStatusLabel,
       recommendation: {
         tone: "info",
-        title: "选择本轮要推进的小说",
-        description: "绑定小说后，AI 才能读取对应的章节、世界、角色和生产状态。",
+        title: "Select a novel to work on",
+        description: "Once a novel is bound, the AI can access its chapters, world, characters, and production state.",
         action: "select_novel",
-        actionLabel: "选择小说",
+        actionLabel: "Select novel",
       },
     };
   }
@@ -281,10 +281,10 @@ export function resolveCreativeHubWorkspacePresentation(input: {
     threadStatusLabel,
     recommendation: {
       tone: "neutral",
-      title: "说明本轮要推进的创作目标",
-      description: "可以补充作品问题、调整要求，或打开整本生产设置继续现有小说。",
+      title: "Describe the creative goal for this session",
+      description: "You can add novel issues, adjust requirements, or open full production settings to continue the current novel.",
       action: "open_production",
-      actionLabel: "查看生产入口",
+      actionLabel: "View production entry",
     },
   };
 }

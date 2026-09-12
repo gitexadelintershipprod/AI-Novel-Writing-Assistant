@@ -326,7 +326,7 @@ export default function StructuredChapterListCard(props: StructuredChapterListCa
                             disabled={locked || selectedVolume.chapters.length <= 1}
                             title="删除这个未归入节奏段的章节"
                             onClick={() => {
-                              const confirmed = window.confirm(`确认删除「${title}」？这只会从当前卷的章节拆分中移除该章节。`);
+                              const confirmed = window.confirm(`Delete "${title}"? This only removes the chapter from the current volume's chapter breakdown.`);
                               if (!confirmed) {
                                 return;
                               }

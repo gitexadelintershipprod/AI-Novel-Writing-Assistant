@@ -246,7 +246,7 @@ export default function BookAnalysisCharacterAppearancePanel({
         <div className="flex flex-wrap items-center gap-2">
           <span className="font-medium">形象演变</span>
           <Badge variant="secondary" className="border-0 bg-muted/70 font-normal">{appearance?.coveragePercent ?? 0}%</Badge>
-          <span className="text-xs text-muted-foreground">{appearance?.snapshots.length ?? 0} 个章节快照</span>
+          <span className="text-xs text-muted-foreground">{appearance?.snapshots.length ?? 0} chapter snapshots</span>
         </div>
       </div>
 
@@ -441,8 +441,8 @@ export default function BookAnalysisCharacterAppearancePanel({
                   <div className="text-sm font-medium">章节形象记录</div>
                   <div className="mt-0.5 text-xs text-muted-foreground">
                     {showAllSnapshots
-                      ? `显示全部 ${appearance.snapshots.length} 个章节快照`
-                      : `优先显示 ${meaningfulSnapshots.length} 个有形象信息的关键章节`}
+                      ? `Showing all ${appearance.snapshots.length} chapter snapshots`
+                      : `Showing ${meaningfulSnapshots.length} key chapters with appearance info first`}
                   </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
@@ -491,7 +491,7 @@ export default function BookAnalysisCharacterAppearancePanel({
                         {snapshot.manuallyEdited ? <Badge variant="secondary" className="border-0 font-normal">手动保留</Badge> : null}
                         {(() => {
                           const readyCount = snapshot.images.filter((image) => image.imageAsset).length;
-                          return readyCount > 0 ? <span className="text-xs text-muted-foreground">{readyCount} 张图</span> : null;
+                          return readyCount > 0 ? <span className="text-xs text-muted-foreground">{readyCount} image{readyCount === 1 ? "" : "s"}</span> : null;
                         })()}
                       </div>
                       <Button

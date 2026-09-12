@@ -202,7 +202,7 @@ export default function NovelList() {
   }, [page, totalPages]);
 
   const handleDelete = (novelId: string, title: string) => {
-    const confirmed = window.confirm(`确认删除《${title}》吗？该操作会直接删除当前小说。`);
+    const confirmed = window.confirm(`Delete "${title}"? This permanently removes the novel.`);
     if (!confirmed) {
       return;
     }

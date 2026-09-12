@@ -265,8 +265,8 @@ function CharacterReadinessWarning({ characters }: { characters: ComicCharacter[
       <div>
         <span className="font-semibold">建议先完善角色设计稿</span>
         <span className="ml-1">
-          {withoutSheet.map((c) => c.name).join("、")} 尚未生成三视图。
-          生成分格脚本时会注入角色视觉锚点，有设计稿才能保证各格角色外貌一致。
+          {withoutSheet.map((c) => c.name).join(", ")} {withoutSheet.length === 1 ? "does not have" : "do not have"} a turnaround sheet yet.
+          Character visual anchors are injected when generating panel scripts; design sheets are what keep character appearance consistent across panels.
         </span>
       </div>
     </div>
@@ -329,7 +329,7 @@ export function EpisodeListPanel({
 
   const generateScript = (episode: ComicEpisode) => {
     if ((episode._count?.panels ?? 0) > 0) {
-      const ok = window.confirm("重新生成会替换本话已有格子脚本，并影响后续批量生图。继续生成吗？");
+      const ok = window.confirm("Regenerating will replace this episode's existing panel script and affect later batch image generation. Continue?");
       if (!ok) return;
     }
     scriptMut.mutate({

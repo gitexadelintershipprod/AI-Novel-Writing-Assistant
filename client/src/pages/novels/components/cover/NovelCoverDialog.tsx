@@ -308,7 +308,7 @@ export function NovelCoverDialog(props: NovelCoverDialogProps) {
   const activeTask = activeTaskQuery.data?.data;
 
   const handleDeleteAsset = async (asset: ImageAsset) => {
-    const confirmed = window.confirm("确认删除这张封面图？如果它是当前主封面，系统会自动补一张新的主图。");
+    const confirmed = window.confirm("Delete this cover image? If it is the current primary cover, the system will automatically generate a new one.");
     if (!confirmed) {
       return;
     }

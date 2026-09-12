@@ -153,7 +153,7 @@ export default function CharacterLibrary() {
   };
 
   const handleDeleteCharacter = (character: BaseCharacter) => {
-    const confirmed = window.confirm(`确认删除角色「${character.name}」？此操作不可恢复。`);
+    const confirmed = window.confirm(`Delete the character "${character.name}"? This action cannot be undone.`);
     if (!confirmed) {
       return;
     }
@@ -243,7 +243,7 @@ export default function CharacterLibrary() {
             : characters.length === 0
               ? "从一个主角开始即可。先写清目标、弱点和成长方向，AI 会更容易生成有推动力的人物。"
               : incompleteCharacterCount > 0
-                ? `有 ${incompleteCharacterCount} 个角色缺少核心资料。补齐后，章节规划和人物对话会获得更稳定的依据。`
+                ? `${incompleteCharacterCount} characters are missing core details. Filling those in gives chapter planning and character dialogue a more reliable foundation.`
                 : "你可以带着整个角色库进入创作中枢，或为单个角色继续完善形象和对话。"}
         tone={characterListQuery.isError
           ? "danger"

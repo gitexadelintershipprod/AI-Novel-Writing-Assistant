@@ -350,8 +350,8 @@ export default function BookAnalysisCreateDialog(props: BookAnalysisCreateDialog
               <div className="rounded-md border bg-muted/20 p-3 text-xs leading-5 text-muted-foreground">
                 <div className="font-medium text-foreground">本次拆书体量：{scale.label}</div>
                 <div className="mt-1">
-                  约 {formatCount(effectiveSourceCharCount)} 字，预计拆成 {estimatedSegmentCount} 个原文片段，
-                  约 {estimatedLlmCalls} 次模型调用。
+                  About {formatCount(effectiveSourceCharCount)} characters, expected to split into {estimatedSegmentCount} source segments,
+                  with about {estimatedLlmCalls} model calls.
                 </div>
                 <div className="mt-1">{scale.tone}</div>
               </div>

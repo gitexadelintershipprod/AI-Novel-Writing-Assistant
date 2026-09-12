@@ -123,7 +123,7 @@ export function TensionCurveEditDialog(props: TensionCurveEditDialogProps) {
                   {referenceTemplate.label}参考
                 </span>
               ) : null}
-              {userAnchorCount > 0 ? <span>{userAnchorCount} 个手动固定点</span> : <span>暂无手动固定点</span>}
+              {userAnchorCount > 0 ? <span>{userAnchorCount} manual anchor{userAnchorCount === 1 ? "" : "s"}</span> : <span>No manual anchors yet</span>}
             </div>
             <div className="flex flex-wrap items-center justify-end gap-2">
               {userAnchorCount > 0 ? (

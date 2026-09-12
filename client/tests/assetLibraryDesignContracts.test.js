@@ -139,7 +139,7 @@ test("world workspace keeps handbook reading primary and AI maintenance guided",
 
 test("world visualizations separate layout, canvas, and view controls", () => {
   assert.match(worldVisualization, /WorldGraphCanvas/);
-  assert.match(worldVisualization, /势力图谱 ·/);
+  assert.match(worldVisualization, /Faction graph ·/);
   assert.match(worldVisualization, /世界地图 ·/);
   assert.match(worldVisualization, /WorldTimelinePanel/);
   assert.match(worldGraphCanvas, /ReactFlow/);

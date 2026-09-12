@@ -78,7 +78,7 @@ function DesktopNovelEditView(props: NovelEditViewProps) {
   const resetChaptersMutation = useMutation({
     mutationFn: () => devResetNovelChapters(id),
     onSuccess: async (result) => {
-      toast.success(`已重置 ${result.resetCount} 个章节正文，可重新生成。`);
+      toast.success(`Reset ${result.resetCount} chapter texts; they can be regenerated now.`);
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.novels.detail(id) }),
         queryClient.invalidateQueries({ queryKey: queryKeys.novels.chapters(id) }),
@@ -350,7 +350,7 @@ function DesktopNovelEditView(props: NovelEditViewProps) {
                         className="border-yellow-500/60 text-yellow-700 hover:bg-yellow-100 dark:text-yellow-400 dark:hover:bg-yellow-900/30"
                         disabled={resetChaptersMutation.isPending}
                         onClick={() => {
-                          if (window.confirm(`确认重置本小说所有 ${totalChapters} 个章节的正文？此操作不可撤销（但快照数据保留）。`)) {
+                          if (window.confirm(`Reset the chapter text of all ${totalChapters} chapters of this novel? This action cannot be undone (snapshot data is kept).`)) {
                             resetChaptersMutation.mutate();
                           }
                         }}

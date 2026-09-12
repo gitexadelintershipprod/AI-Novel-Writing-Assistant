@@ -46,17 +46,17 @@ function SourceQualityChecklist(props: {
     {
       label: "来源节拍",
       ready: props.beatCount >= 8,
-      detail: props.beatCount >= 8 ? `${props.beatCount} 个节拍` : `${props.beatCount} 个节拍，可能不足以支撑长集数`,
+      detail: props.beatCount >= 8 ? `${props.beatCount} beats` : `${props.beatCount} beats, which may not support a long episode count`,
     },
     {
       label: "角色资源",
       ready: props.characterCount >= 2,
-      detail: props.characterCount >= 2 ? `${props.characterCount} 个角色` : "主要角色不足",
+      detail: props.characterCount >= 2 ? `${props.characterCount} characters` : "Not enough main characters",
     },
     {
       label: "硬事实",
       ready: props.factCount > 0,
-      detail: props.factCount > 0 ? `${props.factCount} 条硬事实` : "缺少可约束后续台本的事实",
+      detail: props.factCount > 0 ? `${props.factCount} hard facts` : "No facts to constrain the script",
     },
   ];
 
