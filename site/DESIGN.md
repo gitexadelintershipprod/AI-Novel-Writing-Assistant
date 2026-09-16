@@ -13,8 +13,8 @@ The public site should feel like an editorial desk for long-form fiction plus a 
 
 ## Typography
 
-- Large headings should use a Chinese serif-first stack (`Source Han Serif SC` / `Noto Serif SC` / Songti before Georgia) to avoid mixed Chinese-English heading weight jumps.
-- Body and UI text should use a Chinese sans-first stack (`PingFang SC` / Microsoft YaHei before Inter) for clearer Chinese reading.
+- Large headings should use an English serif-first stack (`Source Serif 4` / Georgia before Noto Serif SC) so English marketing copy stays even in weight.
+- Body and UI text should use an English sans-first stack (`Inter` / `IBM Plex Sans` / `Segoe UI` before PingFang) for clearer English reading. Keep Chinese fallbacks for remaining article bodies.
 - Do not use viewport-scaled fonts directly. Use `clamp()` with clear min/max values.
 - Keep letter spacing at 0.
 
@@ -35,7 +35,7 @@ The public site should feel like an editorial desk for long-form fiction plus a 
 
 ## Page Structure
 
-1. Full-bleed hero with project promise, download, GitHub entry, and production route strip.
+1. Full-bleed hero with the project promise, docs, GitHub, optional Windows desktop, and the production route strip.
 2. Small proof band for the key production capabilities.
 3. Editorial production flow with large screenshots and step copy.
 4. Dark product console section with layered screenshots and system modules.

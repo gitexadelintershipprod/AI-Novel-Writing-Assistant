@@ -20,10 +20,20 @@
 
 介绍站的主要读者是第一次看到项目的人，文案应从用户视角解释：
 
-- AI 小说创作工作台如何帮助新手从一句灵感推进到整本小说。
+- AI Novel Writing Assistant 如何帮助新手从一句灵感推进到整本小说。
 - 自动导演、世界 / 角色准备、卷级拆章、章节执行和质量修复之间的关系。
 - 开发者为什么可以从这个项目研究 AI Native Product、Agent Workflow 和长篇生产链。
-- 下载桌面版与查看源码的入口。
+- 查看源码、本地 Docker / pnpm 运行，以及可选的 Windows 桌面版入口。
+
+## Language Rule
+
+公开传播面与内部维护面分开：
+
+- GitHub README、GitHub About、介绍站首页、导航、SEO 和文档壳（索引标题、搜索、面包屑、翻页）使用英语。
+- `docs/wiki/` 内部原则、工作流边界和架构规则继续使用中文。
+- 本 fork 的产品界面是英语；生成的小说正文是格鲁吉亚语（`ka-GE`）。
+- `docs/public/` 文章正文可以暂时保留中文；公开站索引必须用英语标题指向这些文章，直到后续单独做文档正文英译。
+- 格鲁吉亚使用说明放在 `docs/public/georgian-user-guide.md`，并登记到公开文档 manifest。
 
 站点不应承担内部架构 wiki、执行计划或检查点浏览器职责。详细开发说明仍保留在 README 和 docs 中。
 
@@ -32,6 +42,7 @@
 - `docs/public/introduction.md`：项目是什么、适合谁、核心能力、长篇生产链和下载入口。
 - `docs/public/installation.md`：Windows 安装、桌面版准备、模型连接和 Qdrant 可选配置。
 - `docs/public/usage-guide.md`：面向第一次使用者的安装、配置模型、创建小说和跑通主链指南。
+- `docs/public/georgian-user-guide.md`：格鲁吉亚语使用说明（Creation / Assets / System）。
 - `docs/public/faq.md` 与 `docs/public/troubleshooting.md`：用户常见问题、任务排查、模型连接、知识库召回和数据备份建议。
 - `docs/public/modules/`：与应用侧栏一致的模块介绍，每个侧栏模块至少有一个用户向入口说明页。
 - `docs/public/development-roadmap.md`：公开路线图，只写高层产品方向。
@@ -49,7 +60,7 @@
 
 ## Design Rule
 
-公开介绍站不使用通用 SaaS 卡片堆叠作为主要表达。首屏必须直接说明“从一句灵感到一整本小说”，并用真实界面作为产品证据。页面结构应优先围绕长篇生产链展开：方向、世界 / 角色、拆章、正文、修复。功能能力可以出现，但必须服务这条主线。
+公开介绍站不使用通用 SaaS 卡片堆叠作为主要表达。首屏必须直接说明 “From one idea to a finished novel”，并用真实界面作为产品证据。页面结构应优先围绕长篇生产链展开：方向、世界 / 角色、拆章、正文、修复。功能能力可以出现，但必须服务这条主线。
 
 视觉上，站点应保持两种气质的平衡：
 
@@ -60,7 +71,7 @@
 
 ## Documentation Rule
 
-公开文档应按用户旅程分组：开始使用、模块总览、创作主链、知识与写法、设定资产、衍生工坊、系统配置和项目动态。不要把 20 多个模块平铺到一个“功能模块”分类里。
+公开文档应按用户旅程分组：Getting started、Playbooks、Production chain in depth、Module overview、Main writing chain、Knowledge and style、Story assets、Derived workshops、System、Project updates。不要把 20 多个模块平铺到一个“功能模块”分类里。
 
 当公开文档需要解释自动导演、章节执行、RAG 和恢复机制时，应单独设置“实战手册”和“生产链深度”分类，避免把复杂运行时压缩成首页卖点短语。生产链深度文档可以引用代码阶段名，但必须同时给出中文含义、用户动作、产物位置和恢复方式。
 

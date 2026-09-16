@@ -4,10 +4,11 @@ import { flattenedDocs } from "./docsManifest";
 import { resolvePageMeta } from "./hooks/usePageMeta";
 import type { PageMeta, ResolvedPageMeta } from "./hooks/usePageMeta";
 import { parseRoute } from "./routing";
+import { DOCS_INDEX_DESCRIPTION, DOCS_INDEX_TITLE } from "./siteMeta";
 
 const docsIndexMeta: PageMeta = {
-  title: "项目文档",
-  description: "AI 小说创作工作台公开文档：安装、使用方法、自动导演阶段全景、章节执行链、按阶段恢复手册和模块说明。",
+  title: DOCS_INDEX_TITLE,
+  description: DOCS_INDEX_DESCRIPTION,
   canonicalPath: "/docs",
 };
 

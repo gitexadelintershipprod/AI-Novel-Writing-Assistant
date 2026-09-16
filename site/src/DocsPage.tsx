@@ -12,8 +12,7 @@ import { getDocContent } from "./docsContent";
 import { docsManifest, flattenedDocs } from "./docsManifest";
 import { usePageMeta } from "./hooks/usePageMeta";
 import { docsPath, sitePath } from "./routing";
-
-const repoUrl = "https://github.com/ExplosiveCoderflome/AI-Novel-Writing-Assistant";
+import { DOCS_INDEX_DESCRIPTION, DOCS_INDEX_TITLE, REPO_URL } from "./siteMeta";
 
 type DocsPageProps = {
   docId?: string;
@@ -111,7 +110,7 @@ function stripCalloutMarker(children: ReactNode): {
     return { type: null, children };
   }
   const replacement = match[2]?.trim() || (
-    type === "checkpoint" ? "Checkpoint" : type === "warn" ? "注意" : "提示"
+    type === "checkpoint" ? "Checkpoint" : type === "warn" ? "Warning" : "Tip"
   );
   return {
     type,
@@ -187,7 +186,7 @@ export default function DocsPage({ docId }: DocsPageProps) {
           description: activeDoc.description,
           canonicalPath: `/docs/${activeDoc.id}`,
         }
-      : { title: "项目文档", description: "AI 小说创作工作台公开文档：安装、使用方法、自动导演阶段全景、章节执行链、按阶段恢复手册和模块说明。", canonicalPath: "/docs" },
+      : { title: DOCS_INDEX_TITLE, description: DOCS_INDEX_DESCRIPTION, canonicalPath: "/docs" },
   );
   const headings = useMemo(() => (markdown ? parseMarkdownHeadings(markdown) : []), [markdown]);
   const markdownComponents = useMemo(
@@ -197,15 +196,15 @@ export default function DocsPage({ docId }: DocsPageProps) {
 
   return (
     <section className="docs-shell">
-      <aside className="docs-sidebar" aria-label="文档目录">
+      <aside className="docs-sidebar" aria-label="Documentation menu">
         <a className="docs-back" href={sitePath("/")}>
           <ArrowLeft size={16} />
-          返回首页
+          Back to home
         </a>
         <div className="docs-sidebar-heading">
           <p className="eyebrow">Docs</p>
-          <h1>项目文档</h1>
-          <p>从安装、开书、知识资产到系统配置，按创作路径查找需要的说明。</p>
+          <h1>{DOCS_INDEX_TITLE}</h1>
+          <p>Find install, opening, knowledge, and system guides along the writing path.</p>
         </div>
         <DocsSearch />
         <nav>
@@ -232,20 +231,20 @@ export default function DocsPage({ docId }: DocsPageProps) {
             <article className="markdown-doc">
               <div className="doc-meta">
                 <Breadcrumb categoryTitle={activeDoc.categoryTitle} docTitle={activeDoc.title} />
-                <a href={`${repoUrl}/blob/main/${activeDoc.githubPath}`}>
-                  GitHub 原文
+                <a href={`${REPO_URL}/blob/main/${activeDoc.githubPath}`}>
+                  View on GitHub
                   <ArrowRight size={15} />
                 </a>
               </div>
               <ReactMarkdown components={markdownComponents} remarkPlugins={[remarkGfm]}>
                 {markdown}
               </ReactMarkdown>
-              <nav className="doc-pagination" aria-label="文档翻页">
+              <nav className="doc-pagination" aria-label="Document pagination">
                 {previousDoc ? (
                   <a href={docsPath(previousDoc.id)}>
                     <ChevronLeft size={18} />
                     <span>
-                      上一篇
+                      Previous
                       <strong>{previousDoc.title}</strong>
                     </span>
                   </a>
@@ -255,7 +254,7 @@ export default function DocsPage({ docId }: DocsPageProps) {
                 {nextDoc ? (
                   <a href={docsPath(nextDoc.id)}>
                     <span>
-                      下一篇
+                      Next
                       <strong>{nextDoc.title}</strong>
                     </span>
                     <ChevronRight size={18} />
@@ -282,16 +281,16 @@ function DocsIndex() {
     <div className="docs-index">
       <div className="docs-hero">
         <p className="eyebrow">Public documentation</p>
-        <h1>按创作路径查找文档</h1>
-        <p>这里展示安装、使用方法、侧栏功能模块、公开开发计划和更新日志。</p>
+        <h1>Find docs along the writing path</h1>
+        <p>Install, how to start, sidebar modules, the public roadmap, and release notes.</p>
         <div className="docs-stats">
           <p>
             <FileText size={18} />
-            {totalDocs} 篇公开文档
+            {totalDocs} public documents
           </p>
           <p>
             <Search size={18} />
-            {docsManifest.length} 个主题
+            {docsManifest.length} topics
           </p>
         </div>
       </div>
@@ -308,7 +307,7 @@ function DocsIndex() {
                   <h3>{doc.title}</h3>
                   <p>{doc.description}</p>
                   <span>
-                    阅读文档
+                    Read the guide
                     <ArrowRight size={15} />
                   </span>
                 </a>

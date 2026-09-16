@@ -8,8 +8,8 @@ type BreadcrumbProps = {
 
 export function Breadcrumb({ categoryTitle, docTitle }: BreadcrumbProps) {
   return (
-    <nav className="breadcrumb" aria-label="文档位置">
-      <a href={docsPath()}>文档</a>
+    <nav className="breadcrumb" aria-label="Document location">
+      <a href={docsPath()}>Docs</a>
       <ChevronRight size={14} />
       <span>{categoryTitle}</span>
       <ChevronRight size={14} />

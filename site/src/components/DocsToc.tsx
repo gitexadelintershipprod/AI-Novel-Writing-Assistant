@@ -119,10 +119,10 @@ export function DocsToc({ headings }: DocsTocProps) {
   }
 
   return (
-    <aside className="docs-toc" aria-label="本文目录">
+    <aside className="docs-toc" aria-label="On this page">
       <div className="docs-toc-heading">
         <ListTree size={16} />
-        <span>本文目录</span>
+        <span>On this page</span>
       </div>
       <nav>
         {groups.map((group) => {

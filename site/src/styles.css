@@ -2,7 +2,7 @@
   color: #101417;
   background: #f7f9f8;
   font-family:
-    "PingFang SC", "Microsoft YaHei", Inter, "IBM Plex Sans", "Segoe UI",
+    Inter, "IBM Plex Sans", "Segoe UI", "PingFang SC", "Microsoft YaHei",
     sans-serif;
   font-synthesis: none;
   line-height: 1.5;
@@ -21,10 +21,10 @@
   --signal: #d76457;
   --mint: #55a984;
   --serif:
-    "Source Han Serif SC", "Noto Serif SC", "Songti SC", "STSong", Georgia,
-    serif;
+    "Source Serif 4", "Source Serif Pro", Georgia, "Noto Serif SC",
+    "Source Han Serif SC", serif;
   --sans:
-    "PingFang SC", "Microsoft YaHei", Inter, "IBM Plex Sans", "Segoe UI",
+    Inter, "IBM Plex Sans", "Segoe UI", "PingFang SC", "Microsoft YaHei",
     sans-serif;
 }
 

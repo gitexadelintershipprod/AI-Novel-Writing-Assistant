@@ -1,8 +1,13 @@
-# 版本更新说明
+# Release notes
 
-这里维护项目完整的用户可见更新历史。根目录 [README.md](../../README.md) 只保留最新一次更新，完整历史请以本文件为准。
+This file is the complete user-visible update history. The root [README.md](../../README.md) keeps only the latest date block. Use this file for the full record.
 
-## 更新历史
+## Update history
+
+### 2026-09-17
+
+- The GitHub README, repository description, and public intro site now tell the same English story: from one idea to a finished novel, with Auto-Director, recoverable chapters, and this fork’s English interface plus Georgian creative output.
+- Getting started on GitHub now leads with Docker and local development, which is how this project actually runs.
 
 ### 2026-09-08
 

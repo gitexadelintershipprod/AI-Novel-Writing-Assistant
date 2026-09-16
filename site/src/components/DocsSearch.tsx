@@ -86,19 +86,19 @@ export function DocsSearch() {
 
   return (
     <div className="docs-search">
-      <label htmlFor="docs-search-input">搜索公开文档</label>
+      <label htmlFor="docs-search-input">Search public docs</label>
       <div className="docs-search-box">
         <Search size={16} />
         <input
           id="docs-search-input"
           ref={inputRef}
           type="search"
-          placeholder="搜索功能、问题或配置"
+          placeholder="Search features, problems, or settings"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
         />
         {query ? (
-          <button type="button" aria-label="清空搜索" onClick={() => setQuery("")}>
+          <button type="button" aria-label="Clear search" onClick={() => setQuery("")}>
             <X size={15} />
           </button>
         ) : (
@@ -117,7 +117,7 @@ export function DocsSearch() {
               </a>
             ))
           ) : (
-            <p>没有找到匹配文档。</p>
+            <p>No matching documents.</p>
           )}
         </div>
       ) : null}

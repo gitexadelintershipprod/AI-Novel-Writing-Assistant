@@ -315,7 +315,7 @@ pnpm verify:desktop-package
 - **ბრენჩები** — `main` **ერთადერთი** ბრენჩია; `beta`/`feature/*`/`desktop-dev` გაუქმდა. ისტორიული upstream მუშაობა შენახულია tag-ში `archive/upstream-main-0.4.17`. ყოველი დასრულებული ფაზა სავალდებულოდ commit-დება.
 - **Desktop release** — publish მხოლოდ მაშინ, როცა tag ზუსტად `vX.Y.Z` = `desktop/package.json` version.
 - **Wiki** — `docs/wiki/` ინახავს "რატომ"-ს (არქიტექტურული გადაწყვეტილებები, მოდულის საზღვრები, runtime კონტრაქტები, გამართვის დასკვნები), არა "რა შეიცვალა".
-- **Release notes** — `docs/releases/release-notes.md` = სრული ისტორია; `README.md` `## 最新更新` = მხოლოდ უახლესი თარიღის ბლოკი + ლინკი. იდენტიფიკაცია **თარიღით** (`### 2026-09-08`), არა semver.
+- **Release notes** — `docs/releases/release-notes.md` = სრული ისტორია; `README.md` `## Latest updates` = მხოლოდ უახლესი თარიღის ბლოკი + ლინკი. იდენტიფიკაცია **თარიღით** (`### 2026-09-08`), არა semver.
 
 ---
 
