@@ -32,8 +32,8 @@ export const formulaToolDefinitions: Partial<
 > = {
   list_writing_formulas: {
     name: "list_writing_formulas",
-    title: "列出写作公式",
-    description: "读取写作公式列表和最近风格属性。",
+    title: "List writing formulas",
+    description: "Read the writing-formula list and recent style attributes.",
     category: "read",
     riskLevel: "low",
     domainAgent: "FormulaAgent",
@@ -55,14 +55,14 @@ export const formulaToolDefinitions: Partial<
           toneVoice: row.toneVoice ?? null,
           updatedAt: row.updatedAt.toISOString(),
         })),
-        summary: `已读取 ${rows.length} 条写作公式。`,
+        summary: `Read ${rows.length} writing formulas.`,
       });
     },
   },
   get_writing_formula_detail: {
     name: "get_writing_formula_detail",
-    title: "读取写作公式详情",
-    description: "读取写作公式的风格、步骤和应用建议。",
+    title: "Read writing-formula details",
+    description: "Read the writing formula's style, steps, and application advice.",
     category: "read",
     riskLevel: "low",
     domainAgent: "FormulaAgent",
@@ -87,14 +87,14 @@ export const formulaToolDefinitions: Partial<
         formulaSteps: row.formulaSteps ?? null,
         applicationTips: row.applicationTips ?? null,
         updatedAt: row.updatedAt.toISOString(),
-        summary: `已读取写作公式《${row.name}》。`,
+        summary: `Read writing formula “${row.name}”.`,
       });
     },
   },
   explain_formula_match: {
     name: "explain_formula_match",
-    title: "解释公式适配性",
-    description: "根据样本文本、章节或小说大纲，解释当前写作公式的适配信号。",
+    title: "Explain formula fit",
+    description: "Explain fit signals for the current writing formula from sample text, a chapter, or the novel outline.",
     category: "inspect",
     riskLevel: "low",
     domainAgent: "FormulaAgent",
@@ -137,7 +137,7 @@ export const formulaToolDefinitions: Partial<
       const missingSignals = signals.filter((signal) => !matchedSignals.includes(signal));
       const summary = basisText
         ? matchedSignals.length > 0
-          ? `公式《${row.name}》与当前上下文命中了 ${matchedSignals.length} 条风格信号。`
+          ? `公式《${row.name}》与当前上下文命中了 ${matchedSignals.length} items风格信号。`
           : `公式《${row.name}》已读取，但当前上下文未出现明确命中信号。`
         : `公式《${row.name}》已读取，但当前没有可用于比对的上下文文本。`;
       return explainFormulaMatchOutputSchema.parse({

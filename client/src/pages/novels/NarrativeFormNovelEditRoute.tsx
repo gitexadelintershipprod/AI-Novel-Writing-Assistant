@@ -11,7 +11,7 @@ export default function NarrativeFormNovelEditRoute() {
     enabled: Boolean(novelId),
   });
   if (query.isLoading) {
-    return <div className="py-16 text-center text-sm text-muted-foreground">正在打开作品…</div>;
+    return <div className="py-16 text-center text-sm text-muted-foreground">Opening work...</div>;
   }
   if (query.data?.data?.narrativeForm === "short_story") {
     return <Navigate to={`/novels/${novelId}/story`} replace />;

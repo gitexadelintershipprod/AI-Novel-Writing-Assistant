@@ -73,28 +73,28 @@ function buildIdeationFacts(results: ToolExecutionResult[], structuredIntent?: S
   const lines: string[] = [];
 
   if (novelContext) {
-    pushFact(lines, "小说标题", novelContext.title);
-    pushFact(lines, "已有简介", novelContext.description);
-    pushFact(lines, "题材", novelContext.genre);
+    pushFact(lines, "Novel title", novelContext.title);
+    pushFact(lines, "A synopsis already exists", novelContext.description);
+    pushFact(lines, "Genre", novelContext.genre);
     pushFact(lines, "风格气质", novelContext.styleTone);
-    pushFact(lines, "叙事视角", novelContext.narrativePov);
-    pushFact(lines, "推进节奏", novelContext.pacePreference);
-    pushFact(lines, "协作模式", novelContext.projectMode);
-    pushFact(lines, "情绪强度", novelContext.emotionIntensity);
-    pushFact(lines, "AI 自由度", novelContext.aiFreedom);
+    pushFact(lines, "narrative perspective", novelContext.narrativePov);
+    pushFact(lines, "Push the rhythm", novelContext.pacePreference);
+    pushFact(lines, "Collaboration mode", novelContext.projectMode);
+    pushFact(lines, "emotional intensity", novelContext.emotionIntensity);
+    pushFact(lines, "AI degrees of freedom", novelContext.aiFreedom);
     pushFact(lines, "默认章长", novelContext.defaultChapterLength);
-    pushFact(lines, "绑定世界观", novelContext.worldName);
-    pushFact(lines, "已有大纲", novelContext.outline);
-    pushFact(lines, "结构化大纲", novelContext.structuredOutline);
-    pushFact(lines, "章节数", novelContext.chapterCount);
-    pushFact(lines, "已完成章节数", novelContext.completedChapterCount);
+    pushFact(lines, "Bind the world", novelContext.worldName);
+    pushFact(lines, "An outline already exists", novelContext.outline);
+    pushFact(lines, "Structured outline", novelContext.structuredOutline);
+    pushFact(lines, "Number of chapters", novelContext.chapterCount);
+    pushFact(lines, "Completed chapter count", novelContext.completedChapterCount);
   }
 
   if (storyBible) {
-    pushFact(lines, "核心设定草稿", storyBible.coreSetting);
-    pushFact(lines, "故事承诺", storyBible.mainPromise);
+    pushFact(lines, "core settings草稿", storyBible.coreSetting);
+    pushFact(lines, "story promise", storyBible.mainPromise);
     pushFact(lines, "角色弧线", storyBible.characterArcs);
-    pushFact(lines, "世界规则", storyBible.worldRules);
+    pushFact(lines, "world rules", storyBible.worldRules);
     pushFact(lines, "禁用规则", storyBible.forbiddenRules);
   }
 
@@ -105,8 +105,8 @@ function buildIdeationFacts(results: ToolExecutionResult[], structuredIntent?: S
       : null;
     if (constraints) {
       pushFact(lines, "世界公理", constraints.axioms);
-      pushFact(lines, "力量体系", constraints.magicSystem);
-      pushFact(lines, "核心冲突环境", constraints.conflicts);
+      pushFact(lines, "power system", constraints.magicSystem);
+      pushFact(lines, "core conflict环境", constraints.conflicts);
       pushFact(lines, "一致性备注", constraints.consistencyReport);
     }
   }
@@ -123,7 +123,7 @@ function buildIdeationFacts(results: ToolExecutionResult[], structuredIntent?: S
     pushFact(lines, "用户显式风格", structuredIntent.styleTone);
   }
 
-  return lines.length > 0 ? lines.join("\n") : "当前还没有可用的小说上下文事实。";
+  return lines.length > 0 ? lines.join("\n") : "There are no usable novel-context facts yet.";
 }
 
 function buildIdeationFallback(results: ToolExecutionResult[], structuredIntent?: StructuredIntent): string {
@@ -135,9 +135,9 @@ function buildIdeationFallback(results: ToolExecutionResult[], structuredIntent?
       : "";
 
   if (title) {
-    return `我可以直接围绕《${title}》给你做几套备选，不过为了更贴近你要的方向，最好再告诉我你最想保留的一个核心元素，比如题材、主角身份，或者最想写的冲突。`;
+    return `I can give you option sets around "${title}" right away. To stay closer to what you want, tell me one core element to keep: genre, protagonist identity, or the conflict you most want to write.`;
   }
-  return "我可以直接给你做几套备选，不过先告诉我这本书至少要保留什么：暂定标题、题材，或者一个你最想写的冲突点。";
+  return "I can give you option sets right away. First tell me what this book must keep: a working title, a genre, or the conflict you most want to write.";
 }
 
 export async function composeNovelSetupIdeationAnswer(

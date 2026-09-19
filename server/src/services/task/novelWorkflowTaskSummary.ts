@@ -21,7 +21,7 @@ export function buildNovelWorkflowNextActionLabel(
     return null;
   }
   if (status === "waiting_approval" && checkpointType === "chapter_batch_ready") {
-    return "进入已准备章节";
+    return "Go to prepared chapters";
   }
   return resumeAction;
 }

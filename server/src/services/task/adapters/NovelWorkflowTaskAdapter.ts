@@ -50,7 +50,7 @@ function buildOwnerLabel(row: {
   novel?: { title: string } | null;
   title: string;
 }): string {
-  return row.novel?.title?.trim() || row.title.trim() || "小说主任务";
+  return row.novel?.title?.trim() || row.title.trim() || "Novel main task";
 }
 
 function parseLinkedPipelineJobId(seedPayloadJson?: string | null): string | null {
@@ -98,7 +98,7 @@ function parseTaskNotice(seedPayloadJson?: string | null): DirectorTaskNotice | 
     action: action && typeof action.type === "string" && typeof action.label === "string"
       ? {
         type: action.type === "open_structured_outline" ? "open_structured_outline" : "open_structured_outline",
-        label: action.label.trim() || "打开当前卷拆章",
+        label: action.label.trim() || "Open the current volume and unpack the chapter",
         volumeId: typeof action.volumeId === "string" && action.volumeId.trim()
           ? action.volumeId.trim()
           : (seedResumeTarget?.volumeId?.trim() || null),
@@ -307,7 +307,7 @@ function mapSummary(row: {
     targetResources.push({
       type: "generation_job" as const,
       id: linkedPipelineJobId,
-      label: "章节流水线",
+      label: "Chapter Pipeline",
       route: `/novels/${row.novelId}/edit`,
     });
   }
@@ -325,7 +325,7 @@ function mapSummary(row: {
     : explainability.blockingReason;
   const checkpointSummary = isSkippableReviewBlockedFailure
     ? buildSkippableAutoExecutionReviewCheckpointSummary({
-      scopeLabel: autoExecution?.scopeLabel?.trim() || "前 10 章",
+      scopeLabel: autoExecution?.scopeLabel?.trim() || "First 10 chapters",
       autoExecution,
     })
     : row.checkpointSummary;
@@ -337,7 +337,7 @@ function mapSummary(row: {
   const recoveryHint = isSkippableReviewBlockedFailure
     ? buildSkippableAutoExecutionReviewRecoveryHint(autoExecution)
     : pendingManualRecovery
-      ? (row.lastError?.trim() || "服务重启后任务已暂停，等待手动恢复。")
+      ? (row.lastError?.trim() || "The task paused after a service restart and is waiting for manual recovery.")
       : buildTaskRecoveryHint("novel_workflow", status);
   return {
     id: row.id,

@@ -8,7 +8,7 @@ export class DramaStoryboardService {
   async generateStoryboard(projectId: string, episodeOrder: number, options: DramaLLMOptions = {}) {
     const context = await dramaContextAssembler.buildEpisodeContext(projectId, episodeOrder);
     if (!context.episode.content?.trim()) {
-      throw new Error(`第 ${episodeOrder} 集尚未生成台本，不能生成分镜。`);
+      throw new Error(`Episode ${episodeOrder} has no script yet, so storyboards cannot be generated.`);
     }
     const result = await runStructuredPrompt({
       asset: dramaStoryboardPrompt,

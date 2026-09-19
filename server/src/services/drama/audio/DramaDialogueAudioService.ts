@@ -116,7 +116,7 @@ export class DramaDialogueAudioService {
       },
     });
     if (!shot) {
-      throw new AppError(`未找到短剧镜头：${shotId}`, 404);
+      throw new AppError(`Drama shot not found: ${shotId}`, 404);
     }
 
     const lines = parseDialogueLines(shot.dialogue);

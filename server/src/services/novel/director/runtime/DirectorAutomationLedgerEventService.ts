@@ -114,7 +114,7 @@ export class DirectorAutomationLedgerEventService {
       runId: input.runId,
       novelId: input.novelId,
       nodeKey: input.nodeKey ?? "chapter_quality_review_node",
-      summary: `章节质量闭环建议：${assessment.recommendedAction}`,
+      summary: `Chapter quality-loop recommendation: ${assessment.recommendedAction}`,
       affectedScope: buildQualityLoopScope(assessment),
       severity: assessment.overallStatus === "invalid"
         ? "high"
@@ -177,7 +177,7 @@ export class DirectorAutomationLedgerEventService {
       runId: input.runId,
       novelId: input.novelId,
       nodeKey: "planner.replan",
-      summary: `已重规划 ${input.affectedChapterOrders.length} 个章节。`,
+      summary: `Replanned ${input.affectedChapterOrders.length} chapters.`,
       affectedScope: input.affectedChapterOrders.length > 0
         ? `chapters:${input.affectedChapterOrders.join(",")}`
         : null,
@@ -211,7 +211,7 @@ export class DirectorAutomationLedgerEventService {
       runId: input.runId,
       novelId: input.novelId,
       nodeKey: input.state.nodeKey ?? null,
-      summary: input.state.message ?? "自动导演已暂停，等待恢复处理。",
+      summary: input.state.message ?? "Auto-Director is paused and waiting for recovery handling.",
       affectedScope: input.state.chapterId ? `chapter:${input.state.chapterId}` : null,
       severity: "high",
       metadata: { circuitBreaker: input.state },
@@ -236,7 +236,7 @@ export class DirectorAutomationLedgerEventService {
       runId: input.runId,
       novelId: input.novelId,
       nodeKey: input.state.nodeKey ?? null,
-      summary: "自动导演熔断状态已恢复。",
+      summary: "Auto-Director circuit-breaker state was cleared.",
       affectedScope: input.state.chapterId ? `chapter:${input.state.chapterId}` : null,
       severity: "low",
       metadata: { circuitBreaker: input.state },

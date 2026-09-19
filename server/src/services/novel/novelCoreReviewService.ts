@@ -61,7 +61,7 @@ export class NovelCoreReviewService {
       include: { novel: true },
     });
     if (!chapter) {
-      throw new Error("章节不存在");
+      throw new Error("The chapter does not exist");
     }
 
     const review = await this.reviewChapterWithAudit(
@@ -222,8 +222,8 @@ export class NovelCoreReviewService {
         issues: [{
           severity: "critical",
           category: "coherence",
-          evidence: "章节内容为空",
-          fixSuggestion: "先生成或补充正文，再进行审校",
+          evidence: "Chapter content is empty",
+          fixSuggestion: "Generate or fill in the draft before review",
         }],
       };
     }
@@ -289,8 +289,8 @@ export class NovelCoreReviewService {
         issues: [{
           severity: "critical",
           category: "coherence",
-          evidence: "章节内容为空",
-          fixSuggestion: "先生成或补全正文，再进行审校",
+          evidence: "Chapter content is empty",
+          fixSuggestion: "Generate or complete the draft before review",
         }],
         auditReports: [],
       };

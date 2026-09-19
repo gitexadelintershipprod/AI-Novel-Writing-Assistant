@@ -46,21 +46,21 @@ function normalizeOptionalText(value: string | null | undefined): string | null 
 function normalizeRequiredName(value: string): string {
   const trimmed = value.trim();
   if (!trimmed) {
-    throw new AppError("类型名称不能为空。", 400);
+    throw new AppError("Genre name cannot be empty.", 400);
   }
   return trimmed;
 }
 
 function validateDraftSubtree(draft: GenreTreeDraft, depth = 1): void {
   if (depth > 3) {
-    throw new AppError("类型树最多支持 3 级结构。", 400);
+    throw new AppError("Genre trees support at most 3 levels.", 400);
   }
 
   const seen = new Set<string>();
   for (const child of draft.children) {
     const key = child.name.trim().toLocaleLowerCase("zh-CN");
     if (seen.has(key)) {
-      throw new AppError(`同一级下存在重复的类型名称：${child.name}。`, 400);
+      throw new AppError(`Duplicate genre name at this level: ${child.name}.`, 400);
     }
     seen.add(key);
     validateDraftSubtree(child, depth + 1);
@@ -194,7 +194,7 @@ export class GenreService {
         where: { id },
       });
       if (!existing) {
-        throw new AppError("类型不存在。", 404);
+        throw new AppError("The genre does not exist.", 404);
       }
 
       const nextParentId = input.parentId === undefined
@@ -244,13 +244,13 @@ export class GenreService {
 
       const existing = rows.find((row) => row.id === id);
       if (!existing) {
-        throw new AppError("类型不存在。", 404);
+        throw new AppError("The genre does not exist.", 404);
       }
 
       const subtree = collectSubtreeRows(rows, id);
       const boundNovelCount = subtree.reduce((total, row) => total + row._count.novels, 0);
       if (boundNovelCount > 0) {
-        throw new AppError("当前题材基底树已绑定小说，请先解绑相关小说后再删除。", 400);
+        throw new AppError("This genre-base tree is bound to novels. Unbind those novels before deleting it.", 400);
       }
 
       for (const row of subtree) {
@@ -288,7 +288,7 @@ export class GenreService {
       select: { id: true },
     });
     if (!existing) {
-      throw new AppError("父级类型不存在。", 400);
+      throw new AppError("The parent genre does not exist.", 400);
     }
   }
 
@@ -307,7 +307,7 @@ export class GenreService {
       select: { id: true },
     });
     if (existing) {
-      throw new AppError("同一父级下已存在相同名称的类型。", 400);
+      throw new AppError("A genre with the same name already exists under this parent.", 400);
     }
   }
 
@@ -319,7 +319,7 @@ export class GenreService {
     let cursorId: string | null = parentId;
     while (cursorId) {
       if (cursorId === id) {
-        throw new AppError("不能把类型移动到自己的子树下。", 400);
+        throw new AppError("A genre cannot be moved under its own subtree.", 400);
       }
       const current: { parentId: string | null } | null = await tx.novelGenre.findUnique({
         where: { id: cursorId },

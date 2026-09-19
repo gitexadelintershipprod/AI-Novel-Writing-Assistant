@@ -1,92 +1,92 @@
-# 按阶段恢复手册
+# Recovery by phase
 
-这篇手册按自动导演阶段列出常见卡住位置、先看哪里、推荐恢复入口和什么时候需要重新规划。
+This guide lists common Auto-Director stalls by stage: where to look first, the recommended recovery entry, and when a replan is needed.
 
-## 先判断是不是失败
+## First decide whether it is a failure
 
-很多“停住”其实是 checkpoint：
+Many “stops” are checkpoints:
 
-- 「等待方向选择」：等待选方向。
-- 「等待角色确认」：等待确认角色。
-- 「卷战略就绪」：等待确认卷规划。
-- 「章节批次就绪」：等待进入章节执行。
-- 「等待重新规划」：等待处理质量修复或重规划。
+- Waiting for direction selection: waiting for you to choose a direction.
+- Waiting for character confirmation: waiting for you to confirm characters.
+- Volume strategy ready: waiting for you to confirm volume planning.
+- Chapter batch ready: waiting to enter chapter execution.
+- Replan required: waiting for quality repair or replan handling.
 
-如果任务状态是 waiting approval，不要直接删除或重建项目。先看导演跟进。
+If task status is waiting approval, do not delete or recreate the project. Open Director follow-up first.
 
-## 恢复矩阵
+## Recovery matrix
 
-| 阶段 | 表现 | 先看哪里 | 推荐恢复入口 | 何时重规划 |
+| Stage | What it looks like | Look here first | Recommended recovery entry | When to replan |
 |---|---|---|---|---|
-| 候选种子对齐 | 灵感无法生成候选 | 创作中枢、任务中心 | 修改灵感、换模型、重新生成候选 | 不需要，项目还没立项。 |
-| 方向批次 | 候选都不满意 | 方向选择页 | 生成下一批、修订候选、定向修正 | 不需要，继续候选阶段即可。 |
-| 书名候选 | 标题不合适 | 方向选择页 | 只重做标题 | 不需要。 |
-| 创建小说 | 确认后项目没出现 | 任务中心 | 重试 「候选确认」 | 只有重复数据冲突且无法修复时人工处理。 |
-| 故事宏观 | 故事方向偏离 | 小说故事宏观页、导演跟进 | 调整宏观故事或回到候选重做方向 | 如果核心卖点错了，回候选阶段。 |
-| 书契约 | 承诺/受众不准 | 书级信息、故事宏观 | 修改书契约后继续 | 如果会影响全部卷规划，重跑后续规划。 |
-| 世界搭建 | 世界规则不适配 | 世界模块 | 修改世界或重新准备世界 | 如果世界规则改变主冲突，重跑角色和卷规划。 |
-| 角色生成 | 角色像功能位、缺身份锚点 | 角色候选页、导演跟进 | 合并、确认、补充或重做角色阵容 | 角色目标影响主线时，重跑卷规划。 |
-| 角色阵容应用 | 角色无法落库 | 任务中心、角色页 | 重试应用或手动确认角色 | 数据冲突无法修复时再人工处理。 |
-| 卷战略 | 卷目标不清楚 | 卷规划入口 | 重做卷战略或调整书契约 | 第一卷承诺错位时重跑拆章。 |
-| 卷骨架 | 卷数量/跨度不合理 | 卷规划入口 | 调整卷骨架 | 影响章节跨度时重跑节奏板。 |
-| 节奏板 | 节奏节点覆盖不足 | 任务中心、卷规划 | 重生成 「节奏板」 | 节奏目标和卷战略冲突时回卷战略。 |
-| 章节清单 | 章节数不对、标题错乱 | 章节列表 | 重生成 「章节清单」 | 节奏板本身错时先回节奏板。 |
-| 章节同步 | 章节任务没写入章节 | 任务中心 | 重试 「章节同步」 或继续结构化拆章 | 不常需要重规划。 |
-| 章节细化 | 某些章节没有任务单 | 任务中心、导演跟进 | 从最近进度继续 「章节细化」 | 如果章节清单错误，回章节清单。 |
-| 章节执行 | 正文生成失败或空 | 任务中心、章节页 | 重试、换模型、检查上下文 | 章节任务与大纲冲突时重规划局部。 |
-| 审核修复 | 修复失败或质量债务 | 章节页、导演跟进 | 轻修复、记录债务、继续 | 明确 「等待重新规划」 且影响后续时。 |
+| Candidate seed alignment | Inspiration cannot generate candidates | Creative Hub, Task Center | Edit the inspiration, switch models, regenerate candidates | Not needed. The project is not created yet. |
+| Direction batch | None of the candidates fit | Direction choice page | Generate the next batch, revise a candidate, targeted patch | Not needed. Stay in the candidate stage. |
+| Title pack | The title is a poor fit | Direction choice page | Redo titles only | Not needed. |
+| Create novel | After confirm, the project does not appear | Task Center | Retry Confirm candidate | Only if a duplicate-data conflict cannot be repaired. |
+| Story macro | The story direction drifted | Novel story-macro page, Director follow-up | Adjust the story macro or return to candidates and redo the direction | If the core selling point is wrong, return to candidates. |
+| Book contract | Promise / audience is off | Book-level information, story macro | Edit the book contract, then continue | If it would change all volume planning, rerun later planning. |
+| World setup | World rules do not fit | World module | Edit the world or prepare the world again | If world rules change the main conflict, rerun characters and volume planning. |
+| Character setup | Characters feel like job titles and lack identity anchors | Character candidate page, Director follow-up | Merge, confirm, add, or redo the cast | If character goals affect the main line, rerun volume planning. |
+| Apply character cast | Characters cannot be saved | Task Center, character page | Retry apply, or confirm characters by hand | If a data conflict cannot be repaired, handle it manually. |
+| Volume strategy | Volume goals are unclear | Volume planning entry | Redo volume strategy or adjust the book contract | If volume 1’s promise is misplaced, rerun chapter split. |
+| Volume skeleton | Volume count / span is unreasonable | Volume planning entry | Adjust the volume skeleton | If it affects chapter span, rerun the beat sheet. |
+| Beat sheet | Pacing beats do not cover enough | Task Center, volume planning | Regenerate Beat sheet | If pacing goals fight volume strategy, return to volume strategy. |
+| Chapter list | Chapter count is wrong or titles are scrambled | Chapter list | Regenerate Chapter list | If the beat sheet itself is wrong, return to the beat sheet first. |
+| Chapter sync | Chapter tasks were not written into chapters | Task Center | Retry Chapter sync, or continue structured chapter split | Replan is rarely needed. |
+| Chapter detail bundle | Some chapters have no task sheet | Task Center, Director follow-up | Continue Chapter detail bundle from the latest progress | If the chapter list is wrong, return to the chapter list. |
+| Chapter execution | Prose generation failed or is empty | Task Center, chapter page | Retry, switch models, check context | If the chapter task fights the outline, replan locally. |
+| Review repair | Repair failed or quality debt appeared | Chapter page, Director follow-up | Light repair, record debt, continue | When Replan required is explicit and later chapters are affected. |
 
-## stale 任务恢复
+## Recovering stale tasks
 
-DirectorWorker 用租约执行命令。服务重启、进程退出或长时间无心跳时，命令可能变 stale。
+DirectorWorker executes commands with a lease. If the service restarts, the process exits, or there is no heartbeat for a long time, a command can become stale.
 
-处理方式：
+What to do:
 
-1. 打开任务中心。
-2. 查看是否有“后台执行中断”或“等待恢复”。
-3. 如果系统自动恢复，等待任务重新进入队列。
-4. 如果需要手动恢复，点击恢复入口。
-5. 不要同时重复发起同范围任务。
+1. Open the Task Center.
+2. See whether anything says “background execution interrupted” or “waiting to recover.”
+3. If the system recovers automatically, wait for the task to re-enter the queue.
+4. If you need manual recovery, click the recovery entry.
+5. Do not start same-range tasks at the same time.
 
-全书自动执行和 「继续」 / 「从检查点恢复」 命令有自动恢复次数；超过次数后会转为手动恢复。
+Full-book automatic execution and Continue / Resume from checkpoint have automatic recovery attempts. After the limit, they become manual recovery.
 
-## 何时应该重新规划
+## When a replan is the right move
 
-适合重新规划：
+A replan is a good fit when:
 
-- 书契约、目标读者或核心卖点已经改变。
-- 世界规则改变了主冲突。
-- 角色阵容重做后影响卷目标。
-- 节奏板无法覆盖目标章节范围。
-- 审核明确要求 「等待重新规划」。
+- the book contract, target readers, or core selling point has changed;
+- world rules changed the main conflict;
+- the recast affects volume goals;
+- the beat sheet cannot cover the target chapter range;
+- review explicitly requires Replan required.
 
-不适合重新规划：
+A replan is a poor fit when:
 
-- 单章有局部语病。
-- 轻微节奏问题可以修复。
-- 审核服务暂时不可用。
-- 状态同步失败但正文可用。
-- 只有一个角色资源等待确认。
+- one chapter has local wording issues;
+- a mild pacing issue can be repaired;
+- the review service is temporarily unavailable;
+- state sync failed but the prose is usable;
+- only one character resource is waiting for confirmation.
 
-## 重试、恢复、重启的区别
+## Retry, recover, and restart
 
-| 操作 | 适用 | 风险 |
+| Action | Best for | Risk |
 |---|---|---|
-| 重试 | 同一命令临时失败 | 低，通常保留已有产物。 |
-| 恢复 | stale 或 checkpoint 后继续 | 中，需要确认从哪个进度继续。 |
-| 重启阶段 | 当前阶段产物不可信 | 中高，可能覆盖目标阶段产物。 |
-| 重新规划 | 上游目标改变或质量要求明确 | 高，影响后续链路。 |
+| Retry | The same command failed temporarily | Low. Existing artifacts are usually kept. |
+| Recover | Continue after stale or a checkpoint | Medium. Confirm which progress you continue from. |
+| Restart the stage | The current stage’s artifacts are not trustworthy | Medium-high. May overwrite that stage’s artifacts. |
+| Replan | An upstream goal changed, or quality explicitly requires it | High. Affects the later chain. |
 
-## 保留证据
+## Keep evidence
 
-反馈问题时保留：
+When you report a problem, keep:
 
-- 当前 taskId。
-- 当前阶段 key。
-- checkpointType。
-- 任务中心错误信息。
-- 相关小说和章节。
-- 是否启用 auto-approval。
-- 最近是否重启应用。
+- the current taskId;
+- the current stage key;
+- checkpointType;
+- Task Center error text;
+- the related novel and chapter;
+- whether auto-approval is enabled;
+- whether the app was recently restarted.
 
-这些信息能直接对应命令队列、worker 租约和自动导演 runtime。
+That information maps directly to the command queue, worker leases, and Auto-Director runtime.

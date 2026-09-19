@@ -5,10 +5,10 @@ import { AUTO_DIRECTOR_MOBILE_CLASSES } from "@/mobile/autoDirector";
 export type SettingsSectionStatus = "required" | "enhancement" | "advanced" | "maintenance";
 
 const STATUS_LABELS: Record<SettingsSectionStatus, string> = {
-  required: "开始创作必需",
-  enhancement: "写作质量增强",
-  advanced: "自动导演高级",
-  maintenance: "系统维护",
+  required: "Required to start creating",
+  enhancement: "Writing quality enhancement",
+  advanced: "Auto Director Advanced",
+  maintenance: "System maintenance",
 };
 
 export default function SettingsSectionGroup(props: {

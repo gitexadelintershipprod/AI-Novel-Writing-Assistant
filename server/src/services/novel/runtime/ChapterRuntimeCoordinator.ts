@@ -180,7 +180,7 @@ export class ChapterRuntimeCoordinator {
   private async ensureNovelCharacters(novelId: string, actionName: string, minCount = 1): Promise<void> {
     const count = await prisma.character.count({ where: { novelId } });
     if (count < minCount) {
-      throw new Error(`请先在本小说中至少添加 ${minCount} 个角色后再${actionName}。`);
+      throw new Error(`Add at least ${minCount} characters to this novel before you ${actionName}.`);
     }
   }
 }

@@ -111,17 +111,17 @@ function buildNovelSummary(novel: {
     `标题：${novel.title}`,
     novel.genre?.name ? `题材：${novel.genre.name}` : "",
     novel.description?.trim() ? `简介：${truncateText(novel.description, 220)}` : "",
-    bookFramingSummary ? `书级 framing：\n${bookFramingSummary}` : "",
-    novel.styleTone?.trim() ? `文风关键词：${novel.styleTone.trim()}` : "",
-    novel.narrativePov ? `叙事视角：${novel.narrativePov}` : "",
-    novel.pacePreference ? `节奏偏好：${novel.pacePreference}` : "",
-    novel.emotionIntensity ? `情绪强度：${novel.emotionIntensity}` : "",
-    novel.aiFreedom ? `AI 自由度：${novel.aiFreedom}` : "",
-    novel.estimatedChapterCount ? `预计章节数：${novel.estimatedChapterCount}` : "",
-    chapterCount > 0 ? `当前章节数：${chapterCount}` : "",
-    novel.world?.name ? `世界观：${novel.world.name}${novel.world.worldType ? `（${novel.world.worldType}）` : ""}` : "",
-    novel.outline?.trim() ? `发展走向：${truncateText(novel.outline, 260)}` : "",
-    novel.structuredOutline?.trim() ? `结构化大纲摘录：${truncateText(novel.structuredOutline, 260)}` : "",
+    bookFramingSummary ? `Book-level framing:\n${bookFramingSummary}` : "",
+    novel.styleTone?.trim() ? `Keywords for writing style:${novel.styleTone.trim()}` : "",
+    novel.narrativePov ? `Narrative perspective:${novel.narrativePov}` : "",
+    novel.pacePreference ? `Rhythm preference:${novel.pacePreference}` : "",
+    novel.emotionIntensity ? `Emotional intensity:${novel.emotionIntensity}` : "",
+    novel.aiFreedom ? `AI degrees of freedom:${novel.aiFreedom}` : "",
+    novel.estimatedChapterCount ? `Estimated number of chapters：${novel.estimatedChapterCount}` : "",
+    chapterCount > 0 ? `Current number of chapters:${chapterCount}` : "",
+    novel.world?.name ? `World view:${novel.world.name}${novel.world.worldType ? `（${novel.world.worldType}）` : ""}` : "",
+    novel.outline?.trim() ? `Story direction：${truncateText(novel.outline, 260)}` : "",
+    novel.structuredOutline?.trim() ? `Structured outline摘录：${truncateText(novel.structuredOutline, 260)}` : "",
   ].filter(Boolean).join("\n");
 }
 
@@ -183,14 +183,14 @@ export class StyleRecommendationService {
     ]);
 
     if (!novel) {
-      throw new Error("小说不存在。");
+      throw new Error("The novel does not exist.");
     }
 
     const profiles = profileRows.map((row) => mapStyleProfileRow(row));
     if (profiles.length === 0) {
       return {
         novelId: input.novelId,
-        summary: "当前还没有可推荐的写法资产。建议先去写法引擎创建或沉淀 1-2 套写法资产，再回来让系统推荐。",
+        summary: "There is no writing asset to recommend yet. Create or save 1-2 writing assets in the style engine first, then come back for recommendations.",
         candidates: [],
         recommendedAt: new Date().toISOString(),
       };

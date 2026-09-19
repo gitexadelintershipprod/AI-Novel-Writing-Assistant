@@ -5,7 +5,7 @@ import { novelFactService } from "../fact/NovelFactService";
 import type { ChapterRouteWindowOptions, ChapterRouteWindowResult } from "./ChapterRouteWindowService";
 
 /**
- * 章节规划即时生成服务（Just-In-Time）
+ * Chapter planning即时生成服务（Just-In-Time）
  *
  * 在执行第 N 章之前被调用，确保 task sheet 已就绪。
  * 若章节尚无 task sheet，或 factLedger 有新数据（前文已写），
@@ -13,7 +13,7 @@ import type { ChapterRouteWindowOptions, ChapterRouteWindowResult } from "./Chap
  *
  * 兼容性：
  * - 旧小说若 factLedger 为空（前文未写），回退到现有 taskSheet。
- * - 旧小说若 taskSheet 已存在且 factLedger 为空，直接跳过不重新生成。
+ * - 旧小说若 taskSheet 已存在且 factLedger 为空，直接跳过不Regenerate。
  * - 只在 autopilot 流水线路径调用（manual 单章模式继续用 ChapterExecutionContractService）。
  */
 
@@ -119,24 +119,24 @@ function buildFactLedgerGuidance(
   const stateChanged = facts.filter((f) => f.category === "state_changed");
 
   const lines: string[] = [
-    "【已发生事实 / Fact Ledger — 请将以下事实纳入 task sheet 设计，避免重复或矛盾】",
+    "[Established facts / Fact Ledger — fold these facts into the task sheet so you do not repeat or contradict them]",
   ];
   if (completed.length > 0) {
-    lines.push("已完成目标：");
+    lines.push("Completed goals:");
     for (const f of completed) {
-      lines.push(`  - [第${f.chapterOrder}章] ${f.text}`);
+      lines.push(`  - [Chapter ${f.chapterOrder}] ${f.text}`);
     }
   }
   if (revealed.length > 0) {
-    lines.push("已揭示信息：");
+    lines.push("Revealed information:");
     for (const f of revealed) {
-      lines.push(`  - [第${f.chapterOrder}章] ${f.text}`);
+      lines.push(`  - [Chapter ${f.chapterOrder}] ${f.text}`);
     }
   }
   if (stateChanged.length > 0) {
-    lines.push("近期状态变化：");
+    lines.push("近期status change：");
     for (const f of stateChanged) {
-      lines.push(`  - [第${f.chapterOrder}章] ${f.text}`);
+      lines.push(`  - [Chapter ${f.chapterOrder}] ${f.text}`);
     }
   }
   return lines.join("\n");

@@ -106,8 +106,8 @@ export class NovelWorkflowApplicationService {
           ? (existing.currentItemKey ?? "novel_create")
           : stage,
         currentItemLabel: existing.lane === "auto_director"
-          ? (existing.currentItemLabel ?? "正在创建小说项目")
-          : (stage === "project_setup" ? "小说项目已创建" : (existing.currentItemLabel ?? "已恢复小说主任务")),
+          ? (existing.currentItemLabel ?? "Creating the novel project")
+          : (stage === "project_setup" ? "The novel project was created" : (existing.currentItemLabel ?? "The novel main task was resumed")),
         resumeTargetJson: stringifyResumeTarget(this.workflow.buildResumeTarget({
           taskId,
           novelId,
@@ -392,7 +392,7 @@ export class NovelWorkflowApplicationService {
     const seedPayload = parseSeedPayload<DirectorWorkflowSeedPayload>(existing.seedPayloadJson);
     const nextSeedPayload = applyDirectorLlmOverride(seedPayload, llmOverride);
     if (!nextSeedPayload) {
-      throw new AppError("当前自动导演任务缺少可覆盖的模型上下文。", 400);
+      throw new AppError("This Auto-Director task has no model context that can be overridden.", 400);
     }
     return this.workflow.updateTaskWithRetry({
       where: { id: taskId },
@@ -456,7 +456,7 @@ export class NovelWorkflowApplicationService {
         status: "waiting_approval",
         currentStage: stageLabel("auto_director"),
         currentItemKey: "auto_director",
-        currentItemLabel: "等待确认书级方向",
+        currentItemLabel: "Waiting to confirm the book direction",
         checkpointType: "candidate_selection_required",
         checkpointSummary: input.summary,
         resumeTargetJson: stringifyResumeTarget(buildNovelCreateResumeTarget(taskId, "director")),

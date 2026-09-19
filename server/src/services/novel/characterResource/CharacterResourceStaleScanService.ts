@@ -49,8 +49,8 @@ export class CharacterResourceStaleScanService {
             ? "high"
             : "medium",
           summary: row.expectedUseEndChapterOrder != null && row.expectedUseEndChapterOrder < input.chapterOrder
-            ? `资源已超过预计使用窗口（第${row.expectedUseEndChapterOrder}章）。`
-            : `资源已超过 ${staleAfterChapters} 章未被触碰。`,
+            ? `资源已超过预计使用窗口（Chapter ${row.expectedUseEndChapterOrder}）。`
+            : `资源已超过 ${staleAfterChapters} chapters未被触碰。`,
           stale: true,
         };
         const riskSignals = hasStaleSignal(existingSignals)

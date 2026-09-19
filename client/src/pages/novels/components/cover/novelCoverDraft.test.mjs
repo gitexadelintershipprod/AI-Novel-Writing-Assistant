@@ -42,10 +42,10 @@ const baseBasicForm = {
 test("novel cover draft context reuses basic info and world slice labels", () => {
   const context = buildNovelCoverDraftContext({
     basicForm: baseBasicForm,
-    genreOptions: [{ id: "genre-urban", label: "都市异能", path: "都市 / 都市异能" }],
+    genreOptions: [{ id: "genre-urban", label: "Urban superpower", path: "Urban / urban superpower" }],
     storyModeOptions: [
-      { id: "mode-judge", name: "审判升级流", label: "审判升级流", path: "爽文 / 审判升级流" },
-      { id: "mode-case", name: "悬案追凶流", label: "悬案追凶流", path: "悬疑 / 悬案追凶流" },
+      { id: "mode-judge", name: "Judgment-escalation flow", label: "Judgment-escalation flow", path: "Power fantasy / judgment-escalation" },
+      { id: "mode-case", name: "Cold-case pursuit flow", label: "Cold-case pursuit flow", path: "Mystery / cold-case pursuit" },
     ],
     worldOptions: [{ id: "world-fog", name: "雾港" }],
     worldSliceView: {
@@ -66,22 +66,22 @@ test("novel cover draft context reuses basic info and world slice labels", () =>
 
   assert.equal(context.title, "雾港审判局");
   assert.deepEqual(context.commercialTags, ["强冲突", "都市奇诡", "持续追更"]);
-  assert.equal(context.genreLabel, "都市 / 都市异能");
-  assert.equal(context.primaryStoryModeLabel, "爽文 / 审判升级流");
-  assert.equal(context.secondaryStoryModeLabel, "悬疑 / 悬案追凶流");
+  assert.equal(context.genreLabel, "Urban / urban superpower");
+  assert.equal(context.primaryStoryModeLabel, "Power fantasy / judgment-escalation");
+  assert.equal(context.secondaryStoryModeLabel, "Mystery / cold-case pursuit");
   assert.equal(context.worldSummary, "高压雾港里，审判机构与地下交易同时运作。");
-  assert.equal(context.narrativePovLabel, "第三人称");
-  assert.equal(context.pacePreferenceLabel, "快节奏");
-  assert.equal(context.emotionIntensityLabel, "高情绪浓度");
+  assert.equal(context.narrativePovLabel, "third person");
+  assert.equal(context.pacePreferenceLabel, "fast paced");
+  assert.equal(context.emotionIntensityLabel, "high emotional concentration");
 });
 
 test("novel cover draft source prompt includes beginner-facing cover cues", () => {
   const prompt = buildNovelCoverDraftSourcePrompt({
     basicForm: baseBasicForm,
-    genreOptions: [{ id: "genre-urban", label: "都市异能", path: "都市 / 都市异能" }],
+    genreOptions: [{ id: "genre-urban", label: "Urban superpower", path: "Urban / urban superpower" }],
     storyModeOptions: [
-      { id: "mode-judge", name: "审判升级流", label: "审判升级流", path: "爽文 / 审判升级流" },
-      { id: "mode-case", name: "悬案追凶流", label: "悬案追凶流", path: "悬疑 / 悬案追凶流" },
+      { id: "mode-judge", name: "Judgment-escalation flow", label: "Judgment-escalation flow", path: "Power fantasy / judgment-escalation" },
+      { id: "mode-case", name: "Cold-case pursuit flow", label: "Cold-case pursuit flow", path: "Mystery / cold-case pursuit" },
     ],
     worldOptions: [{ id: "world-fog", name: "雾港" }],
     worldSliceView: {

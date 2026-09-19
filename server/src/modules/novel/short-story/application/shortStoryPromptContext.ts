@@ -20,7 +20,7 @@ export function shortStoryProductionFoundationText(novel: ShortStoryFoundationNo
     }
     : null;
   return [
-    novel.genre?.name ? `题材基底：${novel.genre.name}` : "",
+    novel.genre?.name ? `Theme base:${novel.genre.name}` : "",
     novel.genre?.description ? `题材定位：${novel.genre.description}` : "",
     novel.genre?.template ? `题材使用倾向：${novel.genre.template}` : "",
     buildStoryModePromptBlock({

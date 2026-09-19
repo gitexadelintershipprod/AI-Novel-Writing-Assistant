@@ -77,7 +77,7 @@ export default function ModelRoutesPage() {
   const saveModelRouteMutation = useMutation({
     mutationFn: (payload: RouteSavePayload) => saveModelRoute(payload),
     onSuccess: async () => {
-      setActionResult("保存完成，这个任务会使用新路由。");
+      setActionResult("Once saved, this task will use the new route.");
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.settings.modelRoutes }),
         queryClient.invalidateQueries({ queryKey: queryKeys.settings.modelRouteConnectivity }),
@@ -102,7 +102,7 @@ export default function ModelRoutesPage() {
   const saveStructuredFallbackMutation = useMutation({
     mutationFn: (payload: Partial<StructuredFallbackSettings>) => saveStructuredFallbackConfig(payload),
     onSuccess: async () => {
-      setActionResult("结构化备用模型保存完成。");
+      setActionResult("The structured backup model is saved.");
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.settings.structuredFallback }),
         queryClient.invalidateQueries({ queryKey: queryKeys.settings.modelRouteConnectivity }),
@@ -210,7 +210,7 @@ export default function ModelRoutesPage() {
 
   function applyBulkDraftToRoutes(targetTaskTypes: ModelRouteTaskType[]) {
     if (targetTaskTypes.length === 0) {
-      setActionResult("没有需要套用的任务。");
+      setActionResult("There are no tasks to apply.");
       return;
     }
     const draft = getBulkDraft();
@@ -254,14 +254,14 @@ export default function ModelRoutesPage() {
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle>模型路由管理</CardTitle>
+          <CardTitle>Model routing management</CardTitle>
           <CardDescription>
-            为不同创作任务指定合适模型，并检查 JSON 输出是否稳定。
+            Specify appropriate models for different authoring tasks and check whether the JSON output is stable.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap items-center justify-between gap-3">
           <div className="space-y-2 text-sm text-muted-foreground">
-            <div>检测会覆盖普通对话和结构化输出；表单修改需要保存后参与检测。</div>
+            <div>The detection will cover ordinary conversations and structured output; form modifications need to be saved before participating in the detection.</div>
             <div className="flex flex-wrap items-center gap-3 text-xs">
               <span className="inline-flex items-center gap-2">
                 <RouteStatusDot
@@ -274,13 +274,13 @@ export default function ModelRoutesPage() {
                         : "idle"}
                 />
                 {modelRouteConnectivityQuery.isPending || modelRouteConnectivityQuery.isFetching
-                  ? "正在检测生效路由..."
+                  ? "Detecting effective routes..."
                   : connectivitySummary.total > 0
-                    ? `检测结果：${connectivitySummary.total} 条路由，健康 ${connectivitySummary.healthy}，异常 ${connectivitySummary.failed}`
-                    : "尚未执行模型兼容性检测"}
+                    ? `Test results: ${connectivitySummary.total} routes, ${connectivitySummary.healthy} healthy, ${connectivitySummary.failed} with issues`
+                    : "Model compatibility check has not been performed yet"}
               </span>
               {connectivitySummary.testedAt ? (
-                <span>检测时间：{new Date(connectivitySummary.testedAt).toLocaleString()}</span>
+                <span>Detection time:{new Date(connectivitySummary.testedAt).toLocaleString()}</span>
               ) : null}
             </div>
           </div>
@@ -291,12 +291,12 @@ export default function ModelRoutesPage() {
               disabled={modelRouteConnectivityQuery.isFetching || !modelRoutesQuery.isSuccess}
             >
               <RefreshCw className={`h-4 w-4 ${modelRouteConnectivityQuery.isFetching ? "animate-spin" : ""}`} />
-              {modelRouteConnectivityQuery.isFetching ? "检测中..." : "重新检测"}
+              {modelRouteConnectivityQuery.isFetching ? "Under detection..." : "Retest"}
             </Button>
             <Button asChild variant="outline">
               <Link to="/settings">
                 <ArrowLeft className="h-4 w-4" />
-                返回系统设置
+                Return to system settings
               </Link>
             </Button>
           </div>
@@ -307,10 +307,10 @@ export default function ModelRoutesPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <CopyCheck className="h-5 w-5" />
-            快速套用模型
+            Quickly apply models
           </CardTitle>
           <CardDescription>
-            先选一套模型，再填入多个任务；统一保存后，后续创作会按新路由执行。
+            First select a set of models, and then fill in multiple tasks; after saving them together, subsequent creations will be executed according to the new route.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -320,9 +320,9 @@ export default function ModelRoutesPage() {
             providerOptions={providerOptions}
             onPatch={patchBulkDraft}
             temperaturePlaceholder="0.7"
-            maxTokensPlaceholder="留空则使用系统默认"
-            modelEmptyText="这个服务商没有可选模型"
-            manualModelPlaceholder="也可以手动输入模型名"
+            maxTokensPlaceholder="Leave blank to use system default"
+            modelEmptyText="This service provider has no optional models"
+            manualModelPlaceholder="You can also enter the model name manually"
             showProtocolFields={false}
           />
 
@@ -339,7 +339,7 @@ export default function ModelRoutesPage() {
                 disabled={!routeBulkDraft.provider.trim() || !routeBulkDraft.model.trim() || taskTypes.length === 0}
               >
                 <CopyCheck className="h-4 w-4" />
-                套用到全部任务
+                Apply to all tasks
               </Button>
               <Button
                 type="button"
@@ -349,7 +349,7 @@ export default function ModelRoutesPage() {
                 disabled={!routeBulkDraft.provider.trim() || !routeBulkDraft.model.trim() || failedTaskTypes.length === 0}
               >
                 <CopyCheck className="h-4 w-4" />
-                套用到异常任务
+                Apply to exception tasks
               </Button>
               <Button
                 type="button"
@@ -359,7 +359,7 @@ export default function ModelRoutesPage() {
                 disabled={!routeBulkDraft.provider.trim() || !routeBulkDraft.model.trim() || emptyRouteTaskTypes.length === 0}
               >
                 <CopyCheck className="h-4 w-4" />
-                补齐空白任务
+                Fill in the blank tasks
               </Button>
               <Button
                 type="button"
@@ -370,7 +370,7 @@ export default function ModelRoutesPage() {
                 disabled={isSavingRoutes || dirtyTaskTypes.length === 0}
               >
                 <Save className="h-4 w-4" />
-                {saveAllModelRoutesMutation.isPending ? "保存中..." : `保存全部修改${dirtyTaskTypes.length > 0 ? ` (${dirtyTaskTypes.length})` : ""}`}
+                {saveAllModelRoutesMutation.isPending ? "Saving..." : `Save all changes${dirtyTaskTypes.length > 0 ? ` (${dirtyTaskTypes.length})` : ""}`}
               </Button>
             </div>
           </div>
@@ -379,17 +379,17 @@ export default function ModelRoutesPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>结构化备用模型</CardTitle>
+          <CardTitle>Structured fallback model</CardTitle>
           <CardDescription>
-            主模型能对话但 JSON 不稳时，可在所有结构化任务上统一启用备用模型。
+            When the main model can talk but the JSON is unstable, the backup model can be enabled uniformly on all structured tasks.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center justify-between rounded-md border p-3">
             <div>
-              <div className="font-medium">启用全局结构化回退</div>
+              <div className="font-medium">Enable global structured fallback</div>
               <div className="text-sm text-muted-foreground">
-                主模型的结构化策略全部失败后，才会切到这套备用模型。
+                This backup model will be switched to only after all the structural strategies of the main model fail.
               </div>
             </div>
             <Switch
@@ -404,9 +404,9 @@ export default function ModelRoutesPage() {
             providerOptions={providerOptions}
             onPatch={patchStructuredFallbackDraft}
             temperaturePlaceholder="0.2"
-            maxTokensPlaceholder="留空则使用系统默认"
-            modelEmptyText="这个服务商没有可选模型"
-            manualModelPlaceholder="也可以手动输入模型名"
+            maxTokensPlaceholder="Leave blank to use system default"
+            modelEmptyText="This service provider has no optional models"
+            manualModelPlaceholder="You can also enter the model name manually"
           />
 
           <div className="flex items-center justify-end gap-2">
@@ -421,7 +421,7 @@ export default function ModelRoutesPage() {
               })}
               disabled={saveStructuredFallbackMutation.isPending || !fallbackDraft.provider.trim() || !fallbackDraft.model.trim()}
             >
-              {saveStructuredFallbackMutation.isPending ? "保存中..." : "保存备用模型"}
+              {saveStructuredFallbackMutation.isPending ? "Saving..." : "Save alternate model"}
             </Button>
           </div>
         </CardContent>
@@ -456,18 +456,18 @@ export default function ModelRoutesPage() {
                 <span className="inline-flex items-center gap-2 rounded-full border px-2 py-0.5 text-xs font-normal text-muted-foreground">
                   <RouteStatusDot state={connectivityState} />
                   {connectivityState === "healthy"
-                    ? "兼容性正常"
+                    ? "Compatibility is normal"
                     : connectivityState === "failed"
-                      ? "存在异常"
+                      ? "There is an exception"
                       : connectivityState === "checking"
-                        ? "检测中"
-                        : "未检测"}
+                        ? "Under detection"
+                        : "Not detected"}
                 </span>
-                {isDirty ? <Badge variant="secondary">待保存</Badge> : null}
+                {isDirty ? <Badge variant="secondary">To be saved</Badge> : null}
               </CardTitle>
               <CardDescription>
                 {label.description}
-                <span className="ml-2 text-xs">标识：{taskType}</span>
+                <span className="ml-2 text-xs">Identification:{taskType}</span>
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -477,28 +477,28 @@ export default function ModelRoutesPage() {
                 providerOptions={providerOptions}
                 onPatch={(patch) => patchDraft(taskType, patch)}
                 temperaturePlaceholder="0.7"
-                maxTokensPlaceholder="留空则使用系统默认"
-                modelEmptyText="这个服务商没有可选模型"
-                manualModelPlaceholder="也可以手动输入模型名"
+                maxTokensPlaceholder="Leave blank to use system default"
+                modelEmptyText="This service provider has no optional models"
+                manualModelPlaceholder="You can also enter the model name manually"
               />
 
               <div className="flex items-center justify-between gap-3">
                 <div className="space-y-1 text-xs text-muted-foreground">
-                  <div>{isDirty ? "表单改动保存后生效。" : `任务使用：${providerName}。`}</div>
+                  <div>{isDirty ? "Changes to the form will take effect after saving." : `Task usage: ${providerName}.`}</div>
                   <div className="flex flex-wrap items-center gap-2">
                     <RouteStatusDot state={connectivityState} />
                     <span>{formatConnectivityStatus(connectivity)}</span>
                   </div>
                   {connectivity?.structured ? (
                     <div>
-                      请求协议：{connectivity.structured.requestProtocol ?? connectivity.requestProtocol ?? "无"}，
-                      结构化策略：{connectivity.structured.strategy ?? "无"}，
-                      {connectivity.structured.reasoningForcedOff ? "会关闭 thinking" : "保留 thinking"}，
-                      {connectivity.structured.fallbackAvailable ? "备用模型可用" : "备用模型未启用"}
+                      Request protocol:{connectivity.structured.requestProtocol ?? connectivity.requestProtocol ?? "None"},
+                      Structured strategy: {connectivity.structured.strategy ?? "None"},
+                      {connectivity.structured.reasoningForcedOff ? "will close thinking" : "keep thinking"},
+                      {connectivity.structured.fallbackAvailable ? "Alternate models available" : "Alternate model not enabled"}
                     </div>
                   ) : null}
                   {hasUnsavedRouteDiff ? (
-                    <div>检测结果来自生效路由；保存后会自动重新检测。</div>
+                    <div>The detection result comes from the effective route; it will be automatically re-detected after saving.</div>
                   ) : null}
                 </div>
                 <Button
@@ -507,7 +507,7 @@ export default function ModelRoutesPage() {
                   disabled={isSavingRoutes || !draft.provider.trim() || !draft.model.trim()}
                 >
                   <Save className="h-4 w-4" />
-                  保存路由
+                  Save route
                 </Button>
               </div>
             </CardContent>

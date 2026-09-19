@@ -127,10 +127,10 @@ export default function NovelList() {
     mutationFn: (id: string) => deleteNovel(id),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.novels.all });
-      toast.success("小说已删除。");
+      toast.success("The novel has been deleted.");
     },
     onError: (error) => {
-      toast.error(error instanceof Error ? error.message : "删除小说失败。");
+      toast.error(error instanceof Error ? error.message : "Failed to delete novel.");
     },
   });
 
@@ -143,10 +143,10 @@ export default function NovelList() {
     ),
     onSuccess: ({ blob, fileName }) => {
       createDownload(blob, fileName);
-      toast.success("导出已开始。");
+      toast.success("Export has started.");
     },
     onError: (error) => {
-      toast.error(error instanceof Error ? error.message : "导出小说失败。");
+      toast.error(error instanceof Error ? error.message : "Failed to export novel.");
     },
   });
 
@@ -180,8 +180,8 @@ export default function NovelList() {
         error instanceof Error
           ? error.message
           : input.mode === "auto_execute_range"
-            ? "继续自动执行当前章节范围失败。"
-            : "继续自动导演失败。",
+            ? "Continuing automatic execution of the current chapter range failed."
+            : "Continue automatic director failure.",
       );
     },
   });
@@ -314,11 +314,11 @@ export default function NovelList() {
       ) : novelListQuery.isError ? (
         <Card>
           <CardHeader>
-            <CardTitle>加载小说列表失败</CardTitle>
-            <CardDescription>当前无法读取项目列表，可以重试一次。</CardDescription>
+            <CardTitle>Failed to load novel list</CardTitle>
+            <CardDescription>The project list cannot be read at the moment, you can try again.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={() => void novelListQuery.refetch()}>重新加载</Button>
+            <Button onClick={() => void novelListQuery.refetch()}>reload</Button>
           </CardContent>
         </Card>
       ) : novels.length === 0 ? (
@@ -329,7 +329,7 @@ export default function NovelList() {
             <div className="space-y-7">
               {continueNovels.length > 0 ? (
                 <section className="space-y-3">
-                  <h2 className="text-lg font-semibold">继续创作</h2>
+                  <h2 className="text-lg font-semibold">Keep creating</h2>
                   <div className="grid w-full grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-4">
                     {continueNovels.map((novel) => (
                       <NovelContinueCard key={`continue-${novel.id}`} novel={novel} onManageCover={setCoverNovelId} onDelete={handleDelete} />
@@ -338,7 +338,7 @@ export default function NovelList() {
                 </section>
               ) : null}
               <section className="space-y-3">
-                <h2 className="text-lg font-semibold">我的作品</h2>
+                <h2 className="text-lg font-semibold">my work</h2>
                 <div className="grid w-full grid-cols-[repeat(auto-fill,minmax(230px,1fr))] gap-4">
                   {novels.filter((novel) => !continueNovels.some((item) => item.id === novel.id)).map((novel) => (
                     <NovelShelfCard key={novel.id} novel={novel} onManageCover={setCoverNovelId} onDownload={downloadNovelMutation.mutate} onDelete={handleDelete} />
@@ -404,20 +404,20 @@ export default function NovelList() {
       >
         <AppDialogContent
           className="max-w-2xl"
-          title="AI 驾驶舱"
+          title="AI cockpit"
           description={
             selectedCockpitNovel?.title
-              ? `查看《${selectedCockpitNovel.title}》的 AI 推进状态和下一步动作。`
-              : "查看这本书的 AI 推进状态和下一步动作。"
+              ? `Review AI progress and next actions for "${selectedCockpitNovel.title}".`
+              : "Check out the book's AI advancement status and next steps."
           }
         >
           {cockpitProjectionQuery.isPending ? (
             <div className="rounded-lg border p-3 text-sm text-muted-foreground">
-              读取这本书的 AI 状态...
+              Read the AI status of this book...
             </div>
           ) : cockpitProjectionQuery.isError ? (
             <div className="rounded-lg border p-3">
-              <div className="text-sm text-muted-foreground">无法读取这本书的 AI 状态，请稍后重试。</div>
+              <div className="text-sm text-muted-foreground">Unable to read the AI status of this book, please try again later.</div>
               <Button
                 type="button"
                 size="sm"
@@ -425,7 +425,7 @@ export default function NovelList() {
                 className="mt-3"
                 onClick={() => void cockpitProjectionQuery.refetch()}
               >
-                重新读取
+                reread
               </Button>
             </div>
           ) : cockpitProjection ? (
@@ -440,7 +440,7 @@ export default function NovelList() {
               }}
             />
           ) : (
-            <AICockpit fallbackSummary="这本书没有需要处理的 AI 自动推进任务。" />
+            <AICockpit fallbackSummary="The book has no AI auto-advance tasks to deal with." />
           )}
         </AppDialogContent>
       </Dialog>

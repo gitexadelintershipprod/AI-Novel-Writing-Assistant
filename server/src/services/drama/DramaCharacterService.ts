@@ -50,7 +50,7 @@ export class DramaCharacterService {
   async saveCharacterToLibrary(characterId: string, tags?: string[]) {
     const character = await prisma.dramaCharacter.findUnique({ where: { id: characterId } });
     if (!character) {
-      throw new Error(`未找到短剧角色：${characterId}`);
+      throw new Error(`Drama character not found: ${characterId}`);
     }
     return prisma.dramaCharacterLibrary.create({
       data: {
@@ -70,7 +70,7 @@ export class DramaCharacterService {
   async importLibraryCharacter(projectId: string, libraryId: string) {
     const item = await prisma.dramaCharacterLibrary.findUnique({ where: { id: libraryId } });
     if (!item) {
-      throw new Error(`未找到短剧角色库条目：${libraryId}`);
+      throw new Error(`Drama character-library entry was not found: ${libraryId}`);
     }
     return prisma.dramaCharacter.create({
       data: {

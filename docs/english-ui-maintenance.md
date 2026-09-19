@@ -1,6 +1,6 @@
 # English UI maintenance
 
-This fork keeps `main` aligned with upstream and carries the English product on `feature/english-ui`.
+This fork ships English product copy on `main`. The overlay is a shrinking safety net until remaining dual-read aliases and comments are gone.
 
 ## Baseline and remotes
 
@@ -11,13 +11,15 @@ This fork keeps `main` aligned with upstream and carries the English product on 
 
 ## Architecture
 
-The client initializes i18next before React renders. Its language, fallback, and supported-language list are all fixed to English; saved legacy language preferences are intentionally ignored and there is no language selector.
+Product **source copy is English**. New UI, API errors, workflow catalogs, and stored protocol values must be written in English. Do not add Chinese JSX, HTTP messages, or enum literals.
 
-Shared navigation and brand copy use semantic keys in feature-scoped English namespaces. The wider upstream UI is covered by an English presentation catalog and `EnglishUiBoundary`. That boundary translates rendered labels, tooltips, placeholders, toasts, dialogs, and errors without changing API payloads, persisted values, routes, identifiers, schemas, model/provider names, or generation logic.
+The client still initializes i18next as English-only. `EnglishUiBoundary` plus `legacy-ui.json` remain a shrinking safety net for any leftover Han in source. Native `confirm` / `alert` / `Notification` and interpolated templates are not covered by the overlay, so those strings must be English in source.
 
-Static phrases are resolved from the presentation catalog. Runtime phrases whose numbers or provider/model names change are handled by narrowly scoped patterns in `client/src/i18n/dynamicUiPatterns.ts`; these patterns may format presentation text but must never translate or rewrite persisted domain values. Prefer semantic i18n keys for new UI and add a dynamic pattern only when the upstream source assembles a bounded legacy sentence at runtime.
+Stored protocol values (character story function, world type, beat `roleLabel`, Creative Hub thread title, snapshotted task labels) are English on write. A one-time dual-read map in `shared/types/legacyProtocolValues.ts` still accepts legacy Chinese rows. User-authored novel prose, knowledge bodies, and Market Radar scrape titles are not rewritten.
 
-The boundary deliberately skips `textarea`, `pre`, `code`, content-editable elements, Plate/ProseMirror editors, and elements marked with `data-preserve-language` or `data-novel-content`. This protects prompts, novel prose, and user-authored content.
+Shared navigation and brand copy use semantic keys in feature-scoped English namespaces. Prefer semantic i18n keys for new UI. Add a dynamic pattern only when source still assembles a bounded legacy sentence at runtime.
+
+The overlay still skips `textarea`, `pre`, `code`, content-editable elements, Plate/ProseMirror editors, and elements marked with `data-preserve-language` or `data-novel-content`. This protects prompts, novel prose, and user-authored content.
 
 Use `data-preserve-language` only around source-owned or user-authored values. Keep surrounding controls, empty-state text, and fallback labels outside that boundary or write those fallbacks directly in English.
 
@@ -25,13 +27,13 @@ Electron startup, splash, updater, failure-dialog, and log-bundle copy comes fro
 
 ## Retained Chinese source values
 
-Chinese source text remains only when changing it could alter behavior or make upstream synchronization unsafe. Every retained line has an exact path, text, and reason in `config/english-ui-allowlist.json`. The main classifications are:
+Chinese source text remains only when changing it would alter generation, break dual-read, or describe user/fixture content. Every retained line has an exact path, text, and reason in `config/english-ui-allowlist.json`. The main classifications are:
 
-- domain, protocol, enum, role, status, and persisted values;
+- dual-read aliases and legacy protocol map keys;
 - AI prompts, templates, and authored content;
 - fixtures and contract-test text;
 - developer comments;
-- legacy source labels translated only at the presentation boundary;
+- leftover source labels still covered by the shrinking presentation overlay;
 - Chinese source phrases used as exact keys in the English presentation catalog.
 
 `pnpm check:english-ui` fails when a Han-containing line is added, removed, or changed without updating its classification. It also rejects Chinese values in the English catalog and verifies the fixed English i18n configuration.

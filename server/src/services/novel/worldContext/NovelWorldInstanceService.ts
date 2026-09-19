@@ -44,7 +44,7 @@ function buildGeneratedOpeningWorldSlice(input: {
       coreWorldFrame: input.structure.profile.summary || input.structure.profile.identity,
       appliedRules: input.structure.rules.axioms.slice(0, 4).map((item) => ({
         id: item.id,
-        whyItMatters: "这是开篇人物行动必须遵守的世界规则。",
+        whyItMatters: "These are the world rules opening-character actions must follow.",
       })),
       activeForces: input.structure.forces.slice(0, 4).map((item) => ({
         id: item.id,
@@ -53,14 +53,14 @@ function buildGeneratedOpeningWorldSlice(input: {
       })),
       activeLocations: input.structure.locations.slice(0, 4).map((item, index) => ({
         id: item.id,
-        storyUse: index === 0 ? "开篇主要故事舞台。" : "开篇可进入或产生冲突的地点。",
+        storyUse: index === 0 ? "开篇主要story stage。" : "开篇可进入或产生冲突的地点。",
         risk: item.risk,
       })),
       conflictCandidates: input.bindingSupport.compatibleConflicts.slice(0, 4),
       pressureSources: input.bindingSupport.highPressureForces.slice(0, 4),
       recommendedEntryPoints: input.bindingSupport.recommendedEntryPoints.slice(0, 4),
       forbiddenCombinations: input.bindingSupport.forbiddenCombinations,
-      storyScopeBoundary: "开篇只使用当前切片中的规则、势力和地点；远期世界细节按正文需要再补齐。",
+      storyScopeBoundary: "The opening should use only rules, factions, and places in the current slice. Add later world detail only when the draft needs it.",
     },
     storyId: input.novelId,
     worldId: input.worldId,
@@ -274,7 +274,7 @@ export class NovelWorldInstanceService {
     `;
     const source = rows[0];
     if (!source) {
-      throw new Error("小说不存在。");
+      throw new Error("The novel does not exist.");
     }
     if (!source.worldId && !source.storyWorldSliceJson && !source.storyWorldSliceOverridesJson) {
       return null;
@@ -367,14 +367,14 @@ export class NovelWorldInstanceService {
       },
     });
     if (!world) {
-      throw new Error("世界不存在。");
+      throw new Error("The world does not exist.");
     }
     const novel = await prisma.novel.findUnique({
       where: { id: input.novelId },
       select: { id: true },
     });
     if (!novel) {
-      throw new Error("小说不存在。");
+      throw new Error("The novel does not exist.");
     }
 
     const novelWorldId = `novel_world_${input.novelId}`;
@@ -481,7 +481,7 @@ export class NovelWorldInstanceService {
       },
     });
     if (!novel) {
-      throw new Error("小说不存在。");
+      throw new Error("The novel does not exist.");
     }
 
     const result = await runStructuredPrompt({

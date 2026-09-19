@@ -9,13 +9,13 @@ import { getNovelWorkspaceHref, type NovelListItem } from "./novelListViewModel"
 
 function formatDate(value: string): string {
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "最近编辑";
+  if (Number.isNaN(date.getTime())) return "Recently edited";
   return new Intl.DateTimeFormat("zh-CN", { month: "numeric", day: "numeric" }).format(date);
 }
 
 function getFormLabel(novel: NovelListItem): string {
-  if (novel.narrativeForm === "short_story") return "短篇";
-  return novel.writingMode === "continuation" ? "长篇续写" : "长篇原创";
+  if (novel.narrativeForm === "short_story") return "short story";
+  return novel.writingMode === "continuation" ? "Long continuation" : "Long original";
 }
 
 function getProgress(novel: NovelListItem): number {
@@ -29,19 +29,19 @@ function getPrimaryAction(novel: NovelListItem): { label: string; href: string }
   if (novel.narrativeForm === "short_story") {
     const task = novel.latestCreationStudioTask;
     return {
-      label: task?.status === "succeeded" ? "阅读作品" : "继续创作",
+      label: task?.status === "succeeded" ? "Reading works" : "Keep creating",
       href: `/novels/${novel.id}/story`,
     };
   }
   const task = novel.latestAutoDirectorTask;
   const workspaceHref = getNovelWorkspaceHref(novel);
   if (task?.status === "failed" || task?.status === "cancelled") {
-    return { label: "恢复创作", href: workspaceHref };
+    return { label: "resume creation", href: workspaceHref };
   }
   if (task?.status === "waiting_approval") {
-    return { label: "继续处理", href: workspaceHref };
+    return { label: "Continue processing", href: workspaceHref };
   }
-  return { label: task ? "继续创作" : "编辑作品", href: workspaceHref };
+  return { label: task ? "Keep creating" : "Edit work", href: workspaceHref };
 }
 
 function getPreviewHref(novel: NovelListItem): string {
@@ -51,9 +51,9 @@ function getPreviewHref(novel: NovelListItem): string {
 }
 
 function coverStatusLabel(status?: ImageTaskStatus | null): string {
-  if (status === "queued" || status === "running") return "封面生成中";
-  if (status === "failed" || status === "cancelled") return "重新生成封面";
-  return "生成封面";
+  if (status === "queued" || status === "running") return "Cover is being generated";
+  if (status === "failed" || status === "cancelled") return "Regenerate cover";
+  return "Generate cover";
 }
 
 export function NovelShelfCard(props: {
@@ -76,11 +76,11 @@ export function NovelShelfCard(props: {
   return (
     <Card className="group overflow-hidden rounded-2xl border-border/60 bg-card/70 shadow-none transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-lg hover:shadow-black/10">
       <CardContent className="flex h-full flex-col p-2.5">
-        <Link to={getPreviewHref(novel)} className="block" aria-label={`预览《${novel.title}》`}>
+        <Link to={getPreviewHref(novel)} className="block" aria-label={`Preview ${novel.title}`}>
           <div className="relative aspect-[2/3] overflow-hidden rounded-xl bg-muted/50 ring-1 ring-border/60">
             <img
               src={coverUrl}
-              alt={hasGeneratedCover ? `${novel.title}封面` : ""}
+              alt={hasGeneratedCover ? `${novel.title} cover` : ""}
               className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.025]"
               loading="lazy"
             />
@@ -109,14 +109,14 @@ export function NovelShelfCard(props: {
                 <span>{getFormLabel(novel)}</span>
                 {novel.writingPlatform ? <><span aria-hidden="true">·</span><span>{novel.writingPlatform}</span></> : null}
                 <span aria-hidden="true">·</span>
-                <span>{novel.status === "published" ? "已发布" : "草稿"}</span>
+                <span>{novel.status === "published" ? "Published" : "Draft"}</span>
               </div>
             </div>
           </div>
 
           <div className="mt-3 space-y-1.5">
             <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-              <span>{progress > 0 ? `创作进度 ${progress}%` : "尚未开始正文"}</span>
+              <span>{progress > 0 ? `Creative progress ${progress}%` : "Text has not started yet"}</span>
               <span className="inline-flex items-center gap-1"><Clock3 className="h-3.5 w-3.5" aria-hidden="true" />{formatDate(novel.updatedAt)}</span>
             </div>
             <div className="h-1 overflow-hidden rounded-full bg-muted">
@@ -144,8 +144,8 @@ export function NovelShelfCard(props: {
               size="sm"
               variant="ghost"
               className="h-8 w-8 p-0 text-muted-foreground"
-              title="导出作品"
-              aria-label="导出作品"
+              title="Export your work"
+              aria-label="Export your work"
               onClick={() => props.onDownload({ novelId: novel.id, novelTitle: novel.title })}
             >
               <Download className="h-4 w-4" aria-hidden="true" />
@@ -155,8 +155,8 @@ export function NovelShelfCard(props: {
               size="sm"
               variant="ghost"
               className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
-              title="删除作品"
-              aria-label="删除作品"
+              title="Delete work"
+              aria-label="Delete work"
               onClick={() => props.onDelete(novel.id, novel.title)}
             >
               <Trash2 className="h-4 w-4" aria-hidden="true" />
@@ -184,8 +184,8 @@ export function NovelContinueCard(props: {
   return (
     <Card className="group rounded-2xl border-border/60 bg-card/70 shadow-none transition-all duration-200 hover:border-primary/30 hover:shadow-md hover:shadow-black/10">
       <CardContent className="flex min-h-[140px] items-center gap-4 p-3">
-        <Link to={getPreviewHref(novel)} className="relative h-[116px] w-[78px] shrink-0 overflow-hidden rounded-lg bg-muted ring-1 ring-border/60" aria-label={`预览《${novel.title}》`}>
-          <img src={coverUrl} alt={hasGeneratedCover ? `${novel.title}封面` : ""} className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.025]" loading="lazy" />
+        <Link to={getPreviewHref(novel)} className="relative h-[116px] w-[78px] shrink-0 overflow-hidden rounded-lg bg-muted ring-1 ring-border/60" aria-label={`Preview ${novel.title}`}>
+          <img src={coverUrl} alt={hasGeneratedCover ? `${novel.title} cover` : ""} className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.025]" loading="lazy" />
           {!hasGeneratedCover ? (
             <div className="absolute inset-0 flex items-center justify-center bg-black/45 px-2 text-center text-[11px] font-medium leading-4 text-white">
               <span className="line-clamp-4 drop-shadow">{novel.title}</span>
@@ -194,7 +194,7 @@ export function NovelContinueCard(props: {
         </Link>
         <div className="min-w-0 flex-1 py-1">
           <Link to={action.href} className="line-clamp-2 text-[15px] font-semibold leading-6 tracking-tight hover:text-primary">{novel.title}</Link>
-          <div className="mt-1 text-[11px] text-muted-foreground">{getFormLabel(novel)} · 创作进度 {progress}%</div>
+          <div className="mt-1 text-[11px] text-muted-foreground">{getFormLabel(novel)} · Creation progress {progress}%</div>
           <div className="mt-3 h-1 overflow-hidden rounded-full bg-muted">
             <div className="h-full rounded-full bg-primary" style={{ width: `${progress}%` }} />
           </div>
@@ -202,10 +202,10 @@ export function NovelContinueCard(props: {
             <Button asChild size="sm" variant="secondary" className="h-8 flex-1 px-2 text-xs">
               <Link to={action.href}><BookOpen className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />{action.label}</Link>
             </Button>
-            <Button type="button" size="sm" variant="ghost" className="h-8 w-8 p-0 text-muted-foreground" title="管理封面" aria-label="管理封面" onClick={() => props.onManageCover(novel.id)}>
+            <Button type="button" size="sm" variant="ghost" className="h-8 w-8 p-0 text-muted-foreground" title="Manage cover" aria-label="Manage cover" onClick={() => props.onManageCover(novel.id)}>
               <ImagePlus className="h-4 w-4" aria-hidden="true" />
             </Button>
-            <Button type="button" size="sm" variant="ghost" className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive" title="删除作品" aria-label="删除作品" onClick={() => props.onDelete(novel.id, novel.title)}>
+            <Button type="button" size="sm" variant="ghost" className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive" title="Delete work" aria-label="Delete work" onClick={() => props.onDelete(novel.id, novel.title)}>
               <Trash2 className="h-4 w-4" aria-hidden="true" />
             </Button>
           </div>

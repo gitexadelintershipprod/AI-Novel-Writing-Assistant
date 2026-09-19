@@ -139,7 +139,7 @@ export class NovelProductionStatusService {
           orderBy: { updatedAt: "desc" },
         });
     if (!novel) {
-      throw new Error("未找到当前小说。");
+      throw new Error("The current novel was not found.");
     }
 
     const [factSummary, inspectedChapterProgress] = await Promise.all([
@@ -173,29 +173,29 @@ export class NovelProductionStatusService {
     });
 
     const assetStages: ProductionStatusStage[] = [
-      { key: "novel_workspace", label: "小说工作区", status: "completed", detail: `《${novel.title}》` },
-      { key: "world", label: "本书世界", status: factProgress.facts.hasWorld ? "completed" : "pending", detail: worldState.worldName },
-      { key: "story_macro", label: "故事宏观规划", status: factProgress.facts.hasStoryMacro ? "completed" : "pending", detail: factProgress.facts.hasStoryMacro ? "宏观规划可用" : null },
-      { key: "book_contract", label: "Book Contract", status: factProgress.facts.hasBookContract ? "completed" : "pending", detail: factProgress.facts.hasBookContract ? "书级写法约定可用" : null },
-      { key: "characters", label: "核心角色", status: factProgress.facts.hasCharacters ? "completed" : "pending", detail: factProgress.facts.characterCount > 0 ? `${factProgress.facts.characterCount} 个角色` : null },
-      { key: "story_bible", label: "小说圣经", status: factProgress.facts.hasStoryBible || factProgress.facts.hasBookContract ? "completed" : "pending", detail: novel.bible?.mainPromise ?? novel.bible?.coreSetting ?? (factProgress.facts.hasBookContract ? "书级事实可用" : null) },
-      { key: "volume_strategy", label: "卷规划", status: factProgress.facts.hasVolumeStrategy ? "completed" : "pending", detail: factProgress.facts.volumeCount > 0 ? `${factProgress.facts.volumeCount} 卷` : null },
-      { key: "outline", label: "发展走向", status: novel.outline?.trim() || factProgress.facts.hasVolumeStrategy ? "completed" : "pending", detail: novel.outline?.trim() ? "已生成发展走向" : (factProgress.facts.hasVolumeStrategy ? "卷规划可用" : null) },
-      { key: "structured_outline", label: "结构化大纲", status: novel.structuredOutline?.trim() || factProgress.plannedChapterCount > 0 ? "completed" : "pending", detail: factProgress.plannedChapterCount > 0 ? `${factProgress.plannedChapterCount} 章规划` : null },
-      { key: "chapters", label: "章节任务单", status: factProgress.facts.hasChapterTaskSheets ? "completed" : "pending", detail: chapterCount > 0 ? `${chapterCount}/${targetChapterCount} 章` : null },
+      { key: "novel_workspace", label: "Novel workspace", status: "completed", detail: `"${novel.title}"` },
+      { key: "world", label: "This book's world", status: factProgress.facts.hasWorld ? "completed" : "pending", detail: worldState.worldName },
+      { key: "story_macro", label: "Story planning", status: factProgress.facts.hasStoryMacro ? "completed" : "pending", detail: factProgress.facts.hasStoryMacro ? "Story plan is available" : null },
+      { key: "book_contract", label: "Book Contract", status: factProgress.facts.hasBookContract ? "completed" : "pending", detail: factProgress.facts.hasBookContract ? "Book-level writing contract is available" : null },
+      { key: "characters", label: "Core characters", status: factProgress.facts.hasCharacters ? "completed" : "pending", detail: factProgress.facts.characterCount > 0 ? `${factProgress.facts.characterCount} characters` : null },
+      { key: "story_bible", label: "Novel bible", status: factProgress.facts.hasStoryBible || factProgress.facts.hasBookContract ? "completed" : "pending", detail: novel.bible?.mainPromise ?? novel.bible?.coreSetting ?? (factProgress.facts.hasBookContract ? "Book-level facts are available" : null) },
+      { key: "volume_strategy", label: "Volume planning", status: factProgress.facts.hasVolumeStrategy ? "completed" : "pending", detail: factProgress.facts.volumeCount > 0 ? `${factProgress.facts.volumeCount} volume` : null },
+      { key: "outline", label: "Story direction", status: novel.outline?.trim() || factProgress.facts.hasVolumeStrategy ? "completed" : "pending", detail: novel.outline?.trim() ? "Story direction generated" : (factProgress.facts.hasVolumeStrategy ? "Volume plan is available" : null) },
+      { key: "structured_outline", label: "Structured outline", status: novel.structuredOutline?.trim() || factProgress.plannedChapterCount > 0 ? "completed" : "pending", detail: factProgress.plannedChapterCount > 0 ? `${factProgress.plannedChapterCount} chapters planned` : null },
+      { key: "chapters", label: "Chapter task sheet", status: factProgress.facts.hasChapterTaskSheets ? "completed" : "pending", detail: chapterCount > 0 ? `${chapterCount}/${targetChapterCount} chapters` : null },
       {
         key: "chapter_drafts",
-        label: "章节正文",
+        label: "Chapter text",
         status: factProgress.draftedChapterCount >= targetChapterCount && targetChapterCount > 0
           ? "completed"
           : factProgress.draftedChapterCount > 0
             ? "running"
             : "pending",
-        detail: `${factProgress.draftedChapterCount}/${targetChapterCount} 章`,
+        detail: `${factProgress.draftedChapterCount}/${targetChapterCount} chapters`,
       },
       {
         key: "quality_repair",
-        label: "审校与修复",
+        label: "Review and repair",
         status: factProgress.needsRepairChapters > 0
           ? "blocked"
           : factProgress.reviewedChapterCount > 0
@@ -204,24 +204,24 @@ export class NovelProductionStatusService {
               ? "running"
               : "pending",
         detail: factProgress.needsRepairChapters > 0
-          ? `${factProgress.needsRepairChapters} 章待修复`
+          ? `${factProgress.needsRepairChapters} chapters waiting for repair`
           : factProgress.reviewedChapterCount > 0
-            ? `${factProgress.reviewedChapterCount} 章完成审校`
+            ? `${factProgress.reviewedChapterCount} chapters reviewed`
             : null,
       },
       {
         key: "state_commit",
-        label: "状态提交",
+        label: "State commit",
         status: factProgress.committedChapterCount >= targetChapterCount && targetChapterCount > 0
           ? "completed"
           : factProgress.committedChapterCount > 0
             ? "running"
             : "pending",
-        detail: factProgress.committedChapterCount > 0 ? `${factProgress.committedChapterCount}/${targetChapterCount} 章` : null,
+        detail: factProgress.committedChapterCount > 0 ? `${factProgress.committedChapterCount}/${targetChapterCount} chapters` : null,
       },
       {
         key: "pipeline",
-        label: "后台任务",
+        label: "Background tasks",
         status: runtimeStatus.state === "running" || runtimeStatus.state === "queued"
           ? "running"
           : runtimeStatus.state === "succeeded"
@@ -229,7 +229,7 @@ export class NovelProductionStatusService {
             : runtimeStatus.state === "failed" || runtimeStatus.state === "cancelled"
               ? "blocked"
               : "pending",
-        detail: runtimeStatus.status ? `后台状态：${runtimeStatus.status}` : null,
+        detail: runtimeStatus.status ? `Background status: ${runtimeStatus.status}` : null,
       },
     ];
 
@@ -346,24 +346,24 @@ function buildRuntimeStatus(job: {
               ? "unknown"
               : "idle";
   const label = state === "idle"
-    ? "后台任务未启动"
+    ? "Background task has not started"
     : state === "queued"
-      ? "后台任务排队中"
+      ? "Background task is queued"
       : state === "running"
-        ? "后台任务运行中"
+        ? "Background task is running"
         : state === "succeeded"
-          ? "后台任务执行完成"
+          ? "Background task finished"
           : state === "failed"
-            ? "后台任务失败"
+            ? "Background task failed"
             : state === "cancelled"
-              ? "后台任务取消"
-              : `后台状态：${status}`;
+              ? "Background task cancelled"
+              : `Background status: ${status}`;
   return {
     jobId: job?.id ?? null,
     status,
     state,
     label,
-    failureSummary: state === "failed" ? job?.error ?? "后台任务失败。" : null,
+    failureSummary: state === "failed" ? job?.error ?? "The background task failed." : null,
     isActive: state === "queued" || state === "running",
     blocksFactProgress: false,
   };
@@ -461,7 +461,7 @@ function resolveProductionWorldState(
     return {
       hasWorld: true,
       worldId: novelWorld.sourceWorldId ?? novel.world?.id ?? null,
-      worldName: novelWorld.title ?? novel.world?.name ?? novelWorld.coverSummary ?? "本书世界",
+      worldName: novelWorld.title ?? novel.world?.name ?? novelWorld.coverSummary ?? "book world",
     };
   }
   return {
@@ -472,17 +472,17 @@ function resolveProductionWorldState(
 }
 
 function resolveFactCurrentStage(progress: ProductionFactProgress, targetChapterCount: number): string {
-  if (!progress.facts.hasWorld) return "等待生成世界观";
-  if (!progress.facts.hasStoryMacro) return "等待生成故事宏观规划";
-  if (!progress.facts.hasBookContract && !progress.facts.hasStoryBible) return "等待生成书级创作约定";
-  if (!progress.facts.hasCharacters) return "等待生成核心角色";
-  if (!progress.facts.hasVolumeStrategy && progress.plannedChapterCount === 0) return "等待生成卷规划";
-  if (!progress.facts.hasChapterTaskSheets) return "等待生成章节任务单";
-  if (progress.draftedChapterCount === 0) return "等待开始章节写作";
-  if (progress.needsRepairChapters > 0) return "质量修复待处理";
-  if (targetChapterCount > 0 && progress.draftedChapterCount < targetChapterCount) return "章节正文写作中";
-  if (targetChapterCount > 0 && progress.committedChapterCount < targetChapterCount) return "状态提交待补齐";
-  return "小说事实进展可交付";
+  if (!progress.facts.hasWorld) return "Waiting to generate the world";
+  if (!progress.facts.hasStoryMacro) return "Waiting to generate the story plan";
+  if (!progress.facts.hasBookContract && !progress.facts.hasStoryBible) return "Waiting to generate the book contract";
+  if (!progress.facts.hasCharacters) return "Waiting to generate core characters";
+  if (!progress.facts.hasVolumeStrategy && progress.plannedChapterCount === 0) return "Waiting to generate the volume plan";
+  if (!progress.facts.hasChapterTaskSheets) return "Waiting to generate chapter task sheets";
+  if (progress.draftedChapterCount === 0) return "Waiting to start chapter writing";
+  if (progress.needsRepairChapters > 0) return "Quality repair is pending";
+  if (targetChapterCount > 0 && progress.draftedChapterCount < targetChapterCount) return "Chapter text is being written";
+  if (targetChapterCount > 0 && progress.committedChapterCount < targetChapterCount) return "State commit is still incomplete";
+  return "Novel fact progress is ready to deliver";
 }
 
 function buildRecoveryHint(
@@ -491,15 +491,15 @@ function buildRecoveryHint(
   runtimeStatus: ProductionRuntimeStatus,
   pipelineReady: boolean,
 ): string | null {
-  if (!progress.facts.hasWorld) return "先生成世界观，再继续书级规划。";
-  if (!progress.facts.hasStoryMacro) return "先生成故事宏观规划，明确整本书的主线和承诺。";
-  if (!progress.facts.hasBookContract && !progress.facts.hasStoryBible) return "先生成书级创作约定，锁定读者承诺和写法边界。";
-  if (!progress.facts.hasCharacters) return "先生成核心角色，再推进卷规划和章节任务单。";
-  if (!progress.facts.hasChapterTaskSheets) return "先生成章节任务单，再启动章节正文写作。";
-  if (progress.needsRepairChapters > 0) return `优先处理 ${progress.needsRepairChapters} 章质量修复，再继续后续章节。`;
-  if (targetChapterCount > 0 && progress.draftedChapterCount < targetChapterCount) return `继续从第 ${progress.currentChapterOrder ?? progress.draftedChapterCount + 1} 章推进正文。`;
-  if (runtimeStatus.state === "failed") return "后台任务失败不影响已产出的事实内容，可从当前事实进展继续。";
-  return pipelineReady ? null : "补齐规划资产和章节任务单后再继续整本生产。";
+  if (!progress.facts.hasWorld) return "Generate the world first, then continue book planning.";
+  if (!progress.facts.hasStoryMacro) return "Generate the story plan first to clarify the book's spine and promises.";
+  if (!progress.facts.hasBookContract && !progress.facts.hasStoryBible) return "Generate the book contract first to lock reader promises and style bounds.";
+  if (!progress.facts.hasCharacters) return "Generate core characters first, then move to volume planning and chapter task sheets.";
+  if (!progress.facts.hasChapterTaskSheets) return "Generate chapter task sheets first, then start writing chapter text.";
+  if (progress.needsRepairChapters > 0) return `Handle quality repair for ${progress.needsRepairChapters} chapters first, then continue later chapters.`;
+  if (targetChapterCount > 0 && progress.draftedChapterCount < targetChapterCount) return `Continue writing from chapter ${progress.currentChapterOrder ?? progress.draftedChapterCount + 1}.`;
+  if (runtimeStatus.state === "failed") return "The background failure does not affect facts already produced. You can continue from the current fact progress.";
+  return pipelineReady ? null : "Fill in planning assets and chapter task sheets before continuing full production.";
 }
 
 function buildSummary(
@@ -510,17 +510,17 @@ function buildSummary(
   runtimeStatus: ProductionRuntimeStatus,
 ): string {
   const parts = [
-    `《${title}》事实进展：${currentStage}。`,
-    `规划 ${progress.planningCompleted}/${progress.planningTotal} 项，正文 ${progress.draftedChapterCount}/${targetChapterCount} 章。`,
+    `"${title}" fact progress: ${currentStage}.`,
+    `Planning ${progress.planningCompleted}/${progress.planningTotal} items, chapter text ${progress.draftedChapterCount}/${targetChapterCount} chapters.`,
   ];
   if (progress.needsRepairChapters > 0) {
-    parts.push(`${progress.needsRepairChapters} 章待修复。`);
+    parts.push(`${progress.needsRepairChapters} chapters waiting for repair.`);
   }
   if (runtimeStatus.state !== "idle") {
-    parts.push(`${runtimeStatus.label}。`);
+    parts.push(`${runtimeStatus.label}.`);
   }
   if (runtimeStatus.failureSummary) {
-    parts.push("已完成产物不会因此丢失。");
+    parts.push("Finished artifacts will not be lost because of this.");
   }
   return parts.join("");
 }

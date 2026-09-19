@@ -107,7 +107,7 @@ export class StoryMacroPlanService {
       },
     });
     if (!novel) {
-      throw new Error("小说不存在。");
+      throw new Error("The novel does not exist.");
     }
     return {
       ...novel,
@@ -282,7 +282,7 @@ export class StoryMacroPlanService {
     const previousPlan = row ? mapRowToPlan(row) : null;
     const normalizedInput = storyInput.trim();
     if (!normalizedInput) {
-      throw new Error("故事想法不能为空。");
+      throw new Error("The story idea cannot be empty.");
     }
     const worldContext = await this.getWorldProjectContext(novelId, normalizedInput, options);
     const projectContext = formatProjectContext(
@@ -315,10 +315,10 @@ export class StoryMacroPlanService {
     const novel = await this.getNovelContext(novelId);
     const plan = await this.getPlan(novelId);
     if (!plan?.storyInput || !plan.decomposition) {
-      throw new Error("请先完成故事引擎拆解。");
+      throw new Error("Finish the story-engine breakdown first.");
     }
     if (plan.lockedFields[field]) {
-      throw new Error("该字段已锁定，请先解锁后再重生成。");
+      throw new Error("This field is locked. Unlock it before regenerating.");
     }
     const worldContext = await this.getWorldProjectContext(novelId, plan.storyInput ?? undefined, options);
     const editablePlan = toEditablePlan(plan);
@@ -350,7 +350,7 @@ export class StoryMacroPlanService {
     await this.getNovelContext(novelId);
     const plan = await this.getPlan(novelId);
     if (!plan?.decomposition || !isDecompositionComplete(plan.decomposition)) {
-      throw new Error("请先完成故事引擎拆解，再构建约束引擎。");
+      throw new Error("Finish story-engine breakdown before building the constraint engine.");
     }
     const editablePlan = toEditablePlan(plan);
     return this.savePlan(novelId, {

@@ -259,10 +259,10 @@ export class NovelDirectorAutoExecutionRuntime {
         }
         const job = await this.deps.novelService.getPipelineJobById(pipelineJobId);
         if (!job) {
-          throw new Error("自动执行章节批次时未能找到对应的批量任务。");
+          throw new Error("Could not find the matching batch task while auto-running the chapter batch.");
         }
         if (job.pendingManualRecovery) {
-          const failureMessage = job.error?.trim() || "章节批次已暂停，等待人工确认后继续。";
+          const failureMessage = job.error?.trim() || "The chapter batch paused and is waiting for manual confirmation.";
           ({ range, autoExecution } = await resolveAutoExecutionRuntimeRangeAndState(this.deps, {
             novelId: input.novelId,
             existingState: autoExecution,
@@ -477,8 +477,8 @@ export class NovelDirectorAutoExecutionRuntime {
         const scopeLabel = buildDirectorAutoExecutionScopeLabelFromState(autoExecution, range.totalChapterCount);
         const failureMessage = job.error?.trim()
           || (job.status === "cancelled"
-            ? `${scopeLabel}自动执行已取消。`
-            : `${scopeLabel}自动执行未能全部通过质量要求。`);
+            ? `${scopeLabel}Auto execution canceled。`
+            : `${scopeLabel} auto-run did not fully pass quality requirements.`);
         if (
           isFullBookAutopilotRunMode(input.request.runMode)
           && isSkippableAutoExecutionReviewFailure(failureMessage)
@@ -631,7 +631,7 @@ export class NovelDirectorAutoExecutionRuntime {
             taskId: input.taskId,
             novelId: input.novelId,
             nodeKey: failureCircuitBreaker.nodeKey ?? "chapter_repair_node",
-            summary: "全书自动成书已暂存本章质量问题，并继续推进后续章节。",
+            summary: "Full-book mode stored this chapter's quality issue and continued later chapters.",
             affectedScope: autoExecution.nextChapterId
               ? `chapter:${autoExecution.nextChapterId}`
               : (typeof autoExecution.nextChapterOrder === "number" ? `chapter_order:${autoExecution.nextChapterOrder}` : null),

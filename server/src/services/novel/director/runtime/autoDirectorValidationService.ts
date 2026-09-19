@@ -40,13 +40,13 @@ function resolveScopeFromPlan(plan: DirectorAutoExecutionPlan | null | undefined
   if (!plan) {
     return {
       type: "book",
-      label: "全书",
+      label: "whole book",
     };
   }
   if (plan?.mode === "book") {
     return {
       type: "book",
-      label: "全书",
+      label: "whole book",
     };
   }
   if (plan?.mode === "chapter_range") {
@@ -54,7 +54,7 @@ function resolveScopeFromPlan(plan: DirectorAutoExecutionPlan | null | undefined
     const endOrder = Math.max(startOrder, normalizeChapterOrder(plan.endOrder) ?? startOrder);
     return {
       type: "chapter_range",
-      label: startOrder === endOrder ? `第 ${startOrder} 章` : `第 ${startOrder}-${endOrder} 章`,
+      label: startOrder === endOrder ? `Chapter ${startOrder}` : `Chapters ${startOrder}–${endOrder}`,
       startOrder,
       endOrder,
     };
@@ -63,7 +63,7 @@ function resolveScopeFromPlan(plan: DirectorAutoExecutionPlan | null | undefined
     const volumeOrder = normalizeChapterOrder(plan.volumeOrder) ?? 1;
     return {
       type: "volume",
-      label: `第 ${volumeOrder} 卷`,
+      label: `Volume ${volumeOrder}`,
       volumeOrder,
     };
   }
@@ -71,7 +71,7 @@ function resolveScopeFromPlan(plan: DirectorAutoExecutionPlan | null | undefined
   const endOrder = Math.max(startOrder, normalizeChapterOrder(plan?.endOrder) ?? startOrder);
   return {
     type: "chapter_range",
-    label: startOrder === endOrder ? `第 ${startOrder} 章` : `第 ${startOrder}-${endOrder} 章`,
+    label: startOrder === endOrder ? `Chapter ${startOrder}` : `Chapters ${startOrder}–${endOrder}`,
     startOrder,
     endOrder,
   };
@@ -84,7 +84,7 @@ function resolveScopeFromTask(input: AutoDirectorActionValidationInput): AutoDir
   if (startOrder && endOrder) {
     return {
       type: "chapter_range",
-      label: autoExecution?.scopeLabel?.trim() || (startOrder === endOrder ? `第 ${startOrder} 章` : `第 ${startOrder}-${endOrder} 章`),
+      label: autoExecution?.scopeLabel?.trim() || (startOrder === endOrder ? `Chapter ${startOrder}` : `Chapters ${startOrder}–${endOrder}`),
       startOrder,
       endOrder: Math.max(startOrder, endOrder),
     };
@@ -93,13 +93,13 @@ function resolveScopeFromTask(input: AutoDirectorActionValidationInput): AutoDir
   if (volumeOrder) {
     return {
       type: "volume",
-      label: autoExecution?.scopeLabel?.trim() || `第 ${volumeOrder} 卷`,
+      label: autoExecution?.scopeLabel?.trim() || `Volume ${volumeOrder}`,
       volumeOrder,
     };
   }
   return {
     type: "book",
-    label: autoExecution?.scopeLabel?.trim() || "全书",
+    label: autoExecution?.scopeLabel?.trim() || "whole book",
   };
 }
 
@@ -260,33 +260,33 @@ function validateScopeAgainstAssets(input: {
   });
   const affectedScope = input.affectedScope;
   if (isChapterRangeScope(affectedScope) && plannedChapterCount && affectedScope.endOrder > plannedChapterCount) {
-    reasons.push(`目标章节范围超过当前全书规划章节数，请把范围调整到 ${plannedChapterCount} 章以内。`);
+    reasons.push(`The target chapter scope exceeds the current book plan. Adjust the range to ${plannedChapterCount} chapters or fewer.`);
   }
   if (isVolumeScope(affectedScope)) {
     const volumeCount = normalizeChapterOrder(input.assets.volumeCount) ?? 0;
     if (volumeCount > 0 && affectedScope.volumeOrder > volumeCount) {
-      reasons.push(`当前卷战略只有 ${volumeCount} 卷，不能直接执行第 ${affectedScope.volumeOrder} 卷。`);
+      reasons.push(`The current volume strategy only has ${volumeCount} volume(s), so Volume ${affectedScope.volumeOrder} cannot run directly.`);
     }
   }
   if (isChapterRangeScope(affectedScope) && !isEntryAtOrAfter(input.entryStep, "structured")) {
-    reasons.push("章节范围只能从节奏拆章、章节执行或质量修复开始。");
+    reasons.push("A chapter range can only start from beats/chapters, chapter execution, or quality repair.");
   }
   if (isVolumeScope(affectedScope) && !isEntryAtOrAfter(input.entryStep, "outline")) {
-    reasons.push("卷范围只能从卷战略、节奏拆章、章节执行或质量修复开始。");
+    reasons.push("A volume range can only start from volume strategy, beats/chapters, chapter execution, or quality repair.");
   }
   if (isEntryAtOrAfter(input.entryStep, "structured") && !input.assets.hasVolumeStrategyPlan) {
-    reasons.push("目标范围缺少卷战略支撑，需要先完成卷战略。");
+    reasons.push("The target range lacks volume-strategy support. Finish volume strategy first.");
   }
   if (isChapterRangeScope(affectedScope) && volumeChapterRanges.length > 0) {
     const isCoveredByVolumeStrategy = volumeChapterRanges.some((range) => (
       range.startOrder <= affectedScope.startOrder && range.endOrder >= affectedScope.endOrder
     ));
     if (!isCoveredByVolumeStrategy) {
-      reasons.push("目标章节范围没有被当前卷战略完整覆盖，请先调整卷战略或缩小目标范围。");
+      reasons.push("The target chapter range is not fully covered by the current volume strategy. Adjust the strategy or shrink the range.");
     }
   }
   if (isEntryAtOrAfter(input.entryStep, "chapter") && !input.assets.hasStructuredOutline && !input.allowStructuredBackfill) {
-    reasons.push("目标范围缺少节奏拆章，需要先完成或重新校验拆章结果。");
+    reasons.push("The target range lacks beat/chapter split. Finish it or recheck the split result first.");
   }
   if (isEntryAtOrAfter(input.entryStep, "chapter") && structuredOutlineChapterOrders.size > 0) {
     const missingOrders = resolveStructuredOutlineMissingOrders({
@@ -295,7 +295,7 @@ function validateScopeAgainstAssets(input: {
       structuredOutlineChapterOrders,
     });
     if (missingOrders.length > 0 && !input.allowStructuredBackfill) {
-      reasons.push(`目标范围缺少节奏拆章明细：第 ${missingOrders.slice(0, 5).join("、")} 章需要先完成或重新校验。`);
+      reasons.push(`The target range is missing beat/chapter details: chapters ${missingOrders.slice(0, 5).join(", ")} need to be finished or rechecked first.`);
     }
   }
   return reasons;
@@ -319,22 +319,22 @@ export function validateAutoDirectorTakeoverRequest(
   });
   const onlyStructuredBackfillBlocked = blockingReasons.length > 0
     && structuredBackfillNeed.needed
-    && blockingReasons.every((reason) => reason.includes("节奏拆章"));
+    && blockingReasons.every((reason) => reason.includes("Rhythm breaking chapter"));
   const canBackfillStructuredOutline = onlyStructuredBackfillBlocked
     && input.request.strategy === "continue_existing"
     && Boolean(input.assets.hasVolumeStrategyPlan);
 
   if (entryStep === "story_macro" && !input.assets.hasProjectSetup) {
-    blockingReasons.push("项目设定不完整，不能直接从故事宏观规划开始。");
+    blockingReasons.push("Project setup is incomplete, so story planning cannot start yet.");
   }
   if (isEntryAtOrAfter(entryStep, "character") && !input.assets.hasStoryMacroPlan) {
-    blockingReasons.push("故事宏观规划尚未完成，不能直接进入角色准备。");
+    blockingReasons.push("Story planning is not finished, so character setup cannot start yet.");
   }
   if (isEntryAtOrAfter(entryStep, "character") && !input.assets.hasBookContract) {
-    blockingReasons.push("Book Contract 尚未完成，不能直接进入角色准备或后续节点。");
+    blockingReasons.push("The Book Contract is not finished yet, so character setup and later steps cannot start.");
   }
   if (isEntryAtOrAfter(entryStep, "outline") && (!input.assets.hasStoryMacroPlan || !input.assets.hasBookContract || (input.assets.characterCount ?? 0) <= 0)) {
-    blockingReasons.push("故事宏观规划、Book Contract 或角色准备尚未完成，不能直接进入卷战略。");
+    blockingReasons.push("Story planning, Book Contract, or character setup is not finished, so volume strategy cannot start yet.");
   }
   blockingReasons.push(...validateScopeAgainstAssets({
     affectedScope,
@@ -348,13 +348,13 @@ export function validateAutoDirectorTakeoverRequest(
     blockingReasons,
     affectedScope,
     warnings: input.request.strategy === "restart_current_step"
-      ? ["重新生成会影响目标节点及后续资产，执行前需要保留可恢复快照。"]
+      ? ["Regenerating will affect the target node and later assets. Keep a recoverable snapshot first."]
       : [],
     requiredActions: onlyStructuredBackfillBlocked && Boolean(input.assets.hasVolumeStrategyPlan)
       ? [
           requiredAction({
             code: "auto_backfill_structured_outline",
-            label: "让 AI 补齐章节拆分后继续",
+            label: "Let AI finish the chapter split, then continue",
             riskLevel: "low",
             safeToAutoFix: true,
           }),
@@ -363,13 +363,13 @@ export function validateAutoDirectorTakeoverRequest(
         ? [
           requiredAction({
             code: "create_rewrite_snapshot",
-            label: "创建重写前快照",
+            label: "Create a pre-rewrite snapshot",
             riskLevel: "high",
             safeToAutoFix: false,
           }),
           requiredAction({
             code: "reset_downstream_state",
-            label: "重置目标节点后的状态",
+            label: "Reset state after the target node",
             riskLevel: "medium",
             safeToAutoFix: false,
           }),
@@ -393,25 +393,25 @@ export function validateAutoDirectorAction(input: AutoDirectorActionValidationIn
   const blockingReasons: string[] = [];
 
   if (input.task.lane && input.task.lane !== "auto_director") {
-    blockingReasons.push("当前任务不是自动导演任务，不能使用自动导演动作。");
+    blockingReasons.push("This is not an Auto-Director task, so Auto-Director actions cannot be used.");
   }
   if (input.task.pendingManualRecovery && input.actionCode !== "continue_generic") {
-    blockingReasons.push("任务处于人工恢复状态，请先恢复任务再继续其他操作。");
+    blockingReasons.push("The task is in manual recovery. Recover it before doing anything else.");
   }
   if (CHANNEL_SOURCES.has(input.source) && input.actionCode !== "continue_auto_execution" && input.actionCode !== "retry_with_task_model") {
-    blockingReasons.push("消息端只支持低风险动作，请回到站内确认后继续。");
+    blockingReasons.push("The message client only supports low-risk actions. Confirm in the app before continuing.");
   }
   if (CHANNEL_SOURCES.has(input.source) && input.actionCode === "retry_with_route_model") {
-    blockingReasons.push("按路由模型重试需要站内确认，请打开跟进中心处理。");
+    blockingReasons.push("Retrying with the routed model needs in-app confirmation. Open the follow-up center.");
   }
   if (input.actionCode === "continue_auto_execution" && input.task.status !== "waiting_approval") {
-    blockingReasons.push("当前任务不在等待继续状态，请先重新校验任务状态。");
+    blockingReasons.push("This task is not waiting to continue. Recheck the task status first.");
   }
   if (input.actionCode === "continue_auto_execution" && input.task.checkpointType !== "chapter_batch_ready") {
-    blockingReasons.push("当前检查点不能直接继续章节执行，请先查看任务详情。");
+    blockingReasons.push("This checkpoint cannot continue chapter execution directly. Open the task details first.");
   }
   if ((input.actionCode === "retry_with_task_model" || input.actionCode === "retry_with_route_model") && input.task.status !== "failed" && input.task.status !== "cancelled") {
-    blockingReasons.push("当前任务没有失败或取消，不需要重试。");
+    blockingReasons.push("This task has not failed or been cancelled, so retry is not needed.");
   }
 
   return buildResult({
@@ -419,13 +419,13 @@ export function validateAutoDirectorAction(input: AutoDirectorActionValidationIn
     blockingReasons,
     affectedScope,
     warnings: input.actionCode === "retry_with_route_model"
-      ? ["按路由模型重试会使用当前模型路由，结果可能与任务原模型不同。"]
+      ? ["Retrying with the routed model uses the current model route, so results may differ from the task's original model."]
       : [],
     requiredActions: input.actionCode === "continue_auto_execution"
       ? [
           requiredAction({
             code: "clear_checkpoint",
-            label: "清除已处理检查点",
+            label: "Clear handled checkpoints",
             riskLevel: "low",
             safeToAutoFix: true,
           }),
@@ -434,7 +434,7 @@ export function validateAutoDirectorAction(input: AutoDirectorActionValidationIn
         ? [
             requiredAction({
               code: "clear_failure",
-              label: "清除失败状态并重新执行",
+              label: "Clear the failed state and run again",
               riskLevel: "low",
               safeToAutoFix: true,
             }),

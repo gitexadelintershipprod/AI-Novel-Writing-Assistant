@@ -1,64 +1,63 @@
-# 首页
+# Home
 
-首页是进入创作工作台后的总览入口。它帮助你快速判断最近在推进哪本书、哪些任务需要继续、哪些模块适合下一步打开。
+Home is the overview after you enter the writing workspace. It helps you see which book you were last working on, which tasks need attention, and which module is a good next open.
 
+## When to open it
 
-## 适合什么时候打开
+- You just started the app and want to return to a recent project.
+- You are not sure whether to continue from Novels, the Task Center, or Director follow-up.
+- You want the common module entries.
+- You want to check whether a background task or writing flow has a reminder.
 
-- 刚启动应用，想回到最近的创作项目。
-- 不确定该从小说列表、任务中心还是导演跟进继续。
-- 想查看常用模块入口。
-- 想确认后台任务或创作流程是否有提醒。
+If you already know the target, for example continuing one novel, go straight to Novels. If you only know “I want to continue what I was doing,” Home is the better start.
 
-如果你目标很明确，例如继续写某本小说，可以直接进入小说列表；如果你只知道“我想继续上次的事情”，首页更合适。
+## How to read the page
 
-## 页面区块怎么看
+Home is usually organized around a few information areas:
 
-首页通常围绕几个信息区组织：
+- Recent novels: return to a project you recently edited or generated.
+- Task reminders: see whether a background task is running, failed, or waiting to recover.
+- Common entries: open novels, knowledge library, book analysis, style engine, Task Center, and other modules.
+- Writing guidance: next-step help for first-time users or people coming back after a pause.
 
-- 最近小说：回到最近编辑或生成过的项目。
-- 任务提醒：查看后台任务是否正在运行、失败或等待恢复。
-- 常用入口：进入小说、知识库、拆书、写法引擎、任务中心等模块。
-- 创作引导：给第一次使用者或中断后返回的用户提供下一步。
+Read “current novel” and “recommended next step” first. Those two decide whether you should return to the main writing chain or handle a task problem first.
 
-阅读首页时，优先看“当前小说”和“推荐下一步”。这两个信息能决定你应该回到创作主链，还是先处理任务异常。
+## Recommended jumps
 
-## 推荐跳转路径
+Common jumps:
 
-常见跳转方式：
+1. Continue an existing novel: open it from recent novels.
+2. Create a new novel: go to Novels or the First-run guide.
+3. A task looks stuck: open the Task Center.
+4. Auto-Director paused: open Director follow-up.
+5. You want to organize notes: open the knowledge library or book analysis.
+6. You want to change models: open Settings or Model routing.
 
-1. 继续已有小说：从最近小说进入对应工作区。
-2. 创建新小说：进入小说列表或新手上路。
-3. 任务看起来卡住：进入任务中心。
-4. 自动导演暂停：进入导演跟进。
-5. 想整理资料：进入知识库或拆书。
-6. 想调整模型：进入系统设置或模型路由。
+Home is a hub, not the final workplace for every job.
 
-首页不是所有工作的最终目的地，它更像一个交通枢纽。
+## For first-time users
 
-## 新手怎么用
+On first use, go from Home into the First-run guide. The guide strings together model setup, creating a novel, book-opening direction, and chapter 1 generation.
 
-第一次使用时，建议从首页进入新手上路。新手上路会把模型配置、创建小说、开书方向和第一章生成串成一条路径。
+After you create a novel, if you are not sure whether preparation is complete, open the novel from Home, then check Creative Hub or Director follow-up.
 
-创建小说后，如果不确定是否完成准备，可以从首页打开小说，再查看创作中枢或导演跟进。
+## When a reminder appears
 
-## 遇到提醒怎么办
+If Home shows a task reminder, do not start the same kind of task again. Open the Task Center first:
 
-首页出现任务提醒时，不要急着重复发起任务。先进入任务中心查看状态：
+- Running: wait or watch progress.
+- Failed: read the error, then decide retry or repair.
+- Waiting to recover: return to the related novel or Director follow-up.
+- Completed: go back to the matching module and read the result.
 
-- 运行中：等待或查看进度。
-- 失败：阅读错误信息，判断重试或修复。
-- 等待恢复：回到关联小说或导演跟进。
-- 已完成：回到对应模块查看结果。
+Repeated clicks on the same generation entry can start several tasks at once and make diagnosis harder.
 
-重复点击同类生成入口可能造成多条任务同时运行，增加排查难度。
+## How it relates to other modules
 
-## 和其他模块的关系
+- Home is for overview and jumps.
+- Novels is for project management.
+- Creative Hub is for status questions, diagnosis, and formal entry recommendations.
+- Director follow-up is for Auto-Director progress and recovery.
+- The Task Center is for every background task’s status.
 
-- 首页负责总览和跳转。
-- 小说列表负责项目管理。
-- 创作中枢负责查询状态、诊断问题和推荐正式入口。
-- 导演跟进负责自动导演的进度和恢复。
-- 任务中心负责所有后台任务的状态。
-
-如果你无法判断一个问题属于哪个模块，先从首页看提醒，再进入任务中心确认事实状态。
+If you cannot tell which module owns a problem, start from Home reminders, then confirm the real status in the Task Center.

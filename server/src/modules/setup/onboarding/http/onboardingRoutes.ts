@@ -17,8 +17,8 @@ const completeQuickSetupSchema = z.object({
   provider: z.string().trim().min(1).optional(),
   customProviderName: z.string().trim().min(1).optional(),
   apiKey: z.string().trim().optional(),
-  baseURL: z.string().trim().url("API 地址格式不正确。").optional(),
-  model: z.string().trim().min(1, "模型名称不能为空。"),
+  baseURL: z.string().trim().url("The API address format is incorrect.").optional(),
+  model: z.string().trim().min(1, "Model name cannot be empty."),
 });
 
 router.use(authMiddleware);
@@ -29,7 +29,7 @@ router.get("/settings/quick-setup/status", async (_req, res, next) => {
     res.status(200).json({
       success: true,
       data,
-      message: data.readyForCreation ? "创作环境可用。" : "还需要完成创作环境配置。",
+      message: data.readyForCreation ? "The authoring environment is available." : "You also need to complete the creation environment configuration.",
     } satisfies ApiResponse<typeof data>);
   } catch (error) {
     next(error);
@@ -45,7 +45,7 @@ router.post(
       res.status(200).json({
         success: true,
         data,
-        message: "创作环境配置完成，可以开始写小说了。",
+        message: "The creative environment is configured and you can start writing novels.",
       } satisfies ApiResponse<typeof data>);
     } catch (error) {
       next(error);
@@ -59,7 +59,7 @@ router.get("/onboarding/first-novel", async (_req, res, next) => {
     res.status(200).json({
       success: true,
       data,
-      message: "第一本书创作进度已更新。",
+      message: "The progress of writing the first book has been updated.",
     } satisfies ApiResponse<typeof data>);
   } catch (error) {
     next(error);

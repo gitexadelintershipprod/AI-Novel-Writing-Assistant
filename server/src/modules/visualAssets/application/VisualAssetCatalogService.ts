@@ -28,7 +28,7 @@ interface Cursor {
 }
 
 function toSelection(row: Awaited<ReturnType<typeof prisma.visualAssetProjection.findFirst>>): VisualAssetSelection {
-  if (!row) throw new AppError("视觉素材不存在。", 404);
+  if (!row) throw new AppError("The visual asset does not exist.", 404);
   return {
     assetId: row.id,
     url: row.url,
@@ -72,7 +72,7 @@ function decodeCursor(value: string | undefined): Cursor | null {
     const date = typeof parsed.createdAt === "string" ? new Date(parsed.createdAt) : null;
     return date && !Number.isNaN(date.getTime()) && typeof parsed.id === "string" && parsed.id ? { createdAt: date.toISOString(), id: parsed.id } : null;
   } catch {
-    throw new AppError("素材分页位置无效，请重新加载。", 400);
+    throw new AppError("The asset page position is invalid. Reload it.", 400);
   }
 }
 

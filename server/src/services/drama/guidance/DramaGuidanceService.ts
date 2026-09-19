@@ -68,7 +68,7 @@ export class DramaGuidanceService {
       promptInput: {
         title: input.title,
         sourceType: input.sourceType,
-        sourceDigest: input.sourceDigest?.trim() || "用户尚未提供详细素材，请基于标题、来源和题材做保守推荐。",
+        sourceDigest: input.sourceDigest?.trim() || "The user has not given detailed materials yet. Make conservative recommendations from the title, source, and genre.",
         theme: input.theme,
         targetEpisodes: input.targetEpisodes ?? 80,
         trackCatalog: buildTrackCatalog(),
@@ -92,10 +92,10 @@ export class DramaGuidanceService {
       },
     });
     if (!project) {
-      throw new Error(`未找到短剧项目：${projectId}`);
+      throw new Error(`Drama project ${projectId} was not found.`);
     }
     if (!project.sourceBundle) {
-      throw new Error("请先整理来源素材，再生成补充建议。");
+      throw new Error("Organize the source materials before generating extra suggestions.");
     }
 
     const beats = safeJson<unknown[]>(project.sourceBundle.beats, []);
@@ -103,9 +103,9 @@ export class DramaGuidanceService {
     const qualitySnapshot = [
       `梗概：${project.sourceBundle.synopsis?.trim() ? "已提供" : "缺少"}`,
       `节拍数量：${beats.length}`,
-      `角色数量：${project.characters.length}`,
+      `Number of characters：${project.characters.length}`,
       `硬事实数量：${facts.length}`,
-      `目标集数：${project.targetEpisodes}`,
+      `Number of target sets：${project.targetEpisodes}`,
     ].join("\n");
 
     const result = await runStructuredPrompt({

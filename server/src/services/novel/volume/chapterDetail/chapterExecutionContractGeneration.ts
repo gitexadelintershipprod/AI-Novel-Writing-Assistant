@@ -62,12 +62,12 @@ export async function generateChapterTaskSheetDetail(params: {
     return {
       purpose: existingChapter.purpose?.trim() || existingChapter.summary.trim(),
       exclusiveEvent: existingChapter.exclusiveEvent?.trim() || existingChapter.summary.trim(),
-      endingState: existingChapter.endingState?.trim() || "本章完成当前章节任务，并为下一章留下明确入口。",
-      nextChapterEntryState: existingChapter.nextChapterEntryState?.trim() || existingChapter.endingState?.trim() || "下一章承接本章结果继续推进。",
+      endingState: existingChapter.endingState?.trim() || "本章完成Current chapter任务，并为下一章留下明确入口。",
+      nextChapterEntryState: existingChapter.nextChapterEntryState?.trim() || existingChapter.endingState?.trim() || "下一章承接本章结果keep pushing forward。",
       conflictLevel: existingChapter.conflictLevel ?? 3,
       revealLevel: existingChapter.revealLevel ?? 2,
       targetWordCount: existingChapter.targetWordCount ?? 2200,
-      mustAvoid: existingChapter.mustAvoid?.trim() || "避免偏离本章任务单和卷节奏。",
+      mustAvoid: existingChapter.mustAvoid?.trim() || "避免偏离Task sheet for this chapter和卷节奏。",
       payoffRefs: existingChapter.payoffRefs,
       taskSheet: existingChapter.taskSheet.trim(),
       sceneCards: serializeChapterScenePlan(scenePlan),
@@ -85,7 +85,7 @@ export async function generateChapterTaskSheetDetail(params: {
           ...params.promptInput,
           guidance: [
             params.promptInput.guidance?.trim(),
-            `上一版章节执行合同未通过质量门禁：${qualityFeedback}`,
+            `上一版Chapter execution合同未通过质量门禁：${qualityFeedback}`,
           ].filter(Boolean).join("\n"),
         }
         : params.promptInput;
@@ -157,12 +157,12 @@ export async function generateChapterTaskSheetDetail(params: {
         sceneCards: serializeChapterScenePlan(scenePlan),
       };
     } catch (error) {
-      lastError = error instanceof Error ? error : new Error("章节执行合同生成失败。");
+      lastError = error instanceof Error ? error : new Error("Chapter execution contract generation failed.");
       if (error instanceof ChapterTaskSheetQualityGateError) {
         qualityFeedback = error.message;
       }
     }
   }
 
-  throw lastError ?? new Error("章节执行合同生成失败。");
+  throw lastError ?? new Error("Chapter execution contract generation failed.");
 }

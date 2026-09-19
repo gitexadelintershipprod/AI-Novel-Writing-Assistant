@@ -30,12 +30,12 @@ function buildEpisodeRhythmDigest(episodes: EpisodeRhythmLite[], focusOrder: num
   return episodes
     .filter((episode) => episode.order >= focusOrder - 3 && episode.order <= focusOrder + 3)
     .map((episode) => [
-      `第${episode.order}集《${episode.title}》`,
-      episode.isPaywall ? "付费卡点" : "普通集",
+      `Episode ${episode.order}"${episode.title}"`,
+      episode.isPaywall ? "Pay card points" : "Ordinary set",
       `情绪净值:${episode.emotionNet ?? "待定"}`,
       `结尾:${episode.cliffhanger ?? "待定"}`,
     ].join(" | "))
-    .join("\n") || "暂无相邻分集节奏。";
+    .join("\n") || "No neighboring-episode rhythm yet.";
 }
 
 function addRepairInstruction(existing: DramaQualityOutput["repairPlan"], flags: DramaQualityFlag[]): DramaQualityOutput["repairPlan"] {
@@ -73,8 +73,8 @@ export function applyPaywallQualityRules(
       flags.push({
         severity: "high",
         code: "pre_paywall_buildup_not_lowest",
-        evidence: `第 ${input.episode.order} 集情绪净值为 ${input.episode.emotionNet}，未形成首付费前阶段低谷 ${minEmotionNet}。`,
-        suggestion: `把第 ${input.episode.order} 集结尾改成更强的受压、误解或危机蓄势，让第 ${plan.firstPaywallAt} 集付费卡点有更高释放空间。`,
+        evidence: `Episode ${input.episode.order} emotion net is ${input.episode.emotionNet}, which is not the pre-paywall low of ${minEmotionNet}.`,
+        suggestion: `把Episode ${input.episode.order}结尾改成更强的受压、误解或危机蓄势，让Episode ${plan.firstPaywallAt}Pay card points有更高释放空间。`,
       });
     }
   }
@@ -83,8 +83,8 @@ export function applyPaywallQualityRules(
     flags.push({
       severity: "high",
       code: "paywall_cliffhanger_below_plan",
-      evidence: `付费卡点评分 ${output.score.paywall} 低于计划阈值 ${plan.cliffhangerStrengthThreshold}。`,
-      suggestion: "强化本集结尾的身份揭示、危机升级或反打承诺，让用户有明确理由继续付费观看下一集。",
+      evidence: `Paywall score ${output.score.paywall} is below the planned threshold ${plan.cliffhangerStrengthThreshold}.`,
+      suggestion: "Strengthen this episode's ending with an identity reveal, crisis escalation, or a promised reversal, so viewers have a clear reason to pay for the next episode.",
     });
   }
 
@@ -105,7 +105,7 @@ export class DramaQualityGate {
   async reviewEpisode(projectId: string, episodeOrder: number, options: DramaLLMOptions = {}) {
     const context = await dramaContextAssembler.buildEpisodeContext(projectId, episodeOrder);
     if (!context.episode.content?.trim()) {
-      throw new Error(`第 ${episodeOrder} 集尚未生成台本，不能执行质量闸。`);
+      throw new Error(`Episode ${episodeOrder} has no script yet, so the quality gate cannot run.`);
     }
     const paywallPlan = resolveDramaPaywallPlan(context.strategyJson, context.project.targetEpisodes);
     const result = await runStructuredPrompt({

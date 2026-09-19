@@ -3,11 +3,11 @@ import type { CreativeHubNovelSetupStatus } from "@ai-novel/shared/types/creativ
 function stageLabel(stage: CreativeHubNovelSetupStatus["stage"]): string {
   switch (stage) {
     case "ready_for_production":
-      return "已具备启动整本生产的基础";
+      return "The basics for starting full-book production are in place";
     case "ready_for_planning":
-      return "已具备进入大纲规划的基础";
+      return "The basics for entering outline planning are in place";
     default:
-      return "仍在初始化阶段";
+      return "Still in the setup stage";
   }
 }
 
@@ -30,38 +30,38 @@ export function parseNovelSetupStatus(value: unknown): CreativeHubNovelSetupStat
 }
 
 export function buildNovelSetupGuidanceFacts(setup: CreativeHubNovelSetupStatus): string {
-  const missing = setup.missingItems.slice(0, 5).join("、");
+  const missing = setup.missingItems.slice(0, 5).join(", ");
   const priorityItem = setup.checklist
     .find((item) => item.requiredForProduction && item.status !== "ready")
     ?? setup.checklist.find((item) => item.status !== "ready");
   const currentValue = priorityItem?.currentValue?.trim();
   const lines = [
-    `小说标题：${setup.title}`,
-    `当前阶段：${stageLabel(setup.stage)}`,
-    `完成度：${setup.completedCount}/${setup.totalCount}（${setup.completionRatio}%）`,
-    `待补项目：${missing || "暂无"}`,
-    `优先补充：${priorityItem?.label ?? "暂无"}`,
-    `系统建议提问：${setup.nextQuestion}`,
-    `系统建议动作：${setup.recommendedAction}`,
+    `Novel title: ${setup.title}`,
+    `Current stage: ${stageLabel(setup.stage)}`,
+    `Completion: ${setup.completedCount}/${setup.totalCount} (${setup.completionRatio}%)`,
+    `Still missing: ${missing || "none"}`,
+    `Fill in first: ${priorityItem?.label ?? "none"}`,
+    `Recommended question: ${setup.nextQuestion}`,
+    `Recommended action: ${setup.recommendedAction}`,
   ];
 
   if (currentValue) {
-    lines.push(`该项当前已有信息：${currentValue}`);
+    lines.push(`What this item already has: ${currentValue}`);
   }
 
   return lines.join("\n");
 }
 
 export function formatNovelSetupGuidance(prefix: string, setup: CreativeHubNovelSetupStatus): string {
-  const missing = setup.missingItems.slice(0, 3).join("、");
+  const missing = setup.missingItems.slice(0, 3).join(", ");
   const lines = [prefix];
 
-  lines.push(`当前状态：${stageLabel(setup.stage)}（${setup.completedCount}/${setup.totalCount} 项已就绪）。`);
+  lines.push(`Current status: ${stageLabel(setup.stage)} (${setup.completedCount}/${setup.totalCount} items ready).`);
   if (missing) {
-    lines.push(`接下来还需要补齐 ${missing}${setup.missingItems.length > 3 ? " 等" : ""}。`);
+    lines.push(`Next you still need to fill in ${missing}${setup.missingItems.length > 3 ? ", and more" : ""}.`);
   }
-  lines.push(`我们先聊这个：${setup.nextQuestion}`);
-  lines.push(`如果你暂时没想好，我也可以先给你几组备选方向。`);
+  lines.push(`Let's start with this: ${setup.nextQuestion}`);
+  lines.push(`If you have not decided yet, I can also give you a few option sets first.`);
 
   return lines.join("\n");
 }

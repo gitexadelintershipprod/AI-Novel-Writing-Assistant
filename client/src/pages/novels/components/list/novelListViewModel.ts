@@ -22,7 +22,7 @@ export const DIRECTOR_CREATE_LINK = "/novels/auto-director";
 export const SHORT_STORY_CREATE_LINK = featureFlags.creationStudioEnabled
   ? "/create?form=short_story"
   : null;
-export const PRIMARY_CREATE_LABEL = "AI 自动导演开书";
+export const PRIMARY_CREATE_LABEL = "AI automatic director opens book";
 export const MANUAL_CREATE_LINK = "/novels/create";
 export const NOVEL_LIST_PAGE_SIZE = 24;
 
@@ -81,18 +81,18 @@ export function filterNovelList(input: {
 
 export function formatProgressStatus(status?: ProjectProgressStatus | null): string {
   if (status === "completed") {
-    return "已完成";
+    return "Completed";
   }
   if (status === "in_progress") {
-    return "进行中";
+    return "In Progress";
   }
   if (status === "rework") {
-    return "待返工";
+    return "To be reworked";
   }
   if (status === "blocked") {
-    return "受阻";
+    return "blocked";
   }
-  return "未开始";
+  return "Not Started";
 }
 
 export function formatTokenCount(value?: number | null): string {
@@ -119,10 +119,10 @@ export function buildNovelListSummary(novels: NovelListItem[]): NovelListSummary
   }).length;
 
   return [
-    { id: "running", label: "推进中", value: running, tone: running > 0 ? "info" : "neutral" },
-    { id: "waiting", label: "待确认", value: waiting, tone: waiting > 0 ? "warning" : "neutral" },
-    { id: "ready", label: "可继续", value: ready, tone: ready > 0 ? "success" : "neutral" },
-    { id: "issue", label: "暂停/失败", value: issue, tone: issue > 0 ? "danger" : "neutral" },
+    { id: "running", label: "Advancing", value: running, tone: running > 0 ? "info" : "neutral" },
+    { id: "waiting", label: "To be confirmed", value: waiting, tone: waiting > 0 ? "warning" : "neutral" },
+    { id: "ready", label: "Can continue", value: ready, tone: ready > 0 ? "success" : "neutral" },
+    { id: "issue", label: "pause/fail", value: issue, tone: issue > 0 ? "danger" : "neutral" },
   ];
 }
 
@@ -150,13 +150,13 @@ export function buildWorkflowDisplay(novel: NovelListItem): WorkflowDisplay {
   if (novel.narrativeForm === "short_story") {
     return {
       tone: task?.status === "failed" ? "danger" : task?.status === "succeeded" ? "success" : "info",
-      label: task?.status === "succeeded" ? "完整短篇" : "短篇创作中",
+      label: task?.status === "succeeded" ? "complete short story" : "Short story in progress",
       description: task?.checkpointSummary?.trim()
         || task?.currentItemLabel?.trim()
         || novel.description?.trim()
-        || "AI 正在把已确认的方向写成一篇连续作品。",
+        || "AI is writing the identified direction into a continuous work.",
       progress: Math.round((task?.progress ?? 0) * 100),
-      currentStage: "连续作品",
+      currentStage: "serial work",
       currentAction: task?.currentItemLabel?.trim() || "",
       lastHealthyStage: "",
       running: task?.status === "queued" || task?.status === "running",
@@ -166,10 +166,10 @@ export function buildWorkflowDisplay(novel: NovelListItem): WorkflowDisplay {
   if (!task) {
     return {
       tone: "neutral",
-      label: "资料项目",
-      description: novel.description?.trim() || "没有自动导演任务，可以进入项目继续完善资料或章节。",
+      label: "Data items",
+      description: novel.description?.trim() || "There is no automatic director task, you can enter the project to continue improving the materials or chapters.",
       progress: 0,
-      currentStage: "未进入自动导演",
+      currentStage: "Not entering automatic director",
       currentAction: "",
       lastHealthyStage: "",
       running: false,
@@ -178,10 +178,10 @@ export function buildWorkflowDisplay(novel: NovelListItem): WorkflowDisplay {
   const currentAction = task.currentItemLabel?.trim() || "";
   return {
     tone: getWorkflowTone(task),
-    label: task.displayStatus?.trim() || task.resumeAction?.trim() || task.nextActionLabel?.trim() || "自动导演",
-    description: description || "系统保留推进状态，可以继续查看或恢复。",
+    label: task.displayStatus?.trim() || task.resumeAction?.trim() || task.nextActionLabel?.trim() || "Auto-Director",
+    description: description || "The system remains in the advanced state and can continue to be viewed or restored.",
     progress: Math.round(task.progress * 100),
-    currentStage: task.currentStage ?? "自动导演",
+    currentStage: task.currentStage ?? "Auto-Director",
     currentAction,
     lastHealthyStage: task.lastHealthyStage ?? "",
     running: isWorkflowRunningInBackground(task),
@@ -190,25 +190,25 @@ export function buildWorkflowDisplay(novel: NovelListItem): WorkflowDisplay {
 
 export function getPrimaryActionLabel(novel: NovelListItem): string {
   if (novel.narrativeForm === "short_story") {
-    return "打开作品";
+    return "Open work";
   }
   const task = getNovelWorkflowTask(novel);
   if (canContinueChapterBatchAutoExecution(task)) {
-    return task?.resumeAction ?? `继续自动执行${task?.executionScopeLabel ?? "当前章节范围"}`;
+    return task?.resumeAction ?? `Continue automatic execution${task?.executionScopeLabel ?? "Current chapter scope"}`;
   }
   if (canContinueDirector(task)) {
-    return task?.resumeAction ?? "继续导演";
+    return task?.resumeAction ?? "continue directing";
   }
   if (requiresCandidateSelection(task)) {
-    return task?.resumeAction ?? "继续确认方向";
+    return task?.resumeAction ?? "Continue to confirm the direction";
   }
   if (canEnterChapterExecution(task)) {
-    return "进入章节执行";
+    return "Enter chapter execution";
   }
   if (task) {
-    return "查看推进状态";
+    return "View advancement status";
   }
-  return "编辑小说";
+  return "Edit novel";
 }
 
 export function getProjectAssetRows(novel: NovelListItem): Array<{
@@ -218,22 +218,22 @@ export function getProjectAssetRows(novel: NovelListItem): Array<{
 }> {
   if (novel.narrativeForm === "short_story") {
     return [
-      { label: "形式", value: "短篇" },
-      { label: "目标", value: `${(novel.targetWordCount ?? 0).toLocaleString()} 字` },
-      { label: "正文", value: getNovelWorkflowTask(novel)?.status === "succeeded" ? "已完成" : "生成中", tone: "info" },
-      { label: "来源", value: novel.derivedFromNovelId ? "派生作品" : "原创" },
+      { label: "form", value: "short story" },
+      { label: "target", value: `${(novel.targetWordCount ?? 0).toLocaleString()} characters` },
+      { label: "Text", value: getNovelWorkflowTask(novel)?.status === "succeeded" ? "Completed" : "Generating", tone: "info" },
+      { label: "Source", value: novel.derivedFromNovelId ? "Derivative works" : "Original" },
     ];
   }
   return [
-    { label: "章节", value: String(novel._count.chapters) },
-    { label: "角色", value: String(novel._count.characters) },
+    { label: "Chapter", value: String(novel._count.chapters) },
+    { label: "Character", value: String(novel._count.characters) },
     {
-      label: "世界观",
-      value: novel.world?.name ?? "未绑定",
+      label: "World",
+      value: novel.world?.name ?? "Not bound",
       tone: novel.world?.name ? "neutral" : "warning",
     },
     {
-      label: "资源",
+      label: "Resources",
       value: `${novel.resourceReadyScore ?? 0}/100`,
       tone: (novel.resourceReadyScore ?? 0) >= 60 ? "success" : "warning",
     },

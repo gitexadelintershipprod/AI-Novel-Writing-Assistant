@@ -24,8 +24,8 @@ const SILENT_WAV_DATA_URL = "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABA
 
 export class MockTTSProvider implements TTSProviderPort {
   readonly provider = "mock";
-  readonly label = "模拟配音通道";
-  readonly description = "用于联调短剧配音链路的本地模拟 provider，不会生成真实语音。";
+  readonly label = "Analog dubbing channel";
+  readonly description = "A local mock provider for testing the drama voice pipeline. It does not generate real audio.";
   readonly costPerSecond = normalizeCostValue(process.env.DRAMA_TTS_MOCK_COST_PER_SECOND);
   readonly currency = readCostCurrency();
 
@@ -117,11 +117,11 @@ export class HttpTTSProvider implements TTSProviderPort {
     });
     const payload = await readJsonResponse(response);
     if (!response.ok) {
-      throw new Error(`配音通道合成失败：${response.status} ${response.statusText}`);
+      throw new Error(`Dubbing channel synthesis failed: ${response.status} ${response.statusText}`);
     }
     const audioUrl = readStringField(payload, ["audioUrl", "url", "resultUrl"]);
     if (!audioUrl) {
-      throw new Error("配音通道没有返回音频地址。");
+      throw new Error("The voice channel did not return an audio URL.");
     }
     return {
       audioUrl,
@@ -149,7 +149,7 @@ class TTSProviderRegistry {
   resolve(provider: string): TTSProviderPort {
     const resolved = this.providers.get(provider);
     if (!resolved) {
-      throw new Error(`未注册的配音 provider：${provider}`);
+      throw new Error(`Unregistered dubbing provider: ${provider}`);
     }
     return resolved;
   }
@@ -172,8 +172,8 @@ const httpSynthesizeUrl = process.env.DRAMA_TTS_HTTP_SYNTHESIZE_URL?.trim();
 if (httpSynthesizeUrl) {
   ttsProviderRegistry.register(new HttpTTSProvider({
     provider: process.env.DRAMA_TTS_HTTP_PROVIDER_ID?.trim() || "http",
-    label: process.env.DRAMA_TTS_HTTP_PROVIDER_LABEL?.trim() || "HTTP 配音通道",
-    description: process.env.DRAMA_TTS_HTTP_PROVIDER_DESCRIPTION?.trim() || "通过环境变量配置的外部 TTS 服务。",
+    label: process.env.DRAMA_TTS_HTTP_PROVIDER_LABEL?.trim() || "HTTP dubbing channel",
+      description: process.env.DRAMA_TTS_HTTP_PROVIDER_DESCRIPTION?.trim() || "An external TTS service configured through environment variables.",
     synthesizeUrl: httpSynthesizeUrl,
     apiKey: process.env.DRAMA_TTS_HTTP_API_KEY?.trim() || undefined,
     timeoutMs: normalizeTimeoutMs(process.env.DRAMA_TTS_HTTP_TIMEOUT_MS),

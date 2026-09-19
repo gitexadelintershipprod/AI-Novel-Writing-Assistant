@@ -28,7 +28,7 @@ export function validate(schema: ValidationSchema): RequestHandler {
         next(error);
         return;
       }
-      next(new Error("请求参数校验失败。"));
+      next(new Error("Request validation failed."));
     }
   };
 }

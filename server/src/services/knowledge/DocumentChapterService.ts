@@ -140,7 +140,7 @@ function buildSingleChapter(content: string): ChapterDraft[] {
   const normalized = normalizeContent(content);
   return [{
     chapterIndex: 0,
-    title: "全文",
+    title: "Full text",
     startOffset: 0,
     endOffset: normalized.length,
     splitter: "single",
@@ -265,7 +265,7 @@ export class DocumentChapterService {
         },
       },
       data: {
-        ...(input.title !== undefined ? { title: input.title.trim() || `第 ${chapterIndex + 1} 章` } : {}),
+        ...(input.title !== undefined ? { title: input.title.trim() || `Chapter ${chapterIndex + 1}` } : {}),
         ...(input.summary !== undefined ? { summary: input.summary?.trim() || null } : {}),
       },
     });

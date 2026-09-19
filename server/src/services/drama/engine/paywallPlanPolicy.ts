@@ -39,7 +39,7 @@ function normalizeIntensityCurve(value: unknown, targetEpisodes: number): DramaP
       const toEpisode = clampInt(record.toEpisode, fromEpisode, fromEpisode, targetEpisodes);
       const goal = typeof record.goal === "string" && record.goal.trim()
         ? record.goal.trim()
-        : "保持付费短剧钩子和情绪推进";
+        : "保持付费短剧钩子和Emotional push";
       return {
         fromEpisode,
         toEpisode,
@@ -86,9 +86,9 @@ export function describeDramaPaywallPlan(plan: DramaPaywallPlan): string {
       .join("\n")
     : "按赛道默认节奏推进。";
   return [
-    `首付费集：第 ${plan.firstPaywallAt} 集`,
-    `免费引流：前 ${plan.freeEpisodes} 集`,
-    `付费卡点间隔：${plan.paywallCadence} 集`,
+    `首付费集：Episode ${plan.firstPaywallAt}`,
+    `免费引流：前 ${plan.freeEpisodes} episode`,
+    `Pay card points间隔：${plan.paywallCadence} episode`,
     `付费集卡点强度阈值：${plan.cliffhangerStrengthThreshold}`,
     plan.buildupBeforePaywall ? `付费前蓄势：${plan.buildupBeforePaywall}` : "",
     `强度曲线：\n${curve}`,

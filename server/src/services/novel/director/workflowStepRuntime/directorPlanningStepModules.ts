@@ -94,13 +94,13 @@ function createStoryMacroExecutableModule(
           ? buildSimpleProgress({
             status: "completed",
             ratio: 1,
-            label: "故事宏观规划已完成",
+            label: "Story planning is complete",
             evidence: { artifactType: "story_macro" },
           })
           : buildSimpleProgress({
             status: "not_started",
             ratio: 0,
-            label: "等待生成故事宏观规划",
+            label: "Waiting to generate the story plan",
             nextAction: "run_story_macro",
           });
       },
@@ -185,13 +185,13 @@ function createBookContractExecutableModule(
           ? buildSimpleProgress({
             status: "completed",
             ratio: 1,
-            label: "书级创作约定已完成",
+            label: "The book contract is complete",
             evidence: { artifactType: "book_contract" },
           })
           : buildSimpleProgress({
             status: "not_started",
             ratio: 0,
-            label: "等待生成书级创作约定",
+            label: "Waiting to generate the book contract",
             nextAction: "run_book_contract",
           });
         },
@@ -345,7 +345,7 @@ function createWorldSetupExecutableModule(
           return buildSimpleProgress({
             status: "completed",
             ratio: 1,
-            label: "本书世界处理已跳过",
+            label: "Book-world processing was skipped",
             evidence: { artifactType: "world_skeleton", mode, skipped: true },
           });
         }
@@ -354,13 +354,13 @@ function createWorldSetupExecutableModule(
           ? buildSimpleProgress({
             status: "completed",
             ratio: 1,
-            label: "本书世界已准备完成",
+            label: "This book's world is ready",
             evidence: { artifactType: "world_skeleton", hasActiveWorld },
           })
           : buildSimpleProgress({
             status: "not_started",
             ratio: 0,
-            label: "等待准备本书世界",
+            label: "Waiting to prepare this book's world",
             nextAction: "run_world_setup",
           });
       },
@@ -447,13 +447,13 @@ function createCharacterSetupExecutableModule(
           ? buildSimpleProgress({
             status: "completed",
             ratio: 1,
-            label: "角色准备已完成",
+            label: "Character setup is complete",
             evidence: { artifactType: "character_cast", characterCount },
           })
           : buildSimpleProgress({
             status: "not_started",
             ratio: 0,
-            label: "等待补齐角色阵容",
+            label: "Waiting to complete the cast",
             nextAction: "run_character_setup",
           });
       },
@@ -560,13 +560,13 @@ function createVolumeStrategyExecutableModule(
           ? buildSimpleProgress({
             status: "completed",
             ratio: 1,
-            label: "分卷策略已完成",
+            label: "Volume strategy is complete",
             evidence: { artifactType: "volume_strategy", volumeCount: workspace.volumes.length },
           })
           : buildSimpleProgress({
             status: "not_started",
             ratio: 0,
-            label: "等待生成分卷策略",
+            label: "Waiting to generate the volume strategy",
             nextAction: "run_volume_strategy",
           });
       },
@@ -618,11 +618,11 @@ export const DIRECTOR_PLANNING_STEP_MODULES: Record<
     descriptor: buildStructuredOutlineStepDescriptor({
       id: DIRECTOR_PLANNING_STEP_IDS.structured_outline,
       nodeKey: "volume_beat_sheet_generate",
-      label: "生成目标卷节奏板",
+      label: "Generate the volume beat sheet",
       defaultWaitingState: {
         stage: "structured_outline",
         itemKey: "beat_sheet",
-        itemLabel: "等待卷节奏板准备完成",
+        itemLabel: "Waiting for the volume beat sheet to be ready",
         progress: 0.72,
       },
     }),

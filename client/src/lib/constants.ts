@@ -108,7 +108,7 @@ function resolveApiBaseUrl(): string {
   });
 }
 
-// 开发环境优先把 API 指向当前页面所在主机，避免局域网访问时仍被锁到 localhost。
+// development environment优先把 API 指向当前页面所在主机，避免局域网访问时仍被锁到 localhost。
 export const API_BASE_URL = resolveApiBaseUrl();
 
 const DEFAULT_API_TIMEOUT_MS = 10 * 60 * 1000;

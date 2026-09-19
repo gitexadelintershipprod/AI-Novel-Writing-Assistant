@@ -100,7 +100,7 @@ export class BookTaskAdapter {
           ? (structuredFailure.failureCode ?? "BOOK_ANALYSIS_FAILED")
           : null,
         failureSummary: normalizedStatus === "failed"
-          ? (structuredFailure.failureSummary ?? normalizeFailureSummary(row.lastError, "拆书任务失败，但没有记录明确错误。"))
+          ? (structuredFailure.failureSummary ?? normalizeFailureSummary(row.lastError, "Book analysis failed without a recorded error."))
           : row.lastError,
         recoveryHint: buildTaskRecoveryHint("book_analysis", mappedStatus),
         sourceResource: {
@@ -170,7 +170,7 @@ export class BookTaskAdapter {
         ? (structuredFailure.failureCode ?? "BOOK_ANALYSIS_FAILED")
         : null,
       failureSummary: normalizedStatus === "failed"
-        ? (structuredFailure.failureSummary ?? normalizeFailureSummary(row.lastError, "拆书任务失败，但没有记录明确错误。"))
+        ? (structuredFailure.failureSummary ?? normalizeFailureSummary(row.lastError, "Book analysis failed without a recorded error."))
         : row.lastError,
       recoveryHint: buildTaskRecoveryHint("book_analysis", status),
       sourceResource: {

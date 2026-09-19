@@ -51,7 +51,7 @@ export class BookAnalysisWatchdogService {
           data: {
             status: "queued",
             pendingManualRecovery: true,
-            lastError: "服务重启后任务已暂停，等待手动恢复。",
+            lastError: "The task paused after a service restart and is waiting for manual recovery.",
             heartbeatAt: null,
             currentStage: null,
             currentItemKey: null,
@@ -68,7 +68,7 @@ export class BookAnalysisWatchdogService {
           },
           data: {
             pendingManualRecovery: true,
-            lastError: "服务重启后任务已暂停，等待手动恢复。",
+            lastError: "The task paused after a service restart and is waiting for manual recovery.",
             heartbeatAt: null,
             cancelRequestedAt: null,
           },

@@ -59,7 +59,7 @@ function toErrorMessage(error: unknown): string {
   if (error instanceof Error && error.message.trim()) {
     return error.message.trim();
   }
-  return "连接测试失败。";
+  return "Connection test failed.";
 }
 
 function getProtocolCandidates(preferred?: ModelRouteRequestProtocol): ModelRouteRequestProtocol[] {
@@ -124,7 +124,7 @@ async function testPlainConnection(input: {
       requestProtocol: resolved.requestProtocol,
     });
     const start = Date.now();
-    await llm.invoke([new HumanMessage("请只回复 ok")]);
+    await llm.invoke([new HumanMessage("Reply with only ok")]);
     const plain = {
       ok: true,
       latency: Date.now() - start,
@@ -194,8 +194,8 @@ async function testStructuredConnection(input: {
       label: "llm.connectivity.structured_probe",
       schema: STRUCTURED_PROBE_SCHEMA,
       messages: [
-        new SystemMessage("你正在执行结构化输出兼容性探针。必须只输出合法 JSON。"),
-        new HumanMessage("请输出一个 JSON 对象，字段 status 的值必须是 ok。"),
+        new SystemMessage("You are running a structured-output compatibility probe. Output valid JSON only."),
+        new HumanMessage("Output a JSON object whose status field must be ok."),
       ],
       maxRepairAttempts: 1,
       disableFallbackModel: true,
@@ -267,7 +267,7 @@ async function mergeProbeStatuses(input: {
   const top = input.plain?.plain ?? input.structured?.structured ?? {
     ok: false,
     latency: null,
-    error: "连接测试失败。",
+    error: "Connection test failed.",
     requestProtocol: null,
   };
   return {

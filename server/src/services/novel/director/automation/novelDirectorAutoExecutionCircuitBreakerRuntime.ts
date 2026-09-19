@@ -79,7 +79,7 @@ async function applyCircuitBreakerDecision(
   if (action === "pause_for_manual") {
     await deps.workflowService.requeueTaskForRecovery(
       input.taskId,
-      input.circuitBreaker.message ?? "自动导演已在安全节点暂停，处理后可继续。",
+      input.circuitBreaker.message ?? "Auto-Director paused at a safe checkpoint. You can continue after handling it.",
     );
     await syncAutoExecutionTaskState(deps, {
       ...input,
@@ -121,7 +121,7 @@ async function applyCircuitBreakerStop(
   const autoExecution = withCircuitBreakerState(input.autoExecution, input.circuitBreaker);
   const scopeLabel = buildDirectorAutoExecutionScopeLabelFromState(autoExecution, input.range.totalChapterCount);
   const message = input.circuitBreaker.message?.trim()
-    || `${scopeLabel}已暂停，等待处理后再继续。`;
+    || `${scopeLabel} is paused. Handle this, then continue.`;
   await ledgerEventService.recordCircuitBreakerOpened({
     taskId: input.taskId,
     novelId: input.novelId,
@@ -191,7 +191,7 @@ export async function stopAutoExecutionForCircuitBreaker(
     novelId: input.novelId,
     issueCode,
     stage: input.circuitBreaker.nodeKey ?? "chapter_execution",
-    summary: input.circuitBreaker.message ?? "自动导演安全熔断已触发。",
+    summary: input.circuitBreaker.message ?? "Auto-Director safety circuit-breaker was triggered.",
     evidence: input.circuitBreaker.reason ?? undefined,
     affectedScope: input.circuitBreaker.chapterId
       ? `chapter:${input.circuitBreaker.chapterId}`
@@ -357,7 +357,7 @@ export async function runFullBookAutopilotReplanNotice(input: {
       taskId: input.taskId,
       novelId: input.novelId,
       nodeKey: "planner.replan",
-      summary: "全书自动成书已暂存重复重规划问题，并继续推进后续章节。",
+      summary: "Full-book mode stored a repeated replan issue and continued later chapters.",
       affectedScope: input.autoExecution.nextChapterId
         ? `chapter:${input.autoExecution.nextChapterId}`
         : (typeof input.autoExecution.nextChapterOrder === "number" ? `chapter_order:${input.autoExecution.nextChapterOrder}` : null),
@@ -413,7 +413,7 @@ export async function runFullBookAutopilotReplanNotice(input: {
       taskId: input.taskId,
       novelId: input.novelId,
       nodeKey: "planner.replan",
-      summary: "全书自动成书已暂存重复重规划问题，并继续推进后续章节。",
+      summary: "Full-book mode stored a repeated replan issue and continued later chapters.",
       affectedScope: input.autoExecution.nextChapterId
         ? `chapter:${input.autoExecution.nextChapterId}`
         : (typeof input.autoExecution.nextChapterOrder === "number" ? `chapter_order:${input.autoExecution.nextChapterOrder}` : null),

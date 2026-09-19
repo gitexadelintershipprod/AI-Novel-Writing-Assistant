@@ -80,7 +80,7 @@ export class DirectorStateCommitter {
         novelId: input.novelId ?? null,
         type: "artifact_indexed",
         nodeKey: input.nodeKey,
-        summary: "导演步骤已提交最新产物索引。",
+        summary: "The director step submitted the latest artifact index.",
         severity: "low",
         metadataJson: JSON.stringify({
           artifactIds: input.artifacts.map((artifact) => artifact.id),

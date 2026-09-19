@@ -141,19 +141,19 @@ export function buildDirectorAutoExecutionScopeLabel(
 ): string {
   const normalized = normalizeDirectorAutoExecutionPlan(plan);
   if (normalized.mode === "book") {
-    return "全书";
+    return "whole book";
   }
   if (normalized.mode === "chapter_range") {
     if ((normalized.startOrder ?? 1) === (normalized.endOrder ?? 1)) {
-      return `第 ${normalized.startOrder} 章`;
+      return `Chapter ${normalized.startOrder}`;
     }
-    return `第 ${normalized.startOrder}-${normalized.endOrder} 章`;
+    return `Chapters ${normalized.startOrder}–${normalized.endOrder}`;
   }
   if (normalized.mode === "volume") {
     const volumeLabel = fallbackVolumeTitle?.trim() ? ` · ${fallbackVolumeTitle.trim()}` : "";
-    return `第 ${normalized.volumeOrder} 卷${volumeLabel}`;
+    return `Volume ${normalized.volumeOrder}${volumeLabel}`;
   }
-  return `第 1-${Math.max(1, normalized.endOrder ?? fallbackTotalChapterCount ?? 10)} 章`;
+  return `No. 1-${Math.max(1, normalized.endOrder ?? fallbackTotalChapterCount ?? 10)} chapters`;
 }
 
 export function resolveDirectorAutoExecutionBookRange(
@@ -309,7 +309,7 @@ export function buildDirectorAutoExecutionDeferredQualityState(input: {
     {
       chapterId,
       chapterOrder,
-      reason: input.reason.trim() || "自动成书已暂存本章质量问题，继续推进后续章节。",
+      reason: input.reason.trim() || "Full-book mode stored this chapter's quality issue and continued later chapters.",
       source: input.source,
       deferredAt,
     },
@@ -449,18 +449,18 @@ export function buildDirectorAutoExecutionState(input: {
 }
 
 export function buildDirectorAutoExecutionPausedLabel(state: DirectorAutoExecutionState): string {
-  return `${buildDirectorAutoExecutionScopeLabelFromState(state)}自动执行已暂停`;
+  return `${buildDirectorAutoExecutionScopeLabelFromState(state)}Auto-run is paused`;
 }
 
 export function buildDirectorAutoExecutionStageLabel(state: DirectorAutoExecutionState): string {
   if (state.completionProfile?.mode !== "compact_book") {
-    return `正在自动执行${buildDirectorAutoExecutionScopeLabelFromState(state)}`;
+    return `Auto-running ${buildDirectorAutoExecutionScopeLabelFromState(state)}`;
   }
   const remaining = state.remainingChapterCount ?? 0;
-  if (remaining <= 3) return "正在补齐结局";
-  if (remaining <= 8) return "正在收束主线";
-  if ((state.completedChapterCount ?? 0) <= 3) return "正在完成开篇";
-  return "正在推进故事";
+  if (remaining <= 3) return "Filling in the ending";
+  if (remaining <= 8) return "Closing out the main plot";
+  if ((state.completedChapterCount ?? 0) <= 3) return "Finishing the opening";
+  return "Advancing the story";
 }
 
 export function buildDirectorAutoExecutionPausedSummary(input: {
@@ -479,16 +479,16 @@ export function buildDirectorAutoExecutionPausedSummary(input: {
     });
   }
   const remainingSummary = input.remainingChapterCount > 0
-    ? `当前仍有 ${input.remainingChapterCount} 章待继续`
-    : "当前批次已无待继续章节";
+    ? `${input.remainingChapterCount} chapters still remain`
+    : "This batch has no chapters left to continue";
   const nextSummary = typeof input.nextChapterOrder === "number"
-    ? `，建议从第 ${input.nextChapterOrder} 章继续`
+    ? `, continue from chapter ${input.nextChapterOrder}`
     : "";
-  return `${input.scopeLabel}已进入自动执行，但当前批量任务未完全完成：${input.failureMessage} ${remainingSummary}${nextSummary}。`;
+  return `${input.scopeLabel} entered auto-run, but the current batch is not fully finished: ${input.failureMessage} ${remainingSummary}${nextSummary}.`;
 }
 
 export function buildDirectorAutoExecutionCompletedLabel(scopeLabel: string): string {
-  return `${scopeLabel}自动执行完成`;
+  return `${scopeLabel} auto-run finished`;
 }
 
 export function buildDirectorAutoExecutionCompletedSummary(input: {
@@ -498,14 +498,14 @@ export function buildDirectorAutoExecutionCompletedSummary(input: {
   autoRepair?: boolean;
 }): string {
   const completedScope = input.scopeLabel;
-  const title = input.title.trim() || "当前项目";
+  const title = input.title.trim() || "Current project";
   if (input.autoReview === false) {
-    return `《${title}》已自动完成${completedScope}的章节执行，正文生成后未额外执行自动审核或修复。`;
+    return `"${title}" automatically finished chapter execution for ${completedScope}. After text generation, auto-review and repair were not run.`;
   }
   if (input.autoRepair === false) {
-    return `《${title}》已自动完成${completedScope}的章节执行与自动审核，未开启自动修复。`;
+    return `"${title}" automatically finished chapter execution and auto-review for ${completedScope}. Auto-repair is off.`;
   }
-  return `《${title}》已自动完成${completedScope}的章节执行、自动审核与修复。`;
+  return `"${title}" automatically finished chapter execution, auto-review, and repair for ${completedScope}.`;
 }
 
 export function buildDirectorAutoExecutionPipelineOptions(input: {
@@ -620,7 +620,7 @@ export function resolveDirectorAutoExecutionWorkflowState(
     return {
       stage: "quality_repair",
       itemKey: "quality_repair",
-      itemLabel: `正在自动审校${scopeLabel}${chapterLabel}${activityLabel}`,
+      itemLabel: `Auto-reviewing ${scopeLabel}${chapterLabel}${activityLabel}`,
       progress: Number((0.965 + ((job.progress ?? 0) * 0.02)).toFixed(4)),
     };
   }
@@ -628,14 +628,14 @@ export function resolveDirectorAutoExecutionWorkflowState(
     return {
       stage: "quality_repair",
       itemKey: "quality_repair",
-      itemLabel: `正在自动修复${scopeLabel}${chapterLabel}${activityLabel}`,
+      itemLabel: `Auto-repairing ${scopeLabel}${chapterLabel}${activityLabel}`,
       progress: Number((0.975 + ((job.progress ?? 0) * 0.015)).toFixed(4)),
     };
   }
   return {
     stage: "chapter_execution",
     itemKey: "chapter_execution",
-    itemLabel: `正在自动执行${scopeLabel}${chapterLabel}${activityLabel}`,
+    itemLabel: `Auto-running ${scopeLabel}${chapterLabel}${activityLabel}`,
     progress: Number((0.93 + ((job.progress ?? 0) * 0.035)).toFixed(4)),
   };
 }

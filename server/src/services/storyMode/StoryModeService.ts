@@ -56,7 +56,7 @@ function normalizeOptionalText(value: string | null | undefined): string | null 
 function normalizeRequiredName(value: string): string {
   const trimmed = value.trim();
   if (!trimmed) {
-    throw new AppError("流派模式名称不能为空。", 400);
+    throw new AppError("Story-mode name cannot be empty.", 400);
   }
   return trimmed;
 }
@@ -77,14 +77,14 @@ function normalizeDraft(input: CreateStoryModeTreeNodeInput): StoryModeTreeDraft
 
 function validateDraftSubtree(draft: StoryModeTreeDraft, depth = 1): void {
   if (depth > 2) {
-    throw new AppError("流派模式树最多只支持两级结构。", 400);
+    throw new AppError("Story-mode trees support at most two levels.", 400);
   }
 
   const seen = new Set<string>();
   for (const child of draft.children) {
     const key = normalizeNameKey(child.name);
     if (seen.has(key)) {
-      throw new AppError(`同一层下存在重复的流派模式名称：${child.name}。`, 400);
+      throw new AppError(`Duplicate story-mode name at this level: ${child.name}.`, 400);
     }
     seen.add(key);
     validateDraftSubtree(child, depth + 1);
@@ -200,12 +200,12 @@ export class StoryModeService {
   async createStoryModeChildren(input: CreateStoryModeChildrenInput) {
     const parentId = normalizeOptionalText(input.parentId);
     if (!parentId) {
-      throw new AppError("父级流派模式不能为空。", 400);
+      throw new AppError("The parent story mode cannot be empty.", 400);
     }
 
     const drafts = (input.drafts ?? []).map((draft) => normalizeDraft(draft));
     if (drafts.length === 0) {
-      throw new AppError("至少需要一个待创建的流派模式子类。", 400);
+      throw new AppError("At least one story-mode subclass to create is required.", 400);
     }
 
     const batchNames = new Set<string>();
@@ -213,7 +213,7 @@ export class StoryModeService {
       validateDraftSubtree(draft, 2);
       const key = normalizeNameKey(draft.name);
       if (batchNames.has(key)) {
-        throw new AppError(`待创建子类中存在重复名称：${draft.name}。`, 400);
+        throw new AppError(`Duplicate name in the subclasses to create: ${draft.name}.`, 400);
       }
       batchNames.add(key);
     }
@@ -229,7 +229,7 @@ export class StoryModeService {
 
       for (const draft of drafts) {
         if (existingNames.has(normalizeNameKey(draft.name))) {
-          throw new AppError(`同一父级下已存在相同名称的流派模式：${draft.name}。`, 400);
+          throw new AppError(`A story mode with this name already exists under the same parent: ${draft.name}.`, 400);
         }
       }
 
@@ -253,7 +253,7 @@ export class StoryModeService {
         },
       });
       if (!existing) {
-        throw new AppError("流派模式不存在。", 404);
+        throw new AppError("The story mode does not exist.", 404);
       }
 
       const nextParentId = input.parentId === undefined
@@ -264,7 +264,7 @@ export class StoryModeService {
         await this.ensureParentCanAcceptChild(tx, nextParentId);
         await this.ensureNoCycle(tx, id, nextParentId);
         if (existing._count.children > 0) {
-          throw new AppError("带子节点的流派模式不能移动到其他父类下，否则会超过两级结构。", 400);
+          throw new AppError("A story mode with children cannot move under another parent, or the tree would exceed two levels.", 400);
         }
       }
 
@@ -312,7 +312,7 @@ export class StoryModeService {
 
       const existing = rows.find((row) => row.id === id);
       if (!existing) {
-        throw new AppError("流派模式不存在。", 404);
+        throw new AppError("The story mode does not exist.", 404);
       }
 
       const subtree = collectSubtreeRows(rows, id);
@@ -321,7 +321,7 @@ export class StoryModeService {
         0,
       );
       if (boundNovelCount > 0) {
-        throw new AppError("当前推进模式树已被小说引用，请先解绑相关小说后再删除。", 400);
+        throw new AppError("This story-mode tree is used by novels. Unbind those novels before deleting it.", 400);
       }
 
       for (const row of subtree) {
@@ -341,7 +341,7 @@ export class StoryModeService {
       },
     });
     if (!novel) {
-      throw new AppError("小说不存在。", 404);
+      throw new AppError("The novel does not exist.", 404);
     }
     return buildStoryModePromptBlock({
       primary: novel.primaryStoryMode ? normalizeStoryModeOutput(novel.primaryStoryMode) : null,
@@ -377,10 +377,10 @@ export class StoryModeService {
       select: { id: true, parentId: true },
     });
     if (!existing) {
-      throw new AppError("父级流派模式不存在。", 400);
+      throw new AppError("The parent story mode does not exist.", 400);
     }
     if (existing.parentId) {
-      throw new AppError("流派模式树最多两级，只能挂在根节点下面。", 400);
+      throw new AppError("Story-mode trees have at most two levels, so this can only hang under a root.", 400);
     }
   }
 
@@ -399,7 +399,7 @@ export class StoryModeService {
       select: { id: true },
     });
     if (existing) {
-      throw new AppError("同一父级下已存在相同名称的流派模式。", 400);
+      throw new AppError("A story mode with the same name already exists under this parent.", 400);
     }
   }
 
@@ -411,7 +411,7 @@ export class StoryModeService {
     let cursorId: string | null = parentId;
     while (cursorId) {
       if (cursorId === id) {
-        throw new AppError("不能把流派模式移动到自己的子树下。", 400);
+        throw new AppError("A story mode cannot be moved under its own subtree.", 400);
       }
       const current: { parentId: string | null } | null = await tx.novelStoryMode.findUnique({
         where: { id: cursorId },

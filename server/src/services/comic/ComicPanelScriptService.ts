@@ -35,9 +35,9 @@ export class ComicPanelScriptService {
         },
       },
     });
-    if (!episode) throw new Error(`未找到漫画话数：${episodeId}`);
+    if (!episode) throw new Error(`Comic episode not found: ${episodeId}`);
     if (!episode.outline) {
-      throw new Error("请先生成分话大纲再生成分格脚本。");
+      throw new Error("Generate the episode outline before generating the panel script.");
     }
 
     const project = episode.project;
@@ -102,7 +102,7 @@ export class ComicPanelScriptService {
       promptInput: {
         projectTitle: project.title,
         episodeOrder: episode.order,
-        episodeTitle: episode.title ?? `第 ${episode.order} 话`,
+        episodeTitle: episode.title ?? `Episode ${episode.order}`,
         episodeSynopsis: episode.outline,
         sourceText: sourceText || undefined,
         characters: project.characters.map((c) => ({

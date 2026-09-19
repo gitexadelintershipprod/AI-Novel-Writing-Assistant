@@ -121,7 +121,7 @@ function normalizeSceneCardInput(raw: unknown, index: number): ChapterSceneCard 
     "targetWords",
     "wordCount",
     "budget",
-    "字数",
+    "word count",
   ]));
   const key = normalizeText(readAlias(raw, [
     "key",
@@ -156,25 +156,25 @@ function normalizeSceneCardInput(raw: unknown, index: number): ChapterSceneCard 
     "resistance",
     "obstacle",
     "opposition",
-    "阻力",
+    "resistance",
   ]));
   const turn = normalizeText(readAlias(raw, [
     "turn",
     "turningPoint",
     "reversal",
-    "转折",
+    "Turn",
   ]));
   const emotionalShift = normalizeText(readAlias(raw, [
     "emotionalShift",
     "emotionShift",
     "emotionalTurn",
-    "情绪位移",
+    "emotional displacement",
   ]));
   const readerValue = normalizeText(readAlias(raw, [
     "readerValue",
     "readerReward",
     "scenePayoff",
-    "读者价值",
+    "reader value",
   ]));
 
   if (!title || !purpose || !entryState || !exitState || !targetWordCount || targetWordCount <= 0) {

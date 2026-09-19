@@ -1,4 +1,10 @@
 import type { LLMProvider } from "@ai-novel/shared/types/llm";
+import {
+  canonicalizeGrowthStage,
+  canonicalizeStoryFunction,
+  GROWTH_STAGE_VALUES,
+  STORY_FUNCTION_VALUES,
+} from "@ai-novel/shared/types/legacyProtocolValues";
 import { z } from "zod";
 import { prisma } from "../../db/prisma";
 import { runStructuredPrompt } from "../../prompting/core/promptRunner";
@@ -9,11 +15,11 @@ import {
 import { characterLibrarySyncService } from "./CharacterLibrarySyncService";
 import { buildReferenceContext } from "./characterGenerateReference";
 
-const STORY_FUNCTION_VALUES = ["主角", "反派", "导师", "对照组", "配角"] as const;
-const GROWTH_STAGE_VALUES = ["起点", "受挫", "转折", "觉醒", "收束"] as const;
-
 export const characterGenerateConstraintsSchema = z.object({
-  storyFunction: z.enum(STORY_FUNCTION_VALUES).optional(),
+  storyFunction: z.preprocess(
+    (value) => (typeof value === "string" ? canonicalizeStoryFunction(value) ?? value : value),
+    z.enum(STORY_FUNCTION_VALUES).optional(),
+  ),
   externalGoal: z.string().trim().optional(),
   internalNeed: z.string().trim().optional(),
   coreFear: z.string().trim().optional(),
@@ -21,7 +27,10 @@ export const characterGenerateConstraintsSchema = z.object({
   secret: z.string().trim().optional(),
   coreFlaw: z.string().trim().optional(),
   relationshipHooks: z.string().trim().optional(),
-  growthStage: z.enum(GROWTH_STAGE_VALUES).optional(),
+  growthStage: z.preprocess(
+    (value) => (typeof value === "string" ? canonicalizeGrowthStage(value) ?? value : value),
+    z.enum(GROWTH_STAGE_VALUES).optional(),
+  ),
   toneStyle: z.string().trim().optional(),
 });
 
@@ -86,7 +95,7 @@ function normalizeConstraints(input: CharacterGenerateConstraints | undefined): 
     return null;
   }
   const normalized: CharacterGenerateConstraints = {
-    storyFunction: input.storyFunction,
+    storyFunction: canonicalizeStoryFunction(input.storyFunction) ?? input.storyFunction,
     externalGoal: toTrimmedText(input.externalGoal),
     internalNeed: toTrimmedText(input.internalNeed),
     coreFear: toTrimmedText(input.coreFear),
@@ -94,7 +103,7 @@ function normalizeConstraints(input: CharacterGenerateConstraints | undefined): 
     secret: toTrimmedText(input.secret),
     coreFlaw: toTrimmedText(input.coreFlaw),
     relationshipHooks: toTrimmedText(input.relationshipHooks),
-    growthStage: input.growthStage,
+    growthStage: canonicalizeGrowthStage(input.growthStage) ?? input.growthStage,
     toneStyle: toTrimmedText(input.toneStyle),
   };
   return Object.values(normalized).some(Boolean) ? normalized : null;
@@ -104,30 +113,30 @@ function assertConstraintConsistency(category: string, constraints: CharacterGen
   if (!constraints?.storyFunction) {
     return;
   }
-  const normalizedCategory = category.trim();
+  const normalizedCategory = canonicalizeStoryFunction(category) ?? category.trim();
   const categoryInSet = STORY_FUNCTION_VALUES.includes(normalizedCategory as (typeof STORY_FUNCTION_VALUES)[number]);
   if (categoryInSet && normalizedCategory !== constraints.storyFunction) {
-    throw new Error(`约束冲突：角色类别“${normalizedCategory}”与故事功能位“${constraints.storyFunction}”不一致，请统一后再试。`);
+    throw new Error(`Constraint conflict: category "${normalizedCategory}" does not match story function "${constraints.storyFunction}". Align them and try again.`);
   }
 }
 
 function buildConstraintsText(constraints: CharacterGenerateConstraints | null): string {
   if (!constraints) {
-    return "无";
+    return "None";
   }
   const lines = [
-    constraints.storyFunction ? `角色功能位：${constraints.storyFunction}` : "",
-    constraints.externalGoal ? `外显目标：${constraints.externalGoal}` : "",
-    constraints.internalNeed ? `内在需求：${constraints.internalNeed}` : "",
-    constraints.coreFear ? `核心恐惧：${constraints.coreFear}` : "",
-    constraints.moralBottomLine ? `道德底线：${constraints.moralBottomLine}` : "",
-    constraints.secret ? `秘密：${constraints.secret}` : "",
-    constraints.coreFlaw ? `核心缺陷：${constraints.coreFlaw}` : "",
-    constraints.relationshipHooks ? `关系钩子：${constraints.relationshipHooks}` : "",
-    constraints.growthStage ? `成长阶段：${constraints.growthStage}` : "",
-    constraints.toneStyle ? `风格语气：${constraints.toneStyle}` : "",
+    constraints.storyFunction ? `Story function: ${constraints.storyFunction}` : "",
+    constraints.externalGoal ? `External goal: ${constraints.externalGoal}` : "",
+    constraints.internalNeed ? `Internal need: ${constraints.internalNeed}` : "",
+    constraints.coreFear ? `Core fear: ${constraints.coreFear}` : "",
+    constraints.moralBottomLine ? `Moral line: ${constraints.moralBottomLine}` : "",
+    constraints.secret ? `Secret: ${constraints.secret}` : "",
+    constraints.coreFlaw ? `Core flaw: ${constraints.coreFlaw}` : "",
+    constraints.relationshipHooks ? `Relationship hooks: ${constraints.relationshipHooks}` : "",
+    constraints.growthStage ? `Growth stage: ${constraints.growthStage}` : "",
+    constraints.toneStyle ? `Tone: ${constraints.toneStyle}` : "",
   ].filter(Boolean);
-  return lines.length > 0 ? lines.join("\n") : "无";
+  return lines.length > 0 ? lines.join("\n") : "None";
 }
 
 async function invokeJsonWithRetry(
@@ -181,7 +190,7 @@ async function invokeJsonWithRetry(
       });
     return { parsed: result.output as Record<string, unknown>, retried: false, rawText: "" };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : `模型输出异常：${stageLabel}阶段无法解析。`;
+    const errorMessage = error instanceof Error ? error.message : `Model output anomaly: the ${stageLabel} stage could not be parsed.`;
     return { parsed: null, retried: false, rawText: "", errorMessage };
   }
 }
@@ -191,7 +200,7 @@ function buildFallbackSkeleton(input: CharacterGenerateInput, constraints: Chara
   const growthStart = constraints?.growthStage ?? "start";
   return {
     nameSuggestion: description.slice(0, 12) || "Unnamed Character",
-    role: constraints?.storyFunction || input.category.trim(),
+    role: constraints?.storyFunction || canonicalizeStoryFunction(input.category) || input.category.trim(),
     corePersona: constraints?.toneStyle || "rational and restrained with hidden emotional tension",
     surfaceTemperament: constraints?.toneStyle || "calm on the surface, intense underneath",
     coreDrive: constraints?.internalNeed || "needs recognition and emotional safety",
@@ -241,7 +250,10 @@ function buildFallbackFinalPayload(
   constraints: CharacterGenerateConstraints | null,
   skeleton: Record<string, unknown>,
 ): FinalCharacterPayload {
-  const role = constraints?.storyFunction || toTrimmedText(skeleton.role) || input.category.trim();
+  const role = canonicalizeStoryFunction(constraints?.storyFunction || toTrimmedText(skeleton.role) || input.category)
+    || constraints?.storyFunction
+    || toTrimmedText(skeleton.role)
+    || input.category.trim();
   const behaviorPatterns = toStringList(skeleton.behaviorPatterns, 4);
   const triggerPoints = toStringList(skeleton.triggerPoints, 3);
   const relationHooks = toStringList(skeleton.relationshipNetwork, 3);
@@ -310,7 +322,7 @@ function buildFallbackFinalPayload(
     interests: interests || "maintains stability through repeated daily rituals",
     keyEvents: keyEvents.join("; ") || "trigger event; breakthrough event; resolution event",
     tags: Array.from(tagSet).slice(0, 10).join(","),
-    category: input.category.trim(),
+    category: canonicalizeStoryFunction(input.category) ?? input.category.trim(),
   };
 }
 
@@ -336,11 +348,12 @@ function mergeFinalPayload(
 }
 
 export async function generateBaseCharacterFromAI(input: CharacterGenerateInput): Promise<GenerateBaseCharacterResult> {
+  const category = canonicalizeStoryFunction(input.category) ?? input.category.trim();
   const constraints = normalizeConstraints(input.constraints);
-  assertConstraintConsistency(input.category, constraints);
+  assertConstraintConsistency(category, constraints);
 
   console.info("[base-characters.generate] start", {
-    category: input.category,
+    category,
     hasConstraints: Boolean(constraints),
     knowledgeRefCount: input.knowledgeDocumentIds?.length ?? 0,
     bookAnalysisRefCount: input.bookAnalysisIds?.length ?? 0,
@@ -359,7 +372,7 @@ export async function generateBaseCharacterFromAI(input: CharacterGenerateInput)
   const constraintsText = buildConstraintsText(constraints);
   const stageOne = await invokeJsonWithRetry(provider, model, temperature, {
     description: input.description,
-    category: input.category,
+    category,
     genre: input.genre ?? "general",
     constraintsText,
     referenceContext,
@@ -400,7 +413,7 @@ export async function generateBaseCharacterFromAI(input: CharacterGenerateInput)
   const data = await prisma.baseCharacter.create({
     data: finalPayload,
   });
-  await characterLibrarySyncService.createBaseRevision(data.id, "AI 生成角色库角色。", "ai_base_character_generate");
+  await characterLibrarySyncService.createBaseRevision(data.id, "AI generated a character-library character.", "ai_base_character_generate");
 
   console.info("[base-characters.generate] done", {
     outputAnomaly,

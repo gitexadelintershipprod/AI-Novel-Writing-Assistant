@@ -129,16 +129,16 @@ function buildWorkerHealth(input: {
   })();
   const message = (() => {
     if (derivedState === "queued_waiting_worker") {
-      return "任务已进入后台队列，正在等待后台执行器接手。";
+      return "The task is in the background queue, waiting for a runner to take over.";
     }
     if (derivedState === "leased_starting") {
-      return "后台执行器正在接手任务，马上会进入实际执行。";
+      return "A background runner is taking over and will start real execution shortly.";
     }
     if (derivedState === "running_step") {
-      return "后台执行器正在推进这本书的自动导演流程。";
+      return "A background runner is advancing Auto-Director for this book.";
     }
     if (derivedState === "auto_recovering") {
-      return "后台执行器连接中断后正在恢复，系统会优先从最近进度继续。";
+      return "The background runner disconnected and is recovering. The system will continue from the latest progress.";
     }
     return null;
   })();
@@ -499,10 +499,10 @@ export class DirectorBookAutomationProjectionService {
       ...usageTelemetry.recentUsage.slice(0, 8).map((usage) => ({
         id: `usage:${usage.id}`,
         type: "usage" as const,
-        title: `AI 用量：${getDirectorNodeDisplayLabel({
+        title: `AI usage：${getDirectorNodeDisplayLabel({
           label: usage.promptAssetKey,
           nodeKey: usage.nodeKey,
-          fallback: "推进步骤",
+          fallback: "Advance steps",
         })}`,
         detail: usage.promptAssetKey
           ? `${usage.promptAssetKey}${usage.promptVersion ? `@${usage.promptVersion}` : ""}`
@@ -519,7 +519,7 @@ export class DirectorBookAutomationProjectionService {
       ...approvalRecords.map((record) => ({
         id: `approval:${record.id}`,
         type: "approval" as const,
-        title: `AI 自动确认：${record.approvalPointLabel}`,
+        title: `AI auto-confirmed: ${record.approvalPointLabel}`,
         detail: record.summary || record.checkpointSummary || record.scopeLabel,
         status: record.stage,
         taskId: record.taskId,

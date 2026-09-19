@@ -87,7 +87,7 @@ export default function StoryConstellationDialog({
   const foundationGroups = [
     {
       kind: "genre",
-      label: "故事类型",
+      label: "story type",
       options: visibleGenreOptions,
       selectedId: selectedGenreId,
       onSelect: onSelectGenre,
@@ -95,7 +95,7 @@ export default function StoryConstellationDialog({
     },
     {
       kind: "story-mode",
-      label: "推进方式",
+      label: "Propulsion method",
       options: visibleStoryModeOptions,
       selectedId: selectedStoryModeId,
       onSelect: onSelectStoryMode,
@@ -181,14 +181,14 @@ export default function StoryConstellationDialog({
   };
 
   const statusText = selected.length === 0
-    ? "可以只调整故事类型与推进方式，也可以选择具体开书素材。"
-    : `已选 ${selected.length}/7 类开书素材，确认后 AI 会整理并回填。`;
+    ? "You can just adjust the story type and advancement method, or you can choose specific book opening materials."
+    : `${selected.length}/7 opening materials selected. After you confirm, AI will sort them and fill them in.`;
 
   const footer = (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-3 rounded-2xl border border-border/60 bg-background/80 px-4 py-3 shadow-[0_18px_70px_rgba(15,23,42,0.12)] backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between sm:rounded-full sm:px-5">
       <div className="min-w-0 text-xs text-muted-foreground" aria-live="polite">{statusText}</div>
       <div className="flex shrink-0 flex-wrap justify-end gap-2">
-        <Button type="button" variant="ghost" onClick={() => onOpenChange(false)} disabled={isComposing}>取消</Button>
+        <Button type="button" variant="ghost" onClick={() => onOpenChange(false)} disabled={isComposing}>Cancel</Button>
         <Button
           type="button"
           className="rounded-full px-5"
@@ -196,7 +196,7 @@ export default function StoryConstellationDialog({
           disabled={isComposing || isUpdatingFoundation}
         >
           {isComposing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
-          {isComposing ? "正在确认..." : "确认"}
+          {isComposing ? "Confirming..." : "Confirm"}
         </Button>
       </div>
     </div>
@@ -205,8 +205,8 @@ export default function StoryConstellationDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <AppDialogContent
-        title="故事星图"
-        description="选择主角、金手指、首章爆点和推进素材，确认后会回到开书页继续修改。"
+        title="Story Star Chart"
+        description="Select the protagonist, cheats, first chapter explosive points and advancement materials. After confirmation, you will return to the opening page to continue modification."
         className="left-0 top-0 h-dvh max-h-none w-screen max-w-none translate-x-0 translate-y-0 rounded-none border-0 bg-background/95 shadow-none backdrop-blur-2xl"
         headerClassName="border-0 bg-transparent px-6 pb-2 pt-5 pr-16 sm:px-8 sm:pt-6 lg:px-10"
         bodyClassName="relative overflow-hidden p-0"
@@ -215,7 +215,7 @@ export default function StoryConstellationDialog({
       >
         <div className="absolute left-6 top-3 z-20 hidden items-center gap-2 text-xs text-muted-foreground sm:flex lg:left-10">
           <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-          类型和推进方式可直接切换；每类开书素材最多选择一个。
+          The type and advancement method can be switched directly; you can select at most one book-opening material of each type.
         </div>
         <Button
           type="button"
@@ -226,7 +226,7 @@ export default function StoryConstellationDialog({
           disabled={isGenerating || isComposing}
         >
           {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <RotateCcw className="h-4 w-4" />}
-          {isGenerating ? "正在换一组..." : "换一组"}
+          {isGenerating ? "Changing group..." : "Change a group"}
         </Button>
 
         {isGenerating ? (
@@ -235,17 +235,17 @@ export default function StoryConstellationDialog({
               <div className="absolute inset-0 animate-pulse rounded-full bg-primary/10 blur-xl" />
               <Loader2 className="relative h-7 w-7 animate-spin text-primary" />
             </div>
-            <div className="text-sm font-medium text-foreground">AI 正在点亮你的故事星图</div>
-            <div className="text-xs text-muted-foreground">会结合当前题材、推进方式和创作偏好。</div>
+            <div className="text-sm font-medium text-foreground">AI is lighting up your story star map</div>
+            <div className="text-xs text-muted-foreground">It will be combined with current themes, advancement methods and creative preferences.</div>
           </div>
         ) : orderedOptions.length === 0 ? (
           <div className="flex h-full min-h-[420px] flex-col items-center justify-center gap-4 px-6 text-center">
             <div>
-              <div className="text-sm font-medium text-foreground">故事星图暂时没有生成成功</div>
-              <div className="mt-2 text-xs text-muted-foreground">你的起始想法不会受到影响，可以重新尝试。</div>
+              <div className="text-sm font-medium text-foreground">The story star map has not been successfully generated yet.</div>
+              <div className="mt-2 text-xs text-muted-foreground">Your starting idea will not be affected and you can try again.</div>
             </div>
             <Button type="button" variant="outline" className="rounded-full" onClick={onGenerate}>
-              <RotateCcw className="h-4 w-4" />重新生成
+              <RotateCcw className="h-4 w-4" />Regenerate
             </Button>
           </div>
         ) : (
@@ -332,7 +332,7 @@ export default function StoryConstellationDialog({
                 <div className="absolute inset-[15%] rounded-full border border-primary/15" />
                 <div className="absolute inset-[24%] rounded-full bg-primary/10 blur-2xl" />
                 <div className="relative z-10 max-w-[290px] px-5 text-center">
-                  <div className="text-[11px] font-medium tracking-[0.24em] text-muted-foreground">故事核心</div>
+                  <div className="text-[11px] font-medium tracking-[0.24em] text-muted-foreground">Story core</div>
                   {selected.length > 0 ? (
                     <div className="mt-5 flex flex-wrap justify-center gap-2">
                       {selected.map((item) => (
@@ -344,17 +344,17 @@ export default function StoryConstellationDialog({
                             const option = options.find((candidate) => candidate.id === item.id);
                             if (option) handleToggle(option);
                           }}
-                          aria-label={`移除${item.label}`}
+                          aria-label={`Remove ${item.label}`}
                         >
                           {item.label} ×
                         </button>
                       ))}
                     </div>
                   ) : (
-                    <div className="mt-4 text-sm leading-7 text-muted-foreground">可以只调整创作方向<br />或选择具体的开书素材</div>
+                    <div className="mt-4 text-sm leading-7 text-muted-foreground">You can just adjust the creative direction<br />Or choose specific book opening materials</div>
                   )}
                   <div className="mx-auto mt-5 line-clamp-3 max-w-[260px] text-xs leading-5 text-muted-foreground" aria-live="polite">
-                    {activeHint || "把鼠标移到词语上，可以查看它会怎样落到开局和连载推进。"}
+                    {activeHint || "Move your mouse over a word to see how it will play into the opening and progression of the series."}
                   </div>
                 </div>
               </div>
@@ -410,7 +410,7 @@ export default function StoryConstellationDialog({
                   </section>
                 ))}
                 <div className="rounded-xl bg-muted/30 px-4 py-3 text-xs leading-5 text-muted-foreground" aria-live="polite">
-                  {activeHint || "点击一项具体素材，可以查看并组合它带来的开书方向。"}
+                  {activeHint || "Click on a specific material to view and combine the book opening directions it brings."}
                 </div>
               </div>
             </div>

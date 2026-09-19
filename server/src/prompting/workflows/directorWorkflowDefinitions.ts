@@ -9,7 +9,7 @@ export const directorWorkflowDefinitions: WorkflowDefinition[] = [
     resolve: ({ plannerInput }) => [{
       agent: "Planner",
       tool: "analyze_director_workspace",
-      reason: "通过自动导演运行时分析当前小说工作区",
+      reason: "通过Auto-Director运行时分析当前Novel workspace",
       input: { novelId: plannerInput.novelId },
       keyPrefix: "director_workspace_analysis",
     }],
@@ -22,7 +22,7 @@ export const directorWorkflowDefinitions: WorkflowDefinition[] = [
     resolve: ({ plannerInput }) => [{
       agent: "Planner",
       tool: "get_director_run_status",
-      reason: "读取自动导演运行状态",
+      reason: "读取Auto-DirectorRunning status",
       input: { novelId: plannerInput.novelId },
       keyPrefix: "director_run_status",
     }],
@@ -35,7 +35,7 @@ export const directorWorkflowDefinitions: WorkflowDefinition[] = [
     resolve: ({ plannerInput }) => [{
       agent: "Planner",
       tool: "explain_director_next_action",
-      reason: "解释当前小说的自动导演下一步建议",
+      reason: "解释current novel的Auto-DirectorSuggestions for next steps",
       input: { novelId: plannerInput.novelId },
       keyPrefix: "director_next_action",
     }],
@@ -48,7 +48,7 @@ export const directorWorkflowDefinitions: WorkflowDefinition[] = [
     resolve: ({ plannerInput }) => [{
       agent: "Planner",
       tool: "run_director_next_step",
-      reason: "请求自动导演继续推进下一步",
+      reason: "Ask Auto-Director to continue to the next step",
       input: { novelId: plannerInput.novelId },
       keyPrefix: "director_run_next_step",
     }],
@@ -61,7 +61,7 @@ export const directorWorkflowDefinitions: WorkflowDefinition[] = [
     resolve: ({ plannerInput }) => [{
       agent: "Planner",
       tool: "run_director_until_gate",
-      reason: "请求自动导演推进到下一个检查点",
+      reason: "Ask Auto-Director to advance to the next checkpoint",
       input: { novelId: plannerInput.novelId },
       keyPrefix: "director_run_until_gate",
     }],
@@ -74,7 +74,7 @@ export const directorWorkflowDefinitions: WorkflowDefinition[] = [
     resolve: ({ intent, plannerInput }) => [{
       agent: "Planner",
       tool: "switch_director_policy",
-      reason: "切换自动导演推进策略",
+      reason: "切换Auto-Director推进策略",
       input: {
         novelId: plannerInput.novelId,
         mode: intent.directorPolicyMode ?? "run_next_step",
@@ -97,7 +97,7 @@ export const directorWorkflowDefinitions: WorkflowDefinition[] = [
     resolve: ({ intent, plannerInput }) => [{
       agent: "Planner",
       tool: "evaluate_manual_edit_impact",
-      reason: "评估手动编辑对自动导演后续推进的影响",
+      reason: "评估手动编辑对Auto-Director后续推进的影响",
       input: {
         novelId: plannerInput.novelId,
         ...(intent.chapterSelectors.chapterId ? { chapterId: intent.chapterSelectors.chapterId } : {}),

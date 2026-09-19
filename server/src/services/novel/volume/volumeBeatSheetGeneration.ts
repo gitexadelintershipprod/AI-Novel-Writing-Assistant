@@ -66,7 +66,7 @@ export async function generateBeatSheet(params: {
     novelId: document.novelId,
     scope: "beat_sheet",
     phase: "prompt",
-    label: `正在生成第 ${targetVolume.sortOrder} 卷节奏板`,
+    label: `Generating Volume ${targetVolume.sortOrder} beat sheet`,
     options,
   });
   const promptInput = {

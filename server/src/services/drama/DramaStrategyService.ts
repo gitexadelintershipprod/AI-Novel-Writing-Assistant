@@ -26,18 +26,18 @@ export class DramaStrategyService {
       include: { sourceBundle: true },
     });
     if (!project) {
-      throw new Error(`未找到短剧项目：${projectId}`);
+      throw new Error(`Drama project ${projectId} was not found.`);
     }
     if (!project.track) {
-      throw new Error("请先为项目设置赛道（track）再生成策略。");
+      throw new Error("Set the project track before generating a strategy.");
     }
     const track = rhythmEngine.getTrack(project.track as TrackId);
     if (!track) {
-      throw new Error(`未知赛道：${project.track}`);
+      throw new Error(`Unknown track: ${project.track}`);
     }
     const synopsis = project.sourceBundle?.synopsis?.trim();
     if (!synopsis) {
-      throw new Error("请先装配内容包（source-bundle）再生成策略。");
+      throw new Error("Assemble the source-bundle before generating a strategy.");
     }
 
     const preferredHooks = rhythmEngine

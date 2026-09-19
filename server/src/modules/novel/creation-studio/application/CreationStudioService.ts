@@ -77,11 +77,11 @@ export class CreationStudioService {
   async interpret(input: CreationStudioInterpretRequest): Promise<CreationStudioTaskProjection> {
     const idea = input.idea.trim();
     if (!idea) {
-      throw new AppError("请先写下你想创作的内容。", 400);
+      throw new AppError("First write what you want to create.", 400);
     }
     const task = await this.workflowService.bootstrapTask({
       lane: "creation_studio",
-      title: "把想法写成作品",
+      title: "Turn the idea into a book",
       forceNew: true,
       seedPayload: { idea },
     });
@@ -107,7 +107,7 @@ export class CreationStudioService {
       },
     });
     if (!source || source.narrativeForm !== "short_story") {
-      throw new AppError("只能从短篇作品发展成长篇。", 400);
+      throw new AppError("Only a short story can be expanded into a novel.", 400);
     }
     const activeIntent = source.intentVersions[0];
     const storyDigest = source.shortStorySegments
@@ -115,13 +115,13 @@ export class CreationStudioService {
       .join("\n\n")
       .slice(0, 8000);
     const idea = [
-      `请把短篇《${source.title}》发展成一部长篇，同时保留原作的核心人物、核心冲突和结尾意义。`,
+      `请把短篇《${source.title}》发展成一部长篇，同时保留原作的核心人物、core conflict和结尾意义。`,
       activeIntent ? `原始创作意图：${activeIntent.originalExpression}` : "",
       `短篇成稿摘要素材：${storyDigest}`,
     ].filter(Boolean).join("\n\n");
     const task = await this.workflowService.bootstrapTask({
       lane: "creation_studio",
-      title: `发展《${source.title}》成长篇`,
+      title: `Develop “${source.title}” into a long novel`,
       forceNew: true,
       seedPayload: { idea, derivedFromNovelId: source.id },
     });
@@ -137,10 +137,10 @@ export class CreationStudioService {
     const task = await this.requireCreationTask(taskId);
     const seed = parseSeedPayload<CreationStudioSeed>(task.seedPayloadJson);
     if (!seed?.idea) {
-      throw new AppError("当前创作任务缺少原始想法，请重新开始。", 409);
+      throw new AppError("This creative task is missing the original idea. Please start over.", 409);
     }
     if (task.novelId) {
-      throw new AppError("作品已开始生成，不能再替换确认前方向。", 409);
+      throw new AppError("Generation has started, so the pre-confirm direction can no longer be replaced.", 409);
     }
     return this.runInterpretation(task.id, {
       idea: seed.idea,
@@ -191,11 +191,11 @@ export class CreationStudioService {
     const existing = await prisma.creationStudioConfirmation.findUnique({ where: { workflowTaskId: task.id } });
     if (existing) {
       if (existing.idempotencyKey !== input.idempotencyKey) {
-        throw new AppError("该创作方向已确认，请继续原有作品。", 409);
+        throw new AppError("This creative direction is confirmed. Continue the existing work.", 409);
       }
       if (!existing.novelId || !existing.productionTaskId) {
         if (existing.status !== "failed") {
-          throw new AppError("确认请求正在处理中，请稍后重试。", 409);
+          throw new AppError("The confirmation request is still processing. Try again later.", 409);
         }
         await prisma.creationStudioConfirmation.update({
           where: { id: existing.id },
@@ -211,16 +211,16 @@ export class CreationStudioService {
       ? await prisma.novelIntentVersion.findUnique({ where: { id: seed.currentIntentVersionId } })
       : null;
     if (!seed?.idea || !intent) {
-      throw new AppError("请先完成想法理解并选择一个方向。", 409);
+      throw new AppError("Finish idea understanding and choose a direction first.", 409);
     }
     const interpretation = parseInterpretation(intent.structuredIntentJson);
     const direction = interpretation.directions.find((item) => item.id === input.directionId);
     if (!direction) {
-      throw new AppError("所选方向已失效，请重新选择。", 400);
+      throw new AppError("The selected direction is no longer valid. Choose again.", 400);
     }
     this.assertTarget(input.narrativeForm, input.targetWordCount);
     if (!supportsWritingPlatformForm(input.writingPlatform, input.narrativeForm)) {
-      throw new AppError("所选平台不支持当前作品规模，请重新选择。", 400);
+      throw new AppError("The selected platform does not support this work's scale. Choose again.", 400);
     }
 
     if (!existing) {
@@ -262,7 +262,7 @@ export class CreationStudioService {
     await this.workflowService.markTaskRunning(taskId, {
       stage: "creation_intent",
       itemKey: "interpret",
-      itemLabel: "正在理解你的想法",
+      itemLabel: "Understanding your idea",
       progress: 0.04,
     });
     try {
@@ -320,7 +320,7 @@ export class CreationStudioService {
       await this.workflowService.markTaskWaitingApproval(taskId, {
         stage: "creation_intent",
         itemKey: "direction_confirmation",
-        itemLabel: "方向已准备好，请选择一个继续",
+        itemLabel: "Directions are ready. Choose one to continue",
         progress: 0.12,
         seedPayload: {
           idea: input.idea,
@@ -330,11 +330,11 @@ export class CreationStudioService {
       });
       return this.getProjection(taskId);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "AI 暂时无法理解这个想法，请重试。";
+      const message = error instanceof Error ? error.message : "AI could not understand this idea yet. Please try again.";
       await this.workflowService.markTaskFailed(taskId, message, {
         stage: "creation_intent",
         itemKey: "interpret",
-        itemLabel: "想法理解未完成，可以重试",
+        itemLabel: "Idea understanding is not finished. You can retry",
       });
       throw error;
     }
@@ -405,7 +405,7 @@ export class CreationStudioService {
     await this.workflowService.markTaskRunning(taskId, {
       stage: "short_story_plan",
       itemKey: "short_story_plan",
-      itemLabel: "正在规划完整短篇",
+      itemLabel: "Planning the full short story",
       progress: 0.16,
       seedPayload: {
         ...seed,
@@ -462,7 +462,7 @@ export class CreationStudioService {
       });
       const productionTaskId = result.workflowTaskId;
       if (!productionTaskId) {
-        throw new Error("长篇自动导演未返回生产任务。");
+        throw new Error("Long-form Auto-Director did not return a production task.");
       }
       await prisma.$transaction([
         prisma.novelIntentVersion.update({
@@ -499,8 +499,8 @@ export class CreationStudioService {
       await this.workflowService.recordCheckpoint(taskId, {
         stage: "creation_intent",
         checkpointType: "workflow_completed",
-        checkpointSummary: "创作方向已交给长篇自动导演继续完成。",
-        itemLabel: "长篇创作已开始",
+        checkpointSummary: "The creative direction was handed to long-form Auto-Director to finish.",
+        itemLabel: "Long-form writing has started",
         progress: 1,
         seedPayload: {
           ...seed,
@@ -528,7 +528,7 @@ export class CreationStudioService {
   private async requireCreationTask(taskId: string) {
     const task = await this.workflowService.getTaskByIdWithoutHealing(taskId);
     if (!task || task.lane !== "creation_studio") {
-      throw new AppError("创作任务不存在。", 404);
+      throw new AppError("The creative task does not exist.", 404);
     }
     return task;
   }

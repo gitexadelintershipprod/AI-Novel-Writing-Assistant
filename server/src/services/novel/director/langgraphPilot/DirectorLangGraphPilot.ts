@@ -104,8 +104,8 @@ function createInterrupt(input: {
   return {
     id: `${input.taskId}:${input.step.stepId}:approval`,
     stepId: input.step.stepId,
-    title: "等待确认下一步",
-    summary: `确认后继续执行「${input.step.label}」。`,
+    title: "Waiting to confirm the next step",
+    summary: `After confirmation, continue with "${input.step.label}".`,
     resumable: true,
   };
 }
@@ -169,7 +169,7 @@ export class DirectorLangGraphPilot {
         trace: appendTrace(state, {
           node: "workspace_analyze",
           status: "skipped",
-          summary: "已复用上次工作区分析节点结果。",
+          summary: "The last workspace-analysis node result was reused.",
         }),
       };
     }
@@ -179,7 +179,7 @@ export class DirectorLangGraphPilot {
         trace: appendTrace(state, {
           node: "workspace_analyze",
           status: "skipped",
-          summary: "当前计划未绑定小说，跳过工作区分析。",
+          summary: "This plan is not bound to a novel, so workspace analysis was skipped.",
         }),
       };
     }
@@ -194,7 +194,7 @@ export class DirectorLangGraphPilot {
       trace: appendTrace(state, {
         node: "workspace_analyze",
         status: "completed",
-        summary: "已读取 DirectorRuntime 工作区分析结果。",
+        summary: "DirectorRuntime workspace analysis was read.",
       }),
     };
   }
@@ -206,7 +206,7 @@ export class DirectorLangGraphPilot {
           node: "recommend_next_action",
           status: "skipped",
           stepId: state.pendingStep.stepId,
-          summary: "已复用上次推荐的下一步。",
+          summary: "The last recommended next step was reused.",
         }),
       };
     }
@@ -220,8 +220,8 @@ export class DirectorLangGraphPilot {
         status: "completed",
         stepId: nextStep?.stepId ?? null,
         summary: nextStep
-          ? `下一步建议为「${nextStep.label}」。`
-          : "当前 Workflow Plan 没有剩余步骤。",
+          ? `The suggested next step is "${nextStep.label}".`
+          : "The current Workflow Plan has no remaining steps.",
       }),
     };
   }
@@ -234,7 +234,7 @@ export class DirectorLangGraphPilot {
         trace: appendTrace(state, {
           node: "run_next_step",
           status: "skipped",
-          summary: "没有可执行的下一步。",
+          summary: "There is no next step to run.",
         }),
       };
     }
@@ -260,7 +260,7 @@ export class DirectorLangGraphPilot {
           node: "run_next_step",
           status: "interrupted",
           stepId: step.stepId,
-          summary: `执行「${step.label}」前等待确认。`,
+          summary: `Waiting for confirmation before running "${step.label}".`,
         }),
       };
     }
@@ -282,7 +282,7 @@ export class DirectorLangGraphPilot {
         node: "run_next_step",
         status: "completed",
         stepId: step.stepId,
-        summary: `已执行「${step.label}」。`,
+        summary: `Ran "${step.label}".`,
       }),
     };
   }
@@ -304,7 +304,7 @@ export class DirectorLangGraphPilot {
         node: "approval_interrupt",
         status: "completed",
         stepId: state.pendingStep?.stepId ?? null,
-        summary: "本轮图执行未留下待确认中断。",
+        summary: "This graph run left no pending confirmation interrupt.",
       }),
     };
   }

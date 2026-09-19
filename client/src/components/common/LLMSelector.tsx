@@ -270,19 +270,19 @@ export default function LLMSelector({
   return (
     <div className={cn("space-y-2", compact && "space-y-1", className)}>
       <div className={cn("flex min-w-0 items-center gap-2", compact ? "flex-nowrap gap-1.5" : "flex-wrap")}>
-        {showBadge ? <Badge variant="secondary">模型</Badge> : null}
+        {showBadge ? <Badge variant="secondary">model</Badge> : null}
         <Select
           value={providerSelectValue}
           onValueChange={onProviderChange}
           disabled={!hasRunnableProviders}
         >
           <SelectTrigger className={cn(compact ? "h-9 w-[148px] lg:w-[164px]" : "w-full sm:w-[180px]")}>
-            <SelectValue placeholder={hasRunnableProviders ? "选择厂商" : "请先配置可用厂商"} />
+            <SelectValue placeholder={hasRunnableProviders ? "Select manufacturer" : "Please configure available vendors first"} />
           </SelectTrigger>
           <SelectContent>
             {!hasRunnableProviders ? (
               <SelectItem value={NO_PROVIDER_VALUE} disabled>
-                请先配置可用厂商
+                Please configure available vendors first
               </SelectItem>
             ) : null}
             {providerOptions.map((provider) => (
@@ -298,9 +298,9 @@ export default function LLMSelector({
             value={resolvedModel}
             onValueChange={onModelChange}
             options={models.map((model) => ({ value: model }))}
-            placeholder={hasRunnableProviders ? "选择模型" : "暂无可用模型"}
-            searchPlaceholder="搜索模型"
-            emptyText="没有可用模型"
+            placeholder={hasRunnableProviders ? "Select model" : "No models available yet"}
+            searchPlaceholder="Search model"
+            emptyText="No model available"
             className={cn(compact ? "w-[184px] lg:w-[220px]" : "w-full sm:w-[240px]")}
             triggerClassName={compact ? "h-9 px-2.5" : undefined}
             disabled={!hasRunnableProviders}
@@ -310,11 +310,11 @@ export default function LLMSelector({
         {showCompactTemperature ? (
           <label
             className="flex h-9 shrink-0 items-center gap-1.5 rounded-md border border-input bg-background px-2 text-xs text-muted-foreground shadow-sm"
-            title="温度越高越发散；结构规划建议使用 0.3～0.7"
+            title="The higher the temperature, the more divergent it is; structural planning recommends using 0.3~0.7"
           >
-            <span>温度</span>
+            <span>temperature</span>
             <Input
-              aria-label="模型温度"
+              aria-label="model temperature"
               type="number"
               step="0.1"
               min={0}
@@ -349,14 +349,14 @@ export default function LLMSelector({
 
       {showHelperText && !hasRunnableProviders && !apiKeySettingsQuery.isLoading ? (
         <div className="text-xs text-muted-foreground">
-          当前没有已配置且启用的模型厂商，请先到系统设置里完成 API Key 和模型配置。
+          There is currently no configured and enabled model manufacturer. Please go to the system settings to complete the API Key and model configuration first.
         </div>
       ) : null}
 
       {showParameters ? (
         <div className="grid gap-2 md:grid-cols-2">
           <label className="space-y-1 text-sm">
-            <span className="text-muted-foreground">温度 (0~2)</span>
+            <span className="text-muted-foreground">Temperature (0~2)</span>
             <Input
               type="number"
               step="0.1"
@@ -388,7 +388,7 @@ export default function LLMSelector({
           </label>
 
           <label className="space-y-1 text-sm">
-            <span className="text-muted-foreground">最大 Tokens (留空 = 不限制)</span>
+            <span className="text-muted-foreground">Maximum Tokens (leave blank = no limit)</span>
             <Input
               type="number"
               step="1"

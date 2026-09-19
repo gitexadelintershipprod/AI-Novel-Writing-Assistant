@@ -11,7 +11,7 @@ import {
 
 const llmSelectionSchema = z.object({
   provider: llmProviderSchema,
-  model: z.string().trim().min(1, "模型名称不能为空。"),
+  model: z.string().trim().min(1, "Model name cannot be empty."),
   temperature: z.coerce.number().min(0).max(2).optional(),
   maxTokens: z.coerce.number().int().min(256).max(32768).optional(),
 });
@@ -23,7 +23,7 @@ export function registerLLMSelectionRoutes(router: Router): void {
       res.status(200).json({
         success: true,
         data,
-        message: "当前模型选择已加载。",
+        message: "The current model selection was loaded.",
       } satisfies ApiResponse<LLMSelectionSettings | null>);
     } catch (error) {
       next(error);
@@ -39,7 +39,7 @@ export function registerLLMSelectionRoutes(router: Router): void {
         res.status(200).json({
           success: true,
           data,
-          message: "当前模型选择已保存。",
+          message: "The current model selection was saved.",
         } satisfies ApiResponse<LLMSelectionSettings>);
       } catch (error) {
         next(error);

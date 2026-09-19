@@ -5,44 +5,44 @@ import { listAgentToolDefinitions } from "./toolRegistry";
 const DOMAIN_AGENTS: AgentCatalogAgent[] = [
   {
     name: "Coordinator",
-    title: "创作总控",
-    description: "负责跨模块规划、状态汇总、任务诊断和动作编排。",
+    title: "Creative coordinator",
+    description: "Handles cross-module planning, status summaries, task diagnosis, and action orchestration.",
     resourceScopes: ["global", "task", "agent_run", "generation_job"],
   },
   {
     name: "NovelAgent",
-    title: "小说中枢",
-    description: "负责小说、章节、快照、创作决策和章节生成链路。",
+    title: "Novel hub",
+    description: "Owns novels, chapters, snapshots, creative decisions, and the chapter-generation chain.",
     resourceScopes: ["novel", "chapter", "creative_decision", "snapshot", "generation_job"],
   },
   {
     name: "BookAnalysisAgent",
-    title: "拆书分析官",
-    description: "负责拆书任务、分析结果和知识沉淀。",
+    title: "Book analysis officer",
+    description: "Handles book-analysis tasks, analysis results, and knowledge capture.",
     resourceScopes: ["book_analysis", "knowledge_document", "task"],
   },
   {
     name: "KnowledgeAgent",
-    title: "知识档案官",
-    description: "负责知识文档、索引状态、召回诊断和绑定关系。",
+    title: "Knowledge archivist",
+    description: "Handles knowledge documents, index status, retrieval diagnosis, and bindings.",
     resourceScopes: ["knowledge_document", "task"],
   },
   {
     name: "WorldAgent",
-    title: "世界观编务",
-    description: "负责世界观状态、冲突诊断、快照和小说绑定。",
+    title: "World editor",
+    description: "Handles world status, conflict diagnosis, snapshots, and novel bindings.",
     resourceScopes: ["world", "snapshot", "novel"],
   },
   {
     name: "FormulaAgent",
-    title: "公式编修师",
-    description: "负责写作公式的管理、适配解释和风格沉淀。",
+    title: "Formula editor",
+    description: "Handles writing-formula management, fit explanations, and style capture.",
     resourceScopes: ["writing_formula", "novel", "chapter"],
   },
   {
     name: "CharacterAgent",
-    title: "角色档案官",
-    description: "负责基础角色库、模板复用和角色上下文。",
+    title: "Character officer",
+    description: "Handles the base character library, template reuse, and character context.",
     resourceScopes: ["base_character", "novel", "chapter"],
   },
 ];
@@ -71,33 +71,33 @@ function inferUiKind(toolName: string): string {
 
 function inferFollowupActions(toolName: string): string[] {
   if (toolName === "create_novel") {
-    return ["继续完善设定", "绑定当前工作区", "开始创建章节"];
+    return ["Continue to improve settings", "Bind the current workspace", "Start creating chapters"];
   }
   if (toolName === "generate_world_for_novel") {
-    return ["继续生成角色", "查看世界观", "检查世界观冲突"];
+    return ["Continue generating characters", "View world view", "Check for worldview conflicts"];
   }
   if (toolName === "generate_novel_characters") {
-    return ["继续生成圣经", "查看角色状态", "继续整本生成"];
+    return ["Continue generating the bible", "View character status", "Continue full-book generation"];
   }
   if (toolName === "generate_story_bible" || toolName === "generate_novel_outline" || toolName === "generate_structured_outline") {
-    return ["继续整本生成", "查看整本生产状态", "检查当前资产准备情况"];
+    return ["Continue full-book generation", "View whole-production status", "Check current asset readiness"];
   }
   if (toolName === "get_novel_production_status") {
-    return ["继续生成当前小说", "为什么整本生成没有启动", "查看当前章节目录"];
+    return ["Continue generating this novel", "Why has whole-book generation not started?", "View the current chapter list"];
   }
   if (toolName === "select_novel_workspace") {
-    return ["继续围绕该小说操作", "查看章节", "发起写作"];
+    return ["Continue working around this novel", "View chapters", "Start writing"];
   }
   if (toolName.includes("failure") || toolName.includes("blocker")) {
-    return ["查看相关任务", "继续追问失败原因", "尝试重试"];
+    return ["View related tasks", "Keep asking about the failure reason", "Try again"];
   }
   if (toolName.startsWith("list_")) {
-    return ["筛选结果", "在创作中枢继续", "打开对应模块"];
+    return ["Filter results", "Continue in Creative Hub", "Open the matching module"];
   }
   if (toolName.includes("chapter")) {
-    return ["继续总结", "发起重写", "检查冲突"];
+    return ["Continue to summarize", "Start a rewrite", "Check for conflicts"];
   }
-  return ["继续追问", "打开对应模块"];
+  return ["Keep asking", "Open the matching module"];
 }
 
 export function buildAgentCatalog(): AgentCatalog {

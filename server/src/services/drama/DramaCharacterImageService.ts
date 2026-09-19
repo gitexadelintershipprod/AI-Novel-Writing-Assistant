@@ -6,7 +6,7 @@
  * 设计原则：
  * - 仅依赖平台级图片能力（provider.ts），不导入 novel 业务服务。
  * - 图片存储于 drama-characters/{charId}/ 独立目录，通过专用端点服务。
- * - characterSheetData 存角色设计稿（主）；portraitData/threeViewData 保留后备兼容。
+ * - characterSheetData 存Character design draft（主）；portraitData/threeViewData 保留后备兼容。
  */
 import fs from "fs/promises";
 import path from "path";
@@ -142,7 +142,7 @@ function extractVisualDesc(visualAnchor: string | null | undefined): string {
 }
 
 /**
- * 构建「角色设计稿」提示词：
+ * 构建「Character design draft」提示词：
  * 单张横版图 = 左侧面部特写（1/3） + 右侧全身三视图正/侧/背（2/3）
  */
 function buildCharacterSheetPrompt(character: {
@@ -183,7 +183,7 @@ export class DramaCharacterImageService {
       where: { id: characterId },
     });
     if (!character) {
-      throw new AppError(`未找到短剧角色：${characterId}`, 404);
+      throw new AppError(`Drama character not found: ${characterId}`, 404);
     }
 
     const prompt = buildCharacterSheetPrompt(character);
@@ -209,7 +209,7 @@ export class DramaCharacterImageService {
       prompt,
       referenceImages: [] as import("../image/runtime").GeneratedReferenceImageMeta[],
       size: "1536x1024" as const,
-      title: `生成短剧角色设计稿：${character.name}`,
+      title: `Generate drama character design draft: ${character.name}`,
     };
   }
 
@@ -229,7 +229,7 @@ export class DramaCharacterImageService {
   }
 
   /**
-   * 生成角色设计稿（主方法）：
+   * Generate character design draft（主方法）：
    * 一张横版图 = 左侧面部特写 + 右侧全身正/侧/背三视图。
    * 回填到 portraitData（兼容旧字段，视频生成读这个字段取参考图 URL）。
    */
@@ -288,7 +288,7 @@ export class DramaCharacterImageService {
 
   /**
    * @deprecated 使用 generateCharacterSheet() 替代。
-   * 三视图已合并进角色设计稿，此方法返回空数组作为兼容占位。
+   * 三视图已合并进Character design draft，此方法返回空数组作为兼容占位。
    */
   async generateThreeView(
     characterId: string,
@@ -308,7 +308,7 @@ export class DramaCharacterImageService {
       select: { portraitData: true, threeViewData: true },
     });
     if (!character) {
-      throw new AppError(`未找到短剧角色：${characterId}`, 404);
+      throw new AppError(`Drama character not found: ${characterId}`, 404);
     }
 
     const portrait: PortraitData = character.portraitData
@@ -323,7 +323,7 @@ export class DramaCharacterImageService {
   }
 
   /**
-   * 解析角色设计稿本地文件路径（供 HTTP 端点读文件使用）。
+   * 解析Character design draft本地文件路径（供 HTTP 端点读文件使用）。
    */
   async resolveExistingImagePath(
     characterId: string,

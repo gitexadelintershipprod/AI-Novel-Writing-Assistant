@@ -27,59 +27,59 @@ export interface VolumeBeatSlotDefinition {
 export const VOLUME_BEAT_SLOT_DEFINITIONS: VolumeBeatSlotDefinition[] = [
   {
     key: "open_hook",
-    roleLabel: "开卷抓手",
+    roleLabel: "Opening hook",
     required: true,
     order: 1,
-    aliases: ["开卷抓手", "开局", "开卷", "opening", "open", "hook"],
+    aliases: ["开卷抓手", "开局", "开卷", "opening", "open", "hook", "Opening hook"],
   },
   {
     key: "first_escalation",
-    roleLabel: "首次升级",
+    roleLabel: "First escalation",
     required: true,
     order: 2,
-    aliases: ["首次升级", "第一次升级", "第一次升级或反制", "升级", "反制", "first_upgrade"],
+    aliases: ["首次升级", "第一次升级", "第一次升级或反制", "升级", "反制", "first_upgrade", "First escalation"],
   },
   {
     key: "early_complication",
-    roleLabel: "早期变数",
+    roleLabel: "Early complication",
     required: false,
     order: 3,
-    aliases: ["早期变数", "早期转折", "early_turn"],
+    aliases: ["早期变数", "早期转折", "early_turn", "Early complication"],
   },
   {
     key: "midpoint_turn",
-    roleLabel: "中段转向",
+    roleLabel: "Midpoint turn",
     required: true,
     order: 4,
-    aliases: ["中段转向", "中盘转向", "中段", "midpoint", "mid_turn"],
+    aliases: ["中段转向", "中盘转向", "中段", "midpoint", "mid_turn", "Midpoint turn"],
   },
   {
     key: "pressure_lock",
-    roleLabel: "高潮前挤压",
+    roleLabel: "Pre-climax pressure",
     required: true,
     order: 5,
-    aliases: ["高潮前挤压", "挤压", "压力锁定", "pressure", "pre_climax"],
+    aliases: ["高潮前挤压", "挤压", "压力锁定", "pressure", "pre_climax", "Pre-climax pressure"],
   },
   {
     key: "late_complication",
-    roleLabel: "后段变数",
+    roleLabel: "Late complication",
     required: false,
     order: 6,
-    aliases: ["后段变数", "后段转折", "late_turn"],
+    aliases: ["后段变数", "后段转折", "late_turn", "Late complication"],
   },
   {
     key: "climax",
-    roleLabel: "卷高潮",
+    roleLabel: "Volume climax",
     required: true,
     order: 7,
-    aliases: ["卷高潮", "高潮", "climax_beat"],
+    aliases: ["卷高潮", "高潮", "climax_beat", "Volume climax"],
   },
   {
     key: "end_hook",
-    roleLabel: "卷尾钩子",
+    roleLabel: "Ending hook",
     required: true,
     order: 8,
-    aliases: ["卷尾钩子", "尾钩", "结尾钩子", "end", "ending_hook"],
+    aliases: ["卷尾钩子", "尾钩", "结尾钩子", "end", "ending_hook", "Ending hook"],
   },
 ];
 
@@ -120,7 +120,7 @@ export function resolveVolumeBeatSlotKey(raw: string | null | undefined): Volume
   return SLOT_BY_ALIAS.get(normalizeLookupToken(direct))?.key ?? null;
 }
 
-export function getVolumeBeatRoleLabel(key: string | null | undefined, fallback = "节奏段"): string {
+export function getVolumeBeatRoleLabel(key: string | null | undefined, fallback = "Beat"): string {
   return getVolumeBeatSlot(key)?.roleLabel ?? fallback;
 }
 
@@ -129,7 +129,7 @@ export function formatVolumeBeatDisplayLabel(input: {
   label?: string | null;
   title?: string | null;
 }): string {
-  const roleLabel = getVolumeBeatRoleLabel(input.key, input.label?.trim() || "节奏段");
+  const roleLabel = getVolumeBeatRoleLabel(input.key, input.label?.trim() || "Beat");
   const title = input.title?.trim() || "";
   if (!title || title === roleLabel) {
     return roleLabel;

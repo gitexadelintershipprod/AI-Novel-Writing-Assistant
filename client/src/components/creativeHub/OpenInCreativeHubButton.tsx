@@ -14,7 +14,7 @@ interface OpenInCreativeHubButtonProps {
 
 export default function OpenInCreativeHubButton({
   bindings,
-  label = "在创作中枢中继续",
+  label = "Continue in Creative Hub",
   variant = "outline",
   size = "sm",
   className,

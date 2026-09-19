@@ -210,12 +210,12 @@ export function buildOverviewSummary(input: {
   relationStageCount: number;
 }): string {
   const segments = [
-    input.volumeTitle ? `当前卷：${input.volumeTitle}` : "当前卷：未定位",
-    `核心角色 ${input.coreCount} 个`,
+    input.volumeTitle ? `Current volume:${input.volumeTitle}` : "Current volume: not located",
+    `core role ${input.coreCount} 个`,
     input.highCount > 0 ? `${input.highCount} 个角色已高风险缺席` : "",
     input.warnCount > 0 ? `${input.warnCount} 个角色接近缺席阈值` : "",
     input.pendingCandidateCount > 0 ? `待确认新角色 ${input.pendingCandidateCount} 个` : "",
-    input.relationStageCount > 0 ? `当前关系阶段 ${input.relationStageCount} 条` : "",
+    input.relationStageCount > 0 ? `当前relationship stage ${input.relationStageCount} items` : "",
   ];
   return segments.filter(Boolean).join("，");
 }

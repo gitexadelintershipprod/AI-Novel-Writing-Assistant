@@ -313,7 +313,7 @@ export class CharacterPreparationService {
     });
     const contextBlocks = buildCharacterCastContextBlocks({
       projectTitle: novel.title,
-      storyInput: storyInput || "暂无直接故事输入，请结合书级约束补齐真实可入戏角色。",
+      storyInput: storyInput || "No direct story input yet. Use the book constraints to fill in playable characters.",
       genreName: novel.genre?.name ?? null,
       storyModeBlock,
       styleTone: novel.styleTone ?? null,
@@ -356,7 +356,7 @@ export class CharacterPreparationService {
         sourceType: "cast_option_projection",
       });
     } catch (error) {
-      console.warn("[character-cast-apply] 角色动态投影后台补齐失败", {
+      console.warn("[character-cast-apply] Background fill-in for the character live projection failed", {
         ...logContext,
         stage: "character_dynamics",
         error,
@@ -370,7 +370,7 @@ export class CharacterPreparationService {
         input.visibleProfileGeneration,
       );
     } catch (error) {
-      console.warn("[character-cast-apply] 外显资料后台补齐失败", {
+      console.warn("[character-cast-apply] Background fill-in for the visible profile failed", {
         ...logContext,
         stage: "visible_profile",
         error,
@@ -384,7 +384,7 @@ export class CharacterPreparationService {
         input.visibleProfileGeneration,
       );
     } catch (error) {
-      console.warn("[character-cast-apply] 角色思路线补齐失败", {
+      console.warn("[character-cast-apply] Filling in the character thought line failed", {
         ...logContext,
         stage: "character_mind",
         error,
@@ -805,7 +805,7 @@ export class CharacterPreparationService {
       // 快速开篇把增强资料延后到首章正文完成后，由持久化副作用任务补齐。
     } else if (options.postApplyMode === "background") {
       void this.runPostApplyEnhancements(postApplyInput).catch((error) => {
-        console.warn("[character-cast-apply] 阵容应用后台补齐任务失败", {
+        console.warn("[character-cast-apply] Background fill-in after applying the cast failed", {
           novelId,
           optionId: option.id,
           characterIds: uniqueCharacterIds,

@@ -266,8 +266,8 @@ export async function assertHighMemoryDirectorStartAllowed(
     const conflictingTaskId = decision.conflictingTaskId ?? recentTaskId ?? null;
     throw new AppError(
       conflictingTaskId
-        ? `已有自动导演任务正在处理同一范围，请先查看任务 ${conflictingTaskId} 的进度。`
-        : "当前批量操作已启动一个高内存自动导演任务，其余任务请稍后继续。",
+        ? `An Auto-Director task is already handling the same range. Check progress on task ${conflictingTaskId} first.`
+        : "This batch already started one high-memory Auto-Director task. Continue the rest later.",
       409,
     );
   }
@@ -288,8 +288,8 @@ export async function assertHighMemoryDirectorStartAllowed(
   if (!reservation.acquired) {
     throw new AppError(
       reservation.ownerId
-        ? `已有自动导演任务正在处理同一范围，请先查看任务 ${reservation.ownerId} 的进度。`
-        : "当前小说已有自动导演任务正在处理同一范围，请稍后再试。",
+        ? `An Auto-Director task is already handling the same range. Check progress on task ${reservation.ownerId} first.`
+        : "An Auto-Director task is already handling this range for the novel. Try again later.",
       409,
     );
   }

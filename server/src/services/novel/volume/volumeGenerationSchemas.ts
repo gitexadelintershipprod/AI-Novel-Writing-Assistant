@@ -10,7 +10,16 @@ import {
   VOLUME_BEAT_REQUIRED_SLOT_KEYS,
   VOLUME_BEAT_SLOT_DEFINITIONS,
 } from "@ai-novel/shared/types/volumeBeatSlots";
+import { canonicalizeBeatRoleLabel } from "@ai-novel/shared/types/legacyProtocolValues";
 import { MAX_VOLUME_COUNT } from "@ai-novel/shared/types/volumePlanning";
+
+function resolveCanonicalBeatLabel(label?: string | null, beatKey?: string): string | undefined {
+  const fromLabel = canonicalizeBeatRoleLabel(label);
+  if (fromLabel) return fromLabel;
+  if (beatKey && isVolumeBeatSlotKey(beatKey)) return getVolumeBeatRoleLabel(beatKey);
+  const trimmed = label?.trim();
+  return trimmed || undefined;
+}
 
 function normalizeObjectAlias(raw: unknown, aliasMap: Record<string, string[]>): unknown {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
@@ -185,7 +194,7 @@ function normalizeBeatPayload(raw: unknown): unknown {
   const resolvedKey = resolveVolumeBeatSlotKey(rawKey) ?? resolveVolumeBeatSlotKey(rawLabel);
   const roleLabel = resolvedKey
     ? getVolumeBeatRoleLabel(resolvedKey)
-    : (rawLabel.trim() || "节奏段");
+    : (rawLabel.trim() || "Beat");
   const slot = resolvedKey ? getVolumeBeatSlot(resolvedKey) : null;
   const aliasTokens = new Set(
     [roleLabel, ...(slot?.aliases ?? [])]
@@ -244,7 +253,7 @@ function normalizeChapterBeatBlockPayload(
     expectedBeatLabel?: string | null;
   } = {},
 ): unknown {
-  const expectedBeatLabel = config.expectedBeatLabel?.trim();
+  const expectedBeatLabel = resolveCanonicalBeatLabel(config.expectedBeatLabel, config.expectedBeatKey);
   if (Array.isArray(raw) && config.expectedBeatKey && expectedBeatLabel) {
     return {
       beatKey: config.expectedBeatKey,
@@ -266,8 +275,10 @@ function normalizeChapterBeatBlockPayload(
   }
 
   const record = normalized as Record<string, unknown>;
+  const incomingLabel = typeof record.beatLabel === "string" ? record.beatLabel : config.expectedBeatLabel;
   return {
     ...record,
+    beatLabel: resolveCanonicalBeatLabel(incomingLabel, config.expectedBeatKey) ?? incomingLabel,
     chapterCount: normalizeInteger(record.chapterCount),
     chapters: Array.isArray(record.chapters)
       ? record.chapters.map((item) => normalizeChapterListItemPayload(item, config.expectedBeatKey))
@@ -477,7 +488,8 @@ export function createVolumeChapterBeatBlockSchema(config: {
   expectedBeatKey?: string;
   expectedBeatLabel?: string | null;
 } = {}) {
-  const { exactChapterCount, expectedBeatKey, expectedBeatLabel } = config;
+  const { exactChapterCount, expectedBeatKey } = config;
+  const expectedBeatLabel = resolveCanonicalBeatLabel(config.expectedBeatLabel, expectedBeatKey);
   return z.preprocess(
     (raw) => normalizeChapterBeatBlockPayload(raw, { expectedBeatKey, expectedBeatLabel }),
     z.object({
@@ -492,21 +504,21 @@ export function createVolumeChapterBeatBlockSchema(config: {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["chapterCount"],
-        message: "chapterCount 必须与 chapters.length 完全一致。",
+        message: "chapterCount must match chapters.length exactly.",
       });
     }
     if (expectedBeatKey && value.beatKey !== expectedBeatKey) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["beatKey"],
-        message: `beatKey 必须严格等于 ${expectedBeatKey}。`,
+        message: `beatKey must be strictly equal to ${expectedBeatKey}.`,
       });
     }
     if (expectedBeatLabel && value.beatLabel !== expectedBeatLabel) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["beatLabel"],
-        message: `beatLabel 必须严格等于 ${expectedBeatLabel}。`,
+        message: `beatLabel must be strictly equal to ${expectedBeatLabel}.`,
       });
     }
     if (expectedBeatKey) {
@@ -515,7 +527,7 @@ export function createVolumeChapterBeatBlockSchema(config: {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             path: ["chapters", index, "beatKey"],
-            message: `第 ${index + 1} 条章节的 beatKey 必须严格等于 ${expectedBeatKey}。`,
+            message: `Chapter ${index + 1} beatKey must be strictly equal to ${expectedBeatKey}.`,
           });
         }
       });
@@ -561,7 +573,7 @@ export function createVolumeStrategySchema(config: {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["recommendedVolumeCount"],
-        message: `recommendedVolumeCount 必须严格等于 ${fixedRecommendedVolumeCount}。`,
+        message: `recommendedVolumeCount must be strictly equal to ${fixedRecommendedVolumeCount}.`,
       });
     }
 
@@ -569,7 +581,7 @@ export function createVolumeStrategySchema(config: {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["hardPlannedVolumeCount"],
-        message: "hardPlannedVolumeCount 不能大于 recommendedVolumeCount。",
+        message: "hardPlannedVolumeCount cannot be greater than recommendedVolumeCount.",
       });
     }
 
@@ -577,7 +589,7 @@ export function createVolumeStrategySchema(config: {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["volumes"],
-        message: "volumes 数量必须与 recommendedVolumeCount 完全一致。",
+        message: "The number of volumes must match recommendedVolumeCount exactly.",
       });
     }
 
@@ -587,7 +599,7 @@ export function createVolumeStrategySchema(config: {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ["volumes", index, "sortOrder"],
-          message: `volumes[${index}].sortOrder 必须按 1..N 连续递增，当前应为 ${expectedSortOrder}。`,
+          message: `volumes[${index}].sortOrder must increase continuously from 1 to N; expected ${expectedSortOrder}.`,
         });
       }
 
@@ -596,7 +608,7 @@ export function createVolumeStrategySchema(config: {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ["volumes", index, "planningMode"],
-          message: `前 ${value.hardPlannedVolumeCount} 卷必须为 ${index < value.hardPlannedVolumeCount ? "\"hard\"" : "\"soft\""} 规划模式。`,
+          message: `Volume ${index + 1} must use "${expectedPlanningMode}" planning mode.`,
         });
       }
     });
@@ -622,7 +634,7 @@ export function createVolumeBeatSheetSchema() {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["beats"],
-        message: `节奏板缺少必需职能：${missingRequired.map((key) => getVolumeBeatRoleLabel(key)).join("、")}。`,
+        message: `The beat sheet is missing required roles: ${missingRequired.map((key) => getVolumeBeatRoleLabel(key)).join(", ")}.`,
       });
     }
 
@@ -632,7 +644,7 @@ export function createVolumeBeatSheetSchema() {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ["beats", index, "key"],
-          message: `节奏职能 key 重复：${beat.key}。`,
+          message: `Duplicate beat-role key: ${beat.key}.`,
         });
       }
       seen.add(beat.key);
@@ -642,7 +654,7 @@ export function createVolumeBeatSheetSchema() {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ["beats", index, "label"],
-          message: `beats[${index}].label 必须是稳定职能名「${expectedLabel}」。`,
+          message: `beats[${index}].label must be the stable role name "${expectedLabel}".`,
         });
       }
 
@@ -650,7 +662,7 @@ export function createVolumeBeatSheetSchema() {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ["beats", index, "key"],
-          message: `beats[${index}].key 必须是受支持的节奏职能 key。`,
+          message: `beats[${index}].key must be a supported beat-role key.`,
         });
       }
     });
@@ -663,7 +675,7 @@ export function createVolumeBeatSheetSchema() {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ["beats", index, "key"],
-          message: "节奏职能顺序必须按开卷到卷尾推进，不能前后颠倒。",
+          message: "Beat-role order must move from volume opening to volume end and cannot run backward.",
         });
         break;
       }

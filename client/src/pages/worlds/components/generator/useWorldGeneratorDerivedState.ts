@@ -65,10 +65,10 @@ export function useWorldGeneratorDerivedState(input: UseWorldGeneratorDerivedSta
       return "";
     }
     return [
-      `主类型：${selectedGenre.name}`,
-      `类型路径：${selectedGenre.path}`,
-      selectedGenre.description?.trim() ? `类型说明：${selectedGenre.description.trim()}` : "",
-      selectedGenre.template?.trim() ? `类型模板：${selectedGenre.template.trim()}` : "",
+      `Main type:${selectedGenre.name}`,
+      `Type path:${selectedGenre.path}`,
+      selectedGenre.description?.trim() ? `Type description:${selectedGenre.description.trim()}` : "",
+      selectedGenre.template?.trim() ? `Type template:${selectedGenre.template.trim()}` : "",
     ]
       .filter(Boolean)
       .join("\n");

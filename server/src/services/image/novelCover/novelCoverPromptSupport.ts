@@ -39,21 +39,21 @@ interface NovelCoverNovelRecord {
 }
 
 const NARRATIVE_POV_LABELS: Record<string, string> = {
-  first_person: "第一人称",
-  third_person: "第三人称",
-  mixed: "混合视角",
+  first_person: "first person",
+  third_person: "third person",
+  mixed: "mixed perspective",
 };
 
 const PACE_PREFERENCE_LABELS: Record<string, string> = {
-  slow: "慢节奏",
-  balanced: "均衡节奏",
-  fast: "快节奏",
+  slow: "slow pace",
+  balanced: "balanced rhythm",
+  fast: "fast paced",
 };
 
 const EMOTION_INTENSITY_LABELS: Record<string, string> = {
-  low: "低情绪浓度",
-  medium: "中情绪浓度",
-  high: "高情绪浓度",
+  low: "low emotional concentration",
+  medium: "medium emotional concentration",
+  high: "high emotional concentration",
 };
 
 function normalizeOptionalText(value: string | null | undefined): string | null {
@@ -84,7 +84,7 @@ function buildWorldSummaryFromContext(block: WorldContextBlock | null | undefine
   const parts = [
     normalizeOptionalText(block.summaryText),
     block.activeForces.length > 0
-      ? `活跃势力：${block.activeForces.slice(0, 3).map((force) => force.name).join("、")}`
+      ? `Active forces：${block.activeForces.slice(0, 3).map((force) => force.name).join("、")}`
       : null,
     block.activeLocations.length > 0
       ? `本书舞台：${block.activeLocations.slice(0, 3).map((location) => location.name).join("、")}`

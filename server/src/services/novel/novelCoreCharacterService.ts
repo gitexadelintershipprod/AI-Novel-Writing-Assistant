@@ -29,7 +29,7 @@ export class NovelCoreCharacterService {
         where: { id: input.baseCharacterId },
       });
       if (!baseCharacter) {
-        throw new Error("基础角色不存在");
+        throw new Error("The base character does not exist");
       }
       payload = {
         ...payload,
@@ -58,7 +58,7 @@ export class NovelCoreCharacterService {
       select: { id: true, currentState: true, currentGoal: true },
     });
     if (!exists) {
-      throw new Error("角色不存在");
+      throw new Error("The character does not exist");
     }
 
     const hasStateChanged = typeof input.currentState === "string" && input.currentState !== exists.currentState;
@@ -81,7 +81,7 @@ export class NovelCoreCharacterService {
     queueRagDelete("character", characterId);
     const deleted = await prisma.character.deleteMany({ where: { id: characterId, novelId } });
     if (deleted.count === 0) {
-      throw new Error("角色不存在");
+      throw new Error("The character does not exist");
     }
   }
 
@@ -101,7 +101,7 @@ export class NovelCoreCharacterService {
       where: { id: characterId, novelId },
     });
     if (!character) {
-      throw new Error("角色不存在");
+      throw new Error("The character does not exist");
     }
 
     const chapters = await prisma.chapter.findMany({
@@ -235,14 +235,14 @@ export class NovelCoreCharacterService {
     ]);
 
     if (!novel || !character) {
-      throw new Error("小说或角色不存在");
+      throw new Error("The novel or character does not exist");
     }
 
     const timelineText = timelines.length > 0
       ? timelines
         .map((item) => `${item.title}: ${item.content}`)
         .join("\n")
-      : "暂无时间线事件";
+      : "No timeline events yet";
 
     let ragContext = "";
     try {
@@ -262,14 +262,14 @@ export class NovelCoreCharacterService {
       asset: characterEvolutionPrompt,
       promptInput: {
         novelTitle: novel.title,
-        bibleContent: novel.bible?.rawContent ?? "暂无",
+        bibleContent: novel.bible?.rawContent ?? "None yet",
         characterName: character.name,
         characterRole: character.role,
-        personality: character.personality ?? "暂无",
-        background: character.background ?? "暂无",
-        development: character.development ?? "暂无",
-        currentState: character.currentState ?? "暂无",
-        currentGoal: character.currentGoal ?? "暂无",
+        personality: character.personality ?? "None yet",
+        background: character.background ?? "None yet",
+        development: character.development ?? "None yet",
+        currentState: character.currentState ?? "None yet",
+        currentGoal: character.currentGoal ?? "None yet",
         timelineText,
         ragContext: ragContext || "",
       },
@@ -297,8 +297,8 @@ export class NovelCoreCharacterService {
       data: {
         novelId,
         characterId,
-        title: `角色演进更新 · ${new Date().toLocaleString("zh-CN")}`,
-        content: `状态：${updated.currentState ?? "暂无"}；目标：${updated.currentGoal ?? "暂无"}`,
+        title: `Character-arc update · ${new Date().toLocaleString("en-US")}`,
+        content: `State: ${updated.currentState ?? "none"}; Goal: ${updated.currentGoal ?? "none"}`,
         source: "ai_evolve",
       },
     });
@@ -321,7 +321,7 @@ export class NovelCoreCharacterService {
       }),
     ]);
     if (!novel || !character) {
-      throw new Error("小说或角色不存在");
+      throw new Error("The novel or character does not exist");
     }
     const worldContextBlock = await this.worldContextGateway.getWorldContextBlock(novelId, {
       purpose: "character",
@@ -332,7 +332,7 @@ export class NovelCoreCharacterService {
     if (!worldContextBlock) {
       return {
         status: "pass" as const,
-        warnings: ["当前没有可用的本书世界上下文，无法执行严格世界规则检查。"],
+        warnings: ["No book-world context is available, so a strict world-rule check cannot run."],
         issues: [],
       };
     }
@@ -367,7 +367,7 @@ export class NovelCoreCharacterService {
     } catch {
       return {
         status: "warn" as const,
-        warnings: ["AI 检查失败，返回规则回退结果"],
+        warnings: ["AI check failed; falling back to rule-based results"],
         issues: [] as Array<{ severity: "warn" | "error"; message: string; suggestion?: string }>,
       };
     }

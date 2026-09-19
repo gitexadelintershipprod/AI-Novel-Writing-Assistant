@@ -57,6 +57,10 @@ import {
   ensureSystemResourceStarterData,
   hasSystemResourceBootstrapChanges,
 } from "./services/bootstrap/SystemResourceBootstrapService";
+import {
+  hasProtocolValueMigrationChanges,
+  migratePersistedProtocolValues,
+} from "./i18n/protocolValueMigration";
 import { initializeRagSettingsCompatibility } from "./services/settings/RagCompatibilityBootstrapService";
 import onboardingRoutes from "./modules/setup/onboarding/http/onboardingRoutes";
 import { qualityDebtSettingsService } from "./services/settings/QualityDebtSettingsService";
@@ -167,7 +171,7 @@ export function createApp() {
   app.use((_req, res) => {
     const response: ApiResponse<null> = {
       success: false,
-      error: "接口不存在。",
+      error: "This API endpoint does not exist.",
     };
     res.status(404).json(response);
   });
@@ -279,7 +283,7 @@ function initializeBackgroundServices(): BackgroundServicesHandle {
   });
 
   void loadProviderApiKeys().catch((error) => {
-    console.warn("数据库中的模型密钥加载失败，已回退到环境变量。", error);
+    console.warn("Loading model keys from the database failed. Falling back to environment variables.", error);
   });
 
   void ensureSystemResourceStarterData()
@@ -290,6 +294,16 @@ function initializeBackgroundServices(): BackgroundServicesHandle {
     })
     .catch((error) => {
       console.warn("Failed to bootstrap built-in creative resources.", error);
+    });
+
+  void migratePersistedProtocolValues()
+    .then((protocolReport) => {
+      if (hasProtocolValueMigrationChanges(protocolReport)) {
+        console.log("[server] persisted protocol values migrated to English.", protocolReport);
+      }
+    })
+    .catch((error) => {
+      console.warn("Failed to migrate persisted protocol values.", error);
     });
 
   void recoveryInitialization

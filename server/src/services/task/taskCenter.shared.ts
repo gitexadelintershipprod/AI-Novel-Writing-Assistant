@@ -28,18 +28,18 @@ export const STATUS_RANK: Record<TaskStatus, number> = {
 };
 
 export const BOOK_ANALYSIS_STEPS = [
-  { key: "queued", label: "排队" },
-  { key: "preparing_notes", label: "提取笔记" },
-  { key: "generating_sections", label: "生成章节" },
-  { key: "finalizing", label: "收尾" },
+  { key: "queued", label: "Queued" },
+  { key: "preparing_notes", label: "Extracting notes" },
+  { key: "generating_sections", label: "Generating chapters" },
+  { key: "finalizing", label: "Finishing" },
 ] as const;
 
 export const NOVEL_PIPELINE_STEPS = [
-  { key: "queued", label: "排队" },
-  { key: "generating_chapters", label: "生成章节" },
-  { key: "reviewing", label: "审校" },
-  { key: "repairing", label: "修复" },
-  { key: "finalizing", label: "收尾" },
+  { key: "queued", label: "Queued" },
+  { key: "generating_chapters", label: "Generating chapters" },
+  { key: "reviewing", label: "Reviewing" },
+  { key: "repairing", label: "Repairing" },
+  { key: "finalizing", label: "Finishing" },
 ] as const;
 
 export const KNOWLEDGE_DOCUMENT_STEPS = [
@@ -55,30 +55,30 @@ export const KNOWLEDGE_DOCUMENT_STEPS = [
 ] as const;
 
 export const IMAGE_TASK_STEPS = [
-  { key: "queued", label: "排队" },
-  { key: "submitting", label: "提交请求" },
-  { key: "generating", label: "生成图片" },
-  { key: "saving_assets", label: "保存素材" },
-  { key: "finalizing", label: "收尾" },
+  { key: "queued", label: "Queued" },
+  { key: "submitting", label: "Submitting request" },
+  { key: "generating", label: "Generating images" },
+  { key: "saving_assets", label: "Saving assets" },
+  { key: "finalizing", label: "Finishing" },
 ] as const;
 
 export const STYLE_EXTRACTION_TASK_STEPS = [
-  { key: "queued", label: "排队" },
-  { key: "extracting_features", label: "提取写法特征" },
-  { key: "building_profile", label: "整理保留策略" },
-  { key: "saving_profile", label: "自动保存写法" },
-  { key: "finalizing", label: "收尾" },
+  { key: "queued", label: "Queued" },
+  { key: "extracting_features", label: "Extracting style features" },
+  { key: "building_profile", label: "Building keep/change policy" },
+  { key: "saving_profile", label: "Saving the writing profile" },
+  { key: "finalizing", label: "Finishing" },
 ] as const;
 
 export const NOVEL_WORKFLOW_STAGE_STEPS = [
-  { key: "project_setup", label: "项目设定" },
-  { key: "auto_director", label: "自动导演" },
-  { key: "story_macro", label: "故事宏观规划" },
-  { key: "character_setup", label: "角色准备" },
-  { key: "volume_strategy", label: "卷战略 / 卷骨架" },
-  { key: "structured_outline", label: "节奏 / 拆章" },
-  { key: "chapter_execution", label: "章节执行" },
-  { key: "quality_repair", label: "质量修复" },
+  { key: "project_setup", label: "Project setup" },
+  { key: "auto_director", label: "Auto-Director" },
+  { key: "story_macro", label: "Story planning" },
+  { key: "character_setup", label: "Character setup" },
+  { key: "volume_strategy", label: "Volume strategy / skeleton" },
+  { key: "structured_outline", label: "Beats / chapters" },
+  { key: "chapter_execution", label: "Chapter execution" },
+  { key: "quality_repair", label: "Quality repair" },
 ] as const;
 
 export function normalizeKeyword(value: string | undefined): string | undefined {

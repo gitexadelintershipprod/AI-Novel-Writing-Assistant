@@ -142,10 +142,10 @@ export async function getQuickSetupStatus(): Promise<QuickSetupStatus> {
   const readyForCreation = hasUsableSelection && missingTaskTypes.length === 0;
   const blockingReasons: string[] = [];
   if (!hasUsableSelection) {
-    blockingReasons.push("还没有可用于创作的默认文本模型。");
+    blockingReasons.push("There is no default text model available for authoring yet.");
   }
   if (missingTaskTypes.length > 0) {
-    blockingReasons.push(`还有 ${missingTaskTypes.length} 类创作任务没有可用模型路由。`);
+    blockingReasons.push(`${missingTaskTypes.length} authoring task types still have no available model route.`);
   }
   return {
     readyForCreation,
@@ -174,7 +174,7 @@ async function resolveProviderInput(input: CompleteQuickSetupRequest): Promise<{
 }> {
   if (input.providerKind === "builtin") {
     if (!input.provider || !isBuiltInProvider(input.provider)) {
-      throw new AppError("请选择一个可用的内置模型厂商。", 400);
+      throw new AppError("Please select an available built-in model vendor.", 400);
     }
     const existing = await secretStore.getProvider(input.provider);
     return {
@@ -185,7 +185,7 @@ async function resolveProviderInput(input: CompleteQuickSetupRequest): Promise<{
   }
   const displayName = normalizeOptionalText(input.customProviderName);
   if (!displayName) {
-    throw new AppError("请填写自定义厂商名称。", 400);
+    throw new AppError("Please fill in the custom manufacturer name.", 400);
   }
   const provider = input.provider && !isBuiltInProvider(input.provider)
     ? input.provider
@@ -210,13 +210,13 @@ export async function completeQuickSetup(
     ?? resolvedInput.existingBaseURL
     ?? (isBuiltInProvider(provider) ? PROVIDERS[provider].baseURL : undefined);
   if (!model) {
-    throw new AppError("请选择或填写一个文本模型。", 400);
+    throw new AppError("Please select or fill in a text model.", 400);
   }
   if (isBuiltInProvider(provider) && providerRequiresApiKey(provider) && !apiKey) {
-    throw new AppError("请填写 API Key。", 400);
+    throw new AppError("Please fill in the API Key.", 400);
   }
   if (!baseURL) {
-    throw new AppError("请填写 API 地址。", 400);
+    throw new AppError("Please fill in the API address.", 400);
   }
 
   const probe = await llmConnectivityService.testConnection({
@@ -230,10 +230,10 @@ export async function completeQuickSetup(
   const structuredReady = probe.structured?.ok === true;
   if (!plainReady || !structuredReady) {
     const details = [
-      !plainReady ? `普通文本：${probe.plain?.error ?? probe.error ?? "连接失败"}` : "",
-      !structuredReady ? `结构化输出：${probe.structured?.error ?? probe.error ?? "连接失败"}` : "",
+      !plainReady ? `Normal text:${probe.plain?.error ?? probe.error ?? "Connection failed"}` : "",
+      !structuredReady ? `Structured output:${probe.structured?.error ?? probe.error ?? "Connection failed"}` : "",
     ].filter(Boolean).join("；");
-    throw new AppError(`模型检测未通过。${details}`, 400);
+    throw new AppError(`Model check failed.${details}`, 400);
   }
 
   const record = await secretStore.upsertProvider(provider, {

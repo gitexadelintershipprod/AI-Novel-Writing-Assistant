@@ -1,47 +1,47 @@
-# 使用方法
+# How to use it
 
-不同身份的读者适合不同入口。本页是三种主要使用路径的索引，按你的目标选一条进入即可。
+Different readers need different entries. This page is an index of the three main paths. Pick the one that matches your goal.
 
-格鲁吉亚语版界面与功能说明见：[გზამკვლევი — გამოყენების ინსტრუქცია](./georgian-user-guide.md)。
+A Georgian walkthrough of the interface and features is here: [გზამკვლევი — გამოყენების ინსტრუქცია](./georgian-user-guide.md).
 
-## 你是哪种使用者
+## Which path fits you
 
-### 第一次使用，想最快跑通一本书
+### First use, and you want the fastest path through one book
 
-走完整实操路径：[第一本小说实操路径](#/docs/first-novel-walkthrough)
+Follow the full walkthrough: [First novel walkthrough](#/docs/first-novel-walkthrough)
 
-11 步从配置模型、输入灵感、选运行方式、确认书级方案、到 AI 驾驶舱自动推进规划与章节执行；每一步都标注对应自动导演阶段、产物保存位置和停下来该看哪里。
+Eleven steps take you from model setup, inspiration, run mode, and book-plan confirmation through the AI cockpit’s automatic planning and chapter execution. Each step names the Auto-Director stage, where the result is saved, and where to look if it pauses.
 
-也可以先看更轻量的[新手上路](#/docs/module-onboarding)，理解模块入口和最短可用路径。
+You can also start with the lighter [First-run guide](#/docs/module-onboarding) to learn the module entries and the shortest working path.
 
-### 已经跑通过一本书，想理解机制
+### You have already finished one book and want the mechanism
 
-读生产链深度文档：
+Read the production-chain depth docs:
 
-- [端到端生产链总览](#/docs/end-to-end-production) —— 三层生产链的输入产物与持久化点
-- [自动导演阶段全景](#/docs/auto-director-pipeline) —— 17 个阶段、4 种运行模式、checkpoint 和 auto-approval
-- [章节执行链](#/docs/chapter-execution) —— 正文、审核、修复、质量债务、状态回灌
-- [知识与 RAG 召回链](#/docs/knowledge-and-rag) —— 知识库 / 拆书 / 写法 / 世界资产怎样回到生成
+- [End-to-end production chain](#/docs/end-to-end-production) — three layers, inputs, artifacts, and persistence points
+- [Auto-Director stage map](#/docs/auto-director-pipeline) — 17 stages, 4 run modes, checkpoints, and auto-approval
+- [Chapter execution chain](#/docs/chapter-execution) — draft, review, repair, quality debt, and state write-back
+- [Knowledge and RAG recall](#/docs/knowledge-and-rag) — how the knowledge library, book analysis, style, and world assets return to generation
 
-### 任务卡住、要恢复
+### A task is stuck and you need to recover
 
-不要重新创建项目。先按阶段定位问题：
+Do not recreate the project. Locate the stage first:
 
-- [按阶段恢复手册](#/docs/recovery-by-phase) —— 候选 / 角色 / 卷规划 / 拆章 / 正文 各阶段的恢复入口
-- [常见问题](#/docs/faq) —— 模型不通、章节失败、知识库不命中、运行模式选择
-- [故障排查](#/docs/troubleshooting) —— 日志位置、任务状态、数据备份
+- [Recovery by phase](#/docs/recovery-by-phase) — recovery entries for candidates, characters, volume planning, chapter split, and prose
+- [FAQ](#/docs/faq) — model connection, chapter failure, knowledge-library misses, run-mode choice
+- [Troubleshooting](#/docs/troubleshooting) — logs, task status, and data backup
 
-### 想做漫画、短剧或扩展资产
+### You want comics, short drama, or extra assets
 
-小说为主链，衍生工坊围绕小说内容做视觉与剧本延展：
+The novel is the main chain. Derived workshops extend novel content into visuals and scripts:
 
-- [漫画工作台](#/docs/module-comic-workspace)
-- [短剧工作台](#/docs/module-short-drama-workspace)
+- [Comic studio](#/docs/module-comic-workspace)
+- [Drama studio](#/docs/module-short-drama-workspace)
 
-衍生工坊**不应在跑通小说主链前打开**——它们消费的是小说已经产生的章节、角色和场景。
+**Do not open a derived workshop before the novel main chain is running.** Those workshops consume chapters, characters, and scenes the novel has already produced.
 
-## 三条路径不要混走
+## Keep the three paths separate
 
-第一次使用建议沿着「实操路径」走完整本测试小说再进入深度文档；直接读深度文档但没建过小说，多数概念会缺少对应的页面印象。
+On first use, walk one complete test novel along the walkthrough before you dive into the depth docs. Reading the depth docs without a novel makes most concepts harder to picture.
 
-恢复手册不是日常路径，遇到具体卡顿时再打开。
+The recovery guide is not an everyday path. Open it when a specific pause appears.

@@ -14,7 +14,7 @@ export async function getDocumentChaptersSafely(
       id: "inline-single-chapter",
       documentVersionId,
       chapterIndex: 0,
-      title: "全文",
+      title: "Full text",
       startOffset: 0,
       endOffset: content.length,
       charCount: content.length,

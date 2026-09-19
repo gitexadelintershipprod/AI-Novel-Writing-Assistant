@@ -128,13 +128,13 @@ function buildNovelWorldSetupSignal(novelWorld: NovelSetupSource["novelWorld"]) 
 function projectModeLabel(value: NovelSetupSource["projectMode"]): string | null {
   switch (value) {
     case "ai_led":
-      return "AI 主导";
+      return "AI-led";
     case "co_pilot":
-      return "人机协作";
+      return "Human-machine collaboration";
     case "draft_mode":
-      return "草稿优先";
+      return "Draft first";
     case "auto_pipeline":
-      return "自动流水线";
+      return "Automatic assembly line";
     default:
       return null;
   }
@@ -143,11 +143,11 @@ function projectModeLabel(value: NovelSetupSource["projectMode"]): string | null
 function narrativePovLabel(value: NovelSetupSource["narrativePov"]): string | null {
   switch (value) {
     case "first_person":
-      return "第一人称";
+      return "first person";
     case "third_person":
-      return "第三人称";
+      return "third person";
     case "mixed":
-      return "混合视角";
+      return "mixed perspective";
     default:
       return null;
   }
@@ -156,11 +156,11 @@ function narrativePovLabel(value: NovelSetupSource["narrativePov"]): string | nu
 function pacePreferenceLabel(value: NovelSetupSource["pacePreference"]): string | null {
   switch (value) {
     case "slow":
-      return "慢节奏";
+      return "slow pace";
     case "balanced":
-      return "均衡节奏";
+      return "balanced rhythm";
     case "fast":
-      return "快节奏";
+      return "fast paced";
     default:
       return null;
   }
@@ -169,11 +169,11 @@ function pacePreferenceLabel(value: NovelSetupSource["pacePreference"]): string 
 function emotionIntensityLabel(value: NovelSetupSource["emotionIntensity"]): string | null {
   switch (value) {
     case "low":
-      return "低情绪强度";
+      return "Low emotion intensity";
     case "medium":
-      return "中等情绪强度";
+      return "Medium emotion intensity";
     case "high":
-      return "高情绪强度";
+      return "High emotion intensity";
     default:
       return null;
   }
@@ -182,11 +182,11 @@ function emotionIntensityLabel(value: NovelSetupSource["emotionIntensity"]): str
 function aiFreedomLabel(value: NovelSetupSource["aiFreedom"]): string | null {
   switch (value) {
     case "low":
-      return "低 AI 自由度";
+      return "Low AI freedom";
     case "medium":
-      return "中 AI 自由度";
+      return "Medium AI freedom";
     case "high":
-      return "高 AI 自由度";
+      return "High AI freedom";
     default:
       return null;
   }
@@ -263,182 +263,182 @@ function buildChecklist(novel: NovelSetupSource): CreativeHubNovelSetupChecklist
   return [
     withStatus({
       key: "premise",
-      label: "核心设定",
+      label: "core settings",
       status: premiseStatus,
       summary: premiseStatus === "ready"
-        ? "主角、冲突和故事目标已经明确。"
+        ? "The protagonist, conflict, and story goal are clear."
         : premiseStatus === "partial"
-          ? "已有简介，但冲突和故事承诺还不够稳定。"
-          : "还缺清晰的一句话设定，需要先说清主角、冲突和目标。",
+          ? "A synopsis exists, but the conflict and story promise are still not stable enough."
+          : "A clear one-sentence setup is still missing. First say the protagonist, conflict, and goal.",
       currentValue: compactText(novel.description),
       requiredForProduction: true,
-      recommendedAction: "请先补齐当前小说的核心设定，明确主角、核心冲突、目标与题材承诺，并整理成可直接写入简介的版本。",
-      optionPrompt: "基于当前标题和已有信息，为这本小说提供 3 套核心设定备选。每套都要包含主角、核心冲突、目标和题材气质。",
+      recommendedAction: "Fill in this novel's core setup first: protagonist, core conflict, goal, and genre promise, in a version that can go straight into the synopsis.",
+      optionPrompt: "Using the current title and known information, offer 3 core-setting options for this novel. Each must include the protagonist, core conflict, goal, and genre tone.",
     }),
     withStatus({
       key: "story_promise",
-      label: "故事承诺",
+      label: "story promise",
       status: storyPromiseStatus,
       summary: storyPromiseStatus === "ready"
-        ? "主线卖点、情绪落点和读者预期已经明确。"
+        ? "The main hook, emotional landing, and reader expectation are clear."
         : storyPromiseStatus === "partial"
-          ? "已有基础设定，但主线承诺和阅读期待还不够鲜明。"
-          : "还缺这本书最核心的故事承诺和阅读预期。",
+          ? "A basic setup exists, but the main promise and reading expectation are still not sharp enough."
+          : "This book still needs its core story promise and reading expectation.",
       currentValue: compactText(novel.bible?.mainPromise ?? novel.description),
       requiredForProduction: true,
-      recommendedAction: "请结合当前设定，补齐这本书的故事承诺：主线卖点、情绪走向、结局预期，以及读者为什么会想追下去。",
-      optionPrompt: "基于当前设定，为这本小说提供 3 套故事承诺备选。每套都要说明卖点、情绪走向和读者期待。",
+      recommendedAction: "Using the current setup, fill in this book's story promise: main hook, emotional path, ending expectation, and why readers would keep going.",
+      optionPrompt: "Using the current setup, offer 3 story-promise options for this novel. Each must explain the hook, emotional path, and reader expectation.",
     }),
     withStatus({
       key: "direction",
-      label: "题材与风格",
+      label: "Genre and style",
       status: directionSignals >= 2 ? "ready" : directionSignals === 1 ? "partial" : "missing",
       summary: directionSignals >= 2
-        ? "题材类型和风格气质都已确定。"
+        ? "Genre type and style tone are set."
         : directionSignals === 1
-          ? "已有部分方向信息，建议补齐题材或风格基调。"
-          : "还没有明确题材和风格气质。",
+          ? "Some direction information exists. Fill in genre or style tone."
+          : "Genre and style tone are not clear yet.",
       currentValue: joinCurrentValues([novel.genre?.name ?? null, compactText(novel.styleTone, 36)]),
       requiredForProduction: true,
-      recommendedAction: "请为当前小说明确题材标签和风格气质，说明它更偏热血、悬疑、治愈、黑暗还是轻松，并给出一句风格说明。",
-      optionPrompt: "结合当前设定，为这本小说提供 3 套题材与风格组合备选，并说明各自适合的读者感受。",
+      recommendedAction: "Give this novel clear genre tags and style tone. Say whether it leans hot-blooded, mystery, healing, dark, or light, and add one style sentence.",
+      optionPrompt: "Using the current setup, offer 3 genre-and-style combinations for this novel, and say what each one feels like for readers.",
     }),
     withStatus({
       key: "story_mode",
-      label: "流派模式",
+      label: "Story mode",
       status: storyModeSignals >= 2 ? "ready" : storyModeSignals === 1 ? "partial" : "missing",
       summary: storyModeSignals >= 2
-        ? "主副流派模式都已明确，后续规划有稳定控制轴。"
+        ? "Main and supporting story modes are set, so later planning has a stable control axis."
         : storyModeSignals === 1
-          ? "已设置部分流派模式，但建议至少补齐主模式以稳定后续规划。"
-          : "还没有定义这本书靠什么推进、靠什么兑现以及冲突边界。",
+          ? "Some story modes are set. Fill in at least the main mode so later planning stays stable."
+          : "This book has not defined what it advances on, what it pays off, or its conflict bounds.",
       currentValue: joinCurrentValues([novel.primaryStoryMode?.name ?? null, novel.secondaryStoryMode?.name ?? null]),
       requiredForProduction: true,
-      recommendedAction: "请先确定当前小说的主流派模式，必要时再补充一个副流派模式。这样系统才能稳定约束后续的故事规划、角色设计和卷章生成。",
-      optionPrompt: "基于当前题材、卖点和前 30 章承诺，为这本小说提供 3 套主副流派模式组合建议，并说明各自的推进逻辑、读者奖励和冲突边界。",
+      recommendedAction: "Set this novel's main story mode first, and add a supporting mode if needed. That lets the system keep later story planning, character design, and volume/chapter generation on track.",
+      optionPrompt: "Using the current genre, selling point, and first-30-chapters promise, offer 3 main-and-supporting story-mode combinations. Explain each one's advance logic, reader payoff, and conflict bounds.",
     }),
     withStatus({
       key: "narrative",
-      label: "叙事配置",
+      label: "Narrative setup",
       status: narrativeSignals >= 2 ? "ready" : narrativeSignals > 0 ? "partial" : "missing",
       summary: narrativeSignals >= 2
-        ? "叙事视角和节奏偏好都已确定。"
+        ? "Point of view and pacing preference are set."
         : narrativeSignals > 0
-          ? "已有部分叙事配置，建议补齐视角与节奏。"
-          : "还没有确定叙事视角与推进节奏。",
+          ? "Some narrative settings exist. Fill in point of view and pacing."
+          : "Point of view and pacing are not set yet.",
       currentValue: joinCurrentValues([
         narrativePovLabel(novel.narrativePov),
         pacePreferenceLabel(novel.pacePreference),
       ]),
       requiredForProduction: true,
-      recommendedAction: "请确定这本书更适合使用什么叙事视角、什么推进节奏，并简要说明原因。",
-      optionPrompt: "基于当前题材和设定，为这本小说提供 3 套叙事配置备选。每套都包含视角和节奏，并说明优缺点。",
+      recommendedAction: "Decide which point of view and pacing fit this book best, and briefly say why.",
+      optionPrompt: "Using the current genre and setup, offer 3 narrative-setup options. Each must include point of view and pacing, plus pros and cons.",
     }),
     withStatus({
       key: "production_preferences",
-      label: "生产偏好",
+      label: "Production preferences",
       status: productionSignals >= 3 ? "ready" : productionSignals > 0 ? "partial" : "missing",
       summary: productionSignals >= 3
-        ? "创作协作方式、情绪强度和 AI 自由度都已明确。"
+        ? "Collaboration style, emotion intensity, and AI freedom are set."
         : productionSignals > 0
-          ? "已有部分生产偏好，但还不够稳定。"
-          : "还没有确定协作模式、情绪强度和 AI 自由度。",
+          ? "Some production preferences exist, but they are not stable yet."
+          : "Collaboration mode, emotion intensity, and AI freedom are not set yet.",
       currentValue: joinCurrentValues([
         projectModeLabel(novel.projectMode),
         emotionIntensityLabel(novel.emotionIntensity),
         aiFreedomLabel(novel.aiFreedom),
       ]),
       requiredForProduction: true,
-      recommendedAction: "请补齐当前小说的生产偏好，包括协作模式、情绪强度和 AI 自由度，说明哪些部分必须保守、哪些可以放开创作。",
-      optionPrompt: "基于当前题材和目标，为这本小说提供 3 套生产偏好备选。每套都要包含协作模式、情绪强度和 AI 自由度。",
+      recommendedAction: "Fill in this novel's production preferences: collaboration mode, emotion intensity, and AI freedom. Say what must stay conservative and what can open up.",
+      optionPrompt: "Using the current genre and goal, offer 3 production-preference options. Each must include collaboration mode, emotion intensity, and AI freedom.",
     }),
     withStatus({
       key: "chapter_scale",
-      label: "章节规格",
+      label: "Chapter specs",
       status: chapterScaleStatus,
       summary: chapterScaleStatus === "ready"
-        ? "默认章长和章节粒度已明确。"
+        ? "Default chapter length and chapter grain are clear."
         : chapterScaleStatus === "partial"
-          ? "已有章节规划，但还没确认默认章长。"
-          : "还没有确认单章大致字数和章节粒度。",
+          ? "A chapter plan exists, but the default chapter length is not confirmed yet."
+          : "Approximate chapter length and chapter grain are not confirmed yet.",
       currentValue: typeof novel.defaultChapterLength === "number" && novel.defaultChapterLength > 0
-        ? `默认章长约 ${novel.defaultChapterLength} 字`
+        ? `Default chapter length is about ${novel.defaultChapterLength} characters`
         : novel._count.chapters > 0
-          ? `已有 ${novel._count.chapters} 个章节目录`
+          ? `${novel._count.chapters} chapters already exist in the table of contents`
           : null,
       requiredForProduction: true,
-      recommendedAction: "请结合题材和节奏，确认这本书的默认章长范围，以及单章更偏事件推进、情绪推进还是信息揭示。",
-      optionPrompt: "基于当前题材和节奏，为这本小说提供 3 套章节规格备选。每套都包含建议章长和单章推进方式。",
+      recommendedAction: "Using genre and pacing, confirm this book's default chapter-length range, and whether a chapter leans more toward events, emotion, or information reveal.",
+      optionPrompt: "Using the current genre and pacing, offer 3 chapter-spec options. Each must include a suggested chapter length and how a chapter should advance.",
     }),
     withStatus({
       key: "world",
-      label: "世界观基础",
+      label: "World foundation",
       status: worldStatus,
       summary: worldStatus === "ready"
-        ? `本书世界${novelWorldSignal.title ? `《${novelWorldSignal.title}》` : ""}已整理为本书世界手册。`
+        ? `This book's world${novelWorldSignal.title ? ` "${novelWorldSignal.title}"` : ""} is already organized as a handbook.`
         : worldStatus === "partial"
-          ? "存在世界种子，建议整理成本书世界手册。"
-          : "还缺世界观种子或基本舞台信息。",
+          ? "A world seed exists. Consider organizing it into this book's world handbook."
+          : "A world seed or basic stage information is still missing.",
       currentValue: novelWorldSignal.title
         ?? novelWorldSignal.summary
         ?? novel.world?.name
         ?? compactText(novel.bible?.coreSetting, 48),
       requiredForProduction: true,
-      recommendedAction: "请先在本书世界里补齐故事舞台、时代背景、基础规则以及会影响主线冲突的环境设定。",
-      optionPrompt: "结合当前题材和核心设定，为这本小说提供 3 套本书世界基础设定备选，并说明各自的冲突潜力。",
+      recommendedAction: "First fill in this book's world: the story stage, era, basic rules, and environment that will shape the main conflict.",
+      optionPrompt: "Using the current genre and core settings, offer 3 world-foundation options for this novel, and say what conflict potential each one has.",
     }),
     withStatus({
       key: "world_rules",
-      label: "规则边界",
+      label: "Rule boundaries",
       status: worldRulesStatus,
       summary: worldRulesStatus === "ready"
-        ? "本书世界手册里已有可遵守的规则边界。"
+        ? "This book's world handbook already has rule bounds you can follow."
         : worldRulesStatus === "partial"
           ? hasBibleWorldRuleNotes
-            ? "已有规则文字记录，建议整理进本书世界手册。"
-            : "世界框架存在，建议补齐关键规则与禁忌。"
-          : "还没有整理出会约束剧情的世界规则或禁忌。",
+            ? "Rule notes already exist. Consider folding them into this book's world handbook."
+            : "A world frame exists. Fill in the key rules and taboos."
+          : "World rules or taboos that constrain the plot have not been extracted yet.",
       currentValue: novelWorldSignal.rulePreview
         ?? compactText(novel.bible?.worldRules ?? novel.bible?.forbiddenRules, 56),
       requiredForProduction: false,
-      recommendedAction: "请在本书世界手册里提炼必须遵守的世界规则、禁忌和硬边界，尤其是会直接影响剧情推进与角色行动的部分。",
-      optionPrompt: "基于当前设定，为这本小说提供 3 套本书世界规则与禁忌备选，每套都要说明会如何影响剧情。",
+      recommendedAction: "From this book's world handbook, extract the world rules, taboos, and hard bounds that must be followed, especially those that directly affect plot advance and character action.",
+      optionPrompt: "Using the current setup, offer 3 world-rule-and-taboo options. Each must say how it will affect the plot.",
     }),
     withStatus({
       key: "characters",
-      label: "角色基础",
+      label: "Role basics",
       status: characterStatus,
       summary: characterStatus === "ready"
-        ? `已有 ${novel._count.characters} 个角色进入当前小说。`
+        ? `${novel._count.characters} characters are already in this novel.`
         : characterStatus === "partial"
-          ? "已有角色弧线描述，但还没形成稳定角色清单。"
-          : "还没有主角和核心角色草案。",
+          ? "Character-arc notes exist, but there is not yet a stable character list."
+          : "There is no protagonist or core-character draft yet.",
       currentValue: novel._count.characters > 0
-        ? `${novel._count.characters} 个角色`
+        ? `${novel._count.characters} characters`
         : compactText(novel.bible?.characterArcs, 48),
       requiredForProduction: true,
-      recommendedAction: "请先整理当前小说的主角与核心角色，至少明确角色定位、目标、阻力和彼此冲突关系。",
-      optionPrompt: "基于当前设定，为这本小说提供 3 组核心角色阵容备选，每组都说明主角、对手与关键关系。",
+      recommendedAction: "First organize this novel's protagonist and core characters. At least make role, goal, obstacle, and conflicts with each other clear.",
+      optionPrompt: "Using the current setup, offer 3 core-cast options. Each must describe the protagonist, opponent, and key relationships.",
     }),
     withStatus({
       key: "outline",
-      label: "大纲与章节计划",
+      label: "Outline and chapter plan",
       status: outlineStatus,
       summary: outlineStatus === "ready"
-        ? "已有结构化大纲或可执行章节规划。"
+        ? "A structured outline or executable chapter plan already exists."
         : outlineStatus === "partial"
-          ? "已有故事走向，但还没拆成稳定的章节规划。"
-          : "还没有可执行的大纲和章节推进计划。",
+          ? "A story direction exists, but it has not been split into a stable chapter plan."
+          : "There is no executable outline or chapter plan yet.",
       currentValue: novel.structuredOutline?.trim()
-        ? "已生成结构化大纲"
+        ? "A structured outline was generated"
         : novel.outline?.trim()
-          ? "已生成发展走向"
+          ? "Story direction generated"
           : novel._count.chapters > 0
-            ? `已有 ${novel._count.chapters} 个章节目录`
+            ? `${novel._count.chapters} chapters already exist in the table of contents`
             : null,
       requiredForProduction: true,
-      recommendedAction: "请把当前设定整理成可执行的大纲，并拆出章节推进计划，至少明确开篇、前中后段转折和结局落点。",
-      optionPrompt: "基于当前设定，为这本小说提供 3 套大纲推进方案备选，并说明各自的章节节奏。",
+      recommendedAction: "Turn the current setup into an executable outline and split a chapter plan. At least make the opening, early/mid/late turns, and ending landing clear.",
+      optionPrompt: "Using the current setup, offer 3 outline-advance plans, and explain the chapter pacing of each one."
     }),
   ];
 }
@@ -481,73 +481,73 @@ function buildNextStep(checklist: CreativeHubNovelSetupChecklistItem[], stage: C
     ?? checklist.find((item) => item.status !== "ready");
   if (!next) {
     return {
-      nextQuestion: "初始化已经基本完成。你想先检查大纲、补细节，还是直接启动整本生产？",
-      recommendedAction: "先总结这本书当前的初始化信息，再给我三个下一步选项：补细节、看大纲、启动整本生产。",
+      nextQuestion: "Setup is mostly done. Do you want to check the outline, add details, or start full-book production now?",
+      recommendedAction: "First summarize this book's current setup, then give me three next-step options: add details, review the outline, or start full production.",
     };
   }
 
   switch (next.key) {
     case "premise":
       return {
-        nextQuestion: "这本书想讲谁、遇到什么冲突、最后要把故事推向哪里？",
-        recommendedAction: "先帮我补这本书的一句话设定，明确主角、核心冲突和故事承诺。",
+        nextQuestion: "Who is this book about, what conflict do they hit, and where should the story end up?",
+        recommendedAction: "First fill in this book's one-sentence setup: protagonist, core conflict, and story promise.",
       };
     case "story_promise":
       return {
-        nextQuestion: "这本书最想让读者期待什么，读完后又应该留下什么感受？",
-        recommendedAction: "先补齐这本书的故事承诺、情绪落点和阅读期待。",
+        nextQuestion: "What should readers look forward to, and what feeling should remain after they finish?",
+        recommendedAction: "Fill in this book's story promise, emotional landing, and reading expectation first.",
       };
     case "direction":
       return {
-        nextQuestion: "你想把这本书写成什么题材、什么气质？",
-        recommendedAction: "基于当前书名和设定，先补齐这本书的题材类型和风格气质。",
+        nextQuestion: "What genre and tone do you want this book to have?",
+        recommendedAction: "Using the current title and setup, fill in this book's genre and style tone first.",
       };
     case "story_mode":
       return {
-        nextQuestion: "请先确认这本书靠什么推进、靠什么兑现，以及冲突的上限应该放在哪里？",
-        recommendedAction: "先补齐主流派模式，必要时再补一个副流派模式，让后续规划和生成不会越写越偏。",
+        nextQuestion: "First confirm what this book advances on, what it pays off, and where the conflict ceiling should sit.",
+        recommendedAction: "Fill in the main story mode first, and add a supporting mode if needed, so later planning and generation stay on track.",
       };
     case "narrative":
       return {
-        nextQuestion: "这本书更适合用什么视角、什么节奏，以及什么协作方式来写？",
-        recommendedAction: "帮我确定这本书的叙事视角、节奏偏好和创作模式。",
+        nextQuestion: "Which point of view, pacing, and collaboration style fit this book best?",
+        recommendedAction: "Help me set this book's point of view, pacing preference, and collaboration mode.",
       };
     case "production_preferences":
       return {
-        nextQuestion: "这本书希望 AI 放开到什么程度，情绪强度要压到哪里，哪些地方必须保守？",
-        recommendedAction: "先确定协作模式、情绪强度和 AI 自由度，再继续生产准备。",
+        nextQuestion: "How far should AI open up for this book, where should emotion intensity be held down, and what must stay conservative?",
+        recommendedAction: "Set collaboration mode, emotion intensity, and AI freedom first, then continue production prep.",
       };
     case "chapter_scale":
       return {
-        nextQuestion: "这本书一章大概写多长，单章更偏事件推进还是情绪推进？",
-        recommendedAction: "先确认默认章长和章节粒度，避免后续生产偏差过大。",
+        nextQuestion: "About how long should a chapter be, and should a chapter lean more toward events or emotion?",
+        recommendedAction: "Confirm the default chapter length and chapter grain first so later production does not drift too far.",
       };
     case "world":
       return {
-        nextQuestion: "故事发生在什么样的世界里？要不要先搭一个世界观种子？",
-        recommendedAction: "结合当前设定，先为这本书补一个世界观种子，并说明关键规则。",
+        nextQuestion: "What kind of world does the story take place in? Should we start with a world seed?",
+        recommendedAction: "Using the current setup, add a world seed for this book first and spell out the key rules.",
       };
     case "world_rules":
       return {
-        nextQuestion: "这个世界有哪些绝对不能碰的规则、禁忌或代价？",
-        recommendedAction: "先整理世界规则与禁忌，明确哪些边界会直接影响剧情。",
+        nextQuestion: "Which rules, taboos, or costs in this world must never be broken?",
+        recommendedAction: "Organize world rules and taboos first, and make clear which bounds will directly affect the plot.",
       };
     case "characters":
       return {
-        nextQuestion: "主角是谁，他最想得到什么，又会被什么阻挡？",
-        recommendedAction: "先整理这本书的主角和核心角色草案，至少给出角色定位和冲突关系。",
+        nextQuestion: "Who is the protagonist, what do they want most, and what will stop them?",
+        recommendedAction: "Organize a draft of this book's protagonist and core cast first. At least make role and conflict relations clear.",
       };
     case "outline":
       return {
         nextQuestion: stage === "ready_for_planning"
-          ? "设定已经够用了，要不要先把它拆成大纲和章节规划？"
-          : "要不要先把现有设定整理成可执行的大纲？",
-        recommendedAction: "基于当前设定，先生成这本书的大纲，并拆出章节推进计划。",
+          ? "The setup is enough. Want to split it into an outline and chapter plan first?"
+          : "Want to turn the current setup into an executable outline first?",
+        recommendedAction: "Using the current setup, generate this book's outline first and split it into a chapter plan.",
       };
     default:
       return {
-        nextQuestion: "你想先补哪一部分设定？",
-        recommendedAction: "先总结当前缺失项，并给我一个最小初始化方案。",
+        nextQuestion: "Which part of the setup do you want to fill in first?",
+        recommendedAction: "First summarize what is still missing, then give me a minimum setup plan.",
       };
   }
 }

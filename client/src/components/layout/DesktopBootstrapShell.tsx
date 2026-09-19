@@ -24,15 +24,15 @@ interface DesktopBootstrapShellProps {
 function resolveStateLabel(snapshot: DesktopBootstrapSnapshot): string {
   switch (snapshot.state) {
     case "launching":
-      return "准备中";
+      return "In preparation";
     case "starting-server":
-      return "启动本地引擎";
+      return "Start local engine";
     case "loading-ui":
-      return "加载工作区";
+      return "Load workspace";
     case "ready":
-      return "已就绪";
+      return "Ready";
     case "error":
-      return "启动受阻";
+      return "Start blocked";
     default:
       return snapshot.state;
   }
@@ -41,21 +41,21 @@ function resolveStateLabel(snapshot: DesktopBootstrapSnapshot): string {
 function resolveStageLabel(snapshot: DesktopBootstrapSnapshot): string {
   switch (snapshot.stage) {
     case "launching":
-      return "准备启动";
+      return "ready to start";
     case "app-ready":
-      return "应用已就绪";
+      return "Application is ready";
     case "splash-shown":
-      return "启动页已显示";
+      return "Start page is shown";
     case "server-starting":
-      return "本地服务启动中";
+      return "Local service starting";
     case "server-healthy":
-      return "本地服务已就绪";
+      return "Local service is ready";
     case "renderer-ready":
-      return "界面已准备";
+      return "The interface is ready";
     case "main-window-shown":
-      return "主窗口已显示";
+      return "The main window is shown";
     case "error":
-      return "启动失败";
+      return "Startup failed";
     default:
       return snapshot.stage;
   }
@@ -64,15 +64,15 @@ function resolveStageLabel(snapshot: DesktopBootstrapSnapshot): string {
 function resolveProgressHint(snapshot: DesktopBootstrapSnapshot): string {
   switch (snapshot.state) {
     case "launching":
-      return "正在准备桌面运行时和启动资源。";
+      return "Preparing desktop runtime and startup resources.";
     case "starting-server":
-      return "桌面版需要先拉起本地服务，随后才会进入主工作区。";
+      return "The desktop version needs to start the local service first, and then enter the main workspace.";
     case "loading-ui":
-      return "本地服务已经可用，正在切入主工作台。";
+      return "The local service is already available and is being cut into the main workbench.";
     case "ready":
-      return "启动链路已经完成。";
+      return "Starting the link has been completed.";
     case "error":
-      return "启动过程中遇到问题，建议先查看日志再重试。";
+      return "If you encounter a problem during the startup process, it is recommended to check the logs and try again.";
     default:
       return snapshot.detail;
   }
@@ -81,21 +81,21 @@ function resolveProgressHint(snapshot: DesktopBootstrapSnapshot): string {
 function resolveUpdaterStatusLabel(status: DesktopUpdaterSnapshot["status"]): string {
   switch (status) {
     case "disabled":
-      return "不可用";
+      return "Not available";
     case "idle":
-      return "待检查";
+      return "To be checked";
     case "checking":
-      return "检查中";
+      return "Under inspection";
     case "update-available":
-      return "发现更新";
+      return "Discover updates";
     case "downloading":
-      return "下载中";
+      return "Downloading";
     case "downloaded":
-      return "待安装";
+      return "To be installed";
     case "not-available":
-      return "无需更新";
+      return "No update required";
     case "error":
-      return "检查失败";
+      return "Check failed";
     default:
       return status;
   }
@@ -104,11 +104,11 @@ function resolveUpdaterStatusLabel(status: DesktopUpdaterSnapshot["status"]): st
 function resolveUpdaterHint(updater: DesktopUpdaterSnapshot, bootstrapState: DesktopBootstrapSnapshot["state"]): string {
   if (!updater.isSupported) {
     if (updater.isPortable) {
-      return "便携版需要下载新版安装包后手动替换。";
+      return "The portable version needs to download the new version installation package and replace it manually.";
     }
 
     if (!updater.isPackaged) {
-      return "开发运行不会连接发布更新通道，打包安装版会自动检查桌面版本。";
+      return "The development run will not be connected to the release update channel, and the packaged installation version will automatically check the desktop version.";
     }
 
     return updater.message;
@@ -117,20 +117,20 @@ function resolveUpdaterHint(updater: DesktopUpdaterSnapshot, bootstrapState: Des
   switch (updater.status) {
     case "idle":
       return bootstrapState === "error"
-        ? "启动受阻时会同步检查桌面版本，方便先安装可用修复。"
-        : "进入工作区前会检查桌面版本，有可用版本时会在这里提示。";
+        ? "When startup is blocked, the desktop version will be checked simultaneously so that available fixes can be installed first."
+        : "The desktop version will be checked before entering the workspace, and you will be prompted here if there is an available version.";
     case "checking":
-      return "版本检查中，有可用版本时会提示下载。";
+      return "During version checking, you will be prompted to download when there is an available version.";
     case "update-available":
-      return `桌面版 ${updater.availableVersion ?? "新版本"} 可用，建议先下载更新包。`;
+      return `Desktop ${updater.availableVersion ?? "new version"} is available. Download the update first.`;
     case "downloading":
-      return "更新包下载中，请保持应用打开。";
+      return "The update package is being downloaded, please keep the app open.";
     case "downloaded":
-      return "更新包已下载，重启应用后完成安装。";
+      return "The update package has been downloaded and the installation is completed after restarting the application.";
     case "not-available":
-      return "本机安装版本与发布通道保持同步。";
+      return "Natively installed versions are kept in sync with release channels.";
     case "error":
-      return updater.message || "版本检查失败，可以稍后重试。";
+      return updater.message || "Version check failed, you can try again later.";
     default:
       return updater.message;
   }
@@ -205,7 +205,7 @@ function DesktopBootstrapUpdatePanel({ snapshot }: { snapshot: DesktopBootstrapS
       )}
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">版本检查</div>
+        <div className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">version check</div>
         <Badge
           variant="outline"
           className={cn(
@@ -219,22 +219,22 @@ function DesktopBootstrapUpdatePanel({ snapshot }: { snapshot: DesktopBootstrapS
 
       <div className="mt-3 grid gap-2 text-sm text-muted-foreground">
         <div className="flex items-center justify-between gap-3">
-          <span>本机版本</span>
+          <span>native version</span>
           <span className="font-medium text-foreground">{updater.currentVersion}</span>
         </div>
         <div className="flex items-center justify-between gap-3">
-          <span>可用版本</span>
+          <span>Available versions</span>
           <span className="font-medium text-foreground">{updater.availableVersion ?? "-"}</span>
         </div>
         <div className="flex items-center justify-between gap-3 text-muted-foreground">
-          <span>检查时间</span>
+          <span>Check time</span>
           <span className="font-medium text-foreground">{formatSnapshotTime(updater.lastCheckedAt ?? "")}</span>
         </div>
       </div>
 
       <div className="mt-3 rounded-xl border border-border/60 bg-muted/35 px-4 py-3 text-sm leading-6 text-muted-foreground">
         {resolveUpdaterHint(updater, snapshot.state)}
-        {typeof updater.progressPercent === "number" ? ` 下载进度 ${Math.round(updater.progressPercent)}%。` : ""}
+        {typeof updater.progressPercent === "number" ? ` Download progress ${Math.round(updater.progressPercent)}%.` : ""}
       </div>
 
       <div className="mt-4 flex flex-wrap gap-3">
@@ -248,7 +248,7 @@ function DesktopBootstrapUpdatePanel({ snapshot }: { snapshot: DesktopBootstrapS
             onClick={() => void runUpdaterAction("check")}
           >
             <RefreshCw className={cn("h-4 w-4", updater.status === "checking" ? "animate-spin" : null)} aria-hidden="true" />
-            {updater.status === "checking" ? "检查中" : updater.status === "error" || updater.status === "not-available" ? "重新检查" : "检查更新"}
+            {updater.status === "checking" ? "Under inspection" : updater.status === "error" || updater.status === "not-available" ? "recheck" : "Check for updates"}
           </Button>
         ) : null}
         {showDownloadButton ? (
@@ -260,7 +260,7 @@ function DesktopBootstrapUpdatePanel({ snapshot }: { snapshot: DesktopBootstrapS
             onClick={() => void runUpdaterAction("check")}
           >
             <Download className="h-4 w-4" aria-hidden="true" />
-            下载更新
+            Download updates
           </Button>
         ) : null}
         {showInstallButton ? (
@@ -272,7 +272,7 @@ function DesktopBootstrapUpdatePanel({ snapshot }: { snapshot: DesktopBootstrapS
             onClick={() => void runUpdaterAction("install")}
           >
             <RotateCw className="h-4 w-4" aria-hidden="true" />
-            重启安装
+            Restart installation
           </Button>
         ) : null}
       </div>
@@ -298,10 +298,10 @@ export default function DesktopBootstrapShell({ snapshot, overlay = false }: Des
                   <div className="rounded-[24px] bg-primary/10 p-2 ring-1 ring-primary/20"><DesktopBrandMark className="h-16 w-16" /></div>
                   <div>
                     <div className="text-xs font-medium uppercase tracking-[0.24em] text-info">AI NOVEL STUDIO</div>
-                    <h1 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">AI 小说创作工作台</h1>
+                    <h1 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">AI novel creation workbench</h1>
                   </div>
                 </div>
-                <Badge variant="outline" className="hidden border-info/30 bg-info/10 text-info sm:inline-flex">桌面版 · {resolveStageLabel(snapshot)}</Badge>
+                <Badge variant="outline" className="hidden border-info/30 bg-info/10 text-info sm:inline-flex">Desktop version · {resolveStageLabel(snapshot)}</Badge>
               </div>
 
               <div className="mt-20 max-w-xl">
@@ -312,34 +312,34 @@ export default function DesktopBootstrapShell({ snapshot, overlay = false }: Des
             </div>
 
             <div className="mt-12 space-y-3">
-              <div className="flex items-center justify-between text-xs text-muted-foreground"><span>正在连接你的创作空间</span><span>{resolveStageLabel(snapshot)}</span></div>
+              <div className="flex items-center justify-between text-xs text-muted-foreground"><span>Connecting to your creative space</span><span>{resolveStageLabel(snapshot)}</span></div>
               <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
                 {snapshot.state === "error" ? <span className="block h-full w-full rounded-full bg-destructive" /> : <span className="block h-full w-1/2 animate-[desktop-shell-progress_1.4s_ease-in-out_infinite] rounded-full bg-[linear-gradient(90deg,hsl(var(--info)),hsl(var(--primary)))]" />}
               </div>
-              <p className="text-xs leading-5 text-muted-foreground">启动页只在准备本地服务时短暂出现，工作区就绪后会自动进入。</p>
+              <p className="text-xs leading-5 text-muted-foreground">The startup page only appears briefly when preparing local services, and will be entered automatically when the workspace is ready.</p>
             </div>
           </section>
 
           <section className="space-y-4 bg-muted/20 px-7 py-8 sm:px-8 sm:py-10">
             <div className="rounded-2xl border border-border/60 bg-background/55 p-5">
-              <div className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">启动状态</div>
+              <div className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">Startup state</div>
               <div className="mt-4 space-y-3 text-sm">
-                <div className="flex items-center justify-between gap-3"><span className="text-muted-foreground">当前阶段</span><span className="font-medium">{resolveStateLabel(snapshot)}</span></div>
+                <div className="flex items-center justify-between gap-3"><span className="text-muted-foreground">current stage</span><span className="font-medium">{resolveStateLabel(snapshot)}</span></div>
                 <div className="rounded-xl border border-border/60 bg-muted/35 px-3.5 py-3 text-sm leading-6 text-muted-foreground">{resolveProgressHint(snapshot)}</div>
-                <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground"><span>最近更新</span><span>{formatSnapshotTime(snapshot.updatedAt)}</span></div>
+                <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground"><span>Latest updates</span><span>{formatSnapshotTime(snapshot.updatedAt)}</span></div>
               </div>
             </div>
 
             <DesktopBootstrapUpdatePanel snapshot={snapshot} />
 
             <details className="group rounded-2xl border border-border/60 bg-background/45 p-5">
-              <summary className="cursor-pointer list-none text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">日志与排查 <span className="float-right transition-transform group-open:rotate-180">⌄</span></summary>
-              <div className="mt-4 text-sm leading-6 text-muted-foreground">如果启动卡住或本地服务提前退出，可以打开日志目录定位问题。</div>
+              <summary className="cursor-pointer list-none text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">Logs and troubleshooting <span className="float-right transition-transform group-open:rotate-180">⌄</span></summary>
+              <div className="mt-4 text-sm leading-6 text-muted-foreground">If the startup is stuck or the local service exits early, you can open the log directory to locate the problem.</div>
               <div className="mt-4 flex flex-wrap gap-2">
-                <Button variant="secondary" size="sm" onClick={() => void bundleDesktopLogs()}>下载近期日志包</Button>
-                <Button variant="outline" size="sm" onClick={() => void openDesktopLogsDirectory()}>打开日志目录</Button>
-                <Button variant="outline" size="sm" onClick={() => void copyDesktopLogPath()}>复制日志路径</Button>
-                {snapshot.state === "error" && snapshot.canRetry ? <Button size="sm" onClick={() => void restartDesktopApp()}>重新启动</Button> : null}
+                <Button variant="secondary" size="sm" onClick={() => void bundleDesktopLogs()}>Download recent log package</Button>
+                <Button variant="outline" size="sm" onClick={() => void openDesktopLogsDirectory()}>Open log directory</Button>
+                <Button variant="outline" size="sm" onClick={() => void copyDesktopLogPath()}>Copy log path</Button>
+                {snapshot.state === "error" && snapshot.canRetry ? <Button size="sm" onClick={() => void restartDesktopApp()}>Restart</Button> : null}
               </div>
             </details>
           </section>

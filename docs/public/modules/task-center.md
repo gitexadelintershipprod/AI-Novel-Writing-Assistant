@@ -1,160 +1,159 @@
-# 任务中心
+# Task Center
 
-任务中心用于查看后台任务的排队、运行、失败、完成和恢复状态。长时间 AI 任务不一定会在当前页面完成，任务中心可以帮助你确认真实进度。
+The Task Center shows queued, running, failed, completed, and recoverable background tasks. A long AI task may not finish on the current page. The Task Center helps you confirm real progress.
 
+## When to open it
 
-## 什么时候打开
+- Generation, book analysis, knowledge-library indexing, or Auto-Director is taking a long time.
+- The page says a task failed, is waiting to recover, or is not responding.
+- You want to know whether a task is still running in the background.
+- You need to cancel, retry, or return to the related entry.
 
-- 生成、拆书、知识库索引或自动导演任务运行时间较长。
-- 页面提示任务失败、等待恢复或没有响应。
-- 想查看任务是否仍在后台执行。
-- 需要取消、重试或回到关联入口。
+If it “looks like nothing happened,” check the Task Center first. Many long tasks keep running and are not failures.
 
-遇到“好像没反应”时，先看任务中心。很多长任务会继续运行，不一定是失败。
+## How to read task status
 
-## 任务状态怎么看
+Common statuses mean:
 
-常见状态可以这样理解：
+- Queued: the task is created and waiting for an execution slot.
+- Running: the background is calling a model, processing notes, or writing results.
+- Completed: the result is saved. You can return to the related module.
+- Failed: an error happened during execution. Read the failure reason.
+- Waiting to recover: the chain needs you to confirm the next step or continue from a recovery entry.
+- Cancelled: the user or the system stopped the task.
 
-- 排队：任务已创建，等待执行资源。
-- 运行中：后台正在调用模型、处理资料或写入结果。
-- 完成：任务结果已保存，可以回到相关模块查看。
-- 失败：执行过程中出现错误，需要阅读失败原因。
-- 等待恢复：任务链需要你确认下一步或从恢复入口继续。
-- 取消：任务被用户或系统停止。
+If status looks stale, refresh the page, then check the related module.
 
-如果状态没有及时刷新，可以先刷新页面，再查看关联模块。
+## Failure diagnosis
 
-## 失败诊断
+After a failure, look at three things:
 
-失败后先看三类信息：
+1. Task type: book opening, chapter, book analysis, knowledge library, or image generation.
+2. Error source: model, network, data, structured output, or runtime exception.
+3. Usable result: whether there is already prose, analysis, or a partial asset.
 
-1. 任务类型：开书、章节、拆书、知识库还是图片生成。
-2. 错误来源：模型、网络、数据、结构化输出还是运行时异常。
-3. 可用结果：是否生成了正文、分析结果或部分资产。
+Suggested handling:
 
-处理建议：
+- Temporary model or network error: retry.
+- Structured output failed: switch to a more stable model or adjust model routing.
+- Missing basics: go back to the novel page and fill them in.
+- Usable prose exists, but review is imperfect: record quality debt and continue later chapters.
+- An explicit replan is required: handle it in Director follow-up.
 
-- 模型或网络临时错误：重试。
-- 结构化输出失败：换更稳定模型或调整模型路由。
-- 缺少基础数据：回到小说页补信息。
-- 已有可用正文但审核不完美：记录质量债务，继续后续章节。
-- 明确要求重新规划：回到导演跟进处理。
+## Retry strategy
 
-## 重试策略
+Before retrying, confirm the task is not still running. Triggering the same stage many times can make status hard to read.
 
-重试前先确认任务没有仍在运行。对同一个阶段重复触发多次，可能造成状态难以判断。
+Recommended strategy:
 
-推荐策略：
+- Temporary provider error: retry directly.
+- Repeated format errors: switch models, then retry.
+- Chapter quality issues: see whether a local repair is enough.
+- Knowledge-library index failed: confirm Qdrant and file status, then retry.
+- Auto-Director stopped: open Director follow-up first. Do not only retry in the Task Center.
 
-- 临时供应商错误：可直接重试。
-- 连续格式错误：换模型后重试。
-- 章节质量问题：先看是否能局部修复。
-- 知识库索引失败：确认 Qdrant 和文件状态后重试。
-- 自动导演停住：先看导演跟进，不要只在任务中心反复重试。
+## How it relates to the main writing chain
 
-## 和创作主链的关系
+The Task Center does not decide what a book should write next. It presents factual status. The next writing action usually happens on the novel page, in Creative Hub, or in Director follow-up.
 
-任务中心不决定一本书下一步写什么，它负责呈现事实状态。下一步创作动作通常在小说页、创作中枢或导演跟进完成。
+Diagnose in this order:
 
-你可以按这个顺序排查：
+1. Confirm task status in the Task Center.
+2. Understand chain position in Director follow-up.
+3. Continue from the novel page or Auto-Director formal entry. Creative Hub only explains status and navigates to entries.
 
-1. 任务中心确认任务状态。
-2. 导演跟进理解链路位置。
-3. 小说页或自动导演正式入口继续执行；创作中枢只提供状态解释和入口导航。
+## Usage habits
 
-## 使用建议
+Build two habits:
 
-养成两个习惯：
+- After you start a long task, check the Task Center if you are waiting.
+- After a failure, read the error first, then decide retry, recover, or replan.
 
-- 发起长任务后，遇到等待先看任务中心。
-- 失败后先读错误信息，再决定重试、恢复或重新规划。
+The Task Center reduces repeated clicks and blind reruns. It is the first entry for long-chain problems.
 
-任务中心能减少重复点击和盲目重跑，是排查长链路问题的第一入口。
+## DirectorRunCommand queue model
 
-## DirectorRunCommand 队列模型
+Auto-Director background actions are written to the `DirectorRunCommand` queue, then executed by `DirectorWorker`.
 
-自动导演的后台动作会写入 `DirectorRunCommand` 队列，再由 `DirectorWorker` 执行。
-
-| 状态 | 含义 | 用户看到什么 |
+| Status | Meaning | What you see |
 |---|---|---|
-| `queued` | 命令已入队，等待 worker 租约 | 任务排队或等待执行。 |
-| `leased` | worker 已领取命令，还没正式运行 | 短暂状态，通常很快进入运行。 |
-| `running` | worker 正在执行命令并续租 | 任务运行中。 |
-| `succeeded` | 命令完成 | 任务结果可查看。 |
-| `failed` | 命令失败 | 任务中心显示错误。 |
-| `stale` | worker 租约过期，需恢复 | 等待自动恢复或手动恢复。 |
-| `cancelled` | 命令取消 | 用户或系统取消。 |
+| `queued` | The command is queued and waiting for a worker lease | Task queued or waiting to run. |
+| `leased` | A worker took the command but has not started running | A brief status that usually becomes running quickly. |
+| `running` | The worker is executing the command and renewing the lease | Task running. |
+| `succeeded` | The command finished | The result can be viewed. |
+| `failed` | The command failed | The Task Center shows the error. |
+| `stale` | The worker lease expired and recovery is needed | Waiting for automatic or manual recovery. |
+| `cancelled` | The command was cancelled | User or system cancelled it. |
 
-常见命令类型包括 `generate_candidates`、`confirm_candidate`、`continue`、`resume_from_checkpoint`、`retry`、`takeover`、`approve_gate` 和 `repair_chapter_titles`。
+Common command types include `generate_candidates`, `confirm_candidate`, `continue`, `resume_from_checkpoint`, `retry`, `takeover`, `approve_gate`, and `repair_chapter_titles`.
 
-## DirectorWorker 如何执行
+## How DirectorWorker runs
 
-`DirectorWorker` 会：
+`DirectorWorker` will:
 
-1. 从队列领取最早可运行命令。
-2. 给命令写入租约和 worker owner。
-3. 获取 ResourceGate。
-4. 标记 running。
-5. 执行对应命令。
-6. 成功、失败、取消或释放资源。
-7. 定期续租，避免长任务被误判为 stale。
+1. take the earliest runnable command from the queue;
+2. write a lease and worker owner onto the command;
+3. acquire a ResourceGate;
+4. mark it running;
+5. execute the matching command;
+6. succeed, fail, cancel, or release resources;
+7. renew the lease regularly so a long task is not mistaken for stale.
 
-这意味着你可以离开当前页面，后台仍会继续运行；但也意味着重复点击同一个入口可能排出多个命令。
+You can leave the current page and the background will keep running. Repeated clicks on the same entry can also enqueue several commands.
 
-## ResourceGate 并发上限
+## ResourceGate concurrency limits
 
-ResourceGate 按“小说 + 资源类型”限流。默认资源类型包括：
+ResourceGate limits concurrency by “novel + resource type.” Default resource types include:
 
-| resource class | 默认槽位 | 典型任务 |
+| Resource class | Default slots | Typical tasks |
 |---|---|---|
-| planner | 2 | 候选、规划、卷战略、拆章 |
-| writer | 2 | 正文生成 |
-| repair | 2 | 章节修复、质量修复 |
-| state_resolution | 2 | 状态提交、角色资源同步 |
+| planner | 2 | candidates, planning, volume strategy, chapter split |
+| writer | 2 | chapter writing |
+| repair | 2 | chapter repair, quality repair |
+| state_resolution | 2 | state commit, character resource sync |
 
-另外，节奏板、章节清单、章节细化、章节同步属于高内存自动导演阶段。同一本书同范围通常只允许一个高内存任务，避免批量拆章互相覆盖。
+Beat sheet, chapter list, chapter detail, and chapter sync are high-memory Auto-Director stages. The same book and same range usually allow only one high-memory task, so batch chapter splits do not overwrite each other.
 
-:::warn 不要重复启动同范围任务
-如果提示已有自动导演任务正在处理同一范围，先打开任务中心查看进度。重复启动可能让你难以判断哪个任务写入了最终结果。
+:::warn Do not start the same-range task twice
+If you see that an Auto-Director task is already handling the same range, open the Task Center and check progress first. Starting it again can make it hard to tell which task wrote the final result.
 :::
 
-## stale 任务恢复
+## Recovering stale tasks
 
-stale 表示 worker 租约过期。常见原因：
+Stale means the worker lease expired. Common causes:
 
-- 应用或服务重启。
-- 后台进程退出。
-- 长任务运行时间超过租约且续租失败。
-- 本机休眠或网络中断。
+- the app or service restarted;
+- the background process exited;
+- a long task ran past the lease and lease renewal failed;
+- the machine slept or the network dropped.
 
-系统会区分自动恢复和手动恢复：
+The system distinguishes automatic recovery from manual recovery:
 
-| 情况 | 行为 |
+| Situation | Behavior |
 |---|---|
-| 全书自动执行、`continue`、`resume_from_checkpoint` 且尝试次数未超限 | 自动回到 queued，继续执行。 |
-| 尝试次数超限或命令不适合自动恢复 | 标记 stale，任务进入等待恢复。 |
-| 用户点击恢复 | 从最近 checkpoint 或命令 payload 继续。 |
+| Full-book autopilot, `continue`, or `resume_from_checkpoint`, and attempts are still under the limit | Automatically return to queued and keep running. |
+| Attempts exceeded the limit, or the command is not suited to automatic recovery | Mark stale; the task waits for recovery. |
+| You click recover | Continue from the latest checkpoint or command payload. |
 
-## 重试、恢复、重启区别
+## Retry, recover, and restart
 
-| 操作 | 适合情况 | 会不会改变产物 |
+| Action | Best for | Does it change artifacts? |
 |---|---|---|
-| 重试 | 同一命令临时失败 | 通常只重跑失败命令。 |
-| 恢复 | stale、等待确认、checkpoint | 从已保存进度继续。 |
-| 重新生成 | 当前阶段结果不满意 | 可能覆盖目标阶段产物。 |
-| 重规划 | 上游目标改变或质量要求明确 | 会影响后续阶段。 |
+| Retry | The same command failed temporarily | Usually reruns only the failed command. |
+| Recover | stale, waiting for confirmation, checkpoint | Continues from saved progress. |
+| Regenerate | The current stage result is not acceptable | May overwrite that stage’s artifacts. |
+| Replan | An upstream goal changed, or quality explicitly requires it | Affects later stages. |
 
-任务中心里的“重试”解决的是后台命令失败；导演跟进里的“继续/恢复”解决的是主链停在哪个 checkpoint。
+Retry in the Task Center is for a failed background command. Continue / recover in Director follow-up is for which checkpoint the main chain stopped at.
 
-## 与导演跟进协作
+## Working with Director follow-up
 
-推荐排查顺序：
+Recommended diagnosis order:
 
-1. 任务中心确认命令是否还在运行。
-2. 如果是 waiting approval，进入导演跟进处理 checkpoint。
-3. 如果是 failed，先读错误信息，再决定重试还是回上游阶段。
-4. 如果是 stale，优先使用恢复入口。
-5. 如果章节已有正文但状态同步失败，优先重试同步，不要直接重写正文。
+1. Confirm in the Task Center whether the command is still running.
+2. If it is waiting approval, handle the checkpoint in Director follow-up.
+3. If it failed, read the error first, then decide retry or return to an earlier stage.
+4. If it is stale, use the recovery entry first.
+5. If the chapter already has prose but state sync failed, retry sync first. Do not rewrite the prose immediately.
 
-任务中心给出事实；导演跟进给出下一步。
+The Task Center gives facts. Director follow-up gives the next step.

@@ -115,7 +115,7 @@ function findBestCandidate(
 
 function toAcceptedFact(chapterOrder: number, text: string): NovelFactWriteItem {
   return {
-    text: `第${chapterOrder}章已完成：${text}`,
+    text: `Chapter ${chapterOrder} completed: ${text}`,
     category: "completed",
   };
 }

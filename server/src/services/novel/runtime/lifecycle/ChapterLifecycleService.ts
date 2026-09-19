@@ -44,7 +44,7 @@ export class ChapterLifecycleService {
       );
     } catch (error) {
       const detail = error instanceof Error ? error.message : String(error);
-      throw new ChapterContentPersistenceError(input.chapterId, `正文保存失败：${detail}`);
+      throw new ChapterContentPersistenceError(input.chapterId, `Chapter text save failed: ${detail}`);
     }
     return content;
   }

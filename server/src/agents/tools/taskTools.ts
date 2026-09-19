@@ -21,8 +21,8 @@ export const taskToolDefinitions: Partial<
 > = {
   list_tasks: {
     name: "list_tasks",
-    title: "列出系统任务",
-    description: "读取任务中心的统一任务列表、状态和恢复提示。",
+    title: "List system tasks",
+    description: "Read the task center's unified task list, statuses, and recovery hints.",
     category: "read",
     riskLevel: "low",
     domainAgent: "Coordinator",
@@ -30,10 +30,10 @@ export const taskToolDefinitions: Partial<
     parserHints: {
       intent: "query_task_status",
       aliases: ["任务列表", "系统任务", "tasks"],
-      phrases: ["列出当前系统任务状态", "系统现在有哪些任务", "查看任务中心状态"],
+      phrases: ["List current system task status", "系统现在有哪些任务", "View task center状态"],
       requiresNovelContext: false,
-      whenToUse: "用户在查询任务中心、系统任务状态或任务列表。",
-      whenNotToUse: "用户是在追问某本小说的生产进度，这更接近 query_novel_production_status。",
+      whenToUse: "The user is querying the task center, system task status, or the task list.",
+      whenNotToUse: "The user is asking about one novel's production progress; that is closer to query_novel_production_status.",
     },
     inputSchema: listTasksInputSchema,
     outputSchema: listTasksOutputSchema,
@@ -52,14 +52,14 @@ export const taskToolDefinitions: Partial<
           failureSummary: item.failureSummary ?? item.lastError ?? null,
           recoveryHint: item.recoveryHint ?? null,
         })),
-        summary: `已读取 ${data.items.length} 个系统任务。`,
+        summary: `Read ${data.items.length} system tasks.`,
       });
     },
   },
   get_task_detail: {
     name: "get_task_detail",
-    title: "读取任务详情",
-    description: "读取统一任务详情、来源页面和失败诊断。",
+    title: "Read task details",
+    description: "Read unified-task details, source page, and failure diagnosis.",
     category: "read",
     riskLevel: "low",
     domainAgent: "Coordinator",
@@ -84,14 +84,14 @@ export const taskToolDefinitions: Partial<
         failureSummary,
         failureDetails: detail.failureDetails ?? detail.lastError ?? null,
         recoveryHint: detail.recoveryHint ?? buildTaskRecoveryHint(detail.kind, detail.status),
-        summary: `已读取任务 ${detail.title}。`,
+        summary: `Read task ${detail.title}.`,
       });
     },
   },
   get_task_failure_reason: {
     name: "get_task_failure_reason",
-    title: "解释任务失败原因",
-    description: "解释统一任务的失败、排队、阻塞或等待审批原因。",
+    title: "Explain why the task failed",
+    description: "Explain why the unified task failed, is queued, blocked, or waiting for approval.",
     category: "inspect",
     riskLevel: "low",
     domainAgent: "Coordinator",
@@ -108,8 +108,8 @@ export const taskToolDefinitions: Partial<
       const failureSummary = normalizeFailureSummary(
         detail.failureSummary ?? detail.lastError,
         detail.status === "failed"
-          ? "任务失败，但没有记录明确错误。"
-          : `任务当前状态为 ${detail.status}。`,
+          ? "The task failed without a recorded error."
+          : `任务Current status为 ${detail.status}。`,
       );
       return getTaskFailureReasonOutputSchema.parse({
         kind: detail.kind,
@@ -124,8 +124,8 @@ export const taskToolDefinitions: Partial<
   },
   get_run_failure_reason: {
     name: "get_run_failure_reason",
-    title: "解释运行失败原因",
-    description: "读取 Agent run 的最后失败步骤、错误摘要和恢复建议。",
+    title: "Explain why the run failed",
+    description: "Read the Agent run's last failed step, error summary, and recovery suggestion.",
     category: "inspect",
     riskLevel: "low",
     domainAgent: "Coordinator",
@@ -150,10 +150,10 @@ export const taskToolDefinitions: Partial<
       const failureSummary = normalizeFailureSummary(
         run.error ?? failedStep?.error,
         run.status === "failed"
-          ? "运行失败，但没有记录明确错误。"
+          ? "The run failed without a recorded error."
           : run.status === "waiting_approval"
-            ? "运行正在等待审批。"
-            : `运行当前状态为 ${run.status}。`,
+            ? "The run is waiting for approval."
+            : `运行Current status为 ${run.status}。`,
       );
       return getRunFailureReasonOutputSchema.parse({
         runId: run.id,
@@ -168,8 +168,8 @@ export const taskToolDefinitions: Partial<
   },
   retry_task: {
     name: "retry_task",
-    title: "重试任务",
-    description: "对统一任务执行重试，并返回新的状态摘要。",
+    title: "Retry the task",
+    description: "Retry the unified task and return a new status summary.",
     category: "run",
     riskLevel: "medium",
     domainAgent: "Coordinator",
@@ -183,14 +183,14 @@ export const taskToolDefinitions: Partial<
         kind: detail.kind,
         id: detail.id,
         status: detail.status,
-        summary: `已触发任务重试：${detail.title}。`,
+        summary: `Triggered a retry for task: ${detail.title}.`,
       });
     },
   },
   cancel_task: {
     name: "cancel_task",
-    title: "取消任务",
-    description: "取消统一任务，并返回最新状态。",
+    title: "Cancel task",
+    description: "Cancel a unified task and return the latest status.",
     category: "run",
     riskLevel: "medium",
     domainAgent: "Coordinator",
@@ -204,14 +204,14 @@ export const taskToolDefinitions: Partial<
         kind: detail.kind,
         id: detail.id,
         status: detail.status,
-        summary: `已取消任务：${detail.title}。`,
+        summary: `Cancelled task: ${detail.title}.`,
       });
     },
   },
   explain_generation_blocker: {
     name: "explain_generation_blocker",
-    title: "解释章节生成阻塞",
-    description: "读取小说章节最近一次生成记录，解释失败、排队或阻塞原因。",
+    title: "Explain why chapter generation is blocked",
+    description: "Read the novel chapter's latest generation record and explain failure, queueing, or blocking.",
     category: "inspect",
     riskLevel: "low",
     domainAgent: "NovelAgent",
@@ -257,10 +257,10 @@ export const taskToolDefinitions: Partial<
           chapterOrder: input.chapterOrder ?? null,
           blockerType: "none",
           status: null,
-          failureSummary: "当前没有找到与该章节相关的生成任务记录。",
+          failureSummary: "No generation-task record was found for this chapter.",
           failureDetails: null,
-          recoveryHint: "建议先确认是否已发起章节生成，或在任务中心检查是否存在对应流水线任务。",
-          summary: "当前没有找到与该章节相关的生成任务记录。",
+          recoveryHint: "First confirm whether chapter generation was started, or check the task center for a matching pipeline task.",
+          summary: "No generation-task record was found for this chapter.",
         });
       }
 
@@ -272,14 +272,14 @@ export const taskToolDefinitions: Partial<
             ? "pipeline_waiting"
             : "none";
       const failureSummary = job.status === "failed"
-        ? normalizeFailureSummary(job.error, "章节生成失败，但没有记录明确错误。")
+        ? normalizeFailureSummary(job.error, "Chapter generation failed without a recorded error.")
         : job.status === "running"
-          ? "章节生成仍在执行中。"
+          ? "Chapter generation is still running."
           : job.status === "queued"
-            ? "章节生成任务仍在排队。"
+            ? "The chapter-generation task is still queued."
             : job.status === "cancelled"
-              ? "章节生成任务已取消。"
-              : "最近一次章节生成任务已结束。";
+              ? "The chapter-generation task was cancelled."
+              : "The latest chapter-generation task has ended.";
       return explainGenerationBlockerOutputSchema.parse({
         novelId: input.novelId,
         chapterOrder: input.chapterOrder ?? null,

@@ -75,7 +75,7 @@ test("Creative Hub interactive state exposes accessibility and disabled contract
   }
 
   assert.match(page, /workspaceActionDisabled/);
-  assert.match(page, /小说工作区切换失败，请重试/);
+  assert.match(page, /Failed to switch novel workspace, please try again/);
   assert.match(page, /<CreativeHubConversation[\s\S]*?actionDisabled=\{workspaceActionDisabled\}/);
   assert.match(page, /<CreativeHubThreadList[\s\S]*?actionDisabled=\{threadNavigationDisabled\}/);
   const navigationPolicy = page.slice(
@@ -115,10 +115,10 @@ test("Creative Hub thread switching rejects stale URL, load and stream state", (
 test("Creative Hub keeps raw resource identifiers inside folded runtime details", () => {
   const sidebar = read("components/CreativeHubSidebar.tsx");
   const approval = read("components/CreativeHubInlineToolCall.tsx");
-  assert.match(sidebar, /资源绑定 ID/);
+  assert.match(sidebar, /Resource binding ID/);
   assert.match(sidebar, /bindingStatusLabel\(bindings\.chapterId\)/);
   assert.doesNotMatch(sidebar, /最近一轮执行摘要/);
-  assert.match(approval, /<details[^>]*>[\s\S]*审批目标信息/);
+  assert.match(approval, /<details[^>]*>[\s\S]*Approval target information/);
   assert.match(sidebar, /bindings\.novelId && !selectedNovel/);
 });
 
@@ -126,12 +126,12 @@ test("collapsed runtime cards keep technical identifiers inside expanded content
   const source = read("components/CreativeHubDebugTraceCard.tsx");
   const toolCall = read("components/CreativeHubInlineToolCall.tsx");
   const toolResult = read("components/CreativeHubToolResultCard.tsx");
-  assert.match(source, /底层执行记录/);
+  assert.match(source, /Low-level execution records/);
   assert.doesNotMatch(source, /runId\.slice/);
   assert.ok(source.indexOf("Run ID") > source.indexOf("{expanded ? ("));
   assert.doesNotMatch(toolCall, /工具调用 · \{props\.toolName\}/);
   assert.doesNotMatch(toolResult, /errorCode \?\? "失败"/);
-  assert.ok(toolResult.indexOf("错误代码：{errorCode}") > toolResult.indexOf("{expanded ? ("));
+  assert.ok(toolResult.indexOf("Error code: {errorCode}") > toolResult.indexOf("{expanded ? ("));
 });
 
 test("Creative Hub module documents its product and dependency boundary", () => {
@@ -151,7 +151,7 @@ test("Creative Hub stays diagnostic and points full Agent work to the independen
   assert.doesNotMatch(page, /D:\\code\\ai/);
   assert.match(page, /pnpm install/);
   assert.match(page, /pnpm dev/);
-  assert.match(page, /查询创作状态、诊断阻塞/);
+  assert.match(page, /check the creation status, diagnose blockage/);
   assert.doesNotMatch(sidebar, /创建并接入/);
   assert.doesNotMatch(sidebar, /NovelProductionStarterCard/);
   assert.doesNotMatch(sidebar, /CreativeHubNovelSetupCard/);

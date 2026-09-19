@@ -11,7 +11,7 @@ const referenceCatalog = {
     {
       token: "{{context.book_contract}}",
       key: "book_contract",
-      label: "全书合约",
+      label: "full book contract",
       group: "required_context",
       required: true,
       hasPreviewBlock: true,
@@ -19,13 +19,13 @@ const referenceCatalog = {
     {
       token: "{{input.chapterTitle}}",
       key: "chapterTitle",
-      label: "章节标题",
+      label: "Chapter title",
       group: "input",
     },
     {
       token: "{{slot.writer.tonePreference}}",
       key: "writer.tonePreference",
-      label: "语气与节奏",
+      label: "tone and rhythm",
       group: "slot",
     },
   ],
@@ -33,15 +33,15 @@ const referenceCatalog = {
 };
 
 test("parses context token as semantic tag and keeps original token when serialized", () => {
-  const value = parseTemplateToEditorValue("请参考 {{context.book_contract}}", referenceCatalog);
+  const value = parseTemplateToEditorValue("See {{context.book_contract}}", referenceCatalog);
   const token = value[0].children[1];
 
   assert.equal(token.type, "prompt-token");
   assert.equal(token.kind, "context");
   assert.equal(token.key, "book_contract");
-  assert.equal(token.label, "全书合约");
+  assert.equal(token.label, "full book contract");
   assert.equal(token.required, true);
-  assert.equal(serializeEditorValueToTemplate(value), "请参考 {{context.book_contract}}");
+  assert.equal(serializeEditorValueToTemplate(value), "See {{context.book_contract}}");
 });
 
 test("uses local context labels when reference catalog returns raw keys", () => {
@@ -58,13 +58,13 @@ test("uses local context labels when reference catalog returns raw keys", () => 
       },
     ],
   };
-  const value = parseTemplateToEditorValue("上下文：{{context.book_contract}}", backendStyleCatalog);
+  const value = parseTemplateToEditorValue("Context: {{context.book_contract}}", backendStyleCatalog);
   const token = value[0].children[1];
 
   assert.equal(token.type, "prompt-token");
   assert.equal(token.kind, "context");
-  assert.equal(token.label, "全书合约");
-  assert.equal(serializeEditorValueToTemplate(value), "上下文：{{context.book_contract}}");
+  assert.equal(token.label, "full book contract");
+  assert.equal(serializeEditorValueToTemplate(value), "Context: {{context.book_contract}}");
 });
 
 test("round trips mixed text, multiple token kinds and line breaks", () => {
@@ -76,13 +76,13 @@ test("round trips mixed text, multiple token kinds and line breaks", () => {
   const value = parseTemplateToEditorValue(source, referenceCatalog);
 
   assert.equal(value.length, 3);
-  assert.equal(value[0].children[1].label, "章节标题");
-  assert.equal(value[1].children[1].label, "语气与节奏");
+  assert.equal(value[0].children[1].label, "Chapter title");
+  assert.equal(value[1].children[1].label, "tone and rhythm");
   assert.equal(serializeEditorValueToTemplate(value), source);
 });
 
 test("preserves unknown token as an error tag", () => {
-  const source = "未知 {{mystery.bad_key}} 仍可保存";
+  const source = "Unknown {{mystery.bad_key}} can still be saved";
   const value = parseTemplateToEditorValue(source, referenceCatalog);
   const token = value[0].children[1];
 
@@ -94,7 +94,7 @@ test("preserves unknown token as an error tag", () => {
 });
 
 test("marks unregistered context references as error tags after catalog is loaded", () => {
-  const source = "错误上下文 {{context.not_registered}}";
+  const source = "Error context {{context.not_registered}}";
   const value = parseTemplateToEditorValue(source, referenceCatalog);
   const token = value[0].children[1];
 

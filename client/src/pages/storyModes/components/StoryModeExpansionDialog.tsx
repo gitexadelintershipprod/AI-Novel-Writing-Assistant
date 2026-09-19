@@ -48,13 +48,13 @@ export default function StoryModeExpansionDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <AppDialogContent
         className="max-w-3xl"
-        title="扩展推进模式"
-        description="从现有模式出发，补充玩法不同、可以直接用于创作的新方向。"
+        title="extended propulsion model"
+        description="Starting from the existing model, we add new directions that have different gameplay and can be directly used in creation."
         footer={(
           <>
-            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>取消</Button>
+            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
             <Button type="button" onClick={onSave} disabled={!canSave}>
-              {isSaving ? "保存中..." : `加入模式库${selectedIndexes.length ? `（${selectedIndexes.length}）` : ""}`}
+              {isSaving ? "Saving..." : `Add pattern library${selectedIndexes.length ? `（${selectedIndexes.length}）` : ""}`}
             </Button>
           </>
         )}
@@ -63,45 +63,45 @@ export default function StoryModeExpansionDialog({
           <aside className="space-y-5 border-b border-border pb-5 lg:border-b-0 lg:border-r lg:pr-6 lg:pb-0">
             <div className="flex items-center gap-2 text-sm font-semibold">
               <Layers3 className="h-4 w-4 text-primary" aria-hidden="true" />
-              扩展范围
+              Expand scope
             </div>
-            <p className="text-xs leading-5 text-muted-foreground">不选择根模式时，AI 会从整套模式库中寻找空缺，推荐全新的根推进模式。</p>
+            <p className="text-xs leading-5 text-muted-foreground">When the root mode is not selected, the AI will look for vacancies in the entire pattern library and recommend a new root advancement mode.</p>
             <SelectControl value={parentId} onChange={(event) => onParentIdChange(event.target.value)} className="w-full">
-              <option value="">整个模式库（推荐新根模式）</option>
+              <option value="">Entire pattern library (new root pattern recommended)</option>
               {rootOptions.map((option) => <option key={option.id} value={option.id}>{option.name}</option>)}
             </SelectControl>
             <LLMSelector compact={false} showBadge={false} showHelperText={false} className="[&>div:first-child]:grid [&>div:first-child]:grid-cols-1 [&>div:first-child>*]:!w-full" />
             <label className="space-y-2 text-sm">
-              <span className="font-medium">推荐数量</span>
+              <span className="font-medium">Recommended quantity</span>
               <SelectControl value={count} onChange={(event) => onCountChange(Number(event.target.value))} className="w-full">
-                <option value={2}>2 个方向</option><option value={3}>3 个方向</option><option value={4}>4 个方向</option><option value={5}>5 个方向</option>
+                <option value={2}>2 directions</option><option value={3}>3 directions</option><option value={4}>4 directions</option><option value={5}>5 directions</option>
               </SelectControl>
             </label>
             <label className="space-y-2 text-sm">
-              <span className="font-medium">扩展偏好（可选）</span>
+              <span className="font-medium">Extended preferences (optional)</span>
               <textarea
                 rows={5}
                 className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none transition focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
                 value={prompt}
                 onChange={(event) => onPromptChange(event.target.value)}
-                placeholder="例如：增加更强的经营回报，减少单纯战斗。"
+                placeholder="For example: increase stronger business returns and reduce simple combat."
               />
             </label>
             <Button type="button" className="w-full" onClick={onGenerate} disabled={!canGenerate}>
               <Sparkles className="h-4 w-4" aria-hidden="true" />
-              {isGenerating ? "正在推荐..." : "推荐新方向"}
+              {isGenerating ? "Recommending..." : "Recommend new directions"}
             </Button>
           </aside>
           <main className="min-w-0">
             <div className="flex items-end justify-between gap-3">
               <div>
-                <h3 className="text-base font-semibold">候选推进模式</h3>
-                <p className="mt-1 text-xs text-muted-foreground">选择想加入模式库的方向，保存后会挂在所选根模式下。</p>
+                <h3 className="text-base font-semibold">Candidate propulsion mode</h3>
+                <p className="mt-1 text-xs text-muted-foreground">Select the direction you want to add to the pattern library, and it will hang in the selected root pattern after saving.</p>
               </div>
-              {candidates.length ? <span className="text-xs text-muted-foreground">已选 {selectedIndexes.length}/{candidates.length}</span> : null}
+              {candidates.length ? <span className="text-xs text-muted-foreground">Selected {selectedIndexes.length}/{candidates.length}</span> : null}
             </div>
             {candidates.length === 0 ? (
-              <div className="mt-5 rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">选择一个根模式，或保留“整个模式库”，再点击“推荐新方向”。</div>
+              <div className="mt-5 rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">Select a root pattern, or keep "Entire Pattern Library" and click "Recommend New Directions."</div>
             ) : (
               <div className="mt-5 space-y-3">
                 {candidates.map((candidate, index) => {
@@ -115,7 +115,7 @@ export default function StoryModeExpansionDialog({
                         <span className="min-w-0">
                           <span className="block font-medium text-foreground">{candidate.name}</span>
                           <span className="mt-1 block text-sm leading-5 text-muted-foreground">{candidate.description || candidate.profile.coreDrive}</span>
-                          <span className="mt-2 block text-xs leading-5 text-muted-foreground">推进单元：{candidate.profile.progressionUnits.join("、") || "待补充"} · 回报：{candidate.profile.readerReward || "待补充"}</span>
+                          <span className="mt-2 block text-xs leading-5 text-muted-foreground">Propulsion unit:{candidate.profile.progressionUnits.join("、") || "To be added"} ·Return:{candidate.profile.readerReward || "To be added"}</span>
                         </span>
                       </div>
                     </button>

@@ -18,14 +18,14 @@ function buildRepairStatusLabel(input: {
     return normalizedLabel;
   }
   if (input.phase === "load_context") {
-    return `正在整理第 ${input.volumeOrder} 卷拆章上下文`;
+    return `Organizing Volume ${input.volumeOrder} chapter-split context`;
   }
-  return `正在 AI 修复第 ${input.volumeOrder} 卷章节标题`;
+  return `AI is repairing Volume ${input.volumeOrder} chapter titles`;
 }
 
 function shouldRefreshBeatSheetForRepair(lastError: string | null | undefined): boolean {
   const normalized = lastError?.trim() ?? "";
-  return normalized.includes("当前卷节奏板的章节跨度异常");
+  return normalized.includes("current volume tempo板的章节跨度异常");
 }
 
 function resolveRepairBeatKeys(input: {
@@ -75,7 +75,7 @@ export async function repairDirectorChapterTitles(input: {
   const currentWorkspace = await input.volumeService.getVolumes(input.novelId);
   const targetVolume = currentWorkspace.volumes.find((volume) => volume.id === input.targetVolumeId);
   if (!targetVolume) {
-    throw new Error("当前任务对应的目标卷不存在，无法继续 AI 修复章节标题。");
+    throw new Error("The target volume for this task does not exist, so AI cannot continue repairing chapter titles.");
   }
 
   const resumeTarget = buildNovelEditResumeTarget({
@@ -101,7 +101,7 @@ export async function repairDirectorChapterTitles(input: {
         await input.workflowService.markTaskRunning(input.taskId, {
           stage: "structured_outline",
           itemKey: "beat_sheet",
-          itemLabel: event.label.trim() || `正在重整第 ${targetVolume.sortOrder} 卷节奏板`,
+          itemLabel: event.label.trim() || `Rebuilding the Volume ${targetVolume.sortOrder} beat sheet`,
           progress: DIRECTOR_PROGRESS.beatSheet,
         });
       },
@@ -112,7 +112,7 @@ export async function repairDirectorChapterTitles(input: {
     sheet.volumeId === targetVolume.id && sheet.beats.length > 0
   ));
   if (!targetBeatSheet) {
-    throw new Error("当前卷缺少可用节奏板，无法安全重写章节标题。");
+    throw new Error("This volume has no usable beat sheet, so chapter titles cannot be rewritten safely.");
   }
 
   const repairBeatKeys = resolveRepairBeatKeys({
@@ -149,7 +149,7 @@ export async function repairDirectorChapterTitles(input: {
   });
   const repairedVolume = persistedWorkspace.volumes.find((volume) => volume.id === targetVolume.id);
   if (!repairedVolume) {
-    throw new Error("AI 已返回新的章节标题结果，但保存后的当前卷丢失，无法完成修复。");
+    throw new Error("AI returned new chapter titles, but the current volume was lost after saving, so the repair could not finish.");
   }
 
   const titleDiversityIssue = getChapterTitleDiversityIssue(
@@ -164,8 +164,8 @@ export async function repairDirectorChapterTitles(input: {
     stage: "structured_outline",
     itemKey: "chapter_list",
     itemLabel: titleDiversityIssue
-      ? `第 ${repairedVolume.sortOrder} 卷章节标题已重写，但结构仍建议继续分散`
-      : `第 ${repairedVolume.sortOrder} 卷章节标题已完成 AI 修复`,
+      ? `Volume ${repairedVolume.sortOrder} chapter titles were rewritten, but the structure still looks too clustered`
+      : `Volume ${repairedVolume.sortOrder} chapter titles finished AI repair`,
     progress: DIRECTOR_PROGRESS.chapterList,
     volumeId: repairedVolume.id,
     clearCheckpoint: true,

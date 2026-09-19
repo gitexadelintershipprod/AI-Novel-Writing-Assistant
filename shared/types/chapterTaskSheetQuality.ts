@@ -185,8 +185,8 @@ export function assessChapterExecutionContractShape(
     issues.push(createQualityIssue(
       "missing_purpose",
       "purpose",
-      "章节目标缺失。",
-      "补充本章要推进的明确叙事目标，不能只复述章节摘要。",
+      "Chapter objectives are missing.",
+      "Supplement the chapter with a clear narrative goal to advance, not just a retelling of the chapter summary.",
     ));
   }
 
@@ -205,8 +205,8 @@ export function assessChapterExecutionContractShape(
     issues.push(createQualityIssue(
       "incomplete_boundary",
       "boundary",
-      "章节边界合同不完整。",
-      "补齐独占事件、结束态、下章入口态、冲突/揭露强度、目标字数和禁止事项。",
+      "Chapter boundary contract is incomplete.",
+      "Complete the exclusive events, ending state, entry state into the next chapter, conflict/revelation intensity, target word count, and prohibited items.",
     ));
   }
 
@@ -214,8 +214,8 @@ export function assessChapterExecutionContractShape(
     issues.push(createQualityIssue(
       "missing_task_sheet",
       "task_sheet",
-      "章节任务单缺失。",
-      "生成可交给正文写作器执行的任务单，覆盖冲突对象、推进要求、情绪基调和收尾要求。",
+      "Chapter task sheet is missing.",
+      "Generate task sheets that can be handed over to text writers to cover conflicting objects, advancement requirements, emotional tone, and closing requirements.",
     ));
   }
 
@@ -226,8 +226,8 @@ export function assessChapterExecutionContractShape(
     issues.push(createQualityIssue(
       "invalid_scene_cards",
       "scene_cards",
-      "场景拆解无法作为正文执行依据。",
-      "重建 3-8 个场景卡，并为每个场景补齐目标、入场状态、离场状态、必须推进和字数预算。",
+      "Scene dismantling cannot be used as the basis for the execution of the main text.",
+      "Rebuild 3-8 scene cards and complete the goals, entry status, exit status, must advance, and word count budget for each scene.",
     ));
   }
 
@@ -236,7 +236,7 @@ export function assessChapterExecutionContractShape(
       status: "passed",
       canEnterExecution: true,
       issues: [],
-      summary: "章节执行合同结构完整，可进入语义可用性评估。",
+      summary: "The chapter execution contract structure is complete and can be entered into the semantic usability evaluation.",
       repairGuidance: [],
       confidence: 1,
     };
@@ -246,7 +246,7 @@ export function assessChapterExecutionContractShape(
     status: "repairable",
     canEnterExecution: false,
     issues,
-    summary: "章节执行合同缺少进入正文生成链路所需的基础字段。",
+    summary: "The chapter execution contract lacks the basic fields required to enter the text generation link.",
     repairGuidance: issues.map((issue) => issue.repairHint),
     confidence: 1,
   };
@@ -262,8 +262,8 @@ export function mapSemanticAssessmentToQualityGate(
       id: "contract_overloaded",
       severity: "high",
       target: "semantic",
-      summary: "当前章节职责过载，继续执行会提高遗漏关键义务的概率。",
-      repairHint: "先重排附近章节职责，再进入正文生成。",
+      summary: "The current chapter is overloaded with responsibilities and continuing to implement it will increase the probability of missing critical obligations.",
+      repairHint: "First rearrange the responsibilities of nearby chapters, and then enter the text generation.",
     })
     : assessment.issues;
   if (assessment.verdict === "usable" && assessment.safeToSync) {
@@ -296,10 +296,10 @@ export function mapSemanticAssessmentToQualityGate(
 export function formatChapterTaskSheetQualityFailure(result: ChapterTaskSheetQualityGateResult): string {
   const issueText = result.issues
     .slice(0, 4)
-    .map((issue) => `${issue.summary}${issue.repairHint ? ` 修复建议：${issue.repairHint}` : ""}`)
+    .map((issue) => `${issue.summary}${issue.repairHint ? ` Repair hint: ${issue.repairHint}` : ""}`)
     .join(" ");
   const guidanceText = result.repairGuidance.length > 0
-    ? ` 需要调整：${result.repairGuidance.slice(0, 4).join("；")}`
+    ? ` Need to adjust:${result.repairGuidance.slice(0, 4).join("；")}`
     : "";
   return `${result.summary}${issueText ? ` ${issueText}` : ""}${guidanceText}`;
 }

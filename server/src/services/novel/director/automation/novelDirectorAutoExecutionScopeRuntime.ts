@@ -195,7 +195,7 @@ function findPendingEarlierVolumeChapter(input: {
   }
   return {
     volumeOrder: pendingChapter.volumeOrder,
-    volumeTitle: pendingChapter.volumeTitle?.trim() || `第 ${pendingChapter.volumeOrder} 卷`,
+    volumeTitle: pendingChapter.volumeTitle?.trim() || `Volume ${pendingChapter.volumeOrder}`,
     chapterOrder: pendingChapter.chapterOrder,
   };
 }
@@ -208,7 +208,7 @@ async function resolveVolumeScopedRange(input: {
   allowPartialChapterListReady?: boolean;
 }): Promise<DirectorAutoExecutionResolvedScope> {
   if (!input.getVolumes) {
-    throw new Error("当前环境缺少卷工作区服务，无法解析按卷自动执行范围。");
+    throw new Error("This environment is missing the volume-workspace service, so a per-volume auto-run range cannot be resolved.");
   }
   const normalizedPlan = normalizeDirectorAutoExecutionPlan(input.plan);
   const workspace = await input.getVolumes(input.novelId);
@@ -218,7 +218,7 @@ async function resolveVolumeScopedRange(input: {
     allowPartialChapterListReady: input.allowPartialChapterListReady,
   });
   if (recoveryCursor.step !== "chapter_sync" && recoveryCursor.step !== "completed") {
-    throw new Error(`${recoveryCursor.scopeLabel}还没有完成节奏 / 拆章同步，不能直接进入自动执行。`);
+    throw new Error(`${recoveryCursor.scopeLabel} has not finished beats/chapters sync, so auto-run cannot start yet.`);
   }
   const pendingEarlierVolumeChapter = findPendingEarlierVolumeChapter({
     workspace,
@@ -227,14 +227,14 @@ async function resolveVolumeScopedRange(input: {
   });
   if (pendingEarlierVolumeChapter) {
     throw new Error(
-      `${pendingEarlierVolumeChapter.volumeTitle}仍有未完成章节（第 ${pendingEarlierVolumeChapter.chapterOrder} 章起），不能直接跳到第 ${normalizedPlan.volumeOrder ?? 1} 卷。请先完成前序卷，或把卷序号改为 ${pendingEarlierVolumeChapter.volumeOrder}。`,
+      `${pendingEarlierVolumeChapter.volumeTitle} still has unfinished chapters (from chapter ${pendingEarlierVolumeChapter.chapterOrder}). You cannot jump to Volume ${normalizedPlan.volumeOrder ?? 1} yet. Finish the earlier volume first, or change the volume number to ${pendingEarlierVolumeChapter.volumeOrder}.`,
     );
   }
   const selectedChapterOrders = recoveryCursor.selectedChapters
     .map((chapter) => chapter.chapterOrder)
     .sort((left, right) => left - right);
   if (selectedChapterOrders.length === 0) {
-    throw new Error(`${recoveryCursor.scopeLabel}还没有可执行的章节范围，请先完成目标卷的拆章同步。`);
+    throw new Error(`${recoveryCursor.scopeLabel} has no executable chapter range yet. Finish chapter-split sync for the target volume first.`);
   }
   const chapterByOrder = new Map(input.chapters.map((chapter) => [chapter.order, chapter] as const));
   const firstChapterOrder = selectedChapterOrders[0] ?? 1;
@@ -308,13 +308,13 @@ export async function resolveAutoExecutionRangeAndState(input: {
   range = range ?? resolveDirectorAutoExecutionRangeFromState(input.existingState);
   range = range ?? resolveDirectorAutoExecutionRange(chapters);
   if (!range) {
-    throw new Error("当前还没有可自动执行的章节，请先完成目标范围的拆章同步。");
+    throw new Error("There are no chapters ready for auto-run. Finish chapter-split sync for the target range first.");
   }
   const missingChapterOrders = findMissingChapterOrders(chapters, range);
   if (missingChapterOrders.length > 0) {
     const resolvedScopeLabel = scopeLabel ?? buildDirectorAutoExecutionScopeLabelFromState(input.existingState, range.totalChapterCount);
     throw new Error(
-      `${resolvedScopeLabel}对应的章节执行区还缺少第 ${missingChapterOrders.slice(0, 5).join("、")} 章，请先完成目标范围的拆章同步。`,
+      `${resolvedScopeLabel} chapter-execution area is still missing chapters ${missingChapterOrders.slice(0, 5).join(", ")}. Finish chapter-split sync for the target range first.`,
     );
   }
   const missingExecutionContextOrders = findMissingExecutionContextOrders(chapters, range, input.existingState, {
@@ -323,7 +323,7 @@ export async function resolveAutoExecutionRangeAndState(input: {
   if (missingExecutionContextOrders.length > 0) {
     const resolvedScopeLabel = scopeLabel ?? buildDirectorAutoExecutionScopeLabelFromState(input.existingState, range.totalChapterCount);
     throw new Error(
-      `${resolvedScopeLabel}对应的章节执行区还有第 ${missingExecutionContextOrders.slice(0, 5).join("、")} 章缺少完整章节细化，请先回到节奏 / 拆章补齐章节细化后再继续。`,
+      `${resolvedScopeLabel} chapter-execution area still has chapters ${missingExecutionContextOrders.slice(0, 5).join(", ")} without full chapter details. Go back to beats / chapters to fill them in, then continue.`,
     );
   }
   return {

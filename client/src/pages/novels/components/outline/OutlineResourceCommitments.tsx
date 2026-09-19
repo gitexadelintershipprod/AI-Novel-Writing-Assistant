@@ -6,27 +6,27 @@ type OutlineCharacterResource = NonNullable<OutlineTabViewProps["characterResour
 
 function getResourceStatusLabel(status: OutlineCharacterResource["status"]): string {
   const labels: Record<OutlineCharacterResource["status"], string> = {
-    available: "可用",
-    hidden: "隐藏",
-    borrowed: "借用",
-    transferred: "已转交",
-    lost: "已丢失",
-    consumed: "已消耗",
-    damaged: "受损",
-    destroyed: "毁坏",
-    stale: "淡出",
+    available: "Available",
+    hidden: "hide",
+    borrowed: "borrow",
+    transferred: "transferred",
+    lost: "Lost",
+    consumed: "Consumed",
+    damaged: "damaged",
+    destroyed: "destroy",
+    stale: "fade out",
   };
   return labels[status] ?? status;
 }
 
 function getVolumeResourceWindow(resource: OutlineCharacterResource): string {
   if (resource.expectedUseStartChapterOrder || resource.expectedUseEndChapterOrder) {
-    return `预计第${resource.expectedUseStartChapterOrder ?? "?"}章至第${resource.expectedUseEndChapterOrder ?? "?"}章使用`;
+    return `Planned for Chapters ${resource.expectedUseStartChapterOrder ?? "?"}–${resource.expectedUseEndChapterOrder ?? "?"}`;
   }
   if (resource.lastTouchedChapterOrder) {
-    return `最近触达第${resource.lastTouchedChapterOrder}章`;
+    return `Last used in Chapter ${resource.lastTouchedChapterOrder}`;
   }
-  return "后续章节可参考";
+  return "Please refer to subsequent chapters";
 }
 
 function isResourceRelevantToVolume(
@@ -60,9 +60,9 @@ export default function OutlineResourceCommitments(props: {
   return (
     <Card>
       <CardHeader className="pb-3">
-        <CardTitle className="text-base">本卷关键资源承诺</CardTitle>
+        <CardTitle className="text-base">Key resource commitments for this volume</CardTitle>
         <div className="text-sm text-muted-foreground">
-          只显示会影响本卷行动边界、铺垫或后续兑现的资源。
+          Only resources that will affect the action boundary, foreshadowing, or subsequent fulfillment of this volume are displayed.
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -84,7 +84,7 @@ export default function OutlineResourceCommitments(props: {
           ))
         ) : (
           <div className="rounded-xl border border-dashed px-4 py-5 text-sm text-muted-foreground">
-            当前卷没有需要特别盯住的角色资源承诺。
+            There are no character resource commitments on the current roll that require special attention.
           </div>
         )}
       </CardContent>

@@ -26,7 +26,7 @@ export default function AutoDirectorApprovalStrategyPanel({
 }: AutoDirectorApprovalStrategyPanelProps) {
   return (
     <div className="mt-3 min-w-0 rounded-md border border-primary/15 bg-primary/5 p-3">
-      <div className="text-xs font-medium text-foreground">自动推进方式</div>
+      <div className="text-xs font-medium text-foreground">Automatic propulsion method</div>
       <div className={AUTO_DIRECTOR_MOBILE_CLASSES.approvalStrategyGrid}>
         <button
           type="button"
@@ -35,9 +35,9 @@ export default function AutoDirectorApprovalStrategyPanel({
           }`}
           onClick={() => onEnabledChange(true)}
         >
-          <div className="text-sm font-medium text-foreground">AI 自动推进</div>
+          <div className="text-sm font-medium text-foreground">AI automatic advancement</div>
           <div className={`mt-1 text-xs leading-5 text-muted-foreground ${AUTO_DIRECTOR_MOBILE_CLASSES.wrapText}`}>
-            目标范围内全自动推进；只有模型不可用、服务异常、保护正文或不可恢复风险会停下。
+            Fully automatic advancement within the target range; only model unavailability, service anomalies, protection content, or unrecoverable risks will stop.
           </div>
         </button>
         <button
@@ -47,23 +47,23 @@ export default function AutoDirectorApprovalStrategyPanel({
           }`}
           onClick={() => onEnabledChange(false)}
         >
-          <div className="text-sm font-medium text-foreground">AI 副驾确认</div>
+          <div className="text-sm font-medium text-foreground">AI co-pilot confirmation</div>
           <div className={`mt-1 text-xs leading-5 text-muted-foreground ${AUTO_DIRECTOR_MOBILE_CLASSES.wrapText}`}>
-            按高级审批授权放行低风险节点，其余审批点交给你判断。
+            Low-risk nodes are released according to the high-level approval authorization, and the remaining approval points are left to your judgment.
           </div>
         </button>
       </div>
 
       <div className={`mt-3 rounded-md border bg-background/80 p-3 text-xs leading-5 text-muted-foreground ${AUTO_DIRECTOR_MOBILE_CLASSES.wrapText}`}>
         {enabled
-          ? "自动推进：系统会在目标范围内自动确认规划、章节执行、质量修复和必要重规划。"
-          : `副驾确认边界：${summarizeDirectorAutoApprovalPoints(approvalPointCodes)}。未包含的审批点会等待你确认。`}
+          ? "Automatic advancement: The system will automatically confirm planning, chapter execution, quality repair and necessary re-planning within the target range."
+          : `Co-pilot auto-confirms: ${summarizeDirectorAutoApprovalPoints(approvalPointCodes)}. Anything not listed waits for you.`}
       </div>
 
       {!enabled ? (
         <details className="mt-3 rounded-md border bg-background">
           <summary className="cursor-pointer px-3 py-2 text-xs font-medium text-foreground">
-            高级审批授权
+            Advanced approval authorization
           </summary>
           <div className="border-t p-3">
             <AutoDirectorApprovalPointMultiSelect

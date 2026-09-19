@@ -1,218 +1,210 @@
-# 第一本小说实操路径
+# First novel walkthrough
 
-这是一条从空项目到确认方案、再由 AI 自动产出小说内容的操作手册。每一步都标注对应自动导演阶段、产物位置和停下来时该看哪里。
+This is a hands-on path from an empty project to a confirmed plan, then to AI-produced novel content. Each step names the matching Auto-Director stage, where the result is saved, and where to look if it pauses.
 
-## 路径概览
+## Path overview
 
-| 步骤 | 用户动作 | 对应阶段 | 产物保存位置 | 停下来先看 |
+| Step | What you do | Matching stage | Where the result is saved | If it pauses, look here first |
 |---|---|---|---|---|
-| 1 | 配置模型 | 系统配置 | 系统设置、模型路由 | 系统设置 |
-| 2 | 输入灵感或选择灵感卡 | 「灵感对齐」 | 自动导演任务 | 任务中心 |
-| 3 | 生成并选择整书方向 | 「方向候选批次」 | 候选方向批次 | 创作向导、方向选择页 |
-| 4 | 点击确认方案/标题 | 「书名候选组」 | 候选方向、标题组 | 方向选择页 |
-| 5 | 创建小说 | 「创建小说」 | 小说项目 | 小说列表 |
-| 6 | AI 自动生成规划资产 | 「故事宏观」 / 「书契约」 / 「世界搭建」 / 「角色生成」 | 故事宏观、书契约、世界、角色 | AI 驾驶舱、导演跟进 |
-| 7 | AI 自动生成卷和章节任务 | 「卷战略」 / 「节奏板」 / 「章节细化」 | 卷战略、节奏板、章节任务单 | AI 驾驶舱、任务中心 |
-| 8 | 选择生产方式并开始正文 | 「生产方式交接」 / 「章节执行」 | 生产体验、正文草稿、审核与修复结果 | 创作向导、章节书架或工作台 |
-| 9 | 查看小说产出 | 完成或范围完成 | 章节正文、质量债务、导出入口 | 章节页、导出 |
+| 1 | Configure a model | System setup | Settings, Model routing | Settings |
+| 2 | Enter inspiration or choose an inspiration card | Idea alignment | Auto-Director task | Task Center |
+| 3 | Generate and choose a full-book direction | Direction batch | Candidate direction batch | First-run guide, direction choice page |
+| 4 | Confirm a plan / title | Title pack | Candidate direction, title group | Direction choice page |
+| 5 | Create the novel | Create novel | Novel project | Novels |
+| 6 | AI generates planning assets | Story macro / Book contract / World setup / Character setup | Story macro, book contract, world, characters | AI cockpit, Director follow-up |
+| 7 | AI generates volume and chapter tasks | Volume strategy / Beat sheet / Chapter detail bundle | Volume strategy, beat sheet, chapter task sheets | AI cockpit, Task Center |
+| 8 | Choose a production style and start prose | Production-style handoff / Chapter execution | Production experience, draft, review and repair results | First-run guide, chapter bookshelf or workspace |
+| 9 | Review the novel output | Completed or range completed | Chapter text, quality debt, export entry | Chapter page, export |
 
-## 第一步：配置模型
+## Step 1: Configure a model
 
-打开系统设置，配置默认模型。第一次使用只需要确保一个模型可用；DeepSeek 用户推荐选择 `deepseek-v4-flash`，兼顾中文长篇质量与响应速度。
+Open Settings and configure a default model. On first use you only need one working model. DeepSeek users can choose `deepseek-v4-flash` for long-form quality and response speed.
 
-确认：
+Confirm:
 
-- API Key 有效。
-- Base URL 正确。
-- 默认模型能返回中文。
-- 任务中心没有旧的失败任务干扰。
+- the API key is valid;
+- the Base URL is correct;
+- the default model can return usable text;
+- the Task Center is not cluttered by old failed tasks.
 
-如果模型连接失败，先看《常见问题》和《故障排查》。
+If the model cannot connect, start with [FAQ](#/docs/faq) and [Troubleshooting](#/docs/troubleshooting).
 
-## 第一步半：完成快捷配置
+## Step 1.5: Finish quick setup
 
-第一次进入产品且没有可用模型时，先完成快捷配置。选择一个厂商，填写 API Key/API 地址和文本模型，系统会检测普通文本与结构化输出，并自动准备全部核心创作任务。
+If this is your first time in the product and no model is available, finish quick setup first. Choose a provider, fill in the API key / API address and a text model. The system tests ordinary text and structured output, then prepares all core writing tasks.
 
-启动自动导演时不需要选择正文执行范围。自动导演会固定推进到“可开写”，再让你选择简易创作或专业创作。
+You do not choose a chapter-execution range when you start Auto-Director. Auto-Director always advances to “ready to write,” then lets you choose simple creation or professional creation.
 
+## Step 2: Enter inspiration
 
+Open the First-run guide or Creative Hub and enter one sentence of inspiration. Do not hand-write a full outline. Let Auto-Director generate directions first.
 
-## 第二步：输入灵感
+Example:
 
-进入新手上路或创作中枢，输入一句灵感。不要手写完整大纲，让自动导演先生成方向。
+> A new writer enters an idea market looking for forgotten stories.
 
-示例：
+Matching stages: Idea alignment, Project framing.
 
-> 一个新手作者进入灵感市场，寻找被遗忘的故事。
+Result: an Auto-Director task and candidate-generation input.
 
-对应阶段：「灵感对齐」、「立项定位」。
+## Step 3: Generate a direction batch
 
-产物：自动导演任务和候选生成输入。
+After you click “Generate the first batch of plans,” the system enters Direction batch and generates candidate directions. You will see different positioning, selling points, protagonist paths, conflicts, and progression loops.
 
+When choosing, look at:
 
-## 第三步：生成方向批次
+- which direction is easiest to sustain for many chapters;
+- whether the protagonist goal is clear;
+- whether the selling point fits the target reader;
+- whether the conflict can keep escalating.
 
-点击“生成第一批方案”后，系统会进入 「方向候选批次」，生成候选方向。你会看到不同定位、卖点、主角路径、冲突和推进循环。
+If none of them fit, generate the next batch or revise a candidate.
 
-选择时看：
+## Step 4: Confirm direction and title
 
-- 哪个方向最容易持续多章。
-- 主角目标是否清楚。
-- 卖点是否适合目标读者。
-- 冲突是否能不断升级。
+The title group belongs to Title pack. The title does not have to be final, but it should represent the current direction. This is the last creative choice you must make: **which book-level plan to use to create the novel**.
 
-如果都不满意，可以生成下一批或修订候选。
+Optional actions:
 
+- click “Use this” on a plan;
+- redo only the title group;
+- give feedback and let AI revise one plan;
+- switch to another candidate-direction batch.
 
-## 第四步：确认方向和标题
+After confirmation, the system enters Create novel and continues planning, characters, and volume/chapter preparation. Chapter text does not start yet.
 
-标题组属于 「书名候选组」。标题不必最终定稿，但要能代表当前方向。这里是用户最后一个必须做的创作选择：**确认用哪套书级方案创建小说**。
+## Step 5: Create the novel
 
-可选动作：
+After you confirm a candidate, the system creates the novel project and keeps showing book-opening progress in the current Auto-Director session.
 
-- 点击某套方案的“使用这个”。
-- 只重做标题组。
-- 输入意见让 AI 修订某套方案。
-- 换一组候选方向。
+From here you do not need to generate story macro, characters, volume strategy, beat sheet, and chapter text in order by hand. The AI cockpit queues those background commands and shows the current step, task number, progress bar, and latest checkpoint at the top.
 
-确认后，系统进入「创建小说」，并继续完成规划、角色与卷章准备。正文不会提前开始。
+If creation fails:
 
+1. Open the Task Center.
+2. Check the Confirm candidate command error.
+3. If it is a temporary error, retry.
+4. If it is a data error, keep the error text and report it.
 
-## 第五步：创建小说
+## Step 6: AI generates story macro and book contract
 
-确认候选后，系统创建小说项目，并继续在当前自动导演现场展示开书准备进度。
+Auto-Director generates Story macro and Book contract.
 
-此后用户不需要手动按顺序生成故事宏观、角色、卷战略、节奏板和章节正文。AI 驾驶舱会把这些后台命令排队执行，并在顶部显示当前步骤、任务号、进度条和最近检查点。
+Results include:
 
-如果创建失败：
+- whole-book story position;
+- core conflict;
+- progression loop;
+- target readers;
+- first-30-chapter promise;
+- narrative boundaries and hard constraints.
 
-1. 打开任务中心。
-2. 查看 「候选确认」 命令错误。
-3. 如果是临时错误，重试。
-4. 如果是数据错误，保留错误信息再反馈。
+Where to look: novel basics, story macro, Director follow-up.
 
+## Step 7: AI prepares world and characters
 
-## 第六步：AI 自动生成故事宏观和书契约
+World setup prepares this book’s world. Character setup generates character candidates.
 
-自动导演会生成 「故事宏观」 和 「书契约」。
+The full automatic chain prefers a usable cast from the plan and book contract. The page may stay on character preparation, but if the top task status shows volume strategy or chapter split, the background has already continued.
 
-产物包括：
+Character confirmation should wait only when quality is clearly unstable and you need to decide. That is not a failure. It is asking you to confirm the cast.
 
-- 整本故事定位。
-- 核心冲突。
-- 推进循环。
-- 目标读者。
-- 前 30 章承诺。
-- 叙述边界和硬约束。
+What to do:
 
-查看位置：小说基础信息、故事宏观、导演跟进。
+- confirm suitable characters;
+- merge duplicate candidates;
+- send the cast back to be redone;
+- adjust character identity anchors.
 
-## 第七步：AI 自动准备世界和角色
+Do not force volume planning if the characters are clearly not good enough.
 
-「世界搭建」 会准备本书世界；「角色生成」 会生成角色候选。
+## Step 8: AI applies the character cast
 
-全自动链路会优先根据方案和书契约生成可用阵容。页面可能停留在角色准备，但顶部任务状态如果显示正在推进卷战略或拆章，说明后台已经继续处理后续阶段。
+After character confirmation, Apply character cast writes characters into official assets. Later chapter execution reads those character states.
 
-角色只有在质量明显不稳定、需要用户裁决时才应触发 「等待角色确认」。这不是失败，而是要求你确认角色阵容。
+Where to look: Character library, this book’s character page, Director follow-up.
 
-处理方式：
+## Step 9: AI generates volume strategy and volume skeleton
 
-- 确认合适角色。
-- 合并重复候选。
-- 退回重做角色阵容。
-- 调整角色身份锚点。
+Volume strategy generates the volume-level route. Volume skeleton generates the volume skeleton.
 
-不要在角色明显不合格时强行进入卷规划。
+Volume strategy is a book-opening resource and does not need item-by-item confirmation. You can watch progress or let the task continue in the background. Only a runtime-safety or data risk asks you to step in.
 
+When you look, focus on:
 
-## 第八步：AI 自动应用角色阵容
+- whether volume 1’s goal is clear;
+- whether each volume’s promise is different;
+- whether the protagonist’s growth has steps;
+- whether foreshadowing and reader expectation can last.
 
-角色确认后，「应用角色阵容」 会把角色写入正式资产。此后章节执行会读取这些角色状态。
+If volume planning is wrong, fix volume strategy first. Do not jump to editing the later chapter list.
 
-查看位置：基础角色库、本书角色页、导演跟进。
+## Step 10: AI generates beat sheet, chapter list, and chapter detail
 
-## 第九步：AI 自动生成卷战略和卷骨架
+Structured chapter split includes:
 
-「卷战略」 生成卷级路线，「卷骨架」 生成卷骨架。
+- Beat sheet: generate in-volume pacing beats.
+- Chapter list: split out the chapter list.
+- Chapter sync: sync chapter execution contracts.
+- Chapter detail bundle: refine chapter task sheets and execution resources.
 
-卷战略属于开书准备资源，不需要逐项确认。你可以观察进度，也可以让任务在后台继续；只有运行安全或数据风险才会要求介入。
+These stages are high-memory tasks. The same book and same range usually should not start several of them at once. If you see “an Auto-Director task is already handling the same range,” check the running task in the Task Center first.
 
-查看时重点看：
+## Step 11: Choose how chapter text is produced
 
-- 第一卷目标是否明确。
-- 每卷承诺是否不同。
-- 主角成长是否有阶梯。
-- 伏笔和读者期待是否能持续。
+Chapter batch ready means the chapter batch is prepared.
 
-如果卷规划不对，优先修卷战略，不要直接改后面的章节清单。
+The system stops before prose starts and lets you choose:
 
-## 第十步：AI 自动生成节奏板、章节清单和章节细化
+- Simple creation: enter a read-only chapter bookshelf. AI keeps finishing the whole book.
+- Professional creation: enter the full workspace and inspect or arrange chapter production yourself.
 
-结构化拆章包括：
+After simple creation, the system continues:
 
-- 「节奏板」：生成卷内节奏节点。
-- 「章节清单」：拆出章节清单。
-- 「章节同步」：同步章节执行合同。
-- 「章节细化」：细化章节任务单和执行资源。
+1. generate prose from chapter tasks;
+2. review the prose;
+3. repair issues that can be repaired;
+4. record quality debt;
+5. write back character state, facts, and foreshadowing;
+6. continue to the next chapter until the target range finishes or a high-risk stop is hit.
 
-这些阶段属于高内存任务，同一本书同范围通常不应重复启动多个任务。看到“已有自动导演任务正在处理同一范围”时，先去任务中心看正在运行的任务。
+After chapter 1 is generated, look at the prose, review issues, repair result, and quality debt. If the prose is usable but has local problems, you can continue later chapters and handle quality debt afterward.
 
+## What you need to handle on the full automatic chain
 
-## 第十一步：选择正文生产方式
-
-「章节批次就绪」 表示章节批次准备好。
-
-系统会停在正文开始前，让你选择：
-
-- 简易创作：进入只读章节书架，AI 继续完成整本书。
-- 专业创作：进入完整工作台，自行检查和安排章节生产。
-
-选择简易创作后，系统会继续：
-
-1. 按章节任务生成正文。
-2. 做正文审核。
-3. 对可修复问题进行修复。
-4. 记录质量债务。
-5. 回灌角色状态、事实和伏笔。
-6. 继续下一章，直到目标范围完成或命中高风险中断。
-
-第一章生成后，看正文、审核问题、修复结果和质量债务。正文可用但存在局部问题时，可以先继续后续章节，后面再处理质量债务。
-
-## 全自动链路里用户只需要处理什么
-
-| 情况 | 要不要介入 | 推荐动作 |
+| Situation | Do you need to step in? | Recommended action |
 |---|---|---|
-| AI 驾驶舱显示“AI 正在处理” | 不需要 | 可以留在页面观察，也可以后台继续。 |
-| 页面显示在角色页，但顶部正在生成卷战略 | 不需要 | 以顶部任务状态为准，不要重复点生成。 |
-| 模型不可用、额度耗尽、服务异常 | 需要 | 修复模型/额度后从任务中心恢复。 |
-| 系统要求重新规划 | 需要 | 到导演跟进查看原因，再决定重规划或继续。 |
-| 章节正文可用但有质量债务 | 通常不需要立即停 | 允许继续产出，之后集中处理质量债务。 |
-| 想改成手动模式 | 需要 | 点击退出导演模式前，先确认当前后台任务已经停止或完成。 |
+| AI cockpit shows “AI is working” | No | Stay and watch, or let it continue in the background. |
+| The page is on the character page, but the top is generating volume strategy | No | Trust the top task status. Do not click generate again. |
+| Model unavailable, quota exhausted, or service error | Yes | Fix the model / quota, then recover from the Task Center. |
+| The system requires a replan | Yes | Read the reason in Director follow-up, then decide replan or continue. |
+| Chapter text is usable but has quality debt | Usually not immediately | Let production continue, then handle quality debt later. |
+| You want to switch to manual mode | Yes | Before exiting director mode, confirm the current background task has stopped or finished. |
 
-## 常见停顿
+## Common pauses
 
-| 停顿位置 | 说明 | 下一步 |
+| Pause | Meaning | Next step |
 |---|---|---|
-| 「等待方向选择」 | 等你选方向 | 选择、修订或重做候选。 |
-| 「等待角色确认」 | 等你确认角色 | 确认/合并/重做角色。 |
-| 「卷战略就绪」 | 卷战略完成 | 确认后进入拆章。 |
-| 「章节批次就绪」 | 章节准备完成 | 进入章节执行。 |
-| 「等待重新规划」 | 质量修复可能影响后续 | 查看原因，再决定重规划或继续。 |
+| Waiting for direction selection | Waiting for you to choose a direction | Choose, revise, or redo candidates. |
+| Waiting for character confirmation | Waiting for you to confirm characters | Confirm / merge / redo the cast. |
+| Volume strategy ready | Volume strategy finished | Confirm, then enter chapter split. |
+| Chapter batch ready | Chapters are prepared | Enter chapter execution. |
+| Replan required | Quality repair may affect later chapters | Read the reason, then decide replan or continue. |
 
-## 完成标准
+## Done when
 
-第一轮实操完成的标志：
+A first walkthrough is complete when:
 
-- 小说项目存在。
-- 书契约和宏观故事存在。
-- 世界和角色资产可查看。
-- 卷战略、节奏板和章节清单存在。
-- 至少第一章有章节任务单。
-- 第一章正文生成并进入审核/修复结果。
+- a novel project exists;
+- book contract and story macro exist;
+- world and character assets can be viewed;
+- volume strategy, beat sheet, and chapter list exist;
+- at least chapter 1 has a chapter task sheet;
+- chapter 1 prose was generated and entered review / repair results.
 
-选择“简易创作”时，后续完成标准还包括：
+If you chose simple creation, later completion also includes:
 
-- 目标范围内章节正文持续产出。
-- 每章有审核、修复或质量债务记录。
-- 状态回灌后，下一章能读取上一章的新事实。
-- 任务中心显示目标范围完成，或 AI 驾驶舱进入全流程完成状态。
+- chapter text keeps being produced in the target range;
+- each chapter has review, repair, or quality-debt records;
+- after state write-back, the next chapter can read the previous chapter’s new facts;
+- the Task Center shows the target range complete, or the AI cockpit enters a finished-flow state.

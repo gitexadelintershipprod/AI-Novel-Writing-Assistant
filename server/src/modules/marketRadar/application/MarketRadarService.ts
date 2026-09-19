@@ -149,7 +149,7 @@ function formatRankingItems(items: MarketRankingItem[]): string {
   return [...groups.values()].sort((left, right) => Number(isPrimary(right)) - Number(isPrimary(left))).map((appearances) => {
     const item = appearances.sort((left, right) => left.rank - right.rank)[0];
     return [
-    `证据层级=${isPrimary(appearances) ? "主要（新书榜或新晋作者榜）" : "辅助（成熟榜单，仅用于验证持续需求）"}`,
+    `证据层级=${isPrimary(appearances) ? "主要（新书榜或New Author List）" : "辅助（成熟榜单，仅用于验证持续需求）"}`,
     `证据ID=${appearances.map((appearance) => appearance.id).join(",")}`,
     `上榜记录=${appearances.map((appearance) => `${appearance.listKey}第${appearance.rank}名`).join("、")}`,
     `书名=${item.title}`,
@@ -211,7 +211,7 @@ function formatStoryModeCatalog(options: MarketStoryModeCatalogOption[]): string
     `ID=${option.id}`,
     `路径=${option.path}`,
     option.description ? `说明=${option.description}` : "",
-    `核心驱动=${option.profile.coreDrive}`,
+    `core driver=${option.profile.coreDrive}`,
     `读者奖励=${option.profile.readerReward}`,
   ].filter(Boolean).join(" | ")).join("\n");
 }
@@ -320,7 +320,7 @@ export class MarketRadarService {
   async recoverInterruptedRuns(): Promise<void> {
     await prisma.marketScanRun.updateMany({
       where: { status: { in: ["queued", "running", "analyzing"] } },
-      data: { status: "interrupted", lastError: "任务因应用重启而中断，请重新扫榜或分析。", finishedAt: new Date() },
+      data: { status: "interrupted", lastError: "The task stopped because the app restarted. Run the ranking scan or analysis again.", finishedAt: new Date() },
     });
   }
 
@@ -342,7 +342,7 @@ export class MarketRadarService {
       data: { requestedPlatformsJson: JSON.stringify(requestedPlatforms) },
     });
     setImmediate(() => void this.collectRankings(run.id).catch(async (error) => {
-      const message = error instanceof Error ? error.message : "扫榜失败";
+      const message = error instanceof Error ? error.message : "Ranking scan failed";
       console.error("[market-radar] scan failed", error);
       await prisma.marketScanRun.updateMany({
         where: { id: run.id, status: { in: ["queued", "running"] } },
@@ -360,14 +360,14 @@ export class MarketRadarService {
       where: { id: runId },
       include: { snapshots: { include: { items: true } }, report: true },
     });
-    if (!run) throw new Error("扫榜任务不存在。");
+    if (!run) throw new Error("The ranking-scan task does not exist.");
     if (run.report) return this.getScan(runId) as Promise<MarketScanRun>;
-    if (run.status === "queued" || run.status === "running") throw new Error("榜单仍在采集中，请稍后再分析。");
+    if (run.status === "queued" || run.status === "running") throw new Error("The ranking is still being collected. Analyze it later.");
     const successful = run.snapshots.filter((snapshot) => snapshot.status === "succeeded" && snapshot.items.length > 0);
-    if (successful.length === 0) throw new Error("没有可供AI分析的榜单数据。");
+    if (successful.length === 0) throw new Error("There is no ranking data for AI to analyze.");
     const requestedItemIds = [...new Set(input.selectedItemIds ?? [])];
     const availableItemIds = new Set(successful.flatMap((snapshot) => snapshot.items.map((item) => item.id)));
-    if (requestedItemIds.some((id) => !availableItemIds.has(id))) throw new Error("选择中包含不属于本次榜单的作品，请重新选择。");
+    if (requestedItemIds.some((id) => !availableItemIds.has(id))) throw new Error("The selection includes works that are not in this ranking. Choose again.");
     const requestedSelections = requestedItemIds.length > 0
       ? successful.filter((snapshot) => snapshot.items.some((item) => requestedItemIds.includes(item.id))).map((snapshot) => ({
         platform: snapshot.platform as MarketRadarPlatform,
@@ -381,7 +381,7 @@ export class MarketRadarService {
         }));
     const uniqueSelections = [...new Map(requestedSelections.map((selection) => [marketSourceKey(selection), selection])).values()];
     const selectedSnapshots = selectMarketAnalysisSnapshots(successful, uniqueSelections);
-    if (selectedSnapshots.length !== uniqueSelections.length) throw new Error("选择中包含未成功获取的榜单，请重新选择。");
+    if (selectedSnapshots.length !== uniqueSelections.length) throw new Error("The selection includes rankings that were not fetched successfully. Choose again.");
 
     const claimed = await prisma.marketScanRun.updateMany({
       where: { id: runId, status: { in: ["ready", "partial", "interrupted"] } },
@@ -396,7 +396,7 @@ export class MarketRadarService {
           data: {
             status: hasFailures ? "partial" : "ready",
             progress: 1,
-            lastError: error instanceof Error ? `AI分析失败：${error.message}` : "AI分析失败，请重试。",
+            lastError: error instanceof Error ? `AI analysis failed: ${error.message}` : "AI analysis failed. Please try again.",
             finishedAt: new Date(),
           },
         });
@@ -445,7 +445,7 @@ export class MarketRadarService {
 
   async syncReportFoundation(id: string, target: MarketFoundationSyncTarget): Promise<MarketTrendReport> {
     const row = await prisma.marketTrendReport.findUnique({ where: { id } });
-    if (!row) throw new Error("市场分析报告不存在。");
+    if (!row) throw new Error("The market-analysis report does not exist.");
     const stored = parseJson<StoredMarketReportData>(row.structuredDataJson, { signals: [] });
     const legacy = stored.productionFoundation;
     const syncState = stored.productionFoundationSync ?? {};
@@ -465,10 +465,10 @@ export class MarketRadarService {
         syncState.genre = await this.syncGenreFoundation(stored.productionFoundationDraft, catalog.genres);
       } else if (legacy) {
         const genre = catalog.genres.find((item) => item.id === legacy.genre.id);
-        if (!genre) throw new Error("报告推荐的题材基底已不存在，请重新分析。");
+        if (!genre) throw new Error("The genre base recommended by the report no longer exists. Analyze again.");
         syncState.genre = { ...legacy.genre, path: genre.path, source: "market_recommended" };
       } else {
-        throw new Error("这份历史报告没有可加入的题材基底，请重新分析。");
+        throw new Error("This historical report has no genre base that can be added. Analyze again.");
       }
     } else {
       if (stored.productionFoundationDraft) {
@@ -479,7 +479,7 @@ export class MarketRadarService {
           ? catalog.storyModes.find((item) => item.id === legacy.secondaryStoryMode?.id)
           : null;
         if (!primary || (legacy.secondaryStoryMode && !secondary)) {
-          throw new Error("报告推荐的推进模式已不存在，请重新分析。");
+          throw new Error("The story mode recommended by the report no longer exists. Analyze again.");
         }
         syncState.storyModes = {
           primaryStoryMode: { ...legacy.primaryStoryMode, path: primary.path, source: "market_recommended" },
@@ -488,7 +488,7 @@ export class MarketRadarService {
             : null,
         };
       } else {
-        throw new Error("这份历史报告没有可加入的推进模式，请重新分析。");
+        throw new Error("This historical report has no story mode that can be added. Analyze again.");
       }
     }
 
@@ -497,17 +497,17 @@ export class MarketRadarService {
       data: { structuredDataJson: JSON.stringify({ ...stored, productionFoundationSync: syncState }) },
     });
     const report = await this.getReport(id);
-    if (!report) throw new Error("市场分析报告同步后无法读取。");
+    if (!report) throw new Error("The market-analysis report could not be read after sync.");
     return report;
   }
 
   async createBrief(input: CreateMarketCreativeBriefRequest): Promise<MarketCreativeBrief> {
     const report = await this.getReport(input.reportId);
-    if (!report) throw new Error("市场分析报告不存在。");
+    if (!report) throw new Error("The market-analysis report does not exist.");
     const uniqueIds = [...new Set(input.signalIds)];
-    if (uniqueIds.length < 1 || uniqueIds.length > 5) throw new Error("请选择1至5项市场信号。");
+    if (uniqueIds.length < 1 || uniqueIds.length > 5) throw new Error("Choose 1 to 5 market signals.");
     const selectedSignals = uniqueIds.map((id) => report.signals.find((signal) => signal.id === id)).filter(Boolean) as MarketTrendReport["signals"];
-    if (selectedSignals.length !== uniqueIds.length) throw new Error("选择中包含不属于当前报告的市场信号。");
+    if (selectedSignals.length !== uniqueIds.length) throw new Error("The selection includes market signals that do not belong to the current report.");
     const result = await runStructuredPrompt({
       asset: marketCreativeBriefPrompt,
       promptInput: {
@@ -581,7 +581,7 @@ export class MarketRadarService {
           data: {
             runId, platform: source.platform, listKey: source.listKey, listLabel: source.listLabel,
             channel: source.channel, sourceUrl: source.sourceUrl, status: "failed",
-            error: error instanceof Error ? error.message : "榜单采集失败",
+            error: error instanceof Error ? error.message : "Ranking collection failed",
           },
         });
       } finally {
@@ -592,7 +592,7 @@ export class MarketRadarService {
     const snapshots = await prisma.marketRankingSnapshot.findMany({ where: { runId }, include: { items: true } });
     const successful = snapshots.filter((snapshot) => snapshot.status === "succeeded" && snapshot.items.length > 0);
     if (successful.length === 0) {
-      await prisma.marketScanRun.update({ where: { id: runId }, data: { status: "failed", progress: 1, finishedAt: new Date(), lastError: "三个平台均未获取到可分析的公开榜单元数据。" } });
+      await prisma.marketScanRun.update({ where: { id: runId }, data: { status: "failed", progress: 1, finishedAt: new Date(), lastError: "None of the three platforms returned public ranking data that can be analyzed." } });
       return;
     }
 
@@ -690,7 +690,7 @@ export class MarketRadarService {
         const oldRank = previousRanks.get(`${item.title}::${item.author ?? ""}`);
         return oldRank ? [`${item.title}: ${oldRank}→${item.rank}`] : [];
       }).slice(0, 20);
-      lines.push(`${current.platform}/${current.listKey}: ${changes.join("，") || "没有重复上榜作品"}`);
+      lines.push(`${current.platform}/${current.listKey}: ${changes.join(", ") || "No repeated ranking titles"}`);
     }
     return { text: lines.join("\n"), hasComparableHistory: lines.length > 0 };
   }
@@ -701,7 +701,7 @@ export class MarketRadarService {
   ): Promise<NovelResourceRecommendationOption> {
     const genreMatch = findMarketFoundationAsset(catalog, draft.genre);
     if (draft.genre.existingId && !genreMatch) {
-      throw new Error("AI 推荐的题材基底在同步前失效，请重新分析。");
+      throw new Error("The recommended genre base became invalid before sync. Please analyze again.");
     }
     let genre = genreMatch;
     if (!genre) {
@@ -731,7 +731,7 @@ export class MarketRadarService {
     ): Promise<MarketStoryModeCatalogOption> => {
       const matched = findMarketFoundationAsset(catalog, modeDraft);
       if (modeDraft.existingId && !matched) {
-        throw new Error("AI 推荐的推进模式在同步前失效，请重新分析。");
+        throw new Error("The recommended story mode became invalid before sync. Please analyze again.");
       }
       if (matched) {
         return matched;
@@ -752,7 +752,7 @@ export class MarketRadarService {
       ? await resolveStoryMode(draft.secondaryStoryMode)
       : null;
     if (secondaryStoryMode?.id === primaryStoryMode.id) {
-      throw new Error("AI 推荐的主推进模式与辅助推进模式重复，请重新分析。");
+      throw new Error("The recommended main and supporting story modes are the same. Please analyze again.");
     }
 
     return {

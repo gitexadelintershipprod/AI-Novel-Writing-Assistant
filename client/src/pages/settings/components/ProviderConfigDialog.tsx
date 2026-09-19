@@ -64,23 +64,23 @@ export default function ProviderConfigDialog({
   deleteDisabled,
   deleteLabel,
 }: ProviderConfigDialogProps) {
-  const primaryModelLabel = isCreatingCustomProvider ? "默认模型（可选）" : isCustomDialog ? "默认模型" : "模型名称";
+  const primaryModelLabel = isCreatingCustomProvider ? "Default model (optional)" : isCustomDialog ? "Default model" : "Model name";
   const canSelectListedModels = selectableModels.length > 0;
   const imageModelOptions = editingConfig?.imageModels ?? [];
   const canSelectImageModels = imageModelOptions.length > 0;
   const modelGuidance = editingConfig?.provider === "deepseek"
-    ? "推荐使用 DeepSeek V4 Flash，兼顾中文长篇质量与响应速度；也可以选择其他可用模型。"
+    ? "It is recommended to use DeepSeek V4 Flash, which takes into account the quality and response speed of Chinese long articles; you can also choose other available models."
     : isCreatingCustomProvider
-      ? "获取模型列表后会自动填入第一个可用模型；接口不返回列表时，可以手动填写。"
+      ? "After obtaining the model list, the first available model will be automatically filled in; when the interface does not return the list, it can be filled in manually."
       : editingConfig?.kind === "custom" && !canSelectListedModels
-        ? "可点击厂商卡片的“刷新模型”获取列表，也可以手动填写默认模型。"
-        : "如果列表里没有目标模型，可以手动输入。";
+        ? "You can click \"Refresh Model\" on the manufacturer card to get the list, or you can manually fill in the default model."
+        : "If there is no target model in the list, you can enter it manually.";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <AppDialogContent
         className="max-w-lg"
-        title={isCreatingCustomProvider ? "新增自定义厂商" : isCustomDialog ? "编辑自定义厂商" : "配置模型厂商"}
+        title={isCreatingCustomProvider ? "Add custom manufacturer" : isCustomDialog ? "Edit custom manufacturer" : "Configuration model vendor"}
         footer={(
           <>
             <Button className="w-full sm:w-auto" onClick={onSubmit} disabled={submitDisabled}>
@@ -93,7 +93,7 @@ export default function ProviderConfigDialog({
               onClick={onTest}
               disabled={testDisabled}
             >
-              测试连接
+              test connection
             </Button>
 
             {editingConfig?.kind === "custom" ? (
@@ -113,10 +113,10 @@ export default function ProviderConfigDialog({
         <div className="space-y-5">
           {isCustomDialog ? (
             <div className="space-y-1">
-              <div className="text-xs text-muted-foreground">厂商名称</div>
+              <div className="text-xs text-muted-foreground">Manufacturer name</div>
               <Input
                 value={form.displayName}
-                placeholder="例如：我的模型网关"
+                placeholder="For example: my model gateway"
                 onChange={(event) => setForm((prev) => ({ ...prev, displayName: event.target.value }))}
               />
             </div>
@@ -124,7 +124,7 @@ export default function ProviderConfigDialog({
 
           {(isCustomDialog || editingConfig?.requiresApiKey === false) ? (
             <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
-              API Key 可以留空；填写 API 地址后可获取模型列表，系统会选择一个默认模型。
+              API Key can be left blank; after filling in the API address, you can get the model list, and the system will select a default model.
             </div>
           ) : null}
 
@@ -133,7 +133,7 @@ export default function ProviderConfigDialog({
             <Input
               type="password"
               value={form.key}
-              placeholder={editingConfig?.isConfigured ? "留空则沿用保存的 API Key" : "输入 API Key"}
+              placeholder={editingConfig?.isConfigured ? "Leave blank to use the saved API Key" : "Enter API Key"}
               onChange={(event) => {
                 setForm((prev) => ({ ...prev, key: event.target.value }));
                 if (isCreatingCustomProvider) {
@@ -144,7 +144,7 @@ export default function ProviderConfigDialog({
           </div>
 
           <div className="space-y-1">
-            <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground"><Link2 className="h-3.5 w-3.5" /> API 地址</div>
+            <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground"><Link2 className="h-3.5 w-3.5" /> API address</div>
             <Input
               value={form.baseURL}
               placeholder={editingConfig?.defaultBaseURL ?? "https://api.example.com/v1"}
@@ -161,8 +161,8 @@ export default function ProviderConfigDialog({
             />
             <div className="text-xs text-muted-foreground">
               {isCreatingCustomProvider
-                ? "填写 OpenAI 兼容 API 地址，通常以 /v1 结尾；本地 Ollama 常见地址是 http://127.0.0.1:11434/v1。"
-                : "留空会使用默认地址；本地 Ollama 常见地址是 http://127.0.0.1:11434/v1。"}
+                ? "Fill in the OpenAI compatible API address, usually ending with /v1; a common local Ollama address is http://127.0.0.1:11434/v1."
+                : "Leave blank to use the default address; a common local Ollama address is http://127.0.0.1:11434/v1."}
             </div>
           </div>
 
@@ -175,7 +175,7 @@ export default function ProviderConfigDialog({
                 onClick={onPreviewModels}
                 disabled={isPreviewingModels || !form.baseURL.trim()}
               >
-                {isPreviewingModels ? "获取中..." : "获取模型列表"}
+                {isPreviewingModels ? "Getting..." : "Get model list"}
               </Button>
               {previewModelsResult ? (
                 <div className="break-words text-xs text-muted-foreground [overflow-wrap:anywhere]">
@@ -187,14 +187,14 @@ export default function ProviderConfigDialog({
 
           {canSelectListedModels ? (
             <div className="space-y-1">
-              <div className="text-xs text-muted-foreground">可用模型</div>
+              <div className="text-xs text-muted-foreground">Available models</div>
               <SearchableSelect
                 value={form.model}
                 onValueChange={(value) => setForm((prev) => ({ ...prev, model: value }))}
                 options={selectableModels.map((model) => ({ value: model }))}
-                placeholder="选择模型"
-                searchPlaceholder="搜索模型"
-                emptyText="没有可用模型"
+                placeholder="Select model"
+                searchPlaceholder="Search model"
+                emptyText="No model available"
               />
             </div>
           ) : null}
@@ -205,15 +205,15 @@ export default function ProviderConfigDialog({
           </div>
           <Input
             value={form.model}
-            placeholder="也可以直接手动输入模型名"
+            placeholder="You can also directly enter the model name manually"
             onChange={(event) => setForm((prev) => ({ ...prev, model: event.target.value }))}
           />
 
           <div className="space-y-3 rounded-xl border bg-muted/20 p-4">
             <div className="space-y-1">
-              <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground"><Image className="h-3.5 w-3.5" /> 图像模型（可选）</div>
+              <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground"><Image className="h-3.5 w-3.5" /> Image model (optional)</div>
               <div className="text-xs text-muted-foreground">
-                填写后，角色形象图生成可以选择这个厂商；留空则只用于文本模型。
+                After filling in, this manufacturer can be selected for character image generation; leaving it blank will only be used for text models.
               </div>
             </div>
             {canSelectImageModels ? (
@@ -222,24 +222,24 @@ export default function ProviderConfigDialog({
                   value={form.imageModel}
                   onValueChange={(value) => setForm((prev) => ({ ...prev, imageModel: value }))}
                   options={imageModelOptions.map((model) => ({ value: model }))}
-                  placeholder="选择图像模型"
-                  searchPlaceholder="搜索图像模型"
-                  emptyText="没有可用的图像模型"
+                  placeholder="Select image model"
+                  searchPlaceholder="Search image model"
+                  emptyText="No image model available"
                 />
               </div>
             ) : null}
             <Input
               value={form.imageModel}
-              placeholder={editingConfig?.defaultImageModel ?? "输入图像模型名"}
+              placeholder={editingConfig?.defaultImageModel ?? "Enter the image model name"}
               onChange={(event) => setForm((prev) => ({ ...prev, imageModel: event.target.value }))}
             />
             <div className="text-xs text-muted-foreground">
-              图片生成会调用这个厂商的 OpenAI 兼容图像接口。
+              Image generation will call this vendor's OpenAI compatible image interface.
             </div>
           </div>
 
           <div className="rounded-xl border border-dashed bg-muted/10 p-4">
-            <div className="mb-3 flex items-center gap-1.5 text-xs font-medium text-muted-foreground"><SlidersHorizontal className="h-3.5 w-3.5" /> 请求限制</div>
+            <div className="mb-3 flex items-center gap-1.5 text-xs font-medium text-muted-foreground"><SlidersHorizontal className="h-3.5 w-3.5" /> Request limits</div>
             <ProviderRequestLimitFields
               concurrencyLimit={form.concurrencyLimit}
               requestIntervalMs={form.requestIntervalMs}

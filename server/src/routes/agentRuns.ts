@@ -40,9 +40,9 @@ const replayBodySchema = z.object({
 function enrichRunDetail(detail: AgentRunDetail): AgentRunDetail {
   const failedStep = [...detail.steps].reverse().find((step) => step.status === "failed");
   const failureSummary = detail.run.status === "failed"
-    ? normalizeFailureSummary(detail.run.error ?? failedStep?.error, "运行失败，但没有记录明确错误。")
+    ? normalizeFailureSummary(detail.run.error ?? failedStep?.error, "The run failed without a recorded error.")
     : detail.run.status === "waiting_approval"
-      ? "当前运行在等待审批。"
+      ? "The current run is waiting for approval."
       : detail.run.error ?? null;
   return {
     ...detail,
@@ -56,20 +56,20 @@ function enrichRunDetail(detail: AgentRunDetail): AgentRunDetail {
       ? {
         type: "novel",
         id: detail.run.novelId,
-        label: `小说 ${detail.run.novelId}`,
+        label: `Novel ${detail.run.novelId}`,
         route: `/novels/${detail.run.novelId}/edit`,
       }
       : {
         type: "agent_run",
         id: detail.run.id,
-        label: "全局运行",
+        label: "Global run",
         route: `/creative-hub?runId=${detail.run.id}`,
       },
     targetResources: detail.run.chapterId
       ? [{
         type: "chapter",
         id: detail.run.chapterId,
-        label: detail.run.currentStep ?? "章节目标",
+        label: detail.run.currentStep ?? "Chapter Objectives",
         route: detail.run.novelId ? `/novels/${detail.run.novelId}/edit` : `/creative-hub?runId=${detail.run.id}`,
       }]
       : [],

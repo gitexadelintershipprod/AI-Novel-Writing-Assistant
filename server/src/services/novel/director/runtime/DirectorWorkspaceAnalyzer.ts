@@ -94,7 +94,7 @@ export function buildManualEditInventoryFromArtifacts(input: {
       const previous = previousById.get(artifact.id);
       return {
         chapterId,
-        title: meta?.title ?? `章节 ${chapterId}`,
+        title: meta?.title ?? `Chapter ${chapterId}`,
         order: meta?.order ?? 0,
         changedAt: meta?.changedAt ?? artifact.updatedAt ?? null,
         contentHash: artifact.contentHash ?? null,
@@ -113,7 +113,7 @@ export function buildManualEditFallbackDecision(editInventory: DirectorManualEdi
       minimalRepairPath: [],
       safeToContinue: true,
       requiresApproval: false,
-      summary: "没有检测到需要处理的手动正文改动。",
+      summary: "No manual text changes were detected that require processing.",
       riskNotes: [],
       evidenceRefs: ["manual_edit_inventory"],
       confidence: 0.65,
@@ -128,14 +128,14 @@ export function buildManualEditFallbackDecision(editInventory: DirectorManualEdi
     affectedArtifactIds,
     minimalRepairPath: [{
       action: "review_recent_chapters",
-      label: "复查最近修改章节",
-      reason: "用户改过正文后，先确认本章审校结果、连续性和后续任务单是否仍然可用。",
+      label: "Review recently modified chapters",
+      reason: "After the user edited chapter text, first confirm whether this chapter's review result, continuity, and later task sheets are still usable.",
       affectedScope,
       requiresApproval: false,
     }],
     safeToContinue: true,
     requiresApproval: false,
-    summary: "检测到章节正文发生变化，建议先做局部复查，再继续自动导演。",
+    summary: "Chapter text changed. Do a local recheck first, then continue Auto-Director.",
     riskNotes: [],
     evidenceRefs: ["manual_edit_inventory"],
     confidence: 0.6,
@@ -146,7 +146,7 @@ function buildManualEditRecommendation(impact: DirectorManualEditImpact): Direct
   if (impact.changedChapters.length === 0) {
     return {
       action: "continue_chapter_execution",
-      reason: "没有检测到需要处理的手动正文改动，可以继续当前生产链路。",
+      reason: "No manual draft edits need handling. The current production chain can continue.",
       affectedScope: "novel",
       riskLevel: "low",
     };
@@ -170,7 +170,7 @@ export function computeWorkspaceInterpretation(
   const action = resolveRecommendedAction(inventory, stage);
   const protectedContent: string[] = [];
   if (inventory.draftedChapterCount > 0) {
-    protectedContent.push("已有章节正文");
+    protectedContent.push("Already has chapter text");
   }
   for (const artifact of inventory.protectedUserContentArtifacts) {
     protectedContent.push(artifact.id);
@@ -212,7 +212,7 @@ function resolveRecommendedAction(
   if (stage === "needs_repair") {
     return {
       action: "repair_scope",
-      reason: `${inv.pendingRepairChapterCount} 章待修复，应先处理修复任务再继续生产。`,
+      reason: `${inv.pendingRepairChapterCount} chapters are waiting for repair. Handle repair first, then continue production.`,
       affectedScope: `${inv.pendingRepairChapterCount} chapters`,
       riskLevel: inv.pendingRepairChapterCount > 5 ? "medium" : "low",
     };
@@ -222,14 +222,14 @@ function resolveRecommendedAction(
     if (undrafted > 0) {
       return {
         action: "continue_chapter_execution",
-        reason: `已有 ${inv.draftedChapterCount} 章草稿，还有 ${undrafted} 章待写。`,
+        reason: `${inv.draftedChapterCount} chapters already have drafts, and ${undrafted} chapters still need writing.`,
         affectedScope: "novel",
         riskLevel: "low",
       };
     }
     return {
       action: "review_recent_chapters",
-      reason: `全部 ${inv.chapterCount} 章已有草稿，建议审校。`,
+      reason: `All ${inv.chapterCount} chapters already have drafts. Review is recommended.`,
       affectedScope: "novel",
       riskLevel: "low",
     };
@@ -237,7 +237,7 @@ function resolveRecommendedAction(
   if (stage === "has_chapter_plan") {
     return {
       action: "continue_chapter_execution",
-      reason: "章节规划已完成，可以开始章节执行。",
+      reason: "Chapter planning is complete. Chapter execution can start.",
       affectedScope: "novel",
       riskLevel: "low",
     };
@@ -245,7 +245,7 @@ function resolveRecommendedAction(
   if (stage === "has_volume_plan") {
     return {
       action: "build_chapter_tasks",
-      reason: "卷策略已完成，需要生成章节任务单。",
+      reason: "Volume strategy is complete. Next, generate chapter task sheets.",
       affectedScope: "novel",
       riskLevel: "low",
     };
@@ -253,7 +253,7 @@ function resolveRecommendedAction(
   if (stage === "has_characters") {
     return {
       action: "build_volume_strategy",
-      reason: "角色已准备，需要制定卷策略。",
+      reason: "Characters are ready. Next, set the volume strategy.",
       affectedScope: "novel",
       riskLevel: "low",
     };
@@ -261,7 +261,7 @@ function resolveRecommendedAction(
   if (stage === "has_macro") {
     return {
       action: "prepare_characters",
-      reason: "故事主线已完成，需要准备角色。",
+      reason: "The story spine is complete. Next, prepare characters.",
       affectedScope: "novel",
       riskLevel: "low",
     };
@@ -269,7 +269,7 @@ function resolveRecommendedAction(
   if (stage === "has_contract") {
     return {
       action: "complete_story_macro",
-      reason: "书约已完成，需要制定故事主线。",
+      reason: "The book contract is done. Next, set the story spine.",
       affectedScope: "novel",
       riskLevel: "low",
     };
@@ -277,14 +277,14 @@ function resolveRecommendedAction(
   if (stage === "has_seed") {
     return {
       action: "create_book_contract",
-      reason: "有初始资产但缺少书约，先建立书约。",
+      reason: "There are seed assets, but the book contract is missing. Create the book contract first.",
       affectedScope: "novel",
       riskLevel: "low",
     };
   }
   return {
     action: "generate_candidates",
-    reason: "工作区为空，从生成候选方向开始。",
+    reason: "The workspace is empty. Start by generating candidate directions.",
     affectedScope: "novel",
     riskLevel: "low",
   };
@@ -296,30 +296,30 @@ function buildDeterministicSummary(
   action: AiWorkspaceInterpretation["recommendedAction"],
 ): string {
   const parts: string[] = [];
-  parts.push(`当前阶段: ${stage}`);
+  parts.push(`Current stage: ${stage}`);
   if (inv.chapterCount > 0) {
-    parts.push(`章节 ${inv.draftedChapterCount}/${inv.chapterCount} 已有草稿`);
+    parts.push(`${inv.draftedChapterCount}/${inv.chapterCount} chapters already have drafts`);
   }
   if (inv.approvedChapterCount > 0) {
-    parts.push(`${inv.approvedChapterCount} 章已通过`);
+    parts.push(`${inv.approvedChapterCount} chapters passed review`);
   }
   if (inv.pendingRepairChapterCount > 0) {
-    parts.push(`${inv.pendingRepairChapterCount} 章待修复`);
+    parts.push(`${inv.pendingRepairChapterCount} chapters waiting for repair`);
   }
-  parts.push(`下一步: ${action.reason}`);
-  return parts.join("，");
+  parts.push(`Next step: ${action.reason}`);
+  return parts.join("; ");
 }
 
 function buildRiskNotes(inv: DirectorWorkspaceInventory): string[] {
   const notes: string[] = [];
   if (inv.staleArtifacts.length > 0) {
-    notes.push(`${inv.staleArtifacts.length} 个资产已过期，可能需要更新。`);
+    notes.push(`${inv.staleArtifacts.length} assets are stale and may need an update.`);
   }
   if (inv.pendingRepairChapterCount > 5) {
-    notes.push(`待修复章节较多 (${inv.pendingRepairChapterCount})，建议优先处理。`);
+    notes.push(`Many chapters need repair (${inv.pendingRepairChapterCount}). Handle those first.`);
   }
   if (inv.draftedChapterCount > 0 && inv.protectedUserContentArtifacts.length > 0) {
-    notes.push("存在用户保护内容，修复时需避免覆盖。");
+    notes.push("User-protected content exists. Avoid overwriting it during repair.");
   }
   return notes;
 }
@@ -547,7 +547,7 @@ export class DirectorWorkspaceAnalyzer {
       },
     });
     if (!novel) {
-      throw new Error("小说不存在，无法分析自动导演工作区。");
+      throw new Error("The novel does not exist, so the Auto-Director workspace cannot be analyzed.");
     }
 
     const [

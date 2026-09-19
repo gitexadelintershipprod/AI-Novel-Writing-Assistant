@@ -469,16 +469,16 @@ export function buildStyleExtractionPreset(
 ): StyleExtractionPreset {
   const labels: Record<StyleExtractionPreset["key"], { label: string; summary: string }> = {
     imitate: {
-      label: "高保真仿写",
-      summary: "尽量保留高相似度特征，适合临摹、仿写和风格贴近试写。",
+      label: "High-fidelity imitation",
+      summary: "Try to retain high similarity features, which is suitable for copying, imitation and trial writing with a close style.",
     },
     balanced: {
-      label: "平衡保留",
-      summary: "保住写法骨架，同时弱化原文指纹，适合大多数写作场景。",
+      label: "Balanced keep",
+      summary: "It maintains the skeleton of writing while weakening the fingerprint of the original text, making it suitable for most writing scenarios.",
     },
     transfer: {
-      label: "写法迁移",
-      summary: "优先保留可迁移规则，主动剥离高指纹风险特征，适合整书绑定。",
+      label: "Style migration",
+      summary: "Priority is given to retaining transferable rules and proactively stripping high fingerprint risk features, making it suitable for binding the entire book.",
     },
   };
 
@@ -654,10 +654,10 @@ function buildLanguageFocus(languageRules: LanguageRules): string | null {
     languageRules.summary,
     [
       compactText(languageRules.register),
-      typeof languageRules.roughness === "number" ? `粗粝度 ${Math.round(languageRules.roughness)}` : "",
+      typeof languageRules.roughness === "number" ? `Roughness ${Math.round(languageRules.roughness)}` : "",
       compactText(languageRules.sentenceVariation),
-      formatBooleanHint(languageRules.allowIncompleteSentences, "允许不完整句", "句子尽量完整"),
-      formatBooleanHint(languageRules.allowSwearing, "允许口语脏字", "避免粗口"),
+      formatBooleanHint(languageRules.allowIncompleteSentences, "Allow incomplete sentences", "Sentences should be as complete as possible"),
+      formatBooleanHint(languageRules.allowSwearing, "Colloquial swear words allowed", "Avoid foul language"),
     ].filter(Boolean).join("，"),
   );
 }
@@ -677,10 +677,10 @@ function buildEmotionFocus(characterRules: CharacterRules): string | null {
     characterRules.emotionExpression,
     [
       Array.isArray(characterRules.defenseMechanisms) && characterRules.defenseMechanisms.length > 0
-        ? `防御机制：${characterRules.defenseMechanisms.join("、")}`
+        ? `Defense mechanism:${characterRules.defenseMechanisms.join("、")}`
         : "",
-      formatBooleanHint(characterRules.allowSelfReflection, "允许明确自省", "少做直白自省"),
-      formatBooleanHint(characterRules.facePriority, "优先保住体面", "不强求体面"),
+      formatBooleanHint(characterRules.allowSelfReflection, "allow for explicit introspection", "Do less direct introspection"),
+      formatBooleanHint(characterRules.facePriority, "Prioritize keeping your dignity", "Don't insist on respectability"),
     ].filter(Boolean).join("，"),
   );
 }
@@ -724,14 +724,14 @@ export function buildStyleIntentSummary(input: {
   const dialogueFocus = styleProfile ? buildDialogueFocus(styleProfile.characterRules) : null;
   const emotionFocus = styleProfile ? buildEmotionFocus(styleProfile.characterRules) : null;
   const antiAiFocus = buildAntiAiFocus(styleProfile);
-  const headline = firstNonEmptyText(styleProfile?.name, styleProfile ? null : styleTone) ?? "未命名写法";
+  const headline = firstNonEmptyText(styleProfile?.name, styleProfile ? null : styleTone) ?? "Unnamed writing method";
   const stageSummaryLines = [
-    readingFeel ? `读感承诺：${readingFeel}` : "",
-    languageFocus ? `语言密度：${languageFocus}` : "",
-    dialogueFocus ? `对白风格：${dialogueFocus}` : "",
-    emotionFocus ? `情绪外显：${emotionFocus}` : "",
-    antiAiFocus.length > 0 ? `反 AI 约束：${antiAiFocus.join("；")}` : "",
-    !styleProfile && styleTone ? `文风关键词：${styleTone}` : "",
+    readingFeel ? `Reading sense commitment:${readingFeel}` : "",
+    languageFocus ? `Language density:${languageFocus}` : "",
+    dialogueFocus ? `Dialogue style:${dialogueFocus}` : "",
+    emotionFocus ? `Emotional display:${emotionFocus}` : "",
+    antiAiFocus.length > 0 ? `Anti-AI constraints:${antiAiFocus.join("；")}` : "",
+    !styleProfile && styleTone ? `Keywords for writing style:${styleTone}` : "",
   ].filter(Boolean);
 
   return {

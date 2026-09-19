@@ -136,7 +136,7 @@ export function evaluateApprovalRequirement(tool: AgentToolName, input: Record<s
   if (tool === "queue_pipeline_run") {
     return {
       required: true,
-      summary: "启动小说流水线任务需要确认。",
+      summary: "Starting the novel pipeline task needs confirmation.",
       targetType: "pipeline",
       targetId: typeof input.novelId === "string" ? input.novelId : "unknown",
     };
@@ -145,7 +145,7 @@ export function evaluateApprovalRequirement(tool: AgentToolName, input: Record<s
   if (tool === "start_full_novel_pipeline") {
     return {
       required: true,
-      summary: "启动整本写作任务需要确认。",
+      summary: "Starting the full-book writing task needs confirmation.",
       targetType: "pipeline",
       targetId: typeof input.novelId === "string" ? input.novelId : "unknown",
     };
@@ -155,8 +155,8 @@ export function evaluateApprovalRequirement(tool: AgentToolName, input: Record<s
     return {
       required: true,
       summary: tool === "run_director_until_gate"
-        ? "自动导演将持续推进到下一个检查点，需要确认。"
-        : "自动导演将继续推进下一步，需要确认。",
+        ? "Auto-Director will keep advancing to the next checkpoint. Confirmation is required."
+        : "Auto-Director will continue to the next step. Confirmation is required.",
       targetType: "director_runtime",
       targetId: typeof input.taskId === "string"
         ? input.taskId
@@ -168,7 +168,7 @@ export function evaluateApprovalRequirement(tool: AgentToolName, input: Record<s
     if (input.mode === "auto_safe_scope" || input.mayOverwriteUserContent === true) {
       return {
         required: true,
-        summary: "切换到更高自动化或允许覆盖用户内容前需要确认。",
+        summary: "Confirm before switching to higher automation or allowing overwrite of user content.",
         targetType: "director_policy",
         targetId: typeof input.taskId === "string"
           ? input.taskId
@@ -187,8 +187,8 @@ export function evaluateApprovalRequirement(tool: AgentToolName, input: Record<s
       return {
         required: true,
         summary: fullReplace
-          ? "整章覆盖改写需要确认。"
-          : "跨章节批量改写需要确认。",
+          ? "A full-chapter overwrite rewrite needs confirmation."
+          : "A cross-chapter batch rewrite needs confirmation.",
         targetType: "chapter_patch",
         targetId: chapterIds.join(",") || toChapterId(input),
       };
@@ -196,7 +196,7 @@ export function evaluateApprovalRequirement(tool: AgentToolName, input: Record<s
     if (worldRuleChange) {
       return {
         required: true,
-        summary: "世界观硬规则变更需要确认。",
+        summary: "Changing a world hard rule needs confirmation.",
         targetType: "world_rule",
         targetId: typeof input.worldId === "string" ? input.worldId : "unknown",
       };

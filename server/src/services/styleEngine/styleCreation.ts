@@ -40,7 +40,7 @@ function takeFeatureDigest(features: StyleExtractionFeature[] | undefined, limit
     .slice(0, limit)
     .map((feature) => {
       const risk = feature.fingerprintRisk >= 0.65
-        ? `；指纹风险 ${Math.round(feature.fingerprintRisk * 100)}`
+        ? `；Fingerprint risk ${Math.round(feature.fingerprintRisk * 100)}`
         : "";
       return `- [${feature.group}] ${feature.label}：${feature.description}${risk}`;
     });
@@ -52,7 +52,7 @@ function takeRiskDigest(features: StyleExtractionFeature[] | undefined, limit: n
     .sort((left, right) => right.fingerprintRisk - left.fingerprintRisk)
     .slice(0, limit)
     .map((feature) => (
-      `- ${feature.label}：指纹风险 ${Math.round(feature.fingerprintRisk * 100)} / 迁移性 ${Math.round(feature.transferability * 100)} / 仿写价值 ${Math.round(feature.imitationValue * 100)}`
+      `- ${feature.label}：Fingerprint risk ${Math.round(feature.fingerprintRisk * 100)} / 迁移性 ${Math.round(feature.transferability * 100)} / Imitation value ${Math.round(feature.imitationValue * 100)}`
     ));
 }
 
@@ -116,13 +116,13 @@ export function buildStyleMetadataDigest(input: StyleCreationCoreDraft): string 
   }
 
   const ruleLines = [
-    ...renderRuleSection("叙事", input.ruleSet?.narrativeRules as Record<string, unknown> | undefined, 4),
-    ...renderRuleSection("角色", input.ruleSet?.characterRules as Record<string, unknown> | undefined, 4),
-    ...renderRuleSection("语言", input.ruleSet?.languageRules as Record<string, unknown> | undefined, 4),
-    ...renderRuleSection("节奏", input.ruleSet?.rhythmRules as Record<string, unknown> | undefined, 4),
+    ...renderRuleSection("Narrative", input.ruleSet?.narrativeRules as Record<string, unknown> | undefined, 4),
+    ...renderRuleSection("Character", input.ruleSet?.characterRules as Record<string, unknown> | undefined, 4),
+    ...renderRuleSection("Language", input.ruleSet?.languageRules as Record<string, unknown> | undefined, 4),
+    ...renderRuleSection("Rhythm", input.ruleSet?.rhythmRules as Record<string, unknown> | undefined, 4),
   ];
   if (ruleLines.length > 0) {
-    lines.push("规则摘要：", ...ruleLines);
+    lines.push("Summary of rules: ", ...ruleLines);
   }
 
   return lines.join("\n").trim();
@@ -140,10 +140,10 @@ export function buildStyleAntiAiRiskDigest(input: StyleCreationCoreDraft): strin
   }
 
   const ruleLines = [
-    ...renderRuleSection("叙事", input.ruleSet?.narrativeRules as Record<string, unknown> | undefined, 3),
-    ...renderRuleSection("角色", input.ruleSet?.characterRules as Record<string, unknown> | undefined, 3),
-    ...renderRuleSection("语言", input.ruleSet?.languageRules as Record<string, unknown> | undefined, 3),
-    ...renderRuleSection("节奏", input.ruleSet?.rhythmRules as Record<string, unknown> | undefined, 3),
+    ...renderRuleSection("Narrative", input.ruleSet?.narrativeRules as Record<string, unknown> | undefined, 3),
+    ...renderRuleSection("Character", input.ruleSet?.characterRules as Record<string, unknown> | undefined, 3),
+    ...renderRuleSection("Language", input.ruleSet?.languageRules as Record<string, unknown> | undefined, 3),
+    ...renderRuleSection("Rhythm", input.ruleSet?.rhythmRules as Record<string, unknown> | undefined, 3),
   ];
   if (ruleLines.length > 0) {
     lines.push("规则抓手：", ...ruleLines);

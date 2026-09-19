@@ -150,7 +150,7 @@ export default function CreativeHubPage() {
       }
     },
     onError: (error) => {
-      toast.error(error instanceof Error ? error.message : "创作线程创建失败，请重试。");
+      toast.error(error instanceof Error ? error.message : "Creation of author thread failed, please try again.");
     },
   });
 
@@ -167,7 +167,7 @@ export default function CreativeHubPage() {
     try {
       await createThreadMutation.mutateAsync(input);
     } catch {
-      // 失败提示由 mutation 的 onError 统一处理。
+      // Failure toasts are handled by the mutation onError.
     } finally {
       createThreadInFlightRef.current = false;
     }
@@ -339,7 +339,7 @@ export default function CreativeHubPage() {
       await updateCreativeHubThread(threadId, { archived });
       await queryClient.invalidateQueries({ queryKey: queryKeys.creativeHub.threads });
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "线程归档操作失败，请重试。");
+      toast.error(error instanceof Error ? error.message : "Thread archiving operation failed, please try again.");
     } finally {
       threadActionInFlightRef.current = false;
       setThreadActionPendingId("");
@@ -371,7 +371,7 @@ export default function CreativeHubPage() {
         }, { replace: true });
       }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "小说工作区切换失败，请重试。");
+      toast.error(error instanceof Error ? error.message : "Failed to switch novel workspace, please try again.");
     } finally {
       bindingInFlightRef.current = false;
       setBindingPending(false);
@@ -400,7 +400,7 @@ export default function CreativeHubPage() {
       }
       await queryClient.invalidateQueries({ queryKey: queryKeys.creativeHub.threads });
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "创作线程删除失败，请重试。");
+      toast.error(error instanceof Error ? error.message : "Creation thread deletion failed, please try again.");
     } finally {
       threadActionInFlightRef.current = false;
       setThreadActionPendingId("");
@@ -429,7 +429,7 @@ export default function CreativeHubPage() {
         runtimeState.setInterrupt(undefined);
       }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "待确认操作提交失败，请重试。");
+      toast.error(error instanceof Error ? error.message : "The submission of the pending confirmation operation failed, please try again.");
     } finally {
       approvalInFlightRef.current = false;
       setApprovalPending(false);
@@ -533,7 +533,7 @@ export default function CreativeHubPage() {
       await queryClient.invalidateQueries({ queryKey: queryKeys.creativeHub.history(activeThreadId) });
     }).catch((error: unknown) => {
       if (activeThreadIdRef.current === activeThreadId) {
-        toast.error(error instanceof Error ? error.message : "世界观绑定同步失败，请重新加载当前线程后重试。");
+        toast.error(error instanceof Error ? error.message : "World view binding synchronization failed, please reload the current thread and try again.");
       }
     });
   }, [activeThreadId, productionStatus?.worldId, queryClient, rawThreadBindings]);
@@ -542,17 +542,17 @@ export default function CreativeHubPage() {
     <div className="space-y-4">
       <WorkspaceHeader
         icon={MessagesSquare}
-        context="当前小说与创作线程"
-        title="创作中枢"
-        description="绑定一本小说后，可查询创作状态、诊断阻塞，并获得可操作的下一步建议。"
+        context="Current Novels and Creative Threads"
+        title="creative center"
+        description="After binding a novel, you can check the creation status, diagnose blockage, and get actionable suggestions for the next step."
         meta={(
           <>
-            <span>小说：{workspacePresentation.objectTitle}</span>
-            <span>阶段：{workspacePresentation.stageLabel}</span>
-            <span>线程：{currentThread?.title ?? "正在准备"}</span>
-            <span>状态：{workspacePresentation.threadStatusLabel}</span>
+            <span>Novel: {workspacePresentation.objectTitle}</span>
+            <span>Stage: {workspacePresentation.stageLabel}</span>
+            <span>Thread: {currentThread?.title ?? "Preparing"}</span>
+            <span>Status: {workspacePresentation.threadStatusLabel}</span>
             {currentBindings.knowledgeDocumentIds?.length ? (
-              <span>已绑定知识资料：{currentBindings.knowledgeDocumentIds.length} 份</span>
+              <span>Bound knowledge documents: {currentBindings.knowledgeDocumentIds.length}</span>
             ) : null}
           </>
         )}
@@ -563,25 +563,25 @@ export default function CreativeHubPage() {
             disabled={threadNavigationDisabled}
             onClick={() => void requestThreadCreation({ title: DEFAULT_THREAD_TITLE, resourceBindings: {} })}
           >
-            {createThreadMutation.isPending ? "正在创建..." : "新建创作线程"}
+            {createThreadMutation.isPending ? "Creating..." : "Create a new creation thread"}
           </Button>
         )}
       />
 
-      <section className="rounded-lg border border-info/30 bg-info/5 p-4" aria-label="独立 Agent 项目提示">
+      <section className="rounded-lg border border-info/30 bg-info/5 p-4" aria-label="Standalone Agent Project Tips">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <h2 className="text-sm font-semibold text-foreground">需要完整 Agent 驱动创作？</h2>
+            <h2 className="text-sm font-semibold text-foreground">Need full Agent-driven authoring?</h2>
             <p className="mt-1 max-w-3xl text-sm leading-6 text-muted-foreground">
-              创作中枢用于查询小说状态、诊断问题和获得下一步建议。完整的 Agent 工作流、工具调用、暂停恢复与本地小说工件，可使用独立项目。
+              The authoring hub is used to check the status of your novel, diagnose problems, and get suggestions for next steps. Complete Agent workflow, tool invocation, pause resume and local novel artifacts, available as standalone projects.
             </p>
             <p className="mt-2 break-all font-mono text-xs text-foreground">git clone https://github.com/ExplosiveCoderflome/ani-book-agent.git</p>
             <p className="mt-1 text-xs text-muted-foreground">Enter the ani-book-agent directory, run pnpm install and then pnpm dev; the default workspace address is http://127.0.0.1:5175.</p>
-            <p className="mt-1 text-xs text-muted-foreground">独立项目使用自己的小说工作区和运行记录，不会直接修改这里的小说。</p>
+            <p className="mt-1 text-xs text-muted-foreground">Independent projects use their own novel workspace and run records, and will not directly modify the novels here.</p>
           </div>
           <Button asChild size="sm" variant="outline" className="shrink-0">
             <a href="https://github.com/ExplosiveCoderflome/ani-book-agent" target="_blank" rel="noreferrer">
-              查看 Agent 仓库
+              View Agent repository
               <ExternalLink className="ml-1.5 h-3.5 w-3.5" aria-hidden="true" />
             </a>
           </Button>
@@ -594,8 +594,8 @@ export default function CreativeHubPage() {
         <WorkspaceStateNotice
           loading
           tone="info"
-          title="正在准备当前创作现场"
-          description="系统正在读取线程和小说状态，完成后会给出唯一推荐下一步。"
+          title="Preparing the current creation site"
+          description="The system is reading the thread and novel status, and will give the only recommended next step when completed."
         />
       ) : (
         <WorkspaceNextAction
@@ -614,7 +614,7 @@ export default function CreativeHubPage() {
               {workspacePresentation.recommendation.action.startsWith("retry_") ? (
                 <RefreshCw className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
               ) : null}
-              {recommendationPending ? "正在重试..." : workspacePresentation.recommendation.actionLabel}
+              {recommendationPending ? "Trying again..." : workspacePresentation.recommendation.actionLabel}
             </Button>
           )}
         />
@@ -658,7 +658,7 @@ export default function CreativeHubPage() {
             defaultRuntimeDetailsCollapsed={defaultRuntimeDetailsCollapsed}
             actionDisabled={workspaceActionDisabled}
             novelsLoading={novelsQuery.isLoading}
-            novelsErrorMessage={novelsQuery.error instanceof Error ? novelsQuery.error.message : novelsQuery.error ? "小说列表加载失败。" : ""}
+            novelsErrorMessage={novelsQuery.error instanceof Error ? novelsQuery.error.message : novelsQuery.error ? "The novel list failed to load." : ""}
             novelsRetrying={novelsQuery.isFetching}
             onToggleRuntimeDetailsDefault={() => {
               setDefaultRuntimeDetailsCollapsed((value) => !value);
@@ -674,7 +674,7 @@ export default function CreativeHubPage() {
             threads={threads}
             activeThreadId={activeThreadId}
             loading={threadsQuery.isLoading}
-            errorMessage={threadsQuery.error instanceof Error ? threadsQuery.error.message : threadsQuery.error ? "创作线程加载失败。" : ""}
+            errorMessage={threadsQuery.error instanceof Error ? threadsQuery.error.message : threadsQuery.error ? "The authoring thread failed to load." : ""}
             retryPending={threadsQuery.isFetching}
             actionPending={createThreadMutation.isPending}
             actionDisabled={threadNavigationDisabled}

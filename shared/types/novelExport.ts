@@ -20,12 +20,12 @@ export const NOVEL_EXPORT_DOWNLOAD_FORMAT_VALUES = ["markdown", "json"] as const
 export type NovelExportDownloadFormat = (typeof NOVEL_EXPORT_DOWNLOAD_FORMAT_VALUES)[number];
 
 export const NOVEL_EXPORT_SCOPE_LABELS: Record<NovelExportScope, string> = {
-  full: "整本书",
-  basic: "项目设定",
-  story_macro: "故事宏观规划",
-  character: "角色准备",
-  outline: "卷战略 / 卷骨架",
-  structured: "节奏 / 拆章",
-  chapter: "章节执行",
-  pipeline: "质量修复",
+  full: "whole book",
+  basic: "Project setup",
+  story_macro: "Story planning",
+  character: "Character setup",
+  outline: "Volume strategy / skeleton",
+  structured: "Beats / chapters",
+  chapter: "Chapter execution",
+  pipeline: "Quality repair",
 };

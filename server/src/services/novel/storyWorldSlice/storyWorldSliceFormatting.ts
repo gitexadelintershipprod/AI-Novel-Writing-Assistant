@@ -51,13 +51,13 @@ function formatLocation(location: StoryWorldSliceLocation): string {
 
 export function formatStoryWorldSlicePromptBlock(slice: StoryWorldSlice): string {
   return [
-    "这本书会用到的世界设定：",
+    "这本书会用到的World setting：",
     slice.coreWorldFrame ? `核心舞台：${slice.coreWorldFrame}` : "",
     slice.appliedRules.length > 0
-      ? `当前必须遵守的规则：\n${slice.appliedRules.map((item) => `- ${formatRule(item)}`).join("\n")}`
+      ? `当前rules that must be followed：\n${slice.appliedRules.map((item) => `- ${formatRule(item)}`).join("\n")}`
       : "",
     slice.activeForces.length > 0
-      ? `当前会介入故事的组织与势力：\n${slice.activeForces.map((item) => `- ${formatForce(item)}`).join("\n")}`
+      ? `当前会介入故事的Organization and power：\n${slice.activeForces.map((item) => `- ${formatForce(item)}`).join("\n")}`
       : "",
     slice.activeLocations.length > 0
       ? `当前会被真正用到的地点：\n${slice.activeLocations.map((item) => `- ${formatLocation(item)}`).join("\n")}`
@@ -66,7 +66,7 @@ export function formatStoryWorldSlicePromptBlock(slice: StoryWorldSlice): string
       ? `可直接展开的冲突方向：\n${slice.conflictCandidates.map((item) => `- ${item}`).join("\n")}`
       : "",
     slice.pressureSources.length > 0
-      ? `主要压力来源：\n${slice.pressureSources.map((item) => `- ${item}`).join("\n")}`
+      ? `主要source of stress：\n${slice.pressureSources.map((item) => `- ${item}`).join("\n")}`
       : "",
     slice.mysterySources.length > 0
       ? `可持续吊住读者的问题：\n${slice.mysterySources.map((item) => `- ${item}`).join("\n")}`
@@ -86,7 +86,7 @@ export function formatStoryWorldSlicePromptBlock(slice: StoryWorldSlice): string
 
 export function buildLegacyWorldContextFromWorld(world: LegacyWorldContextSource | null | undefined): string {
   if (!world) {
-    return "世界上下文：暂无";
+    return "World context: none";
   }
 
   let axiomsText = "";
@@ -102,22 +102,22 @@ export function buildLegacyWorldContextFromWorld(world: LegacyWorldContextSource
   }
 
   return [
-    "世界上下文：",
-    `世界名称：${world.name}`,
-    `世界类型：${world.worldType ?? "未指定"}`,
+    "World context:",
+    `World name:${world.name}`,
+    `World type:${world.worldType ?? "未指定"}`,
     `世界简介：${world.description ?? ""}`,
     "核心公理：",
     axiomsText,
     `背景：${world.background ?? ""}`,
     `地理：${world.geography ?? ""}`,
-    `力量体系：${world.magicSystem ?? ""}`,
+    `Power system:${world.magicSystem ?? ""}`,
     `社会政治：${world.politics ?? ""}`,
     `种族：${world.races ?? ""}`,
     `宗教：${world.religions ?? ""}`,
     `科技：${world.technology ?? ""}`,
     `历史：${world.history ?? ""}`,
     `经济：${world.economy ?? ""}`,
-    `势力关系：${world.factions ?? ""}`,
-    `核心冲突：${world.conflicts ?? ""}`,
+    `power relations：${world.factions ?? ""}`,
+    `Core conflict:${world.conflicts ?? ""}`,
   ].join("\n");
 }

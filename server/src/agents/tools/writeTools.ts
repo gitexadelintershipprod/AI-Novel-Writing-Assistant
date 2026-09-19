@@ -25,8 +25,8 @@ export const writeToolDefinitions: Partial<
 > = {
   diff_chapter_patch: {
     name: "diff_chapter_patch",
-    title: "预览章节补丁",
-    description: "对补丁进行预览，不落库。",
+    title: "Preview a chapter patch",
+    description: "Preview the patch without saving it.",
     category: "inspect",
     riskLevel: "low",
     domainAgent: "NovelAgent",
@@ -48,8 +48,8 @@ export const writeToolDefinitions: Partial<
   },
   save_chapter_draft: {
     name: "save_chapter_draft",
-    title: "保存章节草稿",
-    description: "保存章节草稿，支持 dryRun。",
+    title: "Save Chapter Draft",
+    description: "Save the chapter draft. dryRun is supported.",
     category: "mutate",
     riskLevel: "medium",
     domainAgent: "NovelAgent",
@@ -66,7 +66,7 @@ export const writeToolDefinitions: Partial<
           contentLength: input.content.length,
           updatedAt: null,
           dryRun: true,
-          summary: "dryRun: 章节草稿将被写入，但未实际落库。",
+          summary: "dryRun: the chapter draft would be written, but it was not saved.",
         });
       }
       const updated = await novelService.updateChapter(input.novelId, input.chapterId, {
@@ -79,14 +79,14 @@ export const writeToolDefinitions: Partial<
         contentLength: (updated.content ?? "").length,
         updatedAt: updated.updatedAt.toISOString(),
         dryRun: false,
-        summary: "章节草稿已保存。",
+        summary: "The chapter draft was saved.",
       });
     },
   },
   apply_chapter_patch: {
     name: "apply_chapter_patch",
-    title: "应用章节补丁",
-    description: "对章节正文执行增量或覆盖修订，支持 dryRun。",
+    title: "Apply a chapter patch",
+    description: "Apply an incremental or overwrite revision to chapter text. Supports dryRun.",
     category: "mutate",
     riskLevel: "high",
     domainAgent: "NovelAgent",
@@ -131,8 +131,8 @@ export const writeToolDefinitions: Partial<
   },
   preview_pipeline_run: {
     name: "preview_pipeline_run",
-    title: "预览写作流水线",
-    description: "预览流水线会覆盖的章节范围。",
+    title: "Preview the writing pipeline",
+    description: "Preview the chapter range the pipeline would cover.",
     category: "inspect",
     riskLevel: "low",
     domainAgent: "NovelAgent",
@@ -163,8 +163,8 @@ export const writeToolDefinitions: Partial<
   },
   queue_pipeline_run: {
     name: "queue_pipeline_run",
-    title: "启动写作流水线",
-    description: "创建小说流水线任务，支持 dryRun。",
+    title: "Start the writing pipeline",
+    description: "Create a novel pipeline task. dryRun is supported.",
     category: "run",
     riskLevel: "high",
     domainAgent: "NovelAgent",
@@ -185,7 +185,7 @@ export const writeToolDefinitions: Partial<
           startOrder: input.startOrder,
           endOrder: input.endOrder,
           dryRun: true,
-          summary: "dryRun: 流水线任务将被创建，但未实际落库。",
+          summary: "dryRun: A pipeline task will be created but not actually saved.",
         });
       }
       const job = await novelService.startPipelineJob(input.novelId, {
@@ -203,7 +203,7 @@ export const writeToolDefinitions: Partial<
         startOrder: job.startOrder,
         endOrder: job.endOrder,
         dryRun: false,
-        summary: "流水线任务已创建。",
+        summary: "The pipeline task was created.",
       });
     },
   },

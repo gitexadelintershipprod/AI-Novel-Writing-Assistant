@@ -1,47 +1,47 @@
 # Contributor License Agreement
 
-本贡献者许可协议适用于向 AI Novel Writing Assistant 2 提交的代码、提示词、测试、文档、图片、素材、数据、配置或其他内容。
+This Contributor License Agreement applies to code, prompts, tests, documentation, images, assets, data, configuration, or other material submitted to AI Novel Writing Assistant 2.
 
-当你通过 Pull Request、补丁、Issue 附件、讨论区或其他方式有意向本项目提交贡献时，即表示你同意以下条款。
+By offering a contribution through a pull request, patch, issue attachment, discussion, or any other channel, you agree to the terms below.
 
-## 1. 贡献权利确认
+## 1. Right to contribute
 
-你确认：
+You confirm that:
 
-- 你有权提交该贡献；
-- 该贡献不是从第三方项目、公司资产、受限资料、未授权数据集或其他你无权再授权的内容中复制而来；
-- 如果贡献中包含第三方代码、素材、数据、模型输出、AI 生成内容或其他受许可证约束的内容，你会在 Pull Request 或相关讨论中说明来源、许可证和必要归属信息；
-- 如果你的雇主、客户、学校或其他组织可能对该贡献拥有权利，你已经取得提交该贡献所需的授权。
+- you have the right to submit the contribution;
+- the contribution is not copied from a third-party project, company asset, restricted source, unauthorized dataset, or other material you are not allowed to relicense;
+- if the contribution includes third-party code, assets, data, model output, AI-generated content, or other licensed material, you will state the source, license, and required attribution in the pull request or related discussion;
+- if your employer, client, school, or another organization may have rights in the contribution, you have the authorization needed to submit it.
 
-## 2. 版权归属
+## 2. Copyright
 
-你保留自己对贡献所拥有的版权和其他权利。
+You keep the copyright and other rights you already have in your contribution.
 
-本协议不会要求你把贡献的版权转让给项目维护者。
+This agreement does not require you to assign that copyright to the project maintainers.
 
-## 3. 授权范围
+## 3. License grant
 
-你授予项目维护者一项永久、全球范围、非独占、免费、免版税、不可撤销、可转授权的许可，用于使用、复制、修改、制作衍生作品、公开展示、公开执行、分发、再许可和以其他方式利用你的贡献。
+You grant the project maintainers a perpetual, worldwide, non-exclusive, royalty-free, irrevocable, sublicensable license to use, copy, modify, create derivative works of, publicly display, publicly perform, distribute, sublicense, and otherwise exploit your contribution.
 
-该授权允许项目维护者将你的贡献：
+This license allows the project maintainers to:
 
-- 纳入本项目；
-- 按 GNU Affero General Public License v3.0 only (AGPL-3.0-only) 或项目后续采用的开源许可证发布；
-- 纳入项目维护者另行提供的商业授权、商业发行版、托管服务授权或其他书面商业许可中；
-- 与本项目的其他代码、文档、素材和发布产物一起使用、维护、修改、发布或授权。
+- include your contribution in this project;
+- publish it under GNU Affero General Public License v3.0 only (AGPL-3.0-only) or a later open-source license adopted by the project;
+- include it in a commercial license, commercial distribution, hosted-service license, or other written commercial permission offered by the project maintainers;
+- use, maintain, modify, publish, or license it together with the project's other code, documentation, assets, and release artifacts.
 
-## 4. 专利授权
+## 4. Patent grant
 
-如果你的贡献会涉及你能够授权的专利权利，你也授予项目维护者和本项目接收者一项永久、全球范围、非独占、免费、免版税、不可撤销的专利许可，用于制作、使用、销售、许诺销售、进口和以其他方式利用该贡献以及包含该贡献的项目版本。
+If your contribution implicates patent rights you can license, you also grant the project maintainers and recipients of this project a perpetual, worldwide, non-exclusive, royalty-free, irrevocable patent license to make, use, sell, offer for sale, import, and otherwise exploit that contribution and project versions that include it.
 
-## 5. 无额外义务
+## 5. No extra obligations
 
-你理解并同意：
+You understand and agree that:
 
-- 项目维护者没有义务接受、合并、发布或继续维护你的贡献；
-- 你的贡献按“原样”提供，不附带任何明示或默示担保；
-- 除非另有书面协议，项目维护者不需要因使用、发布或商业授权你的贡献而向你支付费用。
+- the project maintainers have no duty to accept, merge, publish, or keep maintaining your contribution;
+- the contribution is provided “as is,” without express or implied warranties;
+- unless a separate written agreement says otherwise, the project maintainers do not owe you payment for using, publishing, or commercially licensing your contribution.
 
-## 6. 不同条款
+## 6. Different terms
 
-如果你希望在不同条款下提交贡献，请在提交前先与项目维护者沟通，并取得明确书面同意。
+If you want to contribute under different terms, talk with the project maintainers first and get clear written agreement before you submit.

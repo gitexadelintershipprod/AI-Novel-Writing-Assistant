@@ -30,7 +30,7 @@ export interface OfficialPromptSlotLibrary {
 export function getOfficialPromptSlotLibrary(promptId: string): OfficialPromptSlotLibrary {
   const asset = findRegisteredPromptAssetById(promptId);
   if (!asset) {
-    throw new Error(`提示词未注册：${promptId}`);
+    throw new Error(`Prompt word is not registered:${promptId}`);
   }
   const slots: PromptSlotDef[] = asset.slots ?? [];
   return {
@@ -47,7 +47,7 @@ export function getOfficialPromptSlotLibrary(promptId: string): OfficialPromptSl
     officialProfiles: [
       {
         id: "current",
-        label: "官方当前版",
+        label: "Official current version",
         description: "使用代码注册的 PromptAsset.slots 默认值。",
       },
     ],

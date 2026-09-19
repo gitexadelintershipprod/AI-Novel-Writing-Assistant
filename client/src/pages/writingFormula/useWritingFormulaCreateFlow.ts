@@ -158,7 +158,7 @@ export function useWritingFormulaCreateFlow({
       }
       handledTerminalTaskIdRef.current = pendingExtractionTaskId;
       setPendingExtractionTaskId("");
-      onFlowMessage("写法提取任务不存在或已被清理，请重新提交。");
+      onFlowMessage("The writing extraction task does not exist or has been cleared. Please resubmit.");
       return;
     }
 
@@ -174,14 +174,14 @@ export function useWritingFormulaCreateFlow({
 
     if (task.status === "succeeded") {
       const profileId = readCreatedProfileId(task);
-      const profileName = readCreatedProfileName(task) || form.extractName.trim() || "新写法";
+      const profileName = readCreatedProfileName(task) || form.extractName.trim() || "New way of writing";
       if (!profileId) {
-        onFlowMessage("写法提取任务已完成，但没有拿到自动保存结果。");
+        onFlowMessage("The writing extraction task has been completed, but the automatic saving result has not been obtained.");
         return;
       }
       resetCreateFlow();
       void refreshStyleData().then(() => {
-        onAutoSavedProfileReady(profileId, `写法“${profileName}”已自动保存，已经为你打开当前写法编辑。`);
+        onAutoSavedProfileReady(profileId, `The writing style “${profileName}” was saved automatically. It is now open so you can edit it.`);
       });
       return;
     }
@@ -189,8 +189,8 @@ export function useWritingFormulaCreateFlow({
     const failureMessage = task.failureSummary
       ?? task.lastError
       ?? (task.status === "cancelled"
-        ? "写法提取任务已取消。"
-        : "写法提取任务失败，请稍后重试。");
+        ? "The writing method extraction task has been cancelled."
+        : "The writing extraction task failed, please try again later.");
     onFlowMessage(failureMessage);
   }, [
     extractionTaskQuery.data,
@@ -211,7 +211,7 @@ export function useWritingFormulaCreateFlow({
       }
       resetCreateFlow();
       await refreshStyleData();
-      onImmediateProfileCreated(profile, `写法“${profile.name}”已经创建，可以继续补规则、试写或绑定到目标。`);
+      onImmediateProfileCreated(profile, `The writing style “${profile.name}” has been created. You can add rules, try a sample, or bind it to a target.`);
     },
   });
 
@@ -231,7 +231,7 @@ export function useWritingFormulaCreateFlow({
       }
       resetCreateFlow();
       await refreshStyleData();
-      onImmediateProfileCreated(profile, `写法“${profile.name}”已经生成，可以继续补规则、试写或绑定到目标。`);
+      onImmediateProfileCreated(profile, `The writing style “${profile.name}” has been generated. You can fill in rules, try a sample, or bind it to a target.`);
     },
   });
 
@@ -244,7 +244,7 @@ export function useWritingFormulaCreateFlow({
       }
       resetCreateFlow();
       await refreshStyleData();
-      onImmediateProfileCreated(profile, `模板写法“${profile.name}”已经创建，可以继续补规则、试写或绑定到目标。`);
+      onImmediateProfileCreated(profile, `Template writing method"${profile.name}"Has been created, you can continue to add rules, test write or bind to targets.`);
     },
   });
 
@@ -261,7 +261,7 @@ export function useWritingFormulaCreateFlow({
     onSuccess: (response) => {
       const task = response.data;
       if (!task) {
-        onFlowMessage("写法提取任务提交成功，但没有拿到任务详情。");
+        onFlowMessage("The writing method extraction task was submitted successfully, but the task details were not obtained.");
         return;
       }
       handledTerminalTaskIdRef.current = "";
@@ -284,7 +284,7 @@ export function useWritingFormulaCreateFlow({
     onSuccess: (response) => {
       const task = response.data;
       if (!task) {
-        onFlowMessage("写法提取任务提交成功，但没有拿到任务详情。");
+        onFlowMessage("The writing method extraction task was submitted successfully, but the task details were not obtained.");
         return;
       }
       handledTerminalTaskIdRef.current = "";
@@ -308,7 +308,7 @@ export function useWritingFormulaCreateFlow({
       }
       resetCreateFlow();
       await refreshStyleData();
-      onImmediateProfileCreated(profile, `写法“${profile.name}”来自拆书结果，你可以继续检查规则、试写，或绑定到目标。`);
+      onImmediateProfileCreated(profile, `The writing style “${profile.name}” came from the unpacking results. You can review the rules, try a sample, or bind it to a target.`);
     },
   });
 

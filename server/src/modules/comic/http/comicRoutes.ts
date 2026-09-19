@@ -119,7 +119,7 @@ router.get("/projects/:id", validate({ params: idParams }), async (req, res, nex
     const { id } = req.params as z.infer<typeof idParams>;
     const data = await comicProjectService.getProject(id);
     if (!data) {
-      res.status(404).json({ success: false, error: "漫画项目不存在。" } satisfies ApiResponse<null>);
+      res.status(404).json({ success: false, error: "The comic project does not exist." } satisfies ApiResponse<null>);
       return;
     }
     res.json({ success: true, data } satisfies ApiResponse<typeof data>);
@@ -207,7 +207,7 @@ router.get("/episodes/:episodeId", validate({ params: episodeIdParams }), async 
     const { episodeId } = req.params as z.infer<typeof episodeIdParams>;
     const data = await comicEpisodePlanService.getEpisode(episodeId);
     if (!data) {
-      res.status(404).json({ success: false, error: "漫画话数不存在。" } satisfies ApiResponse<null>);
+      res.status(404).json({ success: false, error: "The comic episode does not exist." } satisfies ApiResponse<null>);
       return;
     }
     res.json({ success: true, data } satisfies ApiResponse<typeof data>);
@@ -298,7 +298,7 @@ router.get("/panels/:panelId", validate({ params: panelIdParams }), async (req, 
     const { panelId } = req.params as z.infer<typeof panelIdParams>;
     const data = await comicPanelScriptService.getPanel(panelId);
     if (!data) {
-      res.status(404).json({ success: false, error: "漫画格子不存在。" } satisfies ApiResponse<null>);
+      res.status(404).json({ success: false, error: "The comic panel does not exist." } satisfies ApiResponse<null>);
       return;
     }
     res.json({ success: true, data } satisfies ApiResponse<typeof data>);
@@ -406,7 +406,7 @@ router.get("/characters/:charId/sheet", validate({ params: charIdParams }), asyn
   } catch (err) { next(err); }
 });
 
-// AI 协助重写"外貌锚点"——返回建议给前端审阅，不直接保存
+// AI 协助重写"appearance anchor"——返回建议给前端审阅，不直接保存
 router.post(
   "/characters/:charId/visual-anchor/rewrite",
   validate({
@@ -446,7 +446,7 @@ router.patch(
   },
 );
 
-// 更新角色"外貌锚点"—— 所有生图链路的源头
+// 更新角色"appearance anchor"—— 所有生图链路的源头
 // appearance：主外貌；faceShapeOverride：脸型强覆盖（与 appearance 冲突时高优先级）
 router.patch(
   "/characters/:charId/visual-anchor",
@@ -456,7 +456,7 @@ router.patch(
       appearance: z.string().trim().min(1).max(2000).optional(),
       faceShapeOverride: z.string().trim().max(500).optional(),
     }).refine((b) => b.appearance !== undefined || b.faceShapeOverride !== undefined, {
-      message: "至少需要提供 appearance 或 faceShapeOverride 之一",
+      message: "At least one of appearance or faceShapeOverride is required",
     }),
   }),
   async (req, res, next) => {
@@ -521,7 +521,7 @@ router.get("/character-images/:charId/sheet", validate({ params: charIdParams })
     const { charId } = req.params as z.infer<typeof charIdParams>;
     const file = await comicCharacterImageService.resolveSheetFile(charId);
     if (!file) {
-      res.status(404).json({ success: false, error: "设计稿尚未生成。" } satisfies ApiResponse<null>);
+      res.status(404).json({ success: false, error: "The design draft has not been generated yet." } satisfies ApiResponse<null>);
       return;
     }
     res.setHeader("Content-Type", file.mimeType);
@@ -535,7 +535,7 @@ router.get("/character-images/:charId/expressions", validate({ params: charIdPar
     const { charId } = req.params as z.infer<typeof charIdParams>;
     const file = await comicCharacterImageService.resolveExpressionFile(charId);
     if (!file) {
-      res.status(404).json({ success: false, error: "表情设计稿尚未生成。" } satisfies ApiResponse<null>);
+      res.status(404).json({ success: false, error: "The expression design draft has not been generated yet." } satisfies ApiResponse<null>);
       return;
     }
     res.setHeader("Content-Type", file.mimeType);
@@ -549,7 +549,7 @@ router.get("/character-images/:charId/face", validate({ params: charIdParams }),
     const { charId } = req.params as z.infer<typeof charIdParams>;
     const file = await comicCharacterImageService.resolveFaceRegionFile(charId);
     if (!file) {
-      res.status(404).json({ success: false, error: "角色面部参考图尚未生成。" } satisfies ApiResponse<null>);
+      res.status(404).json({ success: false, error: "The character face reference has not been generated yet." } satisfies ApiResponse<null>);
       return;
     }
     res.setHeader("Content-Type", file.mimeType);
@@ -564,7 +564,7 @@ router.get("/character-images/:charId/sheet/v:version", validate({ params: charS
     const { charId, version } = parsed;
     const file = await comicCharacterImageService.resolveArchivedSheetFile(charId, version);
     if (!file) {
-      res.status(404).json({ success: false, error: "历史设计稿不存在。" } satisfies ApiResponse<null>);
+      res.status(404).json({ success: false, error: "The historical design draft does not exist." } satisfies ApiResponse<null>);
       return;
     }
     res.setHeader("Content-Type", file.mimeType);
@@ -628,7 +628,7 @@ router.get("/panel-images/:panelId/panel", validate({ params: panelIdParams }), 
     const { panelId } = req.params as z.infer<typeof panelIdParams>;
     const file = await comicPanelImageService.getPanelImageFile(panelId);
     if (!file) {
-      res.status(404).json({ success: false, error: "图片尚未生成。" } satisfies ApiResponse<null>);
+      res.status(404).json({ success: false, error: "The image has not been generated yet." } satisfies ApiResponse<null>);
       return;
     }
     const mimeMap: Record<string, string> = { png: "image/png", jpg: "image/jpeg", webp: "image/webp" };
@@ -668,7 +668,7 @@ router.get("/panel-images/:panelId/lettered", validate({ params: panelIdParams }
     const { panelId } = req.params as z.infer<typeof panelIdParams>;
     const buf = await comicBubbleLayoutService.getLetteredImageFile(panelId);
     if (!buf) {
-      res.status(404).json({ success: false, error: "排版图尚未生成。" } satisfies ApiResponse<null>);
+      res.status(404).json({ success: false, error: "The layout image has not been generated yet." } satisfies ApiResponse<null>);
       return;
     }
     res.setHeader("Content-Type", "image/png");
@@ -721,7 +721,7 @@ router.get("/export-jobs/:jobId", validate({ params: exportJobIdParams }), async
     const { jobId } = req.params as z.infer<typeof exportJobIdParams>;
     const data = await comicExportService.getExportJob(jobId);
     if (!data) {
-      res.status(404).json({ success: false, error: "导出任务不存在。" } satisfies ApiResponse<null>);
+      res.status(404).json({ success: false, error: "The export task does not exist." } satisfies ApiResponse<null>);
       return;
     }
     res.json({ success: true, data } satisfies ApiResponse<typeof data>);
@@ -736,7 +736,7 @@ router.get(
       const { jobId, filename } = req.params as z.infer<typeof artifactParams>;
       const file = await comicExportService.getArtifactFile(jobId, filename);
       if (!file) {
-        res.status(404).json({ success: false, error: "产物文件不存在。" } satisfies ApiResponse<null>);
+        res.status(404).json({ success: false, error: "The artifact file does not exist." } satisfies ApiResponse<null>);
         return;
       }
       const mimeMap: Record<string, string> = { png: "image/png", jpg: "image/jpeg", webp: "image/webp" };
@@ -800,7 +800,7 @@ router.get("/batch-jobs/:jobId", validate({ params: batchJobIdParams }), async (
     const { jobId } = req.params as z.infer<typeof batchJobIdParams>;
     const data = await comicBatchOrchestrator.getBatchJob(jobId);
     if (!data) {
-      res.status(404).json({ success: false, error: "批量任务不存在。" } satisfies ApiResponse<null>);
+      res.status(404).json({ success: false, error: "The batch task does not exist." } satisfies ApiResponse<null>);
       return;
     }
     res.json({ success: true, data } satisfies ApiResponse<typeof data>);
@@ -892,7 +892,7 @@ router.delete("/character-assets/:assetId", validate({ params: assetIdParams }),
   } catch (err) { next(err); }
 });
 
-// AI 生成资产图
+// AI generated资产图
 // 预览即将发送的素材（不消耗 token）
 router.post("/character-assets/:assetId/prepare-image", validate({ params: assetIdParams }), async (req, res, next) => {
   try {
@@ -935,7 +935,7 @@ router.post(
       const chunks: Buffer[] = [];
       for await (const chunk of req) chunks.push(chunk as Buffer);
       const buffer = Buffer.concat(chunks);
-      if (buffer.length === 0) throw new Error("未收到图片数据");
+      if (buffer.length === 0) throw new Error("No image data was received");
       const data = await comicCharacterAssetService.uploadAssetImage(assetId, buffer, mimeType);
       res.json({ success: true, data } satisfies ApiResponse<typeof data>);
     } catch (err) { next(err); }
@@ -1007,7 +1007,7 @@ router.patch("/scenes/:sceneId", validate({ params: sceneIdParams, body: updateS
   } catch (err) { next(err); }
 });
 
-// 删除场景
+// delete scene
 router.delete("/scenes/:sceneId", validate({ params: sceneIdParams }), async (req, res, next) => {
   try {
     const { sceneId } = req.params as z.infer<typeof sceneIdParams>;
@@ -1016,7 +1016,7 @@ router.delete("/scenes/:sceneId", validate({ params: sceneIdParams }), async (re
   } catch (err) { next(err); }
 });
 
-// AI 生成场景设定图
+// AI generatedscene setting diagram
 router.post("/scenes/:sceneId/prepare-image", validate({ params: sceneIdParams, body: imageGenerateSchema }), async (req, res, next) => {
   try {
     const { sceneId } = req.params as z.infer<typeof sceneIdParams>;
@@ -1042,7 +1042,7 @@ router.post("/scenes/:sceneId/generate-image", validate({ params: sceneIdParams,
   } catch (err) { next(err); }
 });
 
-// 上传场景设定图（Content-Type: image/* 直传）
+// 上传scene setting diagram（Content-Type: image/* 直传）
 router.post("/scenes/:sceneId/upload-image", validate({ params: sceneIdParams }), async (req, res, next) => {
   try {
     const { sceneId } = req.params as z.infer<typeof sceneIdParams>;
@@ -1050,7 +1050,7 @@ router.post("/scenes/:sceneId/upload-image", validate({ params: sceneIdParams })
     const chunks: Buffer[] = [];
     for await (const chunk of req) chunks.push(chunk as Buffer);
     const buffer = Buffer.concat(chunks);
-    if (buffer.length === 0) throw new Error("未收到图片数据");
+    if (buffer.length === 0) throw new Error("No image data was received");
     const data = await comicSceneService.uploadSceneImage(sceneId, buffer, mimeType);
     res.json({ success: true, data } satisfies ApiResponse<typeof data>);
   } catch (err) { next(err); }

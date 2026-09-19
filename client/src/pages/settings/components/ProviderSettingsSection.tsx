@@ -80,17 +80,17 @@ export default function ProviderSettingsSection(props: {
           </div>
           <div className="min-w-0 space-y-1">
             <div className="flex flex-wrap items-center gap-2">
-              <CardTitle>模型厂商</CardTitle>
-              <Badge variant={visibleViewModels.length ? "default" : "outline"}>{visibleViewModels.length} 个可用连接</Badge>
+              <CardTitle>model manufacturer</CardTitle>
+              <Badge variant={visibleViewModels.length ? "default" : "outline"}>{visibleViewModels.length} available connections</Badge>
             </div>
           <CardDescription className={AUTO_DIRECTOR_MOBILE_CLASSES.wrapText}>
-              添加一个可用文本模型后就能开始创作；路由和高级参数可按需再设置。
+              Just add a working text model and start creating; routing and advanced parameters can be set as needed.
           </CardDescription>
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button className={AUTO_DIRECTOR_MOBILE_CLASSES.fullWidthAction} onClick={() => setIsAddProviderOpen(true)}>
-            <Plus className="h-4 w-4" /> 添加厂商
+            <Plus className="h-4 w-4" /> Add vendor
           </Button>
         </div>
       </CardHeader>
@@ -112,15 +112,15 @@ export default function ProviderSettingsSection(props: {
         {!visibleViewModels.length ? (
           <div className="rounded-xl border border-dashed bg-background/70 p-6 text-center text-sm text-muted-foreground md:col-span-2">
             <PlugZap className="mx-auto mb-3 h-6 w-6 text-primary" />
-            <div className="font-medium text-foreground">还没有可用的模型连接</div>
-            <div className="mt-1">添加内置厂商或自定义服务后，即可配置第一个文本模型。</div>
+            <div className="font-medium text-foreground">No model connections available yet</div>
+            <div className="mt-1">After adding a built-in vendor or custom service, you can configure your first text model.</div>
           </div>
         ) : null}
       </CardContent>
       <Dialog open={isAddProviderOpen} onOpenChange={setIsAddProviderOpen}>
         <AppDialogContent
-          title="添加模型厂商"
-          description="选择一个内置厂商模板，或添加你自己的 OpenAI 兼容服务。"
+          title="Add model vendor"
+          description="Choose from one of the built-in vendor templates, or add your own OpenAI-compatible services."
           className="max-w-2xl"
         >
           <div className="grid gap-3 sm:grid-cols-2">
@@ -135,7 +135,7 @@ export default function ProviderSettingsSection(props: {
                 }}
               >
                 <div className="flex items-center gap-2 font-medium"><PlugZap className="h-4 w-4 text-primary" /> {provider.name}</div>
-                <div className="mt-2 text-xs text-muted-foreground">推荐模型：{provider.defaultModel}</div>
+                <div className="mt-2 text-xs text-muted-foreground">Recommended model:{provider.defaultModel}</div>
               </button>
             ))}
             <button
@@ -146,12 +146,12 @@ export default function ProviderSettingsSection(props: {
                 onCreateCustomProvider();
               }}
             >
-              <div className="flex items-center gap-2 font-medium"><ServerCog className="h-4 w-4 text-primary" /> 自定义厂商</div>
-              <div className="mt-2 text-xs text-muted-foreground">连接任意 OpenAI 兼容服务。</div>
+              <div className="flex items-center gap-2 font-medium"><ServerCog className="h-4 w-4 text-primary" /> Custom manufacturer</div>
+              <div className="mt-2 text-xs text-muted-foreground">Connect to any OpenAI compatible service.</div>
             </button>
           </div>
           {!addableBuiltIns.length ? (
-            <div className="mt-3 text-sm text-muted-foreground">所有内置厂商都已添加；你仍可以添加自定义厂商。</div>
+            <div className="mt-3 text-sm text-muted-foreground">All built-in vendors have been added; you can still add custom vendors.</div>
           ) : null}
         </AppDialogContent>
       </Dialog>

@@ -64,7 +64,7 @@ export class DirectorIssuePolicyService {
       this.getGlobalPolicy(),
       prisma.novel.findUnique({ where: { id: novelId }, select: { directorIssuePolicyOverridesJson: true } }),
     ]);
-    if (!novel) throw new AppError("小说不存在。", 404);
+    if (!novel) throw new AppError("The novel does not exist.", 404);
     const parsed = directorIssuePolicyOverrideSchema.safeParse(parseJson(novel.directorIssuePolicyOverridesJson));
     const override = parsed.success ? compactOverride(globalPolicy, parsed.data) : null;
     return {
@@ -82,7 +82,7 @@ export class DirectorIssuePolicyService {
       where: { id: novelId },
       data: { directorIssuePolicyOverridesJson: override ? JSON.stringify(override) : null },
     });
-    if (updated.count === 0) throw new AppError("小说不存在。", 404);
+    if (updated.count === 0) throw new AppError("The novel does not exist.", 404);
     return {
       effectivePolicy: mergeDirectorIssuePolicy(globalPolicy, override),
       override,

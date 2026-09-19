@@ -423,7 +423,7 @@ export function extractJSONObject(source: string): string {
   const first = text.indexOf("{");
   const last = text.lastIndexOf("}");
   if (first < 0 || last < 0 || first >= last) {
-    throw new Error("未检测到有效 JSON 对象");
+    throw new Error("No valid JSON object was detected");
   }
   return text.slice(first, last + 1);
 }
@@ -433,7 +433,7 @@ export function extractJSONArray(source: string): string {
   const first = text.indexOf("[");
   const last = text.lastIndexOf("]");
   if (first < 0 || last < 0 || first >= last) {
-    throw new Error("未检测到有效 JSON 数组");
+    throw new Error("No valid JSON array was detected");
   }
   return text.slice(first, last + 1);
 }

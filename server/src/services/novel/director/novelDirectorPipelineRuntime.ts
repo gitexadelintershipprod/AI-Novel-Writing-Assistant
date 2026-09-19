@@ -292,10 +292,10 @@ export class NovelDirectorPipelineRuntime {
     await this.deps.workflowService.markTaskWaitingApproval(input.taskId, {
       stage,
       itemKey: module.defaultWaitingState?.itemKey ?? module.id,
-      itemLabel: `${module.label}已完成，请检查后继续`,
+      itemLabel: `${module.label} is done. Review it, then continue`,
       progress,
       checkpointType: "step_review_required",
-      checkpointSummary: `${module.label}已生成。你可以检查、AI 完善或重新生成当前步骤，确认后再继续下一步。`,
+      checkpointSummary: `${module.label} is generated. You can review it, let AI improve it, or regenerate this step, then confirm before continuing.`,
       seedPayload: this.deps.buildDirectorSeedPayload(input.input, input.novelId, {
         directorSession: {
           runMode: "stage_review",

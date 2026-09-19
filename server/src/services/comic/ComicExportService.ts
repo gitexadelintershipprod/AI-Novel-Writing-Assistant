@@ -88,12 +88,12 @@ export class ComicExportService {
         project: { select: { id: true } },
       },
     });
-    if (!episode) throw new AppError(`未找到漫画话数：${episodeId}`, 404);
+    if (!episode) throw new AppError(`Comic episode not found: ${episodeId}`, 404);
     if (episode.panels.length === 0) {
-      throw new AppError("该话尚无格子，请先生成分格脚本和图像。", 400);
+      throw new AppError("This episode has no panels yet. Generate the panel script and images first.", 400);
     }
 
-    // 创建导出任务记录
+    // 创建导出Task record
     const job = await prisma.comicExportJob.create({
       data: {
         projectId: episode.projectId,
@@ -119,7 +119,7 @@ export class ComicExportService {
         if (buf) panelBuffers.push(buf);
       }
       if (panelBuffers.length === 0) {
-        throw new AppError("没有可用的格子图（请先生成图像）。", 400);
+        throw new AppError("No panel image is available (generate images first).", 400);
       }
 
       // 统一宽度 + 垂直拼接

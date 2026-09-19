@@ -38,7 +38,7 @@ export function extractJSONValue(source: string): string {
       : Math.min(objectStart, arrayStart);
 
   if (start < 0) {
-    throw new Error("未检测到有效 JSON 值。");
+    throw new Error("No valid JSON value was detected.");
   }
 
   const opener = text[start];
@@ -76,13 +76,13 @@ export function extractJSONValue(source: string): string {
     }
   }
 
-  throw new Error("未检测到完整 JSON 值。");
+  throw new Error("No complete JSON value was detected.");
 }
 
 export function extractJSONObject(source: string): string {
   const extracted = extractJSONValue(source);
   if (!extracted.startsWith("{")) {
-    throw new Error("未检测到有效 JSON 对象。");
+    throw new Error("No valid JSON object was detected.");
   }
   return extracted;
 }

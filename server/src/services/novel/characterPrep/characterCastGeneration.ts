@@ -183,7 +183,7 @@ async function loadCastGenerationContext(
   });
   const contextBlocks = buildCharacterCastContextBlocks({
     projectTitle: novel.title,
-    storyInput: storyInput || "暂无直接故事输入，请结合书级约束补齐真实可入戏角色。",
+    storyInput: storyInput || "No direct story input yet. Use the book constraints to fill in playable characters.",
     genreName: novel.genre?.name ?? null,
     storyModeBlock,
     styleTone: novel.styleTone ?? null,

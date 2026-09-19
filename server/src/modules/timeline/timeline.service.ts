@@ -172,7 +172,7 @@ export class StoryTimelineService {
       storyDayIndex: input.timeAnchor?.storyDayIndex ?? input.timelineContext.currentTime?.storyDayIndex ?? null,
       timeLabel: input.timeAnchor?.label?.trim()
         || input.timelineContext.currentTime?.label?.trim()
-        || `第 ${input.chapterIndex} 章`,
+        || `Chapter ${input.chapterIndex}`,
       startsAfterEventIds: resolvePreviousEventIds(input.timelineContext),
       plannedEventIds: resolvePlannedEventIds(input.timelineContext),
       endedWithEventIds: savedEvents.map((event) => event.id),

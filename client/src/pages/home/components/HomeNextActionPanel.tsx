@@ -41,7 +41,7 @@ export function HomeNextActionPanel(props: {
         <CardContent className="p-7 sm:p-9">
           <div className="flex items-center gap-3 text-sm text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-            正在整理你的创作现场...
+            Organizing your creative scene...
           </div>
           <div className="mt-7 space-y-3">
             <div className="h-9 w-2/3 animate-pulse rounded-lg bg-muted" />
@@ -57,12 +57,12 @@ export function HomeNextActionPanel(props: {
     return (
       <Card className="home-next-action-panel rounded-3xl border-destructive/25 bg-destructive/[0.035] shadow-sm">
         <CardContent className="space-y-4 p-7 sm:p-9">
-          <Badge variant="destructive">项目读取失败</Badge>
+          <Badge variant="destructive">Project read failed</Badge>
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">暂时无法整理你的创作现场</h1>
-            <p className="mt-2 text-sm leading-6 text-muted-foreground">重新加载后，系统会继续推荐最合适的创作入口。</p>
+            <h1 className="text-2xl font-semibold tracking-tight">It is temporarily impossible to organize your creative scene</h1>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">After reloading, the system will continue to recommend the most suitable creation entrance.</p>
           </div>
-          <Button onClick={props.onRetry}>重新加载</Button>
+          <Button onClick={props.onRetry}>reload</Button>
         </CardContent>
       </Card>
     );
@@ -92,14 +92,14 @@ export function HomeNextActionPanel(props: {
             <div className="flex flex-wrap items-center gap-2">
               <span className="inline-flex items-center gap-2 text-sm font-medium text-info">
                 <Sparkles className="h-4 w-4" aria-hidden="true" />
-                继续你的故事
+                continue your story
               </span>
               {workflowBadge ? <Badge variant="outline" className="border-info/20 bg-background/80 text-foreground">{workflowBadge.label}</Badge> : null}
             </div>
 
             <div className="mt-5 max-w-4xl">
-              <p className="text-sm text-muted-foreground">正在创作</p>
-              <h1 className="mt-1 break-words text-3xl font-semibold leading-tight tracking-[-0.025em] text-foreground sm:text-4xl">《{novel.title}》</h1>
+              <p className="text-sm text-muted-foreground">Currently creating</p>
+              <h1 className="mt-1 break-words text-3xl font-semibold leading-tight tracking-[-0.025em] text-foreground sm:text-4xl">{novel.title}</h1>
               <div className="mt-5 flex items-start gap-3 rounded-2xl bg-background/75 px-4 py-3.5 ring-1 ring-border/60 backdrop-blur-sm">
                 <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
                   <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
@@ -112,15 +112,15 @@ export function HomeNextActionPanel(props: {
               </div>
             </div>
 
-            <div className="mt-7" aria-label="整本创作旅程">
+            <div className="mt-7" aria-label="The entire creative journey">
               <div className="mb-3 flex items-center justify-between gap-4">
                 <div>
-                  <div className="text-sm font-semibold text-foreground">整本创作旅程</div>
-                  <div className="mt-0.5 text-xs text-muted-foreground">每一步都会成为后续章节的创作依据</div>
+                  <div className="text-sm font-semibold text-foreground">The entire creative journey</div>
+                  <div className="mt-0.5 text-xs text-muted-foreground">Each step will become the basis for the creation of subsequent chapters.</div>
                 </div>
                 <div className="text-right">
                   <div className="text-lg font-semibold tabular-nums text-foreground">{journey.progressPercent}%</div>
-                  <div className="text-[11px] text-muted-foreground">当前进度</div>
+                  <div className="text-[11px] text-muted-foreground">Current progress</div>
                 </div>
               </div>
               <div className="h-1.5 overflow-hidden rounded-full bg-border/70">
@@ -150,7 +150,7 @@ export function HomeNextActionPanel(props: {
           <aside className="flex h-full flex-col rounded-2xl border border-border/65 bg-background/80 p-4 shadow-[0_18px_45px_-38px_rgba(15,23,42,0.5)] backdrop-blur-sm">
             <div className="flex gap-4">
               <div className="relative aspect-[2/3] w-24 shrink-0 overflow-hidden rounded-xl bg-[linear-gradient(155deg,hsl(var(--primary)),hsl(var(--info)))] shadow-md xl:w-28">
-                <img src={coverUrl} alt={hasGeneratedCover ? `《${novel.title}》封面` : ""} className="h-full w-full object-cover" />
+                <img src={coverUrl} alt={hasGeneratedCover ? `${novel.title} cover` : ""} className="h-full w-full object-cover" />
                 {!hasGeneratedCover ? (
                   <div className="absolute inset-0 flex flex-col justify-between bg-black/45 p-4 text-white">
                     <BookOpenText className="h-5 w-5 opacity-80" aria-hidden="true" />
@@ -170,7 +170,7 @@ export function HomeNextActionPanel(props: {
                 <Link to={novel.narrativeForm === "short_story"
                   ? `/novels/${novel.id}/story`
                   : task ? `/novels/${novel.id}/edit?directorTaskId=${task.id}&taskPanel=1` : `/novels/${novel.id}/edit`}>
-                  {novel.narrativeForm === "short_story" ? "阅读完整作品" : task ? "查看创作记录" : "打开小说工作台"}
+                  {novel.narrativeForm === "short_story" ? "Read the full work" : task ? "View creative records" : "Open the novel workbench"}
                 </Link>
               </Button>
             </div>
@@ -178,10 +178,10 @@ export function HomeNextActionPanel(props: {
         </div>
 
         <div className="mt-7 grid gap-3 border-t border-border/65 pt-5 sm:grid-cols-2 lg:grid-cols-4">
-          <HeroFact label="已沉淀章节" value={`${novel._count.chapters} 章`} />
-          <HeroFact label="主要角色" value={`${novel._count.characters} 位`} />
-          <HeroFact label="故事世界" value={novel.world?.name ?? "等待准备"} />
-          <HeroFact label="最近创作" value={formatHomeDate(novel.updatedAt)} />
+          <HeroFact label="Precipitated chapters" value={`${novel._count.chapters} chapters`} />
+          <HeroFact label="main character" value={`${novel._count.characters} people`} />
+          <HeroFact label="story world" value={novel.world?.name ?? "waiting to prepare"} />
+          <HeroFact label="Recently created" value={formatHomeDate(novel.updatedAt)} />
         </div>
       </CardContent>
     </Card>
@@ -199,7 +199,7 @@ function StarterPanel(props: { action: HomeNextAction }) {
             {props.action.eyebrow}
           </div>
           <div className="mt-5">
-            <h1 className="max-w-3xl text-3xl font-semibold leading-tight tracking-[-0.025em] sm:text-4xl">把一个模糊想法，写成完整故事</h1>
+            <h1 className="max-w-3xl text-3xl font-semibold leading-tight tracking-[-0.025em] sm:text-4xl">Turn a vague idea into a complete story</h1>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-muted-foreground">{props.action.description}</p>
           </div>
           <div className="mt-6 inline-flex items-start gap-3 rounded-2xl bg-background/80 px-4 py-3 text-sm leading-6 text-muted-foreground ring-1 ring-border/60">
@@ -209,15 +209,15 @@ function StarterPanel(props: { action: HomeNextAction }) {
         </div>
         <div className="grid gap-2">
           <Button asChild size="lg">
-            <Link to={DIRECTOR_CREATE_LINK}><PlusCircle className="mr-2 h-4 w-4" aria-hidden="true" />自动导演写长篇</Link>
+            <Link to={DIRECTOR_CREATE_LINK}><PlusCircle className="mr-2 h-4 w-4" aria-hidden="true" />Automatic director writes feature</Link>
           </Button>
           {SHORT_STORY_CREATE_LINK ? (
             <Button asChild size="lg" variant="secondary">
-              <Link to={SHORT_STORY_CREATE_LINK}><BookOpenText className="mr-2 h-4 w-4" aria-hidden="true" />创作一篇短篇</Link>
+              <Link to={SHORT_STORY_CREATE_LINK}><BookOpenText className="mr-2 h-4 w-4" aria-hidden="true" />Write a short story</Link>
             </Button>
           ) : null}
           <Button asChild size="lg" variant="ghost" className="text-muted-foreground">
-            <Link to={MANUAL_CREATE_LINK}>手动创建小说</Link>
+            <Link to={MANUAL_CREATE_LINK}>Create a novel manually</Link>
           </Button>
         </div>
       </CardContent>

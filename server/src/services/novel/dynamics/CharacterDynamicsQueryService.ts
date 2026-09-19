@@ -54,7 +54,7 @@ export class CharacterDynamicsQueryService {
       },
     });
     if (!novel) {
-      throw new Error("小说不存在。");
+      throw new Error("The novel does not exist.");
     }
 
     const currentChapterOrder = typeof options.chapterOrder === "number"
@@ -219,10 +219,10 @@ export class CharacterDynamicsQueryService {
       [
         `${item.name}(${item.role})`,
         item.isCoreInVolume ? "核心卷级角色" : "非核心卷级角色",
-        item.volumeRoleLabel ? `卷级身份=${item.volumeRoleLabel}` : "",
+        item.volumeRoleLabel ? `Volume role=${item.volumeRoleLabel}` : "",
         item.volumeResponsibility ? `职责=${item.volumeResponsibility}` : "",
-        item.currentGoal ? `当前目标=${item.currentGoal}` : "",
-        item.currentState ? `当前状态=${item.currentState}` : "",
+        item.currentGoal ? `current target =${item.currentGoal}` : "",
+        item.currentState ? `current status=${item.currentState}` : "",
         item.factionLabel ? `阵营=${item.factionLabel}` : "",
         item.stanceLabel ? `立场=${item.stanceLabel}` : "",
         item.absenceRisk !== "none" ? `缺席风险=${item.absenceRisk}(跨度=${item.absenceSpan})` : "",

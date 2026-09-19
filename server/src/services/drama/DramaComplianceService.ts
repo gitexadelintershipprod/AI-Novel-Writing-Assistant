@@ -158,7 +158,7 @@ export class DramaComplianceService {
 
   async checkEpisodeContext(context: ComplianceContext, options: DramaLLMOptions = {}): Promise<DramaComplianceOutput> {
     if (!context.episode.content?.trim()) {
-      throw new Error(`第 ${context.episode.order} 集尚未生成台本，不能执行合规预检。`);
+      throw new Error(`Episode ${context.episode.order} has no script yet, so compliance pre-check cannot run.`);
     }
     const result = await runStructuredPrompt({
       asset: dramaCompliancePrompt,

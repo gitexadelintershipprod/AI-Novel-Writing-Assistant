@@ -83,7 +83,7 @@ export class NovelWorldSliceService {
       },
     });
     if (!novel) {
-      throw new Error("小说不存在。");
+      throw new Error("The novel does not exist.");
     }
     return novel;
   }
@@ -113,7 +113,7 @@ export class NovelWorldSliceService {
     if (novelWorld?.structuredDataJson?.trim()) {
       return {
         id: novelWorld.id,
-        name: novelWorld.title ?? novelWorld.coverSummary ?? "本书世界",
+        name: novelWorld.title ?? novelWorld.coverSummary ?? "book world",
         structureJson: novelWorld.structuredDataJson,
         bindingSupportJson: novelWorld.bindingContractJson,
         storySliceJson: novelWorld.storySliceJson,
@@ -178,7 +178,7 @@ export class NovelWorldSliceService {
   } & Pick<RefreshStoryWorldSliceOptions, "provider" | "model" | "temperature">): Promise<StoryWorldSlice> {
     const world = input.activeWorld;
     if (!world.structureJson?.trim()) {
-      throw new Error("当前小说没有可用的本书世界结构。");
+      throw new Error("This novel has no usable book-world structure.");
     }
 
     const parsedPayload = parseWorldStructurePayload(world.structureJson, world.bindingSupportJson);

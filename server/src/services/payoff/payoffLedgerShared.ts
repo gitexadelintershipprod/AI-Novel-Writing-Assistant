@@ -189,7 +189,7 @@ export function sanitizePayoffLedgerSyncItem<T extends PayoffLedgerSyncCandidate
         code: "payoff_missing_progress",
         severity: "medium",
         summary: item.statusReason?.trim()
-          || "AI 对账认为该伏笔已逾期，但缺少明确目标窗口，已按待推进风险继续跟踪。",
+          || "AI's ledger thinks this payoff is overdue, but there is no clear target window. It stays tracked as an open risk.",
       },
     ]),
   };
@@ -331,11 +331,11 @@ export function buildSyntheticPayoffIssues(
       ledgerKey: item.ledgerKey,
       code: "payoff_overdue",
       severity: "high",
-      description: `伏笔“${item.title}”已经超过目标窗口仍未兑现。`,
+      description: `The planted setup "${item.title}" has passed its target window and is still unpaid.`,
       evidence: item.statusReason?.trim()
         || item.evidence[0]?.summary
-        || `目标窗口截止第${item.targetEndChapterOrder ?? "?"}章，当前仍处于未兑现状态。`,
-      fixSuggestion: "在当前章节或接下来的重规划中明确安排兑现，或解释为什么必须延后。",
+        || `The target window ends at chapter ${item.targetEndChapterOrder ?? "?"}, and it is still unpaid.`,
+      fixSuggestion: "Schedule the payoff in this chapter or the coming replan, or explain why it must wait.",
     });
   }
 
@@ -345,11 +345,11 @@ export function buildSyntheticPayoffIssues(
         ledgerKey: item.ledgerKey,
         code: "payoff_missing_progress",
         severity: "medium",
-        description: `伏笔“${item.title}”已经进入应触碰窗口，但当前仍缺少明确推进。`,
+        description: `The planted setup "${item.title}" has entered its touch window, but it still has no clear advance.`,
         evidence: item.statusReason?.trim()
           || item.evidence[0]?.summary
-          || `目标窗口 ${item.targetStartChapterOrder ?? "?"}-${item.targetEndChapterOrder ?? "?"}。`,
-        fixSuggestion: "在本章计划、正文或修复中补上推进动作，避免继续拖延。",
+          || `Target window: chapters ${item.targetStartChapterOrder ?? "?"}-${item.targetEndChapterOrder ?? "?"}.`,
+        fixSuggestion: "Add an advance beat in this chapter's plan, text, or repair so it does not keep stalling.",
       });
     }
   }
@@ -367,13 +367,13 @@ export function buildSyntheticPayoffIssues(
         ledgerKey: item.ledgerKey,
         code: signal.code,
         severity: signal.severity,
-        description: `伏笔“${item.title}”存在专项风险：${signal.summary}`,
+        description: `The planted setup "${item.title}" has a specific risk: ${signal.summary}`,
         evidence: item.evidence[0]?.summary || item.summary,
         fixSuggestion: signal.code === "payoff_paid_without_setup"
-          ? "补足前置铺垫，或将当前章节的兑现强度降回铺垫/推进态。"
+          ? "Add the missing setup, or lower this chapter's payoff strength back to setup/advance."
           : signal.code === "payoff_regressed"
-            ? "检查是否误把已兑现伏笔重新打开；如属新线索，请改成新的账本项。"
-            : "为该伏笔补上明确推进动作，避免账本继续停滞。",
+            ? "Check whether a paid-off thread was reopened by mistake. If it is a new clue, make it a new ledger item."
+            : "Add a clear advance beat for this setup so the ledger does not stay stuck.",
       });
     }
   }

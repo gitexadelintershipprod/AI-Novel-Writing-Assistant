@@ -221,7 +221,7 @@ export class VolumeChapterSyncService {
           sceneCards: chapter.sceneCards,
         });
         if (!result.canEnterExecution) {
-          throw new Error(`第 ${chapter.chapterOrder} 章执行合同未通过质量门禁，不能连接到章节执行区。${formatChapterTaskSheetQualityFailure(result)}`);
+          throw new Error(`Chapter ${chapter.chapterOrder} execution contract did not pass the quality gate, so it cannot connect to the chapter execution area. ${formatChapterTaskSheetQualityFailure(result)}`);
         }
       }
     }

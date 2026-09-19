@@ -1,51 +1,51 @@
-# 创作向导
+# First-run guide
 
-创作向导帮助第一次使用产品的人完成两件事：先让 AI 创作环境真正可用，再从一句灵感推进到第一章成稿。它会读取实际模型、自动导演任务、小说和章节状态，因此不需要手动勾选进度。
+The First-run guide helps a first-time user do two things: make the AI writing environment actually usable, then move from one sentence of inspiration to a finished chapter 1. It reads real model, Auto-Director task, novel, and chapter state, so you do not have to tick progress by hand.
 
-## 首次快捷配置
+## First-time quick setup
 
-没有可用文本模型时，网页端和桌面端都会打开快捷配置。你仍可以关闭弹窗浏览已有内容，但启动自动导演、章节生成或其他 AI 创作前，需要先完成配置。
+If no text model is available, both the web app and the desktop app open quick setup. You can close the dialog and browse existing content, but you need to finish setup before starting Auto-Director, chapter generation, or other AI writing.
 
-快捷配置只包含三步：
+Quick setup is three steps:
 
-1. 选择已有账号的模型厂商，或选择 OpenAI 兼容自定义接口。
-2. 填写 API Key、API 地址，并选择或填写文本模型。
-3. 检测普通文本和结构化输出能力。
+1. Choose a model provider you already have an account with, or an OpenAI-compatible custom endpoint.
+2. Fill in the API key and API address, then choose or enter a text model.
+3. Test ordinary text and structured output.
 
-检测通过后，系统会把所选模型用于规划、正文、审核、修复、重规划、摘要等核心任务。图像模型、知识库、写法引擎、并发限制和精细模型路由都属于可选增强，可以以后再配置。
+After the tests pass, the system uses that model for planning, prose, review, repair, replan, summary, and other core tasks. Image models, the knowledge library, the style engine, concurrency limits, and fine-grained model routing are optional extras you can configure later.
 
-如果检测失败，当前输入会保留。页面会分别说明普通文本或结构化输出的问题，修改 API Key、地址或模型后可以直接重试。
+If a test fails, your current input is kept. The page explains whether ordinary text or structured output is the problem. After you change the API key, address, or model, you can retry immediately.
 
-## 第一本书路线
+## First-book route
 
-创作向导固定展示五个里程碑：
+The First-run guide always shows five milestones:
 
-1. **创作环境**：至少一个文本模型和核心任务路由可用。
-2. **灵感与方向**：输入一句灵感，并从 AI 生成的两套整书方向中选择一套。
-3. **开书准备**：AI 准备故事、世界、角色、卷战略、节奏和章节执行资源。
-4. **生产方式**：选择简易创作或专业创作。
-5. **首章成稿**：第一章完成写作、审校与必要修复，可以打开阅读。
+1. **Writing environment**: at least one text model and core task routing are available.
+2. **Inspiration and direction**: enter one sentence of inspiration and choose one of two AI-generated full-book directions.
+3. **Book-opening preparation**: AI prepares story, world, characters, volume strategy, pacing, and chapter execution resources.
+4. **Production style**: choose simple creation or professional creation.
+5. **First chapter draft**: chapter 1 finishes writing, review, and needed repair, and you can open it to read.
 
-页面始终突出一个推荐动作，并说明为什么现在应该做这一步。任务暂停或失败时，推荐动作会改为查看原因和恢复，不要求重新创建小说。
+The page always highlights one recommended action and explains why that step is next. If a task pauses or fails, the recommended action becomes “see the reason and recover.” You do not need to recreate the novel.
 
-## 简易创作与专业创作
+## Simple creation and professional creation
 
-开书资源准备完成后，系统才会询问正文生产方式：
+The system asks how you want chapter text produced only after book-opening resources are ready:
 
-- **简易创作**：AI 持续完成整本书，用户在只读章节书架查看进度和稳定成稿。
-- **专业创作**：进入完整工作台，可查看和修改规划、角色与章节正文。
+- **Simple creation**: AI keeps finishing the whole book. You watch progress and stable drafts on a read-only chapter bookshelf.
+- **Professional creation**: you enter the full workspace, where you can view and edit planning, characters, and chapter text.
 
-无论选择哪一种，只要出现第一章可读完成稿，第一本书向导就会标记完成。首页随后恢复正常项目工作台；创作向导仍保留完成记录和正文入口。
+Either choice marks the first-book guide complete once chapter 1 has a readable finished draft. Home then returns to a normal project workspace. The First-run guide still keeps the completion record and the chapter-text entry.
 
-## 情境提示
+## Context tips
 
-灵感输入、方向选择、开书准备、生产方式交接和简易章节书架会提供简短说明。它们只解释当前需要关注什么以及系统接下来会做什么，可以单独关闭，不会改变真实任务进度。
+Inspiration input, direction choice, book-opening preparation, production-style handoff, and the simple chapter bookshelf show short explanations. They only say what to watch now and what the system will do next. You can hide them one by one. They do not change real task progress.
 
-## 可选增强
+## Optional extras
 
-以下能力不会阻塞第一章：
+These capabilities do not block chapter 1:
 
-- 知识库：需要参考资料、研究内容或长期设定时使用。
-- 写法引擎：有明确文风样本后再提取和绑定。
-- 图像模型：需要封面、角色图或插图时配置。
-- 精细模型路由：希望不同任务使用不同模型时再调整。
+- Knowledge library: use it when you have reference notes, research, or long-term setting.
+- Style engine: extract and bind a style after you have a clear sample.
+- Image models: configure them when you need a cover, character image, or illustration.
+- Fine-grained model routing: adjust later if you want different tasks to use different models.

@@ -1,75 +1,74 @@
-# 模型路由
+# Model routing
 
-模型路由用于把不同类型的 AI 任务分配给合适的模型。长篇小说生产链里，规划、正文、审核、拆书和知识分析对模型能力的要求并不相同。
+Model routing assigns different AI tasks to the models that fit them. In a long-novel production chain, planning, prose, review, book analysis, and knowledge analysis do not need the same model strengths.
 
+## When you need it
 
-## 什么时候需要配置
+On first use, one default model is enough. DeepSeek users can start with `deepseek-v4-flash` for long-form quality and response speed. After chapter 1 works, open Model routing if cost, speed, or stability becomes a problem.
 
-第一次使用时，可以只配置默认模型。DeepSeek 用户推荐优先选择 `deepseek-v4-flash`，兼顾中文长篇质量与响应速度；跑通第一章后，如果遇到成本、速度或稳定性问题，再进入模型路由。
+Good times to configure routing:
 
-适合配置路由的场景：
+- Chapter writing needs a stronger long-text model.
+- Review and repair often return the wrong format.
+- Book analysis needs a longer context.
+- Book-opening planning needs stronger reasoning.
+- You want to keep high-cost models for the tasks that matter most.
 
-- 正文生成需要更强长文本模型。
-- 审核和修复经常输出格式错误。
-- 拆书任务需要更长上下文。
-- 开书规划需要更强推理能力。
-- 想把高成本模型只用于关键任务。
+## Recommended task matrix
 
-## 推荐任务矩阵
+Choose models by task type:
 
-可以按任务类型选择模型：
-
-| 任务 | 推荐模型特征 |
+| Task | Helpful model traits |
 |---|---|
-| 开书方向 | 推理稳定、能理解类型小说卖点 |
-| 世界与角色 | 长上下文、结构化能力好 |
-| 卷和章节规划 | 逻辑清楚、能保持全局一致 |
-| 正文生成 | 长文本自然、中文表达稳定 |
-| 审核与修复 | 遵循 JSON 和规则能力强 |
-| 拆书分析 | 信息抽取强、能处理长文档 |
-| 知识库摘要 | 稳定压缩、少遗漏关键事实 |
+| Book-opening direction | Stable reasoning, understands genre selling points |
+| World and characters | Long context, strong structured output |
+| Volume and chapter planning | Clear logic, keeps global consistency |
+| Chapter writing | Natural long text, stable prose |
+| Review and repair | Strong at following JSON and rules |
+| Book analysis | Strong information extraction, handles long documents |
+| Knowledge-library summary | Stable compression, few missed facts |
 
-这只是起点。不同供应商模型表现会变化，建议用测试小说验证。
+This is a starting point. Provider models change over time, so verify with a test novel.
 
-## 配置顺序
+## Configuration order
 
-推荐从简单到复杂：
+Go from simple to detailed:
 
-1. 设置一个默认模型。
-2. 跑通新手上路和第一章。
-3. 把正文生成切到更适合长文本的模型。
-4. 把审核、修复、拆书切到结构化输出更稳定的模型。
-5. 观察任务中心失败率和输出质量。
+1. Set one default model.
+2. Walk the First-run guide and chapter 1.
+3. Move chapter writing to a model that handles long text better.
+4. Move review, repair, and book analysis to a model with more stable structured output.
+5. Watch Task Center failure rate and output quality.
 
-如果路由太早拆得太细，排查问题会更困难。
+If you split routing too early, diagnosis gets harder.
 
-## 成本控制
+## Cost control
 
-可以把高成本模型用于：
+Use a higher-cost model for:
 
-- 开书方向最终选择。
-- 卷规划和关键章节任务。
-- 正文生成。
-- 复杂修复。
+- the final book-opening direction choice;
+- volume planning and key chapter tasks;
+- chapter writing;
+- complex repair.
 
-把低成本模型用于：
+Use a lower-cost model for:
 
-- 简单摘要。
-- 状态解释。
-- 轻量检查。
-- 非关键候选扩展。
+- simple summaries;
+- status explanation;
+- lightweight checks;
+- non-critical candidate expansion.
 
-但不要为了省成本把结构化要求高的任务交给不稳定模型，否则失败重试可能更贵。
+Do not send high-structure tasks to an unstable model just to save money. Failed retries can cost more.
 
-## 排查建议
+## Diagnosis
 
-某类任务连续失败时，先看它绑定了哪个模型。
+When one task type fails repeatedly, check which model it is bound to.
 
-常见处理：
+Common fixes:
 
-- JSON 解析失败：换遵循格式更好的模型。
-- 正文短或空泛：换长文本能力更好的模型。
-- 拆书遗漏多：换长上下文模型。
-- 任务慢：降低并发或换响应更快的模型。
+- JSON parse failure: switch to a model that follows format better.
+- Prose is short or empty: switch to a stronger long-text model.
+- Book analysis misses a lot: switch to a longer-context model.
+- Tasks are slow: lower concurrency or switch to a faster model.
 
-模型路由影响的是 AI 任务质量和稳定性，不应替代产品流程判断。
+Model routing affects AI task quality and stability. It does not replace product-flow judgment.

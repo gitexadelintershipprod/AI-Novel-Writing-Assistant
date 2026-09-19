@@ -140,7 +140,7 @@ export default function AutoDirectorCreatePage() {
       }
     },
     onError: (error) => {
-      toast.error(error instanceof Error ? error.message : "恢复自动导演任务失败。");
+      toast.error(error instanceof Error ? error.message : "Failed to resume automatic director task.");
     },
   });
 
@@ -169,12 +169,12 @@ export default function AutoDirectorCreatePage() {
   const enterSimpleMutation = useMutation({
     mutationFn: () => setNovelCreationExperience(createdNovelId, "simple"),
     onSuccess: () => navigate(`/novels/${createdNovelId}/simple`, { replace: true }),
-    onError: (error) => toast.error(error instanceof Error ? error.message : "进入简易模式失败，请重试。"),
+    onError: (error) => toast.error(error instanceof Error ? error.message : "Failed to enter easy mode, please try again."),
   });
   const enterProfessionalMutation = useMutation({
     mutationFn: () => setNovelCreationExperience(createdNovelId, "professional"),
     onSuccess: () => navigate(`/novels/${createdNovelId}/edit`, { replace: true }),
-    onError: (error) => toast.error(error instanceof Error ? error.message : "进入专业模式失败，请重试。"),
+    onError: (error) => toast.error(error instanceof Error ? error.message : "Failed to enter professional mode, please try again."),
   });
 
   useEffect(() => {
@@ -223,10 +223,10 @@ export default function AutoDirectorCreatePage() {
       postGenerationStyleReviewEnabled: controller.directorBasicForm.postGenerationStyleReviewEnabled,
     }),
     candidates: controller.batches.length > 0
-      ? `已生成 ${controller.batches.length} 批方向候选`
+      ? `${controller.batches.length} direction batches are ready`
       : controller.hasActiveDirectorTask
-        ? "导演任务进行中"
-        : "等待生成方向候选",
+        ? "Director assignment in progress"
+        : "Waiting to generate direction candidates",
   }), [
     controller.batches.length,
     controller.directorBasicForm,
@@ -281,13 +281,13 @@ export default function AutoDirectorCreatePage() {
           storyModeTree={storyModeTree}
           selectedGenreId={controller.directorBasicForm.genreId}
           selectedGenreLabel={selectedGenre
-            ? `故事类型：${selectedGenre.path}`
-            : controller.directorBasicForm.genreId ? "故事类型：选择已失效" : ""}
+            ? `Story type:${selectedGenre.path}`
+            : controller.directorBasicForm.genreId ? "Story Type: Selection expired" : ""}
           selectedGenreSource={selectedGenreSource}
           selectedStoryModeId={controller.directorBasicForm.primaryStoryModeId}
           selectedStoryModeLabel={selectedStoryMode
-            ? `推进方式：${selectedStoryMode.path}`
-            : controller.directorBasicForm.primaryStoryModeId ? "推进方式：选择已失效" : ""}
+            ? `Promotion method:${selectedStoryMode.path}`
+            : controller.directorBasicForm.primaryStoryModeId ? "Advancement method: selection has expired" : ""}
           selectedStoryModeSource={selectedStoryModeSource}
           genreLoading={genreTreeQuery.isPending}
           genreError={genreTreeQuery.isError}
@@ -362,16 +362,16 @@ export default function AutoDirectorCreatePage() {
       {showSummaryBar ? (
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <div className="text-2xl font-semibold tracking-normal text-foreground">AI 自动导演创建</div>
+            <div className="text-2xl font-semibold tracking-normal text-foreground">AI automatic director creation</div>
             <div className="mt-1 text-sm leading-6 text-muted-foreground">
-              从一个起始想法开始，AI 会持续准备创作资源；项目建立后即可打开查看已完成成果。
+              Starting from an initial idea, AI will continue to prepare creative resources; after the project is established, it can be opened to view the completed results.
             </div>
           </div>
           <div className="flex flex-wrap items-end gap-3 sm:justify-end">
             {createdNovelId ? (
               <div className="space-y-1.5">
-                <div className="text-xs font-medium text-muted-foreground">选择创作界面</div>
-                <div className="flex items-center gap-1 rounded-lg bg-muted/55 p-1" role="group" aria-label="选择创作模式">
+                <div className="text-xs font-medium text-muted-foreground">Select creation interface</div>
+                <div className="flex items-center gap-1 rounded-lg bg-muted/55 p-1" role="group" aria-label="Select creative mode">
                   <Button
                     type="button"
                     size="sm"
@@ -379,7 +379,7 @@ export default function AutoDirectorCreatePage() {
                     disabled={enterSimpleMutation.isPending}
                     onClick={() => enterSimpleMutation.mutate()}
                   >
-                    {enterSimpleMutation.isPending ? "正在打开…" : "简易模式"}
+                    {enterSimpleMutation.isPending ? "Opening…" : "Easy mode"}
                   </Button>
                   <Button
                     type="button"
@@ -388,13 +388,13 @@ export default function AutoDirectorCreatePage() {
                     disabled={enterProfessionalMutation.isPending}
                     onClick={() => enterProfessionalMutation.mutate()}
                   >
-                    {enterProfessionalMutation.isPending ? "正在打开…" : "专业模式"}
+                    {enterProfessionalMutation.isPending ? "Opening…" : "Professional mode"}
                   </Button>
                 </div>
               </div>
             ) : null}
             <Button type="button" size="sm" variant="ghost" asChild>
-              <Link to="/novels/create">手动创建</Link>
+              <Link to="/novels/create">Create manually</Link>
             </Button>
           </div>
         </div>
@@ -425,33 +425,33 @@ export default function AutoDirectorCreatePage() {
 
       {restoreWorkflowMutation.isPending && normalizedTaskId ? (
         <div className="rounded-lg bg-muted/20 px-4 py-3 text-sm text-muted-foreground">
-          正在恢复自动导演现场。
+          Resuming automatic director scene.
         </div>
       ) : null}
 
       {featureFlags.marketRadarEnabled && marketBriefId ? (
         <div className="flex flex-col gap-3 rounded-xl border border-primary/25 bg-primary/5 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <div className="text-sm font-medium text-foreground">雷达推荐方向</div>
+            <div className="text-sm font-medium text-foreground">Radar recommended direction</div>
             <div className="mt-1 text-xs leading-5 text-muted-foreground">
-              {marketBriefQuery.data?.data?.summary || (marketBriefQuery.isPending ? "正在读取市场创作简报。" : "市场简报暂时无法读取，仍可继续按你的想法开书。")}
+              {marketBriefQuery.data?.data?.summary || (marketBriefQuery.isPending ? "Reading market creation briefing." : "The market briefing cannot be read temporarily, but you can still continue to open the book according to your ideas.")}
             </div>
             {marketProductionFoundation ? (
               <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-foreground">
-                <span>题材基底：{marketProductionFoundation.genre.path}</span>
-                <span>主要推进：{marketProductionFoundation.primaryStoryMode.path}</span>
+                <span>Theme base:{marketProductionFoundation.genre.path}</span>
+                <span>Main promotion:{marketProductionFoundation.primaryStoryMode.path}</span>
                 {marketProductionFoundation.secondaryStoryMode ? (
-                  <span>辅助推进：{marketProductionFoundation.secondaryStoryMode.path}</span>
+                  <span>Auxiliary advancement:{marketProductionFoundation.secondaryStoryMode.path}</span>
                 ) : null}
               </div>
             ) : null}
           </div>
-          <Button type="button" variant="outline" size="sm" asChild><Link to="/market-radar">返回调整</Link></Button>
+          <Button type="button" variant="outline" size="sm" asChild><Link to="/market-radar">Return to adjustment</Link></Button>
         </div>
       ) : featureFlags.marketRadarEnabled && activeStage === "idea" ? (
         <div className="flex items-center justify-between gap-3 rounded-xl border border-dashed px-4 py-3 text-sm">
-          <span className="text-muted-foreground">想先参考近期热门题材、金手指和开局模式？</span>
-          <Button type="button" variant="outline" size="sm" asChild><Link to="/market-radar">先看热门题材雷达</Link></Button>
+          <span className="text-muted-foreground">Want to refer to recent popular themes, cheats and opening modes first?</span>
+          <Button type="button" variant="outline" size="sm" asChild><Link to="/market-radar">Let’s take a look at the hot topic radar first</Link></Button>
         </div>
       ) : null}
 

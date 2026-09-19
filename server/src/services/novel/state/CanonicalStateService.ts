@@ -206,7 +206,7 @@ export class CanonicalStateService {
     ]);
 
     if (!novel) {
-      throw new Error("小说不存在。");
+      throw new Error("The novel does not exist.");
     }
 
     const activeVolume = typeof chapterOrder === "number"
@@ -326,7 +326,7 @@ export class CanonicalStateService {
         chapterId: chapter.id,
         chapterOrder: chapter.order,
         title: chapter.title,
-        summary: compactText(chapter.chapterSummary?.summary, compactText(chapter.expectation, "无摘要")),
+        summary: compactText(chapter.chapterSummary?.summary, compactText(chapter.expectation, "no summary")),
         participants: takeUnique(
           novel.characters
             .filter((character) => (chapter.chapterSummary?.characterStates ?? "").includes(character.name))

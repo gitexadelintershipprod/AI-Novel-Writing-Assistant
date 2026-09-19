@@ -79,8 +79,8 @@ export default function Home() {
         error instanceof Error
           ? error.message
           : input.mode === "auto_execute_range"
-            ? "继续自动执行当前章节范围失败。"
-            : "继续自动导演失败。",
+            ? "Continuing automatic execution of the current chapter range failed."
+            : "Continue automatic director failure.",
       );
     },
   });
@@ -140,7 +140,7 @@ export default function Home() {
             to={`/novels/${novel.id}/story`}
             onClick={stopPropagation ? stopCardClick : undefined}
           >
-            打开作品
+            Open work
           </Link>
         </Button>
       );
@@ -162,7 +162,7 @@ export default function Home() {
           }}
           disabled={isWorkflowPending}
         >
-          {isWorkflowPending ? "继续执行中..." : (task?.resumeAction ?? `继续自动执行${task?.executionScopeLabel ?? "当前章节范围"}`)}
+          {isWorkflowPending ? "Continue to execute..." : (task?.resumeAction ?? `Continue automatic execution${task?.executionScopeLabel ?? "Current chapter scope"}`)}
         </Button>
       );
     }
@@ -182,7 +182,7 @@ export default function Home() {
           }}
           disabled={isWorkflowPending}
         >
-          {isWorkflowPending ? "继续中..." : (task?.resumeAction ?? "继续导演")}
+          {isWorkflowPending ? "Continue..." : (task?.resumeAction ?? "continue directing")}
         </Button>
       );
     }
@@ -194,7 +194,7 @@ export default function Home() {
             to={getCandidateSelectionLink(task!.id)}
             onClick={stopPropagation ? stopCardClick : undefined}
           >
-            {task!.resumeAction ?? "继续确认书级方向"}
+            {task!.resumeAction ?? "Continue to confirm the book-level direction"}
           </Link>
         </Button>
       );
@@ -207,7 +207,7 @@ export default function Home() {
             to={`/novels/${novel.id}/edit`}
             onClick={stopPropagation ? stopCardClick : undefined}
           >
-            进入章节执行
+            Enter chapter execution
           </Link>
         </Button>
       );
@@ -220,7 +220,7 @@ export default function Home() {
             to={`/novels/${novel.id}/edit?directorTaskId=${task.id}`}
             onClick={stopPropagation ? stopCardClick : undefined}
           >
-            查看推进状态
+            View advancement status
           </Link>
         </Button>
       );
@@ -232,7 +232,7 @@ export default function Home() {
           to={`/novels/${novel.id}/edit`}
           onClick={stopPropagation ? stopCardClick : undefined}
         >
-          编辑小说
+          Edit novel
         </Link>
       </Button>
     );

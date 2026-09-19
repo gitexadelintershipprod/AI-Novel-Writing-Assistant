@@ -147,7 +147,7 @@ export class PlannerService {
       },
     });
     if (!novel) {
-      throw new Error("小说不存在。");
+      throw new Error("The novel does not exist.");
     }
     const storyModeBlock = buildPlannerStoryModeBlock(novel);
     const styleEngine = await this.resolvePlannerStyleEngineSummary(novelId, undefined, options.taskStyleProfileId);
@@ -163,15 +163,15 @@ export class PlannerService {
       pacePreference: novel.pacePreference,
       emotionIntensity: novel.emotionIntensity,
       styleTone: novel.styleTone,
-      bible: novel.bible?.rawContent ?? "无",
-      chapterDrafts: novel.chapters.map((item) => `${item.order}.${item.title} ${item.expectation ?? ""}`).join("\n") || "无",
-      plotBeats: novel.plotBeats.map((item) => `${item.chapterOrder ?? "-"} ${item.title} ${item.content}`).join("\n") || "无",
+      bible: novel.bible?.rawContent ?? "None",
+      chapterDrafts: novel.chapters.map((item) => `${item.order}.${item.title} ${item.expectation ?? ""}`).join("\n") || "None",
+      plotBeats: novel.plotBeats.map((item) => `${item.chapterOrder ?? "-"} ${item.title} ${item.content}`).join("\n") || "None",
       storyModeBlock,
       styleEngine,
     });
     const output = await invokePlannerLLM({
       options,
-      scopeLabel: `全书规划：${novel.title}`,
+      scopeLabel: `Book plan: ${novel.title}`,
       planLevel: "book",
       contextBlocks,
     });
@@ -179,8 +179,8 @@ export class PlannerService {
     return persistStoryPlan({
       novelId,
       level: "book",
-      title: output.title || `${novel.title} 全书规划`,
-      objective: output.objective || "建立全书目标与主线推进。",
+      title: output.title || `${novel.title} book plan`,
+      objective: output.objective || "Set the book-level goal and mainline advance.",
       participants: output.participants ?? [],
       reveals: output.reveals ?? [],
       riskNotes: output.riskNotes ?? [],
@@ -217,7 +217,7 @@ export class PlannerService {
       },
     });
     if (!novel) {
-      throw new Error("小说不存在。");
+      throw new Error("The novel does not exist.");
     }
     const storyModeBlock = buildPlannerStoryModeBlock(novel);
     const styleEngine = await this.resolvePlannerStyleEngineSummary(novelId, undefined, options.taskStyleProfileId);
@@ -233,14 +233,14 @@ export class PlannerService {
       pacePreference: novel.pacePreference,
       emotionIntensity: novel.emotionIntensity,
       styleTone: novel.styleTone,
-      bible: novel.bible?.rawContent ?? "无",
-      chapters: novel.chapters.map((item) => `${item.order}.${item.title} ${item.expectation ?? ""}`).join("\n") || "无",
+      bible: novel.bible?.rawContent ?? "None",
+      chapters: novel.chapters.map((item) => `${item.order}.${item.title} ${item.expectation ?? ""}`).join("\n") || "None",
       storyModeBlock,
       styleEngine,
     });
     const output = await invokePlannerLLM({
       options,
-      scopeLabel: `分段规划：${arcId}`,
+      scopeLabel: `Arc plan: ${arcId}`,
       planLevel: "arc",
       contextBlocks,
     });
@@ -250,7 +250,7 @@ export class PlannerService {
       level: "arc",
       externalRef: arcId,
       title: output.title || `Arc ${arcId}`,
-      objective: output.objective || `围绕 ${arcId} 推进主线`,
+      objective: output.objective || `Advance the main line around ${arcId}`,
       participants: output.participants ?? [],
       reveals: output.reveals ?? [],
       riskNotes: output.riskNotes ?? [],
@@ -367,7 +367,7 @@ export class PlannerService {
       }),
     ]);
     if (!novel || !chapter) {
-      throw new Error("小说或章节不存在。");
+      throw new Error("The novel or chapter does not exist.");
     }
     const storyModeBlock = buildPlannerStoryModeBlock(novel);
     const storyMacroPlan = storyMacroPlanRow ? mapRowToPlan(storyMacroPlanRow) : null;
@@ -480,7 +480,7 @@ export class PlannerService {
     const replanContextBlock = options.replanContext
       ? [
           `重规划原因：${options.replanContext.reason}`,
-          `触发类型：${options.replanContext.triggerType}`,
+          `Trigger type:${options.replanContext.triggerType}`,
           options.replanContext.triggerReason
             ? `状态触发理由：${options.replanContext.triggerReason}`
             : "",
@@ -490,12 +490,12 @@ export class PlannerService {
           options.replanContext.whyTheseChapters
             ? `为何改这几章：${options.replanContext.whyTheseChapters}`
             : "",
-          `重规划窗口：第 ${options.replanContext.affectedChapterOrders.join("、")} 章`,
+          `重规划窗口：Chapter ${options.replanContext.affectedChapterOrders.join("、")}`,
           typeof options.replanContext.anchorChapterOrder === "number"
-            ? `锚点章节：第 ${options.replanContext.anchorChapterOrder} 章`
+            ? `Anchor Chapter: Chapter ${options.replanContext.anchorChapterOrder}s`
             : "",
           options.replanContext.sourceIssueIds.length > 0
-            ? `来源问题：${options.replanContext.sourceIssueIds.join("、")}`
+            ? `Source question:${options.replanContext.sourceIssueIds.join("、")}`
             : "",
           options.replanContext.blockingLedgerKeys?.length
             ? `账本风险：${options.replanContext.blockingLedgerKeys.join("、")}`
@@ -504,7 +504,7 @@ export class PlannerService {
             ? `上一版计划：${options.replanContext.replannedFromPlanId}`
             : "",
         ].filter(Boolean).join("\n")
-      : "无";
+      : "None";
     const contextBlocks = buildChapterPlanContextBlocks({
       novelTitle: novel.title,
       description: novel.description,
@@ -520,7 +520,7 @@ export class PlannerService {
       chapterExpectation: chapter.expectation,
       chapterTaskSheet: chapter.taskSheet,
       chapterTargetWordCount: chapter.targetWordCount,
-      bible: bible?.rawContent ?? "无",
+      bible: bible?.rawContent ?? "None",
       styleEngine,
       outline: novel.outline,
       structuredOutline: novel.structuredOutline,
@@ -533,16 +533,16 @@ export class PlannerService {
         updatedAt: volume.updatedAt,
         chapters: volume.chapters,
       })),
-      bookPlan: bookPlan ? `${bookPlan.title} | ${bookPlan.objective}${bookPlan.phaseLabel ? ` | 阶段=${bookPlan.phaseLabel}` : ""}` : "无",
+      bookPlan: bookPlan ? `${bookPlan.title} | ${bookPlan.objective}${bookPlan.phaseLabel ? ` | 阶段=${bookPlan.phaseLabel}` : ""}` : "None",
       arcPlans: arcPlans.length > 0
         ? arcPlans.map((plan) => `${plan.externalRef ?? "-"} ${plan.title} | ${plan.objective}${plan.phaseLabel ? ` | 阶段=${plan.phaseLabel}` : ""}`).join("\n")
-        : "无",
-      characters: characters.map((item) => `${item.id}|${item.name}|${item.role}|goal=${item.currentGoal ?? ""}|state=${item.currentState ?? ""}`).join("\n") || "无",
-      recentSummaries: summaries.map((item) => `${item.summary}`).join("\n") || "无",
-      plotBeats: plotBeats.map((item) => `${item.chapterOrder ?? "-"} ${item.title} ${item.content}`).join("\n") || "无",
+        : "None",
+      characters: characters.map((item) => `${item.id}|${item.name}|${item.role}|goal=${item.currentGoal ?? ""}|state=${item.currentState ?? ""}`).join("\n") || "None",
+      recentSummaries: summaries.map((item) => `${item.summary}`).join("\n") || "None",
+      plotBeats: plotBeats.map((item) => `${item.chapterOrder ?? "-"} ${item.title} ${item.content}`).join("\n") || "None",
       stateSnapshot: buildStateContextBlockFromCanonical(resolvedStateDrivenContext.snapshot),
-      openAuditIssues: openAuditIssues.join("\n") || "无",
-      recentDecisions: recentDecisions.map((item) => `${item.category}/${item.importance}: ${item.content}`).join("\n") || "无",
+      openAuditIssues: openAuditIssues.join("\n") || "None",
+      recentDecisions: recentDecisions.map((item) => `${item.category}/${item.importance}: ${item.content}`).join("\n") || "None",
       characterDynamicsSummary: characterDynamicsContext.summary,
       characterVolumeAssignments: characterDynamicsContext.volumeAssignments,
       characterRelationStages: characterDynamicsContext.relationStages,
@@ -561,7 +561,7 @@ export class PlannerService {
       replanContext: replanContextBlock,
       replanConflictLevelAnchors: options.replanContext
         ? buildPlannerConflictLevelAnchorContext(plannerVolumes, options.replanContext.affectedChapterOrders)
-        : "无",
+        : "None",
       storyMacroSummary: buildStoryMacroSummary(storyMacroPlan),
       currentVolumeWindow: buildCurrentVolumeWindowSummary(plannerVolumes, chapter.order),
       payoffLedgerSummary: buildPlannerPayoffLedgerContext(payoffLedger, chapter.order),
@@ -569,7 +569,7 @@ export class PlannerService {
     });
     const output = await invokePlannerLLM({
       options,
-      scopeLabel: `章节规划：第${chapter.order}章《${chapter.title}》`,
+      scopeLabel: `Chapter planning: Chapter ${chapter.order}"${chapter.title}"`,
       planLevel: "chapter",
       contextBlocks,
     });
@@ -595,7 +595,7 @@ export class PlannerService {
       objective: output.objective
         || compactText(chapterStateGoal?.summary)
         || chapter.expectation?.trim()
-        || `推进第${chapter.order}章主线。`,
+        || `推进Chapter ${chapter.order}主线。`,
       targetWordCount: chapter.targetWordCount,
       participants: resolvedParticipants,
       reveals: output.reveals ?? [],
@@ -683,7 +683,7 @@ export class PlannerService {
       });
       return buildPlannerStyleEngineSummary(styleContext);
     } catch {
-      return "无";
+      return "None";
     }
   }
 }

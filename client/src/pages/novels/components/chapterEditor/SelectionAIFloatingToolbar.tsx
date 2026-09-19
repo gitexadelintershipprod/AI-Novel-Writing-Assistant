@@ -41,7 +41,7 @@ export default function SelectionAIFloatingToolbar(props: SelectionAIFloatingToo
           onMouseDown={(event) => event.preventDefault()}
           onClick={() => onRunOperation("polish")}
         >
-          AI 优化这段
+          AI optimizes this section
         </Button>
         {SECONDARY_OPERATIONS.map((operation) => (
           <Button
@@ -62,7 +62,7 @@ export default function SelectionAIFloatingToolbar(props: SelectionAIFloatingToo
           onMouseDown={(event) => event.preventDefault()}
           onClick={() => setIsCustomOpen((current) => !current)}
         >
-          告诉 AI 怎么改
+          Tell AI how to change
         </Button>
       </div>
 
@@ -70,7 +70,7 @@ export default function SelectionAIFloatingToolbar(props: SelectionAIFloatingToo
         <div className="mt-2 space-y-2 rounded-xl border border-border/70 bg-muted/20 p-2">
           <textarea
             className="min-h-[96px] w-full resize-none rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none"
-            placeholder="例如：让这段更压抑一点，保留原信息，但把节奏压得更紧。"
+            placeholder="For example: make this paragraph more depressing, retain the original message, but tighten the pace."
             value={customInstruction}
             onChange={(event) => setCustomInstruction(event.target.value)}
           />
@@ -84,7 +84,7 @@ export default function SelectionAIFloatingToolbar(props: SelectionAIFloatingToo
                 setCustomInstruction("");
               }}
             >
-              取消
+              Cancel
             </Button>
             <Button
               size="sm"
@@ -92,7 +92,7 @@ export default function SelectionAIFloatingToolbar(props: SelectionAIFloatingToo
               onMouseDown={(event) => event.preventDefault()}
               onClick={() => onRunOperation("custom", customInstruction.trim())}
             >
-              提交指令
+              Submit instructions
             </Button>
           </div>
         </div>

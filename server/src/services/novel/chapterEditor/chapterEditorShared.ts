@@ -165,32 +165,32 @@ export function buildStyleSummary(novel: {
 }): string {
   return [
     novel.styleTone?.trim(),
-    novel.narrativePov ? `视角: ${novel.narrativePov}` : null,
-    novel.pacePreference ? `节奏: ${novel.pacePreference}` : null,
-    novel.emotionIntensity ? `情绪强度: ${novel.emotionIntensity}` : null,
+    novel.narrativePov ? `Point of view: ${novel.narrativePov}` : null,
+    novel.pacePreference ? `Pacing: ${novel.pacePreference}` : null,
+    novel.emotionIntensity ? `emotional intensity: ${novel.emotionIntensity}` : null,
   ].filter((item): item is string => Boolean(item && item.trim())).join(" · ");
 }
 
 export function buildWorldConstraintSummary(world: WorldLike): string {
   if (!world) {
-    return "暂无额外世界约束。";
+    return "No extra world constraints.";
   }
   const lines = [
     world.name?.trim() ? `${world.name}${world.worldType?.trim() ? ` (${world.worldType.trim()})` : ""}` : null,
     world.overviewSummary?.trim() || world.description?.trim() || null,
-    world.conflicts?.trim() ? `主要冲突：${world.conflicts.trim()}` : null,
-    world.magicSystem?.trim() ? `力量/规则：${world.magicSystem.trim()}` : null,
+    world.conflicts?.trim() ? `Main conflict: ${world.conflicts.trim()}` : null,
+    world.magicSystem?.trim() ? `Power / rules: ${world.magicSystem.trim()}` : null,
   ].filter((item): item is string => Boolean(item));
   const axioms = parseLooseTextList(world.axioms).slice(0, 3);
   if (axioms.length > 0) {
-    lines.push(`硬规则：${axioms.join("；")}`);
+    lines.push(`Hard rules:${axioms.join("；")}`);
   }
-  return lines.join("\n") || "暂无额外世界约束。";
+  return lines.join("\n") || "No extra world constraints.";
 }
 
 export function buildCharacterStateSummary(snapshot?: StoryStateSnapshot | null): string {
   if (!snapshot || snapshot.characterStates.length === 0) {
-    return "当前没有提取到角色状态。";
+    return "No character state was extracted.";
   }
   return snapshot.characterStates
     .slice(0, 5)
@@ -203,7 +203,7 @@ export function buildCharacterStateSummary(snapshot?: StoryStateSnapshot | null)
       return parts.length > 0 ? `- ${parts.join(" / ")}` : null;
     })
     .filter((item): item is string => Boolean(item))
-    .join("\n") || "当前没有提取到角色状态。";
+    .join("\n") || "No character state was extracted.";
 }
 
 export function buildMustKeepConstraints(
@@ -215,8 +215,8 @@ export function buildMustKeepConstraints(
   return Array.from(new Set([
     ...mustPreserve,
     ...redLines,
-    "保持当前叙事事实一致",
-    "保持当前叙事视角和人称",
+    "Keep the current story facts consistent",
+    "Keep the current point of view and person",
   ])).slice(0, 6);
 }
 
@@ -227,8 +227,8 @@ export function findVolumeLocation(volumes: VolumePlan[], chapterOrder: number):
       volume: null,
       chapterIndex: -1,
       chapterCount: 0,
-      volumePositionLabel: "未识别到卷内位置",
-      volumePhaseLabel: "独立修文",
+      volumePositionLabel: "Volume position not identified",
+      volumePhaseLabel: "Standalone line-edit",
     };
   }
 
@@ -241,33 +241,33 @@ export function findVolumeLocation(volumes: VolumePlan[], chapterOrder: number):
     volume,
     chapterIndex,
     chapterCount,
-    volumePositionLabel: `本卷第 ${ordinal} / ${chapterCount} 章`,
+    volumePositionLabel: `Volume position ${ordinal} / ${chapterCount}`,
     volumePhaseLabel: resolveVolumePhaseLabel(chapterIndex, chapterCount),
   };
 }
 
 function resolveVolumePhaseLabel(chapterIndex: number, chapterCount: number): string {
   if (chapterCount <= 0 || chapterIndex < 0) {
-    return "独立修文";
+    return "Standalone line-edit";
   }
   if (chapterCount === 1 || chapterIndex === 0) {
-    return "开卷";
+    return "open book";
   }
 
   const ratio = chapterCount === 1 ? 1 : chapterIndex / (chapterCount - 1);
   if (ratio < 0.28) {
-    return "前段推进";
+    return "Early advance";
   }
   if (ratio < 0.6) {
-    return "中段承压";
+    return "Mid-volume pressure";
   }
   if (ratio < 0.82) {
-    return "高潮前";
+    return "Pre-climax";
   }
   if (chapterIndex >= chapterCount - 1) {
-    return "收束过渡";
+    return "Close and transition";
   }
-  return "高潮兑现";
+  return "Climax payoff";
 }
 
 export function buildPaceDirective(
@@ -275,35 +275,41 @@ export function buildPaceDirective(
   preference?: PacePreference | null,
 ): string {
   const paceLabel = preference === "slow"
-    ? "整体节奏偏慢"
+    ? "Overall pacing is slower"
     : preference === "fast"
-      ? "整体节奏偏快"
-      : "整体节奏保持均衡";
+      ? "Overall pacing is faster"
+      : "Overall pacing stays balanced";
   const phaseDirective = ({
-    开卷: "优先快速立住处境、矛盾与阅读抓手，不宜过早把篇幅耗在静态解释上。",
-    前段推进: "要持续推进问题与目标，避免重复铺垫已经成立的信息。",
-    中段承压: "应抬高压迫和代价，让人物被局势持续推着走。",
-    高潮前: "要集中火力收束线索、抬高期待，为爆发做准备。",
-    高潮兑现: "允许更强烈的冲突、情绪和结果兑现，但不能偏离主线任务。",
-    收束过渡: "重点是兑现后果、完成转场，并稳稳把读者送向下一章或下一卷。",
-  } as Record<string, string>)[volumePhaseLabel] ?? "优先维持当前章节任务与卷内承接。";
-  return `${paceLabel}；${phaseDirective}`;
+    "open book": "Establish the situation, conflict, and reading hook quickly. Do not spend too much space on static explanation too early.",
+    "Early advance": "Keep advancing the problem and the goal. Do not re-explain information that is already established.",
+    "Mid-volume pressure": "Raise pressure and cost so characters stay pushed by the situation.",
+    "Pre-climax": "Concentrate on gathering clues and raising expectation, preparing for the burst.",
+    "Climax payoff": "Stronger conflict, emotion, and payoff are allowed, but do not leave the main task.",
+    "Close and transition": "Pay off consequences, complete the transition, and carry readers steadily into the next chapter or volume.",
+    开卷: "Establish the situation, conflict, and reading hook quickly. Do not spend too much space on static explanation too early.",
+    前段推进: "Keep advancing the problem and the goal. Do not re-explain information that is already established.",
+    中段承压: "Raise pressure and cost so characters stay pushed by the situation.",
+    高潮前: "Concentrate on gathering clues and raising expectation, preparing for the burst.",
+    高潮兑现: "Stronger conflict, emotion, and payoff are allowed, but do not leave the main task.",
+    收束过渡: "Pay off consequences, complete the transition, and carry readers steadily into the next chapter or volume.",
+  } as Record<string, string>)[volumePhaseLabel] ?? "Keep this chapter's task and volume continuity first.";
+  return `${paceLabel}; ${phaseDirective}`;
 }
 
 export function buildMacroContextSummary(context: ChapterEditorMacroContext): string {
   return [
-    `章节在本卷中的角色：${context.chapterRoleInVolume}`,
-    `卷标题：${context.volumeTitle}`,
-    `卷内位置：${context.volumePositionLabel}`,
-    `阶段定位：${context.volumePhaseLabel}`,
-    `节奏建议：${context.paceDirective}`,
-    `本章任务：${context.chapterMission}`,
-    `承接上一章：${context.previousChapterBridge}`,
-    `铺向下一章：${context.nextChapterBridge}`,
-    `主线/伏笔：${context.activePlotThreads.join("；") || "暂无"}`,
-    `角色状态：${context.characterStateSummary}`,
-    `世界约束：${context.worldConstraintSummary}`,
-    `必须守住：${context.mustKeepConstraints.join("；") || "保持现有事实与人称"}`,
+    `Role of this chapter in the volume: ${context.chapterRoleInVolume}`,
+    `Volume title: ${context.volumeTitle}`,
+    `Volume position: ${context.volumePositionLabel}`,
+    `Stage: ${context.volumePhaseLabel}`,
+    `Pacing guidance: ${context.paceDirective}`,
+    `Task in this chapter: ${context.chapterMission}`,
+    `Continuing from the previous chapter: ${context.previousChapterBridge}`,
+    `Going to the next chapter: ${context.nextChapterBridge}`,
+    `Mainline / planted setups: ${context.activePlotThreads.join("; ") || "none"}`,
+    `Character status: ${context.characterStateSummary}`,
+    `World constraints: ${context.worldConstraintSummary}`,
+    `Must keep: ${context.mustKeepConstraints.join("; ") || "Keep existing facts and person"}`,
   ].join("\n");
 }
 
@@ -314,75 +320,75 @@ export function buildPresetIntent(
 ): ChapterEditorAiRevisionIntent {
   const preserved = Array.from(new Set([
     ...mustKeepConstraints,
-    "保留当前剧情事实",
-    "保留原段核心信息",
+    "Keep the current plot facts",
+    "Keep the core information of the original passage",
   ])).slice(0, 6);
   const shared = {
     mustPreserve: preserved,
-    mustAvoid: ["不要改写出模板化 AI 腔", "不要破坏上下文承接"],
+    mustAvoid: ["Do not rewrite into templated AI voice", "Do not break context continuity"],
     strength: "medium" as const,
   };
 
   switch (operation) {
     case "expand":
       return {
-        editGoal: "补足细节，让信息更可感知",
-        toneShift: "保持原有语气",
-        paceAdjustment: "略微放慢，换取更清晰的画面与动作",
-        conflictAdjustment: "保持现有冲突强度",
-        emotionAdjustment: "维持现有情绪基调",
-        reasoningSummary: "这次改写重点是补细节和体验感，但不改变原段任务。",
+        editGoal: "Add details so the information is more perceptible",
+        toneShift: "Keep the original tone",
+        paceAdjustment: "Slow slightly in exchange for clearer images and action",
+        conflictAdjustment: "Keep the current conflict intensity",
+        emotionAdjustment: "Keep the current emotional tone",
+        reasoningSummary: "This rewrite focuses on details and texture, without changing the original passage's task.",
         ...shared,
       };
     case "compress":
       return {
-        editGoal: "压缩冗余，让推进更紧",
-        toneShift: "保持原有语气",
-        paceAdjustment: "明显提速，减少重复和静态描述",
-        conflictAdjustment: "维持现有冲突走向",
-        emotionAdjustment: "保留现有情绪信号，不额外拔高",
-        reasoningSummary: "这次改写重点是去掉拖慢推进的内容，让读者更快进入下一步。",
+        editGoal: "Cut redundancy so the advance is tighter",
+        toneShift: "Keep the original tone",
+        paceAdjustment: "Speed up clearly and reduce repetition and static description",
+        conflictAdjustment: "Keep the current conflict direction",
+        emotionAdjustment: "Keep existing emotional signals without extra heightening",
+        reasoningSummary: "This rewrite focuses on removing what slows the advance so readers reach the next beat faster.",
         ...shared,
       };
     case "emotion":
       return {
-        editGoal: "强化情绪传递",
-        toneShift: "在不跳出原文风格的前提下更有情绪张力",
-        paceAdjustment: "节奏保持稳健，不额外拉长动作链",
-        conflictAdjustment: "允许情绪上的紧张感更明显",
-        emotionAdjustment: "显著增强人物情绪与感受",
-        reasoningSummary: "这次改写重点是让读者更直接感受到人物情绪，而不是只看到事件。",
+        editGoal: "Strengthen mood delivery",
+        toneShift: "Add emotional tension without leaving the original style",
+        paceAdjustment: "Keep pacing steady; do not stretch the action chain",
+        conflictAdjustment: "Emotional tension can be more obvious",
+        emotionAdjustment: "Significantly strengthen character emotion and feeling",
+        reasoningSummary: "This rewrite focuses on letting readers feel the character's emotion, not just watch events.",
         ...shared,
       };
     case "conflict":
       return {
-        editGoal: "强化冲突与压迫",
-        toneShift: "保持原有语气，但更有对抗感",
-        paceAdjustment: "适度提速，让矛盾更快顶上来",
-        conflictAdjustment: "显著增强冲突感与不适感",
-        emotionAdjustment: "让情绪更贴着冲突走",
-        reasoningSummary: "这次改写重点是把冲突推到更前面，让张力更早被读者感知。",
+        editGoal: "Intensify conflict and pressure",
+        toneShift: "Keep the original tone, but with more confrontation",
+        paceAdjustment: "Speed up moderately so conflict surfaces sooner",
+        conflictAdjustment: "Significantly strengthen conflict and discomfort",
+        emotionAdjustment: "Keep emotion aligned with the conflict",
+        reasoningSummary: "This rewrite focuses on pushing conflict forward so readers feel the tension earlier.",
         ...shared,
       };
     case "custom":
       return {
-        editGoal: customInstruction?.trim() || "按用户要求修正",
-        toneShift: "按用户要求调整",
-        paceAdjustment: "按用户要求调整",
-        conflictAdjustment: "按用户要求调整",
-        emotionAdjustment: "按用户要求调整",
-        reasoningSummary: "这次改写直接执行用户的补充修正要求，同时守住章节事实和承接。",
+        editGoal: customInstruction?.trim() || "Revise to the user's request",
+        toneShift: "Adjust to the user's request",
+        paceAdjustment: "Adjust to the user's request",
+        conflictAdjustment: "Adjust to the user's request",
+        emotionAdjustment: "Adjust to the user's request",
+        reasoningSummary: "This rewrite follows the user's extra correction request while keeping chapter facts and continuity.",
         ...shared,
       };
     case "polish":
     default:
       return {
-        editGoal: "优化表达，让文本更自然顺畅",
-        toneShift: "保持原有语气",
-        paceAdjustment: "节奏尽量保持稳定",
-        conflictAdjustment: "维持现有冲突走向",
-        emotionAdjustment: "保留原有情绪，但表达更准确",
-        reasoningSummary: "这次改写重点是让句子更顺、更稳，不改变原段剧情职责。",
+        editGoal: "Polish the wording so the text is more natural and smooth",
+        toneShift: "Keep the original tone",
+        paceAdjustment: "Keep pacing as stable as possible",
+        conflictAdjustment: "Keep the current conflict direction",
+        emotionAdjustment: "Keep the original emotion, but make the expression more accurate",
+        reasoningSummary: "This rewrite focuses on smoother, more stable sentences without changing the original passage's plot job.",
         ...shared,
       };
   }

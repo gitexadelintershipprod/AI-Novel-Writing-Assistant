@@ -38,7 +38,7 @@ function clampPipelineMaxRetries(value: number | null | undefined): number {
 }
 
 function buildEmptyChapterDetail(chapter: { order: number; title: string }): string {
-  return `第${chapter.order}章「${chapter.title}」正文生成失败：模型连续未返回可保存正文，已暂停继续。`;
+  return `Chapter ${chapter.order} "${chapter.title}" text build failed: the model repeatedly returned no savable text, so writing is paused.`;
 }
 
 function buildSkipCompletedChapterWhere(): Prisma.ChapterWhereInput {
@@ -198,7 +198,7 @@ export class NovelPipelineExecutor {
           }),
         ]);
         if (!novel || chapters.length === 0) {
-          throw new Error("任务执行失败：小说或章节不存在");
+          throw new Error("The task failed: the novel or chapter does not exist");
         }
 
         logPipelineInfo("任务加载完成", {
@@ -363,13 +363,13 @@ export class NovelPipelineExecutor {
                       temperature: runtimePayload.temperature,
                     });
                     if (willRetry) {
-                      logPipelineWarn("章节生成未返回正文，正在重试当前章", meta);
+                      logPipelineWarn("Chapter generation returned no draft. Retrying this chapter", meta);
                       return;
                     }
                     if (!qualityAlertDetails.includes(detail)) {
                       qualityAlertDetails.push(detail);
                     }
-                    logPipelineError("章节生成连续未返回正文，准备自动重试当前章", meta);
+                    logPipelineError("Chapter generation returned no draft several times. Preparing to auto-retry this chapter", meta);
                   },
                   },
                 );
@@ -386,7 +386,7 @@ export class NovelPipelineExecutor {
                     jobId,
                     issueCode: "runtime.persistence_failed",
                     stage: "chapter_persistence",
-                    summary: `第${chapter.order}章正文无法确认已保存，已停止自动重试。`,
+                    summary: `Chapter ${chapter.order} text could not be confirmed as saved. Automatic retry has stopped.`,
                     evidence: error.message,
                     chapterId: chapter.id,
                     chapterOrder: chapter.order,
@@ -402,14 +402,14 @@ export class NovelPipelineExecutor {
                   throw error;
                 }
                 chapterRetryCountUsed += 1;
-                const retryLabel = `第${chapter.order}章遇到临时问题，AI 正在自动修复并重试（${chapterRetryCountUsed}/${chapterRetryBudget}）`;
+                const retryLabel = `Chapter ${chapter.order} hit a temporary problem. AI is auto-repairing and retrying (${chapterRetryCountUsed}/${chapterRetryBudget})`;
                 await this.updateJobSafe(jobId, {
                   heartbeatAt: new Date(),
                   currentStage: "generating_chapters",
                   currentItemKey: chapter.id,
                   currentItemLabel: retryLabel,
                 });
-                logPipelineWarn("章节运行时失败，自动重试当前章", {
+                logPipelineWarn("The chapter runtime failed. Auto-retrying this chapter", {
                   jobId,
                   novelId,
                   chapterId: chapter.id,
@@ -423,7 +423,7 @@ export class NovelPipelineExecutor {
             clearInterval(heartbeatTimer);
           }
           if (!chapterResult) {
-            throw new Error(`第${chapter.order}章在自动重试后仍未生成可用结果。`);
+            throw new Error(`Chapter ${chapter.order} still has no usable result after automatic retry.`);
           }
 
           totalRetryCount += Math.max(chapterRetryCountUsed, chapterResult.retryCountUsed);
@@ -478,7 +478,7 @@ export class NovelPipelineExecutor {
                   jobId,
                   issueCode: "planning.route_window_unavailable",
                   stage: "route_window",
-                  summary: `滚动规划未能准备第 ${chapter.order + 1} 章。`,
+                  summary: `Rolling planning could not prepare chapter ${chapter.order + 1}.`,
                   chapterId: chapter.id,
                   chapterOrder: chapter.order,
                   attempt: maxRetries,
@@ -487,7 +487,7 @@ export class NovelPipelineExecutor {
                   model: runtimePayload.model,
                   temperature: runtimePayload.temperature,
                 });
-                throw new Error(`滚动规划未能准备第 ${chapter.order + 1} 章，当前正文已安全保存，可从本章后恢复。`);
+                throw new Error(`Rolling planning could not prepare Chapter ${chapter.order + 1}. The current draft is saved safely and can resume after this chapter.`);
               }
               chaptersToProcess.push(persistedNextChapter);
             }
@@ -503,7 +503,7 @@ export class NovelPipelineExecutor {
               temperature: runtimePayload.temperature,
               completionProfile: buildDirectorCompletionProfile(autopilotTargetEndOrder),
             }).catch((error) => {
-              logPipelineInfo("N+1 JIT 预取失败（非阻断，下一章将在组装时重试）", {
+              logPipelineInfo("N+1 JIT prefetch failed (non-blocking; the next chapter will retry during assembly)", {
                 jobId,
                 nextChapterId: nextChapter.id,
                 nextChapterOrder: nextChapter.order,
@@ -516,7 +516,7 @@ export class NovelPipelineExecutor {
                 jobId,
                 issueCode: "runtime.background_prefetch_failed",
                 stage: "background_prefetch",
-                summary: `第 ${nextChapter.order} 章后台预取失败，正式执行时将重新准备。`,
+                summary: `Background prefetch for chapter ${nextChapter.order} failed. It will be prepared again during formal execution.`,
                 evidence: error instanceof Error ? error.message : String(error),
                 chapterId: nextChapter.id,
                 chapterOrder: nextChapter.order,
@@ -550,7 +550,7 @@ export class NovelPipelineExecutor {
           });
           if (shouldStopAfterCurrentChapter) {
             pendingManualRecovery = true;
-            logPipelineWarn("章节需要人工处理，已暂停后续章节流水线", {
+            logPipelineWarn("The chapter needs manual handling. Later chapter pipeline was paused", {
               jobId,
               order: chapter.order,
               remaining: Math.max(0, totalCount - completed),
@@ -563,7 +563,7 @@ export class NovelPipelineExecutor {
           await this.updateJobSafe(jobId, {
             status: "queued",
             pendingManualRecovery: true,
-            error: "章节需要人工确认，后续生成已暂停。",
+            error: "The chapter needs manual confirmation. Later generation is paused.",
             heartbeatAt: null,
             currentStage: "queued",
             currentItemKey: null,
@@ -585,7 +585,7 @@ export class NovelPipelineExecutor {
           heartbeatAt: new Date(),
           currentStage: "finalizing",
           currentItemKey: null,
-          currentItemLabel: "正在收尾章节流水线任务",
+          currentItemLabel: "Finishing the chapter pipeline task",
           progress: buildPipelineStageProgress({
             completedCount: completed,
             totalCount,
@@ -642,9 +642,9 @@ export class NovelPipelineExecutor {
         return;
       }
 
-      const message = error instanceof Error ? error.message : "流水线执行失败";
+      const message = error instanceof Error ? error.message : "Pipeline execution failed";
       if (isChapterEmptyContentError(error)) {
-        logPipelineError("任务因章节空正文失败", {
+        logPipelineError("The task failed because the chapter body was empty", {
           jobId,
           novelId,
           provider: runtimePayload.provider,
@@ -683,7 +683,7 @@ export class NovelPipelineExecutor {
           recoverableRepairDetails,
         }),
       });
-      logPipelineError("任务执行异常", {
+        logPipelineError("Task execution exception", {
         jobId,
         novelId,
         message,

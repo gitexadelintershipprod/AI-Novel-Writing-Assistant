@@ -1,136 +1,136 @@
-# 导演跟进
+# Director follow-up
 
-导演跟进用于查看自动导演的执行进度、暂停原因、恢复入口和下一步建议。它帮助你理解一本书的主链停在什么位置。
+Director follow-up shows Auto-Director progress, pause reasons, recovery entries, and next-step advice. It helps you see where a book’s main chain stopped.
 
-## 什么时候打开
+## When to open it
 
-- 自动导演提示等待确认。
-- 开书流程中断后想继续。
-- 章节准备或执行没有继续入口。
-- 任务中心显示导演相关任务失败或等待恢复。
-- 想知道系统建议下一步做什么。
+- Auto-Director is waiting for confirmation.
+- Book opening stopped and you want to continue.
+- Chapter preparation or execution has no continue entry.
+- The Task Center shows a director-related task failed or waiting to recover.
+- You want to know what the system recommends next.
 
-如果你只想看后台任务是否完成，先看任务中心；如果你想知道自动导演为什么停下，打开导演跟进。
+If you only want to know whether a background task finished, start in the Task Center. If you want to know why Auto-Director stopped, open Director follow-up.
 
-## 常见暂停原因
+## Common pause reasons
 
-自动导演暂停通常不是失败，而是等待某个明确动作：
+An Auto-Director pause is usually not a failure. It is waiting for a clear action:
 
-- 方向候选等待选择。
-- 世界、角色或卷规划需要确认。
-- 章节计划缺少必要信息。
-- 某个后台任务失败，需要重试。
-- 质量审核产生局部债务，需要选择修复或继续。
-- 系统判断需要重新规划。
+- direction candidates waiting for a choice;
+- world, characters, or volume planning need confirmation;
+- the chapter plan is missing necessary information;
+- a background task failed and needs a retry;
+- quality review created local debt, and you need to repair or continue;
+- the system decided a replan is required.
 
-阅读暂停原因时，要区分“局部质量问题”和“必须停止主链的问题”。可修复的章节问题通常应记录为质量债务或局部修复建议，而不是阻断整本书。
+When you read a pause reason, separate “local quality problem” from “the main chain must stop.” Repairable chapter issues should usually be recorded as quality debt or local repair guidance, not used to block the whole book.
 
-## 恢复入口怎么看
+## How to read recovery entries
 
-导演跟进会尽量把恢复动作落到具体入口：
+Director follow-up tries to land recovery on a concrete entry:
 
-- 回到方向选择。
-- 补充小说基础信息。
-- 继续角色或世界准备。
-- 进入章节任务。
-- 重试失败任务。
-- 接受警告并继续后续章节。
+- return to direction choice;
+- fill in novel basics;
+- continue character or world preparation;
+- enter chapter tasks;
+- retry a failed task;
+- accept a warning and continue later chapters.
 
-如果有多个入口，优先选择系统标记为推荐的入口。不要同时从多个页面重复触发同一阶段任务。
+If there are several entries, prefer the one marked as recommended. Do not trigger the same-stage task from several pages at once.
 
-## 和任务中心的关系
+## How it relates to the Task Center
 
-任务中心回答“后台任务发生了什么”；导演跟进回答“整本书下一步该做什么”。
+The Task Center answers “what happened to the background task.” Director follow-up answers “what this book should do next.”
 
-常见配合方式：
+A common pairing:
 
-1. 在导演跟进看到任务暂停。
-2. 到任务中心查看最新任务状态和错误信息。
-3. 回到导演跟进选择恢复动作。
-4. 继续自动导演或章节执行。
+1. See a pause in Director follow-up.
+2. Check the latest task status and error in the Task Center.
+3. Return to Director follow-up and choose the recovery action.
+4. Continue Auto-Director or chapter execution.
 
-如果任务中心显示运行中，导演跟进可能暂时不会给出新的确认项。
+If the Task Center shows running, Director follow-up may not offer a new confirmation yet.
 
-## 推荐处理策略
+## Recommended handling
 
-遇到暂停时按顺序判断：
+When it pauses, judge in this order:
 
-1. 是否只是等待你选择候选。
-2. 是否有可重试的后台任务。
-3. 是否已有可用章节内容。
-4. 是否需要局部修复。
-5. 是否明确要求重新规划。
+1. Is it only waiting for you to choose a candidate?
+2. Is there a background task that can retry?
+3. Is there already usable chapter content?
+4. Is a local repair needed?
+5. Is a replan explicitly required?
 
-只有明确的重新规划、不可恢复生成失败、数据完整性风险或系统安全问题，才应停止全局链路。
+Stop the global chain only for an explicit replan, an unrecoverable generation failure, a data-integrity risk, or a runtime safety issue.
 
-## 新手建议
+## For beginners
 
-如果你不理解暂停文案，不要手动清理数据。先做两件事：
+If you do not understand the pause copy, do not clean data by hand. Do two things first:
 
-- 查看任务中心最新状态。
-- 回到小说页确认基础信息和候选项。
+- check the latest Task Center status;
+- return to the novel page and confirm basics and candidates.
 
-大多数暂停都可以通过确认、重试或继续入口恢复。
+Most pauses recover through confirm, retry, or continue.
 
-## Checkpoint 类型清单
+## Checkpoint list
 
-导演跟进最重要的作用，是把自动导演当前 checkpoint 翻译成用户能执行的动作。
+Director follow-up’s most important job is turning the current Auto-Director checkpoint into an action you can take.
 
-| checkpoint | 页面含义 | 常见阶段 | 用户动作 | 可自动确认点 |
+| Checkpoint | What the page means | Common stages | Your action | Auto-approval points |
 |---|---|---|---|---|
-| `candidate_selection_required` | 等待确认书级方向 | 候选方向、书名候选 | 选一个方向、修订候选、重做标题 | `candidate_direction_confirmed` |
-| `book_contract_ready` | 书级规划就绪 | 书契约 | 查看书级承诺、继续后续资产准备 | 无 |
-| `character_setup_required` | 角色准备待确认 | 角色生成、角色阵容应用 | 确认、合并、重做或补充角色 | `character_setup_ready` |
-| `volume_strategy_ready` | 卷战略就绪 | 卷战略、卷骨架 | 确认后进入节奏拆章 | `volume_strategy_ready` |
-| `chapter_batch_ready` | 章节批次可执行 | 节奏板、章节清单、章节细化 | 进入章节执行或授权自动写章 | `structured_outline_ready` |
-| `replan_required` | 需要处理质量修复或重规划 | 审核修复、质量循环 | 查看原因，决定修复、继续或重规划 | `replan_continue` / `low_risk_quality_repair_continue` |
-| `workflow_completed` | 导演主流程完成 | 全局或批次结束 | 查看结果和后续建议 | 无 |
-| `rewrite_snapshot_created` | 重写前备份完成 | 重写/重新生成 | 确认清理后继续 | `rewrite_cleanup_confirmed` |
+| `candidate_selection_required` | Waiting to confirm a book-level direction | direction candidates, title pack | choose a direction, revise a candidate, redo titles | `candidate_direction_confirmed` |
+| `book_contract_ready` | Book-level planning is ready | book contract | review book-level promises, continue later asset preparation | none |
+| `character_setup_required` | Character preparation needs confirmation | character setup, apply character cast | confirm, merge, redo, or add characters | `character_setup_ready` |
+| `volume_strategy_ready` | Volume strategy is ready | volume strategy, volume skeleton | confirm, then enter beat/chapter split | `volume_strategy_ready` |
+| `chapter_batch_ready` | A chapter batch can run | beat sheet, chapter list, chapter detail | enter chapter execution or authorize automatic writing | `structured_outline_ready` |
+| `replan_required` | Quality repair or replan needs handling | review repair, quality loop | read the reason, then repair, continue, or replan | `replan_continue` / `low_risk_quality_repair_continue` |
+| `workflow_completed` | The director main flow finished | global or batch end | review results and later advice | none |
+| `rewrite_snapshot_created` | A pre-rewrite backup exists | rewrite / regenerate | confirm cleanup, then continue | `rewrite_cleanup_confirmed` |
 
-:::checkpoint checkpoint 不是失败
-当状态是 waiting approval 时，系统通常在等你确认方向、角色、卷规划、章节执行或修复策略。先看导演跟进，不要把项目删除或重复创建。
+:::checkpoint A checkpoint is not a failure
+When status is waiting approval, the system is usually waiting for you to confirm a direction, cast, volume plan, chapter execution, or repair strategy. Open Director follow-up first. Do not delete or recreate the project.
 :::
 
-## 暂停原因到恢复入口
+## From pause reason to recovery entry
 
-| 暂停原因 | 说明 | 推荐入口 |
+| Pause reason | Meaning | Recommended entry |
 |---|---|---|
-| 候选方向待确认 | `candidate_direction_batch` 或 `candidate_title_pack` 完成 | 方向选择页 |
-| 角色准备待确认 | 角色阵容可能需要人工确认 | 角色候选页、导演跟进 |
-| 卷战略待确认 | 卷级路线和骨架完成 | 卷规划入口 |
-| 章节批次就绪 | 节奏板、清单、细化完成 | 导演跟进、章节执行入口 |
-| 低风险质量修复 | 章节可修复但需要授权继续 | 章节页、导演跟进 |
-| 需要重规划 | 后续计划可能要变 | 导演跟进、按阶段恢复手册 |
-| Worker 中断 | 后台租约过期或服务重启 | 任务中心恢复 |
-| 高内存任务冲突 | 同一本书同范围已有节奏板/拆章任务 | 任务中心查看正在运行的任务 |
+| Candidate direction waiting | `candidate_direction_batch` or `candidate_title_pack` finished | direction choice page |
+| Character preparation waiting | the cast may need a human confirmation | character candidate page, Director follow-up |
+| Volume strategy waiting | volume route and skeleton finished | volume planning entry |
+| Chapter batch ready | beat sheet, list, and detail finished | Director follow-up, chapter execution entry |
+| Low-risk quality repair | the chapter can be repaired and needs authorization to continue | chapter page, Director follow-up |
+| Replan required | later plans may need to change | Director follow-up, Recovery by phase |
+| Worker interrupted | a background lease expired or the service restarted | Task Center recover |
+| High-memory task conflict | the same book and range already has a beat sheet / chapter-split task | Task Center, look at the running task |
 
-## Auto-approval 配置怎么看
+## How to read auto-approval
 
-auto-approval 允许系统在指定低风险确认点自动继续。它的常见点位包括：
+Auto-approval lets the system continue at specified low-risk confirmation points. Common points include:
 
-| auto-approval point | 对应动作 | 风险 |
+| Auto-approval point | Matching action | Risk |
 |---|---|---|
-| `candidate_direction_confirmed` | 确认候选方向后继续建书 | 低 |
-| `character_setup_ready` | 角色阵容通过后继续卷战略 | 低 |
-| `volume_strategy_ready` | 卷战略通过后继续节奏拆章 | 低 |
-| `structured_outline_ready` | 章节任务准备好后继续写作 | 低 |
-| `chapter_execution_continue` | 一个章节批次完成后继续剩余章节 | 中 |
-| `low_risk_quality_repair_continue` | 低风险质量修复后继续 | 中 |
-| `replan_continue` | 重规划处理后继续 | 高 |
-| `rewrite_cleanup_confirmed` | 重写清理确认后继续 | 高 |
+| `candidate_direction_confirmed` | After confirming a candidate direction, continue creating the book | low |
+| `character_setup_ready` | After the cast passes, continue to volume strategy | low |
+| `volume_strategy_ready` | After volume strategy passes, continue to beat/chapter split | low |
+| `structured_outline_ready` | After chapter tasks are ready, continue writing | low |
+| `chapter_execution_continue` | After one chapter batch finishes, continue remaining chapters | medium |
+| `low_risk_quality_repair_continue` | After low-risk quality repair, continue | medium |
+| `replan_continue` | After replan handling, continue | high |
+| `rewrite_cleanup_confirmed` | After rewrite cleanup is confirmed, continue | high |
 
-默认更适合自动通过低风险规划点；涉及重规划、重写清理或大范围正文改动时，建议保留人工确认。
+Low-risk planning points are a better default for automatic continue. Keep a human confirmation for replan, rewrite cleanup, or a large prose change.
 
-## Follow-up 通知关系
+## How follow-up notices relate
 
-导演跟进和 follow-up 通知展示的是同一条主链的不同入口：
+Director follow-up and follow-up notices are different entries into the same main chain:
 
-- follow-up 负责提醒：任务暂停、等待确认、可恢复、需要处理质量问题。
-- 导演跟进负责解释：为什么暂停、停在哪个 checkpoint、下一步入口是什么。
-- 任务中心负责事实：后台命令是否排队、运行、失败、stale 或完成。
+- Notices remind you: a task paused, is waiting for confirmation, can recover, or has a quality issue to handle.
+- Director follow-up explains: why it paused, which checkpoint it stopped at, and what the next entry is.
+- The Task Center gives facts: whether a background command is queued, running, failed, stale, or completed.
 
-当通知提示“需要处理”，先进入导演跟进；当通知提示“任务失败”或“恢复”，先进入任务中心。
+When a notice says “needs handling,” open Director follow-up first. When a notice says “task failed” or “recover,” open the Task Center first.
 
-## 和阶段深度文档的关系
+## How it relates to the stage-depth docs
 
-如果你看到不理解的阶段名，例如 `beat_sheet`、`volume_skeleton`、`chapter_detail_bundle`，先读《自动导演阶段全景》。如果暂停发生在正文生成、审核或修复之后，读《章节执行链》和《按阶段恢复手册》。
+If you see a stage name you do not understand, for example `beat_sheet`, `volume_skeleton`, or `chapter_detail_bundle`, start with the [Auto-Director stage map](#/docs/auto-director-pipeline). If the pause happened after chapter writing, review, or repair, read the [Chapter execution chain](#/docs/chapter-execution) and [Recovery by phase](#/docs/recovery-by-phase).

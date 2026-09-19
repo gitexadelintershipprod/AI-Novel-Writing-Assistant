@@ -1,72 +1,71 @@
-# 小说列表
+# Novels
 
-小说列表用于创建、打开、管理和备份小说项目。它是所有创作主链的项目入口。
+Novels is where you create, open, manage, and back up novel projects. It is the project entry for the whole main writing chain.
 
+## When to open it
 
-## 适合什么时候打开
+- Create a new novel.
+- Return to an existing novel and continue writing.
+- See each novel’s basic information and recent status.
+- Manage test projects, archived projects, or backups.
+- Enter Creative Hub, Director follow-up, and the chapter flow from a project.
 
-- 创建一本新小说。
-- 回到已有小说继续创作。
-- 查看每本小说的基础信息和最近状态。
-- 管理测试项目、归档项目或备份内容。
-- 从项目维度进入创作中枢、导演跟进和章节流程。
+If you already know which book to continue, Novels is the most direct entry.
 
-如果你明确知道要继续哪本书，从小说列表进入最直接。
+## Creating a novel
 
-## 创建小说
+You do not need to fill every setting at once. For a first book, start with:
 
-创建小说时，不必一次填满全部设定。新手建议先准备：
+- a title or temporary name;
+- one core idea;
+- a target genre or reader feeling;
+- a short protagonist direction.
 
-- 书名或临时标题。
-- 一句核心灵感。
-- 目标题材或读者感受。
-- 简短主角方向。
+Auto-Director can later expand the world, characters, volume structure, and chapter tasks. The title can stay temporary until Title studio generates options.
 
-系统后续可以通过自动导演继续扩展世界、角色、卷结构和章节任务。标题也可以先用临时名称，等标题工坊生成候选后再调整。
+## How to read the list
 
-## 列表字段怎么看
+The list usually shows:
 
-列表通常会展示这些信息：
+- Novel name: identify the project.
+- Last updated: see which project moved recently.
+- Writing status: whether it is in preparation, execution, pause, or completion.
+- Task entries: return to Creative Hub, Director follow-up, or the chapter chain.
+- Management actions: open, edit basics, delete, or export.
 
-- 小说名称：识别项目。
-- 最近更新时间：判断哪个项目刚被推进过。
-- 创作状态：了解是否处在准备、执行、暂停或完成阶段。
-- 任务入口：回到创作中枢、导演跟进或章节链。
-- 管理操作：打开、编辑基础信息、删除或导出。
+If the list does not show whether a task is still running, confirm background status in the Task Center.
 
-如果列表中看不出任务是否还在跑，进入任务中心确认后台状态。
+## What to check after opening a novel
 
-## 打开小说后先看什么
+After you open a novel, look in this order:
 
-打开一本小说后，建议按顺序看：
+1. Are the basics complete?
+2. Does Auto-Director have a waiting confirmation?
+3. Is the chapter plan ready?
+4. Does the latest chapter have quality debt or repair advice?
+5. Does the Task Center have a running task?
 
-1. 基础信息是否完整。
-2. 自动导演是否有等待确认项。
-3. 章节计划是否准备好。
-4. 最近章节是否有质量债务或修复建议。
-5. 任务中心是否有运行中任务。
+That order helps you avoid starting generation from the wrong entry.
 
-这样可以避免在错误入口重复发起生成。
+## Delete and backup
 
-## 删除和备份
+Confirm a backup before you delete a novel. For an important novel, keep at least:
 
-删除小说前请确认有备份。重要小说建议至少保留：
+- exported novel text;
+- a database backup;
+- key setting, character, and world notes;
+- knowledge-library source files.
 
-- 小说导出文本。
-- 数据库备份。
-- 关键设定、角色和世界资料。
-- 知识库资料源文件。
+Do not treat delete as the first diagnosis step. When state looks wrong, check the Task Center, Director follow-up, and [Troubleshooting](#/docs/troubleshooting) first.
 
-不要把删除当作排查问题的第一选择。遇到状态异常时，先查看任务中心、导演跟进和故障排查文档。
+## Test projects
 
-## 测试项目管理
+When you try a new model, prompt, or knowledge-library setting, create a test novel first. Name the test project by purpose, for example `test-knowledge-recall` or `test-prose-model`.
 
-使用新模型、新提示词或新知识库设置时，建议创建测试小说验证。测试项目命名可以带上目的，例如“测试-知识库召回”或“测试-正文模型”。
+After the test is stable, use that setup on a real novel. That lowers the chance of an important project being hit by a bad setting.
 
-测试完成后再把稳定配置用于正式小说，能减少重要项目被错误设置影响的风险。
+## How it relates to the main chain
 
-## 和主链的关系
+Novels is the project entry. Creative Hub is for status questions and diagnosis. Auto-Director is for preparation. The chapter chain is for generating prose. The Task Center is for background status.
 
-小说列表负责项目入口；创作中枢负责查询状态和诊断问题；自动导演负责推进准备；章节链负责生成正文；任务中心负责后台状态。
-
-当你不知道某本书停在哪里时，先从小说列表打开项目，再看导演跟进和任务中心。
+When you do not know where a book stopped, open it from Novels, then check Director follow-up and the Task Center.

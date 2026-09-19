@@ -49,4 +49,4 @@ export function isStaleAutoDirectorRunningTask(
   return now.getTime() - lastActivityAt.getTime() >= resolveStaleRunningTaskMs();
 }
 
-export const STALE_AUTO_DIRECTOR_RUNNING_MESSAGE = "自动导演任务长时间没有心跳，可能已因服务重启或内存不足中断。请检查后继续或重试。";
+export const STALE_AUTO_DIRECTOR_RUNNING_MESSAGE = "The Auto-Director task lost its heartbeat, likely from a restart or memory pressure. Check it, then continue or retry.";

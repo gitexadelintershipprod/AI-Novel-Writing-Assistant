@@ -273,11 +273,11 @@ export default function WorldWorkspace() {
     mutationFn: (worldId: string) => deleteWorld(worldId),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.worlds.all });
-      toast.success("世界样本已删除。");
+      toast.success("World samples have been removed.");
       navigate("/worlds", { replace: true });
     },
     onError: (error) => {
-      toast.error(error instanceof Error ? error.message : "删除世界样本失败。");
+      toast.error(error instanceof Error ? error.message : "Failed to delete world sample.");
     },
   });
 
@@ -311,7 +311,7 @@ export default function WorldWorkspace() {
             size="icon"
             className="mt-0.5 shrink-0 rounded-full"
             onClick={() => navigate("/worlds")}
-            aria-label="返回世界样本库"
+            aria-label="Return to world sample library"
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
@@ -319,14 +319,14 @@ export default function WorldWorkspace() {
             <Globe2 className="h-5 w-5" aria-hidden="true" />
           </div>
           <div className="min-w-0">
-            <div className="text-xs text-muted-foreground">世界样本 · 世界手册</div>
-            <h1 className="mt-1 truncate text-2xl font-semibold tracking-tight">{world?.name ?? "正在读取世界样本"}</h1>
-            {world?.version ? <div className="mt-1 text-xs text-muted-foreground">版本 v{world.version}</div> : null}
+            <div className="text-xs text-muted-foreground">World Sample · World Manual</div>
+            <h1 className="mt-1 truncate text-2xl font-semibold tracking-tight">{world?.name ?? "Reading world sample"}</h1>
+            {world?.version ? <div className="mt-1 text-xs text-muted-foreground">version v{world.version}</div> : null}
           </div>
         </div>
         <div className="flex flex-wrap items-start justify-end gap-2">
           <details className="group rounded-2xl bg-muted/25 px-4 py-2">
-            <summary className="cursor-pointer list-none text-sm font-medium marker:hidden">创作模型</summary>
+            <summary className="cursor-pointer list-none text-sm font-medium marker:hidden">Create a model</summary>
             <div className="mt-3 w-[420px] max-w-[70vw]">
               <LLMSelector />
             </div>
@@ -340,7 +340,7 @@ export default function WorldWorkspace() {
             disabled={!id || !world || deleteWorldMutation.isPending}
           >
             <Trash2 className="h-4 w-4" />
-            {deleteWorldMutation.isPending ? "删除中..." : "删除样本"}
+            {deleteWorldMutation.isPending ? "Deleting..." : "Delete sample"}
           </Button>
         </div>
       </header>
@@ -356,12 +356,12 @@ export default function WorldWorkspace() {
         className="space-y-5"
       >
         <TabsList className="h-11 w-full justify-start gap-1 overflow-x-auto rounded-full bg-muted/30 p-1">
-          <TabsTrigger value="structure" className="rounded-full px-5">手册整理</TabsTrigger>
-          <TabsTrigger value="overview" className="rounded-full px-5">阅读与图谱</TabsTrigger>
-          <TabsTrigger value="layers" className="rounded-full px-5">AI 分层</TabsTrigger>
-          <TabsTrigger value="deepening" className="rounded-full px-5">补齐设定</TabsTrigger>
-          <TabsTrigger value="consistency" className="rounded-full px-5">一致性</TabsTrigger>
-          <TabsTrigger value="assets" className="rounded-full px-5">资料与版本</TabsTrigger>
+          <TabsTrigger value="structure" className="rounded-full px-5">Manual organization</TabsTrigger>
+          <TabsTrigger value="overview" className="rounded-full px-5">Reading and Mapping</TabsTrigger>
+          <TabsTrigger value="layers" className="rounded-full px-5">AI layering</TabsTrigger>
+          <TabsTrigger value="deepening" className="rounded-full px-5">Completion settings</TabsTrigger>
+          <TabsTrigger value="consistency" className="rounded-full px-5">Consistency</TabsTrigger>
+          <TabsTrigger value="assets" className="rounded-full px-5">Information and version</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview">
@@ -414,13 +414,13 @@ export default function WorldWorkspace() {
             <>
               <Card className="rounded-3xl border-border/35 shadow-none">
                 <CardHeader className="flex flex-row items-center justify-between gap-3">
-                  <CardTitle className="text-lg">高级字段维护</CardTitle>
+                  <CardTitle className="text-lg">Advanced field maintenance</CardTitle>
                   <Button variant="ghost" size="sm" className="rounded-full" onClick={() => setAdvancedStructureOpen(false)}>
-                    返回整理手册
+                    Return to organizing manual
                   </Button>
                 </CardHeader>
                 <CardContent className="text-sm text-muted-foreground">
-                  这里用于处理势力关系、地点控制权、结构导入等细节。普通整理优先回到世界手册。
+                  This is used to handle details such as power relations, location control rights, and structure import. Ordinary sorting will give priority to returning to the world manual.
                 </CardContent>
               </Card>
               {id ? (

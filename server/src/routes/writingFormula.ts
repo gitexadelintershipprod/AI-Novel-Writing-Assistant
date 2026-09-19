@@ -35,7 +35,7 @@ const applySchema = z
     model: z.string().optional(),
   })
   .refine((value) => value.formulaId || value.formulaContent, {
-    message: "必须提供 formulaId 或 formulaContent。",
+    message: "formulaId or formulaContent is required.",
     path: ["formulaId"],
   });
 
@@ -47,7 +47,7 @@ router.get("/", async (_req, res, next) => {
     res.status(200).json({
       success: true,
       data,
-      message: "获取写作公式列表成功。",
+      message: "The writing-formula list was loaded.",
     } satisfies ApiResponse<typeof data>);
   } catch (error) {
     next(error);
@@ -61,14 +61,14 @@ router.get("/:id", validate({ params: idSchema }), async (req, res, next) => {
     if (!data) {
       res.status(404).json({
         success: false,
-        error: "写作公式不存在。",
+        error: "The writing formula does not exist.",
       } satisfies ApiResponse<null>);
       return;
     }
     res.status(200).json({
       success: true,
       data,
-      message: "获取写作公式详情成功。",
+      message: "Writing-formula details were loaded.",
     } satisfies ApiResponse<typeof data>);
   } catch (error) {
     next(error);
@@ -81,7 +81,7 @@ router.delete("/:id", validate({ params: idSchema }), async (req, res, next) => 
     await writingFormulaService.deleteFormula(id);
     res.status(200).json({
       success: true,
-      message: "删除写作公式成功。",
+      message: "The writing formula was deleted.",
     } satisfies ApiResponse<null>);
   } catch (error) {
     next(error);

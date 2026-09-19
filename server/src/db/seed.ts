@@ -13,12 +13,12 @@ async function main(): Promise<void> {
     return;
   }
 
-  console.log("系统内置创作资源已是最新，无需同步。");
+  console.log("Built-in creative resources are already up to date. No sync needed.");
 }
 
 main()
   .catch((error) => {
-    console.error("种子数据写入失败：", error);
+    console.error("Seed-data write failed:", error);
     process.exitCode = 1;
   })
   .finally(async () => {

@@ -27,7 +27,7 @@ export const generalWorkflowDefinitions: WorkflowDefinition[] = [
     resolve: () => [{
       agent: "Planner",
       tool: "list_base_characters",
-      reason: "读取基础角色库列表",
+      reason: "读取Basic character library列表",
       input: { limit: 20 },
       keyPrefix: "list_base_characters",
     }],
@@ -51,7 +51,7 @@ export const generalWorkflowDefinitions: WorkflowDefinition[] = [
     resolve: () => [{
       agent: "Planner",
       tool: "list_tasks",
-      reason: "读取当前系统任务状态",
+      reason: "读取当前系统Task status",
       input: { limit: 10 },
       keyPrefix: "list_tasks",
     }],
@@ -65,7 +65,7 @@ export const generalWorkflowDefinitions: WorkflowDefinition[] = [
         return [{
           agent: "Planner",
           tool: "select_novel_workspace",
-          reason: "将当前小说绑定为工作区",
+          reason: "将current novel绑定为工作区",
           input: { novelId: plannerInput.novelId },
           keyPrefix: "select_current_novel",
         }];
@@ -73,7 +73,7 @@ export const generalWorkflowDefinitions: WorkflowDefinition[] = [
       return [{
         agent: "Planner",
         tool: "select_novel_workspace",
-        reason: intent.novelTitle ? `将《${intent.novelTitle}》设为当前工作区` : "切换当前工作区小说",
+        reason: intent.novelTitle ? `将《${intent.novelTitle}》Set as current workspace` : "切换当前工作区小说",
         input: intent.novelTitle ? { title: intent.novelTitle } : {},
         keyPrefix: intent.novelTitle ? `select_novel_${intent.novelTitle}` : "select_novel_workspace",
       }];
@@ -86,7 +86,7 @@ export const generalWorkflowDefinitions: WorkflowDefinition[] = [
     resolve: ({ plannerInput }) => [{
       agent: "Planner",
       tool: "get_novel_context",
-      reason: "读取小说标题信息",
+      reason: "读取Novel title信息",
       input: { novelId: plannerInput.novelId },
       keyPrefix: "novel_context_title",
     }],
@@ -114,7 +114,7 @@ export const generalWorkflowDefinitions: WorkflowDefinition[] = [
         actions.push({
           agent: "Planner",
           tool: "get_run_failure_reason",
-          reason: "读取当前运行失败原因",
+          reason: "Read why the current run failed",
           input: { runId: plannerInput.currentRunId },
           keyPrefix: "run_failure_reason",
         });
@@ -124,8 +124,8 @@ export const generalWorkflowDefinitions: WorkflowDefinition[] = [
           agent: "Planner",
           tool: "explain_generation_blocker",
           reason: chapterOrder != null
-            ? `诊断第${chapterOrder}章生成阻塞原因`
-            : "诊断当前小说最近一次生成阻塞原因",
+            ? `诊断Chapter ${chapterOrder}生成阻塞原因`
+            : "Diagnose why this novel's latest generation is blocked",
           input: chapterOrder != null
             ? { novelId: plannerInput.novelId, chapterOrder, runId: plannerInput.currentRunId }
             : { novelId: plannerInput.novelId, runId: plannerInput.currentRunId },
@@ -142,7 +142,7 @@ export const generalWorkflowDefinitions: WorkflowDefinition[] = [
     resolve: ({ plannerInput }) => [{
       agent: "Reviewer",
       tool: "get_character_states",
-      reason: "读取角色状态",
+      reason: "Read character state",
       input: { novelId: plannerInput.novelId },
       keyPrefix: "character_states",
     }],
@@ -154,7 +154,7 @@ export const generalWorkflowDefinitions: WorkflowDefinition[] = [
     resolve: ({ plannerInput }) => [{
       agent: "Continuity",
       tool: "get_timeline_facts",
-      reason: "读取时间线事实",
+      reason: "Read timeline facts",
       input: { novelId: plannerInput.novelId, limit: 30 },
       keyPrefix: "timeline_facts",
     }],
@@ -194,19 +194,19 @@ export const generalWorkflowDefinitions: WorkflowDefinition[] = [
     resolve: ({ plannerInput }) => [{
       agent: "Planner",
       tool: "get_novel_context",
-      reason: "读取当前小说概览，作为设定备选的基础信息",
+      reason: "读取current novel概览，作为设定备选的Basic information",
       input: { novelId: plannerInput.novelId },
       keyPrefix: "setup_ideation_context",
     }, {
       agent: "Planner",
       tool: "get_story_bible",
-      reason: "读取当前小说圣经，补充已有设定约束",
+      reason: "Read the current novel bible and add existing setting constraints",
       input: { novelId: plannerInput.novelId },
       keyPrefix: "setup_ideation_bible",
     }, {
       agent: "Planner",
       tool: "get_world_constraints",
-      reason: "读取当前小说绑定世界观的约束信息",
+      reason: "读取current novelBind the world的约束信息",
       input: { novelId: plannerInput.novelId },
       keyPrefix: "setup_ideation_world",
     }],

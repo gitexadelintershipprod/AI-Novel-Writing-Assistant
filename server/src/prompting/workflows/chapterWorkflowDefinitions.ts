@@ -22,7 +22,7 @@ export const chapterWorkflowDefinitions: WorkflowDefinition[] = [
         return normalizedOrders.slice(0, 5).map((order) => ({
           agent: "Planner",
           tool: "get_chapter_content_by_order",
-          reason: `读取第${order}章正文`,
+          reason: `读取Chapter ${order}正文`,
           input: { novelId: plannerInput.novelId, chapterOrder: order },
           keyPrefix: `chapter_${order}`,
         }));
@@ -31,7 +31,7 @@ export const chapterWorkflowDefinitions: WorkflowDefinition[] = [
         return [{
           agent: "Planner",
           tool: "summarize_chapter_range",
-          reason: "按章节范围汇总内容",
+          reason: "按Chapter scope汇总内容",
           input: { novelId: plannerInput.novelId, startOrder: range.startOrder, endOrder: range.endOrder, mode: "summary" },
           keyPrefix: `chapter_range_${range.startOrder}_${range.endOrder}`,
         }];
@@ -91,13 +91,13 @@ export const chapterWorkflowDefinitions: WorkflowDefinition[] = [
       return [{
         agent: "Planner",
         tool: "preview_pipeline_run",
-        reason: "预览写作范围",
+        reason: "Preview the writing range",
         input: { novelId: plannerInput.novelId, startOrder, endOrder },
         keyPrefix: `preview_${startOrder}_${endOrder}`,
       }, {
         agent: "Planner",
         tool: "queue_pipeline_run",
-        reason: "创建写作流水线任务",
+        reason: "Create a writing-pipeline task",
         input: { novelId: plannerInput.novelId, startOrder, endOrder },
         keyPrefix: `queue_${startOrder}_${endOrder}`,
       }];
@@ -114,21 +114,21 @@ export const chapterWorkflowDefinitions: WorkflowDefinition[] = [
           {
             agent: "Planner",
             tool: "get_chapter_content_by_order",
-            reason: "读取待改写章节正文",
+            reason: "Read the chapter body to rewrite",
             input: { novelId: plannerInput.novelId, chapterOrder: order },
             keyPrefix: `rewrite_read_${order}`,
           },
           {
             agent: "Planner",
             tool: "preview_pipeline_run",
-            reason: `重写第${order}章预览`,
+            reason: `重写Chapter ${order}预览`,
             input: { novelId: plannerInput.novelId, startOrder: order, endOrder: order },
             keyPrefix: `rewrite_preview_${order}`,
           },
           {
             agent: "Planner",
             tool: "queue_pipeline_run",
-            reason: `重写第${order}章执行`,
+            reason: `重写Chapter ${order}执行`,
             input: { novelId: plannerInput.novelId, startOrder: order, endOrder: order },
             keyPrefix: `rewrite_queue_${order}`,
           },
@@ -138,7 +138,7 @@ export const chapterWorkflowDefinitions: WorkflowDefinition[] = [
         return [{
           agent: "Planner",
           tool: "get_chapter_content",
-          reason: "读取待改写章节正文",
+          reason: "Read the chapter body to rewrite",
           input: { novelId: plannerInput.novelId, chapterId: intent.chapterSelectors.chapterId },
           keyPrefix: "rewrite_read_by_id",
         }];
@@ -158,7 +158,7 @@ export const chapterWorkflowDefinitions: WorkflowDefinition[] = [
       return [{
         agent: "Writer",
         tool: "save_chapter_draft",
-        reason: "保存章节草稿",
+        reason: "Save Chapter Draft",
         input: intent.chapterSelectors.chapterId
           ? { novelId: plannerInput.novelId, chapterId: intent.chapterSelectors.chapterId, content: intent.content }
           : { novelId: plannerInput.novelId, chapterOrder: order, content: intent.content },
@@ -194,13 +194,13 @@ export const chapterWorkflowDefinitions: WorkflowDefinition[] = [
       return [{
         agent: "Planner",
         tool: "preview_pipeline_run",
-        reason: "预览写作范围",
+        reason: "Preview the writing range",
         input: { novelId: plannerInput.novelId, startOrder, endOrder },
         keyPrefix: `preview_${startOrder}_${endOrder}`,
       }, {
         agent: "Planner",
         tool: "queue_pipeline_run",
-        reason: "创建写作流水线任务",
+        reason: "Create a writing-pipeline task",
         input: { novelId: plannerInput.novelId, startOrder, endOrder },
         keyPrefix: `queue_${startOrder}_${endOrder}`,
       }];

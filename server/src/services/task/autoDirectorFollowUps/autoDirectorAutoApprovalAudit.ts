@@ -79,14 +79,14 @@ function buildSummary(input: {
   const checkpointSummary = input.checkpointSummary?.trim();
   if (input.checkpointType === "replan_required") {
     if (checkpointSummary) {
-      return `AI 已记录重规划提醒，并继续推进。${checkpointSummary}`;
+      return `AI recorded a replan reminder and continued.${checkpointSummary}`;
     }
-    return "AI 已记录重规划提醒，并继续推进。";
+    return "AI recorded a replan reminder and continued.";
   }
   if (checkpointSummary) {
-    return `AI 已自动通过「${input.approvalPointLabel}」，并继续推进。${checkpointSummary}`;
+    return `AI automatically passed "${input.approvalPointLabel}" and kept going. ${checkpointSummary}`;
   }
-  return `AI 已自动通过「${input.approvalPointLabel}」，并继续推进。`;
+  return `AI automatically passed "${input.approvalPointLabel}" and kept going.`;
 }
 
 export function getAutoApprovalPointLabel(code: DirectorAutoApprovalPointCode): string {

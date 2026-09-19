@@ -31,7 +31,7 @@ export class NovelCoreCrudService {
 
   private validateStoryModeSelection(primaryStoryModeId?: string | null, secondaryStoryModeId?: string | null): void {
     if (primaryStoryModeId && secondaryStoryModeId && primaryStoryModeId === secondaryStoryModeId) {
-      throw new AppError("主流派模式和副流派模式不能选择同一项。", 400);
+      throw new AppError("The main and supporting story modes cannot be the same.", 400);
     }
   }
 
@@ -159,7 +159,7 @@ export class NovelCoreCrudService {
         const world = normalized.world ?? (normalized.novelWorld
           ? {
             id: normalized.novelWorld.sourceWorld?.id ?? normalized.novelWorld.id,
-            name: normalized.novelWorld.sourceWorld?.name ?? normalized.novelWorld.title ?? "本书世界",
+            name: normalized.novelWorld.sourceWorld?.name ?? normalized.novelWorld.title ?? "book world",
             worldType: normalized.novelWorld.sourceWorld?.worldType ?? null,
           }
           : null);
@@ -432,7 +432,7 @@ export class NovelCoreCrudService {
       },
     });
     if (!existing) {
-      throw new Error("小说不存在");
+      throw new Error("The novel does not exist");
     }
 
     const nextWritingMode = input.writingMode ?? (existing.writingMode === "continuation" ? "continuation" : "original");
@@ -585,7 +585,7 @@ export class NovelCoreCrudService {
   async updateChapter(novelId: string, chapterId: string, input: Partial<ChapterInput>) {
     const exists = await prisma.chapter.findFirst({ where: { id: chapterId, novelId }, select: { id: true } });
     if (!exists) {
-      throw new Error("章节不存在");
+      throw new Error("The chapter does not exist");
     }
 
     const chapter = await prisma.chapter.update({
@@ -646,7 +646,7 @@ export class NovelCoreCrudService {
       },
     });
     if (!chapter) {
-      throw new Error("章节不存在");
+      throw new Error("The chapter does not exist");
     }
     const canRemove = chapter.generationState === "planned"
       && (chapter.chapterStatus ?? "unplanned") === "unplanned"
@@ -657,13 +657,13 @@ export class NovelCoreCrudService {
       && !chapter.repairHistory?.trim()
       && !chapter.riskFlags?.trim();
     if (!canRemove) {
-      throw new Error("只能移除尚未进入写作或规划流程的空白手动章节");
+      throw new Error("Only blank manual chapters that have not entered writing or planning can be removed");
     }
     queueRagDelete("chapter", chapterId);
     queueRagDelete("chapter_summary", chapterId);
     const deleted = await prisma.chapter.deleteMany({ where: { id: chapterId, novelId } });
     if (deleted.count === 0) {
-      throw new Error("章节不存在");
+      throw new Error("The chapter does not exist");
     }
   }
 }

@@ -81,7 +81,7 @@ async function syncArcCompatibility(
     });
     const payload = {
       title: volume.title,
-      objective: volume.mainPromise ?? volume.summary ?? `推进第${volume.sortOrder}卷主线。`,
+      objective: volume.mainPromise ?? volume.summary ?? `Advance the Volume ${volume.sortOrder} mainline.`,
       phaseLabel: volume.escalationMode ?? null,
       hookTarget: volume.nextVolumeHook ?? null,
       rawPlanJson: JSON.stringify({
@@ -107,7 +107,7 @@ async function syncArcCompatibility(
         })),
       }),
       revealsJson: volume.openPayoffs.length > 0 ? JSON.stringify(volume.openPayoffs) : null,
-      mustAdvanceJson: JSON.stringify(volume.chapters.map((chapter) => `第${chapter.chapterOrder}章 ${chapter.title}`)),
+      mustAdvanceJson: JSON.stringify(volume.chapters.map((chapter) => `Chapter ${chapter.chapterOrder} ${chapter.title}`)),
       status: "active",
       externalRef,
     };
@@ -592,7 +592,7 @@ export async function ensureVolumeWorkspaceDocument(params: {
         version: 1,
         status: "active",
         contentJson: serializeVolumeWorkspaceDocument(legacyDocument),
-        diffSummary: "从旧版主线/大纲自动回填为卷级方案。",
+        diffSummary: "Automatically backfilled from the legacy mainline/outline into a volume plan.",
       },
     });
     await persistActiveVolumeWorkspace(tx, novelId, {

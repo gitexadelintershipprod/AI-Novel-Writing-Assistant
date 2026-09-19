@@ -1,71 +1,70 @@
-# 题材基底库
+# Genre library
 
-题材基底库用于整理作品的类型基础。它帮助你说明一本书大致属于什么题材、读者会期待什么、这个题材常见的卖点和边界是什么。
+The genre library organizes a work’s type foundation. It helps you say what kind of book this roughly is, what readers will expect, and what selling points and boundaries this genre usually has.
 
+## What the genre library can do for you
 
-## 题材基底库能帮你做什么
+- Give a new book a clear genre direction, for example fantasy, urban, science fiction, mystery, historical, cyber, or end-times.
+- Record common reader expectations, core payoffs, world boundaries, and pitfalls for a genre.
+- Help Auto-Director, project settings, character preparation, and chapter generation know what this book should feel like.
+- Turn type experience you often write or study into reusable assets.
 
-- 为新书准备清晰的题材方向，例如玄幻、都市、科幻、悬疑、历史、赛博、末世等。
-- 记录某类题材的常见读者期待、核心爽点、世界边界和禁忌误区。
-- 让自动导演、项目设定、角色准备和章节生成更清楚“这本书应该像什么”。
-- 把你常写、常研究的类型经验沉淀成可复用资产。
+## When to use it
 
-## 适合什么时候用
+- Before opening a new book, the genre position is not fully set.
+- You want to turn a fuzzy idea into a clearer type direction.
+- You want the same kind of novels to share a stable genre language.
+- System-generated directions feel too generic and need a more specific type reference.
+- You want to organize selling points, pitfalls, and reader feeling for a genre you often write.
 
-- 开新书前，还没有完全确定题材定位。
-- 想把一个模糊灵感整理成更明确的类型方向。
-- 想让同一类小说共享稳定的题材语言。
-- 觉得系统生成的故事方向偏泛，需要更具体的类型参照。
-- 想整理自己常写题材的卖点、雷区和读者感受。
+## Before you start
 
-## 开始前准备
+You do not need a complete genre encyclopedia on day one. Start with the genre you are about to write and prepare the most important information:
 
-你不需要一开始就写完整题材百科。更好的做法是先围绕你马上要写的题材准备最关键的信息：
+- what this genre usually promises readers;
+- common protagonist situations and growth directions;
+- basic world or era boundaries;
+- which elements make readers feel “this is that genre”;
+- which writing habits drift away from it.
 
-- 这个题材通常给读者什么期待。
-- 主角常见处境和成长方向。
-- 世界或时代背景有什么基本边界。
-- 哪些元素会让读者觉得“像这个题材”。
-- 哪些写法容易跑偏。
+More is not always better. Maintain the genres you will actually use, then add more later.
 
-题材基底不是越多越好。先维护你真正会用到的题材，后续再逐步补充。
+## Recommended path
 
-## 推荐使用路径
+1. Open Genre library.
+2. Choose an existing genre or create the genre you are about to write.
+3. Fill in genre position, reader expectation, and core selling points first.
+4. Then add world boundaries, common conflicts, protagonist types, and risk notes.
+5. When opening a new book, use this genre in project settings or Auto-Director.
+6. If generated results drift, come back and add clearer boundaries.
 
-1. 打开“题材基底库”。
-2. 选择已有题材，或创建一个你准备写的题材。
-3. 先补齐题材定位、读者期待和核心卖点。
-4. 再补充世界边界、常见冲突、主角类型和风险提示。
-5. 开新书时，在项目设定或自动导演里参考这个题材。
-6. 如果生成结果偏离题材，再回到题材基底库补充更明确的边界。
+## How it enters later writing
 
-## 如何进入后续创作链路
+A genre base mainly serves book opening and planning. It affects a book’s shelf position, selling-point language, world choice, character function, and chapter pacing.
 
-题材基底主要服务开书和规划。它会影响一本书的货架定位、卖点表达、世界选择、角色功能和章节节奏。
+Think of it as a note about which reading market this book belongs to. It does not replace a concrete outline, and it does not replace world or character setting. It gives those modules a direction.
 
-你可以把它理解成“这本书属于哪个阅读市场”的说明。它不替代具体大纲，也不替代世界观和角色设定，但它会给这些模块提供方向。
+Genre bases are often used with story modes:
 
-题材基底常和推进模式一起使用：
+- Genre base answers “what this book is like.”
+- Story mode answers “what keeps this book moving.”
 
-- 题材基底回答“这本书像什么”。
-- 推进模式回答“这本书靠什么不断往前走”。
+When both are clear at book opening, later planning and prose stay more stable.
 
-开书时两者都清楚，后续规划和正文会更稳定。
+## Common questions
 
-## 常见问题
+### How is a genre base different from a story mode?
 
-### 题材基底和推进模式有什么区别
+A genre base is closer to the shelf and reader expectation, for example “urban supernatural,” “cultivation xianxia,” or “mystery.” A story mode is closer to the engine, for example “level up,” “expand a business,” “solve a mystery,” or “relationship tension.”
 
-题材基底更像作品的货架和读者预期，例如“都市异能”“仙侠修真”“悬疑推理”。推进模式更像故事的发动机，例如“升级变强”“经营扩张”“解谜推进”“关系拉扯”。
+### How detailed does one genre need to be?
 
-### 一个题材要写多细
+On first use, write only what can guide book opening: position, reader expectation, core selling points, world boundaries, and risks. Add more if generated results still feel generic.
 
-第一次只写能指导开书的部分即可：定位、读者期待、核心卖点、世界边界和风险。等你发现生成结果仍然偏泛，再继续补充。
+### Does a genre base generate chapter text directly?
 
-### 题材基底会直接生成正文吗
+No. It is a long-term reference asset. It takes part in direction, planning, and chapter context. Actual prose still happens in the novel workspace and chapter execution.
 
-不会。它是长期参考资产，会参与方向、规划和正文的上下文判断。真正写正文仍在小说工作台和章节执行中完成。
+### I do not know how to name a genre. What now?
 
-### 不知道题材怎么命名怎么办
-
-先用读者能理解的说法命名，例如“都市异能升级”“女频复仇爽文”“末世基地经营”。名字不必专业，但要能让你一眼看懂它服务哪类作品。
+Name it in language a reader would understand, for example “urban power-up,” “revenge romance,” or “end-times base management.” The name does not need to be specialist. It should tell you at a glance which kind of work it serves.

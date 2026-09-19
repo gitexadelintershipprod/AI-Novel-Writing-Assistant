@@ -165,7 +165,7 @@ export const DIRECTOR_INITIALIZATION_PLACEHOLDER_VOLUME_STRATEGY_HASH = stableDi
 ) as string;
 
 const INITIALIZATION_PLACEHOLDER_VOLUME_ID_PREFIX = "legacy-volume-";
-const PLACEHOLDER_VOLUME_TEXT_PREFIX = "待补全";
+const PLACEHOLDER_VOLUME_TEXT_PREFIX = "To be completed";
 
 function isPlaceholderText(value: string | null | undefined): boolean {
   const normalized = value?.trim();

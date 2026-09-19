@@ -21,13 +21,13 @@ export default function AppVersionBadge({ className }: AppVersionBadgeProps) {
     const isDownloading = updater.status === "downloading";
     const isChecking = updater.status === "checking";
     const label = isDownloaded
-      ? "重启安装"
+      ? "Restart installation"
       : isAvailable
-        ? "立即更新"
+        ? "Update now"
         : isDownloading
-          ? `更新 ${Math.round(updater.progressPercent ?? 0)}%`
+          ? `Updating ${Math.round(updater.progressPercent ?? 0)}%`
           : isChecking
-            ? "检查更新"
+            ? "Check for updates"
             : currentDesktopVersion;
     const Icon = isDownloaded ? RotateCw : isAvailable || isDownloading ? Download : isChecking ? RefreshCw : null;
 
@@ -43,8 +43,8 @@ export default function AppVersionBadge({ className }: AppVersionBadgeProps) {
                 : "border-border/70 bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground",
               className,
             )}
-            title="打开版本与更新"
-            aria-label={`打开版本与更新，${label}`}
+            title="Open versions and updates"
+            aria-label={`Open Versions and Updates,${label}`}
           >
             {Icon ? <Icon className={cn("h-3 w-3", isChecking && "animate-spin")} aria-hidden="true" /> : null}
             {label}

@@ -11,7 +11,7 @@ const option = (id, category, label) => ({
   id,
   category,
   label,
-  hint: `${label}的故事作用`,
+  hint: `${label} story function`,
   relevance: "medium",
 });
 
@@ -55,8 +55,8 @@ test("story constellation interleaves five visible options from all seven web-no
 test("foundation options rotate while keeping the current selection visible", () => {
   const options = Array.from({ length: 7 }, (_, index) => ({
     id: `foundation-${index + 1}`,
-    label: `方向${index + 1}`,
-    hint: "方向说明",
+    label: `Direction ${index + 1}`,
+    hint: "Direction note",
   }));
 
   assert.deepEqual(

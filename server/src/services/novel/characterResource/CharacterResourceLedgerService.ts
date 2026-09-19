@@ -139,7 +139,7 @@ function buildStructuredRiskSignals(input: {
   return [{
     code: input.riskLevel === "high" ? "resource_high_risk_commit" : "resource_medium_risk_commit",
     severity: input.riskLevel === "high" ? "high" : "medium",
-    summary: note || `${input.resourceName} 的资源变更需要后续写作谨慎处理。`,
+    summary: note || `${input.resourceName} resource changes need careful handling in later writing.`,
   }];
 }
 
@@ -313,7 +313,7 @@ export class CharacterResourceLedgerService {
       sourceRefsJson: stringifyJson([{
         kind: "chapter_content",
         refId: input.chapterId ?? null,
-        refLabel: input.chapterOrder ? `第${input.chapterOrder}章` : "章节内容",
+        refLabel: input.chapterOrder ? `Chapter ${input.chapterOrder}` : "Chapter content",
         chapterId: input.chapterId ?? null,
         chapterOrder: input.chapterOrder ?? null,
       }]),
@@ -366,18 +366,18 @@ export class CharacterResourceLedgerService {
     pendingProposalItems: CharacterResourceProposalSummary[];
   }): string {
     const parts = [
-      input.availableItems.length > 0 ? `可用关键资源 ${input.availableItems.length} 项` : "",
-      input.setupNeededItems.length > 0 ? `需要留意铺垫 ${input.setupNeededItems.length} 项` : "",
-      input.blockedItems.length > 0 ? `不可直接使用 ${input.blockedItems.length} 项` : "",
-      input.highRiskCommittedItems.length > 0 ? `高风险已入账资源 ${input.highRiskCommittedItems.length} 项` : "",
-      input.pendingProposalItems.length > 0 ? `待确认资源变更 ${input.pendingProposalItems.length} 条` : "",
+      input.availableItems.length > 0 ? `可用key resources ${input.availableItems.length} items` : "",
+      input.setupNeededItems.length > 0 ? `需要留意铺垫 ${input.setupNeededItems.length} items` : "",
+      input.blockedItems.length > 0 ? `不可直接使用 ${input.blockedItems.length} items` : "",
+      input.highRiskCommittedItems.length > 0 ? `High risk has been accounted for资源 ${input.highRiskCommittedItems.length} items` : "",
+      input.pendingProposalItems.length > 0 ? `待确认资源变更 ${input.pendingProposalItems.length} items` : "",
     ].filter(Boolean);
-    return parts.join("；") || "当前章节没有需要特别提示的角色资源。";
+    return parts.join("；") || "This chapter has no character resources that need a special hint.";
   }
 
   private emptyContext(): CharacterResourceContext {
     return {
-      summary: "当前章节没有需要特别提示的角色资源。",
+      summary: "This chapter has no character resources that need a special hint.",
       availableItems: [],
       setupNeededItems: [],
       blockedItems: [],

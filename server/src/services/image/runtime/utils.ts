@@ -24,7 +24,7 @@ export async function saveImageToDisk(imageUrl: string, destPath: string): Promi
     await fs.writeFile(destPath, Buffer.from(b64, "base64"));
   } else {
     const resp = await fetch(imageUrl);
-    if (!resp.ok) throw new Error(`图片下载失败 (${resp.status}): ${imageUrl}`);
+    if (!resp.ok) throw new Error(`Image download failed (${resp.status}): ${imageUrl}`);
     await fs.writeFile(destPath, Buffer.from(await resp.arrayBuffer()));
   }
 }

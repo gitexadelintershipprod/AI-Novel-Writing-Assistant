@@ -1,170 +1,169 @@
-# 提示词管理
+# Prompt management
 
-提示词管理用于查看和维护产品级 AI 任务使用的提示词资产。它适合开发者、调试者和需要理解任务行为的高级用户。
+Prompt management is for viewing and maintaining the prompt assets used by product-level AI tasks. It is mainly for developers, people debugging, and advanced users who need to understand task behavior.
 
+## When to open it
 
-## 适合什么时候打开
+- You want to see how a kind of AI task organizes its input.
+- One task’s output stays unstable and you need to check the prompt version.
+- You need to confirm how prompts bind to model routing.
+- A developer is preparing to adjust structured output or a task contract.
 
-- 想了解某类 AI 任务如何组织输入。
-- 某个任务输出持续不稳定，需要检查提示词版本。
-- 需要确认提示词和模型路由的绑定关系。
-- 开发者准备调整结构化输出或任务契约。
+Ordinary writing users do not need to visit Prompt management often. The main writing chain should move through Auto-Director, Creative Hub, and the Task Center.
 
-普通写作用户不需要频繁进入提示词管理。创作主链应优先通过自动导演、创作中枢和任务中心推进。
+## Page layout
 
-## 界面结构
+The prompt management page has three main areas:
 
-提示词管理页分成三个主要区域：
+- Left catalog: prompt assets grouped by task type. Chapter writing maps to `novel.chapter.writer`, usually under writing or chapter-production groups.
+- Center editor: view system / human message templates, edit safe slots or the advanced template, generate a preview, and test the current draft when needed.
+- Right context panel: see which notes were injected into this preview, for example the book contract, chapter task, character hard facts, obligation contract, timeline, current situation, and style contract.
 
-- 左侧提示词目录：按任务类型列出提示词资产。正文生成对应 `novel.chapter.writer`，通常归在正文写作或章节生产相关分组中。
-- 中间编辑区：查看 system / human 等消息模板，修改安全槽位或高级模板，生成预览，并按需测试当前草稿产出。
-- 右侧上下文面板：查看本次预览注入了哪些资料，例如书级合约、章节任务、角色硬事实、义务合约、时间线、当前局面和风格合约。
+The bottom bar is for generating a preview, testing output, saving a book override, resetting edits, or restoring the official template. Generate preview shows the final prompt and context. It does not call a model. Test output uses the current draft and the chosen model to generate one result.
 
-底部操作区用于生成预览、测试产出、保存本书覆盖、重置修改或恢复官方模板。生成预览只展示最终提示词和上下文，不会调用模型；测试产出会使用当前草稿和所选模型生成一次结果。
+## Prompt families
 
-## 提示词分类
+Prompts are usually grouped by task family, for example:
 
-提示词通常按任务家族组织，例如：
+- book-opening direction;
+- world and character preparation;
+- volume planning and chapter planning;
+- chapter writing;
+- review and repair;
+- book analysis;
+- knowledge-library summary;
+- style extraction.
 
-- 开书方向。
-- 世界和角色准备。
-- 卷规划和章节计划。
-- 正文生成。
-- 审核和修复。
-- 拆书分析。
-- 知识库摘要。
-- 写法提取。
+Each prompt should map to a clear task. Do not pile unrelated instructions into one prompt.
 
-每类提示词应对应明确任务，而不是把大量无关指令堆在一起。
+## Editing the chapter-writing prompt
 
-## 编辑正文生成提示词
+The chapter-writing prompt is the one people debug most. Path:
 
-正文生成提示词是最常被调试的提示词。进入方式：
+1. Open Prompt management.
+2. In the left catalog, choose `novel.chapter.writer`.
+3. Choose book scope, then the novel and chapter to preview.
+4. In the center, switch Safe slots or Advanced template.
+5. Click Generate preview and check the final messages plus the right-side context injection.
+6. To verify the effect, click Test output, choose a test model in the dialog, and start the test.
 
-1. 打开“提示词管理”。
-2. 在左侧目录选择 `novel.chapter.writer`。
-3. 选择本书范围，并选择要预览的小说和章节。
-4. 在中间区域切换“安全槽位”或“高级模板”。
-5. 点击“生成预览”，检查最终 messages 和右侧上下文注入结果。
-6. 需要验证效果时，点击“测试产出”，在弹窗中选择测试模型并开始测试。
+Safe slots are for local rules such as tone, pacing, Anti-AI rules, or extra writing requirements. They do not change the prompt’s overall structure, so they fit most debugging.
 
-安全槽位适合修改局部规则，例如语气、节奏、反 AI 味规则或补充写作要求。它不会改变提示词的整体结构，适合多数调试场景。
+Advanced template is for mature users who want to fully adjust the `novel.chapter.writer` system / human templates. It only affects chapter writing for the current book. It does not open free replacement of schema, context policy, post-processing checks, or other prompts.
 
-高级模板适合成熟用户完整调整 `novel.chapter.writer` 的 system / human 模板。它只作用于当前书籍的正文生成，不开放 schema、上下文策略、后处理校验或其他提示词的自由替换。
+## Visual reference tags
 
-## 可视化引用标签
+Advanced templates use visual reference tags by default. In the editor you see labels such as “full book contract,” “Tasks in this chapter,” “character hard facts,” “timeline,” “chapter title,” and “tone and pacing,” instead of having to remember `{{context.book_contract}}`, `{{input.chapterTitle}}`, or `{{slot.tone_and_pacing}}`.
 
-高级模板默认使用可视化引用标签。编辑器里看到的是“书级合约”“章节任务”“角色硬事实”“时间线”“章节标题”“语气与节奏”这类中文标签，而不是要求用户记住 `{{context.book_contract}}`、`{{input.chapterTitle}}` 或 `{{slot.tone_and_pacing}}`。
+How to use them:
 
-使用方法：
+- Type `@` in the editor and choose context, a run variable, or a slot from the reference menu.
+- After you choose, a tag is inserted. On save and preview, the system still compiles it to the underlying template token.
+- Hover a tag to see the key, original token, description, and whether it is required context.
+- Delete a tag and insert again with `@` when you need to replace a wrong reference.
+- If the template contains an unrecognized token, the editor keeps the original text and shows an error state, so the text is not silently dropped.
 
-- 在编辑器里输入 `@`，从引用菜单选择上下文、运行变量或槽位。
-- 选择后会插入一个标签；保存和预览时，系统仍会把它编译为底层模板 token。
-- 鼠标悬停标签可以查看 key、原始 token、说明和是否为必需上下文。
-- 删除标签后重新用 `@` 插入，适合替换错误引用。
-- 如果模板里存在未识别 token，编辑器会保留原始内容并显示异常状态，方便排查但不会悄悄丢失文本。
+Common tag meanings:
 
-常见标签含义：
-
-| 类型 | 标签示例 | 用途 |
+| Type | Example labels | Use |
 | --- | --- | --- |
-| 上下文 | 书级合约、章节任务、时间线、角色硬事实 | 把当前书籍和章节的资料注入正文生成 |
-| 运行变量 | 章节标题、目标字数、章节序号 | 使用本次运行时传入的参数 |
-| 槽位 | 语气与节奏、反 AI 味规则、自定义补充规则 | 复用安全槽位中的可编辑规则 |
+| Context | full book contract, Tasks in this chapter, timeline, character hard facts | Inject current book and chapter notes into chapter writing |
+| Run variable | chapter title, target word count, chapter number | Use parameters passed in for this run |
+| Slot | tone and pacing, Anti-AI rules, custom extra rules | Reuse editable rules from safe slots |
 
-## 源码视图
+## Source view
 
-高级模板保留源码视图，适合调试底层模板：
+Advanced templates keep a source view for debugging the underlying template:
 
-- 可视化视图面向日常编辑，优先显示中文标签。
-- 源码视图显示真实模板文本，例如 `{{context.chapter_mission}}`。
-- 从源码视图切回可视化视图后，已注册引用会重新显示为标签。
+- The visual view is for everyday editing and prefers readable labels.
+- The source view shows the real template text, for example `{{context.chapter_mission}}`.
+- After you switch from source view back to visual view, registered references show as tags again.
 
-如果只是调整写作效果，优先使用可视化视图和 `@` 引用菜单。只有在排查 token、复制模板或确认编译结果时，再切换源码视图。
+If you are only adjusting writing effect, stay in the visual view and the `@` reference menu. Switch to source view when you are tracing tokens, copying a template, or confirming the compiled result.
 
-## 上下文注入面板
+## Context injection panel
 
-右侧上下文面板用于确认模型实际会看到哪些资料。它会显示：
+The right context panel confirms what the model will actually see. It shows:
 
-- 上下文块名称和分组。
-- 是否为必需上下文。
-- token 估算。
-- 当前是否被选中、裁剪、摘要或缺失。
-- 预览内容，用于检查资料是否来自当前小说和当前章节。
+- context-block name and group;
+- whether it is required context;
+- token estimate;
+- whether it is currently selected, trimmed, summarized, or missing;
+- preview content, so you can check that the notes come from the current novel and chapter.
 
-必需上下文由系统治理规则锁定，不能在界面中关闭。正文生成常见必需块包括书级合约、章节任务、角色硬事实、义务合约、风格合约和时间线。这样可以避免用户误删关键资料，导致章节脱离主线或违反前文状态。
+Required context is locked by system governance rules and cannot be turned off in the UI. Common required blocks for chapter writing include the book contract, chapter task, character hard facts, obligation contract, style contract, and timeline. That prevents accidentally dropping key notes, which can send a chapter off the main line or against earlier state.
 
-## 预览、测试与保存
+## Preview, test, and save
 
-推荐每次修改后按这个顺序操作：
+After each edit, work in this order:
 
-1. 点击“生成预览”，检查 system / human messages。
-2. 查看右侧上下文，确认资料来自目标小说和目标章节。
-3. 点击“测试产出”，在弹窗中选择测试模型，查看当前草稿在真实模型下的返回。
-4. 如果只是局部调整，优先保存为本书覆盖。
-5. 如果高级模板改坏，可以回滚历史版本或恢复官方模板。
+1. Click Generate preview and check the system / human messages.
+2. Check the right-side context and confirm the notes come from the target novel and chapter.
+3. Click Test output, choose a test model in the dialog, and see how the current draft behaves on a real model.
+4. For a local adjustment, save it as a book override first.
+5. If an advanced template goes wrong, roll back a history version or restore the official template.
 
-生成预览和测试产出承担不同职责：
+Generate preview and Test output do different jobs:
 
-| 操作 | 作用 | 是否调用模型 |
+| Action | What it does | Calls a model? |
 | --- | --- | --- |
-| 生成预览 | 查看最终 messages、上下文注入、缺失资料和诊断信息 | 否 |
-| 测试产出 | 用当前草稿和所选模型生成一次结果，判断改动效果 | 是 |
+| Generate preview | Show final messages, context injection, missing notes, and diagnostics | No |
+| Test output | Generate one result with the current draft and chosen model, so you can judge the edit | Yes |
 
-测试产出不会要求先保存草稿。结构化提示词会显示解析后的 JSON 和修复次数，文本提示词会显示模型返回正文；如果测试不理想，可以继续调整后再保存。
+Test output does not require saving the draft first. Structured prompts show parsed JSON and repair counts. Text prompts show the model’s returned prose. If the test is weak, keep editing before you save.
 
-保存高级模板会生成本书版本历史。恢复官方模板不会删除历史版本，后续仍可查看和回滚。
+Saving an advanced template creates book version history. Restoring the official template does not delete history. You can still view and roll back later.
 
-## 使用边界
+## Boundaries
 
-提示词管理不会绕开系统治理规则：
+Prompt management does not bypass system governance rules:
 
-- 不能关闭 required context。
-- 不能在页面里修改 `contextPolicy`。
-- 不能修改结构化输出 schema。
-- 不能关闭正文生成后的校验、修复或状态同步链路。
-- 高级模板第一优先覆盖正文生成 `novel.chapter.writer`，其他提示词仍以安全槽位和预览为主。
-- 测试产出只执行已注册提示词和当前草稿，不提供任意 system prompt 绕过入口。
+- You cannot turn off required context.
+- You cannot edit `contextPolicy` on the page.
+- You cannot edit the structured-output schema.
+- You cannot turn off chapter-writing validation, repair, or state-sync chains.
+- Advanced template first covers chapter writing `novel.chapter.writer`. Other prompts stay on safe slots and preview.
+- Test output only runs registered prompts and the current draft. It is not a free system-prompt bypass.
 
-如果问题来自小说资料缺失、章节任务不完整、模型能力不足或结构化输出不稳定，单纯改提示词可能无法解决。应先回到对应模块补齐资料或检查任务失败原因。
+If the problem is missing novel notes, an incomplete chapter task, a weak model, or unstable structured output, editing the prompt alone may not fix it. Return to the matching module to fill notes or check the task failure first.
 
-## 编辑提示词前先确认
+## Check these before you edit a prompt
 
-修改提示词前，建议先确认：
+Before changing a prompt, confirm:
 
-- 当前问题是否真的来自提示词。
-- 模型路由是否合适。
-- 输入数据是否完整。
-- 输出 schema 是否被遵守。
-- 失败是否可通过重试或换模型解决。
+- whether the current problem really comes from the prompt;
+- whether model routing is a fit;
+- whether input data is complete;
+- whether the output schema is being followed;
+- whether retry or a model switch can solve it.
 
-提示词不是所有问题的第一修复点。结构化输出、模型能力、上下文资料和任务状态都可能影响结果。
+A prompt is not the first fix for every problem. Structured output, model capability, context notes, and task state can all affect the result.
 
-## 版本和回退
+## Versions and rollback
 
-提示词调整会影响后续 AI 任务。建议保留版本意识：
+Prompt edits affect later AI tasks. Keep version awareness:
 
-- 明确记录调整目的。
-- 只修改与目标任务相关的提示词。
-- 用测试小说验证结果。
-- 保留可回退版本。
-- 避免同时改模型、数据和提示词，导致问题来源难判断。
+- record why you are changing it;
+- only edit prompts related to the target task;
+- verify on a test novel;
+- keep a version you can roll back to;
+- avoid changing model, data, and prompt at the same time, which makes the source hard to judge.
 
-公开产品级提示词应走统一注册和 schema 管理，不建议在业务代码中临时内联。
+Public product prompts should go through unified registration and schema management. Avoid temporary inlined prompts in business code.
 
-## 和任务绑定
+## Binding to tasks
 
-提示词管理的价值在于理解“哪个任务使用哪个提示词”。排查时可以按路径看：
+The value of Prompt management is seeing which task uses which prompt. When diagnosing, follow this path:
 
-1. 任务中心确认失败任务类型。
-2. 模型路由确认使用模型。
-3. 提示词管理确认任务提示词和输出要求。
-4. 回到测试小说验证。
+1. Confirm the failed task type in the Task Center.
+2. Confirm the model in Model routing.
+3. Confirm the task prompt and output requirements in Prompt management.
+4. Verify on a test novel.
 
-如果任务需要结构化输出，提示词和输出 schema 必须一起考虑。
+If a task needs structured output, consider the prompt and output schema together.
 
-## 使用建议
+## Usage advice
 
-普通用户优先调整小说资料、知识库、写法引擎和模型路由。只有当同类任务长期表现异常，并且数据和模型都已排查后，再考虑提示词。
+Ordinary users should first adjust novel notes, the knowledge library, the style engine, and model routing. Consider prompts only after the same kind of task stays abnormal and data plus model have already been checked.
 
-开发者修改提示词时，应把新能力放入统一提示词资产和注册表，避免散落在服务代码里。
+When developers change prompts, put new capability into unified prompt assets and the registry, instead of scattering it through service code.

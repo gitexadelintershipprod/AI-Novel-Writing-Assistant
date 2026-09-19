@@ -32,12 +32,12 @@ export const VISIBLE_PROFILE_FIELDS: CharacterVisibleProfileField[] = [
 ];
 
 const FIELD_LABELS: Record<CharacterVisibleProfileField, string> = {
-  appearance: "样貌记忆点",
-  physique: "体态基底",
-  attireStyle: "常见穿着",
-  signatureDetail: "标志细节",
-  voiceTexture: "声音口吻",
-  presenceImpression: "登场印象",
+  appearance: "Appearance memory point",
+  physique: "body base",
+  attireStyle: "common wear",
+  signatureDetail: "Signature detail",
+  voiceTexture: "tone of voice",
+  presenceImpression: "First impression",
 };
 
 const GENERIC_VISIBLE_PROFILE_PATTERN = /^(暂无|待补全|无|未知|很好看|很漂亮|气质很好|气质独特|很有辨识度|身材匀称|清冷|温柔|帅气|美丽|普通|不详)$/;
@@ -102,12 +102,12 @@ export function pickApplicableVisibleProfileFields(input: {
     const suggestedText = normalizeVisibleProfileText(input.suggested[field]);
     if (existingText && !isVagueVisibleProfileText(existingText)) {
       if (!input.overwriteExisting) {
-        skippedFields[field] = "已有明确资料";
+        skippedFields[field] = "Clear materials already exist";
         continue;
       }
     }
     if (!suggestedText || isVagueVisibleProfileText(suggestedText)) {
-      skippedFields[field] = "AI 建议不够具体";
+      skippedFields[field] = "The AI suggestion is not specific enough";
       continue;
     }
     fields[field] = suggestedText;
@@ -122,18 +122,18 @@ function buildCharacterProfileText(character: CharacterRow): string {
     `定位：${character.role}`,
     character.gender ? `性别：${character.gender}` : "",
     character.castRole ? `阵容功能：${character.castRole}` : "",
-    character.storyFunction ? `故事作用：${character.storyFunction}` : "",
-    character.relationToProtagonist ? `与主角关系：${character.relationToProtagonist}` : "",
+    character.storyFunction ? `Story function:${character.storyFunction}` : "",
+    character.relationToProtagonist ? `Relationship with the protagonist:${character.relationToProtagonist}` : "",
     character.personality ? `性格：${compactText(character.personality, 180)}` : "",
     character.background ? `背景：${compactText(character.background, 180)}` : "",
     character.development ? `成长弧：${compactText(character.development, 180)}` : "",
-    character.outerGoal ? `外在目标：${compactText(character.outerGoal, 120)}` : "",
-    character.innerNeed ? `内在需求：${compactText(character.innerNeed, 120)}` : "",
+    character.outerGoal ? `External goals:${compactText(character.outerGoal, 120)}` : "",
+    character.innerNeed ? `Inner need：${compactText(character.innerNeed, 120)}` : "",
     character.fear ? `恐惧：${compactText(character.fear, 100)}` : "",
     character.wound ? `伤口：${compactText(character.wound, 100)}` : "",
-    character.misbelief ? `错误信念：${compactText(character.misbelief, 100)}` : "",
+    character.misbelief ? `False belief:${compactText(character.misbelief, 100)}` : "",
     character.secret ? `隐藏秘密：${compactText(character.secret, 100)}` : "",
-    character.moralLine ? `道德底线：${compactText(character.moralLine, 100)}` : "",
+    character.moralLine ? `moral bottom line：${compactText(character.moralLine, 100)}` : "",
     character.firstImpression ? `首次印象：${compactText(character.firstImpression, 120)}` : "",
   ].filter(Boolean).join("\n");
 }
@@ -162,11 +162,11 @@ function extractBookContractText(bookContract: {
     return "";
   }
   return [
-    bookContract.readingPromise ? `阅读承诺：${bookContract.readingPromise}` : "",
+    bookContract.readingPromise ? `Read the pledge:${bookContract.readingPromise}` : "",
     bookContract.protagonistFantasy ? `主角爽感：${bookContract.protagonistFantasy}` : "",
-    bookContract.coreSellingPoint ? `核心卖点：${bookContract.coreSellingPoint}` : "",
-    bookContract.relationshipMainline ? `关系主线：${bookContract.relationshipMainline}` : "",
-    bookContract.escalationLadder ? `升级阶梯：${bookContract.escalationLadder}` : "",
+    bookContract.coreSellingPoint ? `Core selling points:${bookContract.coreSellingPoint}` : "",
+    bookContract.relationshipMainline ? `Main line of relationship:${bookContract.relationshipMainline}` : "",
+    bookContract.escalationLadder ? `Upgrade ladder:${bookContract.escalationLadder}` : "",
     bookContract.chapter3Payoff ? `3章兑现：${bookContract.chapter3Payoff}` : "",
     bookContract.chapter10Payoff ? `10章兑现：${bookContract.chapter10Payoff}` : "",
     bookContract.chapter30Payoff ? `30章兑现：${bookContract.chapter30Payoff}` : "",
@@ -213,7 +213,7 @@ export class CharacterVisibleProfileService {
     ]);
 
     if (!novel || !character) {
-      throw new Error("小说或角色不存在");
+      throw new Error("The novel or character does not exist");
     }
 
     const relationText = relations
@@ -240,18 +240,18 @@ export class CharacterVisibleProfileService {
       asset: characterVisibleProfileCompletionPrompt,
       promptInput: {
         novelTitle: novel.title,
-        genreName: novel.genre?.name ?? "未指定",
+        genreName: novel.genre?.name ?? "unspecified",
         projectMode: novel.projectMode ?? "co_pilot",
         storyModeBlock: compactText(storyModeBlock, 900),
         bookContractText: compactText(extractBookContractText(novel.bookContract), 1_200),
         worldContextText: compactText(worldContext?.promptBlock, 1_600),
         bibleText: compactText([
-          novel.bible?.mainPromise ? `主线承诺：${novel.bible.mainPromise}` : "",
-          novel.bible?.coreSetting ? `核心设定：${novel.bible.coreSetting}` : "",
+          novel.bible?.mainPromise ? `main line commitment：${novel.bible.mainPromise}` : "",
+          novel.bible?.coreSetting ? `Core settings:${novel.bible.coreSetting}` : "",
           novel.bible?.characterArcs ? `角色成长：${novel.bible.characterArcs}` : "",
         ].filter(Boolean).join("\n"), 1_000),
         storyMacroText: compactText([
-          novel.storyMacroPlan?.storyInput ? `故事输入：${novel.storyMacroPlan.storyInput}` : "",
+          novel.storyMacroPlan?.storyInput ? `Story input:${novel.storyMacroPlan.storyInput}` : "",
           novel.storyMacroPlan?.decompositionJson ? `拆解：${compactText(novel.storyMacroPlan.decompositionJson, 500)}` : "",
           novel.storyMacroPlan?.constraintEngineJson ? `约束：${compactText(novel.storyMacroPlan.constraintEngineJson, 500)}` : "",
         ].filter(Boolean).join("\n"), 1_200),
@@ -289,7 +289,7 @@ export class CharacterVisibleProfileService {
     });
     const warnings = [...output.warnings];
     if (output.confidence < 0.55) {
-      warnings.push("AI 对当前外显资料把握较低，请优先人工复核。");
+      warnings.push("AI is less confident about the current visible profile. Please review it first.");
       return {
         characterId,
         characterName: character.name,
@@ -330,7 +330,7 @@ export class CharacterVisibleProfileService {
         skippedCharacters.push({
           characterId: character.id,
           characterName: character.name,
-          reason: "外显资料已较完整",
+          reason: "Visible profile is fairly complete",
         });
         continue;
       }
@@ -341,7 +341,7 @@ export class CharacterVisibleProfileService {
         skippedCharacters.push({
           characterId: character.id,
           characterName: character.name,
-          reason: error instanceof Error ? error.message : "外显资料生成失败",
+          reason: error instanceof Error ? error.message : "Visible-profile generation failed",
         });
       }
     }
@@ -359,7 +359,7 @@ export class CharacterVisibleProfileService {
       where: { id: characterId, novelId },
     });
     if (!character) {
-      throw new Error("角色不存在");
+      throw new Error("The character does not exist");
     }
 
     const applicable = pickApplicableVisibleProfileFields({
@@ -373,7 +373,7 @@ export class CharacterVisibleProfileService {
         character: character as unknown as Character,
         appliedFields: [],
         skippedFields: applicable.skippedFields,
-        warnings: ["没有可写入的外显资料。"],
+        warnings: ["There is no visible profile to write."],
       };
     }
 
@@ -417,11 +417,11 @@ export class CharacterVisibleProfileService {
     for (const characterId of uniqueIds) {
       const character = await prisma.character.findFirst({ where: { id: characterId, novelId } });
       if (!character) {
-        skippedCharacters.push({ characterId, characterName: characterId, reason: "角色不存在" });
+        skippedCharacters.push({ characterId, characterName: characterId, reason: "The character does not exist" });
         continue;
       }
       if (!this.needsVisibleProfile(character)) {
-        skippedCharacters.push({ characterId, characterName: character.name, reason: "外显资料已较完整" });
+        skippedCharacters.push({ characterId, characterName: character.name, reason: "Visible profile is fairly complete" });
         continue;
       }
       try {
@@ -434,7 +434,7 @@ export class CharacterVisibleProfileService {
         skippedCharacters.push({
           characterId,
           characterName: character.name,
-          reason: error instanceof Error ? error.message : "外显资料自动补齐失败",
+          reason: error instanceof Error ? error.message : "Automatic visible-profile fill-in failed",
         });
       }
     }

@@ -11,7 +11,7 @@ export const PADDING = {
   top: 22,
   bottom: 92,
 };
-// 折线绘图区（0-100 值域）与底部的"待定"轨道、章节序号轴分成三条独立的横带，
+// 折线绘图区（0-100 值域）与底部的"待定"轨道、Chapter number轴分成三条独立的横带，
 // 避免三者的文字/线条挤在一起，导致断线原因（未设置数值的章节）看不清。
 export const PLOT_BOTTOM = HEIGHT - PADDING.bottom;
 export const NULL_TRACK_Y = PLOT_BOTTOM + 30;

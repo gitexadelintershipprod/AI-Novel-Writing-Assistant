@@ -21,7 +21,7 @@ export function AssetLibraryRecommendation(props: {
   const Icon = props.icon;
   return (
     <section
-      aria-label="推荐下一步"
+      aria-label="Recommend next step"
       className={cn(
         "flex flex-col gap-4 rounded-md border px-4 py-3 sm:flex-row sm:items-center sm:justify-between",
         recommendationToneClass[props.tone ?? "info"],

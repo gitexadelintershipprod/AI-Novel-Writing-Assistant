@@ -48,8 +48,8 @@ function buildFallbackTitleOption(candidate: DirectorCandidate): TitleFactorySug
     title: candidate.workingTitle,
     clickRate: 60,
     style: "high_concept",
-    angle: "当前方案书名",
-    reason: "沿用当前方案书名。",
+    angle: "Current project title",
+    reason: "沿用Current project title。",
   };
 }
 
@@ -87,17 +87,17 @@ function buildTargetedTitleBrief(input: {
   const readerChannel = readerChannelPreferenceLabel(input.context.readerChannelPreference);
 
   return [
-    `故事灵感：${input.idea.trim()}`,
-    `当前方案：${input.candidate.workingTitle}`,
-    `作品定位：${input.candidate.positioning}`,
-    `核心卖点：${input.candidate.sellingPoint}`,
-    `主线冲突：${input.candidate.coreConflict}`,
-    `主角路径：${input.candidate.protagonistPath}`,
-    `主钩子：${input.candidate.hookStrategy}`,
-    `推进循环：${input.candidate.progressionLoop}`,
-    input.candidate.toneKeywords.length > 0 ? `气质关键词：${input.candidate.toneKeywords.join("、")}` : "",
-    input.context.targetAudience?.trim() ? `目标读者：${input.context.targetAudience.trim()}` : "",
-    readerChannel ? `读者频道倾向：${readerChannel}` : "",
+    `story inspiration：${input.idea.trim()}`,
+    `Current plan：${input.candidate.workingTitle}`,
+    `Positioning of the work：${input.candidate.positioning}`,
+    `Core selling points:${input.candidate.sellingPoint}`,
+    `main conflict：${input.candidate.coreConflict}`,
+    `Protagonist path：${input.candidate.protagonistPath}`,
+    `Main hook:${input.candidate.hookStrategy}`,
+    `Advance cycle:${input.candidate.progressionLoop}`,
+    input.candidate.toneKeywords.length > 0 ? `气质Keywords:${input.candidate.toneKeywords.join("、")}` : "",
+    input.context.targetAudience?.trim() ? `Target readers:${input.context.targetAudience.trim()}` : "",
+    readerChannel ? `Reader channel tendencies：${readerChannel}` : "",
     input.context.competingFeel?.trim() ? `对标气质：${input.context.competingFeel.trim()}` : "",
     currentTitleGroup ? `当前标题组：${currentTitleGroup}` : "",
     `标题修正意见：${input.feedback.trim()}`,
@@ -110,13 +110,13 @@ function buildTargetedTitleBrief(input: {
 function readerChannelPreferenceLabel(value: DirectorProjectContextInput["readerChannelPreference"]): string {
   switch (value) {
     case "ai_judge":
-      return "AI 判断";
+      return "AI judgment";
     case "male_oriented":
-      return "男频向";
+      return "male frequency";
     case "female_oriented":
-      return "女频向";
+      return "Female frequency";
     case "general":
-      return "泛读者 / 不限定";
+      return "General reader/unlimited";
     default:
       return "";
   }
@@ -125,7 +125,7 @@ function readerChannelPreferenceLabel(value: DirectorProjectContextInput["reader
 function findTargetBatch(previousBatches: DirectorCandidateBatch[], batchId: string): DirectorCandidateBatch {
   const batch = previousBatches.find((item) => item.id === batchId);
   if (!batch) {
-    throw new Error("目标方案轮次不存在。");
+    throw new Error("The target plan round does not exist.");
   }
   return batch;
 }
@@ -133,7 +133,7 @@ function findTargetBatch(previousBatches: DirectorCandidateBatch[], batchId: str
 function findTargetCandidate(batch: DirectorCandidateBatch, candidateId: string): DirectorCandidate {
   const candidate = batch.candidates.find((item) => item.id === candidateId);
   if (!candidate) {
-    throw new Error("目标方案不存在。");
+    throw new Error("The target plan does not exist.");
   }
   return candidate;
 }
@@ -186,7 +186,7 @@ export class NovelDirectorCandidateStageService {
     await this.markCandidateProgress(
       context.workflowTaskId,
       "candidate_direction_batch",
-      context.batches.length === 0 ? "正在生成第一批书级方案" : "正在按修正意见生成新方案",
+      context.batches.length === 0 ? "Generating the first book-level options" : "Generating a new plan from the revision notes",
       DIRECTOR_PROGRESS.candidateDirectionBatch,
     );
 
@@ -228,7 +228,7 @@ export class NovelDirectorCandidateStageService {
     await this.markCandidateProgress(
       context.workflowTaskId,
       "candidate_title_pack",
-      "正在为每套方案补强书名组",
+      "Strengthening title sets for each option",
       DIRECTOR_PROGRESS.candidateTitlePack,
     );
     const independentlyEnrichedCandidates = await Promise.all(
@@ -246,7 +246,7 @@ export class NovelDirectorCandidateStageService {
         distinctCandidate = selectDistinctCandidateTitle(regeneratedCandidate, selectedTitles);
       }
       if (!distinctCandidate) {
-        throw new Error(`第 ${index + 1} 套方案未能生成与其他方案区分开的书名，请重试。`);
+        throw new Error(`Option ${index + 1} did not generate a title that is distinct from the other options. Please retry.`);
       }
       enrichedCandidates.push(distinctCandidate);
       selectedTitles.push(distinctCandidate.workingTitle);
@@ -257,7 +257,7 @@ export class NovelDirectorCandidateStageService {
       batch: {
         id: randomUUID(),
         round,
-        roundLabel: `第 ${round} 轮`,
+        roundLabel: `Round ${round}`,
         idea: context.idea.trim(),
         refinementSummary: buildRefinementSummary(context.presets, context.feedback, round),
         presets: context.presets,
@@ -317,13 +317,13 @@ export class NovelDirectorCandidateStageService {
     await this.markCandidateProgress(
       input.workflowTaskId,
       "candidate_seed_alignment",
-      "正在整理你的项目设定与起始灵感",
+      "Organizing your project setup and starting inspiration",
       DIRECTOR_PROGRESS.candidateSeedAlignment,
     );
     await this.markCandidateProgress(
       input.workflowTaskId,
       "candidate_project_framing",
-      "正在对齐书级 framing 与前期承诺",
+      "Aligning book-level framing with earlier promises",
       DIRECTOR_PROGRESS.candidateProjectFraming,
     );
 
@@ -354,7 +354,7 @@ export class NovelDirectorCandidateStageService {
       }),
     });
     await this.workflowService.recordCandidateSelectionRequired(workflowTask.id, {
-      summary: `${result.batch.roundLabel} 已生成 ${result.batch.candidates.length} 套书级方向，并完成每套书名组。`,
+      summary: `${result.batch.roundLabel} 已生成 ${result.batch.candidates.length} 套book level orientation，并完成每套书名组。`,
       seedPayload: buildWorkflowSeedPayload(resolvedInput, {
         batches: [result.batch],
         productionFoundation: foundation.recommendation,
@@ -389,13 +389,13 @@ export class NovelDirectorCandidateStageService {
     await this.markCandidateProgress(
       input.workflowTaskId,
       "candidate_seed_alignment",
-      "正在读取上一轮方案与你的修正意见",
+      "Reading the previous options and your revision notes",
       DIRECTOR_PROGRESS.candidateSeedAlignment,
     );
     await this.markCandidateProgress(
       input.workflowTaskId,
       "candidate_project_framing",
-      "正在对齐新的口味偏好与书级 framing",
+      "Aligning the new taste preference with book-level framing",
       DIRECTOR_PROGRESS.candidateProjectFraming,
     );
 
@@ -469,7 +469,7 @@ export class NovelDirectorCandidateStageService {
     await this.markCandidateProgress(
       input.workflowTaskId,
       "candidate_seed_alignment",
-      `正在读取《${targetCandidate.workingTitle}》的当前方案`,
+      `正在读取《${targetCandidate.workingTitle}》的Current plan`,
       DIRECTOR_PROGRESS.candidateSeedAlignment,
     );
     await this.markCandidateProgress(

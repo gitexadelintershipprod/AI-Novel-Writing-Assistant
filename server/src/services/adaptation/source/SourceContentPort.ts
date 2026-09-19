@@ -26,7 +26,7 @@ export class SourceContentRegistry {
   resolve(type: AdaptationSourceType): SourceContentPort {
     const adapter = this.adapters.get(type);
     if (!adapter) {
-      throw new Error(`未注册的改编内容源类型：${type}`);
+      throw new Error(`Unregistered adaptation source type: ${type}`);
     }
     return adapter;
   }

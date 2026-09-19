@@ -1,104 +1,104 @@
-# 故障排查
+# Troubleshooting
 
-这篇文档提供按问题定位的排查路径。处理任何可能影响数据的操作前，请先备份。
+This page is a locate-the-problem path. Back up first before any action that can affect data.
 
-## 先判断问题类型
+## Sort the problem first
 
-遇到异常时，先把问题归到一个类别：
+Put the issue in one category:
 
-- 模型问题：连接失败、超时、供应商报错、输出格式不稳定。
-- 任务问题：任务卡住、失败、等待恢复、重复执行。
-- 知识库问题：文档无法索引、检索不到、召回内容不相关。
-- 数据问题：小说打不开、内容缺失、状态不一致。
-- 前端问题：页面没有刷新、按钮不可点、入口找不到。
+- Model: connection failure, timeout, provider error, unstable output format.
+- Task: stuck, failed, waiting to recover, repeated runs.
+- Knowledge library: indexing failed, search misses, recalled content is off-topic.
+- Data: a novel will not open, content is missing, state is inconsistent.
+- Interface: the page did not refresh, a button is blocked, an entry is hard to find.
 
-分类后再看对应入口，排查会更快。
+Sorting first makes the matching entry easier to find.
 
-## 查看任务状态
+## Check task status
 
-长任务优先看任务中心。任务中心会展示排队、运行、完成、失败和可恢复状态。
+For long tasks, start in the Task Center. It shows queued, running, completed, failed, and recoverable states.
 
-建议记录：
+Write down:
 
-- 任务名称。
-- 关联小说。
-- 最近一次状态。
-- 错误信息。
-- 是否有重试或恢复按钮。
+- task name;
+- related novel;
+- latest status;
+- error message;
+- whether retry or recover is available.
 
-如果任务仍在运行，不要重复点击多个入口发起同类任务。先确认后台是否正在处理。
+If the task is still running, do not click several similar entries. Confirm whether the background is already working.
 
-## 查看导演跟进
+## Check Director follow-up
 
-自动导演相关问题优先看导演跟进。它会告诉你系统停在方向选择、设定准备、章节计划、章节执行还是恢复节点。
+For Auto-Director problems, start in Director follow-up. It tells you whether the system stopped at direction choice, setting preparation, chapter planning, chapter execution, or a recovery point.
 
-常见处理方式：
+Common next steps:
 
-- 等待你确认候选：选择一个方向或方案。
-- 缺少基础信息：回到小说页补充。
-- 任务失败但可重试：从恢复入口继续。
-- 需要重新规划：按提示回到上一级计划。
+- Waiting for you to confirm a candidate: choose a direction or plan.
+- Missing basics: go back to the novel page and fill them in.
+- A task failed but can retry: continue from the recovery entry.
+- A replan is required: follow the prompt back to the earlier plan.
 
-局部章节质量问题通常可以记录为质量债务，不一定要停止整本书。
+Local chapter quality problems can usually be recorded as quality debt. They do not always need to stop the whole book.
 
-## 模型问题排查
+## Model problems
 
-模型错误按这个顺序处理：
+Handle model errors in this order:
 
-1. 在系统设置里测试连接。
-2. 确认 API Key、Base URL 和模型名称。
-3. 检查供应商额度、并发限制和网络。
-4. 换一个更稳定的模型执行同类任务。
-5. 如果结构化输出失败，优先把审核、修复、拆书任务路由到更遵循格式的模型。
+1. Test the connection in Settings.
+2. Confirm the API key, Base URL, and model name.
+3. Check provider quota, concurrency limits, and the network.
+4. Try a more stable model on the same kind of task.
+5. If structured output fails, route review, repair, and book-analysis tasks to a model that follows format more reliably.
 
-不要用硬编码关键词绕过 AI 任务判断。产品主链的意图识别、规划和路由应依赖结构化 AI 输出。
+Do not bypass AI task judgment with hardcoded keyword matching. Intent recognition, planning, and routing on the main chain should use structured AI output.
 
-## 知识库问题排查
+## Knowledge-library problems
 
-知识库不命中时，按顺序检查：
+When recall misses, check in this order:
 
-1. 文档是否上传成功。
-2. 索引任务是否完成。
-3. Qdrant 是否可连接。
-4. 检索设置是否过窄。
-5. 当前问题是否真的需要该文档。
+1. Did the document upload succeed?
+2. Did the index task finish?
+3. Can Qdrant connect?
+4. Are search settings too narrow?
+5. Does the current question actually need that document?
 
-如果文档内容很长，可以在文档标题、摘要或关键段落里明确写出设定名、角色名、地点名和主题词，方便召回。
+If a document is long, put setting names, character names, place names, and theme words clearly in the title, summary, or key paragraphs so recall can find them.
 
-## 数据备份建议
+## Backup advice
 
-在执行数据清理、迁移、数据库重置或手动删除前，必须先备份。
+Back up before cleanup, migration, database reset, or manual deletion.
 
-最低备份要求：
+Minimum backup:
 
-- 复制数据库文件到明确路径。
-- 检查备份文件存在且大小正常。
-- 记录备份时间和来源目录。
+- copy the database files to a known path;
+- confirm the backup exists and the file size looks normal;
+- record the backup time and source folder.
 
-更稳妥的做法是再导出小说内容，并保留任务错误截图或日志。
+A safer extra step is to export novel content and keep task error screenshots or logs.
 
-## 页面显示问题
+## Page display problems
 
-如果页面状态看起来不一致：
+If the page looks out of date:
 
-1. 刷新页面。
-2. 回到首页或小说列表重新进入。
-3. 检查任务中心是否有后台任务仍在运行。
-4. 查看导演跟进是否显示等待确认。
-5. 记录入口、操作步骤和错误截图。
+1. Refresh the page.
+2. Go back to Home or Novels and enter again.
+3. Check the Task Center for a background task that is still running.
+4. Check Director follow-up for a waiting confirmation.
+5. Record the entry, the steps, and an error screenshot.
 
-不要只凭单个页面判断任务是否失败。后台任务、导演跟进和小说页可能展示同一流程的不同侧面。
+Do not judge failure from one page alone. The background task, Director follow-up, and novel page can show different sides of the same flow.
 
-## 提交问题时提供什么
+## What to include when you report a problem
 
-如果需要向维护者反馈，建议提供：
+If you need to send a report to maintainers, include:
 
-- 应用版本或源码分支。
-- 操作入口和步骤。
-- 关联小说是否为新建项目。
-- 任务中心状态和错误信息。
-- 模型供应商和任务类型。
-- 是否配置 Qdrant。
-- 日志或截图。
+- app version or source branch;
+- the entry and the steps;
+- whether the related novel is a new project;
+- Task Center status and error text;
+- model provider and task type;
+- whether Qdrant is configured;
+- logs or screenshots.
 
-信息越完整，越容易判断是模型、任务、知识库、数据还是页面问题。
+The more complete this is, the easier it is to tell whether the problem is model, task, knowledge library, data, or the page.

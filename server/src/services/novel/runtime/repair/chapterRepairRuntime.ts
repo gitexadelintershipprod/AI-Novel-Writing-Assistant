@@ -165,13 +165,13 @@ function buildRepairRagContext(input: {
       ? `上一章尾段：${writeContext.previousChapterTail}`
       : "",
     writeContext.recentChapterSummaries?.length
-      ? `最近章节摘要：\n${writeContext.recentChapterSummaries.slice(0, 3).map((item) => `- ${item}`).join("\n")}`
+      ? `Recent chapter summaries:\n${writeContext.recentChapterSummaries.slice(0, 3).map((item) => `- ${item}`).join("\n")}`
       : "",
     writeContext.openConflictSummaries?.length
       ? `待回收冲突：\n${writeContext.openConflictSummaries.slice(0, 5).map((item) => `- ${item}`).join("\n")}`
       : "",
     writeContext.characterHardFacts?.length
-      ? `角色硬事实：\n${writeContext.characterHardFacts.slice(0, 6).map((item) => [
+      ? `character hard facts：\n${writeContext.characterHardFacts.slice(0, 6).map((item) => [
           item.name,
           item.currentState ? `状态=${item.currentState}` : "",
           item.currentGoal ? `目标=${item.currentGoal}` : "",
@@ -184,7 +184,7 @@ function buildRepairRagContext(input: {
           "资源事实：",
           ...writeContext.characterResourceContext.availableItems.slice(0, 4).map((item) => `- 可用：${item.name} / ${item.summary}`),
           ...writeContext.characterResourceContext.blockedItems.slice(0, 4).map((item) => `- 不可直接使用：${item.name} / ${item.status} / ${item.summary}`),
-          ...writeContext.characterResourceContext.highRiskCommittedItems.slice(0, 3).map((item) => `- 高风险已入账：${item.name} / ${item.summary}`),
+          ...writeContext.characterResourceContext.highRiskCommittedItems.slice(0, 3).map((item) => `- High risk has been accounted for：${item.name} / ${item.summary}`),
           ...writeContext.characterResourceContext.pendingProposalItems.slice(0, 3).map((item) => `- 未确认变更：${item.summary}；确认前不要写成已发生事实`),
         ].join("\n")
       : "",
@@ -355,10 +355,10 @@ function buildRepairBibleFallback(runtimePackage: ChapterRuntimePackage | null |
     return "none";
   }
   const fragments = [
-    context.bookContract?.sellingPoint ? `核心卖点：${context.bookContract.sellingPoint}` : "",
-    context.bookContract?.first30ChapterPromise ? `前30章承诺：${context.bookContract.first30ChapterPromise}` : "",
-    context.macroConstraints?.coreConflict ? `核心冲突：${context.macroConstraints.coreConflict}` : "",
-    context.macroConstraints?.progressionLoop ? `推进回路：${context.macroConstraints.progressionLoop}` : "",
+    context.bookContract?.sellingPoint ? `Core selling points:${context.bookContract.sellingPoint}` : "",
+    context.bookContract?.first30ChapterPromise ? `The first 30 chapters promise:${context.bookContract.first30ChapterPromise}` : "",
+    context.macroConstraints?.coreConflict ? `Core conflict:${context.macroConstraints.coreConflict}` : "",
+    context.macroConstraints?.progressionLoop ? `Propulsion circuit：${context.macroConstraints.progressionLoop}` : "",
     context.volumeWindow?.missionSummary ? `当前卷使命：${context.volumeWindow.missionSummary}` : "",
   ].filter(Boolean);
   return fragments.join("\n") || "none";
@@ -369,7 +369,7 @@ export function getRepairModeHint(
   issueCodes: string[] = [],
 ): string {
   if (issueCodes.includes("LENGTH_OVER_HARD_MAX")) {
-    return "compress_chapter_for_length：整章压缩重复表达、解释段和无效回合，保留核心推进与结尾压力。";
+    return "compress_chapter_for_length: Compress repeated wording, explanation, and empty turns across the chapter, while keeping the core advance and ending pressure.";
   }
   if (issueCodes.includes("LENGTH_OVER_SOFT_MAX")) {
     return "compress_tail_for_length：优先回收尾段冗余展开，保留结尾 hook 和关键冲突。";

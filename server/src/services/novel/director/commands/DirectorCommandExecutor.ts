@@ -59,7 +59,7 @@ export class DirectorCommandExecutor {
       novelId: pipelineCommand.novelId ?? state.task.novelId,
       runtimeId: state.runtime?.id ?? null,
       commandType: pipelineCommand.intent,
-      summary: "导演任务已进入单轨执行管线。",
+      summary: "The director task entered the single-track execution pipeline.",
     });
 
     switch (pipelineCommand.intent) {
@@ -272,12 +272,12 @@ export class DirectorCommandExecutor {
         ...(candidateSelectionReady
           ? {
             status: "waiting_approval",
-            currentStage: "AI 自动导演",
+            currentStage: "Auto-Director",
             currentItemKey: "candidate_selection_required",
-            currentItemLabel: "书级方向已准备好，请选择一套继续",
+            currentItemLabel: "Book-level directions are ready. Choose one to continue",
             progress: 0.18,
             checkpointType: "candidate_selection_required",
-            checkpointSummary: "AI 已生成可选的书级方向。",
+            checkpointSummary: "AI generated optional book-level directions.",
           }
           : {}),
         seedPayloadJson: mergeSeedPayload(row.seedPayloadJson, {

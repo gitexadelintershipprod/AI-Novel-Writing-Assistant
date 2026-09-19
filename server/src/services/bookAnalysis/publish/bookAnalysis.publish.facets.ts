@@ -81,7 +81,7 @@ function buildFieldFacets(fieldKey: string, values: string[], evidence: BookAnal
 
 function formatEvidenceLines(evidence: BookAnalysisEvidenceItem[]): string[] {
   return evidence.slice(0, 4).map((item) => {
-    const chapterLabel = item.chapterIndex === undefined ? "" : `第 ${item.chapterIndex + 1} 章；`;
+    const chapterLabel = item.chapterIndex === undefined ? "" : `Chapter ${item.chapterIndex + 1}; `;
     return `- ${chapterLabel}${item.sourceLabel}｜${item.label}：${item.excerpt}`;
   });
 }
@@ -98,7 +98,7 @@ function buildFieldChunk(section: BookAnalysisSection, fieldKey: string, value: 
   const chunkText = [
     `拆书小节：${section.title}`,
     `结构化字段：${label}`,
-    `关键结论：${values.join("；")}`,
+    `Key conclusions：${values.join("；")}`,
     evidence.length > 0 ? "证据摘录：" : "",
     ...formatEvidenceLines(evidence),
   ].filter(Boolean).join("\n");

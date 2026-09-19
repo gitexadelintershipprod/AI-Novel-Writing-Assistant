@@ -350,7 +350,7 @@ export class BookAnalysisCharacterService {
       name,
       role: "待分析角色",
       importance: "medium",
-      briefDescription: "用户指定的角色候选。",
+        briefDescription: "A character candidate specified by the user.",
       occurringChapters: [],
     })));
   }

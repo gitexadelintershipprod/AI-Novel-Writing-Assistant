@@ -155,16 +155,16 @@ export class PromptSlotOverrideService {
     const novelId = scope === "novel" ? (input.novelId ?? null) : null;
 
     if (scope !== "global" && scope !== "novel") {
-      throw new Error("scope 只能是 global 或 novel。");
+      throw new Error("scope must be global or novel.");
     }
     if (scope === "novel" && !novelId) {
-      throw new Error("scope=novel 时必须提供 novelId。");
+      throw new Error("novelId is required when scope=novel.");
     }
 
     // Resolve asset to get slot definitions
     const assets = findRegisteredPromptAssetById(promptId);
     if (!assets) {
-      throw new Error(`提示词未注册：${promptId}`);
+      throw new Error(`Prompt word is not registered:${promptId}`);
     }
     const slotDefs: PromptSlotDef[] = assets.slots ?? [];
     if (slotDefs.length === 0) {
@@ -173,7 +173,7 @@ export class PromptSlotOverrideService {
 
     if (scope === "novel" && novelId) {
       const novel = await prisma.novel.findUnique({ where: { id: novelId }, select: { id: true } });
-      if (!novel) throw new Error(`小说不存在：${novelId}`);
+      if (!novel) throw new Error(`The novel does not exist:${novelId}`);
     }
 
     // Load existing override to merge (only update changed slots)
@@ -241,7 +241,7 @@ export class PromptSlotOverrideService {
       return toView(row);
     } catch (error) {
       if (isMissingTableError(error)) {
-        throw new Error("数据库表尚未就绪，请先运行数据库迁移。");
+        throw new Error("Database tables are not ready. Run migrations first.");
       }
       throw error;
     }
@@ -287,22 +287,22 @@ export class PromptSlotOverrideService {
     const { promptId, scope, slotKeys } = input;
     const novelId = scope === "novel" ? (input.novelId ?? null) : null;
     if (scope !== "global" && scope !== "novel") {
-      throw new Error("scope 只能是 global 或 novel。");
+      throw new Error("scope must be global or novel.");
     }
     if (scope === "novel" && !novelId) {
-      throw new Error("scope=novel 时必须提供 novelId。");
+      throw new Error("novelId is required when scope=novel.");
     }
 
     const asset = findRegisteredPromptAssetById(promptId);
     if (!asset) {
-      throw new Error(`提示词未注册：${promptId}`);
+      throw new Error(`Prompt word is not registered:${promptId}`);
     }
     const slotDefs: PromptSlotDef[] = asset.slots ?? [];
     const slotDefMap = new Map(slotDefs.map((def) => [def.key, def]));
 
     if (scope === "novel" && novelId) {
       const novel = await prisma.novel.findUnique({ where: { id: novelId }, select: { id: true } });
-      if (!novel) throw new Error(`小说不存在：${novelId}`);
+      if (!novel) throw new Error(`The novel does not exist:${novelId}`);
     }
 
     try {
@@ -354,7 +354,7 @@ export class PromptSlotOverrideService {
       });
     } catch (error) {
       if (isMissingTableError(error)) {
-        throw new Error("数据库表尚未就绪，请先运行数据库迁移。");
+        throw new Error("Database tables are not ready. Run migrations first.");
       }
       throw error;
     }

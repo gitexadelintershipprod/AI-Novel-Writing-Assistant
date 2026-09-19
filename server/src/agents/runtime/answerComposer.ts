@@ -23,11 +23,11 @@ function composeWorkflowHandoffAnswer(
   context: Omit<ToolExecutionContext, "runId" | "agentName">,
 ): string {
   const note = structuredIntent.note?.trim();
-  const target = note?.includes("任务中心") ? ["打开任务中心", "/tasks"]
-    : note?.includes("model") ? ["打开模型设置", "/settings/models"]
+  const target = note?.includes("任务中心") || note?.includes("task center") ? ["Open the task center", "/tasks"]
+    : note?.includes("model") ? ["Open model settings", "/settings/models"]
       : note?.includes("automatic director") ? ["Turn on AI automatic director", "/novels/auto-director"]
         : ["Open the novel workbench", context.novelId ? `/novels/${context.novelId}/edit` : "/novels"];
-  return `这项操作需要在正式工作台中执行，系统会在那里保存产物并维护完整任务状态。\n\n[${target[0]}](${target[1]})`;
+  return `This action needs to run in the main workbench, where the system saves artifacts and keeps full task status.\n\n[${target[0]}](${target[1]})`;
 }
 
 function truncateText(value: string, max = 320): string {
@@ -77,14 +77,14 @@ function buildCollaborativeQuestion(structuredIntent?: StructuredIntent): string
   switch (structuredIntent?.intent) {
     case "produce_novel":
     case "create_novel":
-      return "你想先把一句话设定钉牢，还是让我直接给你三套可选方向？";
+      return "Do you want to lock a one-sentence setup first, or should I give you three option sets right away?";
     case "write_chapter":
     case "rewrite_chapter":
-      return "这章你最想先解决的是剧情推进、人物情绪，还是文风节奏？";
+      return "For this chapter, do you want to fix plot advancement, character emotion, or prose rhythm first?";
     case "ideate_novel_setup":
-      return "你更想先看核心设定、故事承诺，还是题材风格的备选方案？";
+      return "Would you rather see core-setting options, story-promise options, or genre-and-style options first?";
     default:
-      return "你现在最想先解决哪一个创作问题？";
+      return "Which writing problem do you want to solve first?";
   }
 }
 
@@ -93,28 +93,28 @@ function buildCollaborativeOptions(structuredIntent?: StructuredIntent): string[
     case "produce_novel":
     case "create_novel":
       return [
-        "我先基于当前信息给你 3 套核心设定方向。",
-        "你补一句主角、冲突和目标，我帮你收敛成可执行设定。",
-        "如果你已经想清楚，也可以直接说“现在启动整本生产”。",
+        "I will first give you 3 core-setting directions from what we already have.",
+        "Add one sentence for the protagonist, conflict, and goal, and I will tighten it into an executable setup.",
+        "If you already know what you want, you can also say “start full-book production now”.",
       ];
     case "write_chapter":
     case "rewrite_chapter":
       return [
-        "我先帮你判断这一章的问题出在情节、人物还是节奏。",
-        "你告诉我这章的目标和想保留的部分，我给你重写方案。",
-        "如果你已经确定范围，也可以直接说要改哪一章、往哪个方向改。",
+        "I will first judge whether this chapter's problem is plot, character, or pacing.",
+        "Tell me this chapter's goal and what to keep, and I will give you a rewrite plan.",
+        "If you already know the range, you can also say which chapter to change and in what direction.",
       ];
     case "ideate_novel_setup":
       return [
-        "先给你 3 套核心设定备选。",
-        "先给你 3 套故事承诺和卖点方向。",
-        "先给你 3 套题材风格与叙事配置组合。",
+        "First I will give you 3 core-setting options.",
+        "First I will give you 3 story-promise and selling-point directions.",
+        "First I will give you 3 genre-style and narrative-setup combinations.",
       ];
     default:
       return [
-        "我先帮你拆清楚这个问题。",
-        "我先给你几个可选方向。",
-        "你补充最关键的限制条件，我再继续推进。",
+        "I will first break this problem down.",
+        "I will first give you a few optional directions.",
+        "Add the most important constraints, then I will keep pushing forward.",
       ];
   }
 }
@@ -122,24 +122,24 @@ function buildCollaborativeOptions(structuredIntent?: StructuredIntent): string[
 function composeCollaborativeAnswer(goal: string, structuredIntent?: StructuredIntent): string {
   const missingInfo = formatMissingInfo(structuredIntent);
   const lead = structuredIntent?.intent === "general_chat" || structuredIntent?.intent === "unknown"
-    ? `我先不把它当成命令执行，先和你一起把问题说清楚：${goal}`
-    : `我理解你现在想推进的是：${goal}`;
+    ? `I will not treat this as a command yet. Let us clarify the problem together: ${goal}`
+    : `I understand what you want to advance now is: ${goal}`;
   const collaborationLead = structuredIntent?.interactionMode === "review"
-    ? "这轮更适合先一起诊断和判断。"
-    : "这轮更适合先共创澄清，再决定是否进入执行。";
+    ? "This round is better spent diagnosing and judging together."
+    : "This round is better spent co-creating and clarifying before deciding whether to execute.";
 
   if ((structuredIntent?.assistantResponse ?? "explain") === "offer_options") {
     const options = buildCollaborativeOptions(structuredIntent)
       .map((item, index) => `${index + 1}. ${item}`)
       .join("\n");
     const missingLine = missingInfo.length > 0
-      ? `在继续之前，我还想补齐这几个点：${missingInfo.join("、")}。\n`
+      ? `Before continuing, I still want to fill in these points: ${missingInfo.join(", ")}.\n`
       : "";
-    return `${lead}\n${collaborationLead}\n${missingLine}你可以直接选一个方向继续：\n${options}`;
+    return `${lead}\n${collaborationLead}\n${missingLine}You can pick a direction to continue:\n${options}`;
   }
 
   const missingLine = missingInfo.length > 0
-    ? `在继续之前，我还缺这几个关键信息：${missingInfo.join("、")}。`
+    ? `Before continuing, I still need these key facts: ${missingInfo.join(", ")}.`
     : "";
   return [lead, collaborationLead, missingLine, buildCollaborativeQuestion(structuredIntent)]
     .filter(Boolean)
@@ -148,16 +148,16 @@ function composeCollaborativeAnswer(goal: string, structuredIntent?: StructuredI
 
 function composeSocialOpeningAnswer(context: Omit<ToolExecutionContext, "runId" | "agentName">): string {
   if (context.novelId) {
-    return "你好。我可以继续陪你打磨这本书的设定、大纲、人物、章节，或者先帮你判断当前卡点。你现在想先推进哪一块？";
+    return "Hi. I can keep polishing this book's setup, outline, characters, and chapters with you, or first diagnose the current blocker. Which part do you want to advance first?";
   }
-  return "你好。我可以帮你一起打磨设定、大纲、人物、章节，或者帮你诊断当前卡点。你现在想先推进哪一块？";
+  return "Hi. I can help polish setup, outline, characters, and chapters, or diagnose the current blocker. Which part do you want to advance first?";
 }
 
 function composeTitleAnswer(results: ToolExecutionResult[]): string {
   const title = getSuccessfulOutputs(results, "get_novel_context")
     .map((item) => (typeof item.title === "string" ? item.title.trim() : ""))
     .find(Boolean);
-  return title ? `《${title}》` : "未获取到标题";
+  return title ? `"${title}"` : "No title was found";
 }
 
 function composeNovelListAnswer(results: ToolExecutionResult[]): string {
@@ -165,21 +165,21 @@ function composeNovelListAnswer(results: ToolExecutionResult[]): string {
   const items = Array.isArray(list?.items) ? list.items : [];
   const total = typeof list?.total === "number" ? list.total : items.length;
   if (items.length === 0) {
-    return "当前还没有小说。";
+    return "There is no novel yet.";
   }
   const lines = items.slice(0, 8).map((item, index) => {
     const title = typeof item?.title === "string" && item.title.trim() ? item.title.trim() : "Untitled novel";
     const chapterCount = typeof item?.chapterCount === "number" ? item.chapterCount : null;
-    return `${index + 1}. 《${title}》${chapterCount != null ? `（${chapterCount}章）` : ""}`;
+    return `${index + 1}. 《${title}》${chapterCount != null ? `（${chapterCount} chapter）` : ""}`;
   });
-  return `当前共有 ${total} 本小说：\n${lines.join("\n")}`;
+  return `There are currently ${total} novels:\n${lines.join("\n")}`;
 }
 
 function composeBaseCharacterListAnswer(results: ToolExecutionResult[]): string {
   const list = getSuccessfulOutputs(results, "list_base_characters")[0];
   const items = Array.isArray(list?.items) ? list.items : [];
   if (items.length === 0) {
-    return "当前基础角色库还是空的。";
+    return "The character library is still empty.";
   }
   const lines = items.slice(0, 8).map((item, index) => {
     const name = typeof item?.name === "string" && item.name.trim() ? item.name.trim() : "unnamed role";
@@ -189,36 +189,36 @@ function composeBaseCharacterListAnswer(results: ToolExecutionResult[]): string 
     const suffix = [role, category, tags].filter(Boolean).join(" / ");
     return `${index + 1}. ${name}${suffix ? `（${suffix}）` : ""}`;
   });
-  return `当前基础角色库共有 ${items.length} 个角色模板：\n${lines.join("\n")}`;
+  return `The character library currently has ${items.length} character templates:\n${lines.join("\n")}`;
 }
 
 function composeWorldListAnswer(results: ToolExecutionResult[]): string {
   const list = getSuccessfulOutputs(results, "list_worlds")[0];
   const items = Array.isArray(list?.items) ? list.items : [];
   if (items.length === 0) {
-    return "当前还没有世界观。";
+    return "There is no world yet.";
   }
   const lines = items.slice(0, 8).map((item, index) => {
     const name = typeof item?.name === "string" && item.name.trim() ? item.name.trim() : "Unnamed world view";
     const status = typeof item?.status === "string" && item.status.trim() ? item.status.trim() : null;
     return `${index + 1}. ${name}${status ? `（${status}）` : ""}`;
   });
-  return `当前共有 ${items.length} 个世界观：\n${lines.join("\n")}`;
+  return `There are currently ${items.length} worlds:\n${lines.join("\n")}`;
 }
 
 function composeTaskListAnswer(results: ToolExecutionResult[]): string {
   const list = getSuccessfulOutputs(results, "list_tasks")[0];
   const items = Array.isArray(list?.items) ? list.items : [];
   if (items.length === 0) {
-    return "当前没有系统任务。";
+    return "There are no system tasks.";
   }
   const lines = items.slice(0, 8).map((item, index) => {
-    const title = typeof item?.title === "string" && item.title.trim() ? item.title.trim() : "未命名任务";
+    const title = typeof item?.title === "string" && item.title.trim() ? item.title.trim() : "Untitled task";
     const status = typeof item?.status === "string" && item.status.trim() ? item.status.trim() : "unknown";
     const kind = typeof item?.kind === "string" && item.kind.trim() ? item.kind.trim() : null;
     return `${index + 1}. ${title}${kind ? `（${kind}）` : ""} - ${status}`;
   });
-  return `当前共有 ${items.length} 个系统任务：\n${lines.join("\n")}`;
+  return `There are currently ${items.length} system tasks:\n${lines.join("\n")}`;
 }
 
 function getFirstSuccessfulOutput(results: ToolExecutionResult[], tool: ToolCall["tool"]): Record<string, unknown> | null {
@@ -238,21 +238,21 @@ function composeBindWorldAnswer(
     const worldName = typeof bound.worldName === "string" ? bound.worldName.trim() : "";
     const novelTitle = typeof bound.novelTitle === "string" ? bound.novelTitle.trim() : "";
     if (worldName && novelTitle) {
-      return `已将世界观《${worldName}》绑定到小说《${novelTitle}》。`;
+      return `Bound the world "${worldName}" to the novel "${novelTitle}".`;
     }
-    return "已完成世界观绑定。";
+    return "World binding is complete.";
   }
   if (!context.novelId) {
-    return "没有当前小说上下文，无法设置世界观。";
+    return "Without the current novel context, a world cannot be set.";
   }
   const failed = getFailedResult(results, "bind_world_to_novel");
   if (failed?.errorCode === "NOT_FOUND") {
-    return "未找到要绑定的世界观。";
+    return "The world to bind was not found.";
   }
   if (failed?.summary) {
     return failed.summary;
   }
-  return "未完成世界观绑定。";
+  return "World binding was not completed.";
 }
 
 function composeUnbindWorldAnswer(
@@ -268,21 +268,21 @@ function composeUnbindWorldAnswer(
     const novelTitle = typeof unbound.novelTitle === "string" ? unbound.novelTitle.trim() : "";
     const previousWorldName = typeof unbound.previousWorldName === "string" ? unbound.previousWorldName.trim() : "";
     if (novelTitle && previousWorldName) {
-      return `已将世界观《${previousWorldName}》从小说《${novelTitle}》解绑。`;
+      return `Unbound the world "${previousWorldName}" from the novel "${novelTitle}".`;
     }
     if (novelTitle) {
-      return `已更新小说《${novelTitle}》的世界观绑定状态。`;
+      return `Updated the world-binding status for the novel "${novelTitle}".`;
     }
-    return "已完成世界观解绑。";
+    return "World unbinding is complete.";
   }
   if (!context.novelId) {
-    return "没有当前小说上下文，无法解除世界观绑定。";
+    return "Without the current novel context, the world cannot be unbound.";
   }
   const failed = getFailedResult(results, "unbind_world_from_novel");
   if (failed?.summary) {
     return failed.summary;
   }
-  return "未完成世界观解绑。";
+  return "World unbinding was not completed.";
 }
 
 function composeFactProductionStatusText(status: Record<string, unknown>, fallbackTitle = "current novel"): string {
@@ -302,7 +302,7 @@ function composeFactProductionStatusText(status: Record<string, unknown>, fallba
   const failureSummary = typeof status.failureSummary === "string" ? status.failureSummary.trim() : "";
   const recoveryHint = typeof status.recoveryHint === "string" ? status.recoveryHint.trim() : "";
 
-  const parts = [`《${title}》事实进展：${currentStage}。`];
+  const parts = [`"${title}" fact progress: ${currentStage}.`];
   if (factProgress) {
     const planningCompleted = typeof factProgress.planningCompleted === "number" ? factProgress.planningCompleted : null;
     const planningTotal = typeof factProgress.planningTotal === "number" ? factProgress.planningTotal : null;
@@ -311,38 +311,38 @@ function composeFactProductionStatusText(status: Record<string, unknown>, fallba
     const committedChapterCount = typeof factProgress.committedChapterCount === "number" ? factProgress.committedChapterCount : null;
     const needsRepairChapters = typeof factProgress.needsRepairChapters === "number" ? factProgress.needsRepairChapters : 0;
     if (planningCompleted != null && planningTotal != null) {
-      parts.push(`规划：${planningCompleted}/${planningTotal} 项。`);
+      parts.push(`Planning: ${planningCompleted}/${planningTotal} items.`);
     }
     if (draftedChapterCount != null) {
       parts.push(targetChapterCount != null
-        ? `正文：${draftedChapterCount}/${targetChapterCount} 章。`
-        : `正文：${draftedChapterCount} 章。`);
+        ? `Chapter text: ${draftedChapterCount}/${targetChapterCount} chapters.`
+        : `Chapter text: ${draftedChapterCount} chapters.`);
     } else {
-      parts.push(targetChapterCount != null ? `章节目录：${chapterCount}/${targetChapterCount} 章。` : `章节目录：${chapterCount} 章。`);
+      parts.push(targetChapterCount != null ? `Chapter table of contents:${chapterCount}/${targetChapterCount} chapters.` : `Chapter table of contents:${chapterCount} chapters.`);
     }
     if (reviewedChapterCount != null && reviewedChapterCount > 0) {
-      parts.push(`审校：${reviewedChapterCount} 章。`);
+      parts.push(`Review: ${reviewedChapterCount} chapters.`);
     }
     if (committedChapterCount != null && committedChapterCount > 0) {
-      parts.push(`状态提交：${committedChapterCount} 章。`);
+      parts.push(`State commit: ${committedChapterCount} chapters.`);
     }
     if (needsRepairChapters > 0) {
-      parts.push(`${needsRepairChapters} 章待修复。`);
+      parts.push(`${needsRepairChapters} chapters waiting for repair.`);
     }
   } else {
-    parts.push(targetChapterCount != null ? `章节目录：${chapterCount}/${targetChapterCount} 章。` : `章节目录：${chapterCount} 章。`);
+    parts.push(targetChapterCount != null ? `Chapter table of contents:${chapterCount}/${targetChapterCount} chapters.` : `Chapter table of contents:${chapterCount} chapters.`);
   }
   if (runtimeLabel && runtimeState !== "idle") {
-    parts.push(`后台补充：${runtimeLabel}。`);
+    parts.push(`Background: ${runtimeLabel}.`);
   } else if (pipelineStatus) {
-    parts.push(`后台补充：${pipelineStatus}。`);
+    parts.push(`Background: ${pipelineStatus}.`);
   }
   if (failureSummary) {
-    parts.push(`后台失败原因：${failureSummary}`);
-    parts.push("已产出的事实内容可继续使用。");
+    parts.push(`Background failure reason: ${failureSummary}`);
+    parts.push("Facts already produced can still be used.");
   }
   if (recoveryHint) {
-    parts.push(`建议：${recoveryHint}`);
+    parts.push(`Suggestion: ${recoveryHint}`);
   }
   return parts.join("");
 }
@@ -354,7 +354,7 @@ function composeProgressAnswer(results: ToolExecutionResult[]): string {
   }
   const context = getSuccessfulOutputs(results, "get_novel_context")[0];
   if (!context) {
-    return "当前信息不足，无法继续";
+    return "There is not enough information to continue";
   }
   const completedChapterCount = typeof context.completedChapterCount === "number"
     ? context.completedChapterCount
@@ -364,18 +364,18 @@ function composeProgressAnswer(results: ToolExecutionResult[]): string {
     ? context.latestCompletedChapterOrder
     : null;
   if (completedChapterCount == null) {
-    return "当前信息不足，无法继续";
+    return "There is not enough information to continue";
   }
   const parts = [
     chapterCount != null
-      ? `正文：${completedChapterCount}/${chapterCount} 章。`
-      : `正文：${completedChapterCount} 章。`,
+      ? `Chapter text: ${completedChapterCount}/${chapterCount} chapters.`
+      : `Chapter text: ${completedChapterCount} chapters.`,
   ];
   if (latestCompletedChapterOrder != null) {
-    parts.push(`最近完成到第${latestCompletedChapterOrder}章。`);
+    parts.push(`Most recently finished through chapter ${latestCompletedChapterOrder}.`);
   }
   if (completedChapterCount === 0) {
-    parts.push("未检测到写入正文的章节。");
+    parts.push("No chapters with written text were found.");
   }
   return parts.join("");
 }
@@ -383,19 +383,19 @@ function composeProgressAnswer(results: ToolExecutionResult[]): string {
 function composeCharacterAnswer(results: ToolExecutionResult[]): string {
   const characterState = getSuccessfulOutputs(results, "get_character_states")[0];
   if (!characterState) {
-    return "未获取到角色状态信息";
+    return "Character-status information was not found";
   }
   const count = typeof characterState.count === "number" ? characterState.count : 0;
   const items = Array.isArray(characterState.items) ? characterState.items : [];
   if (count === 0 || items.length === 0) {
-    return "当前小说还没有已规划角色。";
+    return "This novel has no planned characters yet.";
   }
   const lines = items.slice(0, 6).map((item, index) => {
     const name = typeof item?.name === "string" && item.name.trim() ? item.name.trim() : "unnamed role";
     const role = typeof item?.role === "string" && item.role.trim() ? item.role.trim() : null;
     return `${index + 1}. ${name}${role ? `（${role}）` : ""}`;
   });
-  return `当前小说已规划 ${count} 个角色：\n${lines.join("\n")}`;
+  return `This novel currently has ${count} planned characters:\n${lines.join("\n")}`;
 }
 
 function composeChapterAnswer(results: ToolExecutionResult[]): string | null {
@@ -410,7 +410,7 @@ function composeChapterAnswer(results: ToolExecutionResult[]): string | null {
       const order = Number(item.order);
       const title = typeof item.title === "string" ? item.title.trim() : "";
       const content = typeof item.content === "string" ? item.content : "";
-      return `第${order}章${title ? `《${title}》` : ""}：${truncateText(content, 360) || "正文为空"}`;
+      return `Chapter ${order}${title ? ` "${title}"` : ""}: ${truncateText(content, 360) || "chapter text is empty"}`;
     }).join("\n\n");
   }
 
@@ -438,8 +438,8 @@ function composeWriteAnswer(results: ToolExecutionResult[], waitingForApproval: 
     const end = typeof preview.endOrder === "number" ? preview.endOrder : null;
     if (start != null && end != null) {
       return start === end
-        ? `已完成第${start}章执行预览，当前等待审批。`
-        : `已完成第${start}到第${end}章执行预览，当前等待审批。`;
+        ? `Finished the execution preview for chapter ${start}. Waiting for approval.`
+        : `Finished the execution preview for chapters ${start}–${end}. Waiting for approval.`;
     }
   }
   if (queue) {
@@ -447,8 +447,8 @@ function composeWriteAnswer(results: ToolExecutionResult[], waitingForApproval: 
     const end = typeof queue.endOrder === "number" ? queue.endOrder : null;
     const jobId = typeof queue.jobId === "string" ? queue.jobId : "";
     if (start != null && end != null) {
-      const scope = start === end ? `第${start}章` : `第${start}到第${end}章`;
-      return `已创建 ${scope} 的写作任务${jobId ? `（任务 ${jobId}）` : ""}。`;
+      const scope = start === end ? `Chapter ${start}` : `Chapters ${start}–${end}`;
+      return `Created a writing task for ${scope}${jobId ? ` (task ${jobId})` : ""}.`;
     }
   }
   return null;
@@ -461,8 +461,8 @@ function composeProductionStatusAnswer(
   const status = getFirstSuccessfulOutput(results, "get_novel_production_status");
   if (!status) {
     return context.novelId
-      ? "未获取到整本生产状态。"
-      : "没有当前小说上下文，无法读取整本生产状态。";
+      ? "Full-book production status was not found."
+      : "Without the current novel context, full-book production status cannot be read.";
   }
   const title = typeof status.title === "string" ? status.title.trim() : "current novel";
   return composeFactProductionStatusText(status, title);
@@ -498,38 +498,38 @@ async function composeProduceNovelAnswer(
   const assetParts: string[] = [];
   if (world) {
     const worldName = typeof world.worldName === "string" ? world.worldName.trim() : "";
-    assetParts.push(worldName ? `世界观《${worldName}》` : "World");
+    assetParts.push(worldName ? `world "${worldName}"` : "World");
   }
   if (characters) {
     const characterCount = typeof characters.characterCount === "number" ? characters.characterCount : 0;
-    assetParts.push(`${characterCount} 个核心角色`);
+    assetParts.push(`${characterCount} core role`);
   }
   if (bible) {
-    assetParts.push("小说圣经");
+    assetParts.push("Novel bible");
   }
   if (outline) {
-    assetParts.push("发展走向");
+    assetParts.push("Story direction");
   }
   if (structured) {
     const targetChapterCount = typeof structured.targetChapterCount === "number" ? structured.targetChapterCount : null;
-    assetParts.push(targetChapterCount != null ? `${targetChapterCount} 章结构化大纲` : "结构化大纲");
+    assetParts.push(targetChapterCount != null ? `${targetChapterCount}-chapter structured outline` : "Structured outline");
   }
   if (synced) {
     const chapterCount = typeof synced.chapterCount === "number" ? synced.chapterCount : null;
-    assetParts.push(chapterCount != null ? `${chapterCount} 个章节目录` : "Chapter table of contents");
+    assetParts.push(chapterCount != null ? `${chapterCount} chapters in the table of contents` : "Chapter table of contents");
   }
 
   if (waitingForApproval && preview) {
-    return `《${title}》的核心资产已生成完成${assetParts.length > 0 ? `：${assetParts.join("、")}。` : "。"}整本写作预览已完成，当前等待审批。`;
+    return `Core assets for "${title}" are generated${assetParts.length > 0 ? `: ${assetParts.join(", ")}.` : "."} Full writing preview is done. Waiting for approval.`;
   }
   if (queued) {
-    const jobId = typeof queued.jobId === "string" && queued.jobId.trim() ? `（任务 ${queued.jobId}）` : "";
-    return `《${title}》的核心资产已生成完成${assetParts.length > 0 ? `：${assetParts.join("、")}。` : "。"}整本写作任务已启动${jobId}。`;
+    const jobId = typeof queued.jobId === "string" && queued.jobId.trim() ? ` (task ${queued.jobId})` : "";
+    return `Core assets for "${title}" are generated${assetParts.length > 0 ? `: ${assetParts.join(", ")}.` : "."} The full writing job has started${jobId}.`;
   }
   if (preview) {
-    return `《${title}》的核心资产已生成完成${assetParts.length > 0 ? `：${assetParts.join("、")}。` : "。"}整本写作未启动。`;
+    return `Core assets for "${title}" are generated${assetParts.length > 0 ? `: ${assetParts.join(", ")}.` : "."} Full-book writing has not started.`;
   }
-  return `《${title}》的核心资产已生成完成${assetParts.length > 0 ? `：${assetParts.join("、")}。` : "。"}`
+  return `Core assets for "${title}" are generated${assetParts.length > 0 ? `: ${assetParts.join(", ")}.` : "."}`
 }
 
 function composeFailureDiagnosisAnswer(results: ToolExecutionResult[]): string {
@@ -542,17 +542,17 @@ function composeFailureDiagnosisAnswer(results: ToolExecutionResult[]): string {
   ];
   const first = candidates.find((item) => typeof item.failureSummary === "string" && item.failureSummary.trim());
   if (!first) {
-    return "当前没有可用的失败诊断信息";
+    return "No failure diagnosis is available";
   }
   const parts = [String(first.failureSummary).trim()];
   if (typeof first.failureDetails === "string" && first.failureDetails.trim() && first.failureDetails.trim() !== parts[0]) {
-    parts.push(`详情：${first.failureDetails.trim()}`);
+    parts.push(`Details: ${first.failureDetails.trim()}`);
   }
   if (typeof first.recoveryHint === "string" && first.recoveryHint.trim()) {
-    parts.push(`建议：${first.recoveryHint.trim()}`);
+    parts.push(`Suggestion: ${first.recoveryHint.trim()}`);
   }
   if (typeof first.lastFailedStep === "string" && first.lastFailedStep.trim()) {
-    parts.push(`失败步骤：${first.lastFailedStep.trim()}`);
+    parts.push(`Failed step: ${first.lastFailedStep.trim()}`);
   }
   return parts.join("\n");
 }
@@ -584,11 +584,11 @@ async function composeFallbackAnswer(
         maxTokens: context.maxTokens,
       },
     });
-    return result.output.trim() || "当前信息不足，无法继续";
+    return result.output.trim() || "There is not enough information to continue";
   } catch {
-    return summary || "当前信息不足，无法继续";
+    return summary || "There is not enough information to continue";
   }
-  return "当前信息不足，无法继续";
+  return "There is not enough information to continue";
 }
 
 export async function composeAssistantMessage(
@@ -652,7 +652,7 @@ export async function composeAssistantMessage(
     case "query_progress":
       return composeProgressAnswer(results);
     case "query_chapter_content":
-      return composeChapterAnswer(results) ?? "未获取到章节正文";
+      return composeChapterAnswer(results) ?? "Chapter text was not found";
     case "inspect_failure_reason":
       return composeFailureDiagnosisAnswer(results);
     case "ideate_novel_setup":
@@ -661,7 +661,7 @@ export async function composeAssistantMessage(
     case "rewrite_chapter":
     case "save_chapter_draft":
     case "start_pipeline":
-      return composeWriteAnswer(results, waitingForApproval) ?? "未获取到可执行范围";
+      return composeWriteAnswer(results, waitingForApproval) ?? "No executable range was found";
     default:
       break;
   }

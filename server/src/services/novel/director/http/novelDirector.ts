@@ -164,7 +164,7 @@ const ideaConstellationComposeSchema = ideaContextRequestSchema.extend({
     context.addIssue({
       code: "custom",
       path: ["selectedOptions"],
-      message: "每种故事星图维度最多选择一项。",
+      message: "Choose at most one option in each story-map dimension.",
     });
   }
 });

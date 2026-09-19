@@ -220,7 +220,7 @@ async function invokeStructuredAttempt<T>(input: {
     model: resolved.model,
   });
   try {
-    liveSession.phase("streaming", "模型正在返回结构化结果");
+    liveSession.phase("streaming", "The model is returning a structured result");
     const collected = await runWithEnforcedTimeout({
       label: input.baseInput.label,
       timeoutMs: input.baseInput.timeoutMs,
@@ -254,7 +254,7 @@ async function invokeStructuredAttempt<T>(input: {
       fallbackUsed: input.fallbackUsed,
       reasoningForcedOff: resolved.reasoningForcedOff,
     });
-    liveSession.phase("validating", "正在检查生成结果");
+    liveSession.phase("validating", "Checking the generated result");
     let repairStarted = false;
     const parsed = await parseStructuredLlmRawContentDetailed({
       rawContent,
@@ -276,7 +276,7 @@ async function invokeStructuredAttempt<T>(input: {
       onRepairOutputDelta: (content) => {
         if (!repairStarted) {
           repairStarted = true;
-          liveSession.phase("repairing", "正在修复生成结果");
+          liveSession.phase("repairing", "Repairing the generated result");
         }
         liveSession.delta(content);
       },
@@ -449,13 +449,13 @@ export function summarizeStructuredOutputFailure(input: {
   const category = input.error instanceof StructuredOutputError
     ? input.error.category
     : extractStructuredOutputErrorCategory(message) ?? classifyStructuredOutputFailure({ error: input.error });
-  const suffix = input.fallbackAvailable ? "，可考虑启用结构化备用模型。" : "。";
+  const suffix = input.fallbackAvailable ? "，可考虑启用Structured fallback model。" : "。";
   const incompleteJsonSummary = input.fallbackAvailable
-    ? "模型输出的 JSON 被截断或不完整，可能是输出被截断或 token 上限不足；建议先重试，必要时切换更强模型或启用结构化备用模型。"
-    : "模型输出的 JSON 被截断或不完整，可能是输出被截断或 token 上限不足；建议先重试，必要时切换更强模型。";
+    ? "The model's JSON was truncated or incomplete, likely from a cutoff or token limit. Retry first, and switch to a stronger model or enable the structured fallback model if needed."
+    : "The model's JSON was truncated or incomplete, likely from a cutoff or token limit. Retry first, and switch to a stronger model if needed.";
   const summaryMap: Record<StructuredOutputErrorCategory, string> = {
-    unsupported_native_json: `当前模型端点不兼容原生 JSON 输出${suffix}`,
-    thinking_pollution: `当前模型的思考内容污染了结构化输出${suffix}`,
+    unsupported_native_json: `current model端点不兼容原生 JSON 输出${suffix}`,
+    thinking_pollution: `current model的思考内容污染了Structured output${suffix}`,
     incomplete_json: incompleteJsonSummary,
     malformed_json: `模型输出的 JSON 格式不稳定${suffix}`,
     schema_mismatch: `模型输出未满足目标结构要求${suffix}`,

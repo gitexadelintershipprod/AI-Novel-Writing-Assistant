@@ -44,7 +44,7 @@ export function registerNovelChapterEditorRoutes(input: RegisterNovelChapterEdit
         if (forwardBusinessError(error, next)) {
           return;
         }
-        if (error instanceof Error && ["小说不存在。", "章节不存在。"].includes(error.message)) {
+        if (error instanceof Error && ["The novel does not exist.", "The chapter does not exist."].includes(error.message)) {
           next(new AppError(error.message, 400));
           return;
         }
@@ -72,17 +72,17 @@ export function registerNovelChapterEditorRoutes(input: RegisterNovelChapterEdit
         if (
           error instanceof Error
           && [
-            "小说不存在。",
-            "章节不存在。",
-            "当前章节正文为空，无法发起 AI 修正。",
-            "片段修正需要先选中正文内容。",
-            "选区范围无效，请重新选择后再试。",
-            "选中文本不能为空。",
-            "选中文本已发生变化，请重新选择后再试。",
-            "请先写下你希望 AI 如何修改。",
-            "AI 未返回足够的候选版本，请重试。",
+            "The novel does not exist.",
+            "The chapter does not exist.",
+            "This chapter body is empty, so AI repair cannot start.",
+            "Inline repair needs selected chapter text first.",
+            "The selection range is invalid. Select it again and retry.",
+            "The selected text cannot be empty.",
+            "The selected text changed. Select it again and retry.",
+            "First write how you want AI to revise it.",
+            "AI did not return enough candidate versions. Please retry.",
           ].includes(error.message)
-            || (error instanceof Error && error.message.includes("整章修正当前限制为"))
+            || (error instanceof Error && (error.message.includes("整章修正当前限制为") || error.message.includes("Full-chapter repair is currently limited to")))
         ) {
           next(new AppError(error.message, 400));
           return;
@@ -111,13 +111,13 @@ export function registerNovelChapterEditorRoutes(input: RegisterNovelChapterEdit
         if (
           error instanceof Error
           && [
-            "小说不存在。",
-            "章节不存在。",
-            "当前章节正文为空，无法发起局部改写。",
-            "选区范围无效，请重新选择后再试。",
-            "选中文本不能为空。",
-            "选中文本已发生变化，请重新选择后再试。",
-            "AI 未返回足够的候选版本，请重试。",
+            "The novel does not exist.",
+            "The chapter does not exist.",
+            "This chapter body is empty, so a local rewrite cannot start.",
+            "The selection range is invalid. Select it again and retry.",
+            "The selected text cannot be empty.",
+            "The selected text changed. Select it again and retry.",
+            "AI did not return enough candidate versions. Please retry.",
           ].includes(error.message)
         ) {
           next(new AppError(error.message, 400));

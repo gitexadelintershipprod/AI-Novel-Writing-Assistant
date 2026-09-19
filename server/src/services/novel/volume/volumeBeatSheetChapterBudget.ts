@@ -135,7 +135,7 @@ export function validateBeatSheetChapterCoverage(input: {
       plannedChapterCount,
       minTrustedChapterCount,
       maxTrustedChapterCount,
-      message: `当前卷节奏板章节跨度应覆盖约 ${targetChapterCount} 章，实际只覆盖到 ${requiredChapterCount} 章。`,
+      message: `The current volume beat sheet should cover about ${targetChapterCount} chapters, but it only covers ${requiredChapterCount} chapters.`,
     };
   }
   if (continuousChapterCount < minTrustedChapterCount) {
@@ -147,7 +147,7 @@ export function validateBeatSheetChapterCoverage(input: {
       plannedChapterCount,
       minTrustedChapterCount,
       maxTrustedChapterCount,
-      message: `当前卷节奏板章节跨度应从第 1 章连续覆盖到约 ${targetChapterCount} 章，实际连续覆盖到第 ${continuousChapterCount} 章。`,
+      message: `The current volume beat sheet should cover continuously from Chapter 1 through about ${targetChapterCount} chapters, but continuous coverage only reaches Chapter ${continuousChapterCount}.`,
     };
   }
   if (plannedChapterCount < minTrustedChapterCount || plannedChapterCount > maxTrustedChapterCount) {
@@ -159,7 +159,7 @@ export function validateBeatSheetChapterCoverage(input: {
       plannedChapterCount,
       minTrustedChapterCount,
       maxTrustedChapterCount,
-      message: `当前卷节奏板章节跨度合计应约 ${targetChapterCount} 章，实际合计 ${plannedChapterCount} 章。`,
+      message: `The current volume beat sheet spans should total about ${targetChapterCount} chapters, but they total ${plannedChapterCount} chapters.`,
     };
   }
 

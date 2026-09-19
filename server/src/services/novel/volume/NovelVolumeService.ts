@@ -326,7 +326,7 @@ export class NovelVolumeService {
         };
       }
     }
-    throw new Error("当前章节未映射到卷规划章节，无法生成执行合同。");
+    throw new Error("This chapter is not mapped to a volume-plan chapter, so an execution contract cannot be generated.");
   }
 
   private async ensureActiveVersionRecord(
@@ -362,7 +362,7 @@ export class NovelVolumeService {
         version: (latestVersion?.version ?? 0) + 1,
         status: "active",
         contentJson: "{}",
-        diffSummary: diffSummary ?? "同步当前卷工作区。",
+        diffSummary: diffSummary ?? "Sync the current volume workspace.",
       },
     });
     const persistedDocument = {
@@ -425,8 +425,8 @@ export class NovelVolumeService {
         });
         return this.ensureVolumeWorkspace(novelId);
       } catch (error) {
-        const message = error instanceof Error ? error.message : "未知错误";
-        throw new Error(`当前卷工作区已保存，但章节执行连接失败：${message}`);
+        const message = error instanceof Error ? error.message : "unknown error";
+        throw new Error(`The current volume workspace was saved, but chapter execution connection failed: ${message}`);
       }
     }
     return persistedDocument;
@@ -465,7 +465,7 @@ export class NovelVolumeService {
       where: { id: versionId, novelId },
     });
     if (!row) {
-      throw new Error("卷级版本不存在。");
+      throw new Error("The volume version does not exist.");
     }
     return mapVersionRow(row);
   }
@@ -511,11 +511,11 @@ export class NovelVolumeService {
       where: { id: versionId, novelId },
     });
     if (!target) {
-      throw new Error("卷级版本不存在。");
+      throw new Error("The volume version does not exist.");
     }
     const document = this.parseVersionDocument(novelId, target.contentJson);
     if (document.volumes.length === 0) {
-      throw new Error("卷级版本内容为空。");
+      throw new Error("The volume version content is empty.");
     }
     await runVolumeWorkspaceTransaction(async (tx) => {
       await tx.volumePlanVersion.updateMany({
@@ -538,7 +538,7 @@ export class NovelVolumeService {
     });
     const refreshed = await prisma.volumePlanVersion.findUnique({ where: { id: target.id } });
     if (!refreshed) {
-      throw new Error("卷级版本激活失败。");
+      throw new Error("Activating the volume version failed.");
     }
     const shouldSyncPayoffLedger = hasPayoffLedgerRelevantPlanChanges(currentDocument.volumes, document.volumes);
     this.emitVolumeUpdated(novelId, "version_activated");
@@ -554,7 +554,7 @@ export class NovelVolumeService {
       select: { id: true },
     });
     if (!target) {
-      throw new Error("卷级版本不存在。");
+      throw new Error("The volume version does not exist.");
     }
     const row = await prisma.volumePlanVersion.update({
       where: { id: target.id },
@@ -569,7 +569,7 @@ export class NovelVolumeService {
       where: { id: versionId, novelId },
     });
     if (!target) {
-      throw new Error("卷级版本不存在。");
+      throw new Error("The volume version does not exist.");
     }
     let baseline: VolumePlan[] = [];
     if (typeof compareVersion === "number") {
@@ -606,7 +606,7 @@ export class NovelVolumeService {
         where: { id: input.versionId, novelId },
       });
       if (!version) {
-        throw new Error("卷级版本不存在。");
+        throw new Error("The volume version does not exist.");
       }
       candidateVolumes = this.parseVersionContent(novelId, version.contentJson);
       sourceVersion = version.version;

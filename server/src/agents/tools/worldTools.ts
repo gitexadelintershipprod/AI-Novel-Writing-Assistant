@@ -24,8 +24,8 @@ export const worldToolDefinitions: Partial<
 > = {
   list_worlds: {
     name: "list_worlds",
-    title: "列出世界观",
-    description: "读取世界观列表、版本和概览状态。",
+    title: "list worldview",
+    description: "Read the world list, versions, and overview status.",
     category: "read",
     riskLevel: "low",
     domainAgent: "WorldAgent",
@@ -33,10 +33,10 @@ export const worldToolDefinitions: Partial<
     parserHints: {
       intent: "list_worlds",
       aliases: ["世界观列表", "世界观库", "worlds"],
-      phrases: ["列出世界观列表", "当前有哪些世界观", "查看世界观列表"],
+      phrases: ["list worldview列表", "当前有哪些世界观", "View world view列表"],
       requiresNovelContext: false,
-      whenToUse: "用户想查看全局世界观资源。",
-      whenNotToUse: "用户是在为当前小说绑定或检查某个具体世界观。",
+      whenToUse: "The user wants to browse global world-building resources.",
+      whenNotToUse: "The user is binding or inspecting a world for the current novel.",
     },
     inputSchema: listWorldsInputSchema,
     outputSchema: listWorldsOutputSchema,
@@ -56,25 +56,25 @@ export const worldToolDefinitions: Partial<
           overviewSummary: row.overviewSummary ?? null,
           updatedAt: row.updatedAt.toISOString(),
         })),
-        summary: `已读取 ${rows.length} 个世界观。`,
+        summary: `Read ${rows.length} worlds.`,
       });
     },
   },
   bind_world_to_novel: {
     name: "bind_world_to_novel",
-    title: "绑定小说世界观",
-    description: "将指定世界观绑定为当前小说的世界观。",
+    title: "Bind a novel world",
+    description: "Bind the specified world as the current novel's world.",
     category: "mutate",
     riskLevel: "medium",
     domainAgent: "WorldAgent",
     resourceScopes: ["world", "novel"],
     parserHints: {
       intent: "bind_world_to_novel",
-      aliases: ["绑定世界观", "设置小说世界观"],
-      phrases: ["将某个世界观设为当前小说的世界观", "把世界观绑定为当前小说世界观"],
+      aliases: ["Bind the world", "设置小说世界观"],
+      phrases: ["将某个世界观设为current novel的世界观", "把世界观绑定为current novel世界观"],
       requiresNovelContext: true,
-      whenToUse: "用户要把某个世界观绑定到当前小说。",
-      whenNotToUse: "用户只是想查看世界观列表或详情。",
+      whenToUse: "The user wants to bind a world to the current novel.",
+      whenNotToUse: "The user only wants to view the world list or world details.",
     },
     inputSchema: bindWorldToNovelInputSchema,
     outputSchema: bindWorldToNovelOutputSchema,
@@ -88,7 +88,7 @@ export const worldToolDefinitions: Partial<
         },
       });
       if (!novel) {
-        throw new AgentToolError("NOT_FOUND", "未找到当前小说。");
+        throw new AgentToolError("NOT_FOUND", "The current novel was not found.");
       }
 
       const resolvedWorld = input.worldId
@@ -116,7 +116,7 @@ export const worldToolDefinitions: Partial<
       }
 
       if (!world) {
-        throw new AgentToolError("NOT_FOUND", "未找到要绑定的世界观。");
+        throw new AgentToolError("NOT_FOUND", "The world to bind was not found.");
       }
 
       await prisma.novel.update({
@@ -131,14 +131,14 @@ export const worldToolDefinitions: Partial<
         novelTitle: novel.title,
         worldId: world.id,
         worldName: world.name,
-        summary: `已将世界观《${world.name}》绑定到小说《${novel.title}》。`,
+        summary: `Bound world “${world.name}” to novel “${novel.title}”.`,
       });
     },
   },
   unbind_world_from_novel: {
     name: "unbind_world_from_novel",
-    title: "解除小说世界观绑定",
-    description: "解除当前小说与已绑定世界观之间的关联。",
+    title: "Unbinding the worldview of the novel",
+    description: "Unbind the current novel from its world.",
     category: "mutate",
     riskLevel: "medium",
     domainAgent: "WorldAgent",
@@ -146,10 +146,10 @@ export const worldToolDefinitions: Partial<
     parserHints: {
       intent: "unbind_world_from_novel",
       aliases: ["解绑世界观", "取消世界观绑定", "不使用当前世界观", "remove world binding"],
-      phrases: ["不要这个世界观了", "先不用这个世界观", "把当前小说的世界观解绑", "取消当前世界观"],
+      phrases: ["不要这个世界观了", "先不用这个世界观", "把current novel的世界观解绑", "取消当前世界观"],
       requiresNovelContext: true,
-      whenToUse: "用户要取消当前小说已绑定的世界观，或明确表示先不用某个世界观。",
-      whenNotToUse: "用户是在为当前小说指定一个新的世界观，或只是想查看世界观详情。",
+      whenToUse: "The user wants to unbind this novel's world, or clearly says not to use a world yet.",
+      whenNotToUse: "The user is assigning a new world to the current novel, or only wants world details.",
     },
     inputSchema: unbindWorldFromNovelInputSchema,
     outputSchema: unbindWorldFromNovelOutputSchema,
@@ -169,7 +169,7 @@ export const worldToolDefinitions: Partial<
         },
       });
       if (!novel) {
-        throw new AgentToolError("NOT_FOUND", "未找到当前小说。");
+        throw new AgentToolError("NOT_FOUND", "The current novel was not found.");
       }
 
       const previousWorld = novel.world ?? null;
@@ -190,15 +190,15 @@ export const worldToolDefinitions: Partial<
         worldId: null,
         worldName: null,
         summary: previousWorld
-          ? `已将世界观《${previousWorld.name}》从小说《${novel.title}》解绑。`
-          : `当前小说《${novel.title}》还没有绑定世界观。`,
+          ? `Unbound the world "${previousWorld.name}" from the novel "${novel.title}".`
+          : `The current novel "${novel.title}" has no bound world.`,
       });
     },
   },
   get_world_detail: {
     name: "get_world_detail",
-    title: "读取世界观详情",
-    description: "读取世界观详情、概览摘要和未解决冲突数。",
+    title: "Read world details",
+    description: "Read world details, overview summary, and unresolved conflict count.",
     category: "read",
     riskLevel: "low",
     domainAgent: "WorldAgent",
@@ -232,14 +232,14 @@ export const worldToolDefinitions: Partial<
         consistencyReport: row.consistencyReport ?? null,
         novelCount: row.novels.length,
         openIssueCount: row.consistencyIssues.length,
-        summary: `世界观《${row.name}》当前有 ${row.consistencyIssues.length} 个未解决冲突。`,
+        summary: `World “${row.name}” currently has ${row.consistencyIssues.length} unresolved conflicts.`,
       });
     },
   },
   explain_world_conflict: {
     name: "explain_world_conflict",
-    title: "解释世界观冲突",
-    description: "读取世界观一致性冲突，并给出恢复建议。",
+    title: "Explain world conflicts",
+    description: "Read world consistency conflicts and give recovery suggestions.",
     category: "inspect",
     riskLevel: "low",
     domainAgent: "WorldAgent",
@@ -262,8 +262,8 @@ export const worldToolDefinitions: Partial<
       }
       const issue = world.consistencyIssues[0] ?? null;
       const failureSummary = issue
-        ? `${issue.message}${issue.targetField ? `（字段: ${issue.targetField}）` : ""}`
-        : "当前世界观没有未解决的一致性冲突。";
+        ? `${issue.message}${issue.targetField ? ` (field: ${issue.targetField})` : ""}`
+        : "This world has no unresolved consistency conflicts.";
       return explainWorldConflictOutputSchema.parse({
         worldId: world.id,
         issueId: issue?.id ?? null,
@@ -272,16 +272,16 @@ export const worldToolDefinitions: Partial<
         failureSummary,
         failureDetails: issue?.detail ?? world.consistencyReport ?? null,
         recoveryHint: issue
-          ? "建议先确认冲突字段是否应以世界观为准，再更新对应层内容或相关小说设定。"
-          : "当前无需处理冲突。",
+          ? "First confirm whether the conflicting fields should follow the world, then update the matching world layer or related novel setup."
+          : "No conflict needs handling now.",
         summary: failureSummary,
       });
     },
   },
   rebuild_story_world_slice: {
     name: "rebuild_story_world_slice",
-    title: "重建本书世界切片",
-    description: "强制重新生成当前小说的本书世界切片，修复世界设定来源与小说故事背景不匹配（如历史世界绑定到现代故事）导致的旧世界词汇污染问题。",
+    title: "Rebuild the book-world slice",
+    description: "Force-regenerate this novel's book-world slice to fix mismatched world sources (for example a historical world bound to a modern story) that leak old world vocabulary.",
     category: "mutate",
     riskLevel: "medium",
     domainAgent: "WorldAgent",
@@ -290,15 +290,15 @@ export const worldToolDefinitions: Partial<
       intent: "inspect_world",
       aliases: ["重建世界切片", "修复世界切片", "刷新世界切片", "rebuild world slice"],
       phrases: [
-        "世界设定和故事不匹配",
+        "World setting和故事不匹配",
         "世界切片有旧名词污染",
         "世界绑定来源不对",
-        "重新生成本书世界设定",
+        "Regenerate this book's world setting",
         "切片过时了",
       ],
       requiresNovelContext: true,
-      whenToUse: "用户反映世界设定词汇与当前故事不匹配，或世界切片 isStale=true，或需要强制刷新切片内容。",
-      whenNotToUse: "用户只是查看世界观详情或绑定状态。",
+      whenToUse: "The user says world vocabulary does not match the current story, or the world slice isStale=true, or the slice needs a forced refresh.",
+      whenNotToUse: "The user only wants world details or binding status.",
     },
     inputSchema: rebuildStoryWorldSliceInputSchema,
     outputSchema: rebuildStoryWorldSliceOutputSchema,
@@ -306,7 +306,7 @@ export const worldToolDefinitions: Partial<
       const input = rebuildStoryWorldSliceInputSchema.parse(rawInput);
       const novelId = input.novelId?.trim() || context.novelId;
       if (!novelId) {
-        throw new AgentToolError("INVALID_INPUT", "没有当前小说上下文，无法重建世界切片。");
+        throw new AgentToolError("INVALID_INPUT", "Without the current novel context, the world slice cannot be rebuilt.");
       }
       const view = await novelWorldSliceService.refreshWorldSlice(novelId, {
         storyInput: input.storyInput,
@@ -322,8 +322,8 @@ export const worldToolDefinitions: Partial<
         coreWorldFrame: view.slice?.coreWorldFrame ?? null,
         isStale: view.isStale,
         summary: view.worldId
-          ? `已重建本书世界切片：${view.worldName ?? view.worldId}。${view.slice?.coreWorldFrame ? `核心舞台：${view.slice.coreWorldFrame.slice(0, 60)}` : ""}`
-          : "当前小说未绑定世界，无法重建切片。请先绑定世界观，再执行本操作。",
+          ? `Rebuilt this book's world slice: ${view.worldName ?? view.worldId}.${view.slice?.coreWorldFrame ? ` Core stage: ${view.slice.coreWorldFrame.slice(0, 60)}` : ""}`
+          : "This novel has no bound world, so the slice cannot be rebuilt. Bind a world first.",
       });
     },
   },

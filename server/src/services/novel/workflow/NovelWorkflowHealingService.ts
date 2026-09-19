@@ -111,7 +111,7 @@ export class NovelWorkflowHealingService {
       return {
         step: "beat_sheet",
         currentItemKey: "beat_sheet",
-        currentItemLabel: `正在生成第 ${recoveryCursor.volumeOrder} 卷节奏板`,
+        currentItemLabel: `Generating Volume ${recoveryCursor.volumeOrder} beat sheet`,
         progress: DIRECTOR_PROGRESS.beatSheet,
         scopeLabel: recoveryCursor.scopeLabel,
         volumeId: recoveryCursor.volumeId,
@@ -121,8 +121,8 @@ export class NovelWorkflowHealingService {
 
     if (recoveryCursor.step === "chapter_list") {
       const targetLabel = recoveryCursor.beatLabel?.trim()
-        ? `正在生成第 ${recoveryCursor.volumeOrder} 卷节奏段：${recoveryCursor.beatLabel.trim()}`
-        : `正在生成第 ${recoveryCursor.volumeOrder} 卷章节列表`;
+        ? `Generating Volume ${recoveryCursor.volumeOrder} beat: ${recoveryCursor.beatLabel.trim()}`
+        : `Generating Volume ${recoveryCursor.volumeOrder} chapter list`;
       return {
         step: "chapter_list",
         currentItemKey: "chapter_list",
@@ -138,7 +138,7 @@ export class NovelWorkflowHealingService {
       return {
         step: "chapter_sync",
         currentItemKey: "chapter_sync",
-        currentItemLabel: `${recoveryCursor.scopeLabel}细化已完成，正在同步章节执行资源`,
+        currentItemLabel: `${recoveryCursor.scopeLabel} detailing is done; syncing chapter execution resources`,
         progress: DIRECTOR_PROGRESS.chapterDetailDone,
         scopeLabel: recoveryCursor.scopeLabel,
         volumeId: recoveryCursor.selectedChapters[0]?.volumeId ?? null,
@@ -189,11 +189,11 @@ export class NovelWorkflowHealingService {
         currentStage: shouldRestoreCandidateSelection ? stageLabel("auto_director") : undefined,
         currentItemKey: shouldRestoreCandidateSelection ? "auto_director" : undefined,
         currentItemLabel: shouldRestoreCandidateSelection
-          ? "等待确认书级方向"
+          ? "Waiting to confirm the book direction"
           : undefined,
         checkpointType: shouldRestoreCandidateSelection ? "candidate_selection_required" : undefined,
         checkpointSummary: shouldRestoreCandidateSelection
-          ? (candidate.checkpointSummary ?? "候选方案已恢复，请重新确认或继续微调。")
+          ? (candidate.checkpointSummary ?? "The candidate plan was restored. Confirm it again or keep refining.")
           : undefined,
         resumeTargetJson: shouldRestoreCandidateSelection
           ? stringifyResumeTarget(buildNovelCreateResumeTarget(taskId, "director"))
@@ -300,7 +300,7 @@ export class NovelWorkflowHealingService {
     }
     const reason = parseRuntimeGateReason(latestStep.policyDecisionJson)
       ?? candidate.checkpointSummary
-      ?? "当前自动导演步骤需要确认后继续。";
+      ?? "The current Auto-Director step needs confirmation before continuing.";
     await this.workflow.updateTaskWithRetry({
       where: { id: taskId },
       data: {
@@ -359,7 +359,7 @@ export class NovelWorkflowHealingService {
     const message = latestStep.error?.trim()
       || candidate.lastError?.trim()
       || candidate.checkpointSummary?.trim()
-      || "自动导演步骤失败，请检查后重试或继续。";
+      || "An Auto-Director step failed. Check it, then retry or continue.";
     await this.workflow.updateTaskWithRetry({
       where: { id: taskId },
       data: {
@@ -433,7 +433,7 @@ export class NovelWorkflowHealingService {
         heartbeatAt: candidate.heartbeatAt ?? new Date(),
         finishedAt: shouldPromoteToRunning ? null : undefined,
         cancelRequestedAt: shouldPromoteToRunning ? null : undefined,
-        lastError: shouldPromoteToRunning && candidate.lastError?.includes("恢复失败")
+        lastError: shouldPromoteToRunning && candidate.lastError?.includes("Recovery failed")
           ? null
           : undefined,
       },
@@ -599,7 +599,7 @@ export class NovelWorkflowHealingService {
         status: "waiting_approval",
         currentStage: stageLabel("structured_outline"),
         currentItemKey: existing.currentItemKey ?? "chapter_list",
-        currentItemLabel: "章节列表已生成，但标题结构仍需分散",
+        currentItemLabel: "The chapter list was generated, but title structure still needs more variety",
         checkpointType: null,
         checkpointSummary: null,
         resumeTargetJson: stringifyResumeTarget(nextResumeTarget),

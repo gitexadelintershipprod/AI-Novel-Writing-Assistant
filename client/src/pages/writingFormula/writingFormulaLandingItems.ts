@@ -66,17 +66,17 @@ function firstNonEmptyText(...values: unknown[]): string {
 function formatSourceTypeLabel(sourceType: StyleProfile["sourceType"]): string {
   switch (sourceType) {
     case "manual":
-      return "手动整理";
+      return "Manual sorting";
     case "from_text":
-      return "从文本提取";
+      return "Extract from text";
     case "from_book_analysis":
-      return "拆书生成";
+      return "Split book generation";
     case "from_knowledge_document":
-      return "知识库原文";
+      return "Knowledge base original text";
     case "from_current_work":
-      return "当前工作提炼";
+      return "Summary of current work";
     default:
-      return "其他来源";
+      return "other sources";
   }
 }
 
@@ -96,19 +96,19 @@ function formatUpdatedAtLabel(value: string): string {
 }
 
 function buildNarrativeSummary(profile: StyleProfile): string {
-  return buildReadableRuleSummary("narrativeRules", profile.narrativeRules, "还没有明确剧情推进摘要。");
+  return buildReadableRuleSummary("narrativeRules", profile.narrativeRules, "The plot progression summary has not yet been made clear.");
 }
 
 function buildCharacterSummary(profile: StyleProfile): string {
-  return buildReadableRuleSummary("characterRules", profile.characterRules, "还没有明确人物表达摘要。");
+  return buildReadableRuleSummary("characterRules", profile.characterRules, "There is no clear summary of the character expression yet.");
 }
 
 function buildLanguageSummary(profile: StyleProfile): string {
-  return buildReadableRuleSummary("languageRules", profile.languageRules, "还没有明确语言质感摘要。");
+  return buildReadableRuleSummary("languageRules", profile.languageRules, "There is no explicit language texture summary yet.");
 }
 
 function buildRhythmSummary(profile: StyleProfile): string {
-  return buildReadableRuleSummary("rhythmRules", profile.rhythmRules, "还没有明确节奏控制摘要。");
+  return buildReadableRuleSummary("rhythmRules", profile.rhythmRules, "The rhythm control summary has not yet been clarified.");
 }
 
 function buildSourceContentPreview(sourceContent?: string | null): string | null {
@@ -155,13 +155,13 @@ export function buildLandingProfileItems(params: BuildLandingProfileItemsParams)
       const emotionEntry = characterEntries.find((entry) => entry.key === "emotionExpression");
       const detailLines = [
         firstNonEmptyText(profile.description, profileSummary?.readingFeel)
-          ? `读感承诺：${firstNonEmptyText(profile.description, profileSummary?.readingFeel)}`
+          ? `Reading sense commitment:${firstNonEmptyText(profile.description, profileSummary?.readingFeel)}`
           : "",
-        `语言质感：${buildLanguageSummary(profile)}`,
-        dialogueEntry ? `对白风格：${dialogueEntry.value}` : "",
-        emotionEntry ? `情绪外显：${emotionEntry.value}` : "",
+        `Language texture:${buildLanguageSummary(profile)}`,
+        dialogueEntry ? `Dialogue style:${dialogueEntry.value}` : "",
+        emotionEntry ? `Emotional display:${emotionEntry.value}` : "",
         profileSummary?.antiAiFocus.length
-          ? `反 AI 约束：${profileSummary.antiAiFocus.join("；")}`
+          ? `Anti-AI constraints: ${profileSummary.antiAiFocus.join("; ")}`
           : "",
       ].filter(Boolean);
       const recentNovelBinding = recentNovelBindingsByProfileId.get(profile.id);
@@ -176,9 +176,9 @@ export function buildLandingProfileItems(params: BuildLandingProfileItemsParams)
         id: profile.id,
         name: profile.name,
         originLabel: getStyleProfileOriginLabel(profile),
-        summaryLine: detailLines[0] ?? profile.description ?? "暂无写法摘要。",
+        summaryLine: detailLines[0] ?? profile.description ?? "There is no written summary yet.",
         detailLines,
-        description: firstNonEmptyText(profile.description, profileSummary?.readingFeel, "这套写法还没有写清楚读感定位。"),
+        description: firstNonEmptyText(profile.description, profileSummary?.readingFeel, "This writing method has not clearly defined the reading sense positioning."),
         recentNovelTitle: recentNovelBinding
           ? (novelTitleMap[recentNovelBinding.targetId] ?? recentNovelBinding.targetId)
           : null,

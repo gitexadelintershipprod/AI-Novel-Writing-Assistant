@@ -16,17 +16,17 @@ const CHANNEL_ACTION_CODES = new Set<AutoDirectorActionCode>([
 ]);
 
 const REASON_LABELS: Record<AutoDirectorFollowUpReason, string> = {
-  manual_recovery_required: "人工恢复待处理",
-  runtime_failed: "失败待重试",
-  candidate_selection_required: "待确认书级方向",
-  replan_required: "待处理重规划",
-  runtime_cancelled: "已取消待恢复",
-  chapter_batch_execution_pending: "自动执行待继续",
-  quality_repair_pending: "质量修复待继续",
-  auto_progress_running: "自动推进中",
-  auto_approval_completed: "最近自动通过",
-  runtime_replaced: "任务已替代",
-  validation_required: "需要重新校验",
+  manual_recovery_required: "Manual recovery pending",
+  runtime_failed: "Failed to try again",
+  candidate_selection_required: "Book level direction to be confirmed",
+  replan_required: "Pending re-planning",
+  runtime_cancelled: "Canceled pending restoration",
+  chapter_batch_execution_pending: "Automatic execution to be continued",
+  quality_repair_pending: "Quality fixes to be continued",
+  auto_progress_running: "Automatically advancing",
+  auto_approval_completed: "Recently passed automatically",
+  runtime_replaced: "Task has been replaced",
+  validation_required: "Need to recheck",
 };
 
 function mutationAction(input: {
@@ -106,13 +106,13 @@ export function resolveAutoDirectorFollowUpReason(
       availableActions: [
         navigationAction({
           code: "open_detail",
-          label: "查看校验结果",
+          label: "View the validation result",
         }),
         ...(hasStructuredBackfill
           ? [
             mutationAction({
               code: "auto_backfill_structured_outline",
-              label: "让 AI 补齐章节拆分后继续",
+              label: "Let AI finish the chapter split, then continue",
               riskLevel: "low",
               requiresConfirm: false,
             }),
@@ -122,7 +122,7 @@ export function resolveAutoDirectorFollowUpReason(
           ? [
             mutationAction({
               code: "safe_fix_validation",
-              label: "一键安全修复",
+              label: "One-click security repair",
               riskLevel: "low",
               requiresConfirm: true,
             }),
@@ -139,7 +139,7 @@ export function resolveAutoDirectorFollowUpReason(
       availableActions: [
         navigationAction({
           code: "open_detail",
-          label: "查看替代详情",
+          label: "View the replacement details",
         }),
       ],
     });
@@ -152,13 +152,13 @@ export function resolveAutoDirectorFollowUpReason(
       availableActions: [
         mutationAction({
           code: "continue_generic",
-          label: "恢复任务",
+          label: "Resume the task",
           riskLevel: "low",
           requiresConfirm: false,
         }),
         navigationAction({
           code: "open_detail",
-          label: "查看详情",
+          label: "View details",
         }),
       ],
     });
@@ -171,7 +171,7 @@ export function resolveAutoDirectorFollowUpReason(
       availableActions: [
         navigationAction({
           code: "open_detail",
-          label: "查看推进详情",
+          label: "View progress details",
         }),
       ],
     });
@@ -184,19 +184,19 @@ export function resolveAutoDirectorFollowUpReason(
       availableActions: [
         mutationAction({
           code: "retry_with_task_model",
-          label: "按任务模型重试",
+          label: "Retry with the task model",
           riskLevel: "low",
           requiresConfirm: false,
         }),
         mutationAction({
           code: "retry_with_route_model",
-          label: "按路由模型重试",
+          label: "Retry with the routed model",
           riskLevel: "medium",
           requiresConfirm: true,
         }),
         navigationAction({
           code: "open_detail",
-          label: "查看详情",
+          label: "View details",
         }),
       ],
       batchActionCodes: ["retry_with_task_model"],
@@ -210,19 +210,19 @@ export function resolveAutoDirectorFollowUpReason(
       availableActions: [
         mutationAction({
           code: "retry_with_task_model",
-          label: getContinueLabel(input, "从最近检查点恢复"),
+          label: getContinueLabel(input, "Resume from the latest checkpoint"),
           riskLevel: "low",
           requiresConfirm: false,
         }),
         mutationAction({
           code: "retry_with_route_model",
-          label: "按路由模型重试",
+          label: "Retry with the routed model",
           riskLevel: "medium",
           requiresConfirm: true,
         }),
         navigationAction({
           code: "open_detail",
-          label: "查看详情",
+          label: "View details",
         }),
       ],
       batchActionCodes: ["retry_with_task_model"],
@@ -240,11 +240,11 @@ export function resolveAutoDirectorFollowUpReason(
       availableActions: [
         navigationAction({
           code: "go_candidate_selection",
-          label: getContinueLabel(input, "去确认书级方向"),
+          label: getContinueLabel(input, "Go to confirm book level direction"),
         }),
         navigationAction({
           code: "open_detail",
-          label: "查看详情",
+          label: "View details",
         }),
       ],
     });
@@ -257,11 +257,11 @@ export function resolveAutoDirectorFollowUpReason(
       availableActions: [
         navigationAction({
           code: "go_replan",
-          label: getContinueLabel(input, "处理重规划"),
+          label: getContinueLabel(input, "Handle replan"),
         }),
         navigationAction({
           code: "open_detail",
-          label: "查看详情",
+          label: "View details",
         }),
       ],
     });
@@ -274,13 +274,13 @@ export function resolveAutoDirectorFollowUpReason(
       availableActions: [
         mutationAction({
           code: "continue_auto_execution",
-          label: getContinueLabel(input, "继续自动执行当前范围"),
+          label: getContinueLabel(input, "Continue auto-running the current range"),
           riskLevel: "low",
           requiresConfirm: false,
         }),
         navigationAction({
           code: "open_detail",
-          label: "查看详情",
+          label: "View details",
         }),
       ],
       batchActionCodes: ["continue_auto_execution"],
@@ -294,13 +294,13 @@ export function resolveAutoDirectorFollowUpReason(
       availableActions: [
         mutationAction({
           code: "continue_auto_execution",
-          label: getContinueLabel(input, "继续自动执行当前范围"),
+          label: getContinueLabel(input, "Continue auto-running the current range"),
           riskLevel: "low",
           requiresConfirm: false,
         }),
         navigationAction({
           code: "open_detail",
-          label: "查看详情",
+          label: "View details",
         }),
       ],
       batchActionCodes: ["continue_auto_execution"],

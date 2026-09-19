@@ -118,34 +118,34 @@ function buildMode(input: {
 function buildDescription(mode: DirectorDisplayMode): string {
   switch (mode) {
     case "needs_recovery":
-      return "后台执行器连接中断后正在恢复，系统会优先从最近进度继续。";
+      return "The background runner disconnected and is recovering. The system will continue from the latest progress.";
     case "waiting":
-      return "当前导演流程停在需要确认的位置。你可以先查看结果，再决定是否继续。";
+      return "The director flow is waiting for confirmation. Review the result before continuing.";
     case "failed":
-      return "当前导演流程停在最近一步。可以先查看执行详情，再决定是否重试或继续。";
+      return "The director flow stopped at the latest step. Review the run details before retrying or continuing.";
     case "completed":
-      return "本轮导演流程已收尾，你可以继续推进章节、查看结果，或发起下一轮自动导演。";
+      return "This director round is wrapped. Continue chapters, review results, or start another Auto-Director run.";
     case "running":
-      return "AI 正在后台接管这本书的开书流程。你可以继续手动操作当前项目；如果与自动导演同时改同一块内容，以最新写入结果为准。";
+      return "AI is taking over the book opening process in the background. You can continue to manually operate the current project; if the same piece of content is modified at the same time as the automatic director, the latest writing result shall prevail.";
     default:
-      return "当前没有正在推进的导演任务。";
+      return "No director task is currently advancing.";
   }
 }
 
 function buildHeadline(mode: DirectorDisplayMode): string {
   switch (mode) {
     case "needs_recovery":
-      return "等待恢复";
+      return "Waiting for recovery";
     case "waiting":
-      return "等待确认";
+      return "Waiting for confirmation";
     case "failed":
-      return "执行受阻";
+      return "Execution blocked";
     case "completed":
-      return "导演已完成";
+      return "Director finished";
     case "running":
-      return "正在自动导演";
+      return "Auto-Directing";
     default:
-      return "暂未启动";
+      return "Not started";
   }
 }
 
@@ -161,7 +161,7 @@ function buildCurrentAction(input: {
       input.task.currentItemLabel?.trim()
       || input.task.checkpointSummary?.trim()
       || input.factStep?.progress.label?.trim()
-      || "本轮自动导演已完成"
+      || "This Auto-Director round is complete"
     );
   }
   if (input.mode === "needs_recovery") {
@@ -169,7 +169,7 @@ function buildCurrentAction(input: {
       input.task.lastError?.trim()
       || input.projection?.blockingReason?.trim()
       || input.projection?.lastEventSummary?.trim()
-      || "系统会从最近进度继续恢复。"
+      || "The system will resume from the latest progress."
     );
   }
   if (
@@ -187,7 +187,7 @@ function buildCurrentAction(input: {
       || input.projection?.currentAction?.trim()
       || input.projection?.currentLabel?.trim()
       || input.projection?.lastEventSummary?.trim()
-      || "等待同步当前推进状态"
+      || "Waiting for synchronization of current advancement status"
     );
   }
   return (
@@ -196,7 +196,7 @@ function buildCurrentAction(input: {
     || input.factStep?.progress.label?.trim()
     || input.task.currentItemLabel?.trim()
     || input.projection?.lastEventSummary?.trim()
-    || "等待同步当前推进状态"
+    || "Waiting for synchronization of current advancement status"
   );
 }
 
@@ -213,21 +213,21 @@ function buildNextActionLabel(input: {
   }
   switch (raw) {
     case "continue":
-      return "继续自动导演";
+      return "Continue to direct automatically";
     case "continue_chapter_execution":
-      return "继续章节执行";
+      return "Continue chapter execution";
     case "resume_from_checkpoint":
-      return "从最近进度恢复";
+      return "Resume from the latest progress";
     case "approve_gate":
-      return "确认并继续";
+      return "Confirm and continue";
     case "repair_chapter":
-      return "修复当前章节";
+      return "Repair the current chapter";
     case "run_quality_review":
-      return "进入质量检查";
+      return "Start quality review";
     case "run_chapter_execution":
-      return "开始章节执行";
+      return "Start chapter execution";
     case "sync_execution_contracts":
-      return "同步正式章节执行上下文";
+      return "Sync official chapter execution context";
     default:
       return raw;
   }

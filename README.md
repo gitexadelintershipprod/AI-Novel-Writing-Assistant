@@ -174,10 +174,10 @@ The priority is helping a beginner finish a book, not stacking extra side tools.
 
 ## Latest updates
 
-### 2026-09-17
+### 2026-09-20
 
-- The GitHub README, repository description, and public intro site now tell the same English story: from one idea to a finished novel, with Auto-Director, recoverable chapters, and this fork’s English interface plus Georgian creative output.
-- Getting started on GitHub now leads with Docker and local development, which is how this project actually runs.
+- Buttons, errors, task names, world templates, character roles, and public help pages now come from English source text, not only an on-screen translation overlay. Auto-Director, Task Center, and export headings stay readable even in native browser dialogs and notifications.
+- Older books keep working: saved role names, world types, and beat labels are still understood, while new saves use English protocol values. Your novel text, knowledge files, and Georgian chapter output are unchanged.
 
 Full history: [docs/releases/release-notes.md](./docs/releases/release-notes.md).
 

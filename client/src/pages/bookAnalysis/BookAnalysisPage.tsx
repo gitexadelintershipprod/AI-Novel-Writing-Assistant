@@ -174,12 +174,12 @@ export default function BookAnalysisPage() {
       {!workspace.selectedAnalysisId ? (
         <WorkspaceHeader
           className="rounded-[24px] border-b-0 bg-card px-5 py-6 shadow-[0_18px_55px_rgba(15,23,42,0.05)] sm:px-7"
-          title="拆书分析"
-          description="选择来源文档并生成结构化拆书结果，完成后可直接阅读小节、回看原文证据和整理角色档案。"
+          title="Book split analysis"
+          description="Select source documents and generate structured book splitting results. After completion, you can directly read the sections, review the original evidence, and organize the character files."
           actions={(
             <Button type="button" variant="outline" onClick={() => setCreateDialogOpen(true)}>
               <Plus className="mr-1.5 h-4 w-4" aria-hidden="true" />
-              新建拆书
+              Create a new book
             </Button>
           )}
         />
@@ -189,18 +189,18 @@ export default function BookAnalysisPage() {
         <WorkspaceStateNotice
           loading
           tone="info"
-          title="正在读取拆书结果"
-          description="结果加载完成后会直接显示可阅读小节和原文证据。"
+          title="Reading the book opening results"
+          description="After the results are loaded, readable sections and original text evidence will be displayed directly."
         />
       ) : workspace.selectedAnalysisId && workspace.queryState.detailError ? (
         <WorkspaceStateNotice
           tone="danger"
-          title="无法读取这份拆书结果"
-          description={`${workspace.queryState.detailError} 来源文档和已保存结果不会被覆盖。`}
+          title="Unable to read this split book result"
+          description={`${workspace.queryState.detailError} Source documents and saved results will not be overwritten.`}
           action={(
             <Button type="button" size="sm" variant="outline" onClick={workspace.retryDetail}>
               <RefreshCw className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
-              重试详情
+              Retry details
             </Button>
           )}
         />
@@ -208,18 +208,18 @@ export default function BookAnalysisPage() {
         <WorkspaceStateNotice
           loading
           tone="info"
-          title="正在读取拆书列表"
-          description="正在确认已有分析和最近进度，加载完成后会给出下一步。"
+          title="Reading open book list"
+          description="Existing analysis and recent progress are being confirmed. The next step will be given after the loading is completed."
         />
       ) : !workspace.selectedAnalysisId && workspace.queryState.analysesError ? (
         <WorkspaceStateNotice
           tone="danger"
-          title="无法读取拆书列表"
-          description={`${workspace.queryState.analysesError} 现有来源文档和分析结果不会被修改。`}
+          title="Unable to read open book list"
+          description={`${workspace.queryState.analysesError} Existing source documents and analysis results will not be modified.`}
           action={(
             <Button type="button" size="sm" variant="outline" onClick={workspace.retryAnalyses}>
               <RefreshCw className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
-              重新加载
+              reload
             </Button>
           )}
         />
@@ -351,12 +351,12 @@ export default function BookAnalysisPage() {
           ) : (
             <WorkspaceStateNotice
               tone="neutral"
-              title={workspace.analyses.length > 0 ? "选择一份拆书分析" : "还没有拆书结果"}
+              title={workspace.analyses.length > 0 ? "Choose a book analysis" : "No result of opening the book yet"}
               description={workspace.analyses.length > 0
-                ? "从左侧选择分析后，这里会展示来源、生成阶段、可阅读结果和恢复动作。"
-                : "新建拆书后，AI 会把来源文档整理为可阅读、可发布和可引用的结果。"}
+                ? "After selecting an analysis from the left, the sources, generation stages, readable results, and recovery actions are displayed here."
+                : "After creating a new book, AI will organize the source documents into readable, publishable and citable results."}
               action={workspace.analyses.length === 0 ? (
-                <Button type="button" size="sm" onClick={() => setCreateDialogOpen(true)}>新建拆书</Button>
+                <Button type="button" size="sm" onClick={() => setCreateDialogOpen(true)}>Create a new book</Button>
               ) : null}
             />
           )}

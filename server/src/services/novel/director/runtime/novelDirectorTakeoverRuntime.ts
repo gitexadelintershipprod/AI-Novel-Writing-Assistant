@@ -60,7 +60,7 @@ function hasPersistedChapterContent(chapter: Pick<TakeoverChapterRow, "content">
 }
 
 function isNoChaptersToGenerateFailure(message: string | null | undefined): boolean {
-  return typeof message === "string" && message.includes("指定区间内没有可生成的章节");
+  return typeof message === "string" && message.includes("There are no chapters to generate in the selected range");
 }
 
 function isPendingAutoExecutionChapter(chapter: TakeoverChapterRow): boolean {
@@ -111,7 +111,7 @@ function reconcileAutoExecutionStateAfterStaleNoChapterFailure(input: {
 
   const deferredState = buildDirectorAutoExecutionDeferredQualityState({
     state,
-    reason: "继续已有进度时已跳过当前待修章节，后续章节继续执行。",
+    reason: "While continuing existing progress, the current chapter waiting for repair was skipped and later chapters kept running.",
     source: "review_skip",
     chapter: {
       id: nextChapter.id,
@@ -197,7 +197,7 @@ function hasExecutableChapterPlanningContext(chapter: TakeoverChapterRow, allowL
 }
 
 /**
- * 解析「生效自动执行 plan」对应的目标章节序集合（取自执行区持久化章节）。
+ * 解析「生效Automatic execution plan」对应的目标章节序集合（取自执行区持久化章节）。
  * book = 全部章节；volume = 该卷序范围；chapter_range = [start,end]。
  * 与 novelDirectorAutoExecutionScopeRuntime 的范围解析保持一致。
  */
@@ -230,7 +230,7 @@ function resolveTargetOrdersForAutoExecutionRange(input: {
 }
 
 /**
- * 计算目标自动执行范围内「仍缺少完整章节细化」的章节序：
+ * 计算目标Automatic execution scope内「仍缺少完整章节细化」的章节序：
  * 未处理（未写 / 待修）且缺少完整执行契约的持久化章节。
  * 与 scope runtime 的 findMissingExecutionContextOrders 同语义——
  * 这些正是会让 runFromReady 直接抛「缺少完整章节细化」并卡死的章节。
@@ -465,7 +465,7 @@ export async function loadDirectorTakeoverState(input: {
     }),
   ]);
   if (!novelRow) {
-    throw new Error("小说不存在。");
+    throw new Error("The novel does not exist.");
   }
 
   const novel = normalizeNovelOutput(novelRow) as DirectorTakeoverNovelContext & {
@@ -594,7 +594,7 @@ export function resolveDirectorRunningStateForPhase(
     return {
       stage: "story_macro" as const,
       itemKey: "book_contract" as const,
-      itemLabel: "正在准备 Book Contract 与故事宏观规划",
+      itemLabel: "Preparing the book contract and story plan",
       progress: DIRECTOR_PROGRESS.bookContract,
     };
   }
@@ -602,7 +602,7 @@ export function resolveDirectorRunningStateForPhase(
     return {
       stage: "world_setup" as const,
       itemKey: "world_setup" as const,
-      itemLabel: "正在准备本书世界观",
+      itemLabel: "Preparing this book's world",
       progress: DIRECTOR_PROGRESS.worldSetup,
     };
   }
@@ -610,7 +610,7 @@ export function resolveDirectorRunningStateForPhase(
     return {
       stage: "character_setup" as const,
       itemKey: "character_setup" as const,
-      itemLabel: "正在补齐角色准备",
+      itemLabel: "Completing character setup",
       progress: DIRECTOR_PROGRESS.characterSetup,
     };
   }
@@ -618,14 +618,14 @@ export function resolveDirectorRunningStateForPhase(
     return {
       stage: "volume_strategy" as const,
       itemKey: "volume_strategy" as const,
-      itemLabel: "正在继续生成卷战略",
+      itemLabel: "Continuing volume-strategy generation",
       progress: DIRECTOR_PROGRESS.volumeStrategy,
     };
   }
   return {
     stage: "structured_outline" as const,
     itemKey: "beat_sheet" as const,
-    itemLabel: "正在继续生成第 1 卷节奏板与细化",
+    itemLabel: "Continuing volume 1 beat sheet and detail work",
     progress: DIRECTOR_PROGRESS.beatSheet,
   };
 }

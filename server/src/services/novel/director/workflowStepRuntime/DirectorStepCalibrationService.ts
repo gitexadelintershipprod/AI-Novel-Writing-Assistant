@@ -20,10 +20,10 @@ export class DirectorStepCalibrationService {
 
   async calibrate(taskId: string, input: DirectorStepCalibrationRequest): Promise<unknown> {
     const task = await this.workflowService.getTaskById(taskId);
-    if (!task?.novelId) throw new AppError("步骤校准需要关联到小说导演任务。", 404);
+    if (!task?.novelId) throw new AppError("Step calibration must be linked to a novel director task.", 404);
     const module = directorWorkflowStepModuleRegistry.maybeGet(input.stepId.trim());
     if (!module || !isExecutableWorkflowStepModule(module)) {
-      throw new AppError(`不支持校准导演步骤：${input.stepId}`, 400);
+      throw new AppError(`This director step cannot be calibrated: ${input.stepId}`, 400);
     }
     const context = {
       taskId,
@@ -38,7 +38,7 @@ export class DirectorStepCalibrationService {
     const seedPayload = parseSeedPayload<DirectorWorkflowSeedPayload>(task.seedPayloadJson) ?? {};
     const directorInput = getDirectorInputFromSeedPayload(seedPayload);
     if (!directorInput) {
-      throw new AppError("当前导演任务缺少可复用的生成输入，请从项目接管入口继续。", 409);
+      throw new AppError("This director task has no reusable generation input. Continue from project takeover.", 409);
     }
     const instruction = input.instruction?.trim() || null;
     const calibratedDirectorInput = instruction
@@ -72,9 +72,9 @@ export class DirectorStepCalibrationService {
     await this.workflowService.markTaskWaitingApproval(taskId, {
       stage: "auto_director",
       itemKey: module.id,
-      itemLabel: `${module.label}已校准，请检查后继续`,
+      itemLabel: `${module.label} is calibrated. Review it before continuing`,
       checkpointType: "step_review_required",
-      checkpointSummary: `${module.label}已完成${input.action === "improve" ? "完善" : "重新生成"}。请确认当前内容后再继续导演。`,
+      checkpointSummary: `${module.label} has finished ${input.action === "improve" ? "refinement" : "regeneration"}. Confirm the current content before continuing Auto-Director.`,
       seedPayload: buildDirectorWorkflowSeedPayload(calibratedDirectorInput, task.novelId, {
         stepReview: {
           stepId: module.id,

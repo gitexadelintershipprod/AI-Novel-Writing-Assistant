@@ -69,9 +69,9 @@ export default function StoryModeTreeBrowser({
         nodes={nodes}
         selectedId={selectedId}
         onSelect={setSelectedId}
-        title="推进模式目录"
-        hint="选择模式查看合同"
-        ariaLabel="推进模式树"
+        title="Advance mode directory"
+        hint="Select mode to view contract"
+        ariaLabel="Advance mode tree"
       />
 
       <section className="flex min-w-0 flex-col" aria-labelledby="selected-story-mode-title">
@@ -81,12 +81,12 @@ export default function StoryModeTreeBrowser({
             {canCreateChild ? (
               <Button type="button" variant="ghost" size="sm" onClick={() => onCreateChild(selectedNode.id)}>
                 <Plus className="h-4 w-4" aria-hidden="true" />
-                新增下级
+                Add subordinate
               </Button>
             ) : null}
             <Button type="button" variant="ghost" size="sm" onClick={() => onEdit(selectedNode.id)}>
               <Pencil className="h-4 w-4" aria-hidden="true" />
-              编辑
+              Edit
             </Button>
             <Button
               type="button"
@@ -94,11 +94,11 @@ export default function StoryModeTreeBrowser({
               size="sm"
               className="text-destructive hover:text-destructive"
               disabled={deleteDisabled || deletingId === selectedNode.id}
-              title={deleteDisabled ? "当前模式或下级模式仍被小说使用，请先调整关联作品。" : undefined}
+              title={deleteDisabled ? "The current mode or lower-level mode is still used by the novel, please adjust the related works first." : undefined}
               onClick={() => onDelete(selectedNode)}
             >
               <Trash2 className="h-4 w-4" aria-hidden="true" />
-              {deletingId === selectedNode.id ? "删除中..." : "删除"}
+              {deletingId === selectedNode.id ? "Deleting..." : "Delete"}
             </Button>
           </div>
         </div>

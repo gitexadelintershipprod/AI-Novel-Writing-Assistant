@@ -57,7 +57,7 @@ export class NovelSideEffectJobHandlers {
           select: { id: true },
         });
         if (activeProduction) {
-          throw new Error("正文生产仍在运行，延迟角色增强等待低优先级重试。");
+          throw new Error("Draft production is still running. Delayed character enhancement is waiting for a low-priority retry.");
         }
         await getSharedNovelServices().runDeferredCharacterEnhancements(payload.novelId);
         return;

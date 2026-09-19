@@ -229,8 +229,8 @@ export default function TaskCenterPage() {
       }
       toast.success(
         variables.llmOverride
-          ? `已切换到 ${variables.llmOverride.provider ?? "当前提供商"} / ${variables.llmOverride.model ?? "当前模型"} 并重试任务`
-          : "任务已重新入队",
+          ? `Switched to ${variables.llmOverride.provider ?? "Current provider"} / ${variables.llmOverride.model ?? "current model"} and retry the task`
+          : "Task has been requeued",
       );
     },
   });
@@ -239,7 +239,7 @@ export default function TaskCenterPage() {
     mutationFn: (payload: { kind: TaskKind; id: string }) => cancelTask(payload.kind, payload.id),
     onSuccess: async () => {
       await invalidateTaskQueries();
-      toast.success("任务取消请求已提交");
+      toast.success("Task cancellation request has been submitted");
     },
   });
 
@@ -289,7 +289,7 @@ export default function TaskCenterPage() {
         return next;
       });
       await invalidateTaskQueries();
-      toast.success("任务已归档并从任务中心隐藏");
+      toast.success("The task is archived and hidden from the task center");
     },
   });
 
@@ -386,9 +386,9 @@ export default function TaskCenterPage() {
   if (selectedTask && !isAutoDirectorTask && needsCandidateSelection) {
     detailActions.push({
       key: "candidate-selection",
-      title: "确认书级方向",
-      label: selectedTask.resumeAction ?? "继续确认书级方向",
-      consequence: "打开候选确认页；只有确认后，后续小说生产才会继续。",
+      title: "Confirm book-level direction",
+      label: selectedTask.resumeAction ?? "Continue to confirm the book-level direction",
+      consequence: "Opens the candidate confirmation page; only after confirmation will subsequent novel production continue.",
       tone: "warning",
       variant: "default",
       onClick: () => navigate(getCandidateSelectionLink(selectedTask.id)),
@@ -397,11 +397,11 @@ export default function TaskCenterPage() {
   if (selectedTask && !isAutoDirectorTask && canResumeFront10AutoExecution) {
     detailActions.push({
       key: "continue-range",
-      title: "继续当前章节范围",
-      label: selectedTask.resumeAction ?? `继续自动执行${selectedTask.executionScopeLabel ?? "当前章节范围"}`,
+      title: "Continue current chapter scope",
+      label: selectedTask.resumeAction ?? `Continue automatic execution${selectedTask.executionScopeLabel ?? "Current chapter scope"}`,
       consequence: selectedTask.status === "failed" || selectedTask.status === "cancelled"
-        ? "任务会从可恢复位置重新入队，并继续当前章节范围。"
-        : "系统会提交继续执行命令，并从当前检查点推进该章节范围。",
+        ? "The mission will requeue from the recoverable position and continue the current chapter scope."
+        : "The system will submit a continue command and advance the chapter range from the current checkpoint.",
       tone: "info",
       variant: "default",
       disabled: continueWorkflowMutation.isPending || retryMutation.isPending || runtimeHardBlocked,
@@ -424,11 +424,11 @@ export default function TaskCenterPage() {
   ) {
     detailActions.push({
       key: "continue-workflow",
-      title: selectedTask.status === "waiting_approval" ? "继续小说主流程" : "查看或推进当前任务",
-      label: selectedTask.resumeAction ?? (selectedTask.status === "waiting_approval" ? "继续" : "查看进度"),
+      title: selectedTask.status === "waiting_approval" ? "Continue the main flow of the novel" : "View or advance current tasks",
+      label: selectedTask.resumeAction ?? (selectedTask.status === "waiting_approval" ? "continue" : "View progress"),
       consequence: selectedTask.status === "waiting_approval"
-        ? "系统会按当前检查点提交继续命令。"
-        : "系统会读取并推进当前任务，不会切换到其他任务身份。",
+        ? "The system will submit the continue command based on the current checkpoint."
+        : "The system will read and advance the current task and will not switch to other task identities.",
       tone: "info",
       variant: "default",
       disabled: continueWorkflowMutation.isPending || runtimeHardBlocked,
@@ -441,9 +441,9 @@ export default function TaskCenterPage() {
   if (selectedTask && (selectedTask.status === "failed" || selectedTask.status === "cancelled") && !isAutoDirectorTask) {
     detailActions.push({
       key: "retry",
-      title: "重新执行任务",
-      label: "重试",
-      consequence: "任务会按现有任务配置重新入队；已保存的来源内容不会由重试按钮删除。",
+      title: "Re-execute the task",
+      label: "Retry",
+      consequence: "Tasks are requeued as per the existing task configuration; saved source content is not deleted by the retry button.",
       tone: "danger",
       variant: "default",
       disabled: retryMutation.isPending,
@@ -456,9 +456,9 @@ export default function TaskCenterPage() {
   )) {
     detailActions.push({
       key: "cancel",
-      title: "停止后续执行",
-      label: "取消任务",
-      consequence: "系统会请求停止后续步骤；已保存的产物仍保留在来源页面。",
+      title: "Stop subsequent execution",
+      label: "Cancel task",
+      consequence: "The system will ask you to stop subsequent steps; the saved product remains on the source page.",
       tone: "warning",
       disabled: cancelMutation.isPending,
       onClick: () => cancelMutation.mutate({ kind: selectedTask.kind, id: selectedTask.id }),
@@ -467,9 +467,9 @@ export default function TaskCenterPage() {
   if (selectedTask && ARCHIVABLE_STATUSES.has(selectedTask.status)) {
     detailActions.push({
       key: "archive",
-      title: "从任务中心收起记录",
-      label: "归档",
-      consequence: "只隐藏任务中心记录，不删除小说正文、规划或其他生成资产。",
+      title: "Collapse records from task center",
+      label: "Archive",
+      consequence: "Only the task center records are hidden, and the novel text, plans, or other generated assets are not deleted.",
       disabled: archiveMutation.isPending,
       onClick: () => archiveMutation.mutate({ kind: selectedTask.kind, id: selectedTask.id }),
     });
@@ -477,7 +477,7 @@ export default function TaskCenterPage() {
 
   const noticeAction = selectedTask && (selectedTaskChapterTitleWarning || selectedTaskNoticeRoute)
     ? {
-        label: selectedTaskChapterTitleWarning?.label ?? selectedTaskNotice?.action?.label ?? "打开当前卷拆章",
+        label: selectedTaskChapterTitleWarning?.label ?? selectedTaskNotice?.action?.label ?? "Open the current volume and unpack the chapter",
         disabled: chapterTitleRepairMutation.isPending,
         onClick: () => {
           if (selectedTaskChapterTitleWarning) {
@@ -490,7 +490,7 @@ export default function TaskCenterPage() {
     : null;
   const failureAction = selectedTask && (selectedTaskChapterTitleWarning || selectedTaskFailureRepairRoute)
     ? {
-        label: selectedTaskChapterTitleWarning?.label ?? "快速修复章节标题",
+        label: selectedTaskChapterTitleWarning?.label ?? "Quickly fix chapter titles",
         disabled: chapterTitleRepairMutation.isPending,
         onClick: () => {
           if (selectedTaskChapterTitleWarning) {
@@ -502,11 +502,11 @@ export default function TaskCenterPage() {
       }
     : null;
 
-  const listErrorMessage = listQuery.error instanceof Error ? listQuery.error.message : listQuery.isError ? "任务列表读取失败，请重试。" : null;
+  const listErrorMessage = listQuery.error instanceof Error ? listQuery.error.message : listQuery.isError ? "Failed to read the task list, please try again." : null;
   const overviewErrorMessage = overviewQuery.error instanceof Error
     ? overviewQuery.error.message
-    : overviewQuery.isError ? "任务概览读取失败，请重试。" : null;
-  const detailErrorMessage = detailQuery.error instanceof Error ? detailQuery.error.message : detailQuery.isError ? "任务详情读取失败，请重试。" : null;
+    : overviewQuery.isError ? "Failed to read task overview, please try again." : null;
+  const detailErrorMessage = detailQuery.error instanceof Error ? detailQuery.error.message : detailQuery.isError ? "Failed to read task details, please try again." : null;
   const recommendedBlockingTask = allRows.find(isTaskMustHandle) ?? null;
   const hasMustHandleTask = mustHandleCount > 0 || blockingCount > 0;
   const recommendedRecoveryCandidate = failedTaskCount === 0
@@ -532,9 +532,9 @@ export default function TaskCenterPage() {
     <div className="space-y-5">
       <WorkspaceHeader
         icon={ListChecks}
-        context="执行历史与恢复"
-        title="运行记录"
-        description="查看创作、拆书、知识索引和图片任务，优先处理需要你介入的记录。实时生成过程可从顶部“AI 实况”查看。"
+        context="Execution history and recovery"
+        title="Operation record"
+        description="Review the authoring, unpacking, knowledge indexing, and picture tasks, prioritizing records that require your intervention. The real-time generation process can be viewed from the top \"AI Live\"."
         actions={(
           <Button
             type="button"
@@ -543,7 +543,7 @@ export default function TaskCenterPage() {
             disabled={overviewQuery.isFetching || recoveryCandidatesQuery.isFetching || listQuery.isFetching}
           >
             <RefreshCw className={overviewQuery.isFetching || recoveryCandidatesQuery.isFetching || listQuery.isFetching ? "h-4 w-4 animate-spin" : "h-4 w-4"} aria-hidden="true" />
-            刷新记录
+            refresh record
           </Button>
         )}
       />
@@ -552,36 +552,36 @@ export default function TaskCenterPage() {
         className="rounded-2xl border-transparent px-5 py-3 shadow-none"
         icon={overviewErrorMessage ? RefreshCw : hasMustHandleTask ? ShieldAlert : Activity}
         tone={overviewQuery.isLoading ? "info" : overviewErrorMessage ? "danger" : hasMustHandleTask ? "danger" : waitingActionCount > 0 ? "info" : qualityReminderCount > 0 ? "warning" : runningCount + queuedCount > 0 ? "info" : allRows.length > 0 ? "success" : "neutral"}
-        title={overviewQuery.isLoading ? "正在读取全局任务状态" : overviewErrorMessage ? "重新读取任务概览" : hasMustHandleTask ? "先查看必须处理的任务" : waitingActionCount > 0 ? "完成等待中的操作" : qualityReminderCount > 0 ? "查看质量提醒" : runningCount + queuedCount > 0 ? "关注正在推进的任务" : allRows.length > 0 ? "当前没有阻塞任务" : "任务会在执行后汇总到这里"}
+        title={overviewQuery.isLoading ? "Reading global task status" : overviewErrorMessage ? "Reread task overview" : hasMustHandleTask ? "Check out the tasks that must be done first" : waitingActionCount > 0 ? "Complete pending operation" : qualityReminderCount > 0 ? "View quality alerts" : runningCount + queuedCount > 0 ? "Pay attention to ongoing tasks" : allRows.length > 0 ? "There are currently no blocking tasks" : "Tasks will be summarized here after execution"}
         description={overviewQuery.isLoading
-          ? "正在汇总执行、等待操作、失败和可恢复任务，请稍候。"
+          ? "Summarizing execution, waiting operations, failed and resumable tasks, please wait."
           : overviewErrorMessage
-            ? `${overviewErrorMessage} 当前不会据此判断是否存在阻塞任务。`
+            ? `${overviewErrorMessage} Currently, this will not be used to determine whether there is a blocking task.`
             : hasMustHandleTask
               ? recoveryCandidatesQuery.isLoading && !recommendedBlockingTask && failedTaskCount === 0
-                ? "正在定位可恢复任务；读取完成后会提供对应入口。"
-                : "阻塞状态可能影响对应来源流程；先查看原因和恢复位置，再决定恢复、重试或重规划。"
+                ? "Locating resumable tasks; the corresponding entry will be provided after the reading is completed."
+                : "The blocking state may affect the corresponding source process; first check the cause and recovery location before deciding to recover, retry, or replan."
               : waitingActionCount > 0
-                ? "候选确认、章节批次继续等节点需要你的操作，但不代表任务发生故障。"
+                ? "Nodes such as candidate confirmation and chapter batch continuation require your operation, but it does not mean that the task has failed."
                 : qualityReminderCount > 0
-                  ? "这些提醒不会阻止全书继续执行，可以按影响范围安排局部修复。"
+                  ? "These reminders will not prevent the entire book from continuing to execute, and local repairs can be arranged according to the scope of impact."
                   : runningCount + queuedCount > 0
-                    ? "系统会持续刷新进度，普通运行状态不需要手动干预。"
+                    ? "The system will continuously refresh the progress, and manual intervention is not required in normal running status."
                     : allRows.length > 0
-                      ? "已完成记录可按需归档，质量提醒仍会保留在任务详情中。"
-                      : "从小说、拆书、知识库或图片工作区发起任务后，可在这里查看状态。"}
+                      ? "Completed records can be archived as needed, and quality reminders will still remain in the task details."
+                      : "After initiating a task from a novel, open book, knowledge base, or image workspace, you can view the status here."}
         consequence={overviewErrorMessage
-          ? "只重新读取任务概览，不会恢复、重试或取消任务。"
+          ? "Only the task overview is reread, the task will not be resumed, retried or canceled."
           : !overviewQuery.isLoading && hasRecommendedAction
             ? recommendedTask
-              ? "只定位到推荐任务，不会自动继续、重试或取消。"
+              ? "Only recommended tasks are targeted and will not be automatically continued, retried or canceled."
               : shouldOpenFailedFilter
-                ? "只筛选失败任务，不会自动恢复、重试或取消任务。"
-                : "只重新读取恢复候选，不会自动执行恢复。"
+                ? "Only failed tasks are filtered and tasks will not be automatically recovered, retried or canceled."
+                : "Only recovery candidates are re-read, recovery is not performed automatically."
             : undefined}
         action={overviewErrorMessage ? (
           <Button type="button" size="sm" variant="outline" onClick={() => void overviewQuery.refetch()}>
-            重新读取
+            reread
           </Button>
         ) : !overviewQuery.isLoading && hasRecommendedAction ? (
           <Button
@@ -608,7 +608,7 @@ export default function TaskCenterPage() {
               });
             }}
           >
-            {shouldRetryRecoveryLookup ? "重新读取恢复任务" : hasMustHandleTask ? "查看需处理任务" : "查看推荐任务"}
+            {shouldRetryRecoveryLookup ? "Reread recovery tasks" : hasMustHandleTask ? "View tasks to be processed" : "View recommended tasks"}
           </Button>
         ) : undefined}
       />
@@ -662,7 +662,7 @@ export default function TaskCenterPage() {
           runtimeProjection={selectedDirectorRuntimeProjectionForDisplay}
           noticeAction={noticeAction}
           noticeSeverity={selectedTask ? getTaskNoticeSeverity(selectedTask) : "normal"}
-          noticeTitle={selectedTask ? getTaskNoticeTitle(selectedTask) : "任务提醒"}
+          noticeTitle={selectedTask ? getTaskNoticeTitle(selectedTask) : "Task reminder"}
           failureAction={failureAction}
           failureIsQualityReminder={selectedTaskHasQualityFailure}
           actions={detailActions}

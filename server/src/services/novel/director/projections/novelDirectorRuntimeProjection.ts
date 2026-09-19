@@ -111,16 +111,16 @@ function runtimeStatusToProjectionStatus(status: string): DirectorRuntimeProject
 
 function runtimeWaitingReason(status: string): string | null {
   if (status === "waiting_worker") {
-    return "等待后台执行资源";
+    return "Waiting for a background runner";
   }
   if (status === "waiting_llm_resource") {
-    return "等待模型资源";
+    return "Waiting for model resources";
   }
   if (status === "waiting_retry") {
-    return "等待自动重试";
+    return "Waiting for automatic retry";
   }
   if (status === "waiting_gate") {
-    return "等待确认";
+    return "Waiting for confirmation";
   }
   return null;
 }
@@ -147,39 +147,39 @@ function runtimeHeadline(runtime: RuntimeInstanceProjectionRow): {
   const activeExecution = runtime.executions[0] ?? null;
   if (activeExecution) {
     return {
-      headline: "自动导演正在处理这本书",
-      currentLabel: runtime.workerMessage || "AI 正在推进当前自动导演任务。",
+      headline: "Auto-Director is working on this book",
+      currentLabel: runtime.workerMessage || "AI is advancing the current Auto-Director task.",
       detail: activeExecution.resourceClass
-        ? `当前执行资源：${activeExecution.resourceClass}`
-        : "后台执行器正在处理当前任务。",
+        ? `Current execution resource: ${activeExecution.resourceClass}`
+        : "A background runner is processing the current task.",
     };
   }
   const waitingReason = runtimeWaitingReason(runtime.status);
   if (waitingReason) {
     return {
-      headline: "自动导演等待执行资源",
+      headline: "Auto-Director is waiting for execution resources",
       currentLabel: runtime.workerMessage || waitingReason,
-      detail: "系统会在后台资源可用后自动接续这本书。",
+      detail: "The system will continue this book automatically when background resources are available.",
     };
   }
   if (runtime.status === "completed") {
     return {
-      headline: "自动导演已保存进度",
-      currentLabel: runtime.workerMessage || runtime.checkpoints[0]?.summary || "当前自动导演进度已保存。",
-      detail: "可以继续查看或发起下一次自动推进。",
+      headline: "Auto-Director saved progress",
+      currentLabel: runtime.workerMessage || runtime.checkpoints[0]?.summary || "Current Auto-Director progress was saved.",
+      detail: "You can keep viewing progress or start the next automatic advance.",
     };
   }
   if (runtime.status === "cancelled") {
     return {
-      headline: "自动导演已停止",
-      currentLabel: runtime.workerMessage || "当前自动导演任务已停止。",
-      detail: "可以在需要时重新继续自动导演。",
+      headline: "Auto-Director has stopped",
+      currentLabel: runtime.workerMessage || "The current Auto-Director task has stopped.",
+      detail: "You can continue Auto-Director again when needed.",
     };
   }
   return {
-    headline: "自动导演正在运行",
-    currentLabel: runtime.workerMessage || "AI 正在推进当前自动导演任务。",
-    detail: "系统会持续保存进度并自动接续。",
+    headline: "Auto-Director is running",
+    currentLabel: runtime.workerMessage || "AI is advancing the current Auto-Director task.",
+    detail: "The system will keep saving progress and continue automatically.",
   };
 }
 
@@ -301,7 +301,7 @@ function overlayRuntimeInstance(
       : null,
     resourceClass: activeExecution?.resourceClass ?? null,
     checkpointSummary: runtime.checkpoints[0]?.summary ?? null,
-    nextAutomaticAction: runtime.status === "completed" ? null : "系统会自动接续当前自动导演任务。",
+    nextAutomaticAction: runtime.status === "completed" ? null : "The system will automatically continue the current Auto-Director task.",
     workerHealth: buildWorkerHealth(runtime),
     headline: copy.headline,
     currentLabel: copy.currentLabel,
@@ -340,7 +340,7 @@ function buildRuntimeOnlyProjection(
       : null,
     resourceClass: runtime.executions[0]?.resourceClass ?? null,
     checkpointSummary: runtime.checkpoints[0]?.summary ?? null,
-    nextAutomaticAction: runtime.status === "completed" ? null : "系统会自动接续当前自动导演任务。",
+    nextAutomaticAction: runtime.status === "completed" ? null : "The system will automatically continue the current Auto-Director task.",
     currentNodeKey: runtime.currentStep,
     currentLabel: copy.currentLabel,
     headline: copy.headline,
@@ -354,7 +354,7 @@ function buildRuntimeOnlyProjection(
     recentEvents: runtime.commands.slice(0, 5).map((command) => ({
       eventId: `${taskId}:${command.id}`,
       type: "node_heartbeat",
-      summary: command.status === "queued" ? "自动导演等待后台执行资源。" : "自动导演正在处理这本书。",
+      summary: command.status === "queued" ? "Auto-Director is waiting for a background runner." : "Auto-Director is working on this book.",
       occurredAt: command.updatedAt.toISOString(),
       severity: "low",
     })),
@@ -370,35 +370,35 @@ function resolveActiveCommandCopy(command: ActiveRuntimeCommand): {
   if (command.status === "queued") {
     if (command.commandType === "confirm_candidate") {
       return {
-        headline: "AI 正在处理书级方向",
-        currentLabel: "书级方向提交完成，等待 AI 创建小说项目。",
-        detail: "后台执行器接手后，会创建小说并继续后续流程。",
+        headline: "AI is working on the book direction",
+        currentLabel: "Book direction submitted. Waiting for AI to create the novel project.",
+        detail: "After a background runner takes over, it will create the novel and continue the later flow.",
       };
     }
     return {
-      headline: "AI 自动导演等待后台接手",
-      currentLabel: "任务进入后台队列，正在等待后台执行器接手。",
-      detail: "后台执行器接手后会从当前位置继续推进。",
+      headline: "Auto-Director is waiting for a background runner",
+      currentLabel: "The task entered the background queue and is waiting for a runner.",
+      detail: "After a background runner takes over, it will continue from the current position.",
     };
   }
   if (command.status === "leased") {
     return {
-      headline: "后台执行器正在接手",
-      currentLabel: "后台执行器正在接手任务。",
-      detail: "任务分配给后台执行器，即将进入实际执行。",
+      headline: "A background runner is taking over",
+      currentLabel: "A background runner is taking over the task.",
+      detail: "The task is assigned to a background runner and will enter actual execution soon.",
     };
   }
   if (command.commandType === "confirm_candidate") {
     return {
-      headline: "AI 正在创建小说项目",
-      currentLabel: "正在根据选择方向创建小说项目。",
-      detail: "AI 正在把你选择的书级方向落成小说项目，并接上后续流程。",
+      headline: "AI is creating the novel project",
+      currentLabel: "Creating the novel project from the chosen direction.",
+      detail: "AI is turning your chosen book direction into a novel project and connecting the next steps.",
     };
   }
   return {
-    headline: "AI 正在推进自动导演",
-    currentLabel: "后台执行器正在推进自动导演流程。",
-    detail: "AI 正在后台处理当前任务，完成后会写入新的进度。",
+    headline: "AI is advancing Auto-Director",
+    currentLabel: "A background runner is advancing the Auto-Director flow.",
+    detail: "AI is processing this task in the background and will write new progress when it finishes.",
   };
 }
 

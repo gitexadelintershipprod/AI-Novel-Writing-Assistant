@@ -65,7 +65,7 @@ export class CreativeHubInterruptLangGraph {
   private getInvocation(state: CreativeHubInterruptGraphStateValue): CreativeHubInterruptInvocation {
     const invocation = this.invocations.get(state.invocationId);
     if (!invocation) {
-      throw new Error("创作中枢中断恢复上下文不存在。");
+      throw new Error("Creative Hub interruption-recovery context does not exist.");
     }
     return invocation;
   }
@@ -107,7 +107,7 @@ export class CreativeHubInterruptLangGraph {
     const threadState = await creativeHubService.getThreadState(state.threadId);
     const runId = threadState.thread.latestRunId;
     if (!runId) {
-      throw new Error("当前线程没有可恢复的运行。");
+      throw new Error("This thread has no run that can be recovered.");
     }
     const resourceBindings = toBindings(threadState.thread.resourceBindings);
     return {
@@ -126,7 +126,7 @@ export class CreativeHubInterruptLangGraph {
 
   private async resolveApprovalNode(state: CreativeHubInterruptGraphStateValue) {
     if (!state.runId) {
-      throw new Error("创作中枢缺少待恢复的 runId。");
+      throw new Error("Creative Hub is missing the runId to recover.");
     }
 
     const interrupts: CreativeHubInterrupt[] = [];
@@ -140,7 +140,7 @@ export class CreativeHubInterruptLangGraph {
       const blockedTools = payload ? filterCreativeHubActions(payload.plannedActions).blockedTools : [];
       if (blockedTools.length > 0) {
         throw new Error(
-          "创作中枢只提供查询、诊断和引导，这项旧的写入审批不能继续。请从正式小说工作台或自动导演入口重新发起。",
+          "Creative Hub only queries, diagnoses, and guides. This old write approval cannot continue. Start again from the novel workspace or Auto-Director.",
         );
       }
     }
@@ -188,7 +188,7 @@ export class CreativeHubInterruptLangGraph {
       },
       onRunStatus: (payload) => {
         threadStatus = deriveThreadStatusFromRunStatus(payload.status);
-        latestError = payload.status === "failed" ? payload.message ?? "审批后续执行失败。" : null;
+        latestError = payload.status === "failed" ? payload.message ?? "Post-approval execution failed." : null;
         this.emitFrame(state, {
           event: "creative_hub/run_status",
           data: payload,
@@ -216,7 +216,7 @@ export class CreativeHubInterruptLangGraph {
 
   private async answerFinalizeNode(state: CreativeHubInterruptGraphStateValue) {
     if (!state.executionResult) {
-      throw new Error("创作中枢审批恢复缺少执行结果。");
+      throw new Error("Creative Hub approval recovery is missing an execution result.");
     }
     return {
       finalMessages: appendAssistantMessage(

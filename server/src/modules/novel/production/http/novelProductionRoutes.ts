@@ -253,8 +253,8 @@ export function registerNovelProductionRoutes(input: RegisterNovelProductionRout
     },
   );
 
-  // ─── 开发工具：重置所有章节正文 ───────────────────────────────────────────────
-  // 仅供本地测试使用。清除章节正文、生成状态、事实账本、摘要、质量报告等，
+  // ─── 开发工具：Reset all chapter text ───────────────────────────────────────────────
+  // 仅供本地测试使用。清除Chapter text、生成状态、事实账本、摘要、质量报告等，
   // 让下次自动驾驶可以从零重新跑，节省重建项目的时间。
   router.post(
     "/:id/dev/reset-chapters",

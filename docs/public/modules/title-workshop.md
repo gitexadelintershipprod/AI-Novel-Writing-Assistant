@@ -1,72 +1,71 @@
-# 标题工坊
+# Title studio
 
-标题工坊用于生成、比较和调整书名或章节标题。它不只是取一个好听的名字，而是帮助你判断标题是否准确传达作品卖点、主角处境、读者期待和点击理由。
+Title studio generates, compares, and adjusts book or chapter titles. It is not only about a catchy name. It helps you judge whether a title actually carries the selling point, the protagonist’s situation, reader expectation, and a reason to click.
 
+## What Title studio can do for you
 
-## 标题工坊能帮你做什么
+- Generate several book-title options for a new book.
+- Add more titles around one story direction.
+- Compare titles for genre feel, selling-point feel, emotional intensity, and distinctiveness.
+- Adjust chapter titles so the chapter goal and continue-reading hook are clearer.
+- Avoid a batch of titles that share the same sentence shape, repeat the same information, or miss the work.
 
-- 为新书生成多组书名候选。
-- 围绕某个故事方向继续补充标题。
-- 比较标题的题材感、卖点感、情绪强度和识别度。
-- 调整章节标题，让章节目标和追读钩子更清楚。
-- 避免一批标题句式过于相似、信息重复或不贴合作品。
+## When to use it
 
-## 适合什么时候用
+- The new-book direction is roughly set, but the title is not.
+- Auto-Director’s direction is good, but the title does not pull you in.
+- After chapters are split, you want chapter titles with more reader pull.
+- A title sounds good but does not state this book’s selling point.
+- You want to compare several naming directions instead of deciding on the first feeling.
 
-- 新书方向大致确定，但书名还没有定。
-- 自动导演给出的方向不错，但标题不够吸引你。
-- 章节拆分完成后，想让章节标题更有读者吸引力。
-- 标题看起来好听，但不能准确说明这本书的卖点。
-- 想比较多个命名方向，而不是凭第一感觉决定。
+## Before you start
 
-## 开始前准备
+Titles need work information. Prepare:
 
-标题需要依托作品信息。使用前最好准备：
+- genre and target readers;
+- protagonist identity or core situation;
+- core selling point and emotional promise;
+- the main conflict or payoff;
+- title styles you do not want, for example too literary, too abstract, or too much like an old web-novel formula.
 
-- 题材和目标读者。
-- 主角身份或核心处境。
-- 核心卖点和情绪承诺。
-- 故事的主要冲突或爽点。
-- 你不想要的标题风格，例如太文艺、太抽象、太像旧网文套路。
+Clearer information makes title options closer to the work.
 
-信息越明确，标题候选越容易贴合作品。
+## Recommended path
 
-## 推荐使用路径
+1. Open Title studio.
+2. Enter or choose the current work direction.
+3. Generate a batch of title options.
+4. Drop titles that do not fit the work.
+5. Keep refining the options that are close.
+6. Compare whether a title carries genre, protagonist situation, and reader expectation.
+7. After you choose a book title, use it in novel creation or project settings.
 
-1. 打开“标题工坊”。
-2. 输入或选择当前作品方向。
-3. 生成一批标题候选。
-4. 先排除和作品不贴合的标题。
-5. 在接近目标的候选上继续定向微调。
-6. 对比标题是否能传达题材、主角处境和读者期待。
-7. 选定书名后，再回到小说创建或项目设定中使用。
+For chapter titles, confirm this chapter’s task, conflict, and ending hook first, then generate options.
 
-如果是章节标题，可以先确认本章任务、冲突和结尾钩子，再生成标题候选。
+## How it enters later writing
 
-## 如何进入后续创作链路
+A title shapes a reader’s first impression and also helps the system understand this book’s lead direction. A clear title helps later blurb, project setting, cover prompts, and chapter planning stay on the same selling point.
 
-标题会影响用户对作品的第一印象，也会影响系统理解这本书的主打方向。一个清楚的标题能帮助后续简介、项目设定、封面提示和章节规划保持同一卖点。
+Title studio is commonly used in three places:
 
-标题工坊常用于三个位置：
+- Before opening a book: look for a title direction.
+- After Auto-Director: add titles around the chosen direction.
+- After chapter split: polish chapter titles.
 
-- 开书前：寻找书名方向。
-- 自动导演后：围绕已选方向补标题。
-- 拆章后：打磨章节标题。
+## Common questions
 
-## 常见问题
+### Is a more exaggerated title always better?
 
-### 标题是不是越夸张越好
+No. A title should attract, but it also has to match what the work can deliver. Over-exaggeration sets the wrong reader expectation, and later chapters struggle to catch up.
 
-不一定。标题需要吸引人，但也要和作品兑现能力匹配。过度夸张会让读者期待错误，后续章节更难承接。
+### Several titles are good. How do I choose?
 
-### 多个标题都不错怎么选
+Prefer the title that most clearly states the protagonist’s situation, the core selling point, and the genre feel. If a title only sounds good and you cannot tell what the book is about, it is usually not the best choice.
 
-优先选择最能说明主角处境、核心卖点和题材气质的标题。如果标题只好听但看不出这本书讲什么，通常不是最优选择。
+### The titles feel too similar. What now?
 
-### 标题太像怎么办
+Change naming direction. Start from protagonist identity, core conflict, special ability, emotional promise, contrast, or world rules, so options pull apart.
 
-可以换一个命名方向，例如从主角身份、核心冲突、金手指、情绪承诺、反差设定或世界规则入手，让候选之间拉开差异。
+### Do chapter titles need to be complicated?
 
-### 章节标题需要很复杂吗
-
-不需要。章节标题最重要的是服务阅读节奏。它可以提示本章冲突、反转、收获或悬念，不必每章都追求强标题党。
+No. Chapter titles mainly serve reading pace. They can hint at this chapter’s conflict, reversal, gain, or suspense. Every chapter does not need a clickbait title.

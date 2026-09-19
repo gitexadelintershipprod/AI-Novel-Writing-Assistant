@@ -72,7 +72,7 @@ export function extractJsonObject<T>(content: string): T {
   const start = cleaned.indexOf("{");
   const end = cleaned.lastIndexOf("}");
   if (start < 0 || end < 0 || end <= start) {
-    throw new Error("未解析到有效 JSON 对象。");
+    throw new Error("No valid JSON object was parsed.");
   }
   return JSON.parse(cleaned.slice(start, end + 1)) as T;
 }
@@ -152,7 +152,7 @@ function normalizeProfileFeaturesForRead(value: string | null | undefined): Styl
         description,
         evidence: typeof item.evidence === "string" && item.evidence.trim()
           ? item.evidence.trim()
-          : "未提供证据片段。",
+          : "No evidence excerpt was provided.",
         importance: typeof item.importance === "number" ? item.importance : 0.5,
         imitationValue: typeof item.imitationValue === "number" ? item.imitationValue : 0.5,
         transferability: typeof item.transferability === "number" ? item.transferability : 0.5,

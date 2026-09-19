@@ -118,7 +118,7 @@ export class CharacterMindService {
   ): Promise<CharacterMindSnapshot> {
     const snapshots = await this.generateSnapshots(novelId, [characterId], "manual_refresh", options);
     if (snapshots.length === 0) {
-      throw new Error("AI 未能整理当前角色的思路线，请稍后重试。");
+      throw new Error("AI could not organize this character's thought line. Please try again later.");
     }
     return snapshots[0];
   }
@@ -187,7 +187,7 @@ export class CharacterMindService {
       return character ? [{ characterId: character.id, snapshot }] : [];
     });
     if (accepted.length === 0) {
-      throw new Error("角色思路线没有匹配到当前小说角色。");
+      throw new Error("The character thought line did not match a character in this novel.");
     }
     return this.persistSnapshots(novelId, accepted.map((item) => ({
       characterId: item.characterId,
@@ -313,7 +313,7 @@ export class CharacterMindService {
       }),
     ]);
     if (!novel || novel.characters.length === 0) {
-      throw new Error("当前小说没有可整理思路线的角色。");
+      throw new Error("This novel has no characters whose thought lines can be organized.");
     }
     const characters = novel.characters as CharacterRow[];
     const roster = characters.map((character) => [
@@ -327,27 +327,27 @@ export class CharacterMindService {
     const stateByCharacterId = new Map(latestState?.characterStates.map((state) => [state.characterId, state]) ?? []);
     const facts = [
       `小说：${novel.title}`,
-      `书级卖点：${compact(novel.bookContract?.coreSellingPoint || novel.bible?.mainPromise, "待补全")}`,
+      `Book-level selling points:${compact(novel.bookContract?.coreSellingPoint || novel.bible?.mainPromise, "待补全")}`,
       `主线约束：${compact(novel.storyMacroPlan?.decompositionJson, "待补全")}`,
       `世界与规则：${compact(novel.bible?.coreSetting, "待补全")}`,
       latestState?.summary ? `最新正史状态：${compact(latestState.summary)}` : "",
       ...characters.map((character) => {
         const state = stateByCharacterId.get(character.id);
         return state
-          ? `正史角色状态：${character.name}｜目标=${compact(state.currentGoal, "未更新")}｜情绪=${compact(state.emotion, "未更新")}｜摘要=${compact(state.summary, "未更新")}`
+          ? `正史character status：${character.name}｜目标=${compact(state.currentGoal, "未更新")}｜情绪=${compact(state.emotion, "未更新")}｜摘要=${compact(state.summary, "未更新")}`
           : "";
       }),
     ].join("\n");
     const relations = [
       ...relationStages.map((stage) => (
-        `${stage.sourceCharacter.name} -> ${stage.targetCharacter.name}：当前阶段=${stage.stageLabel}；${stage.stageSummary}${stage.nextTurnPoint ? `；下一转折=${stage.nextTurnPoint}` : ""}`
+        `${stage.sourceCharacter.name} -> ${stage.targetCharacter.name}：current stage=${stage.stageLabel}；${stage.stageSummary}${stage.nextTurnPoint ? `；下一转折=${stage.nextTurnPoint}` : ""}`
       )),
       ...novel.characterRelations.map((relation) => (
-      `${relation.sourceCharacter.name} -> ${relation.targetCharacter.name}：${relation.surfaceRelation}；隐藏张力=${compact(relation.hiddenTension, "无")}`
+      `${relation.sourceCharacter.name} -> ${relation.targetCharacter.name}：${relation.surfaceRelation}；hidden tension=${compact(relation.hiddenTension, "无")}`
       )),
     ].filter(Boolean).slice(0, 12).join("\n");
     const recentEvents = novel.chapters.map((chapter) => (
-      `第${chapter.order}章《${chapter.title}》：${compact(chapter.content, "").slice(0, 900)}`
+      `Chapter ${chapter.order}"${chapter.title}": ${compact(chapter.content, "").slice(0, 900)}`
     )).join("\n\n");
     const resourcesText = resources.map((resource) => (
       `${resource.holderCharacterName || resource.ownerName || "角色"}持有/关联${resource.name}（${resource.status}）：${compact(resource.summary)}；约束=${compact(resource.constraintsJson, "无")}`

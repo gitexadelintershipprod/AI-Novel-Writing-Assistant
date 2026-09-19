@@ -60,10 +60,10 @@ export async function applyAutoDirectorSafeFix(input: {
 }> {
   const plan = buildAutoDirectorSafeFixPlan(input.validationResult);
   if (plan.safeActions.length === 0) {
-    throw new Error("当前没有可安全修复项，请先重新校验或人工处理。");
+    throw new Error("There is nothing safe to auto-fix. Recheck or handle it manually.");
   }
   if (plan.blockedActions.length > 0) {
-    throw new Error("当前校验项包含高风险动作，不能安全修复，请人工处理。");
+    throw new Error("This check includes a high-risk action and cannot be auto-fixed. Handle it manually.");
   }
 
   let seedPayload: Record<string, unknown> = {};

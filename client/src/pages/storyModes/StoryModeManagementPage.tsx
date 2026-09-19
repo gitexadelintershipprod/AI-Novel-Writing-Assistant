@@ -206,7 +206,7 @@ export default function StoryModeManagementPage() {
     }),
     onSuccess: async () => {
       await invalidate();
-      toast.success("推进模式已创建。");
+      toast.success("Propulsion mode has been created.");
       setCreateDialogOpen(false);
     },
   });
@@ -214,7 +214,7 @@ export default function StoryModeManagementPage() {
   const createSelectedChildrenMutation = useMutation({
     mutationFn: async () => {
       if (!defaultParentId) {
-        throw new Error("父级推进模式不存在。");
+        throw new Error("Parent push mode does not exist.");
       }
 
       const drafts = selectedGeneratedChildIndexes
@@ -227,7 +227,7 @@ export default function StoryModeManagementPage() {
         }));
 
       if (drafts.length === 0) {
-        throw new Error("请至少选择一个子类候选。");
+        throw new Error("Please select at least one subcategory candidate.");
       }
 
       return createStoryModeChildren({
@@ -238,7 +238,7 @@ export default function StoryModeManagementPage() {
     onSuccess: async (response) => {
       await invalidate();
       const savedCount = response.data?.length ?? selectedGeneratedChildIndexes.length;
-      toast.success(`已批量创建 ${savedCount} 个推进模式子类。`);
+      toast.success(`Created in batches ${savedCount} propulsion mode subclass.`);
       setCreateDialogOpen(false);
     },
   });
@@ -246,7 +246,7 @@ export default function StoryModeManagementPage() {
   const updateMutation = useMutation({
     mutationFn: () => {
       if (!editingStoryMode) {
-        throw new Error("推进模式不存在。");
+        throw new Error("Advance mode does not exist.");
       }
       return updateStoryMode(editingStoryMode.id, {
         name: editState.name.trim(),
@@ -257,7 +257,7 @@ export default function StoryModeManagementPage() {
     },
     onSuccess: async () => {
       await invalidate();
-      toast.success("推进模式已更新。");
+      toast.success("Propulsion mode has been updated.");
       setEditingStoryModeId("");
     },
   });
@@ -266,7 +266,7 @@ export default function StoryModeManagementPage() {
     mutationFn: (id: string) => deleteStoryMode(id),
     onSuccess: async () => {
       await invalidate();
-      toast.success("推进模式已删除。");
+      toast.success("Push mode has been removed.");
     },
   });
 
@@ -296,7 +296,7 @@ export default function StoryModeManagementPage() {
         .map((index) => expansionCandidates[index])
         .filter((draft): draft is StoryModeTreeDraft => Boolean(draft))
         .map((draft) => ({ ...cloneDraft(draft), children: [], profile: normalizeProfileInput(draft.profile) }));
-      if (drafts.length === 0) throw new Error("请至少选择一个推进模式方向。");
+      if (drafts.length === 0) throw new Error("Please select at least one propulsion mode direction.");
       if (expansionParentId) {
         return createStoryModeChildren({ parentId: expansionParentId, drafts });
       }
@@ -312,7 +312,7 @@ export default function StoryModeManagementPage() {
         });
         if (response.data) created.push(response.data);
       }
-      return { success: true, data: created, message: "推进模式根节点创建成功。" };
+      return { success: true, data: created, message: "The push mode root node is created successfully." };
     },
     onSuccess: async (response) => {
       await invalidate();
@@ -364,7 +364,7 @@ export default function StoryModeManagementPage() {
         setSelectedGeneratedChildIndexes(candidates.map((_item, index) => index));
         setActiveGeneratedChildIndex(0);
         setCreateDraft(cloneDraft(candidates[0]));
-        toast.success(`AI 已生成 ${candidates.length} 个推进模式子类草稿。`);
+        toast.success(`AI generated ${candidates.length} A draft propulsion mode subclass.`);
         return;
       }
       setSelectedGeneratedChildIndexes([]);
@@ -374,7 +374,7 @@ export default function StoryModeManagementPage() {
       }
       setGeneratedChildCandidates([]);
       setCreateDraft(cloneDraft(result.draft));
-      toast.success("AI 推进模式树草稿已生成。");
+      toast.success("Draft AI propulsion mode tree generated.");
     },
   });
 
@@ -427,9 +427,9 @@ export default function StoryModeManagementPage() {
 
   const selectedParentLabel = useMemo(() => {
     if (!defaultParentId) {
-      return "作为根推进模式创建";
+      return "Created as root push mode";
     }
-    return parentOptions.find((item) => item.id === defaultParentId)?.path ?? "作为根推进模式创建";
+    return parentOptions.find((item) => item.id === defaultParentId)?.path ?? "Created as root push mode";
   }, [defaultParentId, parentOptions]);
 
   const editParentOptions = useMemo(
@@ -495,23 +495,23 @@ export default function StoryModeManagementPage() {
       <Dialog open={Boolean(editingStoryMode)} onOpenChange={(open) => { if (!open) setEditingStoryModeId(""); }}>
         <DialogContent className="max-h-[90vh] max-w-4xl overflow-auto">
           <DialogHeader>
-            <DialogTitle>编辑推进模式</DialogTitle>
+            <DialogTitle>Edit advance mode</DialogTitle>
             <DialogDescription>
-              可以修改名称、描述、模板和 profile。两级树限制仍会保留。
+              Name, description, template and profile can be modified. The two-level tree restriction will remain.
             </DialogDescription>
           </DialogHeader>
 
           {editingStoryMode ? (
             <div className="space-y-4">
               <div className="rounded-lg border bg-muted/20 p-3 text-sm text-muted-foreground">
-                当前父级：{editingStoryMode.parentId ? (editParentOptions.find((item) => item.id === editingStoryMode.parentId)?.path ?? "未找到") : "根节点"}
+                Current parent:{editingStoryMode.parentId ? (editParentOptions.find((item) => item.id === editingStoryMode.parentId)?.path ?? "not found") : "root node"}
               </div>
               <label className="space-y-2 text-sm">
-                <span className="font-medium text-foreground">名称</span>
+                <span className="font-medium text-foreground">Name</span>
                 <Input value={editState.name} onChange={(event) => setEditState((prev) => ({ ...prev, name: event.target.value }))} />
               </label>
               <label className="space-y-2 text-sm">
-                <span className="font-medium text-foreground">描述</span>
+                <span className="font-medium text-foreground">Description</span>
                 <textarea
                   rows={3}
                   className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none transition focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
@@ -520,7 +520,7 @@ export default function StoryModeManagementPage() {
                 />
               </label>
               <label className="space-y-2 text-sm">
-                <span className="font-medium text-foreground">人工模板补充</span>
+                <span className="font-medium text-foreground">Manual template supplement</span>
                 <textarea
                   rows={3}
                   className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none transition focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
@@ -537,10 +537,10 @@ export default function StoryModeManagementPage() {
 
           <DialogFooter className="gap-2">
             <Button type="button" variant="outline" onClick={() => setEditingStoryModeId("")}>
-              取消
+              Cancel
             </Button>
             <Button type="button" onClick={() => updateMutation.mutate()} disabled={updateMutation.isPending || !editState.name.trim()}>
-              {updateMutation.isPending ? "保存中..." : "保存修改"}
+              {updateMutation.isPending ? "Saving..." : "Save changes"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -549,13 +549,13 @@ export default function StoryModeManagementPage() {
       <Card>
         <CardHeader className="flex flex-row items-start justify-between gap-4">
           <div className="space-y-1">
-            <CardTitle>推进模式库</CardTitle>
+            <CardTitle>Advancing Pattern Library</CardTitle>
             <CardDescription>
-              这里维护作品的推进模式，例如系统流、无敌流、种田流、治愈日常。它回答的是“这本书靠什么持续推进和兑现”，会作为后续规划和生成的硬约束输入。
+              The advancement modes of the work are maintained here, such as system flow, invincible flow, farming flow, and daily healing. It answers "what does this book rely on to continue to advance and be realized?" and will serve as a hard constraint input for subsequent planning and generation.
             </CardDescription>
           </div>
           <div className="flex flex-col items-end gap-2">
-            <div className="text-sm text-muted-foreground">当前推进模式数：{totalStoryModes}</div>
+            <div className="text-sm text-muted-foreground">Current number of advancement modes:{totalStoryModes}</div>
             <div className="flex gap-2">
               {storyModeTree.length > 0 ? (
                 <Button type="button" variant="outline" onClick={() => {
@@ -564,27 +564,27 @@ export default function StoryModeManagementPage() {
                   setSelectedExpansionIndexes([]);
                   setExpansionDialogOpen(true);
                 }}>
-                  扩展推进模式
+                  extended propulsion model
                 </Button>
               ) : null}
-              <Button type="button" onClick={handleCreateRoot}>新建推进模式树</Button>
+              <Button type="button" onClick={handleCreateRoot}>Create a new push mode tree</Button>
             </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
           {storyModeTreeQuery.isLoading ? (
-            <div className="text-sm text-muted-foreground">正在加载推进模式树...</div>
+            <div className="text-sm text-muted-foreground">Loading push mode tree...</div>
           ) : null}
 
           {!storyModeTreeQuery.isLoading && storyModeTree.length === 0 ? (
             <div className="rounded-xl border border-dashed p-6 text-center">
-              <div className="text-sm font-medium text-foreground">还没有任何推进模式</div>
+              <div className="text-sm font-medium text-foreground">There is no push mode yet</div>
               <div className="mt-1 text-sm text-muted-foreground">
-                可以先手动建一个根推进模式，也可以直接让 AI 生成一份结构化草稿。
+                You can manually create a root advancement pattern first, or you can directly let AI generate a structured draft.
               </div>
               <div className="mt-4">
                 <Button type="button" onClick={handleCreateRoot}>
-                  开始创建
+                  Start creating
                 </Button>
               </div>
             </div>

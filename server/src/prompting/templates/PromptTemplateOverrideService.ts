@@ -105,7 +105,7 @@ function toOfficialView(input: {
   const officialTemplate = getOfficialPromptTemplate(input.promptId);
   const officialContextRefs = getOfficialPromptTemplateContextRefs(input.promptId);
   if (!officialTemplate || !officialContextRefs) {
-    throw new Error(`提示词不支持高级模板：${input.promptId}`);
+    throw new Error(`提示词不支持Advanced template：${input.promptId}`);
   }
   return {
     promptId: input.promptId,
@@ -125,10 +125,10 @@ function toOfficialView(input: {
 function assertAdvancedTemplatePrompt(promptId: string): UnknownPromptAsset {
   const asset = findRegisteredPromptAssetById(promptId);
   if (!asset) {
-    throw new Error(`提示词未注册：${promptId}`);
+    throw new Error(`Prompt word is not registered:${promptId}`);
   }
   if (!supportsAdvancedPromptTemplate(promptId) || !asset.management?.editModes.includes("advanced_template")) {
-    throw new Error("该提示词不支持高级模板。");
+    throw new Error("该提示词不支持Advanced template。");
   }
   return asset;
 }
@@ -188,7 +188,7 @@ export class PromptTemplateOverrideService {
   async save(input: PromptTemplateSaveInput): Promise<PromptTemplateOverrideView> {
     const asset = assertAdvancedTemplatePrompt(input.promptId);
     if (!input.novelId) {
-      throw new Error("高级模板必须绑定到具体小说。");
+      throw new Error("The advanced template must be bound to a specific novel.");
     }
     const diagnostics = assertPromptTemplateIsSavable({
       template: input.template,
@@ -196,7 +196,7 @@ export class PromptTemplateOverrideService {
       slotDefs: asset.slots ?? [],
     });
     if (diagnostics.invalidMessages.length > 0 || diagnostics.unknownTokens.length > 0) {
-      throw formatDiagnosticsError("高级模板不能保存", diagnostics);
+      throw formatDiagnosticsError("The advanced template cannot be saved", diagnostics);
     }
     const contextRefs = extractPromptTemplateContextRefs(input.template);
     const compiledHash = hashPromptTemplate(input.template);
@@ -246,7 +246,7 @@ export class PromptTemplateOverrideService {
       return this.get({ promptId: input.promptId, novelId: input.novelId });
     } catch (error) {
       if (isMissingTableError(error)) {
-        throw new Error("数据库表尚未就绪，请先运行数据库迁移。");
+        throw new Error("Database tables are not ready. Run migrations first.");
       }
       throw error;
     }
@@ -265,13 +265,13 @@ export class PromptTemplateOverrideService {
         },
       });
       if (!override) {
-        throw new Error("没有可回滚的高级模板版本。");
+        throw new Error("There is no advanced-template version to roll back to.");
       }
       const version = await prisma.promptTemplateVersion.findFirst({
         where: { id: input.versionId, overrideId: override.id },
       });
       if (!version) {
-        throw new Error("高级模板版本不存在。");
+        throw new Error("The advanced-template version does not exist.");
       }
       const diagnostics = assertPromptTemplateIsSavable({
         template: parseTemplateJson(version.templateJson),
@@ -279,7 +279,7 @@ export class PromptTemplateOverrideService {
         slotDefs: asset.slots ?? [],
       });
       if (hasBlockingPromptTemplateDiagnostics(diagnostics)) {
-        throw formatDiagnosticsError("该历史版本不能启用", diagnostics);
+        throw formatDiagnosticsError("This historical version cannot be enabled", diagnostics);
       }
       await prisma.promptTemplateOverride.update({
         where: { id: override.id },
@@ -292,7 +292,7 @@ export class PromptTemplateOverrideService {
       return this.get({ promptId: input.promptId, novelId: input.novelId });
     } catch (error) {
       if (isMissingTableError(error)) {
-        throw new Error("数据库表尚未就绪，请先运行数据库迁移。");
+        throw new Error("Database tables are not ready. Run migrations first.");
       }
       throw error;
     }
@@ -323,7 +323,7 @@ export class PromptTemplateOverrideService {
       return this.get({ promptId: input.promptId, novelId: input.novelId });
     } catch (error) {
       if (isMissingTableError(error)) {
-        throw new Error("数据库表尚未就绪，请先运行数据库迁移。");
+        throw new Error("Database tables are not ready. Run migrations first.");
       }
       throw error;
     }
@@ -387,7 +387,7 @@ export class PromptTemplateOverrideService {
     const contextRefs = getOfficialPromptTemplateContextRefs(input.promptId);
     const basePromptVersion = getOfficialPromptTemplateVersion(input.promptId);
     if (!template || !contextRefs || !basePromptVersion) {
-      throw new Error(`提示词不支持高级模板：${input.promptId}`);
+      throw new Error(`提示词不支持Advanced template：${input.promptId}`);
     }
     return {
       template,

@@ -50,19 +50,19 @@ export const DIRECTOR_CANDIDATE_NODE_ADAPTERS: Record<
 > = {
   candidate_generation: candidateNodeAdapter({
     nodeKey: "candidate_generation",
-    label: "生成书级候选",
+    label: "Generate book-level candidates",
   }),
   candidate_refine: candidateNodeAdapter({
     nodeKey: "candidate_refine",
-    label: "修订候选方向",
+    label: "Revise the candidate direction",
   }),
   candidate_patch: candidateNodeAdapter({
     nodeKey: "candidate_patch",
-    label: "定向修正候选",
+    label: "Patch the candidate direction",
   }),
   candidate_title_refine: candidateNodeAdapter({
     nodeKey: "candidate_title_refine",
-    label: "优化候选书名",
+    label: "Refine candidate titles",
   }),
 };
 

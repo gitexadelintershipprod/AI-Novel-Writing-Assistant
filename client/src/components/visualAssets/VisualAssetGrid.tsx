@@ -16,7 +16,7 @@ interface VisualAssetGridProps {
 
 export function VisualAssetGrid({ items, selectedIds, selectionMode, onSelect, onOpenDetails }: VisualAssetGridProps) {
   return (
-    <div className="columns-2 gap-3 sm:columns-3 xl:columns-4 2xl:columns-5" aria-label="视觉素材瀑布流">
+    <div className="columns-2 gap-3 sm:columns-3 xl:columns-4 2xl:columns-5" aria-label="visual material waterfall">
       {items.map((asset) => {
         const isSelected = selectedIds.has(asset.assetId);
         const canSelect = selectionMode !== "browse" && Boolean(asset.url.trim());
@@ -33,7 +33,7 @@ export function VisualAssetGrid({ items, selectedIds, selectionMode, onSelect, o
             <button
               type="button"
               aria-pressed={selectionMode === "browse" ? undefined : isSelected}
-              aria-label={canSelect ? `选择${sourceLabel}` : `查看${sourceLabel}`}
+              aria-label={canSelect ? `Select ${sourceLabel}` : `View ${sourceLabel}`}
               className="block w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
               onClick={() => onSelect(asset)}
             >
@@ -53,7 +53,7 @@ export function VisualAssetGrid({ items, selectedIds, selectionMode, onSelect, o
                 {isSelected ? (
                   <span className="absolute left-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground">
                     <Check className="h-3.5 w-3.5" aria-hidden="true" />
-                    <span className="sr-only">已选择</span>
+                    <span className="sr-only">Selected</span>
                   </span>
                 ) : null}
               </div>
@@ -70,7 +70,7 @@ export function VisualAssetGrid({ items, selectedIds, selectionMode, onSelect, o
               variant="ghost"
               size="icon"
               className="absolute right-1.5 top-1.5 h-7 w-7 bg-background/80 opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
-              aria-label={`查看${sourceLabel}详情`}
+              aria-label={`View ${sourceLabel} details`}
               onClick={() => onOpenDetails(asset)}
             >
               <Info className="h-3.5 w-3.5" aria-hidden="true" />

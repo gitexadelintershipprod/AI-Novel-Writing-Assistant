@@ -130,9 +130,9 @@ export function toEvidenceList(value: unknown, sourceLabelFallback = ""): BookAn
         : undefined;
       const excerptOffsetRange = normalizeExcerptOffsetRange(row.excerptOffsetRange);
       return {
-        label: label || "片段",
+        label: label || "Excerpt",
         excerpt: excerpt || "",
-        sourceLabel: sourceLabel || "源文档",
+        sourceLabel: sourceLabel || "Source document",
         ...(fieldKey ? { fieldKey } : {}),
         ...(fieldIndex !== undefined ? { fieldIndex } : {}),
         ...(chapterIndex !== undefined ? { chapterIndex } : {}),
@@ -267,7 +267,7 @@ function splitIntoChunkSegments(content: string): SourceSegment[] {
     const chunk = normalized.slice(start, boundary).trim();
     if (chunk) {
       segments.push({
-        label: `片段 ${order}`,
+        label: `Excerpt ${order}`,
         content: chunk,
       });
       order += 1;
@@ -289,7 +289,7 @@ export function buildSourceSegments(content: string): SourceSegment[] {
 }
 
 function renderNoteField(label: string, values: string[]): string {
-  return `${label}：${values.join("；") || "无"}`;
+  return `${label}: ${values.join("; ") || "none"}`;
 }
 
 type SourceNoteStringListKey =
@@ -379,59 +379,59 @@ function getNoteFieldsForSection(sectionKey?: BookAnalysisSectionKey): Array<{
   switch (sectionKey) {
     case "plot_structure":
       return [
-        { label: "剧情要点", key: "plotPoints" },
-        { label: "时间线节点", key: "timelineEvents" },
-        { label: "读者信号", key: "readerSignals" },
-        { label: "短板信号", key: "weaknessSignals" },
+        { label: "Plot points", key: "plotPoints" },
+        { label: "Timeline nodes", key: "timelineEvents" },
+        { label: "Reader signals", key: "readerSignals" },
+        { label: "Weak-spot signals", key: "weaknessSignals" },
       ];
     case "timeline":
       return [
-        { label: "时间线节点", key: "timelineEvents" },
-        { label: "剧情要点", key: "plotPoints" },
-        { label: "人物信息", key: "characters" },
+        { label: "Timeline nodes", key: "timelineEvents" },
+        { label: "Plot points", key: "plotPoints" },
+        { label: "Character information", key: "characters" },
       ];
     case "character_system":
       return [
-        { label: "人物信息", key: "characters" },
-        { label: "剧情要点", key: "plotPoints" },
-        { label: "主题信息", key: "themes" },
+        { label: "Character information", key: "characters" },
+        { label: "Plot points", key: "plotPoints" },
+        { label: "Theme information", key: "themes" },
       ];
     case "worldbuilding":
       return [
-        { label: "设定信息", key: "worldbuilding" },
-        { label: "剧情要点", key: "plotPoints" },
-        { label: "短板信号", key: "weaknessSignals" },
+        { label: "Setting information", key: "worldbuilding" },
+        { label: "Plot points", key: "plotPoints" },
+        { label: "Weak-spot signals", key: "weaknessSignals" },
       ];
     case "themes":
       return [
-        { label: "主题信息", key: "themes" },
-        { label: "读者信号", key: "readerSignals" },
-        { label: "短板信号", key: "weaknessSignals" },
+        { label: "Theme information", key: "themes" },
+        { label: "Reader signals", key: "readerSignals" },
+        { label: "Weak-spot signals", key: "weaknessSignals" },
       ];
     case "style_technique":
       return [
-        { label: "文风技法", key: "styleTechniques" },
-        { label: "读者信号", key: "readerSignals" },
-        { label: "短板信号", key: "weaknessSignals" },
+        { label: "Voice and technique", key: "styleTechniques" },
+        { label: "Reader signals", key: "readerSignals" },
+        { label: "Weak-spot signals", key: "weaknessSignals" },
       ];
     case "market_highlights":
       return [
-        { label: "商业卖点", key: "marketHighlights" },
-        { label: "读者信号", key: "readerSignals" },
-        { label: "短板信号", key: "weaknessSignals" },
-        { label: "人物信息", key: "characters" },
+        { label: "Commercial hook", key: "marketHighlights" },
+        { label: "Reader signals", key: "readerSignals" },
+        { label: "Weak-spot signals", key: "weaknessSignals" },
+        { label: "Character information", key: "characters" },
       ];
     default:
       return [
-        { label: "剧情要点", key: "plotPoints" },
-        { label: "时间线节点", key: "timelineEvents" },
-        { label: "人物信息", key: "characters" },
-        { label: "设定信息", key: "worldbuilding" },
-        { label: "主题信息", key: "themes" },
-        { label: "文风技法", key: "styleTechniques" },
-        { label: "商业卖点", key: "marketHighlights" },
-        { label: "读者信号", key: "readerSignals" },
-        { label: "短板信号", key: "weaknessSignals" },
+        { label: "Plot points", key: "plotPoints" },
+        { label: "Timeline nodes", key: "timelineEvents" },
+        { label: "Character information", key: "characters" },
+        { label: "Setting information", key: "worldbuilding" },
+        { label: "Theme information", key: "themes" },
+        { label: "Voice and technique", key: "styleTechniques" },
+        { label: "Commercial hook", key: "marketHighlights" },
+        { label: "Reader signals", key: "readerSignals" },
+        { label: "Weak-spot signals", key: "weaknessSignals" },
       ];
   }
 }
@@ -445,11 +445,11 @@ export function renderNotesForPrompt(notes: SourceNote[], sectionKey?: BookAnaly
       });
       const sections = [
         `## ${note.sourceLabel}`,
-        `摘要：${note.summary}`,
+        `Summary: ${note.summary}`,
         ...fieldLines,
         note.evidence.length > 0
-          ? `证据摘录：\n${note.evidence.map((item) => `- ${item.label}：${item.excerpt}`).join("\n")}`
-          : "证据摘录：无",
+          ? `Evidence excerpts:\n${note.evidence.map((item) => `- ${item.label}: ${item.excerpt}`).join("\n")}`
+          : "Evidence excerpts: none",
       ];
       return sections.join("\n");
     })

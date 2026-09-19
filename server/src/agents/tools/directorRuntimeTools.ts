@@ -81,24 +81,24 @@ async function resolveDirectorRuntimeScope(
   if (taskId) {
     const task = await workflowService.getTaskByIdWithoutHealing(taskId);
     if (!task) {
-      throw new AgentToolError("NOT_FOUND", "没有找到绑定的自动导演任务。");
+      throw new AgentToolError("NOT_FOUND", "No bound Auto-Director task was found.");
     }
     const novelId = trimText(input.novelId) ?? trimText(task.novelId) ?? trimText(context.novelId);
     if (!novelId) {
-      throw new AgentToolError("INVALID_INPUT", "自动导演任务没有绑定小说，无法读取运行时。");
+      throw new AgentToolError("INVALID_INPUT", "The Auto-Director task is not bound to a novel, so runtime cannot be read.");
     }
     return { taskId: task.id, novelId };
   }
 
   const novelId = resolveNovelId(context, input);
   if (!novelId) {
-    throw new AgentToolError("INVALID_INPUT", "需要绑定小说或传入自动导演任务 ID。");
+    throw new AgentToolError("INVALID_INPUT", "Bind a novel or pass an Auto-Director task ID.");
   }
 
   const activeTask = await workflowService.findActiveTaskByNovelAndLane(novelId, "auto_director");
   const task = activeTask ?? await workflowService.findLatestVisibleTaskByNovelId(novelId, "auto_director");
   if (!task) {
-    throw new AgentToolError("NOT_FOUND", "当前小说还没有可读取的自动导演任务。");
+    throw new AgentToolError("NOT_FOUND", "This novel has no Auto-Director task that can be read yet.");
   }
   return {
     taskId: task.id,
@@ -141,7 +141,7 @@ function buildWorkspaceOutput(input: {
     productionStage: interpretation?.productionStage ?? null,
     summary: interpretation?.summary
       ?? nextAction?.reason
-      ?? "已完成当前小说的自动导演工作区分析。",
+      ?? "Auto-Director workspace analysis for this novel is complete.",
     confidence: input.analysis.confidence,
     nextAction: toNextAction(nextAction),
     artifactSummary: buildArtifactSummary(input.analysis),
@@ -155,14 +155,14 @@ function buildProjectionSummary(projection: DirectorRuntimeProjection): string {
   return projection.headline
     ?? projection.detail
     ?? projection.lastEventSummary
-    ?? "已读取自动导演运行状态。";
+    ?? "Auto-Director run status was read.";
 }
 
 async function loadRuntimeProjection(scope: ResolvedDirectorRuntimeScope): Promise<DirectorRuntimeProjection> {
   const { novelDirectorService } = await getServices();
   const projection = await novelDirectorService.getRuntimeProjection(scope.taskId);
   if (!projection) {
-    throw new AgentToolError("NOT_FOUND", "当前自动导演任务还没有运行时快照。");
+    throw new AgentToolError("NOT_FOUND", "The current Auto-Director task has no runtime snapshot yet.");
   }
   return projection;
 }
@@ -244,15 +244,15 @@ function normalizePolicyPatch(input: {
 function describeDirectorPolicyMode(mode: DirectorPolicyMode): string {
   switch (mode) {
     case "suggest_only":
-      return "只给建议";
+      return "Just give advice";
     case "run_next_step":
-      return "推进下一步";
+      return "Proceed to the next step";
     case "run_until_gate":
       return "推进到下一个检查点";
     case "auto_safe_scope":
-      return "安全范围自动推进";
+      return "Safe range automatic advancement";
     default:
-      return "当前推进方式";
+      return "当前Propulsion method";
   }
 }
 
@@ -302,7 +302,7 @@ async function runDirectorWithMode(
       novelId: scope.novelId,
       mode,
       status: "preview_only" as const,
-      summary: `将按“${modeLabel}”请求自动导演继续执行，执行前会保留策略和审批边界。`,
+      summary: `Auto-Director will continue using “${modeLabel}”. Retention policy and approval boundaries stay in effect.`,
     };
   }
   await novelDirectorService.updateRuntimePolicy(scope.taskId, { mode });
@@ -312,7 +312,7 @@ async function runDirectorWithMode(
     novelId: scope.novelId,
     mode,
     status: "accepted" as const,
-    summary: `已请求自动导演按“${modeLabel}”继续执行。`,
+    summary: `Requested Auto-Director to continue using “${modeLabel}”.`,
   };
 }
 
@@ -321,18 +321,18 @@ export const directorRuntimeToolDefinitions: Partial<
 > = {
   analyze_director_workspace: {
     name: "analyze_director_workspace",
-    title: "分析自动导演工作区",
-    description: "通过自动导演运行时分析当前小说资产、缺失内容、风险和推荐动作。",
+    title: "Analyze the Auto-Director workspace",
+    description: "Analyze the current novel's assets, missing content, risks, and recommended actions through Auto-Director runtime.",
     category: "inspect",
     riskLevel: "low",
     domainAgent: "NovelAgent",
     resourceScopes: ["novel", "task"],
     parserHints: {
       intent: "analyze_director_workspace",
-      aliases: ["导演工作区分析", "自动导演分析", "分析当前小说资产"],
-      phrases: ["分析这本书现在缺什么", "让自动导演检查当前工作区", "当前小说资产是否完整"],
+      aliases: ["Director workspace analysis", "Auto-Director分析", "分析current novel资产"],
+      phrases: ["分析这本书现在缺什么", "让Auto-Director检查当前工作区", "current novel资产是否完整"],
       requiresNovelContext: true,
-      whenToUse: "用户要求自动导演分析当前小说资产、缺失项、风险或可继续性。",
+      whenToUse: "The user asks Auto-Director to analyze current-novel assets, gaps, risks, or whether work can continue.",
     },
     inputSchema: analyzeDirectorWorkspaceInputSchema,
     outputSchema: analyzeDirectorWorkspaceOutputSchema,
@@ -347,18 +347,18 @@ export const directorRuntimeToolDefinitions: Partial<
   },
   get_director_run_status: {
     name: "get_director_run_status",
-    title: "读取自动导演状态",
-    description: "读取自动导演运行时快照投影，说明当前节点、等待原因和最近事件。",
+    title: "Read Auto-Director status",
+    description: "Read the Auto-Director runtime snapshot, including the current node, wait reason, and recent events.",
     category: "inspect",
     riskLevel: "low",
     domainAgent: "NovelAgent",
     resourceScopes: ["novel", "task"],
     parserHints: {
       intent: "query_director_status",
-      aliases: ["自动导演状态", "导演进度", "director runtime"],
-      phrases: ["自动导演到哪了", "导演任务现在什么状态", "当前导演节点是什么"],
+      aliases: ["Auto-Director状态", "Director's progress", "director runtime"],
+      phrases: ["Auto-Director到哪了", "导演任务现在什么状态", "当前导演节点是什么"],
       requiresNovelContext: true,
-      whenToUse: "用户询问自动导演运行状态、当前节点、等待确认或最近事件。",
+      whenToUse: "The user is asking about Auto-Director running status, the current node, a confirmation wait, or recent events.",
     },
     inputSchema: getDirectorRunStatusInputSchema,
     outputSchema: getDirectorRunStatusOutputSchema,
@@ -371,18 +371,18 @@ export const directorRuntimeToolDefinitions: Partial<
   },
   explain_director_next_action: {
     name: "explain_director_next_action",
-    title: "解释自动导演下一步",
-    description: "结合运行时状态和工作区分析，说明当前小说下一步应该怎么推进。",
+    title: "Explain Auto-Director next step",
+    description: "Use runtime status and workspace analysis to explain how this novel should advance next.",
     category: "inspect",
     riskLevel: "low",
     domainAgent: "NovelAgent",
     resourceScopes: ["novel", "task"],
     parserHints: {
       intent: "explain_director_next_action",
-      aliases: ["下一步建议", "导演建议", "现在该做什么"],
-      phrases: ["这本书现在该做什么", "下一步怎么推进", "自动导演建议下一步是什么"],
+      aliases: ["Suggestions for next steps", "导演建议", "现在该做什么"],
+      phrases: ["What this book should do now", "What to do next", "Auto-DirectorSuggest next steps是什么"],
       requiresNovelContext: true,
-      whenToUse: "用户希望创作中枢解释当前小说的下一步、风险和推荐动作。",
+      whenToUse: "The user wants Creative Hub to explain this novel's next step, risks, and recommended action.",
     },
     inputSchema: explainDirectorNextActionInputSchema,
     outputSchema: explainDirectorNextActionOutputSchema,
@@ -394,7 +394,7 @@ export const directorRuntimeToolDefinitions: Partial<
       const reason = nextAction?.reason
         ?? projection.nextActionLabel
         ?? projection.detail
-        ?? "当前自动导演会根据运行时状态继续推荐下一步。";
+        ?? "当前Auto-Director会根据运行时状态继续Recommend next step。";
       return explainDirectorNextActionOutputSchema.parse({
         novelId: scope.novelId,
         taskId: scope.taskId,
@@ -413,8 +413,8 @@ export const directorRuntimeToolDefinitions: Partial<
   },
   run_director_next_step: {
     name: "run_director_next_step",
-    title: "继续自动导演下一步",
-    description: "通过自动导演运行时请求继续推进下一步。",
+    title: "Continue Auto-Director to the next step",
+    description: "Ask Auto-Director runtime to continue to the next step.",
     category: "run",
     riskLevel: "high",
     approvalRequired: true,
@@ -422,10 +422,10 @@ export const directorRuntimeToolDefinitions: Partial<
     resourceScopes: ["novel", "task"],
     parserHints: {
       intent: "run_director_next_step",
-      aliases: ["继续导演", "推进下一步", "run next step"],
-      phrases: ["继续自动导演下一步", "让导演继续推进一步", "执行导演下一步"],
+      aliases: ["continue directing", "Proceed to the next step", "run next step"],
+      phrases: ["Continue Auto-Director to the next step", "Let the director take one more step", "执行导演下一步"],
       requiresNovelContext: true,
-      whenToUse: "用户明确要求自动导演继续执行下一步。",
+      whenToUse: "The user explicitly asks Auto-Director to continue with the next step.",
     },
     inputSchema: runDirectorRuntimeInputSchema,
     outputSchema: runDirectorRuntimeOutputSchema,
@@ -436,8 +436,8 @@ export const directorRuntimeToolDefinitions: Partial<
   },
   run_director_until_gate: {
     name: "run_director_until_gate",
-    title: "自动推进到检查点",
-    description: "通过自动导演运行时请求持续推进到下一个检查点或确认点。",
+    title: "Advance automatically to the checkpoint",
+    description: "Ask Auto-Director runtime to keep advancing to the next checkpoint or confirmation point.",
     category: "run",
     riskLevel: "high",
     approvalRequired: true,
@@ -445,10 +445,10 @@ export const directorRuntimeToolDefinitions: Partial<
     resourceScopes: ["novel", "task"],
     parserHints: {
       intent: "run_director_until_gate",
-      aliases: ["推进到检查点", "run until gate", "推进到确认点"],
-      phrases: ["继续自动导演到检查点", "推进到需要我确认的地方", "让导演运行到下一个关口"],
+      aliases: ["Advance to checkpoint", "run until gate", "推进到确认点"],
+      phrases: ["Continue Auto-Director to the checkpoint", "Advance to the next place that needs my confirmation", "让导演运行到下一个关口"],
       requiresNovelContext: true,
-      whenToUse: "用户明确要求自动导演连续推进，直到检查点、确认点或阻塞点。",
+      whenToUse: "The user explicitly asks Auto-Director to keep advancing until a checkpoint, confirmation point, or blocker.",
     },
     inputSchema: runDirectorRuntimeInputSchema,
     outputSchema: runDirectorRuntimeOutputSchema,
@@ -459,18 +459,18 @@ export const directorRuntimeToolDefinitions: Partial<
   },
   switch_director_policy: {
     name: "switch_director_policy",
-    title: "切换自动导演推进方式",
-    description: "切换自动导演运行时策略，例如只给建议、推进下一步、推进到检查点或安全范围自动推进。",
+    title: "Switch Auto-Director approach",
+    description: "Switch Auto-Director runtime policy, for example advice only, next step, advance to checkpoint, or safe-range auto-advance.",
     category: "run",
     riskLevel: "medium",
     domainAgent: "NovelAgent",
     resourceScopes: ["novel", "task"],
     parserHints: {
       intent: "switch_director_policy",
-      aliases: ["切换导演策略", "切换推进方式", "自动化强度"],
-      phrases: ["把自动导演切到只给建议", "改成推进到检查点", "允许安全范围自动推进"],
+      aliases: ["切换导演策略", "切换Propulsion method", "自动化强度"],
+      phrases: ["Switch Auto-Director to suggestions only", "Switch to advancing to a checkpoint", "Allow auto-advance in a safe range"],
       requiresNovelContext: true,
-      whenToUse: "用户明确要求调整自动导演策略或自动化推进强度。",
+      whenToUse: "The user explicitly asks to adjust Auto-Director policy or automation intensity.",
     },
     inputSchema: switchDirectorPolicyInputSchema,
     outputSchema: switchDirectorPolicyOutputSchema,
@@ -483,7 +483,7 @@ export const directorRuntimeToolDefinitions: Partial<
           novelId: scope.novelId,
           mode: input.mode,
           status: "preview_only",
-          summary: `将把自动导演推进方式切换为“${describeDirectorPolicyMode(input.mode)}”。`,
+          summary: `Will switch the Auto-Director approach to “${describeDirectorPolicyMode(input.mode)}”.`,
         });
       }
       const { novelDirectorService } = await getServices();
@@ -496,14 +496,14 @@ export const directorRuntimeToolDefinitions: Partial<
         novelId: scope.novelId,
         mode: input.mode,
         status: "updated",
-        summary: `已把自动导演推进方式切换为“${describeDirectorPolicyMode(input.mode)}”。`,
+        summary: `Switched the Auto-Director approach to “${describeDirectorPolicyMode(input.mode)}”.`,
       });
     },
   },
   evaluate_manual_edit_impact: {
     name: "evaluate_manual_edit_impact",
-    title: "评估手动改文影响",
-    description: "通过自动导演运行时评估用户手动修改正文后的影响范围和最小修复路径。",
+    title: "Assess the impact of a manual edit",
+    description: "Use Auto-Director runtime to assess the impact of a manual prose edit and the smallest repair path.",
     category: "inspect",
     riskLevel: "low",
     domainAgent: "NovelAgent",
@@ -511,9 +511,9 @@ export const directorRuntimeToolDefinitions: Partial<
     parserHints: {
       intent: "evaluate_manual_edit_impact",
       aliases: ["改文影响", "手动编辑影响", "manual edit impact"],
-      phrases: ["我改了第三章看看影响什么", "我改了主角动机后续要不要重算", "删除伏笔会影响哪些章节"],
+      phrases: ["我改了第三章看看影响什么", "我改了主角动机后续要不要重算", "Which chapters would deleting this payoff affect"],
       requiresNovelContext: true,
-      whenToUse: "用户手动修改正文、动机、伏笔或设定后，希望判断影响范围和修复路径。",
+      whenToUse: "After the user manually edits prose, motive, payoffs, or canon, they want impact scope and a repair path.",
     },
     inputSchema: evaluateManualEditImpactInputSchema,
     outputSchema: evaluateManualEditImpactOutputSchema,

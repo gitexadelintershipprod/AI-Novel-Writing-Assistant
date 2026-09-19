@@ -116,15 +116,15 @@ export function buildObligationCoverage(input: {
     return {
       status: "satisfied",
       missing: [],
-      summary: "章节义务已满足。",
+      summary: "Chapter obligations are met.",
     };
   }
   return {
     status: input.hasBlockingIssues ? "unmet" : "partial",
     missing: input.missingObligations,
     summary: input.hasBlockingIssues
-      ? `仍有 ${input.missingObligations.length} 项章节义务未满足。`
-      : `仍有 ${input.missingObligations.length} 项章节义务需要后续回收。`,
+      ? `仍有 ${input.missingObligations.length} items章节义务未满足。`
+      : `仍有 ${input.missingObligations.length} items章节义务需要后续回收。`,
   };
 }
 
@@ -137,7 +137,7 @@ export function buildFailureClassification(input: {
   if (input.replanRecommended || input.acceptance.repairability === "plan_misalignment") {
     return {
       code: "replan_required",
-      summary: "当前章节目标与计划窗口已失配，需要先调整附近章节职责。",
+      summary: "This chapter's goal no longer matches the plan window. Adjust nearby chapter duties first.",
       decisionReason: input.acceptance.decisionReason,
       blockingObligations: input.missingObligations,
     };
@@ -145,7 +145,7 @@ export function buildFailureClassification(input: {
   if (input.missingObligations.length > 0) {
     return {
       code: "draft_obligation_unmet",
-      summary: "正文已生成，但仍有本章必达义务没有兑现。",
+      summary: "The draft was generated, but some must-hit obligations for this chapter are still unpaid.",
       decisionReason: input.acceptance.decisionReason,
       blockingObligations: input.missingObligations,
     };
@@ -153,14 +153,14 @@ export function buildFailureClassification(input: {
   if (input.hasBlockingIssues) {
     return {
       code: "draft_repair_exhausted",
-      summary: "正文已生成，但仍有阻塞性问题需要继续修复。",
+      summary: "The draft was generated, but blocking issues still need repair.",
       decisionReason: input.acceptance.decisionReason,
       blockingObligations: [],
     };
   }
   return {
     code: "none",
-    summary: "正文已生成，可继续推进。",
+    summary: "The draft was generated. You can continue.",
     decisionReason: input.acceptance.decisionReason,
     blockingObligations: [],
   };
@@ -283,12 +283,12 @@ export function buildBoundaryLeakageIssues(input: {
       severity: candidate.severity,
       code: candidate.type,
       description: candidate.type === "protected_reveal"
-        ? "章节正文疑似提前泄露受保护信息。"
-        : "章节正文疑似越过本章边界。重写或修复时必须回到当前章节合同内。",
+        ? "Chapter text疑似提前泄露受保护信息。"
+        : "The chapter body looks like it crossed this chapter's bounds. Rewrite or repair must return inside the current chapter contract.",
       evidence: leaked,
       fixSuggestion: candidate.type === "protected_reveal"
-        ? "删除或改写提前揭露的信息，只保留铺垫、压力或预兆。"
-        : "删除越章内容，停在本章 endingState 或当前场景 exitState。",
+        ? "Delete or rewrite information revealed too early. Keep only setup, pressure, or omen."
+        : "Remove content that belongs in later chapters. Stop at this chapter's endingState or the current scene's exitState.",
       status: "open" as const,
       createdAt: now,
       updatedAt: now,

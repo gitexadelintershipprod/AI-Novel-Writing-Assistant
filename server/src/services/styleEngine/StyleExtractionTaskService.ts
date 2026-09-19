@@ -71,15 +71,15 @@ function isAbortError(error: unknown): boolean {
 
 function normalizeTaskError(error: unknown): string {
   if (isTimeoutError(error)) {
-    return "写法提取请求超时，模型长时间没有返回结果。可以在系统设置调高写法提取超时后重试，或切换更稳定的模型。";
+    return "Style extraction timed out because the model did not return. Raise the timeout in system settings and retry, or switch to a more stable model.";
   }
   if (isAbortError(error)) {
-    return "写法提取已中止。";
+    return "Style extraction was stopped.";
   }
   if (error instanceof Error && error.message.trim()) {
     return stripStructuredOutputPrefix(error.message.trim());
   }
-  return "写法提取任务失败，但没有记录到明确原因。";
+  return "Style extraction failed without a recorded reason.";
 }
 
 function buildExtractionDecisions(
@@ -323,7 +323,7 @@ export class StyleExtractionTaskService {
           data: {
             status: "queued",
             pendingManualRecovery: true,
-            error: "服务重启后，写法提取任务已暂停，等待手动恢复。",
+            error: "After the restart, style extraction paused and is waiting for manual recovery.",
             heartbeatAt: null,
             currentStage: "queued",
             currentItemKey: null,
@@ -338,7 +338,7 @@ export class StyleExtractionTaskService {
           where: { id: { in: queuedIds } },
           data: {
             pendingManualRecovery: true,
-            error: "服务重启后，写法提取任务已暂停，等待手动恢复。",
+            error: "After the restart, style extraction paused and is waiting for manual recovery.",
             heartbeatAt: null,
             cancelRequestedAt: null,
           },
@@ -428,7 +428,7 @@ export class StyleExtractionTaskService {
 
     const taskSource = resolveTaskProfileSource(task);
     if (!taskSource) {
-      const errorMessage = "知识库原文写法提取任务缺少来源文档 ID，无法安全生成写法。";
+      const errorMessage = "The knowledge-base source style-extraction task is missing a source-document id, so a writing style cannot be generated safely.";
       await prisma.styleExtractionTask.update({
         where: { id: task.id },
         data: {

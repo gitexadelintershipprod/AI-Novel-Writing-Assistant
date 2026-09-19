@@ -4,7 +4,7 @@ import { translateDynamicUiText } from "./dynamicUiPatterns.ts";
 
 test("translates dynamic onboarding and settings UI without changing domain values", () => {
   assert.equal(
-    translateDynamicUiText("还有 11 类创作任务没有可用模型路由。"),
+    translateDynamicUiText("11 more creative-task types still have no model route."),
     "There are 11 authoring task types with no available model route.",
   );
   assert.equal(translateDynamicUiText("第 1 步 / 共 5 步"), "Step 1 of 5");
@@ -14,14 +14,14 @@ test("translates dynamic onboarding and settings UI without changing domain valu
     "Ollama · llama3.2 · 0 task routes",
   );
   assert.equal(
-    translateDynamicUiText("当前触发时仍会暂停等待处理。"),
+    translateDynamicUiText("This trigger will still pause and wait for handling."),
     "The task will still pause for review when triggered.",
   );
 });
 
 test("translates dynamic market and prompt counters", () => {
   assert.equal(
-    translateDynamicUiText("已选择 45 本作品，可在各榜单右上角全选或逐本调整。"),
+    translateDynamicUiText("45 works are selected. Use the top-right of each ranking to select all or adjust one by one."),
     "45 works selected. Use each ranking's top-right control to select all or adjust individually.",
   );
   assert.equal(translateDynamicUiText("开始 AI 分析（45 本）"), "Start AI analysis (45 works)");

@@ -113,7 +113,7 @@ function isWorkflowTaskCancelledError(error: unknown): boolean {
     && error.message === "WORKFLOW_TASK_CANCELLED"
   )
     || message === "WORKFLOW_TASK_CANCELLED"
-    || message.includes("当前自动导演任务已取消")
+    || message.includes("The current Auto-Director task was cancelled")
     || message.includes("This operation was aborted");
 }
 
@@ -266,7 +266,7 @@ export class NovelDirectorService {
       if (isWorkflowTaskCancelledError(error) || isDirectorRuntimeGateError(error)) {
         return;
       }
-      const message = error instanceof Error ? error.message : "自动导演后台任务执行失败。";
+      const message = error instanceof Error ? error.message : "The Auto-Director background task failed.";
       await this.workflowService.markTaskFailed(taskId, message);
       console.error(`[director.background] task failed taskId=${taskId}`, error);
     } finally {
@@ -312,7 +312,7 @@ export class NovelDirectorService {
     if (styleProfileId) {
       styleProfile = await this.styleProfileService.getProfileById(styleProfileId);
       if (!styleProfile) {
-        throw new Error("所选写法资产不存在。");
+        throw new Error("The selected writing asset does not exist.");
       }
     }
 
@@ -507,11 +507,11 @@ export class NovelDirectorService {
   async calibrateStep(taskId: string, input: DirectorStepCalibrationRequest): Promise<unknown> {
     const task = await this.workflowService.getTaskById(taskId);
     if (!task?.novelId) {
-      throw new AppError("步骤校准需要关联到小说导演任务。", 404);
+      throw new AppError("Step calibration must be linked to a novel director task.", 404);
     }
     const module = directorWorkflowStepModuleRegistry.maybeGet(input.stepId.trim());
     if (!module || !isExecutableWorkflowStepModule(module)) {
-      throw new AppError(`不支持校准导演步骤：${input.stepId}`, 400);
+      throw new AppError(`This director step cannot be calibrated: ${input.stepId}`, 400);
     }
     const context = {
       taskId,
@@ -530,7 +530,7 @@ export class NovelDirectorService {
     const seedPayload = parseSeedPayload<DirectorWorkflowSeedPayload>(task.seedPayloadJson) ?? {};
     const directorInput = getDirectorInputFromSeedPayload(seedPayload);
     if (!directorInput) {
-      throw new AppError("当前导演任务缺少可复用的生成输入，请从项目接管入口继续。", 409);
+      throw new AppError("This director task has no reusable generation input. Continue from project takeover.", 409);
     }
     const instruction = input.instruction?.trim() || null;
     const calibratedDirectorInput = instruction
@@ -569,9 +569,9 @@ export class NovelDirectorService {
     await this.workflowService.markTaskWaitingApproval(taskId, {
       stage: "auto_director",
       itemKey: module.id,
-      itemLabel: `${module.label}已校准，请检查后继续`,
+      itemLabel: `${module.label} is calibrated. Review it, then continue`,
       checkpointType: "step_review_required",
-      checkpointSummary: `${module.label}已完成${input.action === "improve" ? "完善" : "重新生成"}。请确认当前内容后再继续导演。`,
+      checkpointSummary: `${module.label} finished ${input.action === "improve" ? "improvement" : "regeneration"}. Confirm the current content before continuing to direct.`,
       seedPayload: buildDirectorWorkflowSeedPayload(calibratedDirectorInput, task.novelId, {
         stepReview: {
           stepId: module.id,
@@ -648,7 +648,7 @@ export class NovelDirectorService {
     });
     const takeoverStrategy = input.strategy ?? (input.startPhase ? "restart_current_step" : "continue_existing");
     if (takeoverState.hasActiveTask && takeoverStrategy !== "continue_existing") {
-      throw new Error("当前已有自动导演任务在运行或等待审核，请先继续或取消当前任务。");
+      throw new Error("An Auto-Director task is already running or waiting for review. Continue or cancel it first.");
     }
     const takeoverValidation = validateAutoDirectorTakeoverRequest({
       source: "takeover",
@@ -668,7 +668,7 @@ export class NovelDirectorService {
       },
     });
     if (!takeoverValidation.allowed) {
-      throw new AppError(takeoverValidation.blockingReasons.join("；") || "当前接管请求需要先重新校验。", 409);
+      throw new AppError(takeoverValidation.blockingReasons.join("；") || "This takeover request needs to be rechecked first.", 409);
     }
 
     const takeoverDirectorInput = buildDirectorTakeoverInput({
@@ -717,7 +717,7 @@ export class NovelDirectorService {
           novelId: input.novelId,
           entrypoint: "takeover",
           policyMode: isFullBookAutopilot ? "auto_safe_scope" : "run_until_gate",
-          summary: "AI 自动导演接管已并入统一运行时。",
+          summary: "Auto-Director takeover is now part of the unified runtime.",
         });
         await this.directorRuntime.recordWorkspaceAnalysis({
           taskId,
@@ -783,7 +783,7 @@ export class NovelDirectorService {
       novelId: input.novelId,
       entrypoint: "takeover",
       policyMode: "run_until_gate",
-      summary: "AI 自动导演接管已并入统一运行时。",
+      summary: "Auto-Director takeover is now part of the unified runtime.",
     });
     await this.directorRuntime.recordWorkspaceAnalysis({
       taskId: response.workflowTaskId,

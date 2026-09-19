@@ -113,7 +113,7 @@ export const chapterWriterPrompt: PromptAsset<ChapterWriterPromptInput, string, 
             default: "The ending must create a new hook (a cliffhanger, a decision point, a sudden change or escalation of tension) that propels the reader into the next chapter.",
             maxLength: 500,
         },
-        // choice：叙事视角
+        // choice: narrative perspective
         {
             kind: "choice",
             key: "writer.pov",
@@ -138,7 +138,7 @@ export const chapterWriterPrompt: PromptAsset<ChapterWriterPromptInput, string, 
                 },
             ],
         },
-        // toggle：反套路提醒
+        // toggle: Anti-routine reminder
         {
             kind: "toggle",
             key: "writer.antiCliché",
@@ -147,7 +147,7 @@ export const chapterWriterPrompt: PromptAsset<ChapterWriterPromptInput, string, 
             default: false,
             copy: "Avoid the following web writing routines: secret realms/new dungeons suddenly appear to interrupt the plot, characters give a long series of system introductions on the spot, the protagonist must be slapped in the face when he appears, and \"breakthrough\" is the only climax at the end of each chapter.",
         },
-        // token：目标字数标签
+        // token：target word count标签
         {
             kind: "token",
             key: "writer.wordCountHint",

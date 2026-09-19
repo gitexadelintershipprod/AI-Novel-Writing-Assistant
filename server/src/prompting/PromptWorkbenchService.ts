@@ -245,16 +245,16 @@ function buildPreviewNotes(input: {
 }): string[] {
   const notes: string[] = [...(input.extraNotes ?? [])];
   if (!input.prompt.slotSupported) {
-    notes.push("该提示词没有声明可编辑槽位，不能保存槽位覆盖。");
+    notes.push("This prompt does not declare editable slots, so slot overrides cannot be saved.");
   }
   if (input.brokerResolution.missingRequiredGroups.length > 0) {
-    notes.push(`缺少必需上下文组：${input.brokerResolution.missingRequiredGroups.join("、")}。`);
+    notes.push(`Missing required context groups: ${input.brokerResolution.missingRequiredGroups.join(", ")}.`);
   }
   if (input.brokerResolution.resolverErrors.length > 0) {
-    notes.push("部分上下文解析器返回错误。");
+    notes.push("Some context parsers returned errors.");
   }
   if (input.prompt.contextRequirements.length === 0) {
-    notes.push("该提示词没有声明上下文需求。");
+    notes.push("This prompt does not declare a context requirement.");
   }
   return notes;
 }
@@ -372,26 +372,26 @@ function serializePromptContext(context: ReturnType<typeof preparePromptExecutio
 
 function formatPreviewRenderError(error: unknown, asset: UnknownPromptAsset): Error {
   const message = error instanceof Error ? error.message : String(error);
-  return new Error(`提示词预览渲染失败（${asset.id}@${asset.version}）：${message}`);
+  return new Error(`Prompt preview rendering failed (${asset.id}@${asset.version}): ${message}`);
 }
 
 function buildPromptInputReferenceItems(promptId?: string): PromptTemplateReferenceItem[] {
   if (promptId === "novel.short_story.segment.write") {
     return [
-      { key: "segment", label: "当前内部片段任务", token: "{{input.segment}}", group: "input" },
-      { key: "previousContinuity", label: "前文连续性摘要", token: "{{input.previousContinuity}}", group: "input" },
-      { key: "previousContentTail", label: "前文正文尾部", token: "{{input.previousContentTail}}", group: "input" },
+      { key: "segment", label: "Current inner segment task", token: "{{input.segment}}", group: "input" },
+      { key: "previousContinuity", label: "Previous continuity summary", token: "{{input.previousContinuity}}", group: "input" },
+      { key: "previousContentTail", label: "Previous prose tail", token: "{{input.previousContentTail}}", group: "input" },
     ];
   }
   return [
-    { key: "novelTitle", label: "小说标题", token: "{{input.novelTitle}}", group: "input" },
-    { key: "chapterOrder", label: "章节序号", token: "{{input.chapterOrder}}", group: "input" },
-    { key: "chapterTitle", label: "章节标题", token: "{{input.chapterTitle}}", group: "input" },
-    { key: "mode", label: "写作模式", token: "{{input.mode}}", group: "input" },
-    { key: "targetWordCount", label: "目标字数", token: "{{input.targetWordCount}}", group: "input" },
-    { key: "minWordCount", label: "最小字数", token: "{{input.minWordCount}}", group: "input" },
-    { key: "maxWordCount", label: "最大字数", token: "{{input.maxWordCount}}", group: "input" },
-    { key: "missingWordGap", label: "补写缺口", token: "{{input.missingWordGap}}", group: "input" },
+    { key: "novelTitle", label: "Novel title", token: "{{input.novelTitle}}", group: "input" },
+    { key: "chapterOrder", label: "Chapter number", token: "{{input.chapterOrder}}", group: "input" },
+    { key: "chapterTitle", label: "Chapter title", token: "{{input.chapterTitle}}", group: "input" },
+    { key: "mode", label: "Writing mode", token: "{{input.mode}}", group: "input" },
+    { key: "targetWordCount", label: "target word count", token: "{{input.targetWordCount}}", group: "input" },
+    { key: "minWordCount", label: "Minimum word count", token: "{{input.minWordCount}}", group: "input" },
+    { key: "maxWordCount", label: "Maximum word count", token: "{{input.maxWordCount}}", group: "input" },
+    { key: "missingWordGap", label: "Missing-word gap", token: "{{input.missingWordGap}}", group: "input" },
   ];
 }
 
@@ -589,15 +589,15 @@ export class PromptWorkbenchService {
         });
         if (hasBlockingPromptTemplateDiagnostics(compiled.diagnostics)) {
           const details = [
-            compiled.diagnostics.invalidMessages.join("；"),
+            compiled.diagnostics.invalidMessages.join("; "),
             compiled.diagnostics.unknownTokens.length > 0
-              ? `未知 token：${compiled.diagnostics.unknownTokens.join("、")}`
+              ? `Unknown tokens: ${compiled.diagnostics.unknownTokens.join(", ")}`
               : "",
             compiled.diagnostics.missingRequiredGroups.length > 0
-              ? `缺少必需上下文组：${compiled.diagnostics.missingRequiredGroups.join("、")}`
+              ? `Missing required context groups: ${compiled.diagnostics.missingRequiredGroups.join(", ")}`
               : "",
-          ].filter(Boolean).join("；");
-          throw new Error(`高级模板预览失败：${details}`);
+          ].filter(Boolean).join("; ");
+          throw new Error(`Advanced template preview failed: ${details}`);
         }
         previewMessages = compiled.messages;
         templateDiagnosticPayload = {
@@ -655,7 +655,7 @@ export class PromptWorkbenchService {
           extraNotes: [
             ...rendered.previewContext.notes,
             ...(rendered.templateDiagnosticPayload?.diagnostics.fallbackRequiredGroups.length
-              ? [`高级模板已自动追加必需上下文：${rendered.templateDiagnosticPayload.diagnostics.fallbackRequiredGroups.join("、")}。`]
+              ? [`The advanced template automatically appended required context: ${rendered.templateDiagnosticPayload.diagnostics.fallbackRequiredGroups.join(", ")}.`]
               : []),
           ],
         }),
@@ -672,7 +672,7 @@ export class PromptWorkbenchService {
 
     if (rendered.asset.mode === "structured") {
       if (!rendered.asset.outputSchema) {
-        throw new Error(`提示词没有结构化输出 schema：${rendered.asset.id}@${rendered.asset.version}`);
+        throw new Error(`This prompt has no structured output schema: ${rendered.asset.id}@${rendered.asset.version}`);
       }
       const result = await invokeStructuredLlmDetailed<unknown>({
         label: `${rendered.asset.id}@${rendered.asset.version}:workbench_test`,
@@ -759,7 +759,7 @@ export class PromptWorkbenchService {
   }> {
     const rendered = await this.renderPreviewPrompt(input);
     if (rendered.asset.mode !== "text") {
-      throw new Error("结构化测试需要在结果校验完成后统一显示，请使用普通测试产出。");
+      throw new Error("Structured tests should display only after result validation. Use a normal test output.");
     }
     const llmOptions = input.llm ?? {};
     const llm = await getLLM(llmOptions.provider, {
@@ -777,10 +777,10 @@ export class PromptWorkbenchService {
   async contextReferences(input: PromptContextReferencesInput): Promise<PromptTemplateReferenceCatalog> {
     const asset = findRegisteredPromptAssetById(input.promptId);
     if (!asset) {
-      throw new Error(`提示词未注册：${input.promptId}`);
+      throw new Error(`Prompt word is not registered:${input.promptId}`);
     }
     if (!supportsAdvancedPromptTemplate(asset.id)) {
-      throw new Error("该提示词不支持高级模板上下文引用。");
+      throw new Error("This prompt does not support advanced template context references.");
     }
     const prompt = toCatalogItem(asset);
     const previewContext = await this.preparePreviewExecutionContext({

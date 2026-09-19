@@ -70,15 +70,15 @@ export default function StoryModeCreateDialog({
         className="h-[min(90vh,840px)] max-w-6xl"
         bodyClassName="overflow-y-auto p-0 lg:overflow-hidden"
         headerClassName="px-5 py-4 sm:px-6"
-        title={isCreatingChild ? "新增推进模式子类" : "新建推进模式"}
+        title={isCreatingChild ? "Added new propulsion mode subcategory" : "New promotion mode"}
         description={isCreatingChild
-          ? "基于当前父类创建一个或多个细分推进方式，AI 可以先给出候选，你再决定保存哪些。"
-          : "定义这本书靠什么持续推进和兑现。可以直接填写，也可以先让 AI 起草。"}
+          ? "Create one or more subdivision advancement methods based on the current parent class. AI can give candidates first, and you can then decide which ones to save."
+          : "Define what this book relies on to continue to advance and deliver. You can fill it in directly or let AI draft it first."}
         footerClassName="flex-col-reverse gap-2 px-5 py-3 sm:flex-row sm:px-6"
         footer={(
           <>
             <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
-              取消
+              Cancel
             </Button>
             {hasGeneratedCandidates ? (
               <Button
@@ -88,12 +88,12 @@ export default function StoryModeCreateDialog({
                 disabled={isSavingSelectedChildren || selectedGeneratedChildIndexes.length === 0}
               >
                 {isSavingSelectedChildren
-                  ? "保存中..."
-                  : `保存选中子类 (${selectedGeneratedChildIndexes.length})`}
+                  ? "Saving..."
+                  : `Save selected subcategory (${selectedGeneratedChildIndexes.length})`}
               </Button>
             ) : null}
             <Button type="button" onClick={onSaveCurrent} disabled={saveDisabled}>
-              {isSavingCurrent ? "保存中..." : isCreatingChild ? "保存当前子类" : "保存推进模式"}
+              {isSavingCurrent ? "Saving..." : isCreatingChild ? "Save current subclass" : "Save push mode"}
             </Button>
           </>
         )}
@@ -104,7 +104,7 @@ export default function StoryModeCreateDialog({
               <div>
                 <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
                   <Layers3 className="h-4 w-4" aria-hidden="true" />
-                  创建位置
+                  Create location
                 </div>
                 <div className="mt-2 text-sm font-semibold text-foreground">{selectedParentLabel}</div>
               </div>
@@ -112,12 +112,12 @@ export default function StoryModeCreateDialog({
               <div className="border-t border-border pt-5">
                 <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
                   <Sparkles className="h-4 w-4" aria-hidden="true" />
-                  让 AI 起草
+                  Let AI draft
                 </div>
                 <p className="mt-1 text-xs leading-5 text-muted-foreground">
                   {isCreatingChild
-                    ? "补充想要的细分方向，也可以留空让 AI 根据父类自动衍生。"
-                    : "描述这种模式如何持续制造目标、阻力和阶段回报。"}
+                    ? "Supplement the desired subdivision direction, or leave it blank to allow AI to automatically derive it based on the parent class."
+                    : "Describe how this pattern consistently creates goals, resistance, and stage rewards."}
                 </p>
               </div>
 
@@ -130,31 +130,31 @@ export default function StoryModeCreateDialog({
 
               {isCreatingChild ? (
                 <label className="space-y-2 text-sm">
-                  <span className="font-medium text-foreground">候选数量</span>
+                  <span className="font-medium text-foreground">number of candidates</span>
                   <SelectControl
                     className="w-full"
                     value={childDerivationCount}
                     onChange={(event) => onChildDerivationCountChange(Number(event.target.value))}
                   >
-                    <option value={1}>1 个</option>
-                    <option value={2}>2 个</option>
-                    <option value={3}>3 个</option>
-                    <option value={4}>4 个</option>
-                    <option value={5}>5 个</option>
+                    <option value={1}>1</option>
+                    <option value={2}>2</option>
+                    <option value={3}>3</option>
+                    <option value={4}>4</option>
+                    <option value={5}>5</option>
                   </SelectControl>
                 </label>
               ) : null}
 
               <label className="space-y-2 text-sm">
-                <span className="font-medium text-foreground">起草要求</span>
+                <span className="font-medium text-foreground">Drafting requirements</span>
                 <textarea
                   rows={6}
                   className={fieldClassName()}
                   value={generationPrompt}
                   onChange={(event) => onGenerationPromptChange(event.target.value)}
                   placeholder={isCreatingChild
-                    ? "例如：增加偏经营建设的细分方向，回报来自势力扩张和资源积累。"
-                    : "例如：主角通过经营据点持续获得资源，每个阶段都要完成建设目标并兑现势力成长。"}
+                    ? "For example: increase the subdivision direction that focuses on management and construction, and the rewards will come from power expansion and resource accumulation."
+                    : "For example: the protagonist continues to obtain resources by operating strongholds. At each stage, he must complete the construction goals and realize the growth of his power."}
                 />
               </label>
 
@@ -166,14 +166,14 @@ export default function StoryModeCreateDialog({
                   disabled={!canGenerate || isGenerating}
                 >
                   <Sparkles className="h-4 w-4" aria-hidden="true" />
-                  {isGenerating ? "正在起草..." : "生成草稿"}
+                  {isGenerating ? "Drafting..." : "Generate draft"}
                 </Button>
                 <Button
                   type="button"
                   size="icon"
                   variant="outline"
-                  title="清空当前草稿"
-                  aria-label="清空当前草稿"
+                  title="Clear current draft"
+                  aria-label="Clear current draft"
                   onClick={onReset}
                 >
                   <RotateCcw className="h-4 w-4" aria-hidden="true" />
@@ -183,9 +183,9 @@ export default function StoryModeCreateDialog({
               {hasGeneratedCandidates ? (
                 <div className="border-t border-border pt-5">
                   <div className="flex items-center justify-between gap-3">
-                    <div className="text-sm font-semibold text-foreground">AI 候选</div>
+                    <div className="text-sm font-semibold text-foreground">AI candidate</div>
                     <div className="text-xs text-muted-foreground">
-                      已选 {selectedGeneratedChildIndexes.length}/{generatedChildCandidates.length}
+                      Selected {selectedGeneratedChildIndexes.length}/{generatedChildCandidates.length}
                     </div>
                   </div>
                   <div className="mt-3 divide-y divide-border border-y border-border">
@@ -199,7 +199,7 @@ export default function StoryModeCreateDialog({
                             className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border transition ${
                               selected ? "border-primary bg-primary text-primary-foreground" : "border-input bg-background"
                             }`}
-                            aria-label={`${selected ? "取消选择" : "选择"}${candidate.name}`}
+                            aria-label={`${selected ? "Deselect" : "Select"} ${candidate.name}`}
                             aria-pressed={selected}
                             onClick={() => onToggleGeneratedChildSelection(index)}
                           >
@@ -212,7 +212,7 @@ export default function StoryModeCreateDialog({
                           >
                             <div className="flex items-center justify-between gap-2">
                               <span className="truncate text-sm font-medium text-foreground">{candidate.name}</span>
-                              {active ? <span className="shrink-0 text-xs text-primary">编辑中</span> : null}
+                              {active ? <span className="shrink-0 text-xs text-primary">Editing</span> : null}
                             </div>
                             <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">
                               {candidate.description?.trim() || candidate.profile.coreDrive}
@@ -232,33 +232,33 @@ export default function StoryModeCreateDialog({
               <section>
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <h3 className="text-base font-semibold text-foreground">内容草稿</h3>
+                    <h3 className="text-base font-semibold text-foreground">content draft</h3>
                     <p className="mt-1 text-xs leading-5 text-muted-foreground">
-                      名称和核心驱动决定 AI 如何识别并使用这种推进方式。
+                      The name and core driver determine how the AI recognizes and uses this propulsion method.
                     </p>
                   </div>
                   <Button type="button" size="sm" variant="ghost" onClick={onReset}>
                     <RotateCcw className="h-4 w-4" aria-hidden="true" />
-                    清空
+                    Clear
                   </Button>
                 </div>
 
                 <div className="mt-5 grid gap-4">
                   <label className="space-y-2 text-sm">
-                    <span className="font-medium text-foreground">名称</span>
+                    <span className="font-medium text-foreground">Name</span>
                     <Input
                       value={draft.name}
-                      placeholder="例如：势力经营"
+                      placeholder="For example: power management"
                       onChange={(event) => onDraftChange((previous) => ({ ...previous, name: event.target.value }))}
                     />
                   </label>
                   <label className="space-y-2 text-sm">
-                    <span className="font-medium text-foreground">一句话定位</span>
+                    <span className="font-medium text-foreground">Positioning in one sentence</span>
                     <textarea
                       rows={2}
                       className={fieldClassName()}
                       value={draft.description ?? ""}
-                      placeholder="说明这种模式靠什么持续推进，以及读者会获得什么体验。"
+                      placeholder="Explain how this model continues to advance and what the reader will experience."
                       onChange={(event) => onDraftChange((previous) => ({ ...previous, description: event.target.value }))}
                     />
                   </label>
@@ -268,15 +268,15 @@ export default function StoryModeCreateDialog({
               {!isCreatingChild && draft.children.length > 0 ? (
                 <section className="border-t border-border pt-6">
                   <div className="flex items-center justify-between gap-3">
-                    <h3 className="text-sm font-semibold text-foreground">同时创建的子类</h3>
-                    <span className="text-xs text-muted-foreground">{draft.children.length} 个</span>
+                    <h3 className="text-sm font-semibold text-foreground">Subclasses created at the same time</h3>
+                    <span className="text-xs text-muted-foreground">{draft.children.length}</span>
                   </div>
                   <div className="mt-3 divide-y divide-border border-y border-border">
                     {draft.children.map((child, index) => (
                       <div key={`${child.name}-${index}`} className="grid gap-1 py-3 sm:grid-cols-[160px_minmax(0,1fr)] sm:gap-4">
-                        <div className="text-sm font-medium text-foreground">{child.name || `未命名子类 ${index + 1}`}</div>
+                        <div className="text-sm font-medium text-foreground">{child.name || `unnamed subclass ${index + 1}`}</div>
                         <div className="text-sm leading-5 text-muted-foreground">
-                          {child.description?.trim() || child.profile.coreDrive || "等待补充说明"}
+                          {child.description?.trim() || child.profile.coreDrive || "Waiting for additional instructions"}
                         </div>
                       </div>
                     ))}
@@ -291,16 +291,16 @@ export default function StoryModeCreateDialog({
 
               <details className="border-t border-border pt-5">
                 <summary className="cursor-pointer text-sm font-medium text-foreground">
-                  高级设置：人工提示补充
+                  Advanced settings: manual prompt supplement
                 </summary>
                 <p className="mt-2 text-xs leading-5 text-muted-foreground">
-                  仅在需要补充特殊写作约束时填写，普通推进模式可以留空。
+                  Only fill in when special writing constraints need to be added, and can be left blank for normal advancement mode.
                 </p>
                 <textarea
                   rows={4}
                   className={`mt-3 ${fieldClassName()}`}
                   value={draft.template ?? ""}
-                  placeholder="补充仅适用于该模式的写作要求。"
+                  placeholder="Supplements apply only to the writing requirement of this mode."
                   onChange={(event) => onDraftChange((previous) => ({ ...previous, template: event.target.value }))}
                 />
               </details>

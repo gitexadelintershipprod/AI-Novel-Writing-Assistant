@@ -730,7 +730,7 @@ export class RagIndexService {
       embeddingSettings.embeddingModel,
     );
 
-    // 知识库文档索引时，预加载角色候选名用于 chunk facet 自动提取
+    // Knowledge base documentation索引时，预加载角色候选名用于 chunk facet 自动提取
     // KnowledgeDocument 没有直接 novelId，取该租户下所有角色名做关键词匹配（数量有限，代价可忽略）
     let knownCharacterNames: string[] = [];
     if (ownerType === "knowledge_document") {

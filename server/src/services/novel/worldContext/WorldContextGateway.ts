@@ -55,7 +55,7 @@ export interface WorldContextGatewayGenerateOptions extends NovelWorldGenerateIn
   openingOnly?: boolean;
 }
 
-function compactList(items: string[], fallback = "暂无"): string {
+function compactList(items: string[], fallback = "None yet"): string {
   const normalized = items.map((item) => item.trim()).filter(Boolean);
   return normalized.length > 0 ? normalized.map((item) => `- ${item}`).join("\n") : fallback;
 }
@@ -87,7 +87,7 @@ function formatForce(force: StoryWorldSlice["activeForces"][number]): string {
   return [
     force.name,
     force.roleInStory ? `本书作用：${force.roleInStory}` : "",
-    force.pressure ? `施压方式：${force.pressure}` : "",
+    force.pressure ? `Pressure tactics:${force.pressure}` : "",
     force.summary ? `概述：${force.summary}` : "",
   ].filter(Boolean).join(" | ");
 }
@@ -104,17 +104,17 @@ function formatLocation(location: StoryWorldSlice["activeLocations"][number]): s
 function buildPurposeLead(purpose: WorldContextPurpose): string {
   switch (purpose) {
     case "character":
-      return "角色生成必须贴合本书世界：优先使用活跃势力、身份边界、地点压力和禁止搭配，不要生成脱离世界规则的人设。";
+      return "Character generation must fit this book's world: prefer active factions, identity bounds, place pressure, and forbidden pairings. Do not invent profiles that break world rules.";
     case "outline":
-      return "故事规划必须使用本书世界：优先围绕核心规则、压力来源、开局入口和扩展边界设计主线。";
+      return "Story planning must use this book's world: design the spine around core rules, pressure sources, opening entries, and expansion bounds.";
     case "chapter":
-      return "章节生成必须遵守本书世界：只使用当前切片允许的规则、地点、势力和压力源。";
+      return "Chapter generation must follow this book's world: use only rules, places, factions, and pressure sources allowed by the current slice.";
     case "bible":
-      return "Bible 只能汇总本书世界手册，不能把世界规则改写成另一套权威来源。";
+      return "The bible can only summarize this book's world handbook. It cannot rewrite world rules into a different source of truth.";
     case "optimize":
-      return "优化与审校必须检查文本是否越过本书世界边界、硬规则和禁止搭配。";
+      return "Optimization and review must check whether the text crossed this book's world boundaries, hard rules, or forbidden pairings.";
     default:
-      return "生成必须遵守本书世界边界。";
+      return "Generation must stay inside this book's world bounds.";
   }
 }
 
@@ -140,8 +140,8 @@ export function buildWorldContextBlockFromSlice(input: {
   }));
 
   const worldRulesText = [
-    slice.coreWorldFrame ? `世界底色：${slice.coreWorldFrame}` : "",
-    hardRules.length > 0 ? `硬规则：\n${compactList(hardRules)}` : "",
+    slice.coreWorldFrame ? `world background：${slice.coreWorldFrame}` : "",
+    hardRules.length > 0 ? `Hard rules:\n${compactList(hardRules)}` : "",
     slice.forbiddenCombinations.length > 0
       ? `禁止搭配：\n${compactList(slice.forbiddenCombinations)}`
       : "",
@@ -151,18 +151,18 @@ export function buildWorldContextBlockFromSlice(input: {
   const worldStageText = [
     slice.coreWorldFrame ? `核心舞台：${slice.coreWorldFrame}` : "",
     slice.activeForces.length > 0
-      ? `活跃势力：\n${slice.activeForces.map((force: StoryWorldSliceForce) => `- ${formatForce(force)}`).join("\n")}`
+      ? `Active forces：\n${slice.activeForces.map((force: StoryWorldSliceForce) => `- ${formatForce(force)}`).join("\n")}`
       : "",
     slice.activeLocations.length > 0
       ? `本书舞台：\n${slice.activeLocations.map((location: StoryWorldSliceLocation) => `- ${formatLocation(location)}`).join("\n")}`
       : "",
-    slice.pressureSources.length > 0 ? `压力来源：\n${compactList(slice.pressureSources)}` : "",
+    slice.pressureSources.length > 0 ? `source of stress：\n${compactList(slice.pressureSources)}` : "",
     slice.conflictCandidates.length > 0 ? `可展开冲突：\n${compactList(slice.conflictCandidates)}` : "",
     slice.recommendedEntryPoints.length > 0 ? `适合切入口：\n${compactList(slice.recommendedEntryPoints)}` : "",
   ].filter(Boolean).join("\n\n");
 
   const promptBlock = [
-    `【本书世界上下文｜用途：${purpose}｜强度：${strength}】`,
+    `【book world上下文｜用途：${purpose}｜强度：${strength}】`,
     buildPurposeLead(purpose),
     worldRulesText,
     worldStageText,

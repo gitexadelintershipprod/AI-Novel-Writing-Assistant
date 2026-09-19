@@ -60,7 +60,7 @@ const EXECUTION_COMMAND_TYPES: DirectorRunCommandType[] = [
 
 export type DirectorRunCommandRow = Awaited<ReturnType<DirectorCommandService["getCommandById"]>>;
 
-const CANCELLED_COMMAND_MESSAGE = "自动导演任务已取消。";
+const CANCELLED_COMMAND_MESSAGE = "The Auto-Director task was cancelled.";
 
 export class DirectorCommandService {
   constructor(private readonly workflowService = new NovelWorkflowService()) {}
@@ -144,7 +144,7 @@ export class DirectorCommandService {
     const task = await this.workflowService.bootstrapTask({
       workflowTaskId: input.workflowTaskId,
       lane: "auto_director",
-      title: input.candidate.workingTitle.trim() || input.title?.trim() || "自动导演开书",
+      title: input.candidate.workingTitle.trim() || input.title?.trim() || "Auto-Director book start",
       seedPayload: buildDirectorWorkflowSeedPayload(confirmedInput, null, {
         directorSession: buildDirectorSessionState({
           runMode,
@@ -155,7 +155,7 @@ export class DirectorCommandService {
       initialState: {
         stage: "auto_director",
         itemKey: "candidate_confirm",
-        itemLabel: "等待创建小说项目",
+        itemLabel: "Waiting to create the novel project",
         progress: 0.18,
       },
 
@@ -211,11 +211,11 @@ export class DirectorCommandService {
       workflowTaskId: input.workflowTaskId?.trim() || undefined,
       novelId: input.novelId,
       lane: "auto_director",
-      title: "AI 自动导演工作区分析",
+      title: "AI Auto-Director workspace analysis",
       initialState: {
         stage: "auto_director",
         itemKey: "workspace_analysis",
-        itemLabel: "AI 正在检查当前小说产物和可继续状态",
+        itemLabel: "AI is checking this novel's artifacts and whether it can continue",
         progress: 0.08,
       },
     });
@@ -242,11 +242,11 @@ export class DirectorCommandService {
       workflowTaskId: input.workflowTaskId?.trim() || undefined,
       novelId: input.novelId,
       lane: "auto_director",
-      title: "AI 自动导演编辑影响分析",
+      title: "Auto-Director edit-impact analysis",
       initialState: {
         stage: "auto_director",
         itemKey: "manual_edit_impact",
-        itemLabel: "AI 正在分析手动编辑对后续产物的影响",
+        itemLabel: "AI is analyzing how the manual edit affects later artifacts",
         progress: 0.08,
       },
     });
@@ -339,7 +339,7 @@ export class DirectorCommandService {
       data: {
         status: "cancelled",
         finishedAt: new Date(),
-        errorMessage: "用户请求取消自动导演任务。",
+        errorMessage: "The user asked to cancel the Auto-Director task.",
       },
     });
     await this.closeCancelledTaskRuntimeState(taskId, new Date());
@@ -375,12 +375,12 @@ export class DirectorCommandService {
     const task = await this.workflowService.bootstrapTask({
       novelId: takeoverInput.novelId,
       lane: "auto_director",
-      title: "执行 AI 自动导演接管",
+      title: "Run Auto-Director takeover",
       forceNew: true,
       initialState: {
         stage: "auto_director",
         itemKey: "takeover",
-        itemLabel: "自动导演接管任务已提交",
+        itemLabel: "The Auto-Director takeover task was submitted",
         progress: 0,
       },
       seedPayload: {
@@ -427,7 +427,7 @@ export class DirectorCommandService {
     return this.workflowService.bootstrapTask({
       workflowTaskId: input.workflowTaskId?.trim() || undefined,
       lane: "auto_director",
-      title: input.title?.trim() || "AI 自动导演候选方向",
+      title: input.title?.trim() || "Auto-Director candidate direction",
       seedPayload: {
         idea: input.idea,
         provider: input.provider ?? null,
@@ -445,7 +445,7 @@ export class DirectorCommandService {
       initialState: {
         stage: "auto_director",
         itemKey: "candidate_direction_batch",
-        itemLabel: "AI 正在生成书级方向候选",
+        itemLabel: "AI is generating book-direction candidates",
         progress: 0.1,
       },
     });
@@ -666,7 +666,7 @@ export class DirectorCommandService {
         taskId,
         novelId: run.novelId,
         type: "run_cancelled",
-        summary: "自动导演已停止，后台运行状态已收束。",
+        summary: "Auto-Director stopped and the background run was closed out.",
         severity: "low",
         occurredAt: now,
       },

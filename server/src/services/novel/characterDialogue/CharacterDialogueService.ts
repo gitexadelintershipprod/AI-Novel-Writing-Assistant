@@ -170,7 +170,7 @@ export class CharacterDialogueService {
   ): Promise<CharacterDialogueTurnResult> {
     const authorMessage = compact(message);
     if (!authorMessage || authorMessage.length > 800) {
-      throw new Error("每次想对角色说的话请控制在 800 字以内。");
+      throw new Error("Keep each message to the character within 800 characters.");
     }
     await this.expireEndedInfluences(novelId, characterId);
     const session = await prisma.characterDialogueSession.findFirst({
@@ -178,7 +178,7 @@ export class CharacterDialogueService {
       include: { turns: { orderBy: { createdAt: "asc" }, take: 14 } },
     });
     if (!session) {
-      throw new Error("没有找到可继续的角色对话，请重新开始一段谈话。");
+      throw new Error("No continuable character conversation was found. Start a new one.");
     }
     const context = await this.loadPromptContext(novelId, characterId, session.turns);
     const result = await runStructuredPrompt({
@@ -235,7 +235,7 @@ export class CharacterDialogueService {
     const serialized = serializeSession(persisted as DialogueSessionRow);
     const characterTurn = serialized.turns.at(-1);
     if (!characterTurn || characterTurn.role !== "character") {
-      throw new Error("角色回应没有成功保存，请稍后重试。");
+      throw new Error("The character reply was not saved. Please try again.");
     }
     return { session: serialized, characterTurn, influence: serialized.latestInfluence };
   }
@@ -251,7 +251,7 @@ export class CharacterDialogueService {
       orderBy: { createdAt: "desc" },
     });
     if (!draft) {
-      throw new Error("这段谈话没有等待确认的角色行动倾向。");
+      throw new Error("This conversation has no character-action inclination waiting for confirmation.");
     }
     const row = await prisma.$transaction(async (tx) => {
       await tx.characterDialogueInfluence.updateMany({
@@ -283,7 +283,7 @@ export class CharacterDialogueService {
       orderBy: { createdAt: "desc" },
     });
     if (!draft) {
-      throw new Error("这段谈话没有可放弃的待确认倾向。");
+      throw new Error("This conversation has no pending-confirmation inclination that can be dropped.");
     }
     const row = await prisma.characterDialogueInfluence.update({
       where: { id: draft.id },
@@ -305,7 +305,7 @@ export class CharacterDialogueService {
       orderBy: { updatedAt: "desc" },
     });
     if (!mind) {
-      throw new Error("请先让 AI 整理这个角色的当前想法，再开始对话。");
+      throw new Error("Let AI gather this character's current thoughts before starting the conversation.");
     }
     return mind;
   }
@@ -407,16 +407,16 @@ export class CharacterDialogueService {
       }),
     ]);
     if (!character || !novel) {
-      throw new Error("当前小说中没有找到这个角色。");
+      throw new Error("This character was not found in the current novel.");
     }
     const state = latestState?.characterStates[0];
     const mind = [
       `他当前如何理解局面：${mindSnapshot.currentInterpretation}`,
       `私下意图：${compact(mindSnapshot.privateIntent, "未明确")}`,
       `行动计划：${compact(mindSnapshot.activePlan, "未明确")}`,
-      `情绪与行动倾向：${compact(mindSnapshot.emotionalStance, "未明确")}｜${compact(mindSnapshot.actionTendency, "未明确")}`,
-      `可能误判：${parseStringArray(mindSnapshot.misbeliefsJson).join("；") || "未明确"}`,
-      `推断依据：${parseStringArray(mindSnapshot.evidenceJson).join("；") || "未提供"}`,
+      `情绪与Action tendencies:${compact(mindSnapshot.emotionalStance, "未明确")}｜${compact(mindSnapshot.actionTendency, "未明确")}`,
+      `Possible misjudgment:${parseStringArray(mindSnapshot.misbeliefsJson).join("；") || "未明确"}`,
+      `Inference basis：${parseStringArray(mindSnapshot.evidenceJson).join("；") || "未提供"}`,
     ].join("\n");
     const facts = [
       `小说：${novel.title}`,
@@ -427,7 +427,7 @@ export class CharacterDialogueService {
       `内在约束：${compact(character.outerGoal, "未明确")}｜${compact(character.innerNeed, "未明确")}｜恐惧/伤口=${compact(character.fear || character.wound, "未明确")}｜底线=${compact(character.moralLine, "未明确")}`,
       `既有秘密与误判：${compact(character.secret, "未明确")}｜${compact(character.misbelief, "未明确")}`,
       `书级约束：${compact(novel.bookContract?.coreSellingPoint || novel.bible?.mainPromise, "待补全")}｜${compact(novel.storyMacroPlan?.decompositionJson || novel.storyMacroPlan?.constraintEngineJson, "待补全")}`,
-      `世界规则：${compact(novel.bible?.coreSetting, "待补全")}`,
+      `World rules:${compact(novel.bible?.coreSetting, "待补全")}`,
       latestState?.summary ? `最新正史状态：${compact(latestState.summary)}` : "",
       state ? `角色正史状态：目标=${compact(state.currentGoal, "未更新")}｜情绪=${compact(state.emotion, "未更新")}｜摘要=${compact(state.summary, "未更新")}` : "",
       ...parseStringArray(state?.knownFactsJson).map((fact) => `角色已知：${fact}`),
@@ -442,9 +442,9 @@ export class CharacterDialogueService {
       facts,
       relations: [
         ...relations.map((relation) => `${relation.sourceCharacter.name} -> ${relation.targetCharacter.name}：${relation.stageLabel}；${relation.stageSummary}${relation.nextTurnPoint ? `；下一转折=${relation.nextTurnPoint}` : ""}`),
-        novel.bookContract?.relationshipMainline ? `书级关系主线：${novel.bookContract.relationshipMainline}` : "",
+        novel.bookContract?.relationshipMainline ? `书级Main line of relationship:${novel.bookContract.relationshipMainline}` : "",
       ].filter(Boolean).join("\n"),
-      recentEvents: recentChapters.map((chapter) => `第${chapter.order}章《${chapter.title}》：${compact(chapter.content).slice(0, 900)}`).join("\n\n"),
+      recentEvents: recentChapters.map((chapter) => `Chapter ${chapter.order}"${chapter.title}": ${compact(chapter.content).slice(0, 900)}`).join("\n\n"),
       history: turns.slice(-12).map((turn) => `${turn.role === "author" ? "作者" : character.name}：${compact(turn.content)}`).join("\n"),
     };
   }

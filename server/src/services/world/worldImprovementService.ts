@@ -39,7 +39,7 @@ export async function createWorldDeepeningQuestions(
   let ragContext = "";
   try {
     ragContext = await ragServices.hybridRetrievalService.buildContextBlock(
-      `世界深化问题 ${world.name}\n${world.description ?? ""}`,
+      `World deepening questions ${world.name}\n${world.description ?? ""}`,
       {
         worldId,
         ownerTypes: ["world", "world_library_item"],
@@ -309,7 +309,7 @@ export async function checkWorldConsistency(
     let ragContext = "";
     try {
       ragContext = await ragServices.hybridRetrievalService.buildContextBlock(
-        `世界一致性检查 ${world.name}\n${world.description ?? ""}\n${world.conflicts ?? ""}`,
+        `World consistency check ${world.name}\n${world.description ?? ""}\n${world.conflicts ?? ""}`,
         {
           worldId,
           ownerTypes: ["world", "world_library_item"],
@@ -323,7 +323,7 @@ export async function checkWorldConsistency(
       asset: worldConsistencyPrompt,
       promptInput: {
         worldName: world.name,
-        axioms: world.axioms ?? "无",
+        axioms: world.axioms ?? "None",
         coreSettingsJson: JSON.stringify({
           background: world.background,
           geography: world.geography,

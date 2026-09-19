@@ -85,7 +85,7 @@ export function summarizeOutput(tool: string, output: Record<string, unknown>): 
   }
   if (tool === "list_novels") {
     const items = Array.isArray(output.items) ? output.items : [];
-    return `已读取 ${items.length} 本小说。`;
+    return `Read ${items.length} novels.`;
   }
   if (tool === "create_novel") {
     const title = typeof output.title === "string" ? output.title : "";
@@ -93,9 +93,9 @@ export function summarizeOutput(tool: string, output: Record<string, unknown>): 
       ? String((output.setup as Record<string, unknown>).stage)
       : "";
     if (title && stage === "ready_for_production") {
-      return `已创建小说《${title}》，初始化已完成。`;
+      return `Created the novel "${title}". Setup is complete.`;
     }
-    return title ? `已创建小说《${title}》，并进入初始化引导。` : "已创建小说。";
+    return title ? `Created the novel "${title}" and entered setup guidance.` : "The novel was created.";
   }
   if (tool === "select_novel_workspace") {
     const title = typeof output.title === "string" ? output.title : "";
@@ -103,53 +103,53 @@ export function summarizeOutput(tool: string, output: Record<string, unknown>): 
       ? String((output.setup as Record<string, unknown>).stage)
       : "";
     if (title && stage !== "ready_for_production") {
-      return `已切换到小说《${title}》，当前继续初始化。`;
+      return `Switched to the novel "${title}". Setup will continue.`;
     }
-    return title ? `已切换到小说《${title}》。` : "已切换到目标小说。";
+    return title ? `Switched to the novel "${title}".` : "Switched to the target novel.";
   }
   if (tool === "bind_world_to_novel") {
     const worldName = typeof output.worldName === "string" ? output.worldName.trim() : "";
     const novelTitle = typeof output.novelTitle === "string" ? output.novelTitle.trim() : "";
     if (worldName && novelTitle) {
-      return `已将世界观《${worldName}》绑定到小说《${novelTitle}》。`;
+      return `Bound the world "${worldName}" to the novel "${novelTitle}".`;
     }
     if (worldName) {
-      return `已绑定世界观《${worldName}》。`;
+      return `Bound the world "${worldName}".`;
     }
-    return "已完成世界观绑定。";
+    return "World binding is complete.";
   }
   if (tool === "unbind_world_from_novel") {
     const previousWorldName = typeof output.previousWorldName === "string" ? output.previousWorldName.trim() : "";
     const novelTitle = typeof output.novelTitle === "string" ? output.novelTitle.trim() : "";
     if (previousWorldName && novelTitle) {
-      return `已将世界观《${previousWorldName}》从小说《${novelTitle}》解绑。`;
+      return `Unbound the world "${previousWorldName}" from the novel "${novelTitle}".`;
     }
     if (novelTitle) {
-      return `小说《${novelTitle}》当前没有绑定世界观。`;
+      return `The novel "${novelTitle}" currently has no bound world.`;
     }
-    return "已处理世界观解绑。";
+    return "World unbinding was handled.";
   }
   if (tool === "generate_world_for_novel") {
     const worldName = typeof output.worldName === "string" ? output.worldName.trim() : "";
-    return worldName ? `已生成世界观《${worldName}》。` : "已生成小说世界观。";
+    return worldName ? `Generated the world "${worldName}".` : "The novel world was generated.";
   }
   if (tool === "generate_novel_characters") {
-    return `已生成 ${String(output.characterCount ?? 0)} 个核心角色。`;
+    return `Generated ${String(output.characterCount ?? 0)} core characters.`;
   }
   if (tool === "generate_story_bible") {
-    return "已生成小说圣经。";
+    return "The novel bible was generated.";
   }
   if (tool === "generate_novel_outline") {
-    return "已生成小说发展走向。";
+    return "The novel's story direction was generated.";
   }
   if (tool === "generate_structured_outline") {
-    return `已生成 ${String(output.targetChapterCount ?? output.chapterCount ?? 0)} 章结构化大纲。`;
+    return `Generated a structured outline with ${String(output.targetChapterCount ?? output.chapterCount ?? 0)} chapters.`;
   }
   if (tool === "sync_chapters_from_structured_outline") {
-    return `已同步 ${String(output.chapterCount ?? 0)} 个章节目录。`;
+    return `Synced ${String(output.chapterCount ?? 0)} chapters into the table of contents.`;
   }
   if (tool === "start_full_novel_pipeline" || tool === "get_novel_production_status") {
-    return typeof output.summary === "string" ? output.summary : `${tool} 执行完成。`;
+    return typeof output.summary === "string" ? output.summary : `${tool} finished.`;
   }
   if (
     tool === "analyze_director_workspace"
@@ -160,127 +160,127 @@ export function summarizeOutput(tool: string, output: Record<string, unknown>): 
     || tool === "run_director_until_gate"
     || tool === "switch_director_policy"
   ) {
-    return typeof output.summary === "string" ? output.summary : `${tool} 执行完成。`;
+    return typeof output.summary === "string" ? output.summary : `${tool} finished.`;
   }
   if (tool === "get_novel_context") {
     const title = typeof output.title === "string" ? output.title.trim() : "";
     const chapterCount = typeof output.chapterCount === "number" ? output.chapterCount : null;
     return title
-      ? `${title}${chapterCount != null ? `（共 ${chapterCount} 章）` : ""}`
-      : "已读取小说总览。";
+      ? `${title}${chapterCount != null ? ` (${chapterCount} chapters)` : ""}`
+      : "The novel overview was read.";
   }
   if (tool === "get_story_bible") {
     const exists = output.exists === true;
-    return exists ? "已读取小说圣经设定。" : "当前小说还没有已保存的小说圣经。";
+    return exists ? "Novel-bible settings were read." : "This novel does not have a saved novel bible yet.";
   }
   if (tool === "get_world_constraints") {
     const worldName = typeof output.worldName === "string" ? output.worldName.trim() : "";
-    return worldName ? `已读取世界观约束：${worldName}。` : "当前小说尚未绑定世界观约束。";
+    return worldName ? `Read world constraints: ${worldName}.` : "This novel has no bound world constraints yet.";
   }
   if (tool === "list_chapters") {
     const items = Array.isArray(output.items) ? output.items : [];
-    return `已读取 ${items.length} 个章节元信息。`;
+    return `Read metadata for ${items.length} chapters.`;
   }
   if (tool === "get_chapter_by_order" || tool === "get_chapter_content_by_order" || tool === "get_chapter_content") {
     const order = typeof output.order === "number" ? output.order : null;
     const title = typeof output.title === "string" ? output.title.trim() : "";
-    return order != null ? `已读取第${order}章${title ? `《${title}》` : ""}。` : "已读取章节内容。";
+    return order != null ? `Read chapter ${order}${title ? ` "${title}"` : ""}.` : "Chapter content was read.";
   }
   if (tool === "summarize_chapter_range") {
     const start = typeof output.startOrder === "number" ? output.startOrder : null;
     const end = typeof output.endOrder === "number" ? output.endOrder : null;
     return start != null && end != null
-      ? `已总结第${start}到第${end}章。`
-      : "已完成章节范围总结。";
+      ? `Summarized chapters ${start}–${end}.`
+      : "The chapter-range summary is complete.";
   }
   if (tool === "search_knowledge") {
     const hitCount = typeof output.hitCount === "number" ? output.hitCount : 0;
-    return `命中 ${hitCount} 条知识片段。`;
+    return `Matched ${hitCount} knowledge snippets.`;
   }
   if (tool === "list_book_analyses") {
     const items = Array.isArray(output.items) ? output.items : [];
-    return `已读取 ${items.length} 个拆书任务。`;
+    return `Read ${items.length} book-analysis tasks.`;
   }
   if (tool === "get_book_analysis_detail") {
-    return typeof output.title === "string" ? `已读取拆书详情：${output.title}。` : "已读取拆书详情。";
+    return typeof output.title === "string" ? `Read book-analysis details: ${output.title}.` : "Book-analysis details were read.";
   }
   if (tool === "get_book_analysis_failure_reason" || tool === "get_index_failure_reason" || tool === "get_task_failure_reason" || tool === "get_run_failure_reason") {
-    return typeof output.failureSummary === "string" ? output.failureSummary : `${tool} 已返回诊断信息。`;
+    return typeof output.failureSummary === "string" ? output.failureSummary : `${tool} returned diagnostic information.`;
   }
   if (tool === "list_knowledge_documents") {
     const items = Array.isArray(output.items) ? output.items : [];
-    return `已读取 ${items.length} 个知识文档。`;
+    return `Read ${items.length} knowledge documents.`;
   }
   if (tool === "get_knowledge_document_detail") {
-    return typeof output.title === "string" ? `已读取知识文档《${output.title}》。` : "已读取知识文档详情。";
+    return typeof output.title === "string" ? `Read knowledge document "${output.title}".` : "Knowledge-document details were read.";
   }
   if (tool === "list_worlds") {
     const items = Array.isArray(output.items) ? output.items : [];
-    return `已读取 ${items.length} 个世界观。`;
+    return `Read ${items.length} worlds.`;
   }
   if (tool === "get_world_detail") {
-    return typeof output.name === "string" ? `已读取世界观《${output.name}》。` : "已读取世界观详情。";
+    return typeof output.name === "string" ? `Read world "${output.name}".` : "World details were read.";
   }
   if (tool === "explain_world_conflict" || tool === "explain_generation_blocker") {
-    return typeof output.failureSummary === "string" ? output.failureSummary : `${tool} 已返回冲突/阻塞说明。`;
+    return typeof output.failureSummary === "string" ? output.failureSummary : `${tool} returned a conflict or blocker explanation.`;
   }
   if (tool === "list_writing_formulas") {
     const items = Array.isArray(output.items) ? output.items : [];
-    return `已读取 ${items.length} 条写作公式。`;
+    return `Read ${items.length} writing formulas.`;
   }
   if (tool === "get_writing_formula_detail") {
-    return typeof output.name === "string" ? `已读取写作公式《${output.name}》。` : "已读取写作公式详情。";
+    return typeof output.name === "string" ? `Read writing formula "${output.name}".` : "Writing-formula details were read.";
   }
   if (tool === "explain_formula_match") {
-    return typeof output.summary === "string" ? output.summary : "已完成写作公式适配分析。";
+    return typeof output.summary === "string" ? output.summary : "Writing-formula fit analysis is complete.";
   }
   if (tool === "list_base_characters") {
     const items = Array.isArray(output.items) ? output.items : [];
-    return `已读取 ${items.length} 个基础角色模板。`;
+    return `Read ${items.length} character templates.`;
   }
   if (tool === "get_base_character_detail") {
-    return typeof output.name === "string" ? `已读取角色模板《${output.name}》。` : "已读取角色模板详情。";
+    return typeof output.name === "string" ? `Read character template "${output.name}".` : "Character-template details were read.";
   }
   if (tool === "list_tasks") {
     const items = Array.isArray(output.items) ? output.items : [];
-    return `已读取 ${items.length} 个系统任务。`;
+    return `Read ${items.length} system tasks.`;
   }
   if (tool === "get_task_detail") {
-    return typeof output.title === "string" ? `已读取任务详情：${output.title}。` : "已读取任务详情。";
+    return typeof output.title === "string" ? `Read task details: ${output.title}.` : "Task details were read.";
   }
   if (tool === "retry_task" || tool === "cancel_task") {
-    return typeof output.summary === "string" ? output.summary : `${tool} 执行完成。`;
+    return typeof output.summary === "string" ? output.summary : `${tool} finished.`;
   }
   if (tool === "preview_pipeline_run") {
-    return `已预览 ${String(output.chapterCount ?? 0)} 个章节。`;
+    return `Previewed ${String(output.chapterCount ?? 0)} chapters.`;
   }
   if (tool === "queue_pipeline_run") {
-    return `流水线任务已处理：${String(output.jobId ?? output.status ?? "unknown")}`;
+    return `Pipeline task handled: ${String(output.jobId ?? output.status ?? "unknown")}`;
   }
   if (tool === "apply_chapter_patch" || tool === "save_chapter_draft") {
-    return `章节写入已处理，字数 ${String(output.contentLength ?? 0)}。`;
+    return `Chapter write handled, ${String(output.contentLength ?? 0)} characters.`;
   }
-  return `${tool} 执行完成。`;
+  return `${tool} finished.`;
 }
 
 export function summarizeFailure(tool: string, error: unknown): string {
-  return `${tool} 执行失败：${error instanceof Error ? error.message : "unknown error"}`;
+  return `${tool} Execution failed：${error instanceof Error ? error.message : "unknown error"}`;
 }
 
 export function buildFinalMessage(results: ToolExecutionResult[], waitingForApproval: boolean): string {
   const lines: string[] = [];
   if (results.length > 0) {
-    lines.push("已完成以下步骤：");
+    lines.push("These steps are complete:");
     for (const item of results) {
       lines.push(`- ${item.summary}`);
     }
   }
   if (waitingForApproval) {
-    lines.push("当前存在高影响写入，已暂停等待审批。");
+    lines.push("A high-impact write is pending. Paused for approval.");
   } else if (results.length > 0) {
-    lines.push("执行完成。");
+    lines.push("Execution completed.");
   } else {
-    lines.push("没有可执行的工具步骤。");
+    lines.push("There is no tool step to run.");
   }
   return lines.join("\n");
 }
@@ -340,7 +340,7 @@ export function parseApprovalPayload(payloadJson: string | null | undefined): Se
         .filter((call): call is Record<string, unknown> => isRecord(call))
         .map((call) => ({
           tool: call.tool as ToolCall["tool"],
-          reason: typeof call.reason === "string" ? call.reason : "工具调用",
+          reason: typeof call.reason === "string" ? call.reason : "Tool call",
           idempotencyKey: typeof call.idempotencyKey === "string" ? call.idempotencyKey : `k_${Date.now()}`,
           input: isRecord(call.input) ? call.input : {},
           dryRun: call.dryRun === true,
@@ -348,7 +348,7 @@ export function parseApprovalPayload(payloadJson: string | null | undefined): Se
         }));
       return {
         agent: normalizeAgent(item.agent),
-        reasoning: typeof item.reasoning === "string" ? item.reasoning : "继续执行",
+        reasoning: typeof item.reasoning === "string" ? item.reasoning : "Continue execution",
         calls,
       };
     })
@@ -384,10 +384,10 @@ export function buildAlternativePathFromRejectedApproval(
     if (novelId && chapterId && content.trim()) {
       return [{
         agent: "Writer",
-        reasoning: "审批拒绝后改为草稿保存，避免直接覆盖正文。",
+        reasoning: "After rejection, save as a draft instead of overwriting the chapter text.",
         calls: [{
           tool: "save_chapter_draft",
-          reason: `审批拒绝，转草稿保存。${note ? `备注: ${note}` : ""}`.trim(),
+          reason: `Approval was rejected, so save as a draft instead.${note ? ` Note: ${note}` : ""}`.trim(),
           idempotencyKey: `fallback_draft_${chapterId}_${Date.now()}`,
           input: {
             novelId,
@@ -407,10 +407,10 @@ export function buildAlternativePathFromRejectedApproval(
     if (novelId && typeof startOrder === "number" && typeof endOrder === "number") {
       return [{
         agent: "Planner",
-        reasoning: "审批拒绝后保留预览，不实际启动流水线。",
+        reasoning: "After rejection, keep the preview and do not actually start the pipeline.",
         calls: [{
           tool: "preview_pipeline_run",
-          reason: "审批拒绝，改为范围预览。",
+          reason: "Approval was rejected, so switch to a range preview.",
           idempotencyKey: `fallback_preview_${startOrder}_${endOrder}_${Date.now()}`,
           input: {
             novelId,

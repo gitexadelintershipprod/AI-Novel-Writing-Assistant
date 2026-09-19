@@ -263,7 +263,7 @@ function createChapterDraftExecutableModule(
           return {
             valid: false,
             reason: stopDetail
-              ? `Chapter execution did not produce observable draft content（实际中断原因：${stopDetail}）。`
+              ? `Chapter execution did not produce observable draft content (actual stop reason: ${stopDetail}).`
               : "Chapter execution did not produce observable draft content.",
             evidence: {
               draftedChapterCount: progress?.draftedChapterCount ?? 0,
@@ -279,7 +279,7 @@ function createChapterDraftExecutableModule(
             valid: false,
             reason: observedState.task.checkpointSummary?.trim()
               || observedState.task.lastError?.trim()
-              || "章节正文已生成，但本章职责与后续计划失配，需要先处理质量修复 / 重规划。",
+              || "The chapter body was generated, but this chapter's duty no longer matches the later plan. Handle quality repair / replan first.",
           };
         }
         if ((observedState.task.status === "failed" || observedState.task.status === "cancelled") && !hasCompletedDraftScope) {
@@ -460,7 +460,7 @@ function createChapterExecutionContractSyncModule(
         });
         return {
           producedArtifacts,
-          summary: "章节规划已同步到正式章节执行区。",
+          summary: "The chapter plan was synced to the official execution area.",
         };
       },
       inspectProgress: async (context) => {
@@ -471,8 +471,8 @@ function createChapterExecutionContractSyncModule(
           status: plannedChapterCount > 0 && syncedChapterCount >= plannedChapterCount ? "completed" : "partially_done",
           ratio: plannedChapterCount > 0 ? Math.min(1, syncedChapterCount / plannedChapterCount) : 0,
           label: plannedChapterCount > 0 && syncedChapterCount >= plannedChapterCount
-            ? "正式章节已同步完成"
-            : "正在把章节规划同步到正式章节执行区",
+            ? "Official chapters are synced"
+            : "Syncing the chapter plan into the official execution area",
           evidence: { plannedChapterCount, syncedChapterCount },
           nextAction: plannedChapterCount > 0 && syncedChapterCount >= plannedChapterCount ? null : "sync_execution_contracts",
         });
@@ -595,7 +595,7 @@ export const DIRECTOR_EXECUTION_CONTRACT_SYNC_STEP_MODULE = createChapterExecuti
   defaultWaitingState: {
     stage: "structured_outline",
     itemKey: "chapter_sync",
-    itemLabel: "正在同步正式章节执行合同",
+    itemLabel: "Syncing official chapter execution contracts",
     progress: 0.9,
   },
 });
@@ -647,8 +647,8 @@ export const DIRECTOR_EXECUTION_STEP_MODULES: Record<
           status: completed ? "completed" : draftedCount > 0 ? "partially_done" : "blocked",
           ratio: completed ? 1 : draftedCount > 0 ? reviewed / draftedCount : 0,
           label: completed
-            ? (autoReviewDisabled ? "本轮不执行自动审校" : "章节审校已完成")
-            : "正在根据最新正文补齐审校结果",
+            ? (autoReviewDisabled ? "This round will not run automatic review" : "Chapter review completed")
+            : "Filling in review results from the latest draft",
           evidence: { draftedChapterCount: draftedCount, reviewedChapterCount: reviewed, autoReview: !autoReviewDisabled, reviewSkipped: autoReviewDisabled },
           nextAction: completed ? "commit_chapter_state" : "run_quality_review",
         }),
@@ -704,7 +704,7 @@ export const DIRECTOR_EXECUTION_STEP_MODULES: Record<
         progress: buildSimpleProgress({
           status: draftedChapterCount === 0 ? "blocked" : hasRepairContext ? ((progress?.needsRepairChapters ?? 0) === 0 ? "completed" : "needs_review") : "not_started",
           ratio: hasRepairContext ? Math.max(0, 1 - (needsRepairChapters / Math.max(draftedChapterCount, 1))) : 0,
-          label: (progress?.needsRepairChapters ?? 0) === 0 ? "章节修复已收敛" : "仍有章节处于待修复状态",
+          label: (progress?.needsRepairChapters ?? 0) === 0 ? "Chapter repair has converged" : "Some chapters are still waiting for repair",
           evidence: { draftedChapterCount, reviewedChapterCount, needsRepairChapters },
           nextAction: draftedChapterCount === 0 ? "continue_chapter_execution" : hasRepairContext ? ((progress?.needsRepairChapters ?? 0) === 0 ? "run_quality_review" : "repair_chapter") : "run_quality_review",
         }),
@@ -742,7 +742,7 @@ export const DIRECTOR_EXECUTION_STEP_MODULES: Record<
         progress: buildSimpleProgress({
           status: completed ? "completed" : draftedChapterCount > 0 ? "partially_done" : "blocked",
           ratio: draftedChapterCount > 0 ? committedChapterCount / draftedChapterCount : 0,
-          label: completed ? "章节状态提交已完成" : "正在补齐章节状态提交",
+          label: completed ? "Chapter-state commit is complete" : "Filling in the chapter-state commit",
           evidence,
           nextAction: completed ? "sync_payoff_ledger" : "commit_state",
         }),
@@ -766,7 +766,7 @@ export const DIRECTOR_EXECUTION_STEP_MODULES: Record<
         progress: buildSimpleProgress({
           status: activeArtifacts.length > 0 ? "completed" : "partially_done",
           ratio: activeArtifacts.length > 0 ? 1 : 0,
-          label: activeArtifacts.length > 0 ? "伏笔账本与读者承诺已同步" : "等待同步伏笔账本与读者承诺",
+          label: activeArtifacts.length > 0 ? "The foreshadowing ledger and reader promises are in sync" : "Waiting to sync the foreshadowing ledger and reader promises",
           evidence: { artifactCount: activeArtifacts.length },
           nextAction: activeArtifacts.length > 0 ? "sync_character_resources" : "sync_payoff_ledger",
         }),
@@ -789,7 +789,7 @@ export const DIRECTOR_EXECUTION_STEP_MODULES: Record<
         progress: buildSimpleProgress({
           status: activeArtifacts.length > 0 ? "completed" : "partially_done",
           ratio: activeArtifacts.length > 0 ? 1 : 0,
-          label: activeArtifacts.length > 0 ? "角色治理与连续性状态已同步" : "等待同步角色治理与连续性状态",
+          label: activeArtifacts.length > 0 ? "Character governance and continuity state are in sync" : "Waiting to sync character governance and continuity state",
           evidence: { artifactCount: activeArtifacts.length },
           nextAction: activeArtifacts.length > 0 ? "continue_chapter_execution" : "sync_character_resources",
         }),
@@ -834,7 +834,7 @@ export const DIRECTOR_EXECUTION_STEP_MODULES: Record<
         progress: buildSimpleProgress({
           status: draftedChapterCount === 0 ? "blocked" : hasRepairContext ? ((progress?.needsRepairChapters ?? 0) === 0 ? "completed" : "needs_review") : "not_started",
           ratio: hasRepairContext ? Math.max(0, 1 - (needsRepairChapters / Math.max(draftedChapterCount, 1))) : 0,
-          label: (progress?.needsRepairChapters ?? 0) === 0 ? "质量修复链已收敛" : "仍有章节等待质量修复",
+          label: (progress?.needsRepairChapters ?? 0) === 0 ? "The quality-repair chain has converged" : "Some chapters are still waiting for quality repair",
           evidence: { draftedChapterCount, reviewedChapterCount, needsRepairChapters },
           nextAction: draftedChapterCount === 0 ? "continue_chapter_execution" : hasRepairContext ? ((progress?.needsRepairChapters ?? 0) === 0 ? "continue_chapter_execution" : "repair_chapter") : "run_quality_review",
         }),

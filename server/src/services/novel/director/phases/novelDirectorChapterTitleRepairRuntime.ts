@@ -60,16 +60,16 @@ export class NovelDirectorChapterTitleRepairRuntime {
   }): Promise<void> {
     const row = await this.deps.workflowService.getTaskById(taskId);
     if (!row) {
-      throw new Error("当前自动导演任务不存在。");
+      throw new Error("The current Auto-Director task does not exist.");
     }
     if (row.lane !== "auto_director") {
-      throw new Error("只有自动导演任务支持 AI 修复章节标题。");
+      throw new Error("Only Auto-Director tasks support AI chapter-title repair.");
     }
     const seedPayload = parseSeedPayload<DirectorWorkflowSeedPayload>(row.seedPayloadJson) ?? {};
     const directorInput = getDirectorInputFromSeedPayload(seedPayload);
     const novelId = row.novelId ?? seedPayload.novelId ?? null;
     if (!directorInput || !novelId) {
-      throw new Error("当前自动导演任务缺少恢复 AI 修复所需的上下文。");
+      throw new Error("The current Auto-Director task is missing the context needed to resume AI repair.");
     }
 
     const notice = seedPayload.taskNotice;
@@ -87,13 +87,13 @@ export class NovelDirectorChapterTitleRepairRuntime {
       ? workspace.volumes.find((volume) => volume.id === targetVolumeId)
       : workspace.volumes.find((volume) => getChapterTitleDiversityIssue(volume.chapters.map((chapter) => chapter.title)));
     if (!targetVolume) {
-      throw new Error("当前任务没有可直接 AI 修复的重复章节标题。");
+      throw new Error("This task has no duplicate chapter titles that AI can repair directly.");
     }
     const taskHasTitleWarning = notice?.code === "CHAPTER_TITLE_DIVERSITY"
       || isChapterTitleDiversityIssue(row.lastError)
       || Boolean(getChapterTitleDiversityIssue(targetVolume.chapters.map((chapter) => chapter.title)));
     if (!taskHasTitleWarning) {
-      throw new Error("当前任务没有可直接 AI 修复的章节标题提醒。");
+      throw new Error("The current mission does not have a chapter title reminder that can be directly AI fixed.");
     }
 
     const boundLlm = getDirectorLlmOptionsFromSeedPayload(seedPayload);
@@ -130,7 +130,7 @@ export class NovelDirectorChapterTitleRepairRuntime {
     await this.deps.workflowService.markTaskRunning(taskId, {
       stage: "structured_outline",
       itemKey: "chapter_list",
-      itemLabel: `正在 AI 修复第 ${targetVolume.sortOrder} 卷章节标题`,
+      itemLabel: `AI is repairing Volume ${targetVolume.sortOrder} chapter titles`,
       progress: DIRECTOR_PROGRESS.chapterList,
       clearCheckpoint: true,
     });

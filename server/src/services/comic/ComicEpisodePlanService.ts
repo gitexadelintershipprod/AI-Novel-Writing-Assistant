@@ -30,9 +30,9 @@ export class ComicEpisodePlanService {
       where: { id: projectId },
       include: { sourceBundle: true },
     });
-    if (!project) throw new Error(`未找到漫画项目：${projectId}`);
+    if (!project) throw new Error(`Comic project not found: ${projectId}`);
     if (!project.sourceBundle) {
-      throw new Error("请先导入内容源（importSourceBundle）再生成分话大纲。");
+      throw new Error("Import the source bundle (importSourceBundle) before generating the episode outline.");
     }
 
     const bundle = JSON.parse(project.sourceBundle.bundleJson);
@@ -54,7 +54,7 @@ export class ComicEpisodePlanService {
       .map((beat) => `${beat.order}：${beat.summary}`)
       .join("\n") || "（无结构化节拍，按梗概自由分话）";
 
-    // 付费卡点（有赛道策略时才计算）
+    // Pay card points（有赛道策略时才计算）
     const paywallOrders: number[] = [];
     if (track) {
       const paywallPlan = resolveDramaPaywallPlan(

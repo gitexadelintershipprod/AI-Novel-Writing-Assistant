@@ -54,48 +54,48 @@ function buildDecisionVolumeCountRange(chapterBudget: number, maxVolumeCount: nu
     return {
       range: { min: 1, max: Math.min(2, maxVolumeCount) },
       profile: "short",
-      rationale: "短篇或短中篇可以保留一到两段结构，优先保证开局承诺和结尾兑现不被拆散。",
+      rationale: "A short story or short novella can retain the structure of one or two paragraphs, and the priority is to ensure that the opening promise and the fulfillment of the ending are not broken up.",
     };
   }
   if (chapterBudget < 120) {
     return {
       range: { min: 3, max: Math.min(4, maxVolumeCount) },
       profile: "compact",
-      rationale: "60 章以上默认需要三段以上结构，避免压成开局卷和结局卷后中段失焦。",
+      rationale: "Chapters 60 and above require a structure of more than three paragraphs by default to avoid the middle part being out of focus after being compressed into the opening volume and the ending volume.",
     };
   }
   if (chapterBudget < 250) {
     return {
       range: { min: 4, max: Math.min(6, maxVolumeCount) },
       profile: "standard",
-      rationale: "中篇体量需要多个阶段承诺，给开局、中段转向和后段兑现留出独立空间。",
+      rationale: "The volume of the novel requires multiple stages of commitment, leaving independent space for the opening, the turning in the middle, and the fulfillment at the end.",
     };
   }
   if (chapterBudget < 500) {
     return {
       range: { min: 6, max: Math.min(9, maxVolumeCount) },
       profile: "long",
-      rationale: "长篇需要按卖点切换、压力升级和阶段兑现拆出更清晰的卷级节奏。",
+      rationale: "Long stories need to have a clearer volume-level rhythm based on selling point switching, pressure escalation, and stage fulfillment.",
     };
   }
   if (chapterBudget < 900) {
     return {
       range: { min: 9, max: Math.min(14, maxVolumeCount) },
       profile: "epic",
-      rationale: "大长篇需要更多卷级回报节点，避免单卷过粗导致阶段感和追读动力变弱。",
+      rationale: "Larger novels need more volume-level reward points to avoid a single volume that is too thick, which will weaken the sense of stage and the motivation to follow reading.",
     };
   }
   if (chapterBudget < 1500) {
     return {
       range: { min: 14, max: Math.min(20, maxVolumeCount) },
       profile: "epic",
-      rationale: "超长篇需要保持卷级颗粒度，让地图、势力、能力和关系阶段逐步展开。",
+      rationale: "Ultra-long stories need to maintain volume-level granularity, allowing maps, forces, abilities, and relationship stages to unfold gradually.",
     };
   }
   return {
     range: { min: 18, max: maxVolumeCount },
     profile: "mega",
-    rationale: "超长篇默认接近最大卷数，优先保障长期连载的阶段兑现密度和后续可调度空间。",
+    rationale: "By default, the number of volumes for super-long novels is close to the maximum, and priority is given to ensuring the density of redemption and subsequent schedulable space for long-term serialization.",
   };
 }
 

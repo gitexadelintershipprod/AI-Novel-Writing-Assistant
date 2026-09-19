@@ -15,7 +15,7 @@ const factionNodes = Array.from({ length: 9 }, (_, index) => ({
 const factionEdges = factionNodes.slice(1).map((node, index) => ({
   source: factionNodes[index].id,
   target: node.id,
-  relation: index % 2 === 0 ? "合作" : "竞争",
+  relation: index % 2 === 0 ? "cooperation" : "Competition",
 }));
 
 test("faction force layout is deterministic and uses the available canvas", () => {
@@ -62,7 +62,7 @@ test("map force layout keeps direction semantics and separates duplicate coordin
 
 test("relation labels stay compact and only non-overlapping labels remain visible", () => {
   assert.equal(getShortRelation({ source: "a", target: "b", relation: "表面合作但暗中竞争" }), "表面合作…");
-  assert.equal(getShortRelation({ source: "a", target: "b", relation: "" }), "关系");
+  assert.equal(getShortRelation({ source: "a", target: "b", relation: "" }), "relationship");
 
   const positions = new Map([
     ["left", { x: 100, y: 100 }],
@@ -71,8 +71,8 @@ test("relation labels stay compact and only non-overlapping labels remain visibl
     ["bottom", { x: 300, y: 180 }],
   ]);
   const edges = [
-    { id: "horizontal", source: "left", target: "right", relation: "合作" },
-    { id: "same-midpoint", source: "top", target: "bottom", relation: "竞争" },
+    { id: "horizontal", source: "left", target: "right", relation: "cooperation" },
+    { id: "same-midpoint", source: "top", target: "bottom", relation: "Competition" },
   ];
   const visible = getVisibleEdgeLabelIds(edges, positions, "graph");
   assert.ok(visible.has("horizontal"));

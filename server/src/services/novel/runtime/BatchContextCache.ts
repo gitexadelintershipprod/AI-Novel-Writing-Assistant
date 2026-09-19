@@ -111,7 +111,7 @@ novelEventBus.on(
   },
 );
 
-// pipeline 完成 → 失效（确保下次批次拿到最新状态）
+// pipeline 完成 → 失效（确保下次批次拿到latest status）
 novelEventBus.on(
   "pipeline:completed",
   (event: Extract<NovelEvent, { type: "pipeline:completed" }>) => {

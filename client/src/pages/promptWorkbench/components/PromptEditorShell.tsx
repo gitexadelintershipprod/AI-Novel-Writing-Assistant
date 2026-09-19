@@ -84,12 +84,12 @@ export function PromptEditorShell(props: PromptEditorShellProps) {
               ) : null}
               {immersive ? (
                 <span className="rounded-md border border-primary/40 bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-                  沉浸编辑
+                  Immersive editing
                 </span>
               ) : null}
             </div>
             {simplified ? (
-              <div className="mt-1 text-sm text-muted-foreground">选择小说和章节，修改本书正文模板并直接查看试写效果。</div>
+              <div className="mt-1 text-sm text-muted-foreground">Select the novel and chapter, modify the text template of the book and check the trial writing effect directly.</div>
             ) : (
               <>
                 <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
@@ -103,7 +103,7 @@ export function PromptEditorShell(props: PromptEditorShellProps) {
                 </div>
                 <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
                   <span className="rounded-md bg-[#eef6f4] px-2 py-1 text-[#315f58]">
-                    {prompt.language === "zh" ? "中文" : prompt.language}
+                    {prompt.language === "zh" ? "Chinese" : prompt.language}
                   </span>
                   <span className="rounded-md bg-[#eef3fb] px-2 py-1 text-[#385273]">{prompt.family}</span>
                   <span className="rounded-md bg-[#fff3dc] px-2 py-1 text-[#7a5620]">
@@ -113,7 +113,7 @@ export function PromptEditorShell(props: PromptEditorShellProps) {
                     "rounded-md px-2 py-1",
                     prompt.slotSupported ? "bg-[#e8f7f2] text-[#0f766e]" : "bg-muted text-muted-foreground",
                   )}>
-                    {prompt.slotSupported ? `${prompt.slots.length} 个槽位` : "只读提示词"}
+                    {prompt.slotSupported ? `${prompt.slots.length} slots` : "read-only prompt word"}
                   </span>
                   {capabilities.map((label) => (
                     <span key={label} className="rounded-md bg-white/80 px-2 py-1 text-[#52606d] ring-1 ring-[#dfe7ee]">
@@ -145,8 +145,8 @@ export function PromptEditorShell(props: PromptEditorShellProps) {
                   onValueChange={(value) => onScopeChange(value as PromptSlotOverrideScope)}
                 >
                   <TabsList className="h-10">
-                    <TabsTrigger value="global" className="px-4">全局</TabsTrigger>
-                    <TabsTrigger value="novel" className="px-4">本书</TabsTrigger>
+                    <TabsTrigger value="global" className="px-4">overall situation</TabsTrigger>
+                    <TabsTrigger value="novel" className="px-4">book</TabsTrigger>
                   </TabsList>
                 </Tabs>
               </>
@@ -158,7 +158,7 @@ export function PromptEditorShell(props: PromptEditorShellProps) {
                 onChange={(event) => onNovelChange(event.target.value)}
                 className="h-10 min-w-52 rounded-md border border-[#cfdad7] bg-white px-3 text-sm shadow-sm"
               >
-                <option value="">选择小说</option>
+                <option value="">Select novel</option>
                 {novels.map((novel) => (
                   <option key={novel.id} value={novel.id}>
                     {novel.title || novel.id}
@@ -173,10 +173,10 @@ export function PromptEditorShell(props: PromptEditorShellProps) {
                 onChange={(event) => onChapterChange(event.target.value)}
                 className="h-10 min-w-52 rounded-md border border-[#cfdad7] bg-white px-3 text-sm shadow-sm"
               >
-                <option value="">选择预览章节</option>
+                <option value="">Select preview chapter</option>
                 {chapters.map((chapter) => (
                   <option key={chapter.id} value={chapter.id}>
-                    第 {chapter.order ?? "?"} 章 {chapter.title || "未命名章节"}{chapter.hasContent ? "" : "（无正文）"}
+                    Chapter {chapter.order ?? "?"} {chapter.title || "Unnamed chapter"}{chapter.hasContent ? "" : "(no text)"}
                   </option>
                 ))}
               </SelectControl>
@@ -193,10 +193,10 @@ export function PromptEditorShell(props: PromptEditorShellProps) {
                     ? "border-success/40 bg-card text-success hover:bg-success/10"
                     : "border-success bg-success text-success-foreground hover:bg-success/90",
                 )}
-                title={immersive ? "退出沉浸编辑" : "进入沉浸编辑"}
+                title={immersive ? "Exit immersive editing" : "Enter immersion editor"}
               >
                 {immersive ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-                {immersive ? "退出沉浸" : "沉浸编辑"}
+                {immersive ? "Exit immersion" : "Immersive editing"}
               </Button>
             ) : null}
           </div>

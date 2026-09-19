@@ -10,15 +10,15 @@ interface VersionHistoryTabProps {
 
 function formatSnapshotTrigger(triggerType: string): string {
   if (triggerType === "manual") {
-    return "手动保存";
+    return "Manual save";
   }
   if (triggerType === "auto_milestone") {
-    return "自动里程碑";
+    return "Automatic milestones";
   }
   if (triggerType === "before_pipeline") {
-    return "批量处理前";
+    return "Before batch processing";
   }
-  return "版本快照";
+  return "version snapshot";
 }
 
 export default function VersionHistoryTab({ novelId }: VersionHistoryTabProps) {
@@ -53,13 +53,13 @@ export default function VersionHistoryTab({ novelId }: VersionHistoryTabProps) {
     <div className="space-y-4">
       <div className="flex flex-col gap-3 rounded-2xl border border-border/70 bg-muted/15 p-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <div className="font-medium">版本历史</div>
+          <div className="font-medium">Version history</div>
           <div className="text-sm text-muted-foreground">
-            这里优先帮你找回最近的稳定版本。恢复前系统会自动再备份一次当前状态。
+            Here we give priority to helping you find the latest stable version. The system will automatically back up the current state again before restoration.
           </div>
         </div>
         <Button onClick={() => createMutation.mutate()} disabled={createMutation.isPending}>
-          {createMutation.isPending ? "保存中..." : "保存当前版本"}
+          {createMutation.isPending ? "Saving..." : "Save current version"}
         </Button>
       </div>
 
@@ -72,7 +72,7 @@ export default function VersionHistoryTab({ novelId }: VersionHistoryTabProps) {
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div className="space-y-3">
                   <div className="space-y-1">
-                    <div className="font-medium">{snapshot.label || "未命名版本"}</div>
+                    <div className="font-medium">{snapshot.label || "unnamed version"}</div>
                     <div className="text-xs text-muted-foreground">
                       {formatSnapshotTrigger(snapshot.triggerType)} · {new Date(snapshot.createdAt).toLocaleString()}
                     </div>
@@ -86,7 +86,7 @@ export default function VersionHistoryTab({ novelId }: VersionHistoryTabProps) {
                   </div>
 
                   <div className="text-sm leading-6 text-muted-foreground">
-                    这个版本适合在你想退回到更稳定的章节推进状态时使用。
+                    This version is suitable for when you want to return to a more stable state of chapter advancement.
                   </div>
                 </div>
 
@@ -101,7 +101,7 @@ export default function VersionHistoryTab({ novelId }: VersionHistoryTabProps) {
                   }}
                   disabled={restoreMutation.isPending}
                 >
-                  {isRestoringCurrent ? "恢复中..." : "恢复到这个版本"}
+                  {isRestoringCurrent ? "Recovering..." : "Revert to this version"}
                 </Button>
               </div>
             </div>
@@ -109,7 +109,7 @@ export default function VersionHistoryTab({ novelId }: VersionHistoryTabProps) {
         })}
         {snapshots.length === 0 ? (
           <div className="rounded-2xl border border-dashed p-6 text-sm text-muted-foreground">
-            当前还没有版本记录。建议在大改方向、批量生成或大段重写前，先手动保存一个版本。
+            There is currently no version record. It is recommended to manually save a version before making major changes in direction, batch generation, or large section rewrites.
           </div>
         ) : null}
       </div>

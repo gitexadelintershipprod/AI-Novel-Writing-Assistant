@@ -51,7 +51,7 @@ function AssetTreeRow<Node extends AssetTreeNode>({
             if (hasChildren) setExpanded((value) => !value);
             else onSelect(node.id);
           }}
-          aria-label={hasChildren ? `${expanded ? "折叠" : "展开"}「${node.name}」` : `选择「${node.name}」`}
+          aria-label={hasChildren ? `${expanded ? "Collapse" : "Expand"} "${node.name}"` : `Select "${node.name}"`}
         >
           {hasChildren ? (
             expanded ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />

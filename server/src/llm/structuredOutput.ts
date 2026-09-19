@@ -403,12 +403,12 @@ export function classifyStructuredOutputFailure(input: {
   if (
     haystack.includes("expected ',' or '}'")
     || haystack.includes("unexpected token")
-    || haystack.includes("json 解析失败")
+    || haystack.includes("JSON parse failed")
     || haystack.includes("malformed")
   ) {
     return "malformed_json";
   }
-  if (haystack.includes("zod") || haystack.includes("schema") || haystack.includes("校验错误")) {
+  if (haystack.includes("zod") || haystack.includes("schema") || haystack.includes("Validation error")) {
     return "schema_mismatch";
   }
   return "transport_error";

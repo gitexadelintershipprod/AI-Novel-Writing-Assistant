@@ -18,7 +18,7 @@ const framingSuggestSchema = llmGenerateSchema.extend({
   genreLabel: z.string().trim().max(120).optional(),
   styleTone: z.string().trim().max(120).optional(),
 }).refine((value) => Boolean(value.title?.trim() || value.description?.trim()), {
-  message: "请至少填写书名或一句话概述。",
+  message: "Enter at least a title or a one-sentence summary.",
 });
 
 interface RegisterNovelFramingRoutesInput {

@@ -35,18 +35,18 @@ import {
 const FULL_CHAPTER_REVISION_LIMIT = 8000;
 
 const OPERATION_LABELS: Record<ChapterEditorOperation, string> = {
-  polish: "优化表达",
+  polish: "Optimize expression",
   expand: "扩写细节",
   compress: "精简压缩",
-  emotion: "强化情绪",
-  conflict: "强化冲突",
-  custom: "自定义指令改写",
+  emotion: "Strengthen mood",
+  conflict: "intensify conflict",
+  custom: "Custom instructions改写",
 };
 
 function buildConstraintsText(input: ChapterEditorAiRevisionRequest["constraints"]): string {
   const lines = [
     input.keepFacts ? "- 保留现有剧情事实" : "- 可调整部分事实",
-    input.keepPov ? "- 保持当前人称与叙事视角" : "- 可调整叙事视角",
+    input.keepPov ? "- 保持当前人称与narrative perspective" : "- 可调整narrative perspective",
     input.noUnauthorizedSetting ? "- 不新增未授权设定" : "- 可引入补充设定",
     input.preserveCoreInfo ? "- 尽量保留原段核心信息" : "- 可重组核心信息",
   ];
@@ -69,21 +69,21 @@ function dedupeCandidates(candidates: ChapterEditorCandidate[]): ChapterEditorCa
 
 function buildIntentSummary(intent: ChapterEditorAiRevisionIntent): string {
   return [
-    `目标：${intent.editGoal}`,
-    `语气：${intent.toneShift}`,
-    `节奏：${intent.paceAdjustment}`,
-    `冲突：${intent.conflictAdjustment}`,
-    `情绪：${intent.emotionAdjustment}`,
-    `强度：${intent.strength}`,
-    `保留项：${intent.mustPreserve.join("；") || "保持核心事实与承接"}`,
-    `避免项：${intent.mustAvoid.join("；") || "不要破坏章节承接"}`,
-    `说明：${intent.reasoningSummary}`,
+    `Goal: ${intent.editGoal}`,
+    `Tone: ${intent.toneShift}`,
+    `Pacing: ${intent.paceAdjustment}`,
+    `Conflict: ${intent.conflictAdjustment}`,
+    `Emotion: ${intent.emotionAdjustment}`,
+    `Strength: ${intent.strength}`,
+    `Keep: ${intent.mustPreserve.join("; ") || "Keep core facts and continuity"}`,
+    `Avoid: ${intent.mustAvoid.join("; ") || "Do not break chapter continuity"}`,
+    `Notes: ${intent.reasoningSummary}`,
   ].join("\n");
 }
 
 function resolveSelectionTargetRange(content: string, targetRange?: ChapterEditorTargetRange): ChapterEditorTargetRange {
   if (!targetRange) {
-    throw new Error("片段修正需要先选中正文内容。");
+    throw new Error("Inline repair needs selected chapter text first.");
   }
   if (
     typeof targetRange.from !== "number"
@@ -92,14 +92,14 @@ function resolveSelectionTargetRange(content: string, targetRange?: ChapterEdito
     || targetRange.to <= targetRange.from
     || targetRange.to > content.length
   ) {
-    throw new Error("选区范围无效，请重新选择后再试。");
+    throw new Error("The selection range is invalid. Select it again and retry.");
   }
   const selectedText = content.slice(targetRange.from, targetRange.to);
   if (!selectedText.trim()) {
-    throw new Error("选中文本不能为空。");
+    throw new Error("The selected text cannot be empty.");
   }
   if (normalizeEditorText(targetRange.text) !== selectedText) {
-    throw new Error("选中文本已发生变化，请重新选择后再试。");
+    throw new Error("The selected text changed. Select it again and retry.");
   }
   return {
     from: targetRange.from,
@@ -122,11 +122,11 @@ export class NovelChapterEditorService {
     const context = await this.workspaceService.loadContext(novelId, chapterId);
     const content = normalizeChapterContent(input.contentSnapshot || context.chapter.content || "");
     if (!content.trim()) {
-      throw new Error("当前章节正文为空，无法发起 AI 修正。");
+      throw new Error("This chapter body is empty, so AI repair cannot start.");
     }
 
     if (input.scope === "chapter" && countEditorWords(content) > FULL_CHAPTER_REVISION_LIMIT) {
-      throw new Error(`整章修正当前限制为 ${FULL_CHAPTER_REVISION_LIMIT} 个非空白字符以内，请改为片段修正。`);
+      throw new Error(`Full-chapter repair is currently limited to ${FULL_CHAPTER_REVISION_LIMIT} non-whitespace characters. Switch to inline repair.`);
     }
 
     const targetRange = input.scope === "chapter"
@@ -142,7 +142,7 @@ export class NovelChapterEditorService {
       asset: chapterEditorRewriteCandidatesPrompt,
       promptInput: {
         operation: input.presetOperation ?? (input.source === "freeform" ? "custom" : "polish"),
-        operationLabel: input.presetOperation ? OPERATION_LABELS[input.presetOperation] : "按用户要求修正",
+        operationLabel: input.presetOperation ? OPERATION_LABELS[input.presetOperation] : "Revise to the user's request",
         scope: input.scope,
         customInstruction: input.instruction?.trim() || undefined,
         selectedText: targetRange.text,
@@ -167,7 +167,7 @@ export class NovelChapterEditorService {
     const candidates = dedupeCandidates(
       result.output.candidates.slice(0, 3).map((candidate, index) => ({
         id: randomUUID(),
-        label: candidate.label?.trim() || `方案 ${index + 1}`,
+        label: candidate.label?.trim() || `Option ${index + 1}`,
         content: candidate.content.trim(),
         summary: candidate.summary?.trim() || null,
         rationale: candidate.rationale?.trim() || null,
@@ -178,7 +178,7 @@ export class NovelChapterEditorService {
     );
 
     if (candidates.length < 2) {
-      throw new Error("AI 未返回足够的候选版本，请重试。");
+      throw new Error("AI did not return enough candidate versions. Please retry.");
     }
 
     return {
@@ -234,7 +234,7 @@ export class NovelChapterEditorService {
     }
 
     if (!input.instruction?.trim()) {
-      throw new Error("请先写下你希望 AI 如何修改。");
+      throw new Error("First write how you want AI to revise it.");
     }
 
     const result = await this.promptRunner({

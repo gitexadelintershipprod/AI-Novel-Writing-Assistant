@@ -26,15 +26,15 @@ function buildReason(input: {
   remainingChapterCount: number;
 }): string {
   if (input.noticeCode === PIPELINE_REPLAN_NOTICE_CODE) {
-    return "质量检查要求先处理重规划，后续章节需要人工确认后再继续。";
+    return "Quality check requires handling replan first. Later chapters need manual confirmation before continuing.";
   }
   if (input.repairMode === "heavy_repair") {
-    return "本次修复属于大范围返工，建议人工确认修复结果后再继续章节执行。";
+    return "This repair is a large-scale redo. Confirm the repair result manually before continuing chapter execution.";
   }
   if (input.affectedChapterCount > 0) {
-    return `本次质量修复影响 ${input.affectedChapterCount} 章，仍有 ${input.remainingChapterCount} 章待继续。`;
+    return `This quality repair affects ${input.affectedChapterCount} chapters, and ${input.remainingChapterCount} chapters still remain.`;
   }
-  return `本次质量修复未标记大范围返工，仍有 ${input.remainingChapterCount} 章待继续。`;
+  return `This quality repair is not marked as a large-scale redo, and ${input.remainingChapterCount} chapters still remain.`;
 }
 
 function buildDeferredQualityDebtReason(input: {
@@ -42,10 +42,10 @@ function buildDeferredQualityDebtReason(input: {
   remainingChapterCount: number;
 }): string {
   const affectedSummary = input.affectedChapterCount > 0
-    ? `本次已记录 ${input.affectedChapterCount} 章质量债务`
-    : "本次已记录质量债务";
+    ? `本次已记录 ${input.affectedChapterCount} chapters质量债务`
+    : "Quality debt was recorded for this run";
   const remainingSummary = input.remainingChapterCount > 0
-    ? `，仍有 ${input.remainingChapterCount} 章可继续推进`
+    ? `，仍有 ${input.remainingChapterCount} 章Can continue to advance`
     : "";
   return `${affectedSummary}${remainingSummary}。`;
 }

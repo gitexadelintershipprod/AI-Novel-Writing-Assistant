@@ -93,8 +93,8 @@ export class AgentRuntime {
     const blockingRun = activeRuns.find((item) => item.status === "running" || item.status === "waiting_approval");
     if (blockingRun && blockingRun.id !== input.runId) {
       const message = blockingRun.status === "waiting_approval"
-        ? "当前已有运行在等待审批，请先处理审批。"
-        : "当前已有运行仍在执行中。";
+        ? "A run is waiting for approval. Handle that first."
+        : "A run is already in progress.";
       return this.executor.getRunDetailOrThrow(blockingRun.id, message);
     }
 
@@ -103,7 +103,7 @@ export class AgentRuntime {
       const existing = await this.store.getRun(input.runId);
       if (existing && !TERMINAL_STATUSES.has(existing.status)) {
         if (existing.status === "waiting_approval") {
-          return this.executor.getRunDetailOrThrow(existing.id, "当前运行正等待审批，请先处理审批。");
+          return this.executor.getRunDetailOrThrow(existing.id, "The current run is waiting for approval. Handle that first.");
         }
         return this.executor.getRunDetailOrThrow(existing.id, "当前运行仍在执行中。");
       }
@@ -113,7 +113,7 @@ export class AgentRuntime {
     callbacks?.onRunStatus?.({
       runId: run.id,
       status: "queued",
-      message: "已创建运行",
+      message: "The run was created",
     });
 
     return this.withRunLock(run.id, async () => {
@@ -126,7 +126,7 @@ export class AgentRuntime {
       callbacks?.onRunStatus?.({
         runId: run.id,
         status: "running",
-        message: "开始规划",
+        message: "Start planning",
       });
 
       const planningStep = await this.store.addStep({
@@ -158,7 +158,7 @@ export class AgentRuntime {
           currentStep: "planning",
         });
       } catch (error) {
-        const message = error instanceof Error ? error.message : "LLM 意图识别失败。";
+        const message = error instanceof Error ? error.message : "LLM intent recognition failed.";
         await this.store.addStep({
           runId: run.id,
           agentName: "Planner",
@@ -353,7 +353,7 @@ export class AgentRuntime {
     });
   }
 
-  /** 创建章节生成轨迹 run，用于章节编辑页展示 */
+  /** 创建Chapter generation轨迹 run，用于章节编辑页展示 */
   async createChapterGenRun(novelId: string, chapterId: string, chapterOrder: number): Promise<string> {
     const run = await this.store.createRun({
       sessionId: `chapter-gen-${chapterId}-${Date.now()}`,
@@ -366,12 +366,12 @@ export class AgentRuntime {
     return run.id;
   }
 
-  /** 章节生成完成后更新 run 并记录一条步骤 */
+  /** Chapter generation is complete后更新 run 并记录一条步骤 */
   async finishChapterGenRun(runId: string, summary: string, durationMs?: number): Promise<void> {
     await this.store.updateRun(runId, {
       status: "succeeded",
       finishedAt: new Date(),
-      currentStep: "章节生成完成",
+      currentStep: "Chapter generation is complete",
     });
     await this.store.addStep({
       runId,

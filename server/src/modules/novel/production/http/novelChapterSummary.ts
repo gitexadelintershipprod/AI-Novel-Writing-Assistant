@@ -36,7 +36,7 @@ router.post(
       res.status(200).json({
         success: true,
         data,
-        message: "章节摘要生成成功。",
+        message: "The chapter summary was generated.",
       } satisfies ApiResponse<typeof data>);
     } catch (error) {
       next(error);

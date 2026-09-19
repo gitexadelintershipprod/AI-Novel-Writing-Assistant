@@ -420,28 +420,28 @@ function normalizeGeographyDirection(raw: unknown): WorldLocation["directionHint
   const normalized = raw.trim().toLowerCase();
   const aliases: Record<string, WorldLocation["directionHint"]> = {
     north: "north",
-    "北": "north",
-    "北方": "north",
+    北: "north",
+    北方: "north",
     south: "south",
-    "南": "south",
-    "南方": "south",
+    南: "south",
+    南方: "south",
     east: "east",
-    "东": "east",
-    "东方": "east",
+    东: "east",
+    东方: "east",
     west: "west",
-    "西": "west",
-    "西方": "west",
+    西: "west",
+    西方: "west",
     center: "center",
-    "中": "center",
-    "中央": "center",
+    中: "center",
+    中央: "center",
     northeast: "northeast",
-    "东北": "northeast",
+    东北: "northeast",
     northwest: "northwest",
-    "西北": "northwest",
+    西北: "northwest",
     southeast: "southeast",
-    "东南": "southeast",
+    东南: "southeast",
     southwest: "southwest",
-    "西南": "southwest",
+    西南: "southwest",
   };
   return aliases[normalized];
 }
@@ -457,7 +457,7 @@ function normalizeForceRelation(raw: unknown, index: number): WorldForceRelation
     id: normalizeText(record.id) || makeId("force-relation", index, `${sourceForceId}-${targetForceId}`),
     sourceForceId,
     targetForceId,
-    relation: normalizeText(record.relation ?? record.type, "关联"),
+    relation: normalizeText(record.relation ?? record.type, "association"),
     tension: normalizeText(record.tension ?? record.pressure),
     detail: normalizeText(record.detail ?? record.summary ?? record.description),
   };
@@ -474,7 +474,7 @@ function normalizeLocationControl(raw: unknown, index: number): WorldLocationCon
     id: normalizeText(record.id) || makeId("location-control", index, `${forceId}-${locationId}`),
     forceId,
     locationId,
-    relation: normalizeText(record.relation ?? record.type, "控制"),
+    relation: normalizeText(record.relation ?? record.type, "control"),
     detail: normalizeText(record.detail ?? record.summary ?? record.description),
   };
 }
@@ -490,7 +490,7 @@ function normalizeLocationConnection(raw: unknown, index: number): WorldLocation
     id: normalizeText(record.id) || makeId("location-connection", index, `${sourceLocationId}-${targetLocationId}`),
     sourceLocationId,
     targetLocationId,
-    connectionType: normalizeText(record.connectionType ?? record.type ?? record.relation, "道路"),
+    connectionType: normalizeText(record.connectionType ?? record.type ?? record.relation, "road"),
     distanceHint: normalizeText(record.distanceHint ?? record.distance),
     narrativeUse: normalizeText(record.narrativeUse ?? record.detail ?? record.summary ?? record.description),
   };
@@ -721,12 +721,12 @@ function inferLegacyLocationName(text: string): string {
   const normalized = text.replace(/^[-*]\s*/, "").trim();
   const afterColon = normalized.includes("：") ? normalized.split("：").slice(1).join("：").trim() : normalized;
   const patterns: Array<[RegExp, string]> = [
-    [/太平洋.*禁航区|太平洋.*异界入口|深海.*异界入口/, "太平洋深海禁航区"],
-    [/北极冰盖|北极.*基地/, "北极冰盖秘密基地"],
-    [/昆仑山|昆仑.*通道/, "昆仑山神话通道"],
-    [/阿尔卑斯.*古堡|欧洲.*古堡/, "阿尔卑斯古堡指挥中心"],
-    [/城市.*地下|地下.*设施/, "全球城市地下设施"],
-    [/南极冰盖|极夜风暴/, "南极旧日封印区"],
+    [/太平洋.*禁航区|太平洋.*异界入口|深海.*异界入口/, "Pacific Deep-Sea No-Sail Zone"],
+    [/北极冰盖|北极.*基地/, "Arctic Ice Sheet Secret Base"],
+    [/昆仑山|昆仑.*通道/, "Kunlun Mountains Mythic Passage"],
+    [/阿尔卑斯.*古堡|欧洲.*古堡/, "Alpine Castle Command Center"],
+    [/城市.*地下|地下.*设施/, "Global Urban Underground Facilities"],
+    [/南极冰盖|极夜风暴/, "Antarctic Ancient Seal Zone"],
   ];
   for (const [pattern, name] of patterns) {
     if (pattern.test(afterColon)) {
@@ -777,7 +777,7 @@ function buildLegacyLocationSeeds(geography: string | null | undefined, conflict
       if (!name) {
         return null;
       }
-      return seedLocation(name, normalizeText(record.description), "冲突热点");
+      return seedLocation(name, normalizeText(record.description), "Conflict hotspot");
     })
     .filter((item): item is WorldLocation => Boolean(item));
 
@@ -802,7 +802,7 @@ function buildLegacyForceRelations(conflicts: string | null | undefined, forces:
       id: makeId("force-relation", index, `${matched[0].id}-${matched[1].id}`),
       sourceForceId: matched[0].id,
       targetForceId: matched[1].id,
-      relation: normalizeText(record.type, "冲突"),
+      relation: normalizeText(record.type, "conflict"),
       tension: normalizeText(record.type),
       detail: normalizeText(record.description),
     });
@@ -814,7 +814,7 @@ export function buildWorldStructureFromLegacySource(source: WorldStructureSource
   const empty = createEmptyWorldStructure();
   const factionSeeds = buildLegacyFactionSeeds(source.factions);
   const policyObject = parseLegacyObject(source.politics);
-  const policyForceName = normalizeText(policyObject.governance) ? "三方联合委员会" : "";
+  const policyForceName = normalizeText(policyObject.governance) ? "Tripartite Joint Committee" : "";
   const extraForces = policyForceName ? [seedForce(policyForceName, normalizeText(policyObject.governance), "coordination")] : [];
   const forces = dedupeByName([...factionSeeds.forces, ...extraForces]);
   const locations = buildLegacyLocationSeeds(source.geography, source.conflicts);
@@ -991,7 +991,7 @@ function buildFactionLegacyText(structure: WorldStructuredData): string | null {
         item.goals.length > 0 && `目标：${item.goals.join("、")}`,
         item.methods.length > 0 && `手段：${item.methods.join("、")}`,
         item.representativeForceIds.length > 0
-          && `代表势力：${item.representativeForceIds.map((id) => forceNameById.get(id) ?? id).join("、")}`,
+          && `Representative forces:${item.representativeForceIds.map((id) => forceNameById.get(id) ?? id).join("、")}`,
       ]
         .filter(Boolean)
         .join(" | "),
@@ -1001,7 +1001,7 @@ function buildFactionLegacyText(structure: WorldStructuredData): string | null {
         item.name,
         item.type && `类型：${item.type}`,
         item.summary && `概述：${item.summary}`,
-        item.leader && `核心人物：${item.leader}`,
+        item.leader && `Key figure:${item.leader}`,
       ]
         .filter(Boolean)
         .join(" | "),
@@ -1012,18 +1012,18 @@ function buildFactionLegacyText(structure: WorldStructuredData): string | null {
 
 function buildBackgroundLegacyText(structure: WorldStructuredData, bindingSupport: WorldBindingSupport): string | null {
   const lines = [
-    structure.profile.identity && `世界身份：${structure.profile.identity}`,
-    structure.profile.summary && `当前处境：${structure.profile.summary}`,
-    structure.profile.coreConflict && `开局压力：${structure.profile.coreConflict}`,
+    structure.profile.identity && `World identity:${structure.profile.identity}`,
+    structure.profile.summary && `Current situation:${structure.profile.summary}`,
+    structure.profile.coreConflict && `Opening pressure:${structure.profile.coreConflict}`,
     bindingSupport.recommendedEntryPoints.length > 0
-      && `可开局入口：${bindingSupport.recommendedEntryPoints.slice(0, 3).join("；")}`,
+      && `Viable opening entry points:${bindingSupport.recommendedEntryPoints.slice(0, 3).join("；")}`,
   ].filter(Boolean);
   return lines.length > 0 ? lines.join("\n") : null;
 }
 
 function buildPowerLegacyText(structure: WorldStructuredData): string | null {
   const ruleLines = [
-    structure.rules.summary && `运行规则：${structure.rules.summary}`,
+    structure.rules.summary && `Operating rules:${structure.rules.summary}`,
     ...structure.rules.axioms.map((item) =>
       [
         item.name,
@@ -1042,15 +1042,15 @@ function buildPowerLegacyText(structure: WorldStructuredData): string | null {
 
 function buildCultureLegacyText(structure: WorldStructuredData): string | null {
   const lines = [
-    structure.profile.tone && `整体气质：${structure.profile.tone}`,
-    structure.profile.themes.length > 0 && `主题压力：${structure.profile.themes.join("、")}`,
+    structure.profile.tone && `Overall feel:${structure.profile.tone}`,
+    structure.profile.themes.length > 0 && `Thematic pressure:${structure.profile.themes.join("、")}`,
     ...structure.rules.taboo.map((item) => `禁忌：${item}`),
-    ...structure.rules.sharedConsequences.map((item) => `共同后果：${item}`),
+    ...structure.rules.sharedConsequences.map((item) => `Shared consequence:${item}`),
     ...structure.factions.map((item) =>
       [
         item.name,
-        item.doctrine && `价值主张：${item.doctrine}`,
-        item.methods.length > 0 && `常用方式：${item.methods.join("、")}`,
+        item.doctrine && `Value proposition:${item.doctrine}`,
+        item.methods.length > 0 && `Common methods:${item.methods.join("、")}`,
       ].filter(Boolean).join(" | "),
     ),
   ].filter(Boolean);
@@ -1059,9 +1059,9 @@ function buildCultureLegacyText(structure: WorldStructuredData): string | null {
 
 function buildHistoryLegacyText(structure: WorldStructuredData): string | null {
   const lines = [
-    structure.profile.identity && `故事开始时的世界阶段：${structure.profile.identity}`,
-    structure.profile.summary && `当前局面来源：${structure.profile.summary}`,
-    structure.profile.coreConflict && `长期矛盾：${structure.profile.coreConflict}`,
+    structure.profile.identity && `World stage at the start of the story:${structure.profile.identity}`,
+    structure.profile.summary && `Source of the current situation:${structure.profile.summary}`,
+    structure.profile.coreConflict && `Long-term conflict:${structure.profile.coreConflict}`,
     ...structure.relations.forceRelations.slice(0, 4).map((item) =>
       [item.relation, item.tension, item.detail].filter(Boolean).join(" | "),
     ),
@@ -1076,7 +1076,7 @@ function buildEconomyLegacyText(structure: WorldStructuredData): string | null {
       [
         item.name,
         item.resources && item.resources.length > 0 && `资源：${item.resources.join("、")}`,
-        item.baseOfPower && `权力基础：${item.baseOfPower}`,
+        item.baseOfPower && `Base of power:${item.baseOfPower}`,
         item.pressure && `压力：${item.pressure}`,
       ].filter(Boolean).join(" | "),
     );
@@ -1099,9 +1099,9 @@ function buildPoliticsLegacyText(structure: WorldStructuredData): string | null 
     ...structure.forces.map((item) =>
       [
         item.name,
-        item.currentObjective && `当前目标：${item.currentObjective}`,
-        item.pressure && `施压方式：${item.pressure}`,
-        item.baseOfPower && `权力基础：${item.baseOfPower}`,
+        item.currentObjective && `Current goals:${item.currentObjective}`,
+        item.pressure && `Pressure tactics:${item.pressure}`,
+        item.baseOfPower && `Base of power:${item.baseOfPower}`,
       ]
         .filter(Boolean)
         .join(" | "),
@@ -1127,7 +1127,7 @@ function buildGeographyLegacyText(structure: WorldStructuredData): string | null
         item.name,
         item.terrain && `地形：${item.terrain}`,
         item.summary && `概述：${item.summary}`,
-        item.narrativeFunction && `叙事功能：${item.narrativeFunction}`,
+        item.narrativeFunction && `Narrative function:${item.narrativeFunction}`,
         item.risk && `风险：${item.risk}`,
       ]
         .filter(Boolean)
@@ -1186,7 +1186,7 @@ export function buildWorldBindingSupport(structure: WorldStructuredData): WorldB
     .slice(0, 3)
     .map((item, index) => ({
       id: makeId("cluster", index, item.name),
-      label: `${item.name} 场景群`,
+        label: `${item.name} scene group`,
       locationIds: [item.id],
       reason: item.narrativeFunction || item.summary || item.risk,
     }));
@@ -1201,7 +1201,7 @@ export function buildWorldBindingSupport(structure: WorldStructuredData): WorldB
 
   const forbiddenCombinations = [
     ...structure.rules.taboo,
-    ...structure.rules.sharedConsequences.map((item) => `避免忽略：${item}`),
+    ...structure.rules.sharedConsequences.map((item) => `Do not overlook:${item}`),
   ].slice(0, 8);
 
   return {
@@ -1256,12 +1256,12 @@ export function buildWorldStructureOverview(structure: WorldStructuredData, bind
     sections: [
       {
         key: "profile",
-        title: "世界概要",
+        title: "world summary",
         content: [
-          structure.profile.identity && `世界身份：${structure.profile.identity}`,
-          structure.profile.tone && `整体调性：${structure.profile.tone}`,
+          structure.profile.identity && `World identity:${structure.profile.identity}`,
+          structure.profile.tone && `Overall tonality:${structure.profile.tone}`,
           structure.profile.summary && `摘要：${structure.profile.summary}`,
-          structure.profile.coreConflict && `核心冲突：${structure.profile.coreConflict}`,
+          structure.profile.coreConflict && `Core conflict:${structure.profile.coreConflict}`,
           structure.profile.themes.length > 0 && `主题：${structure.profile.themes.join("、")}`,
         ]
           .filter(Boolean)
@@ -1269,29 +1269,29 @@ export function buildWorldStructureOverview(structure: WorldStructuredData, bind
       },
       {
         key: "rules",
-        title: "规则中心",
+        title: "Rule Center",
         content: [
           structure.rules.summary,
           ...structure.rules.axioms.map(formatRuleText),
           ...structure.rules.taboo.map((item) => `禁忌：${item}`),
-          ...structure.rules.sharedConsequences.map((item) => `共通后果：${item}`),
+          ...structure.rules.sharedConsequences.map((item) => `Shared consequence:${item}`),
         ]
           .filter(Boolean)
           .join("\n"),
       },
       {
         key: "factions",
-        title: "阵营与势力",
+        title: "Factions and forces",
         content: [buildFactionLegacyText(structure), buildPoliticsLegacyText(structure)].filter(Boolean).join("\n\n"),
       },
       {
         key: "locations",
-        title: "地点与地形",
+        title: "Place and terrain",
         content: buildGeographyLegacyText(structure) ?? "",
       },
       {
         key: "relations",
-        title: "关系网络",
+        title: "relationship network",
         content: [
           ...structure.relations.forceRelations.map((item) =>
             [item.sourceForceId, item.relation, item.targetForceId, item.tension, item.detail]
@@ -1301,7 +1301,7 @@ export function buildWorldStructureOverview(structure: WorldStructuredData, bind
           ...structure.relations.locationControls.map((item) =>
             [item.forceId, item.relation, item.locationId, item.detail].filter(Boolean).join(" | "),
           ),
-          ...bindingSupport.compatibleConflicts.map((item) => `可兼容冲突：${item}`),
+          ...bindingSupport.compatibleConflicts.map((item) => `Compatible conflicts:${item}`),
         ]
           .filter(Boolean)
           .join("\n"),

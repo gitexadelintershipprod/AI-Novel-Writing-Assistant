@@ -129,7 +129,7 @@ export function registerNovelStoryMacroRoutes(input: RegisterNovelStoryMacroRout
         res.status(200).json({
           success: true,
           data,
-          message: "故事引擎原型已生成。",
+          message: "Story engine prototype has been generated.",
         } satisfies ApiResponse<typeof data>);
       } catch (error) {
         next(error);
@@ -147,7 +147,7 @@ export function registerNovelStoryMacroRoutes(input: RegisterNovelStoryMacroRout
         res.status(200).json({
           success: true,
           data,
-          message: "约束引擎已构建。",
+          message: "The constraint engine has been built.",
         } satisfies ApiResponse<typeof data>);
       } catch (error) {
         next(error);
@@ -174,7 +174,7 @@ export function registerNovelStoryMacroRoutes(input: RegisterNovelStoryMacroRout
         res.status(200).json({
           success: true,
           data,
-          message: "故事宏观规划已保存。",
+          message: "Story big picture saved.",
         } satisfies ApiResponse<typeof data>);
       } catch (error) {
         next(error);
@@ -192,7 +192,7 @@ export function registerNovelStoryMacroRoutes(input: RegisterNovelStoryMacroRout
         res.status(200).json({
           success: true,
           data,
-          message: "字段已重生成。",
+          message: "Field has been regenerated.",
         } satisfies ApiResponse<typeof data>);
       } catch (error) {
         next(error);
@@ -207,7 +207,7 @@ export function registerNovelStoryMacroRoutes(input: RegisterNovelStoryMacroRout
       res.status(200).json({
         success: true,
         data,
-        message: "故事宏观规划状态已加载。",
+        message: "Story-planning status was loaded.",
       } satisfies ApiResponse<typeof data>);
     } catch (error) {
       next(error);
@@ -224,7 +224,7 @@ export function registerNovelStoryMacroRoutes(input: RegisterNovelStoryMacroRout
         res.status(200).json({
           success: true,
           data,
-          message: "故事宏观规划状态已更新。",
+          message: "Story-planning status was updated.",
         } satisfies ApiResponse<typeof data>);
       } catch (error) {
         next(error);

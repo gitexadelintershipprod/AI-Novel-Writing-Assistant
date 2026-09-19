@@ -86,11 +86,11 @@ function normalizeSceneCardPayload(raw: unknown): unknown {
     entryState: ["startState", "sceneEntry", "openingState"],
     exitState: ["endState", "sceneExit", "closingState"],
     forbiddenExpansion: ["forbiddenExpansions", "mustAvoid", "forbidden"],
-    targetWordCount: ["target_word_count", "targetWords", "wordCount", "budget", "字数"],
-    resistance: ["obstacle", "opposition", "sceneResistance", "阻力"],
-    turn: ["turningPoint", "reversal", "sceneTurn", "转折"],
-    emotionalShift: ["emotionShift", "emotionalTurn", "情绪位移"],
-    readerValue: ["readerReward", "scenePayoff", "读者价值", "读者回报"],
+    targetWordCount: ["target_word_count", "targetWords", "wordCount", "budget", "word count"],
+    resistance: ["obstacle", "opposition", "sceneResistance", "resistance"],
+    turn: ["turningPoint", "reversal", "sceneTurn", "Turn"],
+    emotionalShift: ["emotionShift", "emotionalTurn", "emotional displacement"],
+    readerValue: ["readerReward", "scenePayoff", "reader value", "Reader feedback"],
   });
   if (!normalized || typeof normalized !== "object" || Array.isArray(normalized)) {
     return normalized;

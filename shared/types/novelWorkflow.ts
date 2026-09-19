@@ -59,26 +59,26 @@ export interface NovelWorkflowLaneDescriptor {
 export const NOVEL_WORKFLOW_LANE_DESCRIPTORS: Record<NovelWorkflowLane, NovelWorkflowLaneDescriptor> = {
   manual_create: {
     lane: "manual_create",
-    defaultTitle: "小说流程任务",
+    defaultTitle: "Novel workflow task",
     initialStage: "project_setup",
     initialItemKey: "project_setup",
-    initialItemLabel: "等待创建项目",
+    initialItemLabel: "Waiting to create the project",
     taskQueryKey: "workspaceTaskId",
   },
   auto_director: {
     lane: "auto_director",
-    defaultTitle: "AI 自动导演小说",
+    defaultTitle: "Auto-Director novel",
     initialStage: "auto_director",
     initialItemKey: "auto_director",
-    initialItemLabel: "等待生成候选方向",
+    initialItemLabel: "Waiting to generate candidate directions",
     taskQueryKey: "directorTaskId",
   },
   creation_studio: {
     lane: "creation_studio",
-    defaultTitle: "把想法写成作品",
+    defaultTitle: "Turn the idea into a book",
     initialStage: "creation_intent",
     initialItemKey: "creation_intent",
-    initialItemLabel: "正在理解你的想法",
+    initialItemLabel: "Understanding your idea",
     taskQueryKey: "taskId",
   },
 };

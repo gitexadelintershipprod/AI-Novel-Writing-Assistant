@@ -177,8 +177,8 @@ export class ComicCharacterAssetService {
       where: { id: input.characterId },
       select: { id: true, projectId: true },
     });
-    if (!char) throw new AppError(`角色不存在：${input.characterId}`, 404);
-    if (char.projectId !== input.projectId) throw new AppError("角色与项目不匹配", 400);
+    if (!char) throw new AppError(`The character does not exist：${input.characterId}`, 404);
+    if (char.projectId !== input.projectId) throw new AppError("The character does not belong to this project", 400);
 
     return prisma.comicCharacterAsset.create({
       data: {
@@ -209,7 +209,7 @@ export class ComicCharacterAssetService {
 
   async getAsset(assetId: string) {
     const asset = await prisma.comicCharacterAsset.findUnique({ where: { id: assetId } });
-    if (!asset) throw new AppError(`资产不存在：${assetId}`, 404);
+    if (!asset) throw new AppError(`Asset not found: ${assetId}`, 404);
     return asset;
   }
 
@@ -259,7 +259,7 @@ export class ComicCharacterAssetService {
     return { url };
   }
 
-  // ── AI 生成（prepare / generate 共享 buildContext） ──────────────────────
+  // ── AI generated（prepare / generate 共享 buildContext） ──────────────────────
 
   private async buildAssetGenerationContext(assetId: string) {
     const asset = await prisma.comicCharacterAsset.findUnique({
@@ -269,7 +269,7 @@ export class ComicCharacterAssetService {
         project: { select: { stylePreset: true } },
       },
     });
-    if (!asset) throw new AppError(`资产不存在：${assetId}`, 404);
+    if (!asset) throw new AppError(`Asset not found: ${assetId}`, 404);
 
     const refImagePaths = await resolveSheetRefPaths(asset.characterId);
     const prompt = buildAssetPrompt({
@@ -283,13 +283,13 @@ export class ComicCharacterAssetService {
       styleKeywords: resolveComicStyleKeywords(asset.project.stylePreset),
     });
 
-    // 参考素材元数据（前端预览缩略图用）
+    // Reference material元数据（前端预览缩略图用）
     const referenceImages: import("../image/runtime").GeneratedReferenceImageMeta[] = [];
     const sheetState = safeJsonParse<{ status?: string }>(asset.character.sheetData, {});
     if (sheetState.status === "done") {
       referenceImages.push({
         kind: "character_sheet",
-        label: `${asset.character.name} · 三视图`,
+        label: `${asset.character.name} · three-view sheet`,
         url: `/api/comic/character-images/${asset.character.id}/sheet`,
       });
     }
@@ -311,11 +311,11 @@ export class ComicCharacterAssetService {
       refImagePaths,
       referenceImages,
       size: "1024x1024" as const,
-      title: `生成${asset.assetType === "costume" ? "服装" : asset.assetType === "weapon" ? "武器" : "资产"}：${asset.name}`,
+      title: `Generate ${asset.assetType === "costume" ? "costume" : asset.assetType === "weapon" ? "weapon" : "asset"}: ${asset.name}`,
     };
   }
 
-  /** 预览即将发送给图像模型的全部素材（不消耗 token） */
+  /** 预览即将发送给image model的全部素材（不消耗 token） */
   async prepareAssetImage(assetId: string, provider?: string): Promise<import("../image/runtime").ImageGenerationPreview> {
     const ctx = await this.buildAssetGenerationContext(assetId);
     return {
@@ -352,7 +352,7 @@ export class ComicCharacterAssetService {
 
   async serveAssetImage(assetId: string): Promise<{ filePath: string; mimeType: string }> {
     const resolved = await resolveAssetFile(assetId);
-    if (!resolved) throw new AppError(`资产图片未找到：${assetId}`, 404);
+    if (!resolved) throw new AppError(`Asset image not found: ${assetId}`, 404);
     return resolved;
   }
 }

@@ -92,7 +92,7 @@ export default function CreationFoundationPickerDialog<Node extends CreationFoun
             </Button>
             <div className="flex justify-end gap-2">
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={applying}>
-                取消
+                Cancel
               </Button>
               <Button
                 type="button"
@@ -100,7 +100,7 @@ export default function CreationFoundationPickerDialog<Node extends CreationFoun
                 onClick={() => void applySelection(draftId)}
               >
                 {applying ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
-                使用这个方向
+                use this direction
               </Button>
             </div>
           </div>
@@ -108,13 +108,13 @@ export default function CreationFoundationPickerDialog<Node extends CreationFoun
       >
         {loading ? (
           <div className="flex min-h-72 items-center justify-center text-sm text-muted-foreground">
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> 正在读取可选方向
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Reading optional directions
           </div>
         ) : error ? (
           <div className="flex min-h-72 flex-col items-center justify-center gap-3 px-6 text-center">
-            <div className="text-sm font-medium text-foreground">暂时无法读取可选方向</div>
-            <div className="text-xs leading-5 text-muted-foreground">你仍可交给 AI 自动搭配，或重新加载后再选择。</div>
-            <Button type="button" variant="outline" size="sm" onClick={onRetry}>重新加载</Button>
+            <div className="text-sm font-medium text-foreground">Temporarily unable to read optional directions</div>
+            <div className="text-xs leading-5 text-muted-foreground">You can still let the AI automatically match, or reload and choose again.</div>
+            <Button type="button" variant="outline" size="sm" onClick={onRetry}>reload</Button>
           </div>
         ) : nodes.length === 0 ? (
           <div className="flex min-h-72 items-center justify-center px-6 text-sm text-muted-foreground">
@@ -130,7 +130,7 @@ export default function CreationFoundationPickerDialog<Node extends CreationFoun
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
                     className="h-9 pl-9"
-                    placeholder="搜索名称或说明"
+                    placeholder="Search name or description"
                   />
                 </div>
               </div>
@@ -140,12 +140,12 @@ export default function CreationFoundationPickerDialog<Node extends CreationFoun
                   selectedId={draftId}
                   onSelect={setDraftId}
                   title={treeTitle}
-                  hint="点击查看"
-                  ariaLabel={`${title}目录`}
+                  hint="Click to view"
+                  ariaLabel={`${title} list`}
                   viewportClassName="max-h-[356px]"
                 />
               ) : (
-                <div className="px-4 py-10 text-center text-sm text-muted-foreground">没有匹配的方向</div>
+                <div className="px-4 py-10 text-center text-sm text-muted-foreground">No matching direction</div>
               )}
             </div>
 
@@ -153,19 +153,19 @@ export default function CreationFoundationPickerDialog<Node extends CreationFoun
               {selectedNode ? (
                 renderDetails ? renderDetails(selectedNode) : (
                   <div className="flex min-h-full flex-col justify-center">
-                    <div className="text-xs font-medium tracking-[0.16em] text-muted-foreground">当前选择</div>
+                    <div className="text-xs font-medium tracking-[0.16em] text-muted-foreground">Current selection</div>
                     <div className="mt-3 text-2xl font-semibold text-foreground">{selectedNode.name}</div>
                     <p className="mt-4 max-w-xl text-sm leading-7 text-muted-foreground">
-                      {selectedNode.description?.trim() || "这个方向会作为 AI 整理整本书方案时的创作依据。"}
+                      {selectedNode.description?.trim() || "This direction will serve as the creative basis for AI to organize the entire book plan."}
                     </p>
                   </div>
                 )
               ) : (
                 <div className="flex min-h-full flex-col justify-center">
-                  <div className="text-xs font-medium tracking-[0.16em] text-muted-foreground">保持轻松</div>
+                  <div className="text-xs font-medium tracking-[0.16em] text-muted-foreground">keep it light</div>
                   <div className="mt-3 text-2xl font-semibold text-foreground">{autoLabel}</div>
                   <p className="mt-4 max-w-xl text-sm leading-7 text-muted-foreground">
-                    AI 会结合你的起始想法、目标平台和阅读感，自动选择更适合写完整本书的方向。
+                    AI will combine your starting ideas, target platform, and reading sense to automatically choose a direction more suitable for writing the entire book.
                   </p>
                 </div>
               )}

@@ -18,13 +18,13 @@ export class DramaContextAssembler {
       },
     });
     if (!project) {
-      throw new Error(`未找到短剧项目：${projectId}`);
+      throw new Error(`Drama project ${projectId} was not found.`);
     }
     // 防御：即使调用方传入字符串型 order 也能正确匹配
     const targetOrder = Number(episodeOrder);
     const episode = project.episodes.find((item) => item.order === targetOrder);
     if (!episode) {
-      throw new Error(`未找到短剧第 ${episodeOrder} 集大纲。`);
+      throw new Error(`Drama episode ${episodeOrder} outline was not found.`);
     }
     const beats = safeJsonParse<BeatLite[]>(project.sourceBundle?.beats, []);
     const sourceMap = safeJsonParse<{ beatRefs?: number[] }>(episode.sourceMap, {});
@@ -73,13 +73,13 @@ export class DramaContextAssembler {
           refImageUrls.length > 0 ? `参考图：[${refImageUrls.join("，")}]（请保持人物视觉一致性）` : "",
           character.relations ? `关系：${compactText(character.relations, 160)}` : "",
         ].filter(Boolean).join("；");
-      }).join("\n") || "暂无角色资源",
-      factsDigest: project.facts.map((fact) => `E${fact.episodeOrder} ${fact.category}：${fact.text}`).join("\n") || "暂无事实",
+      }).join("\n") || "No character resources",
+      factsDigest: project.facts.map((fact) => `E${fact.episodeOrder} ${fact.category}: ${fact.text}`).join("\n") || "No facts",
       previousDigest: project.episodes
         .filter((item) => item.order < episodeOrder && item.content)
         .slice(-3)
-        .map((item) => `第${item.order}集《${item.title}》：${compactText(item.content, 260)}`)
-        .join("\n") || "暂无前序台本",
+        .map((item) => `Episode ${item.order}"${item.title}": ${compactText(item.content, 260)}`)
+        .join("\n") || "No prior scripts",
       sourceDigest: relatedBeats.map((beat) => `${beat.order}：${beat.summary}`).join("\n") || compactText(project.sourceBundle?.synopsis, 1000),
     };
   }

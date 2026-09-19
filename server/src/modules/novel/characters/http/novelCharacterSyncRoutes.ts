@@ -46,7 +46,7 @@ export function registerNovelCharacterSyncRoutes(input: RegisterNovelCharacterSy
         res.status(200).json({
           success: true,
           data,
-          message: "角色库引用关系可查看。",
+          message: "Character-library references are available.",
         } satisfies ApiResponse<typeof data>);
       } catch (error) {
         next(error);
@@ -64,7 +64,7 @@ export function registerNovelCharacterSyncRoutes(input: RegisterNovelCharacterSy
         res.status(200).json({
           success: true,
           data,
-          message: "角色同步建议可查看。",
+          message: "Character-sync suggestions are available.",
         } satisfies ApiResponse<typeof data>);
       } catch (error) {
         next(error);
@@ -83,7 +83,7 @@ export function registerNovelCharacterSyncRoutes(input: RegisterNovelCharacterSy
         res.status(201).json({
           success: true,
           data,
-          message: "角色进入当前小说，可继续设置本书专属状态。",
+          message: "The character is in this novel. You can keep setting book-specific state.",
         } satisfies ApiResponse<typeof data>);
       } catch (error) {
         next(error);
@@ -109,7 +109,7 @@ export function registerNovelCharacterSyncRoutes(input: RegisterNovelCharacterSy
         res.status(200).json({
           success: true,
           data,
-          message: "角色库沉淀建议可查看。",
+          message: "Character-library save suggestions are available.",
         } satisfies ApiResponse<typeof data>);
       } catch (error) {
         next(error);
@@ -127,7 +127,7 @@ export function registerNovelCharacterSyncRoutes(input: RegisterNovelCharacterSy
         res.status(201).json({
           success: true,
           data,
-          message: "角色进入角色库，当前小说保留自己的剧情状态。",
+          message: "The character is in the library. This novel keeps its own story state.",
         } satisfies ApiResponse<typeof data>);
       } catch (error) {
         next(error);
@@ -146,7 +146,7 @@ export function registerNovelCharacterSyncRoutes(input: RegisterNovelCharacterSy
         res.status(200).json({
           success: true,
           data,
-          message: "当前范围使用这条角色同步建议。",
+          message: "The current range uses this character-sync suggestion.",
         } satisfies ApiResponse<typeof data>);
       } catch (error) {
         next(error);
@@ -164,7 +164,7 @@ export function registerNovelCharacterSyncRoutes(input: RegisterNovelCharacterSy
         res.status(200).json({
           success: true,
           data,
-          message: "当前小说角色设定保持不变。",
+          message: "This novel's character settings stay the same.",
         } satisfies ApiResponse<typeof data>);
       } catch (error) {
         next(error);

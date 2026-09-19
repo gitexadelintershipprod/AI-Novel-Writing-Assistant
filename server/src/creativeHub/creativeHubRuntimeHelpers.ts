@@ -27,11 +27,11 @@ export function describeBindings(bindings: CreativeHubResourceBinding): string |
     bindings.chapterId ? `章节ID=${bindings.chapterId}` : null,
     bindings.worldId ? `世界观ID=${bindings.worldId}` : null,
     bindings.taskId ? `任务ID=${bindings.taskId}` : null,
-    bindings.bookAnalysisId ? `拆书分析ID=${bindings.bookAnalysisId}` : null,
-    bindings.formulaId ? `写作公式ID=${bindings.formulaId}` : null,
+    bindings.bookAnalysisId ? `Book split analysisID=${bindings.bookAnalysisId}` : null,
+    bindings.formulaId ? `writing formulaID=${bindings.formulaId}` : null,
     bindings.styleProfileId ? `写法资产ID=${bindings.styleProfileId}` : null,
-    bindings.baseCharacterId ? `基础角色ID=${bindings.baseCharacterId}` : null,
-    bindings.knowledgeDocumentIds?.length ? `知识文档ID=${bindings.knowledgeDocumentIds.join(",")}` : null,
+    bindings.baseCharacterId ? `Basic roleID=${bindings.baseCharacterId}` : null,
+    bindings.knowledgeDocumentIds?.length ? `knowledge documentID=${bindings.knowledgeDocumentIds.join(",")}` : null,
   ].filter((item): item is string => Boolean(item));
 
   return parts.length > 0 ? parts.join("，") : null;
@@ -50,7 +50,7 @@ export function prependBindingMessage(
     {
       id: "creative_hub_binding_context",
       type: "system",
-      content: `当前创作中枢绑定的工作区资源如下：${summary}。如需查询、诊断或控制，请优先围绕这些资源理解用户意图。`,
+      content: `当前creative center绑定的工作区资源如下：${summary}。如需查询、诊断或控制，请优先围绕这些资源理解用户意图。`,
       additional_kwargs: {
         source: "creative_hub_binding",
         bindings,

@@ -51,9 +51,9 @@ export class ComicBatchOrchestrator {
         project: true,
       },
     });
-    if (!episode) throw new AppError(`未找到话数：${episodeId}`, 404);
+    if (!episode) throw new AppError(`Episode not found: ${episodeId}`, 404);
     if (episode.panels.length === 0) {
-      throw new AppError("该话尚无分格脚本，请先生成脚本再批量生图。", 400);
+      throw new AppError("This episode has no panel script yet. Generate the script before batch-generating images.", 400);
     }
 
     // 筛选待生成格子
@@ -70,7 +70,7 @@ export class ComicBatchOrchestrator {
       : episode.panels;
 
     if (targetPanels.length === 0) {
-      throw new AppError("所有格子已有图片，无需重新生成。若要重新生成请使用 skipDone=false。", 400);
+      throw new AppError("Every panel already has an image, so regeneration is not needed. To regenerate, use skipDone=false.", 400);
     }
 
     // 创建 BatchJob 记录
@@ -158,12 +158,12 @@ export class ComicBatchOrchestrator {
    */
   async retryFailed(jobId: string, opts: { provider?: LLMProvider } = {}): Promise<{ jobId: string }> {
     const job = await prisma.comicBatchJob.findUnique({ where: { id: jobId } });
-    if (!job) throw new AppError(`批量任务不存在：${jobId}`, 404);
-    if (job.status === "running") throw new AppError("任务仍在运行中，请等待完成后重试。", 409);
+    if (!job) throw new AppError(`Batch job not found: ${jobId}`, 404);
+    if (job.status === "running") throw new AppError("The task is still running. Wait until it finishes, then retry.", 409);
 
     const prev = JSON.parse(job.progress) as BatchProgress;
     if (prev.failedPanelIds.length === 0) {
-      throw new AppError("没有失败的格子需要重试。", 400);
+      throw new AppError("There are no failed panels to retry.", 400);
     }
 
     const provider = opts.provider ?? "openai";
@@ -185,7 +185,7 @@ export class ComicBatchOrchestrator {
   }
 
   /**
-   * 估算批量生成费用（粗略）。
+   * 估算Batch generation费用（粗略）。
    */
   async estimateCost(episodeId: string, provider: string = "openai"): Promise<{
     totalPanels: number;

@@ -217,32 +217,32 @@ function compactList(items: string[] | undefined): string {
   if (!items || items.length === 0) {
     return "";
   }
-  return items.join("、");
+  return items.join(", ");
 }
 
 export function buildTaskSheetFromStructuredChapter(chapter: StructuredChapter): string {
   const lines: string[] = [];
-  lines.push(`章节目标：${chapter.purpose || chapter.summary || "推动主线"}`);
+  lines.push(`Chapter Objectives:${chapter.purpose || chapter.summary || "Promote the main line"}`);
   if (chapter.keyEvents && chapter.keyEvents.length > 0) {
-    lines.push(`关键事件：${compactList(chapter.keyEvents)}`);
+    lines.push(`Key events:${compactList(chapter.keyEvents)}`);
   }
   if (chapter.involvedRoles && chapter.involvedRoles.length > 0) {
-    lines.push(`涉及角色：${compactList(chapter.involvedRoles)}`);
+    lines.push(`Roles involved:${compactList(chapter.involvedRoles)}`);
   }
   if (typeof chapter.conflictLevel === "number") {
-    lines.push(`冲突等级：${chapter.conflictLevel}`);
+    lines.push(`Conflict level:${chapter.conflictLevel}`);
   }
   if (typeof chapter.revealLevel === "number") {
-    lines.push(`揭露等级：${chapter.revealLevel}`);
+    lines.push(`Disclosure level:${chapter.revealLevel}`);
   }
   if (chapter.pacing?.trim()) {
-    lines.push(`节奏：${chapter.pacing.trim()}`);
+    lines.push(`Pace: ${chapter.pacing.trim()}`);
   }
   if (chapter.foreshadow?.trim()) {
-    lines.push(`伏笔：${chapter.foreshadow.trim()}`);
+    lines.push(`Foreshadowing: ${chapter.foreshadow.trim()}`);
   }
   if (chapter.mustAvoid?.trim()) {
-    lines.push(`禁止事项：${chapter.mustAvoid.trim()}`);
+    lines.push(`Prohibited matters:${chapter.mustAvoid.trim()}`);
   }
   return lines.join("\n");
 }

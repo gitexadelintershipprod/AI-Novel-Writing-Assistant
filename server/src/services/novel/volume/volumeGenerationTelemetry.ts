@@ -77,7 +77,7 @@ export async function withHighMemoryVolumeGenerationGuard<T>(
       volumeId: options.targetVolumeId,
       chapterId: options.targetChapterId,
     });
-    throw new AppError("当前小说已有高内存卷规划生成正在处理同一范围，请稍后再试。", 409);
+    throw new AppError("A high-memory volume-planning job is already running for this range. Try again later.", 409);
   }
 
   const reservation = await acquireScopedHighMemoryReservation({
@@ -107,7 +107,7 @@ export async function withHighMemoryVolumeGenerationGuard<T>(
       volumeId: options.targetVolumeId,
       chapterId: options.targetChapterId,
     });
-    throw new AppError("当前小说已有高内存卷规划生成正在处理同一范围，请稍后再试。", 409);
+    throw new AppError("A high-memory volume-planning job is already running for this range. Try again later.", 409);
   }
   const stopRenewingReservation = startHighMemoryReservationRenewal(reservation.handle, {
     ttlMs: HIGH_MEMORY_VOLUME_RESERVATION_TTL_MS,

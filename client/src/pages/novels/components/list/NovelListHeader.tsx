@@ -26,18 +26,18 @@ export function NovelListHeader(props: {
         <div className="min-w-0 space-y-3">
           <div>
             <div className="flex flex-wrap items-center gap-3">
-              <h1 className="text-3xl font-semibold tracking-normal">{props.view === "shelf" ? "我的书架" : "小说工作台"}</h1>
-              <div className="inline-flex rounded-md bg-muted/50 p-1" role="tablist" aria-label="小说列表视图">
+              <h1 className="text-3xl font-semibold tracking-normal">{props.view === "shelf" ? "my bookshelf" : "Novel workbench"}</h1>
+              <div className="inline-flex rounded-md bg-muted/50 p-1" role="tablist" aria-label="Novels list view">
                 <Button type="button" size="sm" variant={props.view === "shelf" ? "default" : "ghost"} onClick={() => props.onViewChange("shelf")} role="tab" aria-selected={props.view === "shelf"}>
-                  <Library className="mr-1.5 h-4 w-4" aria-hidden="true" />书架
+                  <Library className="mr-1.5 h-4 w-4" aria-hidden="true" />bookshelf
                 </Button>
                 <Button type="button" size="sm" variant={props.view === "workbench" ? "default" : "ghost"} onClick={() => props.onViewChange("workbench")} role="tab" aria-selected={props.view === "workbench"}>
-                  <LayoutDashboard className="mr-1.5 h-4 w-4" aria-hidden="true" />工作台
+                  <LayoutDashboard className="mr-1.5 h-4 w-4" aria-hidden="true" />workbench
                 </Button>
               </div>
             </div>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-              {props.view === "shelf" ? "浏览你的作品，打开封面，继续阅读或继续创作。" : "管理正在推进的小说项目，快速判断哪些可以继续写、哪些需要先处理状态。"}
+              {props.view === "shelf" ? "Browse your work, open the cover, continue reading or continue creating." : "Manage ongoing novel projects and quickly determine which ones can be continued and which ones need to be processed first."}
             </p>
           </div>
         </div>
@@ -53,20 +53,20 @@ export function NovelListHeader(props: {
             <Button asChild variant="secondary">
               <Link to={SHORT_STORY_CREATE_LINK}>
                 <BookOpenText className="mr-2 h-4 w-4" aria-hidden="true" />
-                创作短篇
+                Create short stories
               </Link>
             </Button>
           ) : null}
           <Button asChild variant="outline">
-            <Link to={MANUAL_CREATE_LINK}>手动创建小说</Link>
+            <Link to={MANUAL_CREATE_LINK}>Create a novel manually</Link>
           </Button>
         </div>
       </div>
 
       {props.view === "workbench" ? (
         <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-y border-border/60 py-3 text-sm">
-          <HeaderMetric label="当前" value={`第 ${props.page} / ${props.totalPages} 页`} />
-          <HeaderMetric label="总数" value={`${props.totalNovels} 本`} />
+          <HeaderMetric label="current" value={`${props.page} of ${props.totalPages}`} />
+          <HeaderMetric label="total" value={`${props.totalNovels} novels`} />
           {props.summary.map((item) => (
             <HeaderMetric
               key={item.id}
@@ -78,7 +78,7 @@ export function NovelListHeader(props: {
           {props.recoveryCandidateCount > 0 ? (
             <Button type="button" size="sm" variant="ghost" className="h-8 px-2" onClick={props.onOpenRecovery}>
               <RotateCcw className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
-              待恢复 {props.recoveryCandidateCount}
+              {props.recoveryCandidateCount} to resume
             </Button>
           ) : null}
         </div>

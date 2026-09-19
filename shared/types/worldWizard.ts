@@ -376,7 +376,7 @@ function normalizeReferenceRuleSeed(raw: unknown, index: number): WorldReference
   }
   return {
     id: id || `reference-rule-${index + 1}`,
-    name: name || `原作规则 ${index + 1}`,
+    name: name || `original rules ${index + 1}`,
     summary,
     cost: typeof record.cost === "string" ? record.cost.trim() : "",
     boundary: typeof record.boundary === "string" ? record.boundary.trim() : "",

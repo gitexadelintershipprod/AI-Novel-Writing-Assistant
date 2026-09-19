@@ -78,7 +78,7 @@ export class ChapterExecutionContractService {
       },
     });
     if (!chapter) {
-      throw new Error("章节不存在。");
+      throw new Error("The chapter does not exist.");
     }
 
     const existingScenePlan = parseChapterScenePlan(chapter.sceneCards, {
@@ -122,14 +122,14 @@ export class ChapterExecutionContractService {
     const targetVolume = generatedDocument.volumes.find((volume) => volume.id === matched.volumeId);
     const targetChapter = targetVolume?.chapters.find((item) => item.id === matched.volumeChapterId);
     if (!targetChapter?.taskSheet?.trim() || !targetChapter.sceneCards?.trim()) {
-      throw new Error("AI 未返回完整的章节执行合同。");
+      throw new Error("AI did not return a complete chapter execution contract.");
     }
     const taskSheet = targetChapter.taskSheet.trim();
     const scenePlan = parseChapterScenePlan(targetChapter.sceneCards, {
       targetWordCount: targetChapter.targetWordCount ?? chapter.targetWordCount ?? undefined,
     });
     if (!scenePlan) {
-      throw new Error("章节执行合同中的场景预算无效。");
+      throw new Error("The scene budget in the chapter execution contract is invalid.");
     }
     const finalQuality = assessChapterExecutionContractShape({
       novelId,
@@ -162,7 +162,7 @@ export class ChapterExecutionContractService {
         tx,
         novelId,
         generatedDocument,
-        `刷新第${chapter.order}章执行合同。`,
+        `刷新Chapter ${chapter.order}执行合同。`,
       );
       const persistedDocument = {
         ...generatedDocument,

@@ -119,52 +119,52 @@ export default function WorldOverviewTab(props: WorldOverviewTabProps) {
   const hasHandbook = Boolean(structure);
   const worldPromise = compactText(
     profile?.identity || profile?.summary,
-    summary ?? "补齐世界手册后，这里会形成一份可被小说复用的世界样本。",
+    summary ?? "After completing the world manual, a world sample that can be reused in novels will be formed.",
     120,
   );
   const coreRules = listText(
-    structure?.rules?.axioms.map((rule) => [rule.name, rule.summary].filter(Boolean).join("：")) ?? [],
-    "进入手册编修补充本世界必须遵守的规则。",
+    structure?.rules?.axioms.map((rule) => [rule.name, rule.summary].filter(Boolean).join(": ")) ?? [],
+    "Enter the manual to edit and supplement the rules that must be followed in this world.",
   );
   const majorForces = listText(
     [
-      ...(structure?.forces ?? []).map((force) => [force.name, force.summary || force.currentObjective].filter(Boolean).join("：")),
-      ...(structure?.factions ?? []).map((faction) => [faction.name, faction.position || faction.doctrine].filter(Boolean).join("：")),
+      ...(structure?.forces ?? []).map((force) => [force.name, force.summary || force.currentObjective].filter(Boolean).join(": ")),
+      ...(structure?.factions ?? []).map((faction) => [faction.name, faction.position || faction.doctrine].filter(Boolean).join(": ")),
     ],
-    "进入手册编修补充会推动剧情的势力与阵营。",
+    "Entering the manual to edit and supplement the forces and camps that will promote the plot.",
   );
   const storyLocations = listText(
     structure?.locations.map((location) =>
-      [location.name, location.narrativeFunction || location.risk || location.summary].filter(Boolean).join("："),
+      [location.name, location.narrativeFunction || location.risk || location.summary].filter(Boolean).join(": "),
     ) ?? [],
-    "进入手册编修补充适合开局、升级和转折的故事地点。",
+    "Enter the manual to edit and add story locations suitable for the start, upgrades and transitions.",
   );
   const tensions = listText(
     [
       profile?.coreConflict,
       ...(structure?.relations.forceRelations ?? []).map((relation) =>
-        [relation.relation, relation.tension || relation.detail].filter(Boolean).join("："),
+        [relation.relation, relation.tension || relation.detail].filter(Boolean).join(": "),
       ),
       ...(structure?.rules.sharedConsequences ?? []),
     ],
-    "进入手册编修补充能持续制造剧情压力的世界矛盾。",
+    "Enter the manual to edit and add world conflicts that can continue to create plot pressure.",
   );
 
   return (
     <section className="space-y-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h2 className="text-xl font-semibold tracking-tight">{featureFlags.worldVisEnabled ? "阅读世界与图谱" : "阅读世界手册"}</h2>
-            <p className="mt-1 text-sm leading-6 text-muted-foreground">从读者视角理解世界承诺、规则边界、主要势力与故事舞台。</p>
+            <h2 className="text-xl font-semibold tracking-tight">{featureFlags.worldVisEnabled ? "Reading the world and the map" : "Reading the World Handbook"}</h2>
+            <p className="mt-1 text-sm leading-6 text-muted-foreground">Understand the world's commitments, rule boundaries, main forces, and story stages from a reader's perspective.</p>
           </div>
           <div className="flex flex-wrap gap-2">
             <Button type="button" size="sm" variant="secondary" className="rounded-full" onClick={onOpenStructure}>
               <Pencil className="mr-2 h-4 w-4" aria-hidden="true" />
-              编修手册
+              Editing Manual
             </Button>
             <Button type="button" size="sm" variant="ghost" className="rounded-full" onClick={onOpenLayers}>
               <WandSparkles className="mr-2 h-4 w-4" aria-hidden="true" />
-              AI 构建
+              AI build
             </Button>
           </div>
         </div>
@@ -173,7 +173,7 @@ export default function WorldOverviewTab(props: WorldOverviewTabProps) {
             <div className="grid gap-4 lg:grid-cols-[1.4fr_0.8fr]">
               <div className="rounded-3xl bg-muted/20 p-5 sm:p-6">
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant="secondary" className="border-0 bg-primary/[0.07] font-normal text-primary">世界样本</Badge>
+                  <Badge variant="secondary" className="border-0 bg-primary/[0.07] font-normal text-primary">world sample</Badge>
                   {profile?.tone ? <Badge variant="secondary" className="border-0 bg-muted/60 font-normal">{profile.tone}</Badge> : null}
                   {profile?.themes?.slice(0, 4).map((theme) => (
                     <Badge key={theme} variant="secondary" className="border-0 bg-muted/60 font-normal">
@@ -185,43 +185,43 @@ export default function WorldOverviewTab(props: WorldOverviewTabProps) {
                   {worldPromise}
                 </div>
                 <div className="mt-2 text-sm leading-6 text-muted-foreground">
-                  {compactText(profile?.summary, summary ?? "补充一句能让创作者快速理解的世界概要。", 180)}
+                  {compactText(profile?.summary, summary ?? "Add a summary of the world that creators can quickly understand.", 180)}
                 </div>
                 <div className="mt-3 text-sm leading-6">
-                  {compactText(profile?.coreConflict, "补充核心冲突后，系统会更容易把世界转化为持续推动剧情的压力。", 160)}
+                  {compactText(profile?.coreConflict, "By supplementing the core conflict, the system will more easily transform the world into a constant pressure to drive the plot.", 160)}
                 </div>
               </div>
 
               <div className="rounded-3xl border border-border/35 bg-card/70 p-5">
-                <div className="text-sm font-medium">作为世界样本可提供</div>
+                <div className="text-sm font-medium">Available as world sample</div>
                 <div className="mt-3 space-y-2 text-sm leading-6 text-muted-foreground">
-                  <div>角色身份边界、势力归属与禁忌组合。</div>
-                  <div>开局地点、升级路径与冲突来源。</div>
-                  <div>写作时需要持续遵守的规则。</div>
+                  <div>Character identity boundaries, power affiliation and taboo combinations.</div>
+                  <div>Starting location, upgrade paths and sources of conflict.</div>
+                  <div>Rules to keep following while writing.</div>
                 </div>
               </div>
             </div>
 
             <div className="flex flex-wrap gap-x-7 gap-y-2 px-1 text-sm text-muted-foreground">
-              <span><strong className="font-semibold tabular-nums text-foreground">{structure?.rules.axioms.length ?? 0}</strong> 条核心规则</span>
-              <span><strong className="font-semibold tabular-nums text-foreground">{(structure?.forces.length ?? 0) + (structure?.factions.length ?? 0)}</strong> 个势力与阵营</span>
-              <span><strong className="font-semibold tabular-nums text-foreground">{structure?.locations.length ?? 0}</strong> 个故事地点</span>
-              <span><strong className="font-semibold tabular-nums text-foreground">{(structure?.relations.forceRelations.length ?? 0) + (structure?.relations.locationControls.length ?? 0)}</strong> 条关系线索</span>
+              <span><strong className="font-semibold tabular-nums text-foreground">{structure?.rules.axioms.length ?? 0}</strong> core rules</span>
+              <span><strong className="font-semibold tabular-nums text-foreground">{(structure?.forces.length ?? 0) + (structure?.factions.length ?? 0)}</strong> forces and camps</span>
+              <span><strong className="font-semibold tabular-nums text-foreground">{structure?.locations.length ?? 0}</strong> story locations</span>
+              <span><strong className="font-semibold tabular-nums text-foreground">{(structure?.relations.forceRelations.length ?? 0) + (structure?.relations.locationControls.length ?? 0)}</strong> relationship clues</span>
             </div>
 
             <div className="grid gap-3 lg:grid-cols-2">
-              <HandbookBlock icon={Sparkles} title="力量与规则" items={coreRules} accent="primary" />
-              <HandbookBlock icon={Castle} title="主要势力" items={majorForces} />
-              <HandbookBlock icon={MapPinned} title="故事舞台" items={storyLocations} />
-              <HandbookBlock icon={GitBranch} title="关键张力" items={tensions} />
+              <HandbookBlock icon={Sparkles} title="power and rules" items={coreRules} accent="primary" />
+              <HandbookBlock icon={Castle} title="main forces" items={majorForces} />
+              <HandbookBlock icon={MapPinned} title="story stage" items={storyLocations} />
+              <HandbookBlock icon={GitBranch} title="critical tension" items={tensions} />
             </div>
 
             <HandbookBlock
               icon={ShieldAlert}
-              title="本书使用时应优先遵守"
+              title="When using this book, please follow the"
               items={[
-                compactText(structure?.rules.summary, "核心规则会约束角色身份、冲突来源和世界一致性。", 150),
-                ...listText(structure?.rules.taboo ?? [], "没有记录禁忌组合。需要强约束时，在手册编修中补充。", 2),
+                compactText(structure?.rules.summary, "Core rules govern character identity, sources of conflict, and world consistency.", 150),
+                ...listText(structure?.rules.taboo ?? [], "No forbidden combinations were recorded. When strong constraints are needed, they will be added in the manual revision.", 2),
               ]}
             />
           </>
@@ -229,40 +229,40 @@ export default function WorldOverviewTab(props: WorldOverviewTabProps) {
           <div className="space-y-4">
             <div className="grid gap-4 lg:grid-cols-[1.35fr_0.85fr]">
               <div className="rounded-3xl bg-muted/20 p-5">
-                <Badge variant="secondary" className="border-0 bg-primary/[0.07] font-normal text-primary">世界手册待成型</Badge>
+                <Badge variant="secondary" className="border-0 bg-primary/[0.07] font-normal text-primary">The world manual is ready to take shape</Badge>
                 <div className="mt-3 text-lg font-semibold leading-7">
-                  {compactText(summary, "先让 AI 或手册编修整理世界骨架，再把它作为可复用世界样本。", 160)}
+                  {compactText(summary, "Let the AI or manual editor organize the world skeleton first, and then use it as a reusable world sample.", 160)}
                 </div>
                 <div className="mt-2 text-sm leading-6 text-muted-foreground">
-                  世界手册会把零散设定整理成规则、势力、地点和剧情压力，方便作者理解，也方便本书使用。
+                  The World Manual will organize scattered settings into rules, forces, locations and plot pressures to facilitate the author's understanding and use of this book.
                 </div>
               </div>
 
               <div className="rounded-3xl border border-border/35 bg-card/70 p-5">
-                <div className="text-sm font-medium">建议下一步</div>
+                <div className="text-sm font-medium">Suggest next steps</div>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <Button type="button" size="sm" onClick={onOpenLayers}>
                     <WandSparkles className="mr-2 h-4 w-4" aria-hidden="true" />
-                    AI 构建世界
+                    AI builds the world
                   </Button>
                   <Button type="button" size="sm" variant="outline" onClick={onOpenStructure}>
                     <Pencil className="mr-2 h-4 w-4" aria-hidden="true" />
-                    编修手册
+                    Editing Manual
                   </Button>
                 </div>
               </div>
             </div>
 
             <div className="grid gap-3 lg:grid-cols-2">
-              <EmptyHandbookBlock icon={Sparkles} title="力量与规则" description="记录世界不能随意打破的底层规则、代价和禁忌组合。" />
-              <EmptyHandbookBlock icon={Castle} title="主要势力" description="整理会推动剧情的组织、阵营、利益集团和压力来源。" />
-              <EmptyHandbookBlock icon={MapPinned} title="故事舞台" description="标出开局、升级、冲突爆发和转折发生的关键地点。" />
-              <EmptyHandbookBlock icon={GitBranch} title="关键张力" description="沉淀能反复制造冲突的资源矛盾、阵营冲突和规则代价。" />
+              <EmptyHandbookBlock icon={Sparkles} title="power and rules" description="Record the underlying rules, costs and taboo combinations that cannot be broken casually in the world." />
+              <EmptyHandbookBlock icon={Castle} title="main forces" description="Organize the organizations, factions, interest groups, and sources of pressure that will drive the plot." />
+              <EmptyHandbookBlock icon={MapPinned} title="story stage" description="Mark key locations where openings, escalations, conflicts and transitions occur." />
+              <EmptyHandbookBlock icon={GitBranch} title="critical tension" description="Precipitate resource conflicts, camp conflicts, and rule costs that can repeatedly create conflicts." />
             </div>
 
             {sections.length > 0 ? (
               <div className="rounded-3xl border border-border/35 p-4">
-                <div className="mb-2 text-sm font-medium">已有设定片段</div>
+                <div className="mb-2 text-sm font-medium">Already have a set snippet</div>
                 <div className="grid gap-3 lg:grid-cols-2">
                   {sections.map((section) => (
                     <div key={section.key} className="rounded-2xl bg-muted/20 p-4 text-sm">
@@ -283,38 +283,38 @@ export default function WorldOverviewTab(props: WorldOverviewTabProps) {
               <div>
                 <div className="flex items-center gap-2 text-sm font-medium text-foreground">
                   <Map className="h-4 w-4 text-primary" aria-hidden="true" />
-                  世界资产入口
+                  World Asset Portal
                 </div>
                 <div className="mt-1 text-sm leading-6 text-muted-foreground">
-                  地图和图谱是世界手册的可视化资产，不参与自动同步覆盖，也不替代世界手册的规则来源。
+                  Maps and atlases are visual assets of the World Manual and do not participate in automatic synchronization coverage, nor do they replace the source of the rules of the World Manual.
                 </div>
               </div>
-              <Badge variant="secondary" className="border-0 bg-muted/60 font-normal">预留入口</Badge>
+              <Badge variant="secondary" className="border-0 bg-muted/60 font-normal">reserved entrance</Badge>
             </div>
             <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
               <WorldAssetPreviewBlock
                 icon={MapPinned}
-                title="世界地图"
-                description="承载区域、地点连通、故事发生地和冲突热度。"
-                status={(structure?.locations.length ?? 0) > 0 ? "可整理" : "待补地点"}
+                title="world map"
+                description="Carrying area, location connection, story place and conflict heat."
+                status={(structure?.locations.length ?? 0) > 0 ? "Organizable" : "Location to be filled"}
               />
               <WorldAssetPreviewBlock
                 icon={Network}
-                title="势力图谱"
-                description="承载势力节点、盟友敌对、控制关系和力量对比。"
-                status={(structure?.forces.length ?? 0) + (structure?.factions.length ?? 0) > 0 ? "可整理" : "待补势力"}
+                title="power map"
+                description="Carrying power nodes, allies and enemies, control relationships and power balance."
+                status={(structure?.forces.length ?? 0) + (structure?.factions.length ?? 0) > 0 ? "Organizable" : "Forces to be filled"}
               />
               <WorldAssetPreviewBlock
                 icon={Clock3}
-                title="世界时间线"
-                description="承载历史事件、局势变化和小说推进中的世界进展。"
-                status={profile?.coreConflict ? "可整理" : "待补张力"}
+                title="world timeline"
+                description="Carrying historical events, situation changes and world progress as the novel progresses."
+                status={profile?.coreConflict ? "Organizable" : "Tension to be compensated"}
               />
               <WorldAssetPreviewBlock
                 icon={Workflow}
-                title="力量体系树"
-                description="承载等级、资源、代价、禁忌和突破边界。"
-                status={(structure?.rules.axioms.length ?? 0) > 0 ? "可整理" : "待补规则"}
+                title="Power system tree"
+                description="Carrying levels, resources, costs, taboos and breaking boundaries."
+                status={(structure?.rules.axioms.length ?? 0) > 0 ? "Organizable" : "Rules to be added"}
               />
             </div>
           </div>

@@ -58,7 +58,7 @@ export class NovelDirectorCandidateRuntime {
     }
     const baseRequest = this.buildCandidateStageBaseRequest(taskId, input.seedPayload);
     if (!baseRequest) {
-      throw new Error("自动导演候选阶段任务缺少恢复所需上下文。");
+      throw new Error("The Auto-Director candidate-stage task is missing the context needed to recover.");
     }
     const candidateStage = input.seedPayload.candidateStage;
     const previousBatches = Array.isArray(input.seedPayload.batches)
@@ -67,7 +67,7 @@ export class NovelDirectorCandidateRuntime {
     const feedback = candidateStage?.feedback?.trim();
     const mode = candidateStage?.mode ?? (previousBatches.length === 0 ? "generate" : "refine");
     if (!mode) {
-      throw new Error("自动导演候选阶段任务缺少恢复模式。");
+      throw new Error("The Auto-Director candidate-stage task is missing a recovery mode.");
     }
 
     this.deps.scheduleBackgroundRun(taskId, async () => {
@@ -76,7 +76,7 @@ export class NovelDirectorCandidateRuntime {
         return;
       }
       if (previousBatches.length === 0) {
-        throw new Error("自动导演候选阶段任务缺少候选批次上下文。");
+        throw new Error("The Auto-Director candidate-stage task is missing candidate-batch context.");
       }
       if (mode === "refine") {
         await this.deps.candidateStageService.refineCandidates({
@@ -88,7 +88,7 @@ export class NovelDirectorCandidateRuntime {
         return;
       }
       if (!candidateStage?.batchId || !candidateStage?.candidateId || !feedback) {
-        throw new Error("自动导演候选阶段任务缺少定向修正所需上下文。");
+        throw new Error("The Auto-Director candidate-stage task is missing the context needed for a directed patch.");
       }
       if (mode === "patch_candidate") {
         await this.deps.candidateStageService.patchCandidate({
@@ -124,7 +124,7 @@ export class NovelDirectorCandidateRuntime {
         taskId,
         entrypoint: "candidate_stage",
         policyMode: "run_next_step",
-        summary: "自动导演候选阶段已进入统一运行时。",
+        summary: "The Auto-Director candidate stage entered the unified runtime.",
       });
     }
     try {
@@ -140,7 +140,7 @@ export class NovelDirectorCandidateRuntime {
       return await this.deps.withWorkflowTaskUsage(workflowTaskId, runner);
     } catch (error) {
       if (taskId && !isDirectorRuntimeGateError(error)) {
-        const message = error instanceof Error ? error.message : "自动导演候选阶段执行失败。";
+        const message = error instanceof Error ? error.message : "The Auto-Director candidate stage failed.";
         await this.deps.workflowService.markTaskFailed(taskId, message);
       }
       throw error;

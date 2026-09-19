@@ -3,14 +3,14 @@ import type { NovelMaterialGroupDefinition } from "./types";
 export const NOVEL_MATERIAL_GROUPS: NovelMaterialGroupDefinition[] = [
   {
     group: "novel_basics",
-    title: "小说基础信息",
+    title: "小说Basic information",
     required: true,
     importance: "must",
     sourceType: "novel",
   },
   {
     group: "book_contract",
-    title: "书级约定",
+    title: "book level agreement",
     required: true,
     importance: "must",
     sourceType: "novel",
@@ -27,7 +27,7 @@ export const NOVEL_MATERIAL_GROUPS: NovelMaterialGroupDefinition[] = [
   },
   {
     group: "current_chapter",
-    title: "当前章节",
+    title: "Current chapter",
     required: true,
     importance: "must",
     sourceType: "chapter",
@@ -44,7 +44,7 @@ export const NOVEL_MATERIAL_GROUPS: NovelMaterialGroupDefinition[] = [
   },
   {
     group: "character_state",
-    title: "角色状态",
+    title: "character status",
     required: false,
     importance: "high",
     sourceType: "character",
@@ -84,7 +84,7 @@ export const NOVEL_MATERIAL_GROUPS: NovelMaterialGroupDefinition[] = [
   },
   {
     group: "director_workspace",
-    title: "自动导演工作区摘要",
+    title: "Auto-Director工作区摘要",
     required: false,
     importance: "medium",
     sourceType: "task",

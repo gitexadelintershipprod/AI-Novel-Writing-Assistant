@@ -9,11 +9,11 @@ export interface DesktopReleaseNotes {
 
 export const CURRENT_DESKTOP_RELEASE_NOTES: DesktopReleaseNotes = {
   version: APP_VERSION,
-  title: "本次更新介绍",
-  summary: "这次更新让创作工作台更容易保持清晰、稳定和贴合个人使用习惯。",
+  title: "Introduction to this update",
+  summary: "This update makes it easier to keep the creative workbench clear, stable, and tailored to your personal usage habits.",
   items: [
-    "创作中枢聚焦状态查询、问题诊断、执行记录和正式入口导航。",
-    "新增浅色、深色、跟随系统以及墨砚、暖纸、夜航主题风格。",
-    "首页和小说预览会跟随主题切换，视觉资源库支持按图片比例展示的瀑布流。",
+    "The creation center focuses on status query, problem diagnosis, execution records and formal portal navigation.",
+    "Added light color, dark color, follow system, ink inkstone, warm paper, and night flight theme styles.",
+    "The homepage and novel preview will switch with the theme, and the visual resource library supports waterfall flow displayed according to the picture ratio.",
   ],
 };

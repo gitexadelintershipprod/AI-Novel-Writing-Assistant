@@ -14,12 +14,12 @@ import { safeJsonParse } from "./novelWorldProjection";
 export const SYNC_SECTIONS: NovelWorldSyncSection[] = ["profile", "rules", "factions", "forces", "locations", "relations"];
 
 const SYNC_SECTION_LABELS: Record<NovelWorldSyncSection, string> = {
-  profile: "世界概要",
-  rules: "核心规则",
-  factions: "阵营",
-  forces: "势力",
-  locations: "地点",
-  relations: "关系网络",
+  profile: "world summary",
+  rules: "core rules",
+  factions: "camp",
+  forces: "power",
+  locations: "location",
+  relations: "relationship network",
 };
 
 function stableStringify(value: unknown): string {
@@ -43,7 +43,7 @@ function compactItems(items: Array<string | null | undefined>, fallback: string)
     return fallback;
   }
   const visible = normalized.slice(0, 3).join("、");
-  return normalized.length > 3 ? `${visible} 等 ${normalized.length} 项` : visible;
+  return normalized.length > 3 ? `${visible} 等 ${normalized.length} items` : visible;
 }
 
 function summarizeProfile(structure: WorldStructuredData): string {
@@ -107,12 +107,12 @@ function buildDifferenceSummary(input: {
   const localSummary = summarizeSection(input.localStructure, input.section);
   const librarySummary = summarizeSection(input.libraryStructure, input.section);
   if (input.status === "local_only") {
-    return `本书世界的「${label}」为：${localSummary}；世界库缺少这一部分。`;
+    return `book world的「${label}」为：${localSummary}；世界库缺少这一部分。`;
   }
   if (input.status === "library_only") {
-    return `世界库的「${label}」为：${librarySummary}；本书世界缺少这一部分。`;
+    return `世界库的「${label}」为：${librarySummary}；book world缺少这一部分。`;
   }
-  return `本书世界的「${label}」为：${localSummary}；世界库为：${librarySummary}。`;
+  return `book world的「${label}」为：${localSummary}；世界库为：${librarySummary}。`;
 }
 
 function setSection(
@@ -179,7 +179,7 @@ export class NovelWorldSyncService {
     if (!novelWorld) {
       return {
         canSync: false,
-        reason: "这本书还没有本书世界。",
+        reason: "This book does not have a book world yet.",
         novelWorldId: null,
         sourceWorldId: null,
         sourceWorldName: null,
@@ -191,7 +191,7 @@ export class NovelWorldSyncService {
       await this.persistPendingChanges(novelWorld.id, null);
       return {
         canSync: false,
-        reason: "本书世界还没有关联世界库样本。",
+        reason: "This book's world is not linked to a world-library sample.",
         novelWorldId: novelWorld.id,
         sourceWorldId: null,
         sourceWorldName: null,
@@ -213,7 +213,7 @@ export class NovelWorldSyncService {
       await this.persistPendingChanges(novelWorld.id, null);
       return {
         canSync: false,
-        reason: "关联的世界库样本不存在。",
+        reason: "The linked world-library sample does not exist.",
         novelWorldId: novelWorld.id,
         sourceWorldId: novelWorld.sourceWorldId,
         sourceWorldName: null,
@@ -243,7 +243,7 @@ export class NovelWorldSyncService {
   async syncWithLibrary(novelId: string, input: NovelWorldSyncInput): Promise<NovelWorldSyncDiff> {
     const novelWorld = await this.ensureNovelWorld(novelId);
     if (!novelWorld?.sourceWorldId) {
-      throw new Error("本书世界还没有关联世界库样本。");
+      throw new Error("This book's world is not linked to a world-library sample.");
     }
     if (input.direction === "none") {
       await prisma.$transaction(async (tx) => {
@@ -272,7 +272,7 @@ export class NovelWorldSyncService {
             ${novelWorld.sourceWorldId},
             ${"none"},
             ${JSON.stringify([])},
-            ${"关闭同步：本书世界保留为独立副本。"},
+            ${"Turn off sync：book world保留为independent copy。"},
             ${"user"},
             CURRENT_TIMESTAMP
           )
@@ -280,7 +280,7 @@ export class NovelWorldSyncService {
       });
       return {
         canSync: false,
-        reason: "同步已关闭，本书世界会保留为独立副本。",
+        reason: "Sync is off. This book's world will stay as an independent copy.",
         novelWorldId: novelWorld.id,
         sourceWorldId: novelWorld.sourceWorldId,
         sourceWorldName: null,
@@ -292,13 +292,13 @@ export class NovelWorldSyncService {
       where: { id: novelWorld.sourceWorldId },
     });
     if (!sourceWorld) {
-      throw new Error("关联的世界库样本不存在。");
+      throw new Error("The linked world-library sample does not exist.");
     }
 
     const selectedSections = (input.sections?.length ? input.sections : SYNC_SECTIONS)
       .filter((section, index, sections) => SYNC_SECTIONS.includes(section) && sections.indexOf(section) === index);
     if (selectedSections.length === 0) {
-      throw new Error("请选择至少一个要同步的世界部分。");
+      throw new Error("Choose at least one world part to sync.");
     }
 
     const localStructure = normalizeWorldStructuredData(safeJsonParse<unknown>(novelWorld.structuredDataJson, null));
@@ -399,7 +399,7 @@ export class NovelWorldSyncService {
           ${sourceWorld.id},
           ${input.direction},
           ${JSON.stringify(selectedSections)},
-          ${`${input.direction === "push" ? "推送" : "拉取"}：${selectedSections.map((section) => SYNC_SECTION_LABELS[section]).join("、")}`},
+          ${`${input.direction === "push" ? "push" : "pull"}：${selectedSections.map((section) => SYNC_SECTION_LABELS[section]).join("、")}`},
           ${"user"},
           CURRENT_TIMESTAMP
         )

@@ -38,7 +38,7 @@ import type { DirectorPhaseCallbacks, DirectorPhaseDependencies } from "./novelD
 import { resetDirectorDownstreamChapterState } from "../recovery/novelDirectorDownstreamReset";
 
 function buildChapterOrderRangeLabel(startOrder: number, endOrder: number): string {
-  return startOrder === endOrder ? `第 ${startOrder} 章` : `第 ${startOrder}-${endOrder} 章`;
+  return startOrder === endOrder ? `Chapter ${startOrder}` : `Chapters ${startOrder}–${endOrder}`;
 }
 
 function buildFastStartPlanningGuidance(request: DirectorConfirmRequest): string | undefined {
@@ -47,9 +47,9 @@ function buildFastStartPlanningGuidance(request: DirectorConfirmRequest): string
     return undefined;
   }
   return [
-    "本次采用快速开篇：首个可执行节奏段只规划开篇路线，不提前锁死远期章节。",
-    `首批路线必须覆盖 ${preparation.routeWindow.min}-${preparation.routeWindow.target} 章，优先形成可立即进入正文的因果链。`,
-    `正文前只需要完整细化未来 ${preparation.routeWindow.detailAhead} 章，其余章节保留为简略路线。`,
+    "Fast-start mode: the first executable beat only plans the opening route and does not lock later chapters yet.",
+    `The first route must cover ${preparation.routeWindow.min}-${preparation.routeWindow.target} chapters and form a causal chain that can enter drafting immediately.`,
+    `Before drafting, only the next ${preparation.routeWindow.detailAhead} chapters need full detailing; remaining chapters stay as a brief route.`,
   ].join("\n");
 }
 
@@ -105,21 +105,21 @@ function buildStructuredOutlinePhaseUpdate(event: VolumeGenerationPhaseEvent): {
   if (event.scope === "beat_sheet") {
     return {
       itemKey: "beat_sheet",
-      itemLabel: event.label.trim() || (event.phase === "load_context" ? "正在整理节奏板上下文" : "正在生成节奏板"),
+      itemLabel: event.label.trim() || (event.phase === "load_context" ? "Preparing beat-sheet context" : "Generating the beat sheet"),
       progress: DIRECTOR_PROGRESS.beatSheet,
     };
   }
   if (event.scope === "chapter_list") {
     return {
       itemKey: "chapter_list",
-      itemLabel: event.label.trim() || (event.phase === "load_context" ? "正在整理拆章上下文" : "正在生成章节列表"),
+      itemLabel: event.label.trim() || (event.phase === "load_context" ? "Preparing chapter-split context" : "Generating the chapter list"),
       progress: DIRECTOR_PROGRESS.chapterList,
     };
   }
   if (event.scope === "rebalance") {
     return {
       itemKey: "chapter_list",
-      itemLabel: event.label.trim() || "正在校准相邻卷衔接",
+      itemLabel: event.label.trim() || "Calibrating the adjacent-volume handoff",
       progress: 0.8,
     };
   }
@@ -188,7 +188,7 @@ export async function runDirectorStructuredOutlinePhase(input: {
   });
   const firstVolume = baseWorkspace.volumes[0];
   if (!firstVolume) {
-    throw new Error("自动导演未能生成可用卷骨架。");
+    throw new Error("Auto-Director could not generate a usable volume skeleton.");
   }
   const detailPlan = normalizeDirectorAutoExecutionPlan(
     isDirectorAutoExecutionRunMode(normalizeDirectorRunMode(request.runMode))
@@ -200,7 +200,7 @@ export async function runDirectorStructuredOutlinePhase(input: {
     .slice()
     .sort((left, right) => left.sortOrder - right.sortOrder);
   if (detailPlan.mode === "volume" && (detailPlan.volumeOrder ?? 1) > sortedVolumes.length) {
-    throw new Error(`当前卷规划只有 ${sortedVolumes.length} 卷，不能直接自动执行第 ${detailPlan.volumeOrder} 卷。`);
+    throw new Error(`The current volume plan only has ${sortedVolumes.length} volumes, so Volume ${detailPlan.volumeOrder} cannot be auto-run yet.`);
   }
 
   const directorSession = buildDirectorSessionState({
@@ -241,20 +241,20 @@ export async function runDirectorStructuredOutlinePhase(input: {
     });
     const cursorKey = buildStructuredOutlineCursorKey(recoveryCursor);
     if (cursorKey === previousCursorKey) {
-      throw new Error("自动导演结构化大纲恢复没有推进，请检查章节规划生成结果后重试。");
+      throw new Error("Auto-Director structured-outline recovery did not advance. Check the chapter-plan result and retry.");
     }
     previousCursorKey = cursorKey;
 
     if (recoveryCursor.step === "beat_sheet") {
       const targetVolume = workspace.volumes.find((volume) => volume.id === recoveryCursor.volumeId);
       if (!targetVolume) {
-        throw new Error("自动导演恢复时缺少待生成节奏板的目标卷。");
+        throw new Error("Auto-Director recovery is missing the target volume waiting for a beat sheet.");
       }
       workspace = await runDirectorTrackedStep({
         taskId,
         stage: "structured_outline",
         itemKey: "beat_sheet",
-        itemLabel: `正在生成第 ${targetVolume.sortOrder} 卷节奏板`,
+        itemLabel: `Generating Volume ${targetVolume.sortOrder} beat sheet`,
         progress: DIRECTOR_PROGRESS.beatSheet,
         volumeId: targetVolume.id,
         callbacks,
@@ -293,17 +293,17 @@ export async function runDirectorStructuredOutlinePhase(input: {
     if (recoveryCursor.step === "chapter_list") {
       const targetVolume = workspace.volumes.find((volume) => volume.id === recoveryCursor.volumeId);
       if (!targetVolume) {
-        throw new Error("自动导演恢复时缺少待拆章的目标卷。");
+        throw new Error("Auto-Director recovery is missing the target volume waiting for chapter split.");
       }
       if (!recoveryCursor.beatKey) {
-        throw new Error("自动导演恢复时缺少待生成章节的目标节奏段。");
+        throw new Error("Auto-Director recovery is missing the target beat waiting for chapter generation.");
       }
       const targetBeatKey = recoveryCursor.beatKey;
       workspace = await runDirectorTrackedStep({
         taskId,
         stage: "structured_outline",
         itemKey: "chapter_list",
-        itemLabel: `正在生成第 ${targetVolume.sortOrder} 卷章节列表`,
+        itemLabel: `Generating Volume ${targetVolume.sortOrder} chapter list`,
         progress: DIRECTOR_PROGRESS.chapterList,
         volumeId: targetVolume.id,
         callbacks,
@@ -352,7 +352,7 @@ export async function runDirectorStructuredOutlinePhase(input: {
       await dependencies.workflowService.markTaskRunning(taskId, {
         stage: "structured_outline",
         itemKey: "chapter_list",
-        itemLabel: `第 ${targetVolume.sortOrder} 卷章节列表已生成`,
+        itemLabel: `Volume ${targetVolume.sortOrder} chapter list generated`,
         progress: DIRECTOR_PROGRESS.chapterList,
         volumeId: targetVolume.id,
       });
@@ -373,7 +373,7 @@ export async function runDirectorStructuredOutlinePhase(input: {
         || !targetDetailMode
         || recoveryCursor.nextChapterIndex == null
       ) {
-        throw new Error("自动导演恢复时缺少章节细化所需游标。");
+        throw new Error("Auto-Director recovery is missing the cursor needed for chapter details.");
       }
       const targetVolumeId = recoveryCursor.volumeId;
       const targetChapterId = recoveryCursor.chapterId;
@@ -452,7 +452,7 @@ export async function runDirectorStructuredOutlinePhase(input: {
   const allowIncrementalExecutionWindow = isDirectorAutoExecutionRunMode(normalizeDirectorRunMode(request.runMode));
   if (targetChapterRange && maxPreparedChapterOrder < targetChapterRange.endOrder && !allowIncrementalExecutionWindow) {
     throw new Error(
-      `当前已生成的章节规划最多只覆盖到第 ${maxPreparedChapterOrder} 章，不能直接自动执行${buildChapterOrderRangeLabel(targetChapterRange.startOrder, targetChapterRange.endOrder)}。`,
+      `Chapter planning currently only covers through Chapter ${maxPreparedChapterOrder}, so ${buildChapterOrderRangeLabel(targetChapterRange.startOrder, targetChapterRange.endOrder)} cannot be auto-run yet.`,
     );
   }
 
@@ -460,7 +460,7 @@ export async function runDirectorStructuredOutlinePhase(input: {
     taskId,
     "structured_outline",
     "chapter_sync",
-    "正在同步已准备章节到执行区",
+    "Syncing prepared chapters into the execution area",
     DIRECTOR_PROGRESS.chapterSync,
   );
   logMemoryUsage({
@@ -504,14 +504,14 @@ export async function runDirectorStructuredOutlinePhase(input: {
   });
   const selectedChapters = syncCursor.selectedChapters;
   if (selectedChapters.length === 0) {
-    throw new Error("自动导演未能准备出可执行的章节范围。");
+    throw new Error("Auto-Director could not prepare an executable chapter range.");
   }
   const selectedChapterOrders = selectedChapters.map((chapter) => chapter.chapterOrder).sort((left, right) => left - right);
   if (targetChapterRange && !allowIncrementalExecutionWindow) {
     const missingOrders = findMissingSelectedChapterOrders(selectedChapterOrders, targetChapterRange);
     if (missingOrders.length > 0) {
       throw new Error(
-        `自动导演已准备的章节规划缺少第 ${missingOrders.slice(0, 5).join("、")} 章，不能直接自动执行${buildChapterOrderRangeLabel(targetChapterRange.startOrder, targetChapterRange.endOrder)}。`,
+        `The prepared chapter plan is missing Chapter ${missingOrders.slice(0, 5).join(", ")}, so ${buildChapterOrderRangeLabel(targetChapterRange.startOrder, targetChapterRange.endOrder)} cannot be auto-run yet.`,
       );
     }
   }
@@ -526,7 +526,7 @@ export async function runDirectorStructuredOutlinePhase(input: {
     taskId,
     "structured_outline",
     "chapter_detail_bundle",
-    `${autoExecutionScopeLabel}细化已完成，正在同步章节执行资源`,
+    `${autoExecutionScopeLabel} detailing is done; syncing chapter execution resources`,
     DIRECTOR_PROGRESS.chapterDetailDone,
     {
       chapterId: selectedChapters[0]?.id ?? null,
@@ -535,7 +535,7 @@ export async function runDirectorStructuredOutlinePhase(input: {
   );
   const persistedChapters = await dependencies.novelContextService.listChapters(novelId);
   if (persistedChapters.length === 0) {
-    throw new Error("自动导演已生成拆章结果，但章节资源没有成功同步到执行区。");
+    throw new Error("Auto-Director generated the chapter split, but chapter resources did not sync into the execution area.");
   }
   const persistedChapterByOrder = new Map(persistedChapters.map((chapter) => [chapter.order, chapter] as const));
   // 懒规划（JIT）模式：task sheet 尚未预生成属预期状态，跳过执行上下文完整性检查。
@@ -547,7 +547,7 @@ export async function runDirectorStructuredOutlinePhase(input: {
     });
     if (missingExecutionContextOrders.length > 0) {
       throw new Error(
-        `${autoExecutionScopeLabel}还有第 ${missingExecutionContextOrders.slice(0, 5).join("、")} 章缺少已同步的章节执行上下文，不能直接进入章节执行。请先补齐基础章节信息。`,
+        `${autoExecutionScopeLabel} still has Chapter ${missingExecutionContextOrders.slice(0, 5).join(", ")} missing a synced chapter execution context, so chapter execution cannot start. Fill in the basic chapter information first.`,
       );
     }
   }
@@ -603,8 +603,8 @@ export async function runDirectorStructuredOutlinePhase(input: {
   await dependencies.workflowService.recordCheckpoint(taskId, {
     stage: "chapter_execution",
     checkpointType: "production_experience_required",
-    checkpointSummary: `《${request.candidate.workingTitle.trim() || request.title?.trim() || "当前项目"}》已完成前期准备，请选择创作界面。`,
-    itemLabel: `${autoExecutionScopeLabel}已可开写，等待选择创作界面`,
+    checkpointSummary: `${request.candidate.workingTitle.trim() || request.title?.trim() || "Current project"} has finished pre-draft setup. Choose a writing interface.`,
+    itemLabel: `${autoExecutionScopeLabel} is ready to write; waiting to choose a writing interface`,
     volumeId: selectedChapters[0]?.volumeId ?? firstVolume.id,
     chapterId: selectedChapters[0]?.id ?? null,
     progress: DIRECTOR_PROGRESS.chapterBatchReady,

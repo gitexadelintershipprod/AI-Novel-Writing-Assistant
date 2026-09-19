@@ -89,9 +89,9 @@ export function buildRelationshipGraphModel(input: {
       id: pairKey,
       source: relation.sourceCharacterId,
       target: relation.targetCharacterId,
-      sourceName: relation.sourceCharacterName || characterById.get(relation.sourceCharacterId)?.name || "未知角色",
-      targetName: relation.targetCharacterName || characterById.get(relation.targetCharacterId)?.name || "未知角色",
-      label: compactText(relation.dynamicLabel) || compactText(relation.surfaceRelation) || "关系",
+      sourceName: relation.sourceCharacterName || characterById.get(relation.sourceCharacterId)?.name || "unknown role",
+      targetName: relation.targetCharacterName || characterById.get(relation.targetCharacterId)?.name || "unknown role",
+      label: compactText(relation.dynamicLabel) || compactText(relation.surfaceRelation) || "relationship",
       staticRelation: relation,
       dynamicStages: [],
       isDynamic: false,
@@ -118,9 +118,9 @@ export function buildRelationshipGraphModel(input: {
         id: pairKey,
         source: stage.sourceCharacterId,
         target: stage.targetCharacterId,
-        sourceName: stage.sourceCharacterName || characterById.get(stage.sourceCharacterId)?.name || "未知角色",
-        targetName: stage.targetCharacterName || characterById.get(stage.targetCharacterId)?.name || "未知角色",
-        label: compactText(stage.stageLabel) || "关系阶段",
+        sourceName: stage.sourceCharacterName || characterById.get(stage.sourceCharacterId)?.name || "unknown role",
+        targetName: stage.targetCharacterName || characterById.get(stage.targetCharacterId)?.name || "unknown role",
+        label: compactText(stage.stageLabel) || "relationship stage",
         dynamicStages: [stage],
         isDynamic: true,
         isHighTension: stageTension,
@@ -142,10 +142,10 @@ export function buildRelationshipGraphModel(input: {
           target: character.id,
           sourceName: protagonist.name,
           targetName: character.name,
-          label: compactText(character.relationToProtagonist) || "与主角关系",
+          label: compactText(character.relationToProtagonist) || "relationship with protagonist",
           dynamicStages: [],
           isDynamic: false,
-          isHighTension: /敌|压|冲突|背叛|利用|怀疑|监视|威胁|秘密|隐瞒/.test(character.relationToProtagonist ?? ""),
+          isHighTension: /敌|压|冲突|背叛|利用|怀疑|监视|威胁|秘密|隐瞒|enemy|rival|conflict|betray|exploit|suspect|surveil|threat|secret|hidden/i.test(character.relationToProtagonist ?? ""),
           weight: 1.1,
         });
       }
@@ -473,13 +473,13 @@ function isStaticRelationHighTension(relation: CharacterRelation): boolean {
     relation.dynamicLabel,
     relation.nextTurnPoint,
   ].filter(Boolean).join(" ");
-  return /敌|压|冲突|背叛|利用|怀疑|监视|威胁|秘密|隐瞒|对立|反转|代价/.test(text)
+  return /敌|压|冲突|背叛|利用|怀疑|监视|威胁|秘密|隐瞒|对立|反转|代价|enemy|rival|conflict|betray|exploit|suspect|surveil|threat|secret|hidden|opposition|reversal|cost/i.test(text)
     || (relation.conflictScore ?? 0) >= 0.55;
 }
 
 function isDynamicStageHighTension(stage: CharacterRelationStage): boolean {
   const text = [stage.stageLabel, stage.stageSummary, stage.nextTurnPoint].filter(Boolean).join(" ");
-  return /敌|压|冲突|背叛|利用|怀疑|监视|威胁|秘密|隐瞒|对立|反转|代价|升级/.test(text);
+  return /敌|压|冲突|背叛|利用|怀疑|监视|威胁|秘密|隐瞒|对立|反转|代价|升级|enemy|rival|conflict|betray|exploit|suspect|surveil|threat|secret|hidden|opposition|reversal|cost|escalate/i.test(text);
 }
 
 function clamp(value: number, min: number, max: number): number {

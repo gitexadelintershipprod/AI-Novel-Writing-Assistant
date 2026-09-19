@@ -194,8 +194,8 @@ function buildLibraryUpdateFields(baseSnapshot: BaseCharacterDraft): CharacterSy
   return APPLY_TO_NOVEL_FIELDS.map((field) => ({
     field,
     layer: field === "name" || field === "role" ? "identity" : "persona",
-    summary: `角色库字段 ${field} 有新版本`,
-    reason: "这是角色库里的稳定基础设定，应用到本小说前需要用户确认。",
+    summary: `Character-library field ${field} has a new version`,
+    reason: "This is the stable base profile in the character library. Confirm it before applying it to this novel.",
     toValue: String(baseSnapshot[field] ?? ""),
   }));
 }
@@ -212,7 +212,7 @@ export class CharacterLibrarySyncService {
 
     const baseCharacter = await prisma.baseCharacter.findUnique({ where: { id: baseCharacterId } });
     if (!baseCharacter) {
-      throw new Error("基础角色不存在");
+      throw new Error("The base character does not exist");
     }
 
     return prisma.baseCharacterRevision.create({
@@ -220,7 +220,7 @@ export class CharacterLibrarySyncService {
         baseCharacterId,
         version: 1,
         snapshotJson: toJson(baseCharacterToDraft(baseCharacter)),
-        changeSummary: "为现有角色库角色建立初始版本。",
+        changeSummary: "Created the initial version for this existing character-library character.",
         sourceType,
       },
     });
@@ -229,7 +229,7 @@ export class CharacterLibrarySyncService {
   async createBaseRevision(baseCharacterId: string, changeSummary: string, sourceType = "manual", sourceRefId?: string) {
     const baseCharacter = await prisma.baseCharacter.findUnique({ where: { id: baseCharacterId } });
     if (!baseCharacter) {
-      throw new Error("基础角色不存在");
+      throw new Error("The base character does not exist");
     }
     const latest = await prisma.baseCharacterRevision.findFirst({
       where: { baseCharacterId },
@@ -302,7 +302,7 @@ export class CharacterLibrarySyncService {
     ]);
 
     if (!novel || !character) {
-      throw new Error("小说或角色不存在");
+      throw new Error("The novel or character does not exist");
     }
 
     const aiResult = await runStructuredPrompt({
@@ -314,7 +314,7 @@ export class CharacterLibrarySyncService {
         baseCharacterJson: link?.baseCharacter ? JSON.stringify(baseCharacterToDraft(link.baseCharacter), null, 2) : "",
         currentBaseRevisionJson: link?.baseRevision?.snapshotJson ?? "",
         recentTimelineText: timelines.map((item) => `${item.title}: ${item.content}`).join("\n"),
-        userIntent: input.userIntent ?? "判断当前小说角色中哪些设定适合沉淀到角色库。",
+        userIntent: input.userIntent ?? "Judge which settings in this novel's characters should be saved into the character library.",
       },
       options: {
         provider: input.provider,
@@ -362,7 +362,7 @@ export class CharacterLibrarySyncService {
       where: { id: characterId, novelId },
     });
     if (!character) {
-      throw new Error("角色不存在");
+      throw new Error("The character does not exist");
     }
 
     let draft = input.baseCharacter ? sanitizeBaseCharacterDraft(input.baseCharacter) : null;
@@ -378,14 +378,14 @@ export class CharacterLibrarySyncService {
         },
       });
       if (!proposal) {
-        throw new Error("角色同步提案不存在或已处理。");
+        throw new Error("The character sync proposal does not exist or was already handled.");
       }
       const payload = parseJsonObject(proposal.payloadJson);
       draft = sanitizeBaseCharacterDraft(payload.baseCharacterDraft);
       proposalId = proposal.id;
     }
     if (!draft) {
-      throw new Error("缺少可写入角色库的角色设定。");
+      throw new Error("There is no character profile that can be written into the character library.");
     }
 
     const result = await prisma.$transaction(async (tx) => {
@@ -409,7 +409,7 @@ export class CharacterLibrarySyncService {
           baseCharacterId: baseCharacter.id,
           version: 1,
           snapshotJson: toJson(draft),
-          changeSummary: `从小说角色《${character.name}》保存到角色库。`,
+          changeSummary: `Saved novel character "${character.name}" into the character library.`,
           sourceType: "novel_character_export",
           sourceRefId: character.id,
         },
@@ -463,7 +463,7 @@ export class CharacterLibrarySyncService {
       where: { id: input.baseCharacterId },
     });
     if (!baseCharacter) {
-      throw new Error("基础角色不存在");
+      throw new Error("The base character does not exist");
     }
 
     const revision = await this.ensureLatestBaseRevision(baseCharacter.id, "base_character_import");
@@ -517,7 +517,7 @@ export class CharacterLibrarySyncService {
       where: { id: baseRevisionId },
     });
     if (!revision) {
-      throw new Error("角色库版本不存在");
+      throw new Error("The character-library version does not exist");
     }
     const baseSnapshot = sanitizeBaseCharacterDraft(JSON.parse(revision.snapshotJson) as unknown);
     const links = await prisma.characterLibraryLink.findMany({
@@ -555,12 +555,12 @@ export class CharacterLibrarySyncService {
           direction: "library_to_novel",
           status: "pending_review",
           confidence: null,
-          summary: `角色库《${baseSnapshot.name}》有新版本，可选择是否应用到《${link.character.name}》。`,
+          summary: `Character library "${baseSnapshot.name}" has a new version. You can choose whether to apply it to "${link.character.name}".`,
           payloadJson: toJson({
             baseSnapshot,
             applyableFields: [...APPLY_TO_NOVEL_FIELDS],
-            warnings: ["应用后只会改变当前小说中的这个角色，不会影响角色库或其他小说。"],
-            scopeNote: "这次更新不会自动影响其他小说。",
+            warnings: ["Applying this will only change this character in the current novel. It will not affect the character library or other novels."],
+            scopeNote: "This update will not automatically affect other novels.",
           }),
           safeUpdatesJson: toJson(buildLibraryUpdateFields(baseSnapshot)),
           novelOnlyUpdatesJson: toJson([]),
@@ -577,7 +577,7 @@ export class CharacterLibrarySyncService {
   async applyProposal(proposalId: string): Promise<CharacterSyncProposal> {
     const proposal = await prisma.characterSyncProposal.findUnique({ where: { id: proposalId } });
     if (!proposal || proposal.status !== "pending_review") {
-      throw new Error("角色同步提案不存在或已处理。");
+      throw new Error("The character sync proposal does not exist or was already handled.");
     }
 
     if (proposal.direction === "library_to_novel") {
@@ -590,12 +590,12 @@ export class CharacterLibrarySyncService {
         });
       }
     } else {
-      throw new Error("未知的角色同步方向。");
+      throw new Error("Unknown character sync direction.");
     }
 
     const updated = await prisma.characterSyncProposal.findUnique({ where: { id: proposalId } });
     if (!updated) {
-      throw new Error("角色同步提案不存在。");
+      throw new Error("The character sync proposal does not exist.");
     }
     return mapProposal(updated);
   }
@@ -629,7 +629,7 @@ export class CharacterLibrarySyncService {
     payloadJson: string;
   }): Promise<void> {
     if (!proposal.characterId || !proposal.baseRevisionId) {
-      throw new Error("同步提案缺少小说角色或角色库版本。");
+      throw new Error("The sync proposal is missing the novel character or character-library version.");
     }
     const payload = parseJsonObject(proposal.payloadJson);
     const baseSnapshot = sanitizeBaseCharacterDraft(payload.baseSnapshot);
@@ -666,7 +666,7 @@ export class CharacterLibrarySyncService {
     summary: string;
   }): Promise<{ id: string }> {
     if (!proposal.baseCharacterId || !proposal.characterId) {
-      throw new Error("更新角色库需要已有角色库角色和小说角色。新建角色库请使用保存到角色库入口。");
+      throw new Error("Updating the character library needs an existing library character and a novel character. To create a new library character, use Save to character library.");
     }
     const payload = parseJsonObject(proposal.payloadJson);
     const draft = sanitizeBaseCharacterDraft(payload.baseCharacterDraft);

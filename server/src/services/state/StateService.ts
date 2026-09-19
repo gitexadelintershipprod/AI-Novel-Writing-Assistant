@@ -165,7 +165,7 @@ export class StateService {
       .map((item) => `${item.title}(${item.status})`)
       .slice(0, 4);
     return [
-      `State snapshot summary: ${snapshot.summary ?? "暂无摘要"}`,
+      `State snapshot summary: ${snapshot.summary ?? "No abstract yet"}`,
       characterLines.length > 0 ? `Character states:\n- ${characterLines.join("\n- ")}` : "",
       relationLines.length > 0 ? `Relations:\n- ${relationLines.join("\n- ")}` : "",
       infoLines.length > 0 ? `Knowledge:\n- ${infoLines.join("\n- ")}` : "",
@@ -201,7 +201,7 @@ export class StateService {
       }),
     ]);
     if (!chapter) {
-      throw new Error("章节不存在。");
+      throw new Error("The chapter does not exist.");
     }
     const previousSnapshot = await this.getLatestSnapshotBeforeChapter(novelId, chapter.order);
     const extracted = await extractSnapshotWithAI({
@@ -248,7 +248,7 @@ export class StateService {
       }),
     ]);
     if (!chapter) {
-      throw new Error("章节不存在。");
+      throw new Error("The chapter does not exist.");
     }
     const previousSnapshot = await this.getLatestSnapshotBeforeChapter(input.novelId, chapter.order);
     return this.persistSnapshot({
@@ -386,7 +386,7 @@ export class StateService {
       informationStates: normalizedInformationStates,
       foreshadowStates: normalizedForeshadowStates,
     });
-    const summary = input.extracted.summary?.trim() || `第${input.chapterOrder}章状态快照`;
+    const summary = input.extracted.summary?.trim() || `Chapter ${input.chapterOrder}status snapshot`;
     const existing = await prisma.storyStateSnapshot.findFirst({
       where: { novelId: input.novelId, sourceChapterId: input.chapterId },
       select: { id: true },

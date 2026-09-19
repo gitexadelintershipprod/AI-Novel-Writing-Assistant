@@ -102,7 +102,7 @@ export class VectorStoreService {
       });
     } catch (error) {
       if (error instanceof Error && error.name === "AbortError") {
-        throw new Error(`Qdrant 请求超时（>${ragConfig.qdrantTimeoutMs}ms）。`);
+        throw new Error(`Qdrant request timed out (>${ragConfig.qdrantTimeoutMs}ms).`);
       }
       throw error;
     } finally {
@@ -120,7 +120,7 @@ export class VectorStoreService {
     });
     if (!response.ok) {
       const text = await response.text();
-      throw new Error(`Qdrant 请求失败(${response.status})：${text}`);
+      throw new Error(`Qdrant request failed (${response.status}): ${text}`);
     }
     return await response.json() as T;
   }
@@ -235,7 +235,7 @@ export class VectorStoreService {
 
   async ensureCollection(dimension: number): Promise<void> {
     if (dimension <= 0) {
-      throw new Error("向量维度无效。");
+      throw new Error("The vector dimension is invalid.");
     }
     if (this.ensuredDimension === dimension) {
       return;
@@ -262,7 +262,7 @@ export class VectorStoreService {
     }
     if (!getResponse.ok) {
       const text = await getResponse.text();
-      throw new Error(`Qdrant 集合检查失败(${getResponse.status})：${text}`);
+      throw new Error(`Qdrant collection check failed (${getResponse.status}): ${text}`);
     }
     const payload = await getResponse.json() as {
       result?: {
@@ -275,7 +275,7 @@ export class VectorStoreService {
     };
     const existingDimension = payload.result?.config?.params?.vectors?.size;
     if (existingDimension && existingDimension !== dimension) {
-      throw new Error(`Qdrant 集合维度不匹配：existing=${existingDimension}, expected=${dimension}`);
+      throw new Error(`Qdrant collection dimension mismatch: existing=${existingDimension}, expected=${dimension}`);
     }
     this.logInfo("Collection ready.", {
       collection: ragConfig.qdrantCollection,

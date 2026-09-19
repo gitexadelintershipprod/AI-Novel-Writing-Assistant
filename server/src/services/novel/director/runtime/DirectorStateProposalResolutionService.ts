@@ -117,7 +117,7 @@ export class DirectorStateProposalResolutionService {
         proposalsJson: JSON.stringify(proposals, null, 2),
         canonicalStateJson: JSON.stringify(snapshot, null, 2),
         protectedContentJson: JSON.stringify({
-          rule: "不要自动覆盖用户明确手写或保护的正文；无法确认时进入人工恢复。",
+          rule: "Do not auto-overwrite text the user wrote or protected. If that cannot be confirmed, switch to manual recovery.",
         }),
       },
       options: {
@@ -161,7 +161,7 @@ export class DirectorStateProposalResolutionService {
       taskId: input.taskId ?? null,
       novelId: input.novelId,
       nodeKey: "state_proposal_resolution",
-      summary: `状态提案处理：${resolution.reason}`,
+      summary: `State-proposal handling: ${resolution.reason}`,
       affectedScope: targetIds.length > 0 ? `state_proposals:${targetIds.join(",")}` : null,
       severity: resolution.decision === "manual_required"
         ? "high"

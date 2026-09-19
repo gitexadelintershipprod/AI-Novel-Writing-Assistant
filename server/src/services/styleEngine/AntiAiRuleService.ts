@@ -167,10 +167,10 @@ export class AntiAiRuleService {
         instruction: input.instruction,
         currentRule: input.currentRule,
       }),
-      name: rawDraft.name?.trim() || input.currentRule?.name || "反 AI 规则草稿",
+      name: rawDraft.name?.trim() || input.currentRule?.name || "Anti-AI rule draft",
       type: rawDraft.type ?? input.currentRule?.type ?? "risk",
       severity: rawDraft.severity ?? input.currentRule?.severity ?? "medium",
-      description: rawDraft.description?.trim() || input.currentRule?.description || "根据用户需求生成的反 AI 规则。",
+      description: rawDraft.description?.trim() || input.currentRule?.description || "An anti-AI rule generated from the user's request.",
       detectPatterns: normalizePatterns(rawDraft.detectPatterns),
       promptInstruction: normalizeOptionalText(rawDraft.promptInstruction) ?? input.currentRule?.promptInstruction ?? null,
       rewriteSuggestion: normalizeOptionalText(rawDraft.rewriteSuggestion) ?? input.currentRule?.rewriteSuggestion ?? null,
@@ -181,7 +181,7 @@ export class AntiAiRuleService {
 
     return {
       draft,
-      rationale: output.rationale?.trim() || "已根据用户需求整理为可编辑的规则草稿。",
+      rationale: output.rationale?.trim() || "An editable rule draft was prepared from the user's request.",
       safetyNotes: normalizePatterns(output.safetyNotes),
     };
   }

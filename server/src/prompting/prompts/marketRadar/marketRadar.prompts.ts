@@ -30,13 +30,13 @@ interface CreativeBriefInput {
 }
 
 const analystSystem = [
-  "你是中文网络文学市场分析师。只分析输入中的公开榜单元数据，不补写作品正文，不假装知道未提供的信息。",
-  "语义分类、套路归纳和机会判断必须由你完成；不能只按标题关键词机械计数。",
-  "所有结论都必须引用输入中存在的 evidenceItemIds。不得捏造作品、人名、数据或证据ID。",
-  "重点分析：热门题材组合、主角身份、金手指机制、开篇危机、关系卖点、标题句式、拥挤套路和差异化机会。",
-  "输入有新书榜或新晋作者榜时只分析这些新书证据；成熟榜单只会在没有可用新书榜时作为回退数据。",
-  "kind 只能使用 genre、protagonist、advantage、opening、relationship、title_pattern、opportunity、crowding；不得创造近义枚举值。",
-  "榜单高频不等于适合照搬。机会建议必须说明读者满足点，同时避开直接复制具体作品。",
+  "You are a market analyst for Chinese online literature. Only analyze the metadata of the public list in the input, do not add the text of the work, and do not pretend to know the information that is not provided.",
+  "Semantic classification, routine induction and opportunity judgment must be completed by you; you cannot just count mechanically based on title keywords.",
+  "All conclusions must reference evidenceItemIds present in the input. No fabrication of works, names, data or evidence IDs is allowed.",
+  "Key analysis: popular theme combination, protagonist identity, cheat mechanism, opening crisis, relationship selling point, title sentence structure, crowded routines and differentiation opportunities.",
+  "When entering a new book list or a new author list, only these new book evidence will be analyzed; the mature list will only be used as fallback data when there is no new book list available.",
+  "kind can only use genre, protagonist, advantage, opening, relationship, title_pattern, opportunity, crowding; it is not allowed to create synonymous enumeration values.",
+  "The high frequency of the list does not mean that it is suitable for copying. Opportunity proposals must address points of reader satisfaction while avoiding direct reproduction of specific works.",
 ].join("\n");
 
 export const marketPlatformDigestPrompt: PromptAsset<PlatformDigestInput, z.infer<typeof marketPlatformDigestSchema>> = {
@@ -52,9 +52,9 @@ export const marketPlatformDigestPrompt: PromptAsset<PlatformDigestInput, z.infe
   render: (input) => [
     new SystemMessage(analystSystem),
     new HumanMessage([
-      `平台：${input.platformLabel}`,
-      "请归纳这个平台当前榜单的市场信号。首次横截面分析的 direction 一律使用 current。",
-      "每类只保留有多条证据或商业意义明确的信号，总计输出5到10项；id 使用简短稳定的英文短横线格式。",
+      `Platform: ${input.platformLabel}`,
+      "Please summarize the market signals of the current list on this platform. The direction of the first cross-sectional analysis always uses current.",
+      "Each category only retains multiple pieces of evidence or signals with clear business significance, and a total of 5 to 10 items are output; the id uses a short and stable English dash format.",
       "",
       input.rankingText,
     ].join("\n")),
@@ -62,7 +62,7 @@ export const marketPlatformDigestPrompt: PromptAsset<PlatformDigestInput, z.infe
   postValidate: (output, input) => {
     const allowed = new Set(input.evidenceItemIds);
     if (output.signals.some((signal) => signal.evidenceItemIds.some((id) => !allowed.has(id)))) {
-      throw new Error("平台榜单归纳引用了不存在的证据。");
+      throw new Error("The platform list summarizes citing evidence that does not exist.");
     }
     return output;
   },
@@ -81,36 +81,36 @@ export const marketTrendSynthesisPrompt: PromptAsset<TrendReportInput, z.infer<t
   render: (input) => [
     new SystemMessage(analystSystem),
     new HumanMessage([
-      "请综合各平台归纳结果，保留平台差异，不要把男频、女频和免费阅读市场混成一个结论。",
-      "输入是各平台已经压缩的新书信号；只做跨平台合并、取舍和差异判断，不要逐条复制平台结果。",
+      "Please summarize the results based on each platform, retain platform differences, and do not confuse male channels, female channels, and the free reading market into one conclusion.",
+      "The input is the compressed new book signal of each platform; only do cross-platform mergers, trade-offs and difference judgments, do not copy the platform results one by one.",
       input.hasComparableHistory
-        ? "可根据历史比较判断 rising、stable、falling；证据不足时仍使用 current。"
-        : "没有可比较历史，所有信号 direction 必须使用 current，禁止声称升温或退潮。",
-      "总计输出8到12项。recommended=true 应优先给一项差异化机会和最多三项支撑信号；高度拥挤的套路通常不应推荐。",
-      "同时输出 productionFoundation，把市场结论收束成一个题材基底、一个主要推进模式和可选的辅助推进模式。",
-      "题材基底回答‘这是什么书’，推进模式回答‘这本书靠什么持续推进和兑现’，两者不能混用。",
-      "如果资源库中已有语义等价项，必须填写对应 existingId 并沿用它的名称；只有确实缺少合适资产时 existingId 才能为 null，并输出可直接进入资源库的完整说明、模板和推进模式 profile。",
-      "资源名称必须稳定、可复用，不能包含日期、热度、榜单或‘当前热门’等短期字样。",
+        ? "Rising, stable, and falling can be judged based on historical comparison; current is still used when there is insufficient evidence."
+        : "There is no comparable history, all signal directions must use current, and claims of rising or falling tide are prohibited.",
+      "A total of 8 to 12 items are output. recommended=true should give priority to one differentiation opportunity and up to three supporting signals; highly crowded routines should generally not be recommended.",
+      "At the same time, the productionFoundation is output, condensing the market conclusion into a theme base, a main promotion mode and an optional auxiliary promotion mode.",
+      "The subject matter basis answers ‘what kind of book is this’, and the promotion model answers ‘how does this book continue to advance and be realized?’ The two cannot be mixed.",
+      "If there is already a semantic equivalent in the resource library, the corresponding existingId must be filled in and its name must be used; existingId can be null only when there is indeed a lack of suitable assets, and a complete description, template and promotion mode profile that can be directly entered into the resource library will be output.",
+      "Resource names must be stable and reusable, and cannot contain short-term words such as date, popularity, rankings, or ‘currently popular’.",
       "",
-      "平台归纳：",
+      "Platform summary:",
       input.platformDigestsText,
       "",
-      `历史比较：${input.historyText || "无"}`,
+      `Historical comparison: ${input.historyText || "none"}`,
       "",
-      "现有题材基底库：",
-      input.genreCatalogText || "空",
+      "Existing theme base library:",
+      input.genreCatalogText || "empty",
       "",
-      "现有推进模式库：",
-      input.storyModeCatalogText || "空",
+      "Existing propulsion pattern library:",
+      input.storyModeCatalogText || "empty",
     ].join("\n")),
   ],
   postValidate: (output, input) => {
     const allowed = new Set(input.evidenceItemIds);
     if (!input.hasComparableHistory && output.signals.some((signal) => signal.direction !== "current")) {
-      throw new Error("没有历史快照时不能声称趋势变化。");
+      throw new Error("A trend change cannot be claimed without a historical snapshot.");
     }
     if (output.signals.some((signal) => signal.evidenceItemIds.some((id) => !allowed.has(id)))) {
-      throw new Error("跨平台分析引用了不存在的证据。");
+      throw new Error("Cross-platform analysis cites evidence that doesn't exist.");
     }
     const foundationAssets = [
       output.productionFoundation.genre,
@@ -118,19 +118,19 @@ export const marketTrendSynthesisPrompt: PromptAsset<TrendReportInput, z.infer<t
       output.productionFoundation.secondaryStoryMode,
     ].filter(Boolean);
     if (foundationAssets.some((asset) => asset!.evidenceItemIds.some((id) => !allowed.has(id)))) {
-      throw new Error("生产底座推荐引用了不存在的证据。");
+      throw new Error("Production base recommendations cite evidence that does not exist.");
     }
     if (
       output.productionFoundation.genre.existingId
       && !input.allowedGenreIds.includes(output.productionFoundation.genre.existingId)
     ) {
-      throw new Error("生产底座引用了不存在的题材基底。");
+      throw new Error("The production base references a non-existent subject matter base.");
     }
     if ([
       output.productionFoundation.primaryStoryMode.existingId,
       output.productionFoundation.secondaryStoryMode?.existingId,
     ].some((id) => id && !input.allowedStoryModeIds.includes(id))) {
-      throw new Error("生产底座引用了不存在的推进模式。");
+      throw new Error("The production base references a propulsion mode that does not exist.");
     }
     return output;
   },
@@ -148,16 +148,16 @@ export const marketCreativeBriefPrompt: PromptAsset<CreativeBriefInput, z.infer<
   management: { productPrompt: true, editModes: ["readonly"] },
   render: (input) => [
     new SystemMessage([
-      "你是自动导演的开书市场简报编辑。把用户选择的市场信号整理成第一次创意生成可执行的约束。",
-      "严禁复用榜单作品的人名、专有设定、简介句子和完整书名；只能提炼读者需求、爽点机制和结构机会。",
-      "promptBlock 必须能直接指导题材推荐、金手指、首章爆点、整书方向和网文书名。",
-      "不要要求后续质量复审补救，目标是提高第一次生成质量。",
+      "You are the AutoDirector's opening book marketing briefing editor. Organize the market signals selected by the user into executable constraints for the first creative generation.",
+      "It is strictly prohibited to reuse names, exclusive settings, introductory sentences and complete book titles of the listed works; only readers’ needs, exciting mechanisms and structural opportunities can be refined.",
+      "promptBlock must be able to directly guide subject recommendation, cheats, hot spots in the first chapter, the direction of the entire book, and the title of the online book.",
+      "Don't ask for follow-up quality review remediation, the goal is to improve first-time build quality.",
     ].join("\n")),
     new HumanMessage([
-      `影响模式：${input.influenceMode}`,
-      input.influenceMode === "follow_hot" ? "优先贴合当前热门满足点，但仍禁止复制具体作品。" : "",
-      input.influenceMode === "differentiate" ? "保留热门读者满足点，同时至少替换主角身份、舞台或金手指机制中的一项。" : "",
-      input.influenceMode === "light" ? "市场信号只作次要参考，用户自身想法和已选题材优先。" : "",
+      `Impact model:${input.influenceMode}`,
+      input.influenceMode === "follow_hot" ? "Priority will be given to current popular content, but copying of specific works is still prohibited." : "",
+      input.influenceMode === "differentiate" ? "Keep the popular reader satisfaction points while replacing at least one of the protagonist's identity, stage, or cheat mechanic." : "",
+      input.influenceMode === "light" ? "Market signals are only used as secondary reference, and users’ own ideas and selected topics take priority." : "",
       "",
       input.selectedSignalsText,
     ].filter(Boolean).join("\n")),

@@ -32,8 +32,8 @@ export const novelReadToolDefinitions: Partial<
 > = {
   get_novel_context: {
     name: "get_novel_context",
-    title: "读取小说总览",
-    description: "读取小说总览，包括标题、大纲和进度信息。",
+    title: "Read novel overview",
+    description: "Read the novel overview, including title, outline, and progress.",
     category: "read",
     riskLevel: "low",
     domainAgent: "NovelAgent",
@@ -114,8 +114,8 @@ export const novelReadToolDefinitions: Partial<
   },
   list_chapters: {
     name: "list_chapters",
-    title: "列出章节元信息",
-    description: "列出小说全部章节元信息，用于按章节序号定位。",
+    title: "List chapter metadata",
+    description: "List all chapter metadata for this novel so chapters can be located by number.",
     category: "read",
     riskLevel: "low",
     domainAgent: "NovelAgent",
@@ -148,8 +148,8 @@ export const novelReadToolDefinitions: Partial<
   },
   get_chapter_by_order: {
     name: "get_chapter_by_order",
-    title: "按序号读取章节",
-    description: "按章节序号读取章节元信息。",
+    title: "Read a chapter by number",
+    description: "Read chapter metadata by chapter number.",
     category: "read",
     riskLevel: "low",
     domainAgent: "NovelAgent",
@@ -171,8 +171,8 @@ export const novelReadToolDefinitions: Partial<
   },
   get_chapter_content_by_order: {
     name: "get_chapter_content_by_order",
-    title: "按序号读取章节正文",
-    description: "按章节序号读取章节正文。",
+    title: "Read chapter text by number",
+    description: "Read chapter text by chapter number.",
     category: "read",
     riskLevel: "low",
     domainAgent: "NovelAgent",
@@ -194,8 +194,8 @@ export const novelReadToolDefinitions: Partial<
   },
   get_chapter_content: {
     name: "get_chapter_content",
-    title: "读取章节正文",
-    description: "按章节 ID 或章节序号读取章节正文。",
+    title: "Read chapter text",
+    description: "Read chapter text by chapter ID or chapter number.",
     category: "read",
     riskLevel: "low",
     domainAgent: "NovelAgent",
@@ -219,8 +219,8 @@ export const novelReadToolDefinitions: Partial<
   },
   summarize_chapter_range: {
     name: "summarize_chapter_range",
-    title: "总结章节范围",
-    description: "总结指定章节范围，用于前 N 章或连续章节问答。",
+    title: "Summarize a chapter range",
+    description: "Summarize a chapter range for questions about the first N chapters or consecutive chapters.",
     category: "inspect",
     riskLevel: "low",
     domainAgent: "NovelAgent",
@@ -258,7 +258,7 @@ export const novelReadToolDefinitions: Partial<
           const basis = summaryMode === "chapter_summary"
             ? chapter.chapterSummary?.summary?.trim() ?? ""
             : (chapter.content ?? "").slice(0, 260).trim();
-          return `第${chapter.order}章《${chapter.title}》：${basis || "暂无可用内容"}`;
+          return `Chapter ${chapter.order} "${chapter.title}": ${basis || "No usable content"}`;
         })
         .join("\n");
       return summarizeChapterRangeOutput.parse({
@@ -274,8 +274,8 @@ export const novelReadToolDefinitions: Partial<
   },
   get_story_bible: {
     name: "get_story_bible",
-    title: "读取小说圣经",
-    description: "读取小说圣经信息。",
+    title: "Read the novel bible",
+    description: "Read novel-bible information.",
     category: "read",
     riskLevel: "low",
     domainAgent: "NovelAgent",
@@ -300,19 +300,19 @@ export const novelReadToolDefinitions: Partial<
   },
   get_character_states: {
     name: "get_character_states",
-    title: "读取角色状态",
-    description: "读取小说角色状态。",
+    title: "Read character state",
+    description: "Read this novel's character status.",
     category: "read",
     riskLevel: "low",
     domainAgent: "CharacterAgent",
     resourceScopes: ["novel", "chapter"],
     parserHints: {
       intent: "inspect_characters",
-      aliases: ["小说角色", "角色状态", "current novel characters"],
-      phrases: ["本书已经规划了几个角色", "当前小说有几个角色", "列出当前小说角色情况"],
+      aliases: ["novel character", "character status", "current novel characters"],
+      phrases: ["How many characters this book has already planned", "current novel有几个角色", "列出current novel角色情况"],
       requiresNovelContext: true,
-      whenToUse: "用户在查看当前小说中的角色状态、数量或名单。",
-      whenNotToUse: "用户是在查看基础角色模板库。",
+      whenToUse: "The user is checking character status, counts, or the roster in the current novel.",
+      whenNotToUse: "The user is browsing the base character template library.",
     },
     inputSchema: getCharacterStatesInput,
     outputSchema: getCharacterStatesOutput,
@@ -338,8 +338,8 @@ export const novelReadToolDefinitions: Partial<
   },
   get_timeline_facts: {
     name: "get_timeline_facts",
-    title: "读取时间线事实",
-    description: "读取时间线事实与一致性事实。",
+    title: "Read timeline facts",
+    description: "Read timeline facts and consistency facts.",
     category: "inspect",
     riskLevel: "low",
     domainAgent: "NovelAgent",
@@ -368,8 +368,8 @@ export const novelReadToolDefinitions: Partial<
   },
   get_world_constraints: {
     name: "get_world_constraints",
-    title: "读取世界观约束",
-    description: "读取世界观硬规则和一致性约束。",
+    title: "Read world constraints",
+    description: "Read world hard rules and consistency constraints.",
     category: "inspect",
     riskLevel: "low",
     domainAgent: "WorldAgent",
@@ -429,26 +429,26 @@ export const novelReadToolDefinitions: Partial<
   },
   search_knowledge: {
     name: "search_knowledge",
-    title: "检索知识库",
-    description: "检索知识库并返回上下文块。",
+    title: "Search knowledge base",
+    description: "Search the knowledge base and return context blocks.",
     category: "inspect",
     riskLevel: "low",
     domainAgent: "KnowledgeAgent",
     resourceScopes: ["knowledge_document", "novel", "world"],
     parserHints: {
       intent: "search_knowledge",
-      aliases: ["知识库检索", "搜索知识", "knowledge search", "设定参考检索", "世界观参考检索"],
+      aliases: ["Knowledge base search", "搜索知识", "knowledge search", "设定参考检索", "世界观参考检索"],
       phrases: [
         "搜索知识库",
         "查一下相关资料",
         "从知识库里找信息",
         "找类似的设定",
-        "有没有类似于某个设定的参考",
+        "Are there references similar to a certain setup",
         "从拆书或世界观里找参考",
       ],
       requiresNovelContext: false,
-      whenToUse: "用户在请求检索某个关键词、设定、关系模式、题材或世界观原型，尤其是要找类似参考，且答案可能存在于知识库、已索引的拆书资料或世界观库中。",
-      whenNotToUse: "用户已经明确要看某个具体世界观详情、具体拆书任务详情、具体小说列表或具体章节内容。",
+      whenToUse: "The user is searching for a keyword, setup, relationship pattern, genre, or world prototype, especially similar references that may live in the knowledge base, indexed book analysis, or world library.",
+      whenNotToUse: "The user clearly wants a specific world detail, book-analysis task detail, novel list, or chapter content.",
     },
     inputSchema: searchKnowledgeInput,
     outputSchema: searchKnowledgeOutput,

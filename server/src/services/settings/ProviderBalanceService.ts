@@ -90,7 +90,7 @@ function buildMissingApiKeyStatus(provider: LLMProvider): ProviderBalanceStatus 
     chargeBalance: null,
     toppedUpBalance: null,
     grantedBalance: null,
-    message: "请先配置 API Key，再查询余额。",
+    message: "Please configure the API Key first and then check the balance.",
     error: null,
   });
 }
@@ -105,7 +105,7 @@ async function fetchJson(url: string, init: RequestInit): Promise<unknown> {
     });
     if (!response.ok) {
       const detail = await response.text();
-      throw new Error(detail.trim() || `请求失败（${response.status}）`);
+      throw new Error(detail.trim() || `Request failed (${response.status}）`);
     }
     return response.json();
   } finally {
@@ -131,7 +131,7 @@ async function fetchDeepSeekBalance(apiKey: string): Promise<ProviderBalanceStat
   };
   const primary = Array.isArray(payload.balance_infos) ? payload.balance_infos[0] : null;
   if (!primary) {
-    throw new Error("DeepSeek 未返回可用余额信息。");
+    throw new Error("DeepSeek did not return available balance information.");
   }
   return buildStatus({
     provider: "deepseek",
@@ -147,7 +147,7 @@ async function fetchDeepSeekBalance(apiKey: string): Promise<ProviderBalanceStat
     chargeBalance: null,
     toppedUpBalance: toNumber(primary.topped_up_balance),
     grantedBalance: toNumber(primary.granted_balance),
-    message: "余额已从 DeepSeek 官方接口刷新。",
+    message: "The balance has been refreshed from the DeepSeek official interface.",
     error: null,
   });
 }
@@ -170,7 +170,7 @@ async function fetchSiliconFlowBalance(apiKey: string): Promise<ProviderBalanceS
   const data = payload.data ?? {};
   const totalBalance = toNumber(data.totalBalance) ?? toNumber(data.balance);
   if (totalBalance === null) {
-    throw new Error("SiliconFlow 未返回可用余额信息。");
+    throw new Error("SiliconFlow did not return available balance information.");
   }
   return buildStatus({
     provider: "siliconflow",
@@ -186,7 +186,7 @@ async function fetchSiliconFlowBalance(apiKey: string): Promise<ProviderBalanceS
     chargeBalance: toNumber(data.chargeBalance),
     toppedUpBalance: null,
     grantedBalance: toNumber(data.balance),
-    message: "余额已从 SiliconFlow 官方接口刷新。",
+    message: "The balance has been refreshed from the SiliconFlow official interface.",
     error: null,
   });
 }
@@ -209,7 +209,7 @@ async function fetchKimiBalance(apiKey: string): Promise<ProviderBalanceStatus> 
   const data = payload.data ?? {};
   const availableBalance = toNumber(data.available_balance);
   if (availableBalance === null) {
-    throw new Error("Kimi 未返回可用余额信息。");
+    throw new Error("Kimi did not return available balance information.");
   }
   return buildStatus({
     provider: "kimi",
@@ -225,7 +225,7 @@ async function fetchKimiBalance(apiKey: string): Promise<ProviderBalanceStatus> 
     chargeBalance: null,
     toppedUpBalance: null,
     grantedBalance: null,
-    message: "余额已从 Kimi 官方接口刷新。",
+    message: "The balance has been refreshed from the Kimi official interface.",
     error: null,
   });
 }
@@ -235,11 +235,11 @@ async function getProviderBalance(input: ProviderBalanceInput): Promise<Provider
   if (input.provider === "qwen") {
     return buildUnsupportedStatus(
       "qwen",
-      "当前系统只保存 DashScope API Key；阿里云账户余额查询需要额外的账户级凭证，暂不支持直接读取。",
+      "The current system only saves the DashScope API Key; Alibaba Cloud account balance query requires additional account-level credentials and does not support direct reading.",
     );
   }
   if (input.provider !== "deepseek" && input.provider !== "siliconflow" && input.provider !== "kimi") {
-    return buildUnsupportedStatus(input.provider, "当前厂商暂未接入可程序化余额查询。");
+    return buildUnsupportedStatus(input.provider, "Automated balance lookup is not available for this provider.");
   }
   if (!apiKey) {
     return buildMissingApiKeyStatus(input.provider);
@@ -256,7 +256,7 @@ async function getProviderBalance(input: ProviderBalanceInput): Promise<Provider
   } catch (error) {
     const message = error instanceof Error && error.message.trim()
       ? error.message.trim()
-      : "余额查询失败。";
+      : "Balance query failed.";
     return buildStatus({
       provider: input.provider,
       status: "error",
@@ -271,7 +271,7 @@ async function getProviderBalance(input: ProviderBalanceInput): Promise<Provider
       chargeBalance: null,
       toppedUpBalance: null,
       grantedBalance: null,
-      message: "余额查询失败，请稍后重试。",
+      message: "Balance query failed, please try again later.",
       error: message,
     });
   }

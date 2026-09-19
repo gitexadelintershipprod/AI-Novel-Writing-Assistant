@@ -84,9 +84,9 @@ export class CharacterDynamicsMutationService {
     const formatBeat = (beat: (typeof affectedBeats)[number]) => {
       const title = beat.beatTitle?.trim() ? ` · ${beat.beatTitle.trim()}` : "";
       const chapterRange = beat.chapterOrders.length > 0
-        ? `（第${beat.chapterOrders[0]}-${beat.chapterOrders[beat.chapterOrders.length - 1]}章）`
-        : "（待生成章节）";
-      return `第${beat.volumeOrder}卷 ${beat.beatLabel}${title}${chapterRange}`;
+        ? ` (Chapters ${beat.chapterOrders[0]}–${beat.chapterOrders[beat.chapterOrders.length - 1]})`
+        : "(Chapters not generated yet)";
+      return `Volume ${beat.volumeOrder} ${beat.beatLabel}${title}${chapterRange}`;
     };
     const writableSummary = writableBeats.slice(0, 5).map(formatBeat).join("；");
     const lockedSummary = lockedBeats.slice(0, 3).map(formatBeat).join("；");
@@ -96,9 +96,9 @@ export class CharacterDynamicsMutationService {
         chapterId: input.sourceChapterId ?? null,
         category: "character_dynamic_beat_impact",
         content: [
-          `角色 ${input.characterName} 接入范围：${writableSummary || "暂无未写节奏段"}`,
-          lockedSummary ? `已有正文锁定：${lockedSummary}` : "",
-          "默认只接入后续未写节奏段；已有正文段仅用于一致性检查。",
+          `Character ${input.characterName} access range: ${writableSummary || "No unwritten beat segments"}`,
+          lockedSummary ? `Text locked：${lockedSummary}` : "",
+          "By default, only later unwritten beats are connected. Existing draft stretches are used only for consistency checks.",
         ].filter(Boolean).join("；"),
         importance: writableBeats.length > 0 ? "high" : "normal",
         sourceType: input.sourceType,
@@ -118,12 +118,12 @@ export class CharacterDynamicsMutationService {
       },
     });
     if (!candidate) {
-      throw new Error("角色候选不存在。");
+      throw new Error("The character candidate does not exist.");
     }
 
     const createdCharacter = await this.novelContextServiceFactory().createCharacter(novelId, {
       name: candidate.proposedName,
-      role: input.role?.trim() || candidate.proposedRole?.trim() || "新角色",
+      role: input.role?.trim() || candidate.proposedRole?.trim() || "New character",
       castRole: input.castRole,
       relationToProtagonist: input.relationToProtagonist?.trim() || undefined,
       currentState: input.currentState?.trim() || undefined,
@@ -184,10 +184,10 @@ export class CharacterDynamicsMutationService {
       }),
     ]);
     if (!candidate) {
-      throw new Error("角色候选不存在。");
+      throw new Error("The character candidate does not exist.");
     }
     if (!character) {
-      throw new Error("要合并到的角色不存在。");
+      throw new Error("The character to merge into does not exist.");
     }
 
     await prisma.$transaction(async (tx) => {
@@ -233,7 +233,7 @@ export class CharacterDynamicsMutationService {
       select: { id: true, name: true },
     });
     if (!character) {
-      throw new Error("角色不存在。");
+      throw new Error("The character does not exist.");
     }
 
     const overview = await this.queryService.getOverview(novelId, {
@@ -314,7 +314,7 @@ export class CharacterDynamicsMutationService {
         typeof input.currentState === "string" ? `状态=${input.currentState}` : "",
         typeof input.currentGoal === "string" ? `目标=${input.currentGoal}` : "",
         typeof input.factionLabel === "string" ? `阵营=${input.factionLabel}` : "",
-        typeof input.roleLabel === "string" ? `卷级身份=${input.roleLabel}` : "",
+        typeof input.roleLabel === "string" ? `Volume role=${input.roleLabel}` : "",
         typeof input.responsibility === "string" ? `职责=${input.responsibility}` : "",
         input.decisionNote?.trim() || "",
       ].filter(Boolean);
@@ -366,7 +366,7 @@ export class CharacterDynamicsMutationService {
       },
     });
     if (!relation) {
-      throw new Error("角色关系不存在。");
+      throw new Error("The character relationship does not exist.");
     }
 
     const created = await prisma.$transaction(async (tx) => {
@@ -408,7 +408,7 @@ export class CharacterDynamicsMutationService {
           novelId,
           chapterId: input.chapterId ?? null,
           category: "character_relation_stage_manual_update",
-          content: `${relation.sourceCharacter.name} -> ${relation.targetCharacter.name} 关系阶段更新为 ${input.stageLabel}。${input.decisionNote?.trim() || input.stageSummary}`.trim(),
+          content: `${relation.sourceCharacter.name} -> ${relation.targetCharacter.name} relationship stage更新为 ${input.stageLabel}。${input.decisionNote?.trim() || input.stageSummary}`.trim(),
           importance: "normal",
           sourceType: "character_relation_stage",
           sourceRefId: relation.id,
@@ -856,7 +856,7 @@ export class CharacterDynamicsMutationService {
     for (const candidate of candidates) {
       const createdCharacter = await novelContextService.createCharacter(novelId, {
         name: candidate.proposedName,
-        role: candidate.proposedRole?.trim() || "新角色",
+        role: candidate.proposedRole?.trim() || "New character",
         background: candidate.summary?.trim() || undefined,
       });
       await prisma.$transaction(async (tx) => {
@@ -869,7 +869,7 @@ export class CharacterDynamicsMutationService {
             novelId,
             chapterId: candidate.sourceChapter?.id ?? null,
             category: "character_dynamic_confirm",
-            content: `自动导演确认新角色：${createdCharacter.name}。来源候选：${candidate.proposedName}。${candidate.summary ?? ""}`.trim(),
+            content: `Auto-Director确认新角色：${createdCharacter.name}。来源候选：${candidate.proposedName}。${candidate.summary ?? ""}`.trim(),
             importance: "high",
             sourceType: "character_candidate",
             sourceRefId: candidate.id,

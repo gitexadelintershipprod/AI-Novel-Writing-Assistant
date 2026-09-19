@@ -87,7 +87,7 @@ router.get("/", async (_req, res, next) => {
     res.status(200).json({
       success: true,
       data,
-      message: "获取流派模式树成功。",
+      message: "The story-mode tree was loaded.",
     } satisfies ApiResponse<typeof data>);
   } catch (error) {
     next(error);
@@ -100,7 +100,7 @@ router.post("/", validate({ body: createStoryModeSchema }), async (req, res, nex
     res.status(201).json({
       success: true,
       data,
-      message: "创建流派模式成功。",
+      message: "The story mode was created.",
     } satisfies ApiResponse<typeof data>);
   } catch (error) {
     next(error);
@@ -123,7 +123,7 @@ router.post("/batch-children", validate({ body: createStoryModeChildrenSchema })
     res.status(201).json({
       success: true,
       data,
-      message: "批量创建流派模式子类成功。",
+      message: "Story-mode subclasses were created in batch.",
     } satisfies ApiResponse<typeof data>);
   } catch (error) {
     next(error);
@@ -136,7 +136,7 @@ router.post("/generate", validate({ body: generateStoryModeSchema }), async (req
     res.status(200).json({
       success: true,
       data,
-      message: "AI 流派模式树草稿生成成功。",
+      message: "AI story-mode tree draft was generated.",
     } satisfies ApiResponse<typeof data>);
   } catch (error) {
     next(error);
@@ -149,7 +149,7 @@ router.post("/generate-child", validate({ body: generateStoryModeChildSchema }),
     res.status(200).json({
       success: true,
       data,
-      message: "AI 流派模式子类草稿生成成功。",
+      message: "AI story-mode subclass draft was generated.",
     } satisfies ApiResponse<typeof data>);
   } catch (error) {
     next(error);
@@ -169,7 +169,7 @@ router.post("/generate-expansion", validate({ body: generateStoryModeExpansionSc
     res.status(200).json({
       success: true,
       data,
-      message: "AI 推进模式扩展候选生成成功。",
+      message: "Story-mode expansion candidates were generated.",
     } satisfies ApiResponse<typeof data>);
   } catch (error) {
     next(error);
@@ -183,7 +183,7 @@ router.put("/:id", validate({ params: idParamsSchema, body: updateStoryModeSchem
     res.status(200).json({
       success: true,
       data,
-      message: "更新流派模式成功。",
+      message: "The story mode was updated.",
     } satisfies ApiResponse<typeof data>);
   } catch (error) {
     next(error);
@@ -196,7 +196,7 @@ router.delete("/:id", validate({ params: idParamsSchema }), async (req, res, nex
     await storyModeService.deleteStoryMode(id);
     res.status(200).json({
       success: true,
-      message: "删除流派模式成功。",
+      message: "The story mode was deleted.",
     } satisfies ApiResponse<null>);
   } catch (error) {
     next(error);

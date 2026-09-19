@@ -227,5 +227,5 @@ export async function generateWorldPropertyOptions(
     }
   }
 
-  throw new Error("世界属性选项生成失败，模型未返回足够的有效结构。");
+  throw new Error("World-property option generation failed; the model did not return enough valid structure.");
 }

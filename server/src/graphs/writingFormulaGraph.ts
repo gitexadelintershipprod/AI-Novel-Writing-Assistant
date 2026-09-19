@@ -26,20 +26,20 @@ export type WritingFormulaGraphOutput = Pick<
 async function analyzeStyle(state: WritingFormulaGraphState, llm: BaseChatModel) {
   try {
     const result = await llm.invoke([
-      new SystemMessage("你是写作风格分析专家，请分析语言风格、叙事视角和节奏。"),
+      new SystemMessage("You are a prose-style analyst. Analyze language, point of view, and pacing."),
       new HumanMessage(state.sourceText),
     ]);
     const text = typeof result.content === "string" ? result.content : JSON.stringify(result.content);
     return { styleAnalysis: text };
   } catch (error) {
-    return { error: error instanceof Error ? error.message : "风格分析失败。" };
+    return { error: error instanceof Error ? error.message : "Style analysis failed." };
   }
 }
 
 async function extractTechniques(state: WritingFormulaGraphState, llm: BaseChatModel) {
   try {
     const result = await llm.invoke([
-      new SystemMessage("请提取可复现的写作技巧并归纳规则。"),
+      new SystemMessage("Extract reproducible writing techniques and summarize them as rules."),
       new HumanMessage(
         `风格分析：
 ${state.styleAnalysis}
@@ -49,14 +49,14 @@ ${state.styleAnalysis}
     const text = typeof result.content === "string" ? result.content : JSON.stringify(result.content);
     return { techniqueExtraction: text };
   } catch (error) {
-    return { error: error instanceof Error ? error.message : "技巧提取失败。" };
+    return { error: error instanceof Error ? error.message : "Technique extraction failed." };
   }
 }
 
 async function buildFormula(state: WritingFormulaGraphState, llm: BaseChatModel) {
   try {
     const result = await llm.invoke([
-      new SystemMessage("请将分析结果整理为 Markdown 写作公式文档。"),
+      new SystemMessage("Turn the analysis into a Markdown writing-formula document."),
       new HumanMessage(
         `风格分析：
 ${state.styleAnalysis}
@@ -65,16 +65,16 @@ ${state.styleAnalysis}
 ${state.techniqueExtraction}
 
 请按以下标题组织：
-## 整体风格定位
-## 核心写作技巧（含原文例句）
-## 可复现的写作公式
-## 应用指南（如何用这个公式写新文本）`,
+## Overall style positioning
+## Core writing techniques (with source examples)
+## Reusable writing formula
+## Usage guide (how to write new text with this formula)`,
       ),
     ]);
     const text = typeof result.content === "string" ? result.content : JSON.stringify(result.content);
     return { formulaMarkdown: text };
   } catch (error) {
-    return { error: error instanceof Error ? error.message : "公式文档构建失败。" };
+    return { error: error instanceof Error ? error.message : "Building the formula document failed." };
   }
 }
 
@@ -91,14 +91,14 @@ async function structureFormula(state: WritingFormulaGraphState) {
   try {
     return {
       formulaStructured: {
-        style: extractSection(state.formulaMarkdown, "整体风格定位"),
-        formulaDescription: extractSection(state.formulaMarkdown, "核心写作技巧（含原文例句）"),
-        formulaSteps: extractSection(state.formulaMarkdown, "可复现的写作公式"),
-        applicationTips: extractSection(state.formulaMarkdown, "应用指南（如何用这个公式写新文本）"),
+        style: extractSection(state.formulaMarkdown, "Overall style positioning"),
+        formulaDescription: extractSection(state.formulaMarkdown, "Core writing techniques (with source examples)"),
+        formulaSteps: extractSection(state.formulaMarkdown, "Reusable writing formula"),
+        applicationTips: extractSection(state.formulaMarkdown, "Usage guide (how to write new text with this formula)"),
       },
     };
   } catch (error) {
-    return { error: error instanceof Error ? error.message : "公式结构化失败。" };
+    return { error: error instanceof Error ? error.message : "Structuring the formula failed." };
   }
 }
 

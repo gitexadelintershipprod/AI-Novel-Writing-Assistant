@@ -75,7 +75,7 @@ router.get("/", validate({ query: listQuerySchema }), async (req, res, next) => 
     res.status(200).json({
       success: true,
       data,
-      message: "获取基础角色列表成功。",
+      message: "The base-character list was loaded.",
     } satisfies ApiResponse<typeof data>);
   } catch (error) {
     next(error);
@@ -90,11 +90,11 @@ router.post("/", validate({ body: baseCharacterSchema }), async (req, res, next)
         tags: req.body.tags ?? "",
       },
     });
-    await characterLibrarySyncService.createBaseRevision(data.id, "创建角色库角色。", "manual_base_character_create");
+    await characterLibrarySyncService.createBaseRevision(data.id, "Create a character-library character.", "manual_base_character_create");
     res.status(201).json({
       success: true,
       data,
-      message: "创建基础角色成功。",
+      message: "The base character was created.",
     } satisfies ApiResponse<typeof data>);
   } catch (error) {
     next(error);
@@ -110,14 +110,14 @@ router.get("/:id", validate({ params: idSchema }), async (req, res, next) => {
     if (!data) {
       res.status(404).json({
         success: false,
-        error: "角色不存在。",
+        error: "The character does not exist.",
       } satisfies ApiResponse<null>);
       return;
     }
     res.status(200).json({
       success: true,
       data,
-      message: "获取角色详情成功。",
+      message: "Character details were loaded.",
     } satisfies ApiResponse<typeof data>);
   } catch (error) {
     next(error);
@@ -136,14 +136,14 @@ router.put(
       });
       const revision = await characterLibrarySyncService.createBaseRevision(
         data.id,
-        "更新角色库基础设定。",
+        "Update the character-library base profile.",
         "manual_base_character_update",
       );
       await characterLibrarySyncService.createLibraryUpdateProposals(data.id, revision.id);
       res.status(200).json({
         success: true,
         data,
-        message: "更新角色成功。",
+        message: "The character was updated.",
       } satisfies ApiResponse<typeof data>);
     } catch (error) {
       next(error);
@@ -157,7 +157,7 @@ router.delete("/:id", validate({ params: idSchema }), async (req, res, next) => 
     await prisma.baseCharacter.delete({ where: { id } });
     res.status(200).json({
       success: true,
-      message: "删除角色成功。",
+      message: "The character was deleted.",
     } satisfies ApiResponse<null>);
   } catch (error) {
     next(error);
@@ -173,8 +173,8 @@ router.post("/generate", validate({ body: generateSchema }), async (req, res, ne
       success: true,
       data: result.data,
       message: result.outputAnomaly
-        ? "AI 角色生成完成（模型输出异常，已自动回退）。"
-        : "AI 角色生成成功。",
+        ? "Character generation finished (model output was invalid and was automatically rolled back)."
+        : "AI generated the character.",
     } satisfies ApiResponse<typeof result.data>);
   } catch (error) {
     next(error);

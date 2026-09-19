@@ -79,7 +79,7 @@ export async function saveLLMSelectionSettings(input: SaveLLMSelectionSettingsIn
   const provider = normalizeProvider(input.provider);
   const model = normalizeModel(input.model);
   if (!provider || !model) {
-    throw new Error("模型厂商和模型名称不能为空。");
+    throw new Error("Provider and model name cannot be empty.");
   }
   const maxTokens = normalizeMaxTokens(input.maxTokens);
   const settings: LLMSelectionSettings = {

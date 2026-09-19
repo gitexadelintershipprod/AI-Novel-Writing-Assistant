@@ -150,7 +150,7 @@ export class ChapterQualityLoopService {
       },
     });
     if (!chapter) {
-      throw new Error("章节不存在，无法记录质量闭环状态。");
+      throw new Error("The chapter does not exist, so the quality-loop state cannot be recorded.");
     }
 
     const assessment = buildChapterQualityLoopAssessment({

@@ -10,7 +10,7 @@ const TITLE_STYLE_VALUES = ["literary", "conflict", "suspense", "high_concept"] 
 export type DirectorTitleSuggestionStyle = (typeof TITLE_STYLE_VALUES)[number];
 
 /**
- * 将模型或 JSON 修复层可能输出的变体（大小写、连字符、少量中文标签）归一成合法枚举。
+ * 将模型或 JSON fix层可能输出的变体（大小写、连字符、少量中文标签）归一成合法枚举。
  * 无法识别时退回 literary，避免整段工作流因单一枚举失败而中断。
  */
 export function normalizeDirectorTitleSuggestionStyle(raw: unknown): DirectorTitleSuggestionStyle {

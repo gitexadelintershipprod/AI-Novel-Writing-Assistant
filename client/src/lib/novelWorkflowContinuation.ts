@@ -14,7 +14,7 @@ export function resolveWorkflowContinuationFeedback(
 } {
   const requestedScopeLabel = options?.scopeLabel?.trim();
   const taskScopeLabel = task && "executionScopeLabel" in task ? task.executionScopeLabel?.trim() : undefined;
-  const scopeLabel = requestedScopeLabel || taskScopeLabel || "当前章节范围";
+  const scopeLabel = requestedScopeLabel || taskScopeLabel || "Current chapter scope";
 
   if (task && "kind" in task && task.status === "failed") {
     return {
@@ -23,18 +23,18 @@ export function resolveWorkflowContinuationFeedback(
         || task.blockingReason?.trim()
         || task.lastError?.trim()
         || (options?.mode === "auto_execute_range"
-          ? `继续自动执行${scopeLabel}失败。`
-          : "继续自动导演失败。"),
+          ? `Could not continue automatic execution for ${scopeLabel}.`
+          : "Continue automatic director failure."),
     };
   }
 
   return {
     tone: "success",
     message: options?.mode === "skip_quality_repair"
-      ? `已跳过本次质量建议，自动导演会继续执行${scopeLabel}。`
+      ? `This quality suggestion was skipped. Auto-Director will keep going for ${scopeLabel}.`
       : options?.mode === "auto_execute_range"
-          ? `已继续自动执行${scopeLabel}。`
-          : "自动导演已继续推进。",
+          ? `Automatic execution has continued for ${scopeLabel}.`
+          : "Autodirector has moved on.",
   };
 }
 
@@ -50,7 +50,7 @@ export function resolveDirectorContinueMode(task: Pick<
   }
   if (
     task?.currentItemKey === "quality_repair"
-    || task?.currentStage?.includes("质量")
+    || task?.currentStage?.includes("quality")
   ) {
     return "skip_quality_repair";
   }

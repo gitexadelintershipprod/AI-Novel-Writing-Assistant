@@ -1,9 +1,9 @@
-## 变更说明
+## What this change does
 
 -
 
-## 贡献确认
+## Contribution confirmation
 
-- [ ] 我确认自己有权提交本次贡献。
-- [ ] 我已阅读并同意 [Contributor License Agreement](https://github.com/ExplosiveCoderflome/AI-Novel-Writing-Assistant/blob/main/CLA.md)。
-- [ ] 如果本次贡献包含第三方代码、素材、数据、AI 生成内容或其他受许可证约束的内容，我已在 PR 中说明来源和许可证。
+- [ ] I confirm that I have the right to submit this contribution.
+- [ ] I have read and agree to the [Contributor License Agreement](https://github.com/ExplosiveCoderflome/AI-Novel-Writing-Assistant/blob/main/CLA.md).
+- [ ] If this contribution includes third-party code, assets, data, AI-generated content, or other licensed material, I have stated the source and license in the PR.

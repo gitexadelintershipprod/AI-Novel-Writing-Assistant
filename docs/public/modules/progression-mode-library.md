@@ -1,68 +1,67 @@
-# 推进模式库
+# Story mode library
 
-推进模式库用于整理故事持续向前的方式。它关注的是读者为什么愿意继续看下一章：是升级变强、经营扩张、解谜揭露、复仇推进、关系拉扯，还是一次次兑现承诺。
+The story mode library organizes how a story keeps moving forward. It focuses on why a reader wants the next chapter: leveling up, expansion, mystery reveal, revenge, relationship tension, or delivering a promise again and again.
 
+## What the story mode library can do for you
 
-## 推进模式库能帮你做什么
+- Make clear what this book mainly uses to keep readers going.
+- Turn common payoffs, delivery methods, conflict escalation, and pacing beats into reusable assets.
+- Help Auto-Director, volume planning, chapter tasks, and quality review keep the same progression logic.
+- Reduce the stall of “I have a genre, but I do not know how the plot should move.”
 
-- 明确一本书主要靠什么制造追读动力。
-- 把常用爽点、兑现方式、冲突升级和节奏节点沉淀成可复用资产。
-- 帮助自动导演、卷规划、章节任务和质量审核保持同一种推进逻辑。
-- 降低“题材有了，但剧情不知道怎么往前走”的卡顿。
+## When to use it
 
-## 适合什么时候用
+- You know the genre, but not what each volume and chapter should advance with.
+- After chapter generation, many events happen, but there is little lasting pull.
+- You want planning to keep delivering what readers expect.
+- You want to organize a payoff structure or serialization rhythm you often use.
+- You want to separate the main progression from supporting progression.
 
-- 你知道题材，但不知道每一卷、每一章靠什么推进。
-- 章节生成后感觉事件很多，但没有持续吸引力。
-- 想让系统在规划时更清楚读者期待怎么被持续兑现。
-- 想整理自己常用的爽点结构或连载节奏。
-- 想区分主推进方式和辅助推进方式。
+## Before you start
 
-## 开始前准备
+Before you create a story mode, answer three questions:
 
-创建推进模式前，先想清楚三个问题：
+- What change or reward can the protagonist get every few chapters?
+- What does the reader most want revealed, reversed, upgraded, or advanced?
+- What is this mode most afraid of, for example repeated upgrades, weakening conflict, stalled relationships, or a mystery that drags too long?
 
-- 主角每隔几章能获得什么变化或回报。
-- 读者最期待看到什么被揭开、被打脸、被升级或被推进。
-- 当前模式最怕什么问题，例如重复升级、冲突变弱、关系停滞或谜题拖太久。
+A story mode does not need to be a complex theory. If it can guide the next chapter forward, it already has value.
 
-推进模式不需要写成复杂理论。能指导章节继续往前走，就已经有价值。
+## Recommended path
 
-## 推荐使用路径
+1. Open Story mode library.
+2. Choose an existing mode or create a progression you often use.
+3. Write the core drive, for example upgrade, management, mystery, revenge, or relationship progress.
+4. Add reader expectation, common deliveries, escalation beats, and pacing risks.
+5. Choose the main progression in new-book project settings or during planning.
+6. After chapter generation, if pacing spreads, come back and add constraints.
 
-1. 打开“推进模式库”。
-2. 选择已有模式，或创建一个常用推进方式。
-3. 写清楚这个模式的核心驱动力，例如升级、经营、解谜、复仇或关系推进。
-4. 补充读者期待、常见兑现、升级节点和节奏风险。
-5. 在新书项目设定或规划阶段选择主推进方式。
-6. 章节生成后，如果节奏发散，再回到推进模式库补充约束。
+## How it enters later writing
 
-## 如何进入后续创作链路
+Story mode mainly affects story planning, volume pacing, and chapter execution. It helps the system judge:
 
-推进模式主要影响故事规划、卷节奏和章节执行。它会帮助系统判断：
+- whether the current chapter is actually advancing the main line;
+- whether a payoff has setup and delivery;
+- whether conflict is escalating;
+- whether a relationship or mystery has stalled for too long;
+- whether the chapter ending gives a reason to keep reading.
 
-- 当前章节是否真的在推进主线。
-- 爽点是否有铺垫和兑现。
-- 冲突是否逐步升级。
-- 角色关系或谜题是否长期停滞。
-- 章节结尾是否有继续阅读的理由。
+It is often paired with a genre base. The genre base says what readers expect when they enter this book. The story mode says how those expectations are delivered chapter by chapter.
 
-它常和题材基底搭配使用。题材基底决定读者进入这本书时期待什么，推进模式决定这些期待如何一章章被兑现。
+## Common questions
 
-## 常见问题
+### How is a story mode different from a genre?
 
-### 推进模式和题材有什么区别
+Genre answers “which shelf this book sits on.” Story mode answers “why the reader keeps reading.” The same genre can have different story modes. Urban fiction can be upgrade, business expansion, mystery, or emotional tension.
 
-题材回答“这本书放在哪个货架”，推进模式回答“读者为什么继续看”。同一个题材可以有不同推进模式，例如都市题材可以是升级、商战经营、悬疑解谜或情感拉扯。
+### Can a book have only one story mode?
 
-### 一本书只能有一个推进模式吗
+Not necessarily. Set one main mode first, then add one or two supporting modes. The main mode keeps reading momentum. Supporting modes add variety.
 
-不一定。建议先确定一个主推进模式，再补充一两个辅助模式。主模式负责稳定追读，辅助模式用于增加变化。
+### Will a story mode limit writing?
 
-### 推进模式会不会限制创作
+A good story mode is a reminder not to drop what readers most want. If it feels too tight, the mode is written too rigidly. Raise it to reader expectation and delivery principles.
 
-好的推进模式不是限制，而是提醒你不要丢掉读者最想看的东西。如果你发现它限制太强，说明模式写得太死，可以改成更高层的读者期待和兑现原则。
+### When should I maintain the story mode library?
 
-### 什么时候需要维护推进模式库
-
-当你发现章节经常“发生了很多事但不想看下一章”，或者 AI 规划总是偏离主要爽点，就值得回到推进模式库补充说明。
+When chapters “happen a lot but you do not want the next chapter,” or when AI planning keeps drifting away from the main payoff, come back and add a clearer explanation.

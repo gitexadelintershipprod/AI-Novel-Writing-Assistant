@@ -74,7 +74,7 @@ function chapterGoalFromContext(contextPackage: GenerationContextPackage | null 
     contextPackage?.chapterMission?.objective,
     contextPackage?.chapter.expectation,
     contextPackage?.plan?.objective,
-  ]).join("\n") || "推进当前章节任务";
+  ]).join("\n") || "Advance the current chapter task";
 }
 
 function fallbackTimeLabel(input: {
@@ -84,7 +84,7 @@ function fallbackTimeLabel(input: {
 }): string {
   return input.timelineContext?.currentTime?.label?.trim()
     || input.contextPackage?.timelineContext?.currentTime?.label?.trim()
-    || `第 ${input.chapterIndex} 章`;
+    || `Chapter ${input.chapterIndex}`;
 }
 
 function openHookIds(context: TimelineContextForChapter | null | undefined): string[] {
@@ -285,8 +285,8 @@ export class ChapterTimelineFinalizationService {
       novelId: input.novelId,
       chapterId: input.chapterId,
       chapterIndex,
-      chapterTitle: chapter?.title ?? `第 ${chapterIndex} 章`,
-      novelTitle: input.contextPackage?.bookContract?.title ?? "当前小说",
+      chapterTitle: chapter?.title ?? `Chapter ${chapterIndex}`,
+      novelTitle: input.contextPackage?.bookContract?.title ?? "current novel",
       chapterGoal: chapterGoalFromContext(input.contextPackage),
       content,
       timelineContext,
@@ -402,7 +402,7 @@ export class ChapterTimelineFinalizationService {
           issues: [{
             type: "unclear_time_anchor",
             severity: "warning",
-            message: "缺少时间线上下文，已降级提交最小 timeline checkpoint。",
+            message: "Timeline context is missing. A minimal timeline checkpoint was submitted instead.",
             evidence: "timelineContext missing",
             suggestedFix: "重新组装章节上下文后补跑 timeline finalization。",
             relatedEventIds: [],
@@ -468,9 +468,9 @@ export class ChapterTimelineFinalizationService {
         issues: [{
           type: "unclear_time_anchor",
           severity: "warning",
-          message: "时间线抽取或检测未完成，已降级提交最小 timeline checkpoint。",
+          message: "Timeline extraction or detection did not finish. A minimal timeline checkpoint was submitted instead.",
           evidence: message,
-          suggestedFix: "重试时间线检测；若仍失败，人工检查章节承接和未来事件泄漏。",
+          suggestedFix: "Retry timeline detection; if it still fails, manually check chapter handoff and future-event leaks.",
           relatedEventIds: [],
           relatedHookIds: [],
         }],

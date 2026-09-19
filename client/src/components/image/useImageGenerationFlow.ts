@@ -7,7 +7,7 @@
  *     prepare: () => prepareCharacterAssetImage(asset.id, provider),
  *     generate: (overrides) => generateCharacterAssetImage(asset.id, provider, overrides),
  *     onSuccess: () => refresh(),
- *   })}>AI 生图</button>
+ *   })}>AI generated pictures</button>
  *   <ImageGenerationConfirmDialog {...flow.dialogProps} />
  *
  * 流程：start → prepare 拿预览 → 弹窗 → 用户 confirm/取消 → 取消时 generate

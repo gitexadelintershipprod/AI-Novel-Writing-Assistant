@@ -48,6 +48,6 @@ export function buildPlannerStateGoalText(input: {
     `应推进关系：${takeUniquePlannerItems(input.targetRelationships, 4).join("；") || "无"}`,
     `应触碰 payoff：${takeUniquePlannerItems(input.targetPayoffs, 4).join("；") || "无"}`,
     `禁止提前泄露：${takeUniquePlannerItems(input.protectedSecrets, 4).join("；") || "无"}`,
-    `最近关键事件：${takeUniquePlannerItems(input.recentTimeline, 3).join("；") || "无"}`,
+    `recent key events：${takeUniquePlannerItems(input.recentTimeline, 3).join("；") || "无"}`,
   ].join("\n");
 }

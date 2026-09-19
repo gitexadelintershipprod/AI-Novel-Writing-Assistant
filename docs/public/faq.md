@@ -1,122 +1,122 @@
-# 常见问题
+# FAQ
 
-这里收集第一次使用时最常见的问题。遇到复杂故障时，可以继续阅读《故障排查》。
+These are the questions people hit first. For harder failures, continue with [Troubleshooting](#/docs/troubleshooting).
 
-## 自动导演的「运行模式」该选哪个
+## Which Auto-Director run mode should I pick?
 
-自动导演有四种模式，决定确认方案后会跑到哪里：
+Auto-Director has four modes. They decide how far the system runs after you confirm a book plan:
 
-- **先准备到可开写**（推荐第一本书）：自动跑完规划、角色、卷战略和章节任务，停在可开写状态。
-- **全书自动成书**：从方案直接跑到正文持续产出，需要稳定的模型供应和额度。
-- **按范围执行**：只跑全书、前 N 章或第 1 卷等指定范围，适合验证一段后再扩大。
-- **正文后去 AI 检测与修正**：是个开关，可叠加在上面三种之上，让章节产出带审核 + 修复闭环。
+- **Complete director preparation first** (recommended for a first book): Auto-Director finishes planning, characters, volume strategy, and chapter tasks, then stops at a ready-to-write state.
+- **Full-book autopilot**: After you confirm a plan, the system keeps producing chapter text. This needs a stable model supply and quota.
+- **Run a selected range**: Only run a chosen range such as the whole book, the first N chapters, or volume 1. Use this to check a stretch before expanding.
+- **After prose: AI check and repair**: This is a switch you can stack on the three modes above. Chapter output then includes a review-and-repair loop.
 
-详见[自动导演阶段全景](#/docs/auto-director-pipeline)的"运行模式"章节。
+See the “Run modes” section in the [Auto-Director stage map](#/docs/auto-director-pipeline).
 
-## 全书自动驾驶中途停下来了怎么办
+## Full-book autopilot stopped in the middle. What now?
 
-「全书自动驾驶」遇到模型不可用、配额耗尽、连续修复失败、要求重新规划或结构性数据问题时会**主动停下**而不是无限重试。处理步骤：
+Full-book autopilot **stops on purpose** when the model is unavailable, quota is exhausted, repair fails repeatedly, a replan is required, or there is a structural data problem. It does not retry forever. Then:
 
-1. 打开导演跟进，看暂停原因。
-2. 打开任务中心，确认最新失败任务和错误信息。
-3. 排除外部原因（补充配额、切模型、修网络）。
-4. 在导演跟进点"继续自动导演"，从原检查点恢复。
+1. Open Director follow-up and read the pause reason.
+2. Open the Task Center and confirm the latest failed task and error.
+3. Fix the external cause (add quota, switch models, repair the network).
+4. In Director follow-up, choose continue Auto-Director and resume from the original checkpoint.
 
-不要直接退出导演模式或删除项目；中断的状态会被保存，恢复后不会从头跑。
+Do not exit director mode or delete the project as the first move. Interrupted state is saved, and resume does not start from scratch.
 
-## 介绍网站和主程序端口会冲突吗
+## Do the intro site and the main app fight over the same port?
 
-不会。主程序 client 默认 **3000**，介绍站 site 默认 **4173**。
-两者完全独立，可同时启动。如果某个端口被其它进程占用，按对应配置文件改即可。
+No. The main app client defaults to **3000**. The intro site defaults to **4173**.
+They are independent and can run at the same time. If another process is using a port, change it in the matching config file.
 
-## 桌面版数据存在哪
+## Where does the desktop app store data?
 
-桌面版默认把小说数据库、任务状态、配置和生成产物保存在应用数据目录里。Windows 上通常在 `%APPDATA%` 下的应用目录。
+The desktop app stores the novel database, task state, settings, and generated files in the app data directory. On Windows this is usually under `%APPDATA%`.
 
-重要项目建议定期备份：
+Back up important projects regularly:
 
-- 应用数据库文件。
-- 小说导出文本。
-- 角色 / 世界 / 知识库 / 写法资产。
-- 关键任务日志或错误截图。
+- app database files;
+- exported novel text;
+- character / world / knowledge-library / style assets;
+- key task logs or error screenshots.
 
-排查问题前**先备份再操作**，不要在没备份的情况下删除数据库或重置数据。
+Before you investigate a data problem, **back up first**. Do not delete the database or reset data unless a backup already exists.
 
-## 模型连接失败怎么办
+## The model connection failed. What should I check?
 
-先检查四项：
+Check four things:
 
-1. API Key 是否填写完整。
-2. Base URL 是否和供应商接口兼容。
-3. 模型名称是否存在并支持当前任务。
-4. 网络是否能访问供应商接口。
+1. The API key is complete.
+2. The Base URL matches the provider API.
+3. The model name exists and supports the current task.
+4. The network can reach the provider endpoint.
 
-如果供应商需要额外 Header、代理或兼容 OpenAI 的路径，请按供应商文档填写。模型连接不通时，不建议继续创建复杂任务；先用连接测试或简单对话确认返回正常。
+If the provider needs extra headers, a proxy, or an OpenAI-compatible path, follow the provider docs. If the model cannot connect, do not start complex tasks yet. Use a connection test or a short chat first.
 
-## 创建小说后不知道下一步
+## I created a novel and do not know the next step
 
-优先进入新手上路或创作中枢。
+Open the First-run guide or Creative Hub.
 
-推荐路径：
+Recommended path:
 
-1. 输入一句灵感。
-2. 让自动导演生成方向候选。
-3. 选择一个方向。
-4. 跟随系统准备世界、角色和章节任务。
-5. 执行第一章。
+1. Enter one sentence of inspiration.
+2. Let Auto-Director generate direction options.
+3. Choose a direction.
+4. Let the system prepare the world, characters, and chapter tasks.
+5. Run chapter 1.
 
-不要一开始就手动填写所有高级设置。先让主链跑起来，再逐步补资产。
+Do not fill every advanced setting first. Get the main chain moving, then add assets.
 
-## 章节生成失败怎么办
+## Chapter generation failed. What now?
 
-先看任务中心的失败信息，再决定操作：
+Read the Task Center failure first, then choose:
 
-- 临时网络或供应商错误：重试任务。
-- 提示模型输出格式不对：换更稳定的模型或降低并发。
-- 缺小说基础信息：回到小说页补充设定。
-- 多次失败且无可用正文：回到导演跟进查看是否需要重新规划。
+- Temporary network or provider error: retry the task.
+- The model output format is wrong: switch to a more stable model or lower concurrency.
+- Novel basics are missing: go back to the novel page and fill them in.
+- Repeated failure with no usable chapter text: open Director follow-up and see whether a replan is needed.
 
-如果任务生成了可用正文但审核仍提示问题，可以先接受质量债务，再继续后续章节；局部质量问题不一定需要中断整本书。
+If the task produced usable text but review still reports issues, you can accept quality debt and continue later chapters. A local quality problem does not always need to stop the whole book.
 
-## 知识库为什么检索不到内容
+## Why does the knowledge library miss content?
 
-常见原因：
+Common causes:
 
-- 文档还没有完成索引。
-- Qdrant 没有启动或连接失败。
-- 文档内容和当前任务问题不相关。
-- 检索设置过于严格。
-- 文档只上传了文件，但没有进入可召回状态。
+- The document is not finished indexing.
+- Qdrant is not running or cannot connect.
+- The document is not related to the current task.
+- Search settings are too strict.
+- A file was uploaded, but it is not in a recallable state yet.
 
-先确认知识库任务已完成，再在知识库详情里查看文档状态。需要更强召回时，可以调整检索设置或把关键设定写得更明确。
+Confirm the knowledge-library task finished, then check document status in the knowledge-library detail. For stronger recall, adjust search settings or write the key setting more clearly.
 
-## 自动导演暂停是不是失败
+## Is an Auto-Director pause a failure?
 
-不一定。暂停通常表示系统需要你选择方向、确认候选、补信息或处理恢复入口。
+Not always. A pause often means the system needs you to choose a direction, confirm a candidate, add information, or use a recovery entry.
 
-优先查看：
+Look at:
 
-- 导演跟进里的暂停原因。
-- 任务中心里的最新任务状态。
-- 小说页是否有等待确认的方向、角色或章节计划。
+- the pause reason in Director follow-up;
+- the latest task status in the Task Center;
+- whether the novel page is waiting for a direction, cast, or chapter plan.
 
-只有明确的不可恢复错误、数据完整性问题或系统要求重新规划时，才需要把它当成阻断问题处理。
+Treat it as a blocking problem only when there is an unrecoverable error, a data-integrity issue, or an explicit replan requirement.
 
-## 模型路由应该怎么配
+## How should I set up model routing?
 
-初次使用可以只配一个默认模型。跑通主链后，再按任务拆分：
+On first use, one default model is enough. After the main chain works, split by task:
 
-- 开书和规划：理解能力强、结构稳定的模型。
-- 正文生成：长文本能力好、风格稳定的模型。
-- 审核和修复：输出结构稳定、遵循 JSON 要求的模型。
-- 拆书和知识分析：长上下文和信息抽取能力强的模型。
+- Opening and planning: a model that understands structure well.
+- Chapter writing: a model that handles long text and keeps a stable style.
+- Review and repair: a model that follows structured output and JSON requirements.
+- Book analysis and knowledge analysis: a model with long context and strong information extraction.
 
-如果某类任务经常失败，优先检查该任务绑定的模型。
+If one task type fails often, check the model bound to that task first.
 
-## 能不能完全一键出书
+## Can it write a whole book in one click?
 
-项目目标是帮助新手完成整本小说，但更推荐“自动推进 + 关键节点确认”的方式。方向选择、重要角色和章节策略会影响整本书质量，系统会尽量给出清晰默认建议，同时保留必要确认入口。
+The product goal is to help a beginner finish a full novel. The more reliable path is automatic progress plus confirmation at key points. Direction, important characters, and chapter strategy affect the whole book. The system gives clear default recommendations and still keeps the confirmations that matter.
 
-## 如何保护数据
+## How do I protect my data?
 
-重要小说建议定期导出或备份。不要在没有备份的情况下删除数据库、重置数据或手动清理应用目录。需要排查问题时，先保留日志和数据库副本。
+Export or back up important novels regularly. Do not delete the database, reset data, or manually clean the app directory unless a backup already exists. When you need to diagnose a problem, keep logs and a database copy.

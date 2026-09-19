@@ -18,12 +18,12 @@ interface TitleSuggestionListProps {
 export default function TitleSuggestionList({
   suggestions,
   selectedTitle = "",
-  primaryActionLabel = "复制标题",
+  primaryActionLabel = "Copy title",
   onPrimaryAction,
   onCopy,
   onSave,
   savingTitle = "",
-  emptyMessage = "还没有生成任何标题。",
+  emptyMessage = "No titles have been generated yet.",
   layout = "list",
 }: TitleSuggestionListProps) {
   if (suggestions.length === 0) {
@@ -33,7 +33,7 @@ export default function TitleSuggestionList({
           <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-primary/[0.08] text-primary">
             <Sparkles className="h-5 w-5" aria-hidden="true" />
           </div>
-          <div className="mt-4 text-sm font-medium text-foreground">等待第一批标题灵感</div>
+          <div className="mt-4 text-sm font-medium text-foreground">Waiting for the first batch of title ideas</div>
           <div className="mx-auto mt-1 max-w-md text-sm leading-6 text-muted-foreground">{emptyMessage}</div>
         </div>
       );
@@ -49,24 +49,24 @@ export default function TitleSuggestionList({
     <div className={layout === "grid" ? "grid gap-3 md:grid-cols-2" : "divide-y divide-border/55"}>
       {suggestions.map((suggestion) => {
         const isSelected = selectedTitle === suggestion.title;
-        const showSecondaryCopy = Boolean(onCopy && primaryActionLabel !== "复制标题");
+        const showSecondaryCopy = Boolean(onCopy && primaryActionLabel !== "Copy title");
         const metadata = [
           getTitleStyleLabel(suggestion.style),
           suggestion.angle,
-          isSelected ? "当前选中" : null,
+          isSelected ? "Currently selected" : null,
         ].filter((item): item is string => Boolean(item));
         const actions = (
           <div className="flex flex-wrap items-center gap-2">
             {onPrimaryAction ? (
               <Button type="button" size="sm" className="gap-1.5 rounded-full" onClick={() => onPrimaryAction(suggestion)}>
-                {primaryActionLabel === "复制标题" ? <Copy className="h-3.5 w-3.5" /> : null}
+                {primaryActionLabel === "Copy title" ? <Copy className="h-3.5 w-3.5" /> : null}
                 {primaryActionLabel}
               </Button>
             ) : null}
             {showSecondaryCopy ? (
               <Button type="button" variant="ghost" size="sm" className="gap-1.5 rounded-full" onClick={() => onCopy?.(suggestion)}>
                 <Copy className="h-3.5 w-3.5" />
-                复制
+                Copy
               </Button>
             ) : null}
             {onSave ? (
@@ -81,12 +81,12 @@ export default function TitleSuggestionList({
                 {savingTitle === suggestion.title ? (
                   <>
                     <Check className="h-3.5 w-3.5" />
-                    保存中
+                    Saving
                   </>
                 ) : (
                   <>
                     <BookmarkPlus className="h-3.5 w-3.5" />
-                    入库
+                    Warehouse
                   </>
                 )}
               </Button>

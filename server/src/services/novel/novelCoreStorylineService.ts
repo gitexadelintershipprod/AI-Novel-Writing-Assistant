@@ -23,7 +23,7 @@ export class NovelCoreStorylineService {
       select: { id: true, outline: true },
     });
     if (!novel) {
-      throw new Error("小说不存在");
+      throw new Error("The novel does not exist");
     }
 
     const latestVersion = await prisma.storylineVersion.findFirst({
@@ -56,7 +56,7 @@ export class NovelCoreStorylineService {
       where: { id: versionId, novelId },
     });
     if (!target) {
-      throw new Error("主线版本不存在");
+      throw new Error("The mainline version does not exist");
     }
 
     await prisma.$transaction([
@@ -79,7 +79,7 @@ export class NovelCoreStorylineService {
 
     const refreshed = await prisma.storylineVersion.findUnique({ where: { id: target.id } });
     if (!refreshed) {
-      throw new Error("主线版本激活失败");
+      throw new Error("Activating the mainline version failed");
     }
     queueRagUpsert("novel", novelId);
     return refreshed;
@@ -91,7 +91,7 @@ export class NovelCoreStorylineService {
       select: { id: true },
     });
     if (!target) {
-      throw new Error("主线版本不存在");
+      throw new Error("The mainline version does not exist");
     }
     return prisma.storylineVersion.update({
       where: { id: target.id },
@@ -104,7 +104,7 @@ export class NovelCoreStorylineService {
       where: { id: versionId, novelId },
     });
     if (!target) {
-      throw new Error("主线版本不存在");
+      throw new Error("The mainline version does not exist");
     }
 
     let baseline: { content: string } | null = null;
@@ -152,7 +152,7 @@ export class NovelCoreStorylineService {
       select: { id: true, outline: true },
     });
     if (!novel) {
-      throw new Error("小说不存在");
+      throw new Error("The novel does not exist");
     }
 
     let candidateContent = input.content?.trim() ?? "";
@@ -163,14 +163,14 @@ export class NovelCoreStorylineService {
         select: { version: true, content: true },
       });
       if (!version) {
-        throw new Error("主线版本不存在");
+        throw new Error("The mainline version does not exist");
       }
       candidateContent = version.content;
       sourceVersion = version.version;
     }
 
     if (!candidateContent) {
-      throw new Error("缺少主线内容");
+      throw new Error("Mainline content is missing");
     }
 
     const baseContent = novel.outline ?? "";

@@ -59,12 +59,12 @@ function formatCount(value: number): string {
 
 function getBookAnalysisScaleLabel(charCount: number): { label: string; tone: string } {
   if (charCount >= 300_000) {
-    return { label: "大型书籍", tone: "建议使用成本更可控的模型，或先拆分文档范围。" };
+    return { label: "large books", tone: "It is recommended to use a more cost-controllable model, or to split the document scope first." };
   }
   if (charCount >= 100_000) {
-    return { label: "中等体量", tone: "适合标准拆书，生成时间和 token 用量会随章节规模增加。" };
+    return { label: "medium size", tone: "Suitable for standard book splitting, the generation time and token usage will increase with the chapter size." };
   }
-  return { label: "轻量体量", tone: "适合快速检查结构、人物和写法特征。" };
+  return { label: "Lightweight", tone: "Good for a quick check of structure, character, and writing features." };
 }
 
 function getPresetSectionTitles(sectionKeys: readonly string[]): string {
@@ -141,19 +141,19 @@ export default function BookAnalysisCreateDialog(props: BookAnalysisCreateDialog
     : Boolean(selectedDocumentId) && sourceRangeValid && !createPending;
   const submitting = isDiagnosisMode ? createDiagnosisPending : createPending;
   const submitLabel = isDiagnosisMode
-    ? (createDiagnosisPending ? "正在创建诊断..." : "创建诊断拆书")
-    : (createPending ? "正在创建..." : "创建拆书");
+    ? (createDiagnosisPending ? "Creating diagnostic..." : "Create a diagnostic breakdown book")
+    : (createPending ? "Creating..." : "Create a split book");
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <AppDialogContent
-        title="新建拆书分析"
-        description="选择文档与拆书范围，提交后会在右侧分析列表中出现新任务。"
+        title="Newly opened book analysis"
+        description="Select the document and book-opening scope, and after submission, a new task will appear in the analysis list on the right."
         className="max-w-4xl"
         footer={
           <div className="flex w-full items-center justify-end gap-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
-              取消
+              Cancel
             </Button>
             <Button
               type="button"
@@ -174,7 +174,7 @@ export default function BookAnalysisCreateDialog(props: BookAnalysisCreateDialog
                 variant={analysisMode === "reference" ? "default" : "ghost"}
                 onClick={() => onModeChange("reference")}
               >
-                参考作品
+                Reference works
               </Button>
               <Button
                 type="button"
@@ -182,19 +182,19 @@ export default function BookAnalysisCreateDialog(props: BookAnalysisCreateDialog
                 variant={isDiagnosisMode ? "default" : "ghost"}
                 onClick={() => onModeChange("diagnosis")}
               >
-                诊断稿子
+                diagnostic manuscript
               </Button>
             </div>
 
             {isDiagnosisMode ? (
               <div className="space-y-2">
-                <div className="text-sm font-medium">要诊断的小说</div>
+                <div className="text-sm font-medium">novel to diagnose</div>
                 <SelectControl
                   className="h-10 w-full rounded-md border bg-background px-3 text-sm"
                   value={selectedDiagnosisNovelId}
                   onChange={(event) => onSelectDiagnosisNovel(event.target.value)}
                 >
-                  <option value="">选择小说</option>
+                  <option value="">Select novel</option>
                   {novelOptions.map((novel) => (
                     <option key={novel.id} value={novel.id}>
                       {novel.title}
@@ -202,20 +202,20 @@ export default function BookAnalysisCreateDialog(props: BookAnalysisCreateDialog
                   ))}
                 </SelectControl>
                 <div className="rounded-md border bg-muted/20 p-3 text-xs leading-5 text-muted-foreground">
-                  系统会导出这本小说的当前章节正文，作为新的知识文档创建诊断拆书。
+                  The system will export the text of the current chapter of the novel and use it as a new knowledge document to create a diagnostic book.
                 </div>
               </div>
             ) : (
               <>
                 <div className="grid gap-3 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <div className="text-sm font-medium">知识文档</div>
+                  <div className="text-sm font-medium">knowledge document</div>
                   <SelectControl
                     className="h-10 w-full rounded-md border bg-background px-3 text-sm"
                     value={selectedDocumentId}
                     onChange={(event) => onSelectDocument(event.target.value)}
                   >
-                    <option value="">选择文档</option>
+                    <option value="">Select document</option>
                     {documentOptions.map((document) => (
                       <option key={document.id} value={document.id}>
                         {document.title}
@@ -224,17 +224,17 @@ export default function BookAnalysisCreateDialog(props: BookAnalysisCreateDialog
                   </SelectControl>
                 </div>
                 <div className="space-y-2">
-                  <div className="text-sm font-medium">文档版本</div>
+                  <div className="text-sm font-medium">Document version</div>
                   <SelectControl
                     className="h-10 w-full rounded-md border bg-background px-3 text-sm"
                     value={selectedVersionId}
                     onChange={(event) => onSelectVersion(event.target.value)}
                     disabled={!selectedDocumentId}
                   >
-                    <option value="">使用当前激活版本</option>
+                    <option value="">Use currently activated version</option>
                     {versionOptions.map((version) => (
                       <option key={version.id} value={version.id}>
-                        v{version.versionNumber} {version.isActive ? "（当前）" : ""}
+                        v{version.versionNumber} {version.isActive ? "(current)" : ""}
                       </option>
                     ))}
                   </SelectControl>
@@ -255,7 +255,7 @@ export default function BookAnalysisCreateDialog(props: BookAnalysisCreateDialog
             )}
 
             <div className="space-y-2">
-              <div className="text-sm font-medium">模型</div>
+              <div className="text-sm font-medium">model</div>
               <LLMSelector
                 value={llmConfig}
                 onChange={(next) =>
@@ -270,9 +270,9 @@ export default function BookAnalysisCreateDialog(props: BookAnalysisCreateDialog
               />
               <div className="grid gap-2 rounded-md border bg-muted/20 p-3 sm:grid-cols-[minmax(0,1fr)_180px] sm:items-center">
                 <div>
-                  <div className="text-sm font-medium">预算上限</div>
+                  <div className="text-sm font-medium">budget cap</div>
                   <div className="mt-1 text-xs leading-5 text-muted-foreground">
-                    留空使用服务端默认值。累计用量达到上限后停止任务，已完成的小节会保留。
+                    Leave blank to use server defaults. The task will be stopped after the cumulative usage reaches the upper limit, and the completed sections will be retained.
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -299,7 +299,7 @@ export default function BookAnalysisCreateDialog(props: BookAnalysisCreateDialog
             </div>
 
             <div className="space-y-2">
-              <div className="text-sm font-medium">分析维度</div>
+              <div className="text-sm font-medium">Analysis Dimensions</div>
               <div className="grid gap-2 sm:grid-cols-3">
                 {BOOK_ANALYSIS_PRESETS.map((preset) => {
                   const selected = preset.key === analysisPreset;
@@ -314,11 +314,11 @@ export default function BookAnalysisCreateDialog(props: BookAnalysisCreateDialog
                     >
                       <div className="flex items-center justify-between gap-2">
                         <div className="text-sm font-medium">{preset.title}</div>
-                        <div className="text-xs text-muted-foreground">{preset.sectionKeys.length} 项</div>
+                        <div className="text-xs text-muted-foreground">{preset.sectionKeys.length} items</div>
                       </div>
                       <div className="mt-1 text-xs leading-5 text-muted-foreground">{preset.summary}</div>
                       <div className="mt-2 text-xs leading-5 text-muted-foreground">
-                        包含：{getPresetSectionTitles(preset.sectionKeys)}
+                        Includes: {getPresetSectionTitles(preset.sectionKeys)}
                       </div>
                     </button>
                   );
@@ -327,14 +327,14 @@ export default function BookAnalysisCreateDialog(props: BookAnalysisCreateDialog
             </div>
 
             <div className="space-y-2">
-              <div className="text-sm font-medium">本次拆书重点</div>
+              <div className="text-sm font-medium">The focus of this unpacking of the book</div>
               <textarea
                 className="min-h-[92px] w-full rounded-md border bg-background p-3 text-sm"
                 value={userFocusInstruction}
                 onChange={(event) => onUserFocusInstructionChange(event.target.value)}
                 placeholder={isDiagnosisMode
-                  ? "例如：重点检查前三章留存、主角动机清晰度或伏笔回收风险。"
-                  : "例如：重点观察群像戏轮转、主角语言风格或付费爽点设计。"}
+                  ? "For example: focus on checking the retention of the first three chapters, the clarity of the protagonist’s motivation, or the risk of foreshadowing recycling."
+                  : "For example: focus on observing the rotation of group portraits, the protagonist’s language style, or the design of paid highlights."}
               />
             </div>
           </div>
@@ -342,13 +342,13 @@ export default function BookAnalysisCreateDialog(props: BookAnalysisCreateDialog
           <aside className="space-y-3">
             <div className="rounded-md border border-warning/30 bg-warning/5 p-3 text-xs leading-5 text-foreground">
               {isDiagnosisMode
-                ? "诊断会根据小说正文长度消耗模型 token。章节越多，分析时间和 token 用量通常越高；建议先选择适合本次检查的拆书范围。"
-                : "拆书会根据书籍内容长度消耗模型 token。书籍越长，分析时间和 token 用量通常越高；建议先确认文档范围，再开始分析。"}
+                ? "Diagnosis consumes model tokens based on the length of the novel text. The more chapters there are, the higher the analysis time and token usage are usually; it is recommended to first select a book-opening range suitable for this inspection."
+                : "Opening a book will consume model tokens according to the length of the book content. The longer the book, the higher the analysis time and token usage usually; it is recommended to confirm the scope of the document before starting analysis."}
             </div>
 
             {!isDiagnosisMode && selectedSourceVersion ? (
               <div className="rounded-md border bg-muted/20 p-3 text-xs leading-5 text-muted-foreground">
-                <div className="font-medium text-foreground">本次拆书体量：{scale.label}</div>
+                <div className="font-medium text-foreground">The volume of this unpacked book is:{scale.label}</div>
                 <div className="mt-1">
                   About {formatCount(effectiveSourceCharCount)} characters, expected to split into {estimatedSegmentCount} source segments,
                   with about {estimatedLlmCalls} model calls.
@@ -359,7 +359,7 @@ export default function BookAnalysisCreateDialog(props: BookAnalysisCreateDialog
 
             {!isDiagnosisMode && sourceDocument ? (
               <div className="rounded-md border bg-muted/20 p-3 text-xs text-muted-foreground">
-                版本数：{sourceDocument.versions.length} | 已有拆书：{sourceDocument.bookAnalysisCount}
+                Version number:{sourceDocument.versions.length} | Already opened the book:{sourceDocument.bookAnalysisCount}
               </div>
             ) : null}
           </aside>

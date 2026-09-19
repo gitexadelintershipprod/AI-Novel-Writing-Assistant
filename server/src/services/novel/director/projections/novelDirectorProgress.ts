@@ -60,5 +60,5 @@ export function buildChapterDetailBundleLabel(
   totalChapters: number,
   detailMode: (typeof DIRECTOR_CHAPTER_DETAIL_MODES)[number],
 ): string {
-  return `正在细化第 ${chapterIndex}/${totalChapters} 章 · ${formatChapterDetailModeLabel(detailMode)}`;
+  return `Detailing chapter ${chapterIndex}/${totalChapters} · ${formatChapterDetailModeLabel(detailMode)}`;
 }

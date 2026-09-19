@@ -60,7 +60,7 @@ export function registerNovelCharacterPreparationRoutes(
       res.status(200).json({
         success: true,
         data,
-        message: "角色关系列表已加载。",
+        message: "The character-relationship list was loaded.",
       } satisfies ApiResponse<typeof data>);
     } catch (error) {
       next(error);
@@ -74,7 +74,7 @@ export function registerNovelCharacterPreparationRoutes(
       res.status(200).json({
         success: true,
         data,
-        message: "角色阵容方案已加载。",
+        message: "The cast plan was loaded.",
       } satisfies ApiResponse<typeof data>);
     } catch (error) {
       next(error);
@@ -92,7 +92,7 @@ export function registerNovelCharacterPreparationRoutes(
         res.status(200).json({
           success: true,
           data,
-          message: "角色阵容方案已生成。",
+          message: "The character lineup plan has been generated.",
         } satisfies ApiResponse<typeof data>);
       } catch (error) {
         next(error);
@@ -119,7 +119,7 @@ export function registerNovelCharacterPreparationRoutes(
         res.status(200).json({
           success: true,
           data,
-          message: "角色阵容方案已应用。",
+          message: "The cast plan was applied.",
         } satisfies ApiResponse<typeof data>);
       } catch (error) {
         next(error);
@@ -137,7 +137,7 @@ export function registerNovelCharacterPreparationRoutes(
         res.status(200).json({
           success: true,
           data,
-          message: "补充角色候选已生成。",
+          message: "Candidates for the supplementary role have been generated.",
         } satisfies ApiResponse<typeof data>);
       } catch (error) {
         next(error);
@@ -155,7 +155,7 @@ export function registerNovelCharacterPreparationRoutes(
         res.status(200).json({
           success: true,
           data,
-          message: "补充角色已创建。",
+          message: "The extra character was created.",
         } satisfies ApiResponse<typeof data>);
       } catch (error) {
         next(error);
@@ -173,7 +173,7 @@ export function registerNovelCharacterPreparationRoutes(
         res.status(200).json({
           success: true,
           data,
-          message: "角色阵容方案已删除。",
+          message: "The cast plan was deleted.",
         } satisfies ApiResponse<typeof data>);
       } catch (error) {
         next(error);
@@ -188,7 +188,7 @@ export function registerNovelCharacterPreparationRoutes(
       res.status(200).json({
         success: true,
         data,
-        message: "角色阵容方案已清空。",
+        message: "The cast plan was cleared.",
       } satisfies ApiResponse<typeof data>);
     } catch (error) {
       next(error);

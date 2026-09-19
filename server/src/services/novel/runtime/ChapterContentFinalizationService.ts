@@ -238,7 +238,7 @@ export class ChapterContentFinalizationService {
     const obligationCoverage = runtimePackage.obligationCoverage ?? {
       status: "satisfied" as const,
       missing: [],
-      summary: "旧运行记录未包含章节义务覆盖信息。",
+      summary: "Old run records do not contain chapter obligation coverage information.",
     };
     const filtered = filterAcceptedFactItems({
       chapterOrder,
@@ -305,7 +305,7 @@ export class ChapterContentFinalizationService {
       runId: input.runId,
       novelId: input.novelId,
       nodeKey: "chapter_execution_node",
-      summary: `本章 ${input.excluded.length} 条义务未由验收确认，未写入事实账本。`,
+      summary: `This chapter has ${input.excluded.length} unpaid obligations that acceptance did not confirm, so they were not written into the fact ledger.`,
       affectedScope: `chapter:${input.chapterId}`,
       severity: "medium",
       metadata: {

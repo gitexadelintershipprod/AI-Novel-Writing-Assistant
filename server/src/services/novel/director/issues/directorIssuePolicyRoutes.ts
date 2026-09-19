@@ -19,7 +19,7 @@ export function registerDirectorIssuePolicyRoutes(router: Router): void {
         res.status(200).json({
           success: true,
           data,
-          message: "本书问题处理规则已加载。",
+          message: "This book's issue-handling rules were loaded.",
         } satisfies ApiResponse<typeof data>);
       } catch (error) {
         next(error);
@@ -38,7 +38,7 @@ export function registerDirectorIssuePolicyRoutes(router: Router): void {
         res.status(200).json({
           success: true,
           data,
-          message: body.override ? "本书问题处理规则已保存。" : "本书将继承全局问题处理规则。",
+          message: body.override ? "This book's issue-handling rules were saved." : "This book will inherit the global issue-handling rules.",
         } satisfies ApiResponse<typeof data>);
       } catch (error) {
         next(error);

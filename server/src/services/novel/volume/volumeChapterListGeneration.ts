@@ -102,8 +102,8 @@ function summarizeBeatBlocks(blocks: GeneratedVolumeChapterBlock[]): string {
   }
   return blocks
     .map((block) => (
-      `${block.beatLabel} (${block.beatKey}) | ${block.chapterCount}章 | ${
-        block.chapters.map((chapter, index) => `第${index + 1}章 ${chapter.title}`).join(" / ")
+      `${block.beatLabel} (${block.beatKey}) | ${block.chapterCount} chapters | ${
+        block.chapters.map((chapter, index) => `Chapter ${index + 1}: ${chapter.title}`).join(" / ")
       }`
     ))
     .join("\n");
@@ -180,7 +180,7 @@ function assertMergedVolumeChapterList(params: {
       beatSheet: params.beatSheet,
     }) === beat.key);
     if (matchedChapters.length !== expectedChapterCount) {
-      throw new Error(`当前卷节奏段「${beat.label}」应有 ${expectedChapterCount} 章，实际只有 ${matchedChapters.length} 章。`);
+      throw new Error(`The current volume beat "${beat.label}" should have ${expectedChapterCount} chapters, but it currently has ${matchedChapters.length}.`);
     }
   }
 }
@@ -304,7 +304,7 @@ export async function generateBeatChunkedChapterList(params: {
     beatSheetCount: document.beatSheets.length,
   });
   if (!targetBeatSheet) {
-    throw new Error("当前卷还没有节奏板，不能直接拆章节列表。");
+    throw new Error("This volume has no beat sheet yet, so a chapter list cannot be generated.");
   }
 
   const chapterBudget = deriveChapterBudget({ novel, workspace, options });
@@ -325,7 +325,7 @@ export async function generateBeatChunkedChapterList(params: {
     beatSheetRequiredChapterCount,
   });
   if (!resolvedTargetChapterCount.beatSheetCountAccepted && beatSheetRequiredChapterCount > 0) {
-    throw new Error("当前卷节奏板的章节跨度异常，建议先重生成节奏板，再继续生成章节标题。");
+    throw new Error("This volume beat sheet's chapter span looks wrong. Regenerate the beat sheet before generating chapter titles.");
   }
   if (resolvedTargetChapterCount.targetChapterCount >= 20) {
     const beatSheetCoverage = validateBeatSheetChapterCoverage({
@@ -333,7 +333,7 @@ export async function generateBeatChunkedChapterList(params: {
       targetChapterCount: resolvedTargetChapterCount.targetChapterCount,
     });
     if (!beatSheetCoverage.accepted) {
-      throw new Error(`${beatSheetCoverage.message ?? "当前卷节奏板章节跨度没有覆盖目标章数。"}建议先重生成节奏板，再继续生成章节标题。`);
+      throw new Error(`${beatSheetCoverage.message ?? "The chapter span of the current volume beat sheet does not cover the target number of chapters."} Regenerate the beat sheet first, then continue generating chapter titles.`);
     }
   }
 
@@ -353,7 +353,7 @@ export async function generateBeatChunkedChapterList(params: {
     ? beatPlans.findIndex((plan) => plan.beat.key === options.targetBeatKey)
     : -1;
   if (generationMode === "single_beat" && targetBeatIndex < 0) {
-    throw new Error("目标节奏段不存在，无法重生章节标题。");
+    throw new Error("The target beat does not exist, so chapter titles cannot be regenerated.");
   }
 
   const generatedBlocks: GeneratedVolumeChapterBlock[] = [];
@@ -378,8 +378,8 @@ export async function generateBeatChunkedChapterList(params: {
   for (const beatPlan of plansToRun) {
     await params.notifyPhase(
       generationMode === "single_beat"
-        ? `正在重写第 ${targetVolume.sortOrder} 卷节奏段：${beatPlan.beat.label}`
-        : `正在生成第 ${targetVolume.sortOrder} 卷节奏段：${beatPlan.beat.label}`,
+        ? `Rewriting Volume ${targetVolume.sortOrder} beat: ${beatPlan.beat.label}`
+        : `Generating Volume ${targetVolume.sortOrder} beat: ${beatPlan.beat.label}`,
     );
 
     const currentBeatIndex = beatPlans.findIndex((plan) => plan.beat.key === beatPlan.beat.key);
@@ -424,7 +424,7 @@ export async function generateBeatChunkedChapterList(params: {
     );
     const intermediateVolume = intermediateDocument.volumes.find((volume) => volume.id === targetVolume.id);
     if (!intermediateVolume) {
-      throw new Error("当前卷章节列表已生成，但中间合并结果丢失了目标卷。");
+      throw new Error("This volume's chapter list was generated, but the merge lost the target volume.");
     }
     assertChapterTitleDiversity(intermediateVolume.chapters.map((chapter) => chapter.title));
     await params.notifyIntermediateDocument?.({
@@ -465,7 +465,7 @@ export async function generateBeatChunkedChapterList(params: {
     : setVolumeChapterListPartialStatus(document, targetVolume.id, false);
   const rawMergedVolume = rawMergedDocument.volumes.find((volume) => volume.id === targetVolume.id);
   if (!rawMergedVolume) {
-    throw new Error("当前卷章节列表已生成，但合并结果丢失了目标卷。");
+    throw new Error("The chapter list was generated, but the merge lost the target volume.");
   }
   assertChapterTitleDiversity(rawMergedVolume.chapters.map((chapter) => chapter.title));
   assertMergedVolumeChapterList({
@@ -482,7 +482,7 @@ export async function generateBeatChunkedChapterList(params: {
     : setVolumeChapterListPartialStatus(rawMergedDocument, targetVolume.id, true);
   const mergedVolume = mergedDocument.volumes.find((volume) => volume.id === targetVolume.id);
   if (!mergedVolume) {
-    throw new Error("当前卷章节列表已生成，但合并结果丢失了目标卷。");
+    throw new Error("The chapter list was generated, but the merge lost the target volume.");
   }
   logMemoryUsage({
     event: "after_merge",

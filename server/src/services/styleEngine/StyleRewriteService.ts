@@ -37,7 +37,7 @@ export class StyleRewriteService {
     const extraPreviewRules = previewRules.filter((rule) => !existingRuleIds.has(rule.id));
 
     const issuesBlock = input.issues.map((issue, index) => (
-      `${index + 1}. ${issue.ruleName}\n片段：${issue.excerpt}\n修正建议：${issue.suggestion}`
+      `${index + 1}. ${issue.ruleName}\n片段：${issue.excerpt}\nSuggestions for correction：${issue.suggestion}`
     )).join("\n\n");
     const styleContractText = [
       buildWriterStyleContractText(resolved.context.compiledBlocks?.contract ?? null),

@@ -566,7 +566,7 @@ export async function downloadDramaEpisodeExport(id: string, order: number, form
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 角色图片生成
+// 角色Image generation
 // ─────────────────────────────────────────────────────────────────────────────
 
 export async function getDramaCharacterImageStatus(id: string, characterId: string) {
@@ -576,7 +576,7 @@ export async function getDramaCharacterImageStatus(id: string, characterId: stri
   return data;
 }
 
-/** 生成角色设计稿（面部特写 + 三视图合图，推荐使用） */
+/** Generate character design draft（面部特写 + 三视图合图，推荐使用） */
 export async function prepareDramaCharacterSheet(
   id: string,
   characterId: string,

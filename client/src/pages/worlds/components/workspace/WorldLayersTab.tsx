@@ -90,27 +90,27 @@ export default function WorldLayersTab(props: WorldLayersTabProps) {
   return (
     <section className="space-y-6">
         <div>
-          <h2 className="text-xl font-semibold tracking-tight">AI 分层整理</h2>
-          <p className="mt-1 text-sm leading-6 text-muted-foreground">把完整世界手册压缩成六层写作摘要，方便规划和正文生成快速调用。</p>
+          <h2 className="text-xl font-semibold tracking-tight">AI hierarchical organization</h2>
+          <p className="mt-1 text-sm leading-6 text-muted-foreground">Compress the complete world manual into a six-level writing summary to facilitate planning and text generation and quick recall.</p>
         </div>
 
         <div className="flex flex-col gap-3 rounded-3xl bg-primary/[0.055] p-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <div className="font-medium">{isInitialLayerGeneration ? "生成六层写作摘要" : "更新六层写作摘要"}</div>
+            <div className="font-medium">{isInitialLayerGeneration ? "Generate six-level writing summaries" : "Updated Six-Level Writing Summary"}</div>
             <div className="mt-1 text-xs leading-5 text-muted-foreground">
               {isInitialLayerGeneration
-                ? "AI 会从现有世界手册提炼基础、力量、社会、文化、历史和冲突六层内容。"
-                : "世界手册调整后，可以重新整理全部摘要，也可以只修改其中一层。"}
+                ? "The AI will extract six levels of content from the existing world manual: foundation, power, society, culture, history and conflict."
+                : "After the world manual is adjusted, the entire summary can be rearranged, or only one layer can be modified."}
             </div>
           </div>
           <Button className="shrink-0 rounded-full" onClick={onGenerateAll} disabled={generateAllPending || !world}>
-            {generateAllPending ? "整理中..." : isInitialLayerGeneration ? "AI 整理六层摘要" : "重新整理六层摘要"}
+            {generateAllPending ? "Organizing..." : isInitialLayerGeneration ? "AI organizes six-layer summaries" : "Reorganize the six-level summary"}
           </Button>
         </div>
 
         <div className="grid gap-4 lg:grid-cols-[220px_minmax(0,1fr)]">
           <div className="space-y-2 rounded-3xl bg-muted/20 p-3">
-            <div className="px-2 py-1 text-xs font-medium text-muted-foreground">选择层级</div>
+            <div className="px-2 py-1 text-xs font-medium text-muted-foreground">Select level</div>
             <div className="space-y-2">
               {LAYERS.map((layer) => {
                 const layerStatus = layerStates[layer.key]?.status ?? "pending";
@@ -128,7 +128,7 @@ export default function WorldLayersTab(props: WorldLayersTabProps) {
                   >
                     <div className="flex items-center justify-between gap-2">
                       <span className="font-medium text-foreground">{layer.label}</span>
-                      {hasDraft ? <span className="text-xs text-primary">草稿</span> : null}
+                      {hasDraft ? <span className="text-xs text-primary">Draft</span> : null}
                     </div>
                     <div className="mt-1 text-xs text-muted-foreground">
                       {LAYER_STATUS_LABELS[layerStatus] ?? layerStatus}
@@ -144,10 +144,10 @@ export default function WorldLayersTab(props: WorldLayersTabProps) {
               <div>
                 <div className="font-medium">{selectedLayerMeta.label}</div>
                 <div className="mt-1 text-xs text-muted-foreground">
-                  状态：{LAYER_STATUS_LABELS[selectedLayerStatus] ?? selectedLayerStatus}
+                  Status: {LAYER_STATUS_LABELS[selectedLayerStatus] ?? selectedLayerStatus}
                 </div>
               </div>
-              {hasSelectedDraft ? <div className="text-xs text-primary">有未保存草稿</div> : null}
+              {hasSelectedDraft ? <div className="text-xs text-primary">There are unsaved drafts</div> : null}
             </div>
             <textarea
               className="min-h-[300px] w-full rounded-2xl border border-border/45 bg-background/80 p-4 text-sm leading-6"
@@ -173,11 +173,11 @@ export default function WorldLayersTab(props: WorldLayersTabProps) {
               >
                 {isInitialLayerGeneration
                   ? generateAllPending
-                    ? "六层生成中..."
-                    : "首次 AI 生成六层"
+                    ? "Six layers are being generated..."
+                    : "For the first time, AI generates six layers"
                   : isGeneratingSelectedLayer
-                    ? "重写中..."
-                    : "AI 整理本层"}
+                    ? "Rewriting..."
+                    : "AI organizes this layer"}
               </Button>
               <Button
                 className="rounded-full"
@@ -185,7 +185,7 @@ export default function WorldLayersTab(props: WorldLayersTabProps) {
                 onClick={() => onSaveLayer({ layerKey: selectedLayerMeta.key, content: selectedLayerValue })}
                 disabled={saveLayerPending || generateAllPending || !selectedLayerValue.trim()}
               >
-                {isSavingSelectedLayer ? "保存中..." : "保存本层"}
+                {isSavingSelectedLayer ? "Saving..." : "Save this layer"}
               </Button>
               <Button
                 className="rounded-full"
@@ -193,7 +193,7 @@ export default function WorldLayersTab(props: WorldLayersTabProps) {
                 onClick={() => onConfirmLayer(selectedLayerMeta.key)}
                 disabled={confirmLayerPending || generateAllPending}
               >
-                {isConfirmingSelectedLayer ? "确认中..." : "确认本层"}
+                {isConfirmingSelectedLayer ? "Confirming..." : "Confirm this layer"}
               </Button>
             </div>
           </div>
@@ -201,8 +201,8 @@ export default function WorldLayersTab(props: WorldLayersTabProps) {
 
         <details className="group rounded-3xl bg-muted/20 p-5">
           <summary className="cursor-pointer list-none marker:hidden">
-            <div className="font-medium">AI 精修当前内容</div>
-            <div className="mt-1 text-xs text-muted-foreground">需要调整表达、深度或备选方向时再展开。</div>
+            <div className="font-medium">AI refines current content</div>
+            <div className="mt-1 text-xs text-muted-foreground">Expand when you need to adjust expression, depth, or alternative directions.</div>
           </summary>
           <div className="mt-4 grid gap-2 md:grid-cols-4">
             <SelectControl
@@ -221,19 +221,19 @@ export default function WorldLayersTab(props: WorldLayersTabProps) {
               value={refineMode}
               onChange={(event) => setRefineMode(event.target.value as "replace" | "alternatives")}
             >
-              <option value="replace">替换优化</option>
-              <option value="alternatives">提供备选方案</option>
+              <option value="replace">Replacement optimization</option>
+              <option value="alternatives">Provide alternatives</option>
             </SelectControl>
             <SelectControl
               className="rounded-xl border border-border/45 bg-background p-2 text-sm"
               value={refineLevel}
               onChange={(event) => setRefineLevel(event.target.value as "light" | "deep")}
             >
-              <option value="light">轻度</option>
-              <option value="deep">深度</option>
+              <option value="light">Mild</option>
+              <option value="deep">Depth</option>
             </SelectControl>
             <Button className="rounded-full" onClick={onStartRefine} disabled={refineStreaming}>
-              {refineStreaming ? "精修中..." : selectedLayer === "foundation" ? "精修世界基底" : "精修本层"}
+              {refineStreaming ? "Under revision..." : selectedLayer === "foundation" ? "Refining the foundation of the world" : "Refine this layer"}
             </Button>
           </div>
           <StreamOutput content={refineContent} isStreaming={refineStreaming} onAbort={onAbortRefine} />

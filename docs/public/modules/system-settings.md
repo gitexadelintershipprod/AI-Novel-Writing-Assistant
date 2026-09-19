@@ -1,75 +1,75 @@
-# 系统设置
+# Settings
 
-系统设置用于配置模型供应商、API Key、知识库连接、数据库相关偏好和基础运行选项。第一次使用时，系统设置是必须完成的入口。
+Settings is where you configure model providers, API keys, knowledge-library connections, database-related preferences, and basic runtime options. On first use, Settings is a required stop.
 
-## 优先配置什么
+## What to configure first
 
-建议按这个顺序配置：
+Configure in this order:
 
-1. 模型供应商。
-2. API Key。
-3. Base URL。
-4. 默认模型。
-5. 连接测试。
-6. 可选知识库设置。
-7. 可选任务和界面偏好。
+1. Model provider.
+2. API key.
+3. Base URL.
+4. Default model.
+5. Connection test.
+6. Optional knowledge-library settings.
+7. Optional task and interface preferences.
 
-先确认模型可用，再进入新手上路。
+Confirm the model works before you enter the First-run guide.
 
-## API Key 和供应商
+## API keys and providers
 
-填写 API Key 时注意：
+When you fill in an API key:
 
-- 不要多复制空格。
-- 确认 Key 对应的供应商和 Base URL。
-- 确认账户额度和模型权限。
-- 如果供应商兼容 OpenAI 接口，按兼容接口填写。
+- do not copy extra spaces;
+- match the key to the provider and Base URL;
+- confirm account quota and model permission;
+- if the provider is OpenAI-compatible, fill in the compatible endpoint.
 
-连接失败时，先用供应商控制台或简单请求确认 Key 是否有效，再回到应用测试。
+If connection fails, confirm the key in the provider console or with a simple request, then test again in the app.
 
-## Base URL 和模型名称
+## Base URL and model name
 
-Base URL 需要和供应商文档一致。常见问题包括：
+The Base URL must match the provider docs. Common mistakes include:
 
-- 多写或少写路径。
-- 使用了网页地址而不是 API 地址。
-- 模型名称和供应商实际名称不一致。
-- 代理或网络限制导致请求无法到达。
+- extra or missing path segments;
+- using a website URL instead of an API URL;
+- a model name that does not match the provider’s real name;
+- a proxy or network limit that blocks the request.
 
-模型名称建议从供应商文档复制，不要自行猜测。
+Copy the model name from the provider docs. Do not guess it.
 
-## Qdrant 设置
+## Qdrant settings
 
-Qdrant 用于知识库向量检索。它不是开书和生成第一章的硬性前置条件，但会影响资料召回、拆书沉淀和长期一致性。
+Qdrant is used for knowledge-library vector search. It is not a hard requirement for opening a book and generating chapter 1, but it does affect note recall, book-analysis reuse, and long-term consistency.
 
-配置时确认：
+When you configure it, confirm:
 
-- Qdrant 服务可访问。
-- 地址和端口正确。
-- 集合或命名策略符合应用配置。
-- 索引任务能够完成。
+- the Qdrant service is reachable;
+- the address and port are correct;
+- collection or naming strategy matches the app configuration;
+- index tasks can finish.
 
-知识库不命中时，不要只改提示词；先确认 Qdrant 连接和索引状态。
+If the knowledge library misses content, do not only change prompts. Confirm the Qdrant connection and index status first.
 
-## SQLite 和本地数据
+## SQLite and local data
 
-桌面版会保存本地数据库和配置。请把它当作重要数据处理：
+The desktop app stores a local database and configuration. Treat that as important data:
 
-- 不要随意删除数据库文件。
-- 重要小说定期导出或备份。
-- 迁移、重置或清理前先确认备份。
-- 排查问题时保留日志和数据副本。
+- do not delete database files casually;
+- export or back up important novels regularly;
+- confirm a backup before migration, reset, or cleanup;
+- keep logs and a data copy while diagnosing a problem.
 
-任何可能删除数据的操作都应先备份。
+Any action that can delete data should start with a backup.
 
-## 设置后的验证
+## How to verify after setup
 
-完成设置后，建议执行一个最短验证：
+After setup, run the shortest check:
 
-1. 测试模型连接。
-2. 创建测试小说。
-3. 让自动导演生成方向候选。
-4. 生成第一章。
-5. 查看任务中心状态。
+1. Test the model connection.
+2. Create a test novel.
+3. Let Auto-Director generate direction options.
+4. Generate chapter 1.
+5. Check Task Center status.
 
-这条路径能同时验证模型、数据库、任务队列和主链入口。
+That path checks the model, database, task queue, and main-chain entry together.

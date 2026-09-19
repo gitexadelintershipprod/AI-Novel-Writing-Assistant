@@ -1,76 +1,76 @@
-# 开发计划
+# Public roadmap
 
-这份路线图面向使用者和关注项目方向的人。它按**已完成、进行中、下一步关注**三段组织，让读者能看到项目实际推进到了哪一步，而不是只有口号。
+This roadmap is for people using the product and people following where it is going. It is grouped into **done**, **in progress**, and **next focus**, so you can see what is actually available.
 
-完整发布历史见[版本更新说明](#/docs/release-notes)；内部正在执行的设计文档不直接对外展示，但相关公开能力会在本页登记。
+The full update history is in [Release notes](#/docs/release-notes). Internal design docs stay private; public capabilities land on this page when they are ready to talk about.
 
-## 已完成（近 3 月主要交付）
+## Done (main deliveries in the last 3 months)
 
-按时间倒序，每条对应一次正式发布；点开[版本更新说明](#/docs/release-notes)可看具体改动。
+Newest first. Each item matches a public release. Open [Release notes](#/docs/release-notes) for the details.
 
-- **2026-06-29** 公开文档站导航、搜索与生产链深度文档：实战手册、自动导演阶段全景、章节执行链、知识与 RAG 召回链、按阶段恢复手册。
-- **2026-06-28** RAG 向量优化与上传 UX：Embedding 与 Qdrant 写入并发可调、流式索引、文件拖拽预览、虚拟滚动浏览。
-- **2026-06-28** 角色形象词条融合：章节扫描出的外貌词条进入待确认区，融合后影响角色档案和后续生图。
-- **2026-06-27** 拆书角色深度档案 + 形象演变：简要/标准/深入/完整四档生成；按 25/50/75/100% 覆盖率沉淀章节形象。
-- **2026-06-26** 拆书预算上限、发布隔离与结构化检索。
-- **2026-06-25** 拆书结果页首屏精简、范围选择与双栏对照。
-- **2026-06-24** 拆书证据溯源、时间线结构化与聚焦生成。
-- **2026-06-23** 角色资源账本、图片生成确认弹窗与自动导演暂停提醒。
-- **2026-06-18** 漫画工作台一致性强化：场景库、角色资产、外貌锚点 AI 协助。
+- **2026-06-29** Public docs site navigation, search, and production-chain depth docs: walkthrough, Auto-Director stage map, chapter execution chain, knowledge and RAG recall, recovery by phase.
+- **2026-06-28** RAG vector tuning and upload UX: adjustable Embedding and Qdrant write concurrency, streaming index, drag-and-drop file preview, virtualized browsing.
+- **2026-06-28** Character appearance fusion: appearance terms scanned from chapters enter a confirmation area; after fusion they affect character profiles and later image generation.
+- **2026-06-27** Book-analysis character depth plus appearance evolution: brief / standard / in-depth / complete profile levels; chapter appearance is saved at 25 / 50 / 75 / 100% coverage.
+- **2026-06-26** Book-analysis budget caps, publish isolation, and structured retrieval.
+- **2026-06-25** Book-analysis result page first-screen simplification, range selection, and two-pane comparison.
+- **2026-06-24** Book-analysis evidence tracing, structured timeline, and focused generation.
+- **2026-06-23** Character resource ledger, image-generation confirmation dialog, and Auto-Director pause reminders.
+- **2026-06-18** Comic studio consistency: scene library, character assets, appearance-anchor AI help.
 
-## 进行中
+## In progress
 
-下列方向已有正式设计文档或代码在主干推进，但还未对外宣布完成。条目顺序大致按"距离用户可见越近、越靠前"。
+These directions have a design or code on the main line, but they are not announced as complete. Closer-to-user items come first.
 
-### 章节编辑器 v2
+### Chapter editor v2
 
-把章节正文写作、审核问题列表、修复结果和质量债务沉淀在同一个编辑器入口，减少在章节页和任务中心之间反复切换。
+Keep chapter writing, review issue lists, repair results, and quality debt in one editor entry, so you spend less time bouncing between the chapter page and the Task Center.
 
-### 自动导演执行面隔离
+### Isolated Auto-Director execution
 
-让"接管 / 继续 / 恢复 / 重规划"统一通过同一条 Pipeline Engine 推进，每个步骤模块都拥有输入、输出、进度检查和恢复契约，长任务在并发和重启场景下更可预测。
+Let take over / continue / recover / replan travel through one pipeline engine. Each step module has input, output, progress checks, and a recovery contract, so long tasks stay more predictable during concurrency and restarts.
 
-### 提示词工坊 + 步骤运行时
+### Prompt workshop plus step runtime
 
-把当前散落在多处的提示词集中到可编辑、可版本化、可与步骤绑定的工坊里；同步重构步骤运行时，让提示词调整能立即反映在自动导演各阶段。
+Put prompts that currently live in many places into an editable, versioned workshop bound to steps. Keep the step runtime in sync so prompt edits show up in Auto-Director stages.
 
-### 角色资源账本 + 角色系统升级
+### Character resource ledger plus character-system upgrade
 
-角色不再只是"资料卡 + 状态"，而是带行动能力边界、叙事岗位、关系张力和章节角色上下文包的资源系统。账本侧重资源/能力，升级方案侧重叙事岗位。
+Characters become more than a profile card plus state. They carry action limits, narrative jobs, relationship tension, and a chapter context pack. The ledger focuses on resources and abilities; the upgrade focuses on narrative jobs.
 
-### 章节生产管线优化
+### Chapter production pipeline
 
-围绕"正文生成 → 审核 → 修复 → 状态回灌"链路，让单章产出更稳定、失败更容易定位，并把章节后处理统一收敛。
+Around draft generation → review → repair → state write-back, make single-chapter output more stable, make failures easier to locate, and keep chapter after-work in one place.
 
-### 漫画改编工作台
+### Comic adaptation studio
 
-与短剧产线共享"小说 IP → 视觉内容"基础，目标是同一批关键帧能产出**条漫（静态长图）+ 漫剧（动态漫视频）**双格式。
+Share the “novel IP → visual content” base with the drama pipeline. The goal is one set of keyframes that can produce **vertical comics (static long images) plus motion comics (animated comic video)**.
 
-### 短剧生产管线 v3
+### Drama production pipeline v3
 
-在已有的三内容源 / 节奏引擎 / 台本产线 / 分镜 / 视频提示词基础上，补齐"能产出可发布成片"还缺的环节（角色合图、镜头连贯、成片导出等）。
+On top of the existing three content sources / pacing engine / script pipeline / storyboard / video prompts, fill the remaining pieces needed for a publishable cut (character composites, shot continuity, finished export, and similar).
 
-### Creative Hub 升级为 LangGraph 运行时
+### Creative Hub runtime
 
-把当前自定义 `/chat + SSE + IndexedDB` 的聊天工作台，按并行迁移策略升级为基于 `assistant-ui + useLangGraphRuntime` 的创作中枢。
+Give Creative Hub a more reliable conversation runtime so status questions, tool use, and next-step guidance stay stable.
 
-## 下一步关注
+## Next focus
 
-下列方向还在评估或早期探索，未必形成最终方案：
+These directions are still being evaluated or explored. They are not a final plan:
 
-- **长程上下文记忆**：让世界规则、角色状态、时间线、伏笔和写法在 30+ 章后仍稳定参与生成，而不是只在前几章生效。
-- **跨书资产复用**：题材基底、推进模式、世界样本、角色档案、写法资产能跨小说复用并保留出处。
-- **叙事引擎工作台**：长期把小说主链从“文档生成器”升级为类似游戏编辑器的创作控制台。世界、角色、势力、资源、事件和章节正文都作为可观察、可推演、可回灌的叙事资产；正文生成是世界状态在某个章节视角下的渲染结果，而不是孤立文本补全。
-- **世界与角色的具现化管理**：世界地图、势力地图、势力关系图、力量体系树、角色思路线、角色对话和角色资源状态可以逐步成为创作台的一部分。它们的目标是帮助用户理解和经营小说世界，不是要求新手先维护复杂游戏数据表。
-- **多世界观与 IP 宇宙资产**：在单本书世界状态稳定后，探索续作、外传、平行线、IF 线和跨世界交集。角色、势力、道具、能力体系和世界规则可以形成可复用资产包，但需要保留来源、适配边界和正史/分支区分。
-- **桌面版面向普通用户的安装与运维**：模型供应商一键配置、知识库本地存储默认值、错误的自助恢复入口。
-- **更可靠的质量闭环**：审核 / 修复 / 质量债务可量化，单本书可以输出"质量报告"。
-- **开放可研究性**：保留开源价值，方便研究者观察 AI 产品如何把长链路任务、知识库、自动导演和创作资产组合在一起。
+- **Long-range context memory**: keep world rules, character state, timeline, foreshadowing, and writing style in generation after 30+ chapters, not only in the opening.
+- **Cross-book asset reuse**: genre bases, story modes, world samples, character profiles, and style assets can be reused across novels while keeping their source.
+- **Narrative engine workspace**: over time, the novel main chain can feel more like a creation console than a document generator. World, characters, factions, resources, events, and chapter text become assets you can observe, simulate, and write back. Chapter text is the world state rendered from one chapter’s viewpoint, not isolated text completion.
+- **World and character visualization**: world maps, faction maps, relationship maps, power-system trees, character thought lines, character conversation, and character resource state can gradually become part of the writing desk. The goal is to help you understand and run the novel world, not to ask a beginner to maintain game data tables first.
+- **Multi-world and IP-universe assets**: after one book’s world state is stable, explore sequels, side stories, parallel lines, IF lines, and cross-world overlap. Characters, factions, items, ability systems, and world rules can become reusable packs, while keeping source, adaptation limits, and canon / branch labels.
+- **Desktop install and recovery for ordinary users**: one-step model-provider setup, sensible local knowledge-library defaults, and self-serve recovery entries for errors.
+- **A more reliable quality loop**: review / repair / quality debt become measurable, so one book can produce a quality report.
+- **Open research value**: keep the project useful to study how an AI product combines long-chain tasks, a knowledge library, Auto-Director, and creative assets.
 
-上述“叙事引擎工作台”属于长期蓝图，不代表近期会把主链改成互动游戏。当前阶段仍优先稳定自动导演、章节生产、世界 / 角色上下文和质量闭环；游戏编辑器式能力会以降低创作认知负担、提高长篇完成率为前提逐步评估。
+The narrative-engine workspace is a long-term picture. It does not mean the main chain will become an interactive game soon. The current priority is still a stable Auto-Director, chapter production, world / character context, and quality loop. Game-editor capabilities are evaluated only when they lower writing load and raise the chance of finishing a long novel.
 
-## 维护说明
+## How this page is kept
 
-每次发布 release notes 时，**已完成**段顶部追加一条，并把**进行中**里相应条目移除或合并。如果计划被搁置或重新评估，从"进行中"挪到"下一步关注"或直接删除，避免长期挂着。
+When a public release lands, a new item is added at the top of **Done**, and the matching **In progress** item is removed or merged. If a plan is paused or re-evaluated, it moves to **Next focus** or is removed so this page does not keep stale promises.
 
-本页不展示内部任务清单、临时检查点、未整理草案或仅供开发者参考的执行计划。
+This page does not list internal task checklists, temporary checkpoints, unpolished drafts, or developer-only execution plans.

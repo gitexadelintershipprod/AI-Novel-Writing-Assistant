@@ -20,15 +20,15 @@ export const storyModeProfileSchema = z.object({
 const DEFAULT_STORY_MODE_PROFILE: StoryModeProfile = {
   coreDrive: "通过稳定兑现核心阅读期待来推动连载体验。",
   readerReward: "每隔数章都获得清晰、可感知的满足感。",
-  progressionUnits: ["关键关系推进", "阶段性目标兑现"],
-  allowedConflictForms: ["与主驱动一致的中低烈度冲突"],
-  forbiddenConflictForms: ["无关的高压狗血冲突"],
+  progressionUnits: ["Key relations推进", "阶段性目标兑现"],
+  allowedConflictForms: ["Low to medium intensity conflict consistent with primary drive"],
+  forbiddenConflictForms: ["Unrelated high-pressure bloody conflict"],
   conflictCeiling: "medium",
   resolutionStyle: "优先使用符合该模式的方式化解问题，而不是强行升级。",
   chapterUnit: "每章围绕一个清晰的推进单位展开。",
   volumeReward: "卷末给出与模式一致的阶段性兑现。",
-  mandatorySignals: ["主驱动持续出现", "读者期待被重复确认"],
-  antiSignals: ["长期偏离主驱动", "冲突烈度失控"],
+  mandatorySignals: ["Main drive keeps showing up", "读者期待被重复确认"],
+  antiSignals: ["Long-term deviation from main drive", "The intensity of the conflict is out of control"],
 };
 
 function normalizeText(value: unknown, fallback: string): string {
@@ -126,7 +126,7 @@ export function buildStoryModePromptBlock(input: {
     return "";
   }
   return [
-    "流派模式约束：主流派模式是硬约束，副流派模式只能补充风味，不能覆盖主模式的冲突上限和禁止信号。",
+    "Story-mode constraint: the main mode is a hard constraint. The supporting mode can only add flavor and must not override the main mode's conflict ceiling or forbidden signals.",
     ...sections,
   ].join("\n\n");
 }
@@ -141,19 +141,19 @@ function formatSingleStoryModeBlock(
     `${label}：${storyMode.name}`,
     storyMode.description ? `说明：${storyMode.description}` : "",
     storyMode.template ? `补充模板：${storyMode.template}` : "",
-    `核心驱动：${profile.coreDrive}`,
+    `Core driver:${profile.coreDrive}`,
     `读者奖励：${profile.readerReward}`,
-    `章节推进单位：${profile.chapterUnit}`,
-    `卷末兑现：${profile.volumeReward}`,
+    `Chapter advancement unit：${profile.chapterUnit}`,
+    `Cash out at the end of the roll：${profile.volumeReward}`,
     `允许的冲突形式：${profile.allowedConflictForms.join("、")}`,
     `禁止的冲突形式：${profile.forbiddenConflictForms.join("、")}`,
-    `冲突上限：${profile.conflictCeiling}`,
+    `Conflict limit:${profile.conflictCeiling}`,
     `化解方式：${profile.resolutionStyle}`,
     `必须反复出现的信号：${profile.mandatorySignals.join("、")}`,
-    `必须避免的跑偏信号：${profile.antiSignals.join("、")}`,
+    `Deviation signals that must be avoided：${profile.antiSignals.join("、")}`,
     `剧情主要推进单位：${profile.progressionUnits.join("、")}`,
     isPrimary
-      ? "使用要求：后续规划与生成必须优先服从这一模式。"
+      ? "Usage rule: later planning and generation must follow this mode first."
       : "使用要求：只能作为补充风味，不得破坏主模式的边界。",
   ].filter(Boolean).join("\n");
 }

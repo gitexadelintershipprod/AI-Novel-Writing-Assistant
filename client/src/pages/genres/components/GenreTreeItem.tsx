@@ -35,7 +35,7 @@ export default function GenreTreeItem({
               type="button"
               className="mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-transparent text-muted-foreground transition-colors hover:border-border hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               onClick={() => setExpanded((value) => !value)}
-              aria-label={expanded ? `折叠「${node.name}」` : `展开「${node.name}」`}
+              aria-label={expanded ? `Collapse “${node.name}”` : `Expand “${node.name}”`}
               aria-expanded={expanded}
             >
               {expanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
@@ -58,18 +58,18 @@ export default function GenreTreeItem({
                 ) : null}
               </div>
               <div className="text-sm leading-6 text-muted-foreground">
-                {node.description?.trim() || "尚未说明题材定位，建议补充读者期待和核心创作方向。"}
+                {node.description?.trim() || "The subject matter positioning has not been explained yet. It is recommended to supplement the readers’ expectations and core creative direction."}
               </div>
             </div>
 
             <div className="flex shrink-0 flex-wrap gap-1 border-t border-border/60 pt-2 lg:justify-end lg:border-t-0 lg:pt-0">
               <Button type="button" variant="ghost" size="sm" onClick={() => onCreateChild(node.id)}>
                 <Plus className="h-4 w-4" aria-hidden="true" />
-                新增子类
+                Add new subcategory
               </Button>
               <Button type="button" variant="ghost" size="sm" onClick={() => onEdit(node.id)}>
                 <Pencil className="h-4 w-4" aria-hidden="true" />
-                编辑
+                Edit
               </Button>
               <Button
                 type="button"
@@ -77,11 +77,11 @@ export default function GenreTreeItem({
                 size="sm"
                 className="text-destructive hover:text-destructive"
                 disabled={deleteDisabled || deletingId === node.id}
-                title={deleteDisabled ? "当前分类或下级分类仍被小说使用，请先调整关联小说的题材。" : undefined}
+                title={deleteDisabled ? "The current category or lower category is still used by the novel. Please adjust the subject matter of the associated novel first." : undefined}
                 onClick={() => onDelete(node)}
               >
                 <Trash2 className="h-4 w-4" aria-hidden="true" />
-                {deletingId === node.id ? "删除中..." : "删除"}
+                {deletingId === node.id ? "Deleting..." : "Delete"}
               </Button>
             </div>
           </div>

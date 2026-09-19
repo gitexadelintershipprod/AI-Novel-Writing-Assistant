@@ -54,13 +54,13 @@ export class ChapterPatchRepairFailedError extends Error {
 export class ChapterPatchRepairService {
   async repair(input: ChapterPatchRepairInput): Promise<ChapterPatchRepairResult> {
     if (!input.content.trim()) {
-      throw new ChapterPatchRepairFailedError("章节正文为空，不能执行局部补丁修复。");
+      throw new ChapterPatchRepairFailedError("The chapter body is empty, so a local patch repair cannot run.");
     }
     if (input.repairMode === "detect_only") {
-      throw new ChapterPatchRepairFailedError("当前为只检测模式，未执行章节修复。");
+      throw new ChapterPatchRepairFailedError("Detect-only mode is on, so chapter fixes were not applied.");
     }
     if (input.repairMode === "heavy_repair") {
-      throw new ChapterPatchRepairFailedError("当前修复模式允许整章重写，跳过局部补丁。");
+      throw new ChapterPatchRepairFailedError("The current repair mode allows a full-chapter rewrite, so the local patch was skipped.");
     }
 
     const repairContext = input.repairContext ?? input.runtimePackage?.context.chapterRepairContext;
@@ -93,7 +93,7 @@ export class ChapterPatchRepairService {
       const message = error instanceof Error && error.message.trim()
         ? error.message.trim()
         : String(error);
-      throw new ChapterPatchRepairFailedError(`局部补丁计划未通过结构校验：${message}`);
+      throw new ChapterPatchRepairFailedError(`The local patch plan failed structure validation: ${message}`);
     }
 
     let applied: ChapterPatchApplyResult;
@@ -102,14 +102,14 @@ export class ChapterPatchRepairService {
     } catch (error) {
       const message = formatPatchRepairApplyError(error);
       throw new ChapterPatchRepairFailedError(
-        `局部补丁计划不可安全应用：${message}`,
+        `The local patch plan cannot be applied safely: ${message}`,
         generated.output,
       );
     }
     if (!applied.success) {
       const reason = applied.failures.map((failure) => `${failure.patchId}: ${failure.reason}`).join("；")
         || generated.output.escalationReason
-        || "局部补丁没有产生有效正文变化。";
+        || "The partial patch produced no valid text changes.";
       throw new ChapterPatchRepairFailedError(reason, generated.output, applied);
     }
 

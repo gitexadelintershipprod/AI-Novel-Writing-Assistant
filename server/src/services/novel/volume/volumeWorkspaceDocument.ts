@@ -135,9 +135,9 @@ function normalizeStrategyVolume(raw: unknown, index: number): VolumeStrategyVol
   return {
     sortOrder: Math.max(1, normalizeInteger(raw.sortOrder, index + 1)),
     planningMode,
-    roleLabel: normalizeString(raw.roleLabel, `第${index + 1}卷定位`),
-    coreReward: normalizeString(raw.coreReward, "待补全本卷读者回报。"),
-    escalationFocus: normalizeString(raw.escalationFocus, "待补全本卷升级焦点。"),
+    roleLabel: normalizeString(raw.roleLabel, `Volume ${index + 1} role`),
+    coreReward: normalizeString(raw.coreReward, "待补全本卷Reader feedback。"),
+    escalationFocus: normalizeString(raw.escalationFocus, "待补全本卷Upgrade focus。"),
     uncertaintyLevel,
   };
 }
@@ -178,9 +178,9 @@ function normalizeStrategyPlan(raw: unknown, volumeCount: number): VolumeStrateg
   return {
     recommendedVolumeCount: Math.max(1, normalizeInteger(raw.recommendedVolumeCount, volumes.length || volumeCount || 1)),
     hardPlannedVolumeCount: Math.max(1, normalizeInteger(raw.hardPlannedVolumeCount, Math.min(volumes.length, 3))),
-    readerRewardLadder: normalizeString(raw.readerRewardLadder, "待补全读者回报梯度。"),
-    escalationLadder: normalizeString(raw.escalationLadder, "待补全升级梯度。"),
-    midpointShift: normalizeString(raw.midpointShift, "待补全中盘转向。"),
+    readerRewardLadder: normalizeString(raw.readerRewardLadder, "待补全reader reward gradient。"),
+    escalationLadder: normalizeString(raw.escalationLadder, "待补全Upgrade gradient。"),
+    midpointShift: normalizeString(raw.midpointShift, "待补全mid game turn。"),
     notes: normalizeString(raw.notes, "待补全卷战略备注。"),
     volumes,
     uncertainties: Array.isArray(raw.uncertainties)
@@ -198,7 +198,7 @@ function normalizeBeat(raw: unknown): VolumeBeat | null {
   const rawKey = normalizeText(raw.key);
   const rawLabel = normalizeText(raw.label);
   const resolvedKey = resolveVolumeBeatSlotKey(rawKey) ?? resolveVolumeBeatSlotKey(rawLabel) ?? rawKey;
-  const roleLabel = getVolumeBeatRoleLabel(resolvedKey, rawLabel || "节奏段");
+  const roleLabel = getVolumeBeatRoleLabel(resolvedKey, rawLabel || "Beat");
   let title = normalizeText(raw.title);
   if (!title && rawLabel && rawLabel !== roleLabel) {
     const prefix = `${roleLabel} · `;
@@ -397,17 +397,17 @@ export function buildVolumePlanningReadiness(input: {
   const { volumes, strategyPlan, critiqueReport, beatSheets } = input;
   const blockingReasons: string[] = [];
   if (!strategyPlan) {
-    blockingReasons.push("请先生成卷战略建议，再确认卷骨架。");
+    blockingReasons.push("Please first create a volume strategy suggestion, and then confirm the volume skeleton.");
   }
   const hasHighRiskCritique = critiqueReport?.overallRisk === "high";
   if (hasHighRiskCritique) {
-    blockingReasons.push("当前卷战略审查为高风险，请先重新生成或修订卷战略。");
+    blockingReasons.push("The current volume strategy review is high risk, please regenerate or revise the volume strategy first.");
   }
   if (volumes.length === 0) {
-    blockingReasons.push("当前还没有卷骨架。");
+    blockingReasons.push("There is currently no volume skeleton.");
   }
   if (!beatSheets.some((sheet) => sheet.beats.length > 0)) {
-    blockingReasons.push("当前卷还没有节奏板，默认不能直接拆章节列表。");
+    blockingReasons.push("There is no rhythm board in the current volume, so the chapter list cannot be directly opened by default.");
   }
   return {
     canGenerateStrategy: true,

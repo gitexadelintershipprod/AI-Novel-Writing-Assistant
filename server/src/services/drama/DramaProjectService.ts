@@ -76,13 +76,13 @@ export class DramaProjectService {
   /**
    * 通过防腐层把内容源装配为标准化内容包，并落库：
    * 1) DramaSourceBundle（梗概/节拍/设定/硬事实/原文）
-   * 2) DramaCharacter（角色资源导入）
+   * 2) DramaCharacter（Character resources导入）
    * 3) DramaFact（初始事实账本，episodeOrder=0 表示源初始事实）
    */
   async assembleSourceBundle(projectId: string): Promise<SourceBundle> {
     const project = await prisma.dramaProject.findUnique({ where: { id: projectId } });
     if (!project) {
-      throw new Error(`未找到短剧项目：${projectId}`);
+      throw new Error(`Drama project ${projectId} was not found.`);
     }
 
     const adapter = sourceContentRegistry.resolve(project.source as DramaSourceType);
@@ -114,7 +114,7 @@ export class DramaProjectService {
         },
       });
 
-      // 角色资源导入（重置后重建，保证幂等）
+      // Character resources导入（重置后重建，保证幂等）
       await tx.dramaCharacter.deleteMany({ where: { projectId } });
       if (bundle.characters.length > 0) {
         await tx.dramaCharacter.createMany({

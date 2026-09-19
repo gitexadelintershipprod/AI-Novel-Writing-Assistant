@@ -437,7 +437,7 @@ export class ChapterQualityGateService {
         chapterTitle: input.contextPackage.chapter.title,
         chapterGoal: input.contextPackage.chapterMission?.objective
           ?? input.contextPackage.chapter.expectation
-          ?? "推进当前章节任务",
+          ?? "Advance the current chapter task",
         chapterContent: input.content,
         timelineContext,
         provider: input.request.provider,
@@ -467,9 +467,9 @@ export class ChapterQualityGateService {
         issues: [{
           type: "unclear_time_anchor",
           severity: "warning",
-          message: "时间线抽取或检测未完成，章节需要后续复查。",
+          message: "Timeline extraction or detection did not finish. The chapter needs a later review.",
           evidence: message,
-          suggestedFix: "重试时间线检测；若仍失败，人工检查章节承接和未来事件泄漏。",
+          suggestedFix: "Retry timeline detection; if it still fails, manually check chapter handoff and future-event leaks.",
           relatedEventIds: [],
           relatedHookIds: [],
         }],

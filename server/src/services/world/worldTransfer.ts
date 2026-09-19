@@ -229,10 +229,10 @@ export async function exportWorldData(worldId: string, format: "markdown" | "jso
       ...overview.sections.flatMap((section) => [ `## ${section.title}`, section.content || "N/A", "" ]),
       "## Binding Support",
       [
-        ...structuredPayload.bindingSupport.recommendedEntryPoints.map((item) => `- 进入点：${item}`),
-        ...structuredPayload.bindingSupport.highPressureForces.map((item) => `- 高压势力：${item}`),
-        ...structuredPayload.bindingSupport.compatibleConflicts.map((item) => `- 兼容冲突：${item}`),
-        ...structuredPayload.bindingSupport.forbiddenCombinations.map((item) => `- 避免组合：${item}`),
+        ...structuredPayload.bindingSupport.recommendedEntryPoints.map((item) => `- Entry point:${item}`),
+        ...structuredPayload.bindingSupport.highPressureForces.map((item) => `- High-pressure force:${item}`),
+        ...structuredPayload.bindingSupport.compatibleConflicts.map((item) => `- Compatible conflict:${item}`),
+        ...structuredPayload.bindingSupport.forbiddenCombinations.map((item) => `- Combination to avoid:${item}`),
       ].join("\n") || "N/A",
       "",
     ].join("\n");

@@ -79,10 +79,10 @@ export class ShortStoryProductionService {
     } catch (error) {
       const task = await prisma.novelWorkflowTask.findUnique({ where: { id: taskId } });
       if (task?.checkpointType !== "replan_required" && task?.status !== "cancelled") {
-        const message = error instanceof Error ? error.message : "短篇生成未完成。";
+        const message = error instanceof Error ? error.message : "Short-story generation is not finished.";
         await this.workflowService.markTaskFailed(taskId, message, {
           stage: this.resolveFailureStage(task?.currentItemKey),
-          itemLabel: "生成暂时中断，可从当前位置继续",
+          itemLabel: "Generation paused. You can continue from here",
         });
       }
       throw error;
@@ -110,17 +110,17 @@ export class ShortStoryProductionService {
       },
     });
     if (!task || task.lane !== "creation_studio" || !task.novel || task.novel.narrativeForm !== "short_story") {
-      throw new Error("短篇生产任务不存在或作品形态不匹配。");
+      throw new Error("The short-story production task does not exist, or the work type does not match.");
     }
     const intentRow = task.intentVersions[0];
     if (!intentRow) {
-      throw new Error("短篇生产缺少生效中的创作意图。");
+      throw new Error("Short-story production is missing an active creative intent.");
     }
     const interpretation = parseJson<CreationIntentInterpretation | null>(intentRow.structuredIntentJson, null);
     const impact = parseJson<{ selectedDirectionId?: string }>(intentRow.impactScopeJson, {});
     const direction = interpretation?.directions.find((item) => item.id === impact.selectedDirectionId);
     if (!interpretation || !direction) {
-      throw new Error("短篇生产缺少已确认的创作方向。");
+      throw new Error("Short-story production is missing a confirmed creative direction.");
     }
     return {
       task,
@@ -157,7 +157,7 @@ export class ShortStoryProductionService {
     await this.workflowService.markTaskRunning(context.task.id, {
       stage: "short_story_plan",
       itemKey: "short_story_plan",
-      itemLabel: "正在规划完整短篇",
+      itemLabel: "Planning the full short story",
       progress: 0.16,
     });
     const generated = await runStructuredPrompt({
@@ -232,12 +232,12 @@ export class ShortStoryProductionService {
       }
       const segmentPlan = plan.contract.segments.find((item) => item.order === row.order);
       if (!segmentPlan) {
-        throw new Error(`短篇计划缺少第 ${row.order} 个内部片段。`);
+        throw new Error(`The short-story plan is missing internal fragment ${row.order}.`);
       }
       await this.workflowService.markTaskRunning(context.task.id, {
         stage: "short_story_draft",
         itemKey: `segment:${row.order}`,
-        itemLabel: `正在续写完整作品（${row.order}/${rows.length}）`,
+        itemLabel: `Continuing the complete work (${row.order}/${rows.length})`,
         progress: 0.24 + (row.order - 1) / rows.length * 0.58,
       });
       const claimed = await prisma.shortStorySegment.updateMany({
@@ -317,14 +317,14 @@ export class ShortStoryProductionService {
   ): Promise<void> {
     await this.assertRunnable(context.task.id);
     if (segments.some((segment) => segment.status !== "completed" || !segment.content.trim())) {
-      throw new Error("短篇仍有未完成片段，无法进行全篇审校。");
+      throw new Error("The short story still has unfinished fragments, so full-text review cannot run.");
     }
     const content = segments.map((segment) => segment.content.trim()).join("\n\n");
     await prisma.shortStoryPlan.update({ where: { id: plan.row.id }, data: { status: "reviewing" } });
     await this.workflowService.markTaskRunning(context.task.id, {
       stage: "short_story_review",
       itemKey: "full_audit",
-      itemLabel: "正在检查完整成稿",
+      itemLabel: "Checking the complete draft",
       progress: 0.9,
     });
     const audited = await runStructuredPrompt({
@@ -357,7 +357,7 @@ export class ShortStoryProductionService {
         stage: "short_story_review",
         checkpointType: "replan_required",
         checkpointSummary: audited.output.summary,
-        itemLabel: "需要重新确认故事方向",
+        itemLabel: "The story direction needs to be confirmed again",
         progress: 0.92,
       });
       return;
@@ -378,9 +378,9 @@ export class ShortStoryProductionService {
       stage: "short_story_review",
       checkpointType: "workflow_completed",
       checkpointSummary: qualityDebt.length > 0
-        ? "完整成稿已交付，仍有少量可继续优化的建议。"
-        : "完整成稿已生成并完成全篇检查。",
-      itemLabel: "完整作品已准备好",
+        ? "The complete draft was delivered. A few optional polish suggestions remain."
+        : "The complete draft was generated and fully checked.",
+      itemLabel: "The complete work is ready",
       progress: 1,
     });
   }
@@ -395,7 +395,7 @@ export class ShortStoryProductionService {
     await this.workflowService.markTaskRunning(context.task.id, {
       stage: "short_story_review",
       itemKey: "single_patch",
-      itemLabel: "正在完成必要修整",
+      itemLabel: "Finishing required polish",
       progress: 0.95,
     });
     const repaired = await runStructuredPrompt({

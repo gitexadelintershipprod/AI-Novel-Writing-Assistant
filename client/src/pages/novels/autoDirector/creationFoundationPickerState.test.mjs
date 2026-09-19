@@ -11,12 +11,12 @@ import {
 const tree = [
   {
     id: "genre-root",
-    name: "科幻",
+    name: "Science fiction",
     description: "科学幻想",
     children: [
       {
         id: "genre-near-future",
-        name: "近未来科幻",
+        name: "near future science fiction",
         description: "现实延伸出的技术冲突",
         children: [],
       },
@@ -46,7 +46,7 @@ test("fillMissingCreationFoundation applies radar recommendations without replac
 });
 
 test("findCreationFoundationNode resolves a nested resource", () => {
-  assert.equal(findCreationFoundationNode(tree, "genre-near-future")?.name, "近未来科幻");
+  assert.equal(findCreationFoundationNode(tree, "genre-near-future")?.name, "near future science fiction");
   assert.equal(findCreationFoundationNode(tree, "missing"), null);
 });
 

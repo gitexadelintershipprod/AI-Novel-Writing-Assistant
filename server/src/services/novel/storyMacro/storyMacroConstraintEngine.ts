@@ -50,7 +50,7 @@ function buildPressureRoles(expansion: StoryExpansion): string[] {
   return mergeUnique([
     `主角位：${summarizeText(expansion.protagonist_core, "主角被困在无法轻易退出的处境中。")}`,
     `对立位：${summarizeText(expansion.conflict_layers.external, "外部力量持续压迫主角。")}`,
-    `关系压力位：${summarizeText(expansion.conflict_layers.relational, "关键关系不断施压并制造选择代价。")}`,
+    `relationship stress位：${summarizeText(expansion.conflict_layers.relational, "Key relations不断施压并制造choice price。")}`,
   ], 4);
 }
 
@@ -67,7 +67,7 @@ function buildPhaseModel(plan: StoryMacroEditablePlan): StoryMacroPhase[] {
   return [
     {
       name: DEFAULT_PHASE_NAMES[0],
-      goal: `先把主角困进「${summarizeText(expansion.protagonist_core, decomposition.core_conflict)}」，并抛出核心未知：${expansion.mystery_box || decomposition.main_hook}`,
+      goal: `先把主角困进「${summarizeText(expansion.protagonist_core, decomposition.core_conflict)}」，并抛出Core unknown：${expansion.mystery_box || decomposition.main_hook}`,
     },
     {
       name: DEFAULT_PHASE_NAMES[1],
@@ -75,11 +75,11 @@ function buildPhaseModel(plan: StoryMacroEditablePlan): StoryMacroPhase[] {
     },
     {
       name: DEFAULT_PHASE_NAMES[2],
-      goal: `同步拉高外部、内部、关系三条压力线，兑现冲突引擎：${summarizeText(expansion.conflict_engine, decomposition.core_conflict)}`,
+      goal: `同步拉高外部、内部、关系三条压力线，兑现conflict engine：${summarizeText(expansion.conflict_engine, decomposition.core_conflict)}`,
     },
     {
       name: DEFAULT_PHASE_NAMES[3],
-      goal: `逼近并改写核心未知「${expansion.mystery_box || decomposition.main_hook}」，让主角的认知发生翻转。`,
+      goal: `逼近并改写Core unknown「${expansion.mystery_box || decomposition.main_hook}」，让主角的认知发生翻转。`,
     },
     {
       name: DEFAULT_PHASE_NAMES[4],
@@ -90,7 +90,7 @@ function buildPhaseModel(plan: StoryMacroEditablePlan): StoryMacroPhase[] {
 
 function buildTurningPoints(payoffs: string[]): StoryMacroTurningPoint[] {
   return payoffs.map((item, index) => ({
-    title: `兑现节点 ${index + 1}`,
+    title: `Redeem node ${index + 1}`,
     summary: item,
     phase: DEFAULT_PHASE_NAMES[Math.min(index, DEFAULT_PHASE_NAMES.length - 1)] ?? DEFAULT_PHASE_NAMES[DEFAULT_PHASE_NAMES.length - 1],
   }));
@@ -100,9 +100,9 @@ function buildHardConstraints(plan: StoryMacroEditablePlan): string[] {
   const growthSteps = toGrowthSteps(plan.decomposition.growth_path).map((item) => `主角认知推进必须经过：${item}`);
   return mergeUnique([
     ...plan.constraints,
-    "角色创建前禁止生成具体角色姓名、固定角色阵容或完整人物小传。",
-    `每轮推进都必须持续回应核心未知：${plan.expansion.mystery_box || plan.decomposition.main_hook}`,
-    `剧情升级必须由冲突引擎驱动：${summarizeText(plan.expansion.conflict_engine, plan.decomposition.core_conflict)}`,
+    "Before character creation, do not invent specific names, a fixed cast, or full biographies.",
+    `每轮推进都必须持续回应Core unknown：${plan.expansion.mystery_box || plan.decomposition.main_hook}`,
+    `剧情升级必须由conflict engine驱动：${summarizeText(plan.expansion.conflict_engine, plan.decomposition.core_conflict)}`,
     `高张力场面必须服务于主线，而不是单独炫技：${plan.expansion.setpiece_seeds.join(" / ")}`,
     ...growthSteps,
   ], 10);
@@ -128,7 +128,7 @@ export function buildConstraintEngine(plan: StoryMacroEditablePlan): StoryConstr
     ending_constraints: {
       must_have: mergeUnique([
         `回应主线问题：${plan.decomposition.main_hook}`,
-        `保留结局味道：${plan.decomposition.ending_flavor}`,
+        `保留Final taste:${plan.decomposition.ending_flavor}`,
         plan.decomposition.major_payoffs[plan.decomposition.major_payoffs.length - 1] ?? "",
       ], 4),
       must_not_have: mustNotHave,

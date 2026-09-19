@@ -36,13 +36,13 @@ export class DramaEpisodeOutlineService {
       include: { sourceBundle: true },
     });
     if (!project) {
-      throw new Error(`未找到短剧项目：${projectId}`);
+      throw new Error(`Drama project ${projectId} was not found.`);
     }
     if (!project.strategy) {
-      throw new Error("请先生成改编策略（strategy）再生成分集大纲。");
+      throw new Error("Generate the adaptation strategy before generating the episode outline.");
     }
     if (!project.track || !rhythmEngine.getTrack(project.track as TrackId)) {
-      throw new Error("项目赛道无效，请先设置有效赛道。");
+      throw new Error("The project track is invalid. Set a valid track first.");
     }
     const track = rhythmEngine.getTrack(project.track as TrackId)!;
     const synopsis = project.sourceBundle?.synopsis?.trim() ?? "";

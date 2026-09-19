@@ -129,7 +129,7 @@ export default function WorldGenerator() {
         const defaultPropertySelection = buildDefaultPropertySelectionState(nextPropertyOptions);
 
         if (!nextConcept) {
-          throw new Error("世界分析结果缺少概念卡。");
+          throw new Error("World analysis results are missing concept cards.");
         }
 
         setConcept(nextConcept);
@@ -145,7 +145,7 @@ export default function WorldGenerator() {
         setSkeleton(null);
         setStep(2);
       } catch (error) {
-        const message = error instanceof Error ? error.message : "世界分析结果解析失败。";
+        const message = error instanceof Error ? error.message : "World analysis result parsing failed.";
         toast.error(message);
       }
     },
@@ -230,10 +230,10 @@ export default function WorldGenerator() {
       const response = await generateWorldSkeleton({
         idea: [
           inspirationText.trim(),
-          concept?.summary ? `概念卡：${concept.summary}` : "",
-        ].filter(Boolean).join("\n\n") || "生成一个可用于小说创作的世界样本。",
-        worldType: selectedGenre?.path || concept?.worldType || matchedTemplateWorldType || selectedTemplate?.worldType || "自定义",
-        template: selectedTemplate?.name ?? "自定义",
+          concept?.summary ? `Concept card:${concept.summary}` : "",
+        ].filter(Boolean).join("\n\n") || "Generate a sample world that can be used in novel writing.",
+        worldType: selectedGenre?.path || concept?.worldType || matchedTemplateWorldType || selectedTemplate?.worldType || "Custom",
+        template: selectedTemplate?.name ?? "Custom",
         referenceContext: buildReferenceContext(),
         blueprint: buildGenerationBlueprint(),
         options: {
@@ -253,13 +253,13 @@ export default function WorldGenerator() {
   const finalizeMutation = useMutation({
     mutationFn: async () => {
       if (!skeleton) {
-        throw new Error("请先生成世界骨架。");
+        throw new Error("Please generate the world skeleton first.");
       }
       const blueprint = buildGenerationBlueprint();
       return createWorld({
-        name: worldName.trim() || skeleton.concept.name || "未命名世界",
+        name: worldName.trim() || skeleton.concept.name || "unnamed world",
         description: skeleton.structuredData.profile.summary || skeleton.concept.oneSentence,
-        worldType: selectedGenre?.path || concept?.worldType || matchedTemplateWorldType || selectedTemplate?.worldType || "自定义",
+        worldType: selectedGenre?.path || concept?.worldType || matchedTemplateWorldType || selectedTemplate?.worldType || "Custom",
         templateKey: selectedTemplate?.key ?? "custom",
         selectedDimensions: JSON.stringify(selectedDimensions),
         selectedElements: serializeWorldGenerationBlueprint(blueprint),
@@ -290,22 +290,22 @@ export default function WorldGenerator() {
     <div className="space-y-4">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>创建世界样本</CardTitle>
+          <CardTitle>Create a world sample</CardTitle>
           <LLMSelector />
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-2 md:grid-cols-4">
             <Button variant={step === 1 ? "default" : "secondary"} onClick={() => setStep(1)}>
-              1. 世界意图
+              1. World intention
             </Button>
             <Button variant={step === 2 ? "default" : "secondary"} onClick={() => setStep(2)} disabled={!concept}>
-              2. 世界规模
+              2. World scale
             </Button>
             <Button variant={step === 3 ? "default" : "secondary"} onClick={() => setStep(3)} disabled={!skeleton}>
-              3. 骨架预览
+              3. Skeleton preview
             </Button>
             <Button variant={step === 4 ? "default" : "secondary"} onClick={() => setStep(4)} disabled={!skeleton}>
-              4. 保存世界
+              4. Save the world
             </Button>
           </div>
 
@@ -329,8 +329,8 @@ export default function WorldGenerator() {
               analyzeStreaming={analyzeStream.isStreaming}
               analyzeButtonLabel={
                 analyzeStream.isStreaming
-                  ? (analyzeStream.latestRun?.message ?? "分析中...")
-                  : (isReferenceMode ? "提取原作锚点与架空方向" : "生成概念卡与属性选项")
+                  ? (analyzeStream.latestRun?.message ?? "Analyzing...")
+                  : (isReferenceMode ? "Extract original anchor points and overhead directions" : "Generate concept cards and attribute options")
               }
               analyzeProgressMessage={analyzeStream.latestRun?.message}
               inspirationSourceMeta={inspirationSourceMeta}

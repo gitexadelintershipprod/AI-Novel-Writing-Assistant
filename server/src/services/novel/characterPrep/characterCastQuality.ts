@@ -89,7 +89,7 @@ function buildOptionAssessment(
         optionIndex,
         optionTitle,
         memberName: member.name,
-        message: `角色“${member.name}”缺少 gender。`,
+        message: `Character "${member.name}" is missing gender.`,
       });
     }
   });
@@ -100,7 +100,7 @@ function buildOptionAssessment(
       code: "missing_protagonist",
       optionIndex,
       optionTitle,
-      message: "这套阵容没有稳定主角锚点。",
+      message: "This cast has no stable protagonist anchor.",
     });
   }
 
@@ -138,12 +138,12 @@ export function assessCharacterCastBatch(
 export function buildCharacterCastRepairReasons(assessment: CharacterCastBatchAssessment): string[] {
   return assessment.blockingReasons.length > 0
     ? assessment.blockingReasons
-    : ["当前阵容存在可读性或落库质量问题，请按真实角色资产标准修复。"];
+    : ["The current cast has readability or save-quality issues. Fix it to real character-asset standards."];
 }
 
 export function buildCharacterCastBlockedMessage(assessment: CharacterCastBatchAssessment): string {
   return [
-    "这套角色阵容还需要你确认后再应用到正式角色库。",
+    "This cast still needs your confirmation before it is applied to the official character library.",
     ...assessment.blockingReasons.slice(0, 5).map((reason, index) => `${index + 1}. ${reason}`),
   ].join("\n");
 }

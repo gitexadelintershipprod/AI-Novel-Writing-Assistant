@@ -514,7 +514,7 @@ async function repairDraftContent(input: {
       escalatedFromPatch: false,
       recoverableFailure: {
         chapterId: input.runtimePackage.chapterId,
-        message: "章节接收判断暂时不可用，正文已保留，后续需要重新审校或人工复查。",
+        message: "Chapter acceptance is temporarily unavailable. The draft was kept and will need another review or a manual check.",
         repairMode: input.options.repairMode ?? "light_repair",
         failureTypes: ["review_gate_unavailable"],
         occurredAt: new Date().toISOString(),

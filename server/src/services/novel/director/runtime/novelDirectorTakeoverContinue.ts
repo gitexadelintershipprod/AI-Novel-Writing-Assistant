@@ -253,7 +253,7 @@ export async function cancelContinueExistingReplacedRuns(input: {
       finishedAt: now,
       heartbeatAt: now,
       lastError: replacementSummary,
-      currentItemLabel: "已由新的自动导演任务接管",
+      currentItemLabel: "A new Auto-Director task has taken over",
       seedPayloadJson: mergeSeedPayload(task.seedPayloadJson, {
         replacementTaskId,
         replacementReason: CONTINUE_EXISTING_REPLACEMENT_REASON,

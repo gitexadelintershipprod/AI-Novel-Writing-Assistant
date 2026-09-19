@@ -47,11 +47,11 @@ export type WorldFlowEdge = Edge<WorldGraphEdgeData, "worldEdge">;
 
 const HANDLE_POSITIONS = [Position.Top, Position.Right, Position.Bottom, Position.Left];
 const NODE_TYPE_LABELS: Record<string, string> = {
-  state: "政权",
-  faction: "阵营",
-  race: "种族",
-  organization: "组织",
-  other: "其他势力",
+  state: "regime",
+  faction: "camp",
+  race: "race",
+  organization: "organization",
+  other: "Other forces",
 };
 
 function handleName(position: Position) {
@@ -62,13 +62,13 @@ export function WorldGraphNode(props: NodeProps<WorldFlowNode>) {
   const { graphNode, layout, tone, active, dimmed } = props.data;
   const isMap = layout === "map";
   const metaText = isMap
-    ? graphNode.terrain || graphNode.regionType || "关键地点"
-    : NODE_TYPE_LABELS[graphNode.type ?? "other"] ?? graphNode.type ?? "世界势力";
+    ? graphNode.terrain || graphNode.regionType || "key locations"
+    : NODE_TYPE_LABELS[graphNode.type ?? "other"] ?? graphNode.type ?? "world power";
   const detailItems = [
-    `类型：${metaText}`,
+    `Type: ${metaText}`,
     graphNode.summary,
-    graphNode.storyRelevance ? `故事作用：${graphNode.storyRelevance}` : "",
-    graphNode.risk ? `风险：${graphNode.risk}` : "",
+    graphNode.storyRelevance ? `Story function:${graphNode.storyRelevance}` : "",
+    graphNode.risk ? `Risk: ${graphNode.risk}` : "",
   ].filter(Boolean);
 
   return (
@@ -80,7 +80,7 @@ export function WorldGraphNode(props: NodeProps<WorldFlowNode>) {
       )}
       style={{ borderColor: active ? tone : undefined }}
       tabIndex={0}
-      aria-label={`${graphNode.label}，${metaText}`}
+      aria-label={`${graphNode.label}, ${metaText}`}
     >
       {HANDLE_POSITIONS.flatMap((position) => [
         <Handle
@@ -185,7 +185,7 @@ export function WorldGraphEdge(props: EdgeProps<WorldFlowEdge>) {
                 event.stopPropagation();
                 data.onSelect(props.id);
               }}
-              aria-label={`${data.sourceLabel}与${data.targetLabel}：${data.graphEdge.relation}`}
+              aria-label={`${data.sourceLabel} and ${data.targetLabel}: ${data.graphEdge.relation}`}
             >
               {data.shortLabel}
             </button>
@@ -202,7 +202,7 @@ export function WorldGraphEdge(props: EdgeProps<WorldFlowEdge>) {
                 <span className="text-muted-foreground">→</span>
                 <span className="truncate">{data.targetLabel}</span>
               </div>
-              <div className="mt-2 leading-5 text-muted-foreground">{data.graphEdge.relation || "存在关联"}</div>
+              <div className="mt-2 leading-5 text-muted-foreground">{data.graphEdge.relation || "There is a correlation"}</div>
               {data.layout === "map" ? (
                 <div className="mt-2 space-y-1 border-t border-border/45 pt-2 text-muted-foreground">
                   <div className="flex items-center gap-1.5">
@@ -217,7 +217,7 @@ export function WorldGraphEdge(props: EdgeProps<WorldFlowEdge>) {
                   ) : null}
                 </div>
               ) : null}
-              {data.detailPinned ? <div className="mt-2 text-[10px] text-muted-foreground">点击画布空白处收起</div> : null}
+              {data.detailPinned ? <div className="mt-2 text-[10px] text-muted-foreground">Click on an empty space on the canvas to collapse it</div> : null}
             </div>
           ) : null}
         </div>

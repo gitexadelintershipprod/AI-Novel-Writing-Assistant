@@ -28,7 +28,7 @@ export function extractJsonArray(raw: string): string {
   const first = cleaned.indexOf("[");
   const last = cleaned.lastIndexOf("]");
   if (first < 0 || last <= first) {
-    throw new Error("LLM 未返回合法的 JSON 数组。");
+    throw new Error("The LLM did not return a valid JSON array.");
   }
   return cleaned.slice(first, last + 1);
 }
@@ -44,7 +44,7 @@ export async function collectStream(stream: AsyncIterable<BaseMessageChunk>): Pr
 export function parseStructuredOutline(raw: string): Array<{ order: number; title: string; summary: string }> {
   const parsed = JSON.parse(raw) as unknown;
   if (!Array.isArray(parsed)) {
-    throw new Error("结构化大纲不是数组。");
+    throw new Error("Structured outline is not an array.");
   }
   return parsed
     .map((item) => {

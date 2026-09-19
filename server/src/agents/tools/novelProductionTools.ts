@@ -23,7 +23,7 @@ import { novelProductionService } from "../../services/novel/NovelProductionServ
 function resolveNovelId(contextNovelId: string | undefined, rawNovelId: string | undefined): string {
   const novelId = rawNovelId?.trim() || contextNovelId?.trim();
   if (!novelId) {
-    throw new AgentToolError("INVALID_INPUT", "没有当前小说上下文。");
+    throw new AgentToolError("INVALID_INPUT", "There is no current novel context.");
   }
   return novelId;
 }
@@ -33,8 +33,8 @@ export const novelProductionToolDefinitions: Partial<
 > = {
   generate_world_for_novel: {
     name: "generate_world_for_novel",
-    title: "生成小说世界观",
-    description: "为当前小说生成世界观；若已绑定世界观则直接复用。",
+    title: "Generate the novel world",
+    description: "Generate a world for this novel; reuse the bound world if one already exists.",
     category: "mutate",
     riskLevel: "medium",
     domainAgent: "NovelAgent",
@@ -57,8 +57,8 @@ export const novelProductionToolDefinitions: Partial<
   },
   generate_novel_characters: {
     name: "generate_novel_characters",
-    title: "生成核心角色",
-    description: "为当前小说生成核心角色；若已有角色则直接复用。",
+    title: "Generate core characters",
+    description: "Generate core characters for this novel; reuse existing characters if they are already there.",
     category: "mutate",
     riskLevel: "medium",
     domainAgent: "NovelAgent",
@@ -84,8 +84,8 @@ export const novelProductionToolDefinitions: Partial<
   },
   generate_story_bible: {
     name: "generate_story_bible",
-    title: "生成小说圣经",
-    description: "为当前小说生成小说圣经。",
+    title: "Generate the novel bible",
+    description: "Generate a novel bible for this novel.",
     category: "mutate",
     riskLevel: "medium",
     domainAgent: "NovelAgent",
@@ -106,8 +106,8 @@ export const novelProductionToolDefinitions: Partial<
   },
   generate_novel_outline: {
     name: "generate_novel_outline",
-    title: "生成发展走向",
-    description: "为当前小说生成发展走向。",
+    title: "Generate the story direction",
+    description: "Generate a story direction for this novel.",
     category: "mutate",
     riskLevel: "medium",
     domainAgent: "NovelAgent",
@@ -129,8 +129,8 @@ export const novelProductionToolDefinitions: Partial<
   },
   generate_structured_outline: {
     name: "generate_structured_outline",
-    title: "生成结构化大纲",
-    description: "为当前小说生成结构化大纲和章节规划。",
+    title: "Generate a structured outline",
+    description: "Generate a structured outline and chapter plan for this novel.",
     category: "mutate",
     riskLevel: "medium",
     domainAgent: "NovelAgent",
@@ -152,8 +152,8 @@ export const novelProductionToolDefinitions: Partial<
   },
   sync_chapters_from_structured_outline: {
     name: "sync_chapters_from_structured_outline",
-    title: "同步章节目录",
-    description: "根据结构化大纲同步章节目录。",
+    title: "Sync the chapter table of contents",
+    description: "Sync the chapter table of contents from the structured outline.",
     category: "mutate",
     riskLevel: "medium",
     domainAgent: "NovelAgent",
@@ -171,8 +171,8 @@ export const novelProductionToolDefinitions: Partial<
   },
   start_full_novel_pipeline: {
     name: "start_full_novel_pipeline",
-    title: "启动整本写作",
-    description: "基于当前小说的章节目录启动整本写作任务。",
+    title: "Start whole-book writing",
+    description: "Start a whole-book writing assignment from the current novel's chapter table of contents.",
     category: "run",
     riskLevel: "high",
     approvalRequired: true,
@@ -193,7 +193,7 @@ export const novelProductionToolDefinitions: Partial<
           startOrder,
           endOrder,
           dryRun: true,
-          summary: "dryRun: 整本写作任务将被创建，但未实际启动。",
+          summary: "dryRun: A full-book writing task will be created but not actually started.",
         });
       }
       return startFullNovelPipelineOutput.parse(
@@ -215,8 +215,8 @@ export const novelProductionToolDefinitions: Partial<
   },
   get_novel_production_status: {
     name: "get_novel_production_status",
-    title: "读取整本生产状态",
-    description: "聚合当前小说的资产准备状态、章节数量和整本写作任务状态。",
+    title: "Read full-book production status",
+    description: "Aggregate this novel's asset readiness, chapter count, and whole-book writing status.",
     category: "inspect",
     riskLevel: "low",
     domainAgent: "NovelAgent",
@@ -224,10 +224,10 @@ export const novelProductionToolDefinitions: Partial<
     parserHints: {
       intent: "query_novel_production_status",
       aliases: ["整本进度", "生产状态", "production status"],
-      phrases: ["整本生成到哪一步了", "为什么整本生成没有启动", "当前资产准备完成了吗"],
+      phrases: ["At what stage has the entire book been generated?", "Why does the entire build not start?", "Are the current assets ready"],
       requiresNovelContext: true,
-      whenToUse: "用户在追问某本小说的整本生产状态、阻塞或资产准备情况。",
-      whenNotToUse: "用户只是查询系统任务中心的全局任务。",
+      whenToUse: "The user is asking about a novel's full production status, blockers, or asset readiness.",
+      whenNotToUse: "The user is only querying global tasks in the task center.",
     },
     inputSchema: getNovelProductionStatusInput,
     outputSchema: getNovelProductionStatusOutput,

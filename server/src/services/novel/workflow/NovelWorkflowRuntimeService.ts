@@ -2,8 +2,8 @@ import { isDirectorRecoveryNotNeededError } from "../director/runtime/novelDirec
 import { DirectorCommandService } from "../director/commands/DirectorCommandService";
 import { NovelWorkflowService } from "./NovelWorkflowService";
 
-const SERVER_RESTART_RECOVERY_MESSAGE = "自动导演任务因服务重启中断，正在尝试恢复。";
-const STALE_RUNNING_RECOVERY_MESSAGE = "自动导演任务长时间没有心跳，可能已因服务重启或内存不足中断。请检查后继续或重试。";
+const SERVER_RESTART_RECOVERY_MESSAGE = "The Auto-Director task stopped after a service restart and is trying to recover.";
+const STALE_RUNNING_RECOVERY_MESSAGE = "The Auto-Director task lost its heartbeat, likely from a restart or memory pressure. Check it, then continue or retry.";
 
 interface WorkflowRecoveryPort {
   listRecoverableAutoDirectorTasks(options?: { includeStaleRunningFlag?: boolean }): Promise<Array<{ id: string; status: string; stale?: boolean }>>;
@@ -44,8 +44,8 @@ export class NovelWorkflowRuntimeService {
           await this.workflowService.restoreTaskToCheckpoint(row.id);
           continue;
         }
-        const message = error instanceof Error ? error.message : "自动导演任务在服务重启后恢复失败。";
-        await this.workflowService.markTaskFailed(row.id, `服务重启后恢复失败：${message}`);
+        const message = error instanceof Error ? error.message : "The Auto-Director task failed to recover after the service restart.";
+        await this.workflowService.markTaskFailed(row.id, `Recovery after restart failed：${message}`);
       }
     }
   }
@@ -61,7 +61,7 @@ export class NovelWorkflowRuntimeService {
         await this.workflowService.markTaskFailed(row.id, STALE_RUNNING_RECOVERY_MESSAGE);
         continue;
       }
-      await this.workflowService.requeueTaskForRecovery(row.id, "服务重启后任务已暂停，等待手动恢复。");
+      await this.workflowService.requeueTaskForRecovery(row.id, "The task paused after a service restart and is waiting for manual recovery.");
     }
   }
 

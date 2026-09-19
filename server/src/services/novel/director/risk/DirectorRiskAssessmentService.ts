@@ -120,7 +120,7 @@ export class DirectorRiskAssessmentService {
         affectedChapterOrders: input.affectedChapterOrders ?? [],
         evidenceSummary: input.failureSummary,
         recommendation: "pause",
-        recommendationReason: "为保护小说内容和执行状态，自动导演将在当前安全节点暂停。",
+        recommendationReason: "To protect the novel content and run state, Auto-Director will pause at the current safe checkpoint.",
         canPause: true,
       };
     } else {
@@ -186,7 +186,7 @@ export class DirectorRiskAssessmentService {
       taskId: input.taskId,
       novelId: input.novelId,
       nodeKey: `risk.${assessment.category}`,
-      summary: `自动导演风险 ${assessment.score}/8：${assessment.evidenceSummary}`,
+      summary: `Auto-Director risk ${assessment.score}/8: ${assessment.evidenceSummary}`,
       affectedScope: assessment.affectedChapterOrders.length > 0
         ? `chapters:${assessment.affectedChapterOrders.join(",")}`
         : assessment.impactScope,

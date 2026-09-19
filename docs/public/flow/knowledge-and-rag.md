@@ -1,190 +1,190 @@
-# 知识与 RAG 召回链
+# Knowledge and RAG recall
 
-知识库、拆书、写法引擎、世界样本和角色资料不是孤立模块。它们会在不同阶段进入自动导演和章节执行上下文，帮助系统保持设定、风格和长篇连续性。
+The knowledge library, book analysis, style engine, world samples, and character notes are not isolated modules. They enter Auto-Director and chapter-execution context at different stages, helping the system keep setting, style, and long-book continuity.
 
-## 哪些资产会被使用
+## Which assets are used
 
-| 资产 | 主要用途 | 常见进入阶段 |
+| Asset | Main use | Common entry stages |
 |---|---|---|
-| 知识库文档 | 事实资料、设定、参考文本、用户上传资料 | 章节执行、拆书复用、创作中枢问答 |
-| 拆书结果 | 作品结构、人物、卖点、节奏、写法经验 | 开书方向、写法参考、章节上下文 |
-| 写法引擎 | 叙述风格、语言规则、反模板表达 | 正文生成、审核、修复 |
-| 世界样本 | 世界规则、势力、地点、边界 | 世界搭建、章节上下文 |
-| 角色库 | 角色基础信息、形象资产、关系 | 角色生成、章节上下文、漫画工坊 |
-| 伏笔/事实账本 | 已发生事实、读者承诺、未兑现伏笔 | 章节执行、审核、状态回灌 |
+| Knowledge-library documents | Fact notes, setting, reference text, uploaded notes | chapter execution, book-analysis reuse, Creative Hub Q&A |
+| Book-analysis results | Work structure, characters, selling points, pacing, writing experience | book-opening direction, style reference, chapter context |
+| Style engine | Narrative style, language rules, anti-template expression | chapter writing, review, repair |
+| World samples | World rules, factions, places, boundaries | world setup, chapter context |
+| Character library | Character basics, visual assets, relationships | character setup, chapter context, Comic studio |
+| Foreshadowing / fact ledger | Facts that happened, reader promises, unpaid foreshadowing | chapter execution, review, state write-back |
 
-## 资料来源分层
+## Note-source layers
 
-RAG 不是一个单独资料池。不同资料的可信度和用途不同：
+RAG is not one pool of notes. Different notes have different trust and uses:
 
-| 层级 | 示例 | 使用原则 |
+| Layer | Examples | Use principle |
 |---|---|---|
-| 本书事实 | 已写章节、事实账本、角色状态、世界状态 | 最高优先级，不能被外部资料覆盖。 |
-| 本书规划 | 书契约、宏观故事、卷战略、章节任务 | 指导下一步写作目标。 |
-| 用户资料 | 上传知识库、世界样本、专门设定文档 | 用于补充事实和设定。 |
-| 拆书结论 | 参考作品结构、卖点、人物和写法分析 | 迁移方法，不复制情节。 |
-| 写法资产 | 风格规则、反 AI 规则、样本文本特征 | 控制表达方式。 |
-| 临时对话 | 创作中枢当前轮输入 | 只能影响当前任务，长期生效需落库。 |
+| This book’s facts | written chapters, fact ledger, character state, world state | Highest priority. External notes cannot override them. |
+| This book’s planning | book contract, story macro, volume strategy, chapter tasks | Guide the next writing goal. |
+| User notes | uploaded knowledge library, world samples, dedicated setting documents | Supplement facts and setting. |
+| Book-analysis conclusions | reference-work structure, selling points, character and style analysis | Transfer method. Do not copy plot. |
+| Style assets | style rules, Anti-AI rules, sample-text traits | Control how it is said. |
+| Temporary conversation | current Creative Hub turn | Can affect only the current task. Long-term effect needs to be saved. |
 
-:::checkpoint 本书事实优先
-如果外部知识库资料和本书已发生事实冲突，章节执行应优先遵守本书事实。参考资料用于补充，不用于推翻已经写入小说状态的内容。
+:::checkpoint This book’s facts win
+If external knowledge-library notes fight facts that already happened in this book, chapter execution should obey this book’s facts. Reference notes supplement. They do not overturn content already written into novel state.
 :::
 
-## RAG 在哪些阶段使用
+## Where RAG is used
 
-| 阶段 | 是否使用 RAG | 说明 |
+| Stage | Uses RAG? | Note |
 |---|---|---|
-| 候选方向 | 可能使用拆书/资料摘要 | 用于理解题材、读者期待和参考方向。 |
-| 书契约 | 主要使用候选和宏观故事 | 关键目标来自用户选择，不应被外部资料覆盖。 |
-| 世界搭建 | 可能参考世界样本和知识库 | 帮助生成规则、势力和地点。 |
-| 角色生成 | 可能参考世界、题材和角色资产 | 角色必须服从本书方向。 |
-| 卷战略 | 使用书契约、宏观故事、角色阵容 | RAG 只作辅助，不替代主线规划。 |
-| 节奏板/章节清单 | 使用卷战略和章节任务资料 | 重点是结构一致性。 |
-| 章节执行 | 明确使用任务驱动 RAG | `GenerationContextAssembler` 会根据章节目标构造查询并召回资料。 |
-| 审核/修复 | 使用章节 runtime package | 修复器读取写作上下文、审核问题和 RAG 片段。 |
+| Candidate directions | May use book-analysis / note summaries | Helps understand genre, reader expectation, and reference direction. |
+| Book contract | Mainly uses candidates and story macro | Key goals come from your choice and should not be overridden by external notes. |
+| World setup | May consult world samples and the knowledge library | Helps generate rules, factions, and places. |
+| Character setup | May consult world, genre, and character assets | Characters must obey this book’s direction. |
+| Volume strategy | Uses book contract, story macro, character cast | RAG is support only. It does not replace main-line planning. |
+| Beat sheet / chapter list | Uses volume strategy and chapter-task notes | Focus is structural consistency. |
+| Chapter execution | Clearly uses task-driven RAG | `GenerationContextAssembler` builds queries from chapter goals and recalls notes. |
+| Review / repair | Uses the chapter runtime package | The repairer reads writing context, review issues, and RAG fragments. |
 
-## 阶段召回重点
+## What each stage should recall
 
-| 阶段 | 更应该召回什么 | 不应该让什么主导 |
+| Stage | Recall more of this | Do not let this dominate |
 |---|---|---|
-| 候选方向 | 题材趋势、读者期待、拆书卖点、用户明确参考 | 不应让参考作品直接决定新书主线。 |
-| 世界搭建 | 世界样本、设定文档、地点/势力资料 | 不应把世界样本原样复制成新书设定。 |
-| 角色生成 | 本书方向、世界边界、角色库经验 | 不应只按参考作品角色模板套壳。 |
-| 卷规划 | 书契约、宏观故事、已定角色关系 | RAG 只能辅助，不应覆盖卷级承诺。 |
-| 章节细化 | 卷窗口、节奏节点、章节范围 | 不应用外部资料跳过节奏板。 |
-| 正文生成 | 当前章节任务、本书事实、必要外部资料、写法规则 | 不应召回大量无关资料塞满上下文。 |
-| 审核修复 | 正文、任务单、审核问题、本书约束 | 不应因为参考资料不同就改掉本书事实。 |
+| Candidate directions | genre trends, reader expectation, book-analysis selling points, your explicit references | A reference work should not directly decide the new book’s main line. |
+| World setup | world samples, setting documents, place / faction notes | Do not copy a world sample unchanged into the new book. |
+| Character setup | this book’s direction, world boundaries, character-library experience | Do not only shell a reference-work character template. |
+| Volume planning | book contract, story macro, settled character relationships | RAG can only support. It should not override volume-level promises. |
+| Chapter detail | volume window, pacing beats, chapter range | External notes should not skip the beat sheet. |
+| Chapter writing | current chapter task, this book’s facts, needed external notes, style rules | Do not recall a pile of unrelated notes and fill the context. |
+| Review repair | prose, task sheet, review issues, this book’s constraints | Do not change this book’s facts because a reference note differs. |
 
-## 章节 RAG 查询如何构造
+## How a chapter RAG query is built
 
-章节执行不是用章节标题直接搜资料。系统会根据章节任务组装查询：
+Chapter execution does not search notes with the chapter title alone. The system builds a query from the chapter task:
 
-- 小说标题。
-- 章节标题。
-- 章节目标。
-- 章节期待。
-- 本章必须推进内容。
-- 目标冲突。
-- 出场角色。
-- 结构化大纲。
+- novel title;
+- chapter title;
+- chapter goal;
+- chapter expectation;
+- what this chapter must advance;
+- target conflict;
+- appearing characters;
+- structured outline.
 
-这些信息来自章节任务单和上下文包。查询越贴近本章目标，召回越容易命中真正有用的资料。
+These come from the chapter task sheet and context pack. The closer the query is to this chapter’s goal, the more likely recall hits useful notes.
 
-## 向量检索与文本检索
+## Vector search and text search
 
-| 检索方式 | 适合内容 | 常见问题 |
+| Search method | Good for | Common problems |
 |---|---|---|
-| 向量检索 | 语义相近但用词不同的资料、长文档、拆书结论 | 文档未索引或向量库不可用时无法命中。 |
-| 文本检索 | 人名、地名、专有名词、固定术语 | 用户没有写清关键词时可能漏掉。 |
-| 混合召回 | 同时需要语义和关键词 | 需要合理的文档标题、分块和元数据。 |
+| Vector search | Notes that are close in meaning but use different words, long documents, book-analysis conclusions | Cannot hit if the document is not indexed or the vector store is unavailable. |
+| Text search | Person names, place names, proper nouns, fixed terms | May miss if you did not write the keywords clearly. |
+| Hybrid recall | Need both meaning and keywords | Needs reasonable titles, chunking, and metadata. |
 
-## 分块和元数据为什么重要
+## Why chunking and metadata matter
 
-知识库不是上传文件就一定能召回。分块、标题、摘要和元数据会影响命中：
+Uploading a file to the knowledge library does not guarantee recall. Chunking, titles, summaries, and metadata affect hits:
 
-| 信息 | 影响 |
+| Information | Effect |
 |---|---|
-| 文档标题 | 帮助识别资料主题和来源。 |
-| chunk 文本 | 决定向量语义和文本检索命中。 |
-| facets | 让题材、卖点、角色名、章节锚点等过滤更精确。 |
-| source type | 区分上传文档、拆书发布、世界样本等来源。 |
-| document version | 避免同名资料混在一起。 |
+| Document title | Helps identify topic and source. |
+| Chunk text | Decides vector meaning and text-search hits. |
+| Facets | Makes filters for genre, selling points, character names, and chapter anchors more precise. |
+| Source type | Distinguishes uploaded documents, published book analysis, world samples, and similar. |
+| Document version | Avoids mixing notes with the same name. |
 
-资料越长，越需要清晰标题和稳定分块。百万字原文如果没有可靠索引，章节执行只会看到有限片段。
+The longer the note, the more it needs a clear title and stable chunks. A million-word source without a reliable index will only show limited fragments to chapter execution.
 
-## 知识库不命中时怎么查
+## What to check when the knowledge library misses
 
-1. 确认文档上传成功。
-2. 确认索引任务完成。
-3. 确认 Qdrant 可连接。
-4. 查看单文档召回测试。
-5. 检查文档标题、摘要和关键段落是否包含角色名、地点名、设定名。
-6. 检查当前章节任务是否真的需要这份资料。
+1. Confirm the document uploaded successfully.
+2. Confirm the index task finished.
+3. Confirm Qdrant can connect.
+4. Try a single-document recall test.
+5. Check whether the title, summary, and key paragraphs contain character names, place names, and setting names.
+6. Check whether the current chapter task actually needs this document.
 
-:::warn 召回不是越多越好
-把无关资料塞进上下文会增加模型噪音。对长篇小说来说，准确命中当前章节任务，比一次召回大量资料更重要。
+:::warn More recall is not always better
+Stuffing unrelated notes into context increases model noise. For a long novel, hitting the current chapter task accurately matters more than recalling a large pile of notes at once.
 :::
 
-## 召回过多时怎么处理
+## What to do when recall is too much
 
-| 现象 | 可能原因 | 推荐处理 |
+| What you see | Likely cause | Recommended handling |
 |---|---|---|
-| 章节写偏到参考作品 | 参考资料权重过高或任务单过弱 | 强化章节任务和本书事实，减少参考召回。 |
-| 模型复述资料摘要 | 召回片段太长或缺写作目标 | 收窄查询，保留与本章冲突相关的片段。 |
-| 角色行为像参考角色 | 拆书角色信息未转成可迁移规则 | 使用写法/结构结论，避免直接召回人物细节。 |
-| 专名混入正文 | 文本检索命中源作品专名 | 审核和反 AI 规则应拦截专名泄露。 |
-| 当前设定被外部资料覆盖 | 本书事实优先级不清 | 检查上下文包中本书状态是否完整。 |
+| The chapter drifts into the reference work | Reference notes are weighted too high, or the task sheet is too weak | Strengthen the chapter task and this book’s facts; reduce reference recall. |
+| The model retells a note summary | Recalled fragments are too long, or the writing goal is missing | Narrow the query; keep fragments related to this chapter’s conflict. |
+| Character behavior feels like a reference character | Book-analysis character information was not turned into transferable rules | Use style / structure conclusions. Avoid recalling character details directly. |
+| Proper names leak into the prose | Text search hit source-work names | Review and Anti-AI rules should catch name leaks. |
+| Current setting is overridden by external notes | This book’s fact priority is unclear | Check whether this book’s state in the context pack is complete. |
 
-## 写法资产如何进入正文
+## How style assets enter prose
 
-写法引擎通过 style binding 进入章节上下文。章节执行会把绑定的写法档案、可迁移风格规则和反 AI 约束放进 context package。生成后还会检查是否泄露源作品专名、地点、标题或标志性桥段。
+The style engine enters chapter context through style binding. Chapter execution puts the bound style profile, transferable style rules, and Anti-AI constraints into the context package. After generation it also checks for leaked source-work names, places, titles, or signature beats.
 
-写法资产适合解决：
+Style assets are a good fit when:
 
-- 叙述口吻不稳定。
-- AI 味太重。
-- 章节语言和目标类型不匹配。
-- 参考作品的写法经验需要迁移。
+- narrative voice is unstable;
+- the AI flavor is too strong;
+- chapter language does not match the target type;
+- writing experience from a reference work needs to transfer.
 
-写法资产不适合直接复制参考作品内容。它应提取可迁移规则，而不是复刻专名和桥段。
+Style assets are a poor fit for copying a reference work. They should extract transferable rules, not recreate proper names and signature beats.
 
-## 拆书结果如何复用
+## How book-analysis results are reused
 
-拆书结果发布到知识库后，可以作为后续创作召回资料。适合复用的内容包括：
+After a book-analysis result is published to the knowledge library, later writing can recall it. Good reuse includes:
 
-- 题材卖点。
-- 人物弧线。
-- 章节节奏。
-- 读者期待。
-- 世界规则。
-- 写法特征。
+- genre selling points;
+- character arcs;
+- chapter pacing;
+- reader expectation;
+- world rules;
+- writing traits.
 
-拆书结论进入后续章节时，应服务当前小说，不应强行把参考作品情节搬进新书。
+When book-analysis conclusions enter later chapters, they should serve the current novel. They should not force a reference work’s plot into the new book.
 
-## 调试路径
+## Debugging path
 
-当用户说“知识库没生效”时，按这个顺序查：
+When someone says “the knowledge library did nothing,” check in this order:
 
-| 步骤 | 看什么 | 判断 |
+| Step | Look at | Judgment |
 |---|---|---|
-| 1 | 文档是否存在 | 不存在说明没有上传或被归档。 |
-| 2 | 索引状态 | 未完成索引时不应期待向量召回。 |
-| 3 | 单文档召回测试 | 能否用明确关键词命中。 |
-| 4 | 当前章节任务 | 任务是否真的需要这份资料。 |
-| 5 | 上下文包 | RAG 片段是否进入生成上下文。 |
-| 6 | 审核报告 | 是否因为冲突被后续审核/修复压掉。 |
+| 1 | Does the document exist? | If not, it was not uploaded or was archived. |
+| 2 | Index status | Do not expect vector recall before indexing finishes. |
+| 3 | Single-document recall test | Can a clear keyword hit it? |
+| 4 | Current chapter task | Does the task actually need this document? |
+| 5 | Context pack | Did RAG fragments enter generation context? |
+| 6 | Review report | Did a later review / repair suppress them because of a conflict? |
 
-如果单文档召回能命中，但章节执行没有使用，问题通常在章节任务查询或上下文组装；如果单文档召回也不命中，问题通常在索引、分块、标题或关键词。
+If single-document recall hits but chapter execution did not use it, the problem is usually the chapter-task query or context assembly. If single-document recall also misses, the problem is usually index, chunking, title, or keywords.
 
-## 与章节执行的优先级
+## Priority against chapter execution
 
-| 冲突场景 | 优先级 |
+| Conflict | Priority |
 |---|---|
-| RAG 资料和已写章节冲突 | 已写章节和事实账本优先。 |
-| 写法规则和章节任务冲突 | 章节任务优先，写法规则调整表达方式。 |
-| 拆书结论和本书角色冲突 | 本书角色状态优先。 |
-| 世界样本和本书世界冲突 | 本书世界优先。 |
-| 用户当前明确指令和旧资料冲突 | 当前指令可触发修订，但需要落库后才长期生效。 |
+| RAG notes fight written chapters | Written chapters and the fact ledger win. |
+| Style rules fight the chapter task | The chapter task wins. Style rules adjust expression. |
+| Book-analysis conclusions fight this book’s characters | This book’s character state wins. |
+| A world sample fights this book’s world | This book’s world wins. |
+| Your current explicit instruction fights old notes | The current instruction can trigger a revision, but it needs to be saved before it lasts. |
 
-RAG 的目标是让系统知道更多，而不是让外部资料拥有最高决策权。
+RAG’s goal is to let the system know more. It is not to give external notes the highest decision power.
 
-## 维护规则
+## Maintenance rule
 
-新增会进入章节上下文的资料来源时，要说明它属于本书事实、规划资产、用户资料、拆书结论、写法资产还是临时对话。没有优先级说明的资料来源，容易在生成时覆盖本书事实。
+When you add a note source that will enter chapter context, say whether it belongs to this book’s facts, planning assets, user notes, book-analysis conclusions, style assets, or temporary conversation. A source without a priority note can override this book’s facts during generation.
 
-如果资料来源会影响审核或修复，也要说明它在质量判断中的权重。
-这样后续排查召回问题时，才能判断资料是缺失、过量还是优先级错误。
+If a note source affects review or repair, also say its weight in quality judgment.
+Then later recall diagnosis can tell whether notes are missing, excessive, or in the wrong priority.
 
-## 资产闭环
+## Asset loop
 
-章节执行完成后，系统会把新事实、角色变化、伏笔状态和质量问题回灌。后续章节再组装上下文时，会读取这些状态。
+After chapter execution finishes, the system writes back new facts, character changes, foreshadowing state, and quality issues. When later chapters assemble context, they read that state.
 
-闭环路径是：
+The loop is:
 
-1. 自动导演准备书级、世界、角色和章节任务。
-2. 章节执行读取这些资产和 RAG 资料。
-3. 正文生成后提取事实、角色资源和伏笔变化。
-4. 状态提交和账本同步写回项目。
-5. 下一章读取新的状态继续生成。
+1. Auto-Director prepares book-level, world, character, and chapter tasks.
+2. Chapter execution reads those assets and RAG notes.
+3. After prose generation, extract facts, character resources, and foreshadowing changes.
+4. State commit and ledger sync write them back to the project.
+5. The next chapter reads the new state and continues.
 
-这就是长篇生产链和一次性文本生成的核心区别。
+That is the core difference between a long-form production chain and one-off text generation.

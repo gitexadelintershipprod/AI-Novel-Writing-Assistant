@@ -14,8 +14,8 @@ export const knowledgeToolDefinitions: Partial<
 > = {
   list_knowledge_documents: {
     name: "list_knowledge_documents",
-    title: "列出知识文档",
-    description: "读取知识库文档、索引状态和最近一次索引错误。",
+    title: "List knowledge documents",
+    description: "Read knowledge documents, index status, and the latest index error.",
     category: "read",
     riskLevel: "low",
     domainAgent: "KnowledgeAgent",
@@ -57,14 +57,14 @@ export const knowledgeToolDefinitions: Partial<
           lastIndexedAt: row.lastIndexedAt?.toISOString() ?? null,
           latestIndexError: latestJobMap.get(row.id)?.lastError ?? null,
         })),
-        summary: `已读取 ${rows.length} 个知识文档。`,
+        summary: `Read ${rows.length} knowledge documents.`,
       });
     },
   },
   get_knowledge_document_detail: {
     name: "get_knowledge_document_detail",
-    title: "读取知识文档详情",
-    description: "读取知识文档详情、版本数、绑定数和索引状态。",
+    title: "Read knowledge-document details",
+    description: "Read knowledge-document details, version count, binding count, and index status.",
     category: "read",
     riskLevel: "low",
     domainAgent: "KnowledgeAgent",
@@ -107,14 +107,14 @@ export const knowledgeToolDefinitions: Partial<
         latestIndexError: latestJob?.lastError ?? null,
         versionCount: row.versions.length,
         bindingCount: row.bindings.length,
-        summary: `文档《${row.title}》当前索引状态为 ${row.latestIndexStatus}。`,
+        summary: `Document “${row.title}” is currently indexed as ${row.latestIndexStatus}.`,
       });
     },
   },
   get_index_failure_reason: {
     name: "get_index_failure_reason",
-    title: "解释索引失败原因",
-    description: "解释知识文档索引失败、排队或未完成的原因。",
+    title: "Explain why indexing failed",
+    description: "Explain why knowledge-document indexing failed, is queued, or is unfinished.",
     category: "inspect",
     riskLevel: "low",
     domainAgent: "KnowledgeAgent",
@@ -137,17 +137,17 @@ export const knowledgeToolDefinitions: Partial<
         orderBy: [{ updatedAt: "desc" }, { id: "desc" }],
       });
       const failureSummary = row.latestIndexStatus === "failed"
-        ? (latestJob?.lastError?.trim() || "索引任务失败，但未记录明确错误。")
+        ? (latestJob?.lastError?.trim() || "The index task failed without a recorded error.")
         : row.latestIndexStatus === "running"
-          ? "索引任务仍在执行中，并未失败。"
+          ? "The index task is still running and has not failed."
           : row.latestIndexStatus === "queued"
-            ? "索引任务仍在排队。"
-            : "当前没有索引失败记录。";
+            ? "The index task is still queued."
+            : "There is no index-failure record.";
       const recoveryHint = row.latestIndexStatus === "failed"
-        ? "建议检查文档内容、向量化配置和最近一次重建任务日志后再重试。"
+        ? "Check the document content, vector settings, and the latest rebuild-task log before retrying."
         : row.latestIndexStatus === "queued"
-          ? "建议检查索引工作线程是否正常运行。"
-          : "当前无需恢复操作。";
+          ? "Check that the index worker is running normally."
+          : "No recovery action is needed now.";
       return getIndexFailureReasonOutputSchema.parse({
         documentId: row.id,
         status: row.latestIndexStatus,

@@ -200,9 +200,9 @@ function letteredPanelUrl(panelId: string): string {
 async function findPanelImageBuffer(panelId: string): Promise<Buffer> {
   const rawDir = path.join(resolveGeneratedImagesRoot(), "comic-panels", panelId);
   let entries: string[];
-  try { entries = await fs.readdir(rawDir); } catch { throw new AppError("格子图尚未生成，请先生成图像。", 400); }
+  try { entries = await fs.readdir(rawDir); } catch { throw new AppError("The panel image has not been generated yet. Generate the image first.", 400); }
   const file = entries.find((f) => /^panel\.(png|jpg|webp)$/i.test(f));
-  if (!file) throw new AppError("格子图文件不存在。", 400);
+  if (!file) throw new AppError("The panel image file does not exist.", 400);
   return fs.readFile(path.join(rawDir, file));
 }
 
@@ -215,7 +215,7 @@ export class ComicBubbleLayoutService {
    */
   async letterPanel(panelId: string, opts: LetterPanelOptions = {}): Promise<LetterPanelResult> {
     const panel = await prisma.comicPanel.findUnique({ where: { id: panelId } });
-    if (!panel) throw new AppError(`未找到漫画格子：${panelId}`, 404);
+    if (!panel) throw new AppError(`Comic panel not found: ${panelId}`, 404);
 
     const dialogues: Dialogue[] = panel.dialogues
       ? (JSON.parse(panel.dialogues) as Dialogue[])

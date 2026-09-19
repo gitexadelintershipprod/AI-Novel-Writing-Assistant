@@ -136,17 +136,17 @@ function resolveChapterBeatKey(input: {
 }
 
 function getChapterChangedFields(existing: ExistingChapterRecord, chapter: VolumeChapterPlan, action: "update" | "move"): string[] {
-  const changed: string[] = action === "move" ? ["章节顺序"] : [];
-  if (!compareText(existing.title, chapter.title)) changed.push("标题");
-  if (!compareText(existing.expectation, chapter.summary)) changed.push("摘要");
-  if (!compareText(existing.exclusiveEvent, chapter.exclusiveEvent)) changed.push("独占事件");
-  if (!compareText(existing.endingState, chapter.endingState)) changed.push("章末状态");
-  if (!compareText(existing.nextChapterEntryState, chapter.nextChapterEntryState)) changed.push("下章起始状态");
-  if (!compareNumber(existing.targetWordCount, chapter.targetWordCount)) changed.push("目标字数");
-  if (!compareNumber(existing.conflictLevel, chapter.conflictLevel)) changed.push("冲突等级");
-  if (!compareNumber(existing.revealLevel, chapter.revealLevel)) changed.push("揭露等级");
-  if (!compareText(existing.mustAvoid, chapter.mustAvoid)) changed.push("禁止事项");
-  if (!compareText(existing.taskSheet, chapter.taskSheet)) changed.push("任务单");
+  const changed: string[] = action === "move" ? ["Chapter order"] : [];
+  if (!compareText(existing.title, chapter.title)) changed.push("Title");
+  if (!compareText(existing.expectation, chapter.summary)) changed.push("Summary");
+  if (!compareText(existing.exclusiveEvent, chapter.exclusiveEvent)) changed.push("exclusive event");
+  if (!compareText(existing.endingState, chapter.endingState)) changed.push("End-of-chapter state");
+  if (!compareText(existing.nextChapterEntryState, chapter.nextChapterEntryState)) changed.push("Starting state for the next chapter");
+  if (!compareNumber(existing.targetWordCount, chapter.targetWordCount)) changed.push("target word count");
+  if (!compareNumber(existing.conflictLevel, chapter.conflictLevel)) changed.push("conflict level");
+  if (!compareNumber(existing.revealLevel, chapter.revealLevel)) changed.push("reveal level");
+  if (!compareText(existing.mustAvoid, chapter.mustAvoid)) changed.push("Prohibited matters");
+  if (!compareText(existing.taskSheet, chapter.taskSheet)) changed.push("task order");
   if (!compareText(existing.sceneCards, chapter.sceneCards)) changed.push("场景预算");
   return changed;
 }
@@ -161,23 +161,23 @@ function buildVolumeOutlineSnapshot(volumes: VolumePlan[]): string {
     .map((volume) => {
       const chapterSpan = volume.chapters.length > 0
         ? `${volume.chapters[0]?.chapterOrder ?? "-"}-${volume.chapters[volume.chapters.length - 1]?.chapterOrder ?? "-"}`
-        : "未拆章";
+        : "Unopened";
       const lines = [
-        `【第${volume.sortOrder}卷】${volume.title}`,
-        volume.summary ? `卷摘要：${volume.summary}` : "",
-        volume.openingHook ? `开卷抓手：${volume.openingHook}` : "",
-        volume.mainPromise ? `主承诺：${volume.mainPromise}` : "",
-        volume.primaryPressureSource ? `主压迫源：${volume.primaryPressureSource}` : "",
-        volume.coreSellingPoint ? `核心卖点：${volume.coreSellingPoint}` : "",
-        volume.escalationMode ? `升级方式：${volume.escalationMode}` : "",
-        volume.protagonistChange ? `主角变化：${volume.protagonistChange}` : "",
-        volume.midVolumeRisk ? `中段风险：${volume.midVolumeRisk}` : "",
-        volume.climax ? `卷末高潮：${volume.climax}` : "",
-        volume.payoffType ? `兑现类型：${volume.payoffType}` : "",
-        volume.nextVolumeHook ? `下卷钩子：${volume.nextVolumeHook}` : "",
-        volume.resetPoint ? `重置点：${volume.resetPoint}` : "",
-        volume.openPayoffs.length > 0 ? `未兑现事项：${volume.openPayoffs.join("、")}` : "",
-        `章节范围：${chapterSpan}`,
+        `[Volume ${volume.sortOrder}]${volume.title}`,
+        volume.summary ? `Volume summary:${volume.summary}` : "",
+        volume.openingHook ? `Unwinding handle:${volume.openingHook}` : "",
+        volume.mainPromise ? `Main promise:${volume.mainPromise}` : "",
+        volume.primaryPressureSource ? `Main source of oppression:${volume.primaryPressureSource}` : "",
+        volume.coreSellingPoint ? `Core selling points:${volume.coreSellingPoint}` : "",
+        volume.escalationMode ? `Upgrade method:${volume.escalationMode}` : "",
+        volume.protagonistChange ? `Protagonist changes:${volume.protagonistChange}` : "",
+        volume.midVolumeRisk ? `Mid-term risks:${volume.midVolumeRisk}` : "",
+        volume.climax ? `Climax at the end of the volume:${volume.climax}` : "",
+        volume.payoffType ? `Redemption type:${volume.payoffType}` : "",
+        volume.nextVolumeHook ? `Lower roll hook:${volume.nextVolumeHook}` : "",
+        volume.resetPoint ? `Reset point:${volume.resetPoint}` : "",
+        volume.openPayoffs.length > 0 ? `Unfulfilled items:${volume.openPayoffs.join("、")}` : "",
+        `Chapter scope:${chapterSpan}`,
       ].filter(Boolean);
       return lines.join("\n");
     })
@@ -226,15 +226,15 @@ export function hasPayoffLedgerRelevantPlanChanges(beforeVolumes: VolumePlan[], 
 
 export function buildTaskSheetFromVolumeChapter(chapter: VolumeChapterPlan): string {
   const lines = [
-    `章节目标：${chapter.purpose || chapter.summary || "推进主线"}`,
-    chapter.exclusiveEvent ? `独占事件：${chapter.exclusiveEvent}` : "",
-    chapter.endingState ? `章末状态：${chapter.endingState}` : "",
-    chapter.nextChapterEntryState ? `下章起始状态：${chapter.nextChapterEntryState}` : "",
-    typeof chapter.conflictLevel === "number" ? `冲突等级：${chapter.conflictLevel}` : "",
-    typeof chapter.revealLevel === "number" ? `揭露等级：${chapter.revealLevel}` : "",
-    typeof chapter.targetWordCount === "number" ? `目标字数：${chapter.targetWordCount}` : "",
-    chapter.mustAvoid ? `禁止事项：${chapter.mustAvoid}` : "",
-    chapter.payoffRefs.length > 0 ? `兑现关联：${chapter.payoffRefs.join("、")}` : "",
+    `Chapter Objectives:${chapter.purpose || chapter.summary || "Advance the main line"}`,
+    chapter.exclusiveEvent ? `exclusive event：${chapter.exclusiveEvent}` : "",
+    chapter.endingState ? `End-of-chapter state：${chapter.endingState}` : "",
+    chapter.nextChapterEntryState ? `Starting state for the next chapter：${chapter.nextChapterEntryState}` : "",
+    typeof chapter.conflictLevel === "number" ? `Conflict level:${chapter.conflictLevel}` : "",
+    typeof chapter.revealLevel === "number" ? `Disclosure level:${chapter.revealLevel}` : "",
+    typeof chapter.targetWordCount === "number" ? `Target word count:${chapter.targetWordCount}` : "",
+    chapter.mustAvoid ? `Prohibited matters:${chapter.mustAvoid}` : "",
+    chapter.payoffRefs.length > 0 ? `Redeem association:${chapter.payoffRefs.join("、")}` : "",
   ].filter(Boolean);
   return lines.join("\n");
 }
@@ -294,7 +294,7 @@ export function buildVolumeSyncPlan(
         chapterOrder: chapter.chapterOrder,
         nextTitle: chapter.title,
         hasContent: false,
-        changedFields: ["新章节"],
+        changedFields: ["new chapter"],
       });
       continue;
     }
@@ -367,23 +367,23 @@ export function buildVolumeSyncPlan(
       });
       items.push({
         action: "delete",
-        volumeTitle: "未匹配",
+        volumeTitle: "Not matched",
         chapterOrder: chapter.order,
         nextTitle: chapter.title,
         previousTitle: chapter.title,
         hasContent,
-        changedFields: ["从卷纲移除"],
+        changedFields: ["Removed from syllabus"],
       });
     } else {
       deleteCandidateCount += 1;
       items.push({
         action: "delete_candidate",
-        volumeTitle: "未匹配",
+        volumeTitle: "Not matched",
         chapterOrder: chapter.order,
         nextTitle: chapter.title,
         previousTitle: chapter.title,
         hasContent,
-        changedFields: ["待确认删除"],
+        changedFields: ["Pending confirmation of deletion"],
       });
     }
   }
@@ -429,24 +429,24 @@ function estimateChangedLines(beforeText: string, afterText: string): number {
 
 function collectVolumeChangedFields(beforeVolume: VolumePlan | undefined, afterVolume: VolumePlan): string[] {
   if (!beforeVolume) {
-    return ["新增卷"];
+    return ["Add new volume"];
   }
   const changed: string[] = [];
-  if (!compareText(beforeVolume.title, afterVolume.title)) changed.push("卷标题");
-  if (!compareText(beforeVolume.summary, afterVolume.summary)) changed.push("卷摘要");
-  if (!compareText(beforeVolume.openingHook, afterVolume.openingHook)) changed.push("开卷抓手");
-  if (!compareText(beforeVolume.mainPromise, afterVolume.mainPromise)) changed.push("主承诺");
-  if (!compareText(beforeVolume.primaryPressureSource, afterVolume.primaryPressureSource)) changed.push("主压迫源");
-  if (!compareText(beforeVolume.coreSellingPoint, afterVolume.coreSellingPoint)) changed.push("核心卖点");
-  if (!compareText(beforeVolume.escalationMode, afterVolume.escalationMode)) changed.push("升级方式");
-  if (!compareText(beforeVolume.protagonistChange, afterVolume.protagonistChange)) changed.push("主角变化");
-  if (!compareText(beforeVolume.midVolumeRisk, afterVolume.midVolumeRisk)) changed.push("中段风险");
-  if (!compareText(beforeVolume.climax, afterVolume.climax)) changed.push("卷末高潮");
-  if (!compareText(beforeVolume.payoffType, afterVolume.payoffType)) changed.push("兑现类型");
-  if (!compareText(beforeVolume.nextVolumeHook, afterVolume.nextVolumeHook)) changed.push("下卷钩子");
+  if (!compareText(beforeVolume.title, afterVolume.title)) changed.push("Volume title");
+  if (!compareText(beforeVolume.summary, afterVolume.summary)) changed.push("Volume Summary");
+  if (!compareText(beforeVolume.openingHook, afterVolume.openingHook)) changed.push("Opening hook");
+  if (!compareText(beforeVolume.mainPromise, afterVolume.mainPromise)) changed.push("main promise");
+  if (!compareText(beforeVolume.primaryPressureSource, afterVolume.primaryPressureSource)) changed.push("main source of oppression");
+  if (!compareText(beforeVolume.coreSellingPoint, afterVolume.coreSellingPoint)) changed.push("core selling point");
+  if (!compareText(beforeVolume.escalationMode, afterVolume.escalationMode)) changed.push("Upgrade method");
+  if (!compareText(beforeVolume.protagonistChange, afterVolume.protagonistChange)) changed.push("Protagonist changes");
+  if (!compareText(beforeVolume.midVolumeRisk, afterVolume.midVolumeRisk)) changed.push("mid-range risk");
+  if (!compareText(beforeVolume.climax, afterVolume.climax)) changed.push("Climax at the end of the volume");
+  if (!compareText(beforeVolume.payoffType, afterVolume.payoffType)) changed.push("Redemption type");
+  if (!compareText(beforeVolume.nextVolumeHook, afterVolume.nextVolumeHook)) changed.push("Lower roll hook");
   if (!compareText(beforeVolume.resetPoint, afterVolume.resetPoint)) changed.push("重置点");
   if (!compareStringArray(beforeVolume.openPayoffs, afterVolume.openPayoffs)) changed.push("未兑现事项");
-  if (beforeVolume.chapters.length !== afterVolume.chapters.length) changed.push("章节数量");
+  if (beforeVolume.chapters.length !== afterVolume.chapters.length) changed.push("Number of chapters");
   const beforeChapterMap = new Map(beforeVolume.chapters.map((chapter) => [chapter.chapterOrder, chapter]));
   const chapterChanged = afterVolume.chapters.some((chapter) => {
     const beforeChapter = beforeChapterMap.get(chapter.chapterOrder);
@@ -469,7 +469,7 @@ function collectVolumeChangedFields(beforeVolume: VolumePlan | undefined, afterV
       sceneCards: beforeChapter.sceneCards,
     }, chapter, "update").length > 0;
   });
-  if (chapterChanged) changed.push("章节规划");
+  if (chapterChanged) changed.push("Chapter planning");
   return changed;
 }
 
@@ -478,7 +478,7 @@ export function buildVolumeDiffSummary(changedVolumes: VolumePlanDiffVolume[]): 
     return "卷级结构无变化。";
   }
   return changedVolumes
-    .map((volume) => `第${volume.sortOrder}卷《${volume.title}》：${volume.changedFields.join("、")}${volume.chapterOrders.length > 0 ? `；波及章节 ${volume.chapterOrders.join("、")}` : ""}`)
+    .map((volume) => `Volume ${volume.sortOrder}"${volume.title}": ${volume.changedFields.join(", ")}${volume.chapterOrders.length > 0 ? `；波及章节 ${volume.chapterOrders.join("、")}` : ""}`)
     .join("\n");
 }
 
@@ -575,7 +575,7 @@ function buildVolumeBeatImpactItems(input: {
     }
     const volumeHasPlanLevelChange = input.diff.changedVolumes.some((changedVolume) => (
       changedVolume.sortOrder === volume.sortOrder
-      && changedVolume.changedFields.some((field) => field !== "章节规划" && field !== "章节数量")
+      && changedVolume.changedFields.some((field) => field !== "Chapter planning" && field !== "Number of chapters")
     ));
 
     for (const beat of beatSheet.beats) {
@@ -689,9 +689,9 @@ export function buildVolumeImpactResult(
   });
   const requiresChapterSync = diff.changedChapterCount > 0 || diff.changedVolumeCount > 0;
   const requiresCharacterReview = diff.changedVolumes.some((volume) => (
-    volume.changedFields.includes("主承诺")
-    || volume.changedFields.includes("主角变化")
-    || volume.changedFields.includes("卷末高潮")
+    volume.changedFields.includes("main promise")
+    || volume.changedFields.includes("Protagonist changes")
+    || volume.changedFields.includes("Climax at the end of the volume")
   ));
   const affectedBeats = buildVolumeBeatImpactItems({
     afterVolumes,
@@ -704,7 +704,7 @@ export function buildVolumeImpactResult(
   const recommendedActions = [
     requiresChapterSync ? "同步章节计划" : "",
     requiresCharacterReview ? "复核角色职责与成长线" : "",
-    staleBeatCount > 0 ? "接入后续未写段" : "",
+    staleBeatCount > 0 ? "Connect the unwritten stretch ahead" : "",
     diff.changedLines >= 12 ? "复查关键伏笔与兑现链" : "",
   ].filter(Boolean);
 
@@ -718,10 +718,10 @@ export function buildVolumeImpactResult(
     affectedBeats,
     staleBeatCount,
     lockedBeatCount,
-    defaultImpactAction: staleBeatCount > 0 ? "接入后续未写段" : undefined,
+    defaultImpactAction: staleBeatCount > 0 ? "Connect the unwritten stretch ahead" : undefined,
     advancedImpactActions: [
       staleBeatCount > 0 ? "重排某个未写节奏段的参与者" : "",
-      lockedBeatCount > 0 ? "检查已有正文段的角色一致性" : "",
+      lockedBeatCount > 0 ? "Check character consistency in existing draft stretches" : "",
       requiresCharacterReview ? "重跑节奏板或卷战略" : "",
     ].filter(Boolean),
     requiresChapterSync,

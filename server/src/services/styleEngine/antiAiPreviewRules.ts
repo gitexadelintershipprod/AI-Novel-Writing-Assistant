@@ -62,7 +62,7 @@ export function buildAntiAiRuleDirectiveText(rules: AntiAiRule[]): string {
     ...rules.map((rule) => {
       const instruction = rule.promptInstruction?.trim() || rule.description;
       const suggestion = rule.rewriteSuggestion?.trim();
-      return `- [${rule.id}] ${rule.name} (${rule.type}/${rule.severity}): ${instruction}${suggestion ? ` 修正建议：${suggestion}` : ""}`;
+      return `- [${rule.id}] ${rule.name} (${rule.type}/${rule.severity}): ${instruction}${suggestion ? ` Correction: ${suggestion}` : ""}`;
     }),
   ].join("\n");
 }

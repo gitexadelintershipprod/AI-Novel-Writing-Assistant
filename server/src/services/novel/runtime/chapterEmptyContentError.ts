@@ -13,7 +13,7 @@ export class ChapterEmptyContentError extends Error {
   readonly code = "CHAPTER_EMPTY_CONTENT";
   readonly details: ChapterEmptyContentErrorDetails;
 
-  constructor(details: ChapterEmptyContentErrorDetails, message = "章节生成未返回可保存的正文。") {
+  constructor(details: ChapterEmptyContentErrorDetails, message = "Chapter generation returned no draft that can be saved.") {
     super(message);
     this.name = "ChapterEmptyContentError";
     this.details = details;

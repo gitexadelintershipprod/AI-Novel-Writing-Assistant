@@ -178,13 +178,13 @@ export function validateSlotValue(def: PromptSlotDef, value: unknown): string | 
     return null;
   }
 
-  if (typeof value !== "string") return `${def.label}：值必须为字符串。`;
+  if (typeof value !== "string") return `${def.label}：值必须is a string.`;
   const str = value.trim();
 
   switch (def.kind) {
     case "replace": {
-      if (!str) return `${def.label} 不能为空。`;
-      if (str.length > def.maxLength) return `${def.label} 不得超过 ${def.maxLength} 字。`;
+      if (!str) return `${def.label} This cannot be empty.`;
+      if (str.length > def.maxLength) return `${def.label} 不得超过 ${def.maxLength} characters。`;
       if (def.requiredTokens) {
         for (const token of def.requiredTokens) {
           if (!str.includes(token)) return `${def.label} 必须包含"${token}"。`;
@@ -193,7 +193,7 @@ export function validateSlotValue(def: PromptSlotDef, value: unknown): string | 
       return null;
     }
     case "append": {
-      if (str.length > def.maxLength) return `${def.label} 不得超过 ${def.maxLength} 字。`;
+      if (str.length > def.maxLength) return `${def.label} 不得超过 ${def.maxLength} characters。`;
       return null;
     }
     case "choice": {
@@ -203,7 +203,7 @@ export function validateSlotValue(def: PromptSlotDef, value: unknown): string | 
       return null;
     }
     case "token": {
-      if (str.length > def.maxLength) return `${def.label} 不得超过 ${def.maxLength} 字。`;
+      if (str.length > def.maxLength) return `${def.label} 不得超过 ${def.maxLength} characters。`;
       return null;
     }
     default:

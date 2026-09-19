@@ -215,16 +215,16 @@ export interface BookAnalysisCharacterBatchGenerateInput extends BookAnalysisCha
 }
 
 export const BOOK_ANALYSIS_CHARACTER_DIMENSION_LABELS: Readonly<Record<BookAnalysisCharacterDimension, string>> = {
-  basic: "基础信息",
-  appearance: "外形维度",
-  personality: "性格维度",
-  capability: "能力维度",
-  motivation: "动机维度",
-  arc: "弧线维度",
-  relations: "关系维度",
-  scenes: "场景表现",
-  languageStyle: "语言风格",
-  thinkingPattern: "思维模式",
-  values: "价值观",
-  secrets: "秘密伏笔",
+  basic: "Basic information",
+  appearance: "Dimensions",
+  personality: "personality dimensions",
+  capability: "Capability dimension",
+  motivation: "motivational dimension",
+  arc: "arc dimension",
+  relations: "relationship dimension",
+  scenes: "scene performance",
+  languageStyle: "language style",
+  thinkingPattern: "thinking pattern",
+  values: "Values",
+  secrets: "Secret foreshadowing",
 };

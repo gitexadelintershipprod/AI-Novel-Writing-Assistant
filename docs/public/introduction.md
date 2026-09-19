@@ -1,100 +1,100 @@
-# 项目介绍
+# Introduction
 
-AI 小说创作工作台是一套帮助你把灵感推进成长篇小说的创作工具。它不要求你一开始就会写大纲、设计人物关系、拆卷或控制节奏，而是把这些步骤拆成可执行的链路，让 AI 在每一步给出可选择、可保存、可继续的结果。
+AI Novel Writing Assistant is a writing workspace that helps you turn one idea into a full-length novel. You do not need to know outlining, character systems, volume structure, or pacing on day one. The product breaks those steps into a path you can follow, and AI returns results you can choose, save, and continue from.
 
-## 它解决什么问题
+## What it helps you finish
 
-很多人使用 AI 写小说时，会遇到三个问题：
+People who try to write a novel with AI often hit three problems:
 
-- 只有一个点子，不知道怎样扩成整本书。
-- 前几章能写，后面角色、设定和伏笔容易散。
-- 生成失败或质量不稳时，不知道应该重试、修复还是重新规划。
+- They have one idea, but do not know how to grow it into a whole book.
+- The first chapters work, then characters, setting, and foreshadowing start to drift.
+- When generation fails or quality wobbles, they do not know whether to retry, repair, or replan.
 
-这个项目围绕“完成一本书”组织功能。自动导演负责把想法变成方向、世界、角色、卷规划和章节任务；章节链负责正文生成、审核、修复和状态回填；知识库、拆书、写法引擎和资产库负责提供长期一致性。
+This product is organized around finishing one book. Auto-Director turns an idea into a direction, world, characters, volume plan, and chapter tasks. The chapter chain handles draft writing, review, repair, and state write-back. The knowledge library, book analysis, style engine, and asset libraries keep later chapters consistent.
 
-## 适合哪些用户
+## Who it is for
 
-它尤其适合这些人：
+It is especially useful for:
 
-- 第一次尝试写长篇小说的新手。
-- 想用 AI 帮自己搭建故事结构的人。
-- 希望系统给出清晰下一步，而不是自己维护复杂提示词的人。
-- 想把参考作品、资料和写法整理成可复用资产的人。
-- 研究 AI Native 产品、Agent Workflow、RAG 和长篇生产链的开发者。
+- beginners writing a long novel for the first time;
+- people who want AI to help build story structure;
+- people who want a clear next step instead of managing complex prompts;
+- people who want to turn reference works, notes, and writing style into reusable assets;
+- developers studying AI-native products, agent workflows, RAG, and long-form production chains.
 
-如果你只需要一次性生成几段文案，这个项目会显得偏重；如果你想持续推进一本书，它会更有价值。
+If you only need a few one-off paragraphs, this product will feel heavy. If you want to keep moving a whole book forward, it is more valuable.
 
-## 推荐理解方式
+## A simple way to understand the workspace
 
-可以把整个工作台理解成五层：
+Think of the workspace as five layers:
 
-1. 创作主链：新手上路、小说列表、创作中枢、导演跟进、任务中心。
-2. 知识与写法：知识库、拆书、写法引擎、反 AI 规则。
-3. 设定资产：题材基底、推进模式、角色、世界样本、标题工坊。
-4. 衍生工坊：漫画工作台、短剧工作台——围绕小说内容做视觉和剧本延展，**不在小说主链跑通前打开**。
-5. 系统配置：系统设置、模型路由、提示词管理。
+1. Main writing chain: First-run guide, Novels, Creative Hub, Director follow-up, Task Center.
+2. Knowledge and style: Knowledge library, Book analysis, Style engine, Anti-AI rules.
+3. Story assets: Genre library, Story mode library, Character library, World sample library, Title studio.
+4. Derived workshops: Comic studio and Drama studio. These extend novel scenes and characters into visuals and scripts. **Open them after the novel main chain is running**, not before.
+5. System: Settings, Model routing, Prompt management.
 
-初次使用时，不需要先研究所有模块。你只要完成模型配置，创建一本测试小说，然后跟随新手上路或自动导演跑通第一章。第一章生成后，再逐步理解知识库、拆书和写法资产为什么能提升后续稳定性。
+You do not need every module on first use. Configure a model, create a test novel, then follow the First-run guide or Auto-Director through chapter 1. After that first chapter exists, it is easier to see why the knowledge library, book analysis, and style assets make later chapters more stable.
 
-## 从想法到章节
+## From idea to chapter
 
-推荐主路径是：
+The recommended path is:
 
-1. 输入一句灵感，让系统整理题材、卖点、读者期待和方向候选。
-2. 选择一个方向，继续生成世界规则、核心角色和主要冲突。
-3. 让自动导演把故事拆成卷、节奏段和章节任务。
-4. 执行第一章，生成正文。
-5. 根据审核结果修复正文，并把新事实、角色状态和伏笔写回项目资产。
-6. 继续下一章或下一批章节。
+1. Enter one sentence of inspiration and let the system sort genre, selling points, reader expectation, and direction options.
+2. Choose a direction, then generate world rules, core characters, and the main conflict.
+3. Let Auto-Director split the story into volumes, pacing beats, and chapter tasks.
+4. Run chapter 1 and generate the draft.
+5. Repair the draft from the review result, then write new facts, character state, and foreshadowing back into the project.
+6. Continue with the next chapter or the next chapter batch.
 
-这条链路的重点不是一次生成所有内容，而是让每一步都有状态、有记录、有恢复入口。
+The point is not to generate everything at once. Each step should have saved state, a record, and a recovery entry.
 
-## 自动导演的作用
+## What Auto-Director is for
 
-自动导演适合在你“不知道下一步该干什么”时使用。它会根据已有小说信息判断下一步需要补方向、补设定、准备章节，还是进入正文生产。
+Use Auto-Director when you do not know what to do next. It looks at the novel you already have and decides whether the next need is a direction, setting, chapter preparation, or chapter production.
 
-它更适合处理：
+It is especially good at:
 
-- 一个点子可以写成哪些方向。
-- 哪个方向更适合继续展开。
-- 当前是否缺角色、世界或卷规划。
-- 章节任务是否准备好。
-- 任务暂停后应该从哪里恢复。
+- which directions one idea can become;
+- which direction is worth expanding;
+- whether characters, world, or volume planning are still missing;
+- whether chapter tasks are ready;
+- where to resume after a pause.
 
-自动导演不是单纯的聊天助手，它的目标是把整本书推进到可执行状态。
+Auto-Director is not a general chat helper. Its job is to move the whole book into an executable state.
 
-## 创作中枢的作用
+## What Creative Hub is for
 
-创作中枢是查询小说状态、诊断问题、查看执行记录和获取下一步入口的地方。你可以在这里了解进度、失败原因和手动改文影响；需要创建、生成、写作或恢复时，系统会把你带到正式小说工作台或自动导演。
+Creative Hub is where you ask about novel status, diagnose problems, read execution records, and get the next formal entry. You can learn progress, failure reasons, and the impact of a manual edit. When something needs creating, generating, writing, or recovering, the system sends you to the novel workspace or Auto-Director.
 
-如果你不知道某个功能入口在哪里，可以先从创作中枢开始查询。系统会根据当前状态给出正式入口，而不是在对话中直接写入小说产物。
+If you cannot find a feature, start in Creative Hub. It points you to the formal entry for the current state instead of writing novel artifacts inside the conversation.
 
-## 为什么需要知识库和写法资产
+## Why the knowledge library and style assets matter
 
-长篇小说需要持续记住资料、设定、人物变化和写法偏好。只靠临时提示词很容易遗漏。
+A long novel has to keep remembering notes, setting, character change, and writing preference. Temporary prompts miss those easily.
 
-知识库适合保存：
+The knowledge library is a good place for:
 
-- 世界规则和资料。
-- 参考作品分析。
-- 角色资料和历史事件。
-- 写作风格样本。
-- 后续章节必须遵守的设定。
+- world rules and research notes;
+- reference-work analysis;
+- character notes and past events;
+- writing-style samples;
+- setting later chapters must obey.
 
-写法引擎适合保存“这本书应该怎么写”的语言和叙事偏好。你可以从样本文本中提取写法特征，也可以手动调整规则，再把它用于试写、章节生成和后续修正。
+The style engine stores how this book should be written: language and narrative preference. You can extract style from sample text, edit the rules, then use them in trial writing, chapter generation, and later repair.
 
-## 下载入口
+## Download
 
-普通用户优先使用 Windows 桌面版：
+For most users, start with the Windows desktop app:
 
-- 最新版本页：[GitHub Releases](https://github.com/ExplosiveCoderflome/AI-Novel-Writing-Assistant/releases/latest)
-- 建议优先下载安装版。
-- 不想安装时，可以选择 portable 版本直接运行。
+- Latest release: [GitHub Releases](https://github.com/ExplosiveCoderflome/AI-Novel-Writing-Assistant/releases/latest)
+- Prefer the installer when you want a long-term install.
+- Use the portable build if you want to run it without installing.
 
-源码和项目仓库：
+Source and repository:
 
 [AI-Novel-Writing-Assistant](https://github.com/ExplosiveCoderflome/AI-Novel-Writing-Assistant)
 
-## 下一步阅读
+## What to read next
 
-如果你准备试用，继续阅读《安装与准备》和《使用方法》。跑通第一章后，可以按文档目录查看知识库、拆书、写法引擎、任务中心和系统配置。
+If you are ready to try it, continue with [Install and prepare](#/docs/installation) and [How to use it](#/docs/usage-guide). After chapter 1 is working, use the docs directory to learn the knowledge library, book analysis, style engine, Task Center, and system settings.

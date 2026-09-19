@@ -23,10 +23,10 @@ function buildImageTaskPresentation(row: {
   novel?: { id: string; title: string } | null;
 }) {
   if (row.sceneType === "novel_cover" && row.novelId) {
-    const title = row.novel?.title?.trim() || `小说 ${row.novelId.slice(0, 8)}`;
+    const title = row.novel?.title?.trim() || `Novel ${row.novelId.slice(0, 8)}`;
     const route = `/novels/${row.novelId}/edit?stage=basic`;
     return {
-      title: `小说封面：${title}`,
+      title: `novel cover：${title}`,
       ownerId: row.novelId,
       ownerLabel: title,
       sourceRoute: route,
@@ -40,10 +40,10 @@ function buildImageTaskPresentation(row: {
   }
 
   const ownerId = row.baseCharacterId ?? row.id;
-  const ownerLabel = row.baseCharacter?.name ?? "未关联角色";
+  const ownerLabel = row.baseCharacter?.name ?? "Unlinked character";
   const sourceRoute = row.baseCharacterId ? `/base-characters?id=${row.baseCharacterId}` : "/base-characters";
   return {
-    title: row.baseCharacter?.name ? `角色图像：${row.baseCharacter.name}` : `图像任务 ${row.id.slice(0, 8)}`,
+    title: row.baseCharacter?.name ? `Character image: ${row.baseCharacter.name}` : `Image task ${row.id.slice(0, 8)}`,
     ownerId,
     ownerLabel,
     sourceRoute,
@@ -51,13 +51,13 @@ function buildImageTaskPresentation(row: {
       ? {
         type: "base_character" as const,
         id: row.baseCharacterId,
-        label: row.baseCharacter?.name ?? "基础角色",
+        label: row.baseCharacter?.name ?? "Basic role",
         route: sourceRoute,
       }
       : {
         type: "task" as const,
         id: row.id,
-        label: `图像任务 ${row.id.slice(0, 8)}`,
+        label: `Image task ${row.id.slice(0, 8)}`,
         route: "/tasks",
       },
   };
@@ -128,7 +128,7 @@ export class ImageTaskAdapter {
       heartbeatAt: row.heartbeatAt?.toISOString() ?? null,
       failureCode: row.status === "failed" ? "IMAGE_GENERATION_FAILED" : null,
       failureSummary: row.status === "failed"
-        ? normalizeFailureSummary(row.error, "图像任务失败，但没有记录明确错误。")
+        ? normalizeFailureSummary(row.error, "The image task failed without a recorded error.")
         : row.error,
       recoveryHint: buildTaskRecoveryHint("image_generation", row.status as TaskStatus),
       targetResources: [],
@@ -178,7 +178,7 @@ export class ImageTaskAdapter {
       heartbeatAt: row.heartbeatAt?.toISOString() ?? null,
       failureCode: row.status === "failed" ? "IMAGE_GENERATION_FAILED" : null,
       failureSummary: row.status === "failed"
-        ? normalizeFailureSummary(row.error, "图像任务失败，但没有记录明确错误。")
+        ? normalizeFailureSummary(row.error, "The image task failed without a recorded error.")
         : row.error,
       recoveryHint: buildTaskRecoveryHint("image_generation", row.status as TaskStatus),
       targetResources: [],

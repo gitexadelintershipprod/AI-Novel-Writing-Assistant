@@ -100,7 +100,7 @@ export async function runDirectorStoryMacroAssetPhase(input: {
     taskId,
     stage: "story_macro",
     itemKey: "story_macro",
-    itemLabel: "正在生成故事宏观规划",
+    itemLabel: "Generating the story plan",
     progress: DIRECTOR_PROGRESS.storyMacro,
     callbacks,
     run: async () => dependencies.storyMacroService.decompose(novelId, storyInput, request),
@@ -109,7 +109,7 @@ export async function runDirectorStoryMacroAssetPhase(input: {
     taskId,
     stage: "story_macro",
     itemKey: "constraint_engine",
-    itemLabel: "正在构建约束引擎",
+    itemLabel: "Building the constraint engine",
     progress: DIRECTOR_PROGRESS.constraintEngine,
     callbacks,
     run: async () => ensureDirectorConstraintEngine(
@@ -136,7 +136,7 @@ export async function runDirectorBookContractPhase(input: {
     taskId,
     stage: "story_macro",
     itemKey: "book_contract",
-    itemLabel: "正在生成 Book Contract",
+    itemLabel: "Generating the Book Contract",
     progress: DIRECTOR_PROGRESS.bookContract,
     callbacks,
     run: async () => generateDirectorBookContract({

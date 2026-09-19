@@ -72,20 +72,20 @@ export default function BookAnalysisWorkspaceToolbar(props: BookAnalysisWorkspac
       <div className="flex flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <h2 className="text-sm font-semibold tracking-normal text-foreground">结果工具</h2>
+            <h2 className="text-sm font-semibold tracking-normal text-foreground">Results tools</h2>
             <Badge variant="secondary" className="border-0 bg-muted/70 font-normal">
               <span className={`mr-1.5 h-1.5 w-1.5 rounded-full ${selectedAnalysis.status === "succeeded" ? "bg-success" : "bg-muted-foreground/50"}`} />
               {formatStatus(selectedAnalysis.status)}
             </Badge>
-            {selectedAnalysis.publishedDocumentId ? <Badge variant="secondary" className="border-0 font-normal">已发布</Badge> : null}
+            {selectedAnalysis.publishedDocumentId ? <Badge variant="secondary" className="border-0 font-normal">Published</Badge> : null}
             <Badge variant={budgetExceeded ? "destructive" : "secondary"} className="border-0 font-normal">
-              预算 {budgetTokens
+              Budget {budgetTokens
                 ? `${formatTokenCount(usedTokens)}/${formatTokenCount(budgetTokens)}`
-                : `${formatTokenCount(usedTokens)}/不限`}
+                : `${formatTokenCount(usedTokens)}/unlimited`}
             </Badge>
           </div>
           <p className="mt-1 text-xs leading-5 text-muted-foreground">
-            阅读结果是当前主任务；发布、导出和维护操作可按需使用。
+            Reading the results is the current main task; publish, export, and maintain operations are available on demand.
           </p>
         </div>
         <div className="mobile-full-actions flex flex-wrap gap-2">
@@ -96,7 +96,7 @@ export default function BookAnalysisWorkspaceToolbar(props: BookAnalysisWorkspac
               onClick={onOpenBudgetResume}
               disabled={pending.resumeWithBudget || selectedAnalysis.status === "archived"}
             >
-              {pending.resumeWithBudget ? "提交中..." : "扩容预算并续跑"}
+              {pending.resumeWithBudget ? "Submitting..." : "Expand budget and continue running"}
             </Button>
           ) : null}
           {dualPaneAvailable ? (
@@ -105,10 +105,10 @@ export default function BookAnalysisWorkspaceToolbar(props: BookAnalysisWorkspac
               size="sm"
               variant={isDualPane ? "secondary" : "outline"}
               onClick={() => onDualPaneChange(!isDualPane)}
-              title={isDualPane ? "关闭双栏对照" : "打开双栏对照"}
+              title={isDualPane ? "Turn off two-column comparison" : "Open double column comparison"}
             >
               <Columns2 className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
-              {isDualPane ? "关闭双栏" : "原文双栏"}
+              {isDualPane ? "Close double column" : "Original double column"}
             </Button>
           ) : null}
           <Button
@@ -116,34 +116,34 @@ export default function BookAnalysisWorkspaceToolbar(props: BookAnalysisWorkspac
             variant="outline"
             onClick={onPublish}
             disabled={!selectedNovelId || pending.publish || selectedAnalysis.status === "archived"}
-            title={!selectedNovelId ? "请在下方「分析信息与发布」中选择目标小说" : "发布到小说知识库"}
+            title={!selectedNovelId ? "Please select the target novel in \"Analysis Information and Release\" below" : "Post to novel knowledge base"}
           >
-            {pending.publish ? "发布中..." : "发布到知识库"}
+            {pending.publish ? "Publish..." : "Publish to knowledge base"}
           </Button>
           <Button asChild size="sm" variant="outline">
-            <Link to={`/tasks?kind=book_analysis&id=${selectedAnalysis.id}`}>任务详情</Link>
+            <Link to={`/tasks?kind=book_analysis&id=${selectedAnalysis.id}`}>Mission details</Link>
           </Button>
           <OpenInCreativeHubButton
             bindings={{
               bookAnalysisId: selectedAnalysis.id,
               knowledgeDocumentIds: selectedAnalysis.documentId ? [selectedAnalysis.documentId] : [],
             }}
-            label="创作中枢引用"
+            label="Creative hub quotes"
           />
         </div>
       </div>
 
       <details className="border-t border-border/35 px-5 py-3">
-        <summary className="cursor-pointer text-xs font-medium text-muted-foreground">更多维护操作</summary>
+        <summary className="cursor-pointer text-xs font-medium text-muted-foreground">More maintenance operations</summary>
         <div className="mobile-full-actions mt-3 flex flex-wrap gap-2">
-          <Button size="sm" variant="outline" onClick={onCopy} disabled={pending.copy}>复制分析</Button>
+          <Button size="sm" variant="outline" onClick={onCopy} disabled={pending.copy}>Replicate analysis</Button>
           <Button
             size="sm"
             variant="outline"
             onClick={() => onRebuild(selectedAnalysis.id)}
             disabled={pending.rebuild || selectedAnalysis.status === "archived"}
           >
-            重新生成
+            Regenerate
           </Button>
           {canAdjustBudget ? (
             <Button
@@ -154,18 +154,18 @@ export default function BookAnalysisWorkspaceToolbar(props: BookAnalysisWorkspac
               disabled={pending.updateBudget || pending.resumeWithBudget}
             >
               <Pencil className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
-              调整预算
+              Adjust budget
             </Button>
           ) : null}
-          <Button size="sm" variant="outline" onClick={() => onDownload("markdown")}>导出 MD</Button>
-          <Button size="sm" variant="outline" onClick={() => onDownload("json")}>导出 JSON</Button>
+          <Button size="sm" variant="outline" onClick={() => onDownload("markdown")}>Export MD</Button>
+          <Button size="sm" variant="outline" onClick={() => onDownload("json")}>Export JSON</Button>
           <Button
             size="sm"
             variant="outline"
             onClick={onCreateStyleProfile}
             disabled={pending.createStyleProfile || selectedAnalysis.status === "archived"}
           >
-            {pending.createStyleProfile ? "生成写法中..." : "生成写法"}
+            {pending.createStyleProfile ? "Generating writing method..." : "Generate writing"}
           </Button>
           <Button
             size="sm"
@@ -173,7 +173,7 @@ export default function BookAnalysisWorkspaceToolbar(props: BookAnalysisWorkspac
             onClick={() => onArchive(selectedAnalysis.id)}
             disabled={pending.archive || selectedAnalysis.status === "archived"}
           >
-            归档
+            Archive
           </Button>
         </div>
       </details>

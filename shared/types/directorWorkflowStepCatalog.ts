@@ -164,7 +164,7 @@ export function getWorkflowCheckpointLabel(input: {
 }): string {
   const checkpoint = findWorkflowCheckpointCatalogEntry(input.checkpointType);
   if (!checkpoint) {
-    return input.fallback?.trim() || "暂无";
+    return input.fallback?.trim() || "None yet";
   }
   if (input.status === "waiting_approval" && checkpoint.waitingApprovalLabel) {
     return checkpoint.waitingApprovalLabel;

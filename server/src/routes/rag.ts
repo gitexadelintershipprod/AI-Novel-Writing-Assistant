@@ -61,8 +61,8 @@ router.delete("/jobs/finished", async (_req, res, next) => {
       success: true,
       data,
       message: data.deletedCount > 0
-        ? `已清理 ${data.deletedCount} 个已结束任务。`
-        : "没有可清理的已结束任务。",
+        ? `Cleared ${data.deletedCount} finished tasks.`
+        : "There are no finished tasks to clean up.",
     } satisfies ApiResponse<typeof data>);
   } catch (error) {
     next(error);
@@ -74,7 +74,7 @@ router.delete("/jobs/:jobId", validate({ params: jobParamsSchema }), async (req,
     const { jobId } = req.params as z.infer<typeof jobParamsSchema>;
     const data = await ragServices.ragJobCleanupService.deleteFinishedJob(jobId);
     if (data.deletedCount === 0) {
-      throw new AppError("排队中或执行中的任务不能删除。", 409);
+      throw new AppError("Queued or running tasks cannot be deleted.", 409);
     }
     res.status(200).json({
       success: true,
@@ -82,11 +82,11 @@ router.delete("/jobs/:jobId", validate({ params: jobParamsSchema }), async (req,
         jobId,
         ...data,
       },
-      message: "任务记录已删除。",
+      message: "The task record has been deleted.",
     } satisfies ApiResponse<{ jobId: string; deletedCount: number; status: string }>);
   } catch (error) {
     if (error instanceof Error && error.message === "RAG job not found.") {
-      next(new AppError("没有找到这个任务。", 404));
+      next(new AppError("This task was not found.", 404));
       return;
     }
     next(error);

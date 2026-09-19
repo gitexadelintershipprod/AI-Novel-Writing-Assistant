@@ -148,8 +148,8 @@ export default function NovelCharacterPanel(props: NovelCharacterPanelProps) {
   return (
     <div className="space-y-5">
       <DirectorTakeoverEntryPanel
-        title="从角色准备接管"
-        description="AI 会先判断角色资产是否齐备，再决定继续补角色还是按你的选择重跑当前步骤。"
+        title="Ready to take over from character"
+        description="The AI will first determine whether the character assets are complete, and then decide whether to continue filling in the character or rerun the current step according to your choice."
         entry={directorTakeoverEntry}
       />
       {characterMessage ? <div className="text-sm text-muted-foreground">{characterMessage}</div> : null}

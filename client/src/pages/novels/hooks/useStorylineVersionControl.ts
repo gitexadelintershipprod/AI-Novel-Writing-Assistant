@@ -77,11 +77,11 @@ export function useStorylineVersionControl({
       if (nextVersionId) {
         setSelectedVersionId(nextVersionId);
       }
-      setStorylineMessage(response.message ?? "主线草稿版本已创建。");
+      setStorylineMessage(response.message ?? "Mainline draft version created.");
       await invalidateVersionList();
     },
     onError: (error) => {
-      const message = error instanceof Error ? error.message : "创建主线草稿版本失败。";
+      const message = error instanceof Error ? error.message : "Failed to create mainline draft version.";
       setStorylineMessage(message);
     },
   });
@@ -89,17 +89,17 @@ export function useStorylineVersionControl({
   const activateVersionMutation = useMutation({
     mutationFn: () => {
       if (!selectedVersionId) {
-        throw new Error("请先选择一个主线版本。");
+        throw new Error("Please select a mainline version first.");
       }
       return activateStorylineVersion(novelId, selectedVersionId);
     },
     onSuccess: async (response) => {
-      setStorylineMessage(response.message ?? "已设为生效主线。");
+      setStorylineMessage(response.message ?? "Has been set as the effective main line.");
       await invalidateVersionList();
       await invalidateNovelDetail();
     },
     onError: (error) => {
-      const message = error instanceof Error ? error.message : "设置生效版失败。";
+      const message = error instanceof Error ? error.message : "Failed to set the effective version.";
       setStorylineMessage(message);
     },
   });
@@ -107,16 +107,16 @@ export function useStorylineVersionControl({
   const freezeVersionMutation = useMutation({
     mutationFn: () => {
       if (!selectedVersionId) {
-        throw new Error("请先选择一个主线版本。");
+        throw new Error("Please select a mainline version first.");
       }
       return freezeStorylineVersion(novelId, selectedVersionId);
     },
     onSuccess: async (response) => {
-      setStorylineMessage(response.message ?? "主线版本已冻结。");
+      setStorylineMessage(response.message ?? "The mainline version has been frozen.");
       await invalidateVersionList();
     },
     onError: (error) => {
-      const message = error instanceof Error ? error.message : "冻结主线版本失败。";
+      const message = error instanceof Error ? error.message : "Failed to freeze mainline version.";
       setStorylineMessage(message);
     },
   });
@@ -124,16 +124,16 @@ export function useStorylineVersionControl({
   const diffMutation = useMutation({
     mutationFn: () => {
       if (!selectedVersionId) {
-        throw new Error("请先选择一个主线版本。");
+        throw new Error("Please select a mainline version first.");
       }
       return getStorylineDiff(novelId, selectedVersionId);
     },
     onSuccess: (response) => {
       setDiffResult(response.data ?? null);
-      setStorylineMessage(response.message ?? "主线版本差异已更新。");
+      setStorylineMessage(response.message ?? "Mainline version differences updated.");
     },
     onError: (error) => {
-      const message = error instanceof Error ? error.message : "加载版本差异失败。";
+      const message = error instanceof Error ? error.message : "Failed to load version differences.";
       setStorylineMessage(message);
     },
   });
@@ -142,10 +142,10 @@ export function useStorylineVersionControl({
     mutationFn: () => analyzeStorylineImpact(novelId, { content: draftText }),
     onSuccess: (response) => {
       setImpactResult(response.data ?? null);
-      setStorylineMessage(response.message ?? "草稿影响分析完成。");
+      setStorylineMessage(response.message ?? "Draft impact analysis completed.");
     },
     onError: (error) => {
-      const message = error instanceof Error ? error.message : "草稿影响分析失败。";
+      const message = error instanceof Error ? error.message : "Draft impact analysis failed.";
       setStorylineMessage(message);
     },
   });
@@ -153,16 +153,16 @@ export function useStorylineVersionControl({
   const analyzeVersionImpactMutation = useMutation({
     mutationFn: () => {
       if (!selectedVersionId) {
-        throw new Error("请先选择一个主线版本。");
+        throw new Error("Please select a mainline version first.");
       }
       return analyzeStorylineImpact(novelId, { versionId: selectedVersionId });
     },
     onSuccess: (response) => {
       setImpactResult(response.data ?? null);
-      setStorylineMessage(response.message ?? "版本影响分析完成。");
+      setStorylineMessage(response.message ?? "Version impact analysis completed.");
     },
     onError: (error) => {
-      const message = error instanceof Error ? error.message : "版本影响分析失败。";
+      const message = error instanceof Error ? error.message : "Version impact analysis failed.";
       setStorylineMessage(message);
     },
   });
@@ -172,7 +172,7 @@ export function useStorylineVersionControl({
       return;
     }
     setDraftText(selectedVersion.content);
-    setStorylineMessage(`已加载 V${selectedVersion.version} 到当前草稿。`);
+    setStorylineMessage(`Loaded V${selectedVersion.version} to the current draft.`);
   };
 
   return {

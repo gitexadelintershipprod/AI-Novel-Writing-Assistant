@@ -35,7 +35,7 @@ export class StyleRuntimeResolver {
     if (input.styleProfileId) {
       const profile = await this.profileService.getProfileById(input.styleProfileId);
       if (!profile) {
-        throw new Error("写法资产不存在。");
+        throw new Error("The writing asset does not exist.");
       }
 
       const matchedBindings = [buildDirectTaskBinding(profile)];

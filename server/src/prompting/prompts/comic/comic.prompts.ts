@@ -123,7 +123,7 @@ const panelCharacterRefSchema = z.object({
     // 该格角色持有/使用的道具/武器等资产名列表（来自角色资产库）
     props: z.array(z.string().trim().max(60)).max(4).optional(),
 });
-// 场景圣经：本话识别出的场景，跨格/跨话复用以锁定空间一致性
+// Scenario Bible：本话识别出的场景，跨格/跨话复用以锁定空间一致性
 const sceneSchema = z.object({
     name: z.string().trim().min(1).max(60),
     sceneType: z.enum(["interior", "exterior", "landscape", "abstract", "other"]).default("interior"),
@@ -214,7 +214,7 @@ export const comicPanelScriptPrompt: PromptAsset<ComicPanelScriptPromptInput, Co
         const characterList = input.characters
             .map((c) => `- ${c.name}：${c.visualAnchor ?? "(No visual description yet)"}`)
             .join("\n");
-        // 角色资产清单：按角色分组，方便 LLM 理解"谁有什么"
+        // character assets清单：按角色分组，方便 LLM 理解"谁有什么"
         const assetsByChar = new Map<string, typeof input.characterAssets>();
         for (const asset of input.characterAssets ?? []) {
             if (!assetsByChar.has(asset.characterName))
@@ -302,8 +302,8 @@ Keep the plot coherent, the shots rich in language, the dialogue concise, and th
         ];
     }
 };
-// ─── 外貌锚点 AI 重写 ─────────────────────────────────────────────────────────
-// 用于在角色 tab 由 AI 协助优化 visualAnchor：去除内部矛盾词、按用户期望微调、保留人设亮点。
+// ─── appearance anchor AI 重写 ─────────────────────────────────────────────────────────
+// 用于在角色 tab 由 AI-assisted optimization visualAnchor：去除内部矛盾词、按用户期望微调、保留人设亮点。
 export const comicVisualAnchorRewriteOutputSchema = z.object({
     /** 重写后的主外貌描述 */
     appearance: z.string().trim().min(10).max(2000),

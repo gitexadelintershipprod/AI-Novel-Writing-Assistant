@@ -53,7 +53,7 @@ router.get("/issue-policy", async (_req, res, next) => {
     res.status(200).json({
       success: true,
       data,
-      message: "自动导演问题处理规则已加载。",
+      message: "Auto-Director issue-handling rules were loaded.",
     } satisfies ApiResponse<typeof data>);
   } catch (error) {
     next(error);
@@ -69,7 +69,7 @@ router.put(
       res.status(200).json({
         success: true,
         data,
-        message: "自动导演问题处理规则已保存。",
+        message: "Auto-Director issue-handling rules were saved.",
       } satisfies ApiResponse<typeof data>);
     } catch (error) {
       next(error);
@@ -145,7 +145,7 @@ router.get("/pending-review-auto-promotion", async (_req, res, next) => {
     res.status(200).json({
       success: true,
       data,
-      message: "待确认状态自动放行设置已加载。",
+      message: "Auto-approve settings for waiting-confirmation states were loaded.",
     } satisfies ApiResponse<typeof data>);
   } catch (error) {
     next(error);
@@ -162,7 +162,7 @@ router.put(
       res.status(200).json({
         success: true,
         data,
-        message: data.enabled ? "待确认状态自动放行已开启。" : "待确认状态自动放行已关闭。",
+        message: data.enabled ? "Auto-approve for waiting-confirmation states is on." : "Auto-approve for waiting-confirmation states is off.",
       } satisfies ApiResponse<typeof data>);
     } catch (error) {
       next(error);

@@ -4,19 +4,19 @@ import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 const items = [
-  { to: "/settings", label: "设置总览", icon: SlidersHorizontal, end: true },
-  { to: "/settings/models", label: "模型与厂商", icon: Bot },
-  { to: "/settings/director", label: "自动导演", icon: BookOpenCheck },
-  { to: "/settings/knowledge", label: "知识库与写法", icon: Database },
-  { to: "/settings/maintenance", label: "桌面与维护", icon: MonitorCog },
-  { to: "/settings/appearance", label: "外观与主题", icon: Palette },
+  { to: "/settings", label: "Settings overview", icon: SlidersHorizontal, end: true },
+  { to: "/settings/models", label: "Models and manufacturers", icon: Bot },
+  { to: "/settings/director", label: "Auto-Director", icon: BookOpenCheck },
+  { to: "/settings/knowledge", label: "Knowledge base and writing methods", icon: Database },
+  { to: "/settings/maintenance", label: "Desktop and Maintenance", icon: MonitorCog },
+  { to: "/settings/appearance", label: "Appearance and themes", icon: Palette },
 ];
 
 export function SettingsShell(props: { title: string; description: string; children: ReactNode }) {
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
       <div className="grid gap-6 lg:grid-cols-[176px_minmax(0,1fr)]">
-        <nav aria-label="系统设置" className="min-w-0 lg:pt-2">
+        <nav aria-label="Settings" className="min-w-0 lg:pt-2">
           <div className="flex gap-2 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible">
             {items.map(({ to, label, icon: Icon, end }) => (
               <NavLink

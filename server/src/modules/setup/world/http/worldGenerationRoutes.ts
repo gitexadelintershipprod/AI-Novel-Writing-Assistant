@@ -120,18 +120,18 @@ export function registerGenerationWorldRoutes(router: Router): void {
         const failure = summarizeStructuredOutputFailure({ error, fallbackAvailable: false });
         if (["incomplete_json", "malformed_json", "schema_mismatch"].includes(failure.category)) {
           next(new AppError(
-            "世界骨架未能完整生成，请降低世界规模后重试。",
+            "The world skeleton was not fully generated. Reduce the world scale and retry.",
             422,
-            "本次没有保存不完整内容。可先选择较小规模；仍失败时请切换模型后重新生成。",
+            "Incomplete content was not saved. Try a smaller scale first; if it still fails, switch models and generate again.",
           ));
           return;
         }
         const message = error instanceof Error ? error.message : String(error);
         if (/timed?\s*out|timeout|超时/i.test(message)) {
           next(new AppError(
-            "世界骨架生成超时，请降低世界规模后重试。",
+            "World-skeleton generation timed out. Reduce the world scale and retry.",
             504,
-            "本次没有保存未完成内容；仍超时时请切换模型后重新生成。",
+            "Unfinished content was not saved. If it still times out, switch models and generate again.",
           ));
           return;
         }
@@ -155,7 +155,7 @@ export function registerGenerationWorldRoutes(router: Router): void {
           type: "run_status",
           runId,
           status: "queued",
-          message: isReferenceMode ? "已开始分析参考作品" : "已开始分析世界灵感",
+          message: isReferenceMode ? "Started analyzing the reference work" : "Started analyzing world inspiration",
         });
 
         const data = await worldService.analyzeInspiration(
@@ -174,14 +174,14 @@ export function registerGenerationWorldRoutes(router: Router): void {
           type: "run_status",
           runId,
           status: "succeeded",
-          message: isReferenceMode ? "原作锚点与架空方向已生成" : "概念卡与属性选项已生成",
+          message: isReferenceMode ? "The source-work anchor and adaptation direction were generated" : "Concept cards and attribute options were generated",
         });
         writeSSEFrame(res, {
           type: "done",
           fullContent: JSON.stringify(data),
         });
       } catch (error) {
-        const message = error instanceof Error ? error.message : "世界灵感分析失败。";
+        const message = error instanceof Error ? error.message : "World-inspiration analysis failed.";
         writeSSEFrame(res, {
           type: "run_status",
           runId,

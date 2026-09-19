@@ -14,7 +14,7 @@ export interface WritingFormulaApplyGenerateStreamInput {
     topic: string;
     targetLength: number;
 }
-/** 从样例文本流式提取可复现写作公式（Markdown 结构）。 */
+/** 从样例文本流式提取可复现writing formula（Markdown 结构）。 */
 export const writingFormulaExtractStreamPrompt: PromptAsset<WritingFormulaExtractStreamInput, string, string> = {
     id: "writingFormula.extract.stream",
     version: "v2",

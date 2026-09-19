@@ -79,10 +79,10 @@ export class BookAnalysisCharacterRagAdapter {
 
     const chunks = [...chunksById.values()];
     const evidence = chunks.map((chunk, index): BookAnalysisCharacterEvidenceItem => ({
-      label: `${BOOK_ANALYSIS_CHARACTER_DIMENSION_LABELS[chunk.dimension] ?? chunk.dimension} 原文 ${index + 1}`,
+      label: `${BOOK_ANALYSIS_CHARACTER_DIMENSION_LABELS[chunk.dimension] ?? chunk.dimension} source text ${index + 1}`,
       excerpt: compactSnippet(chunk.chunkText, 220),
       quote: compactSnippet(chunk.chunkText, 220),
-      sourceLabel: chunk.title ?? "原文 chunk",
+      sourceLabel: chunk.title ?? "source chunk",
       sourceType: "chapter_chunk",
       chunkId: chunk.id,
       chapterIndex: readChapterIndex(chunk),

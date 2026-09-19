@@ -82,60 +82,60 @@ export function useVolumeVersionControl({
       if (nextVersionId) {
         setSelectedVersionId(nextVersionId);
       }
-      setMessage(response.message ?? "卷级草稿版本已创建。");
+      setMessage(response.message ?? "A volume-level draft version is created.");
       await invalidateVersionList();
     },
     onError: (error) => {
-      setMessage(error instanceof Error ? error.message : "创建卷级草稿版本失败。");
+      setMessage(error instanceof Error ? error.message : "Failed to create volume level draft version.");
     },
   });
 
   const activateVersionMutation = useMutation({
     mutationFn: () => {
       if (!selectedVersionId) {
-        throw new Error("请先选择一个卷级版本。");
+        throw new Error("Please select a volume-level version first.");
       }
       return activateVolumeVersion(novelId, selectedVersionId);
     },
     onSuccess: async (response) => {
-      setMessage(response.message ?? "已设为生效卷级版本。");
+      setMessage(response.message ?? "The volume-level version has been set as effective.");
       await invalidateVersionList();
       await invalidateNovelDetail();
     },
     onError: (error) => {
-      setMessage(error instanceof Error ? error.message : "设置生效版失败。");
+      setMessage(error instanceof Error ? error.message : "Failed to set the effective version.");
     },
   });
 
   const freezeVersionMutation = useMutation({
     mutationFn: () => {
       if (!selectedVersionId) {
-        throw new Error("请先选择一个卷级版本。");
+        throw new Error("Please select a volume-level version first.");
       }
       return freezeVolumeVersion(novelId, selectedVersionId);
     },
     onSuccess: async (response) => {
-      setMessage(response.message ?? "卷级版本已冻结。");
+      setMessage(response.message ?? "Volume level version frozen.");
       await invalidateVersionList();
     },
     onError: (error) => {
-      setMessage(error instanceof Error ? error.message : "冻结卷级版本失败。");
+      setMessage(error instanceof Error ? error.message : "Freezing volume level version failed.");
     },
   });
 
   const diffMutation = useMutation({
     mutationFn: () => {
       if (!selectedVersionId) {
-        throw new Error("请先选择一个卷级版本。");
+        throw new Error("Please select a volume-level version first.");
       }
       return getVolumeDiff(novelId, selectedVersionId);
     },
     onSuccess: (response) => {
       setDiffResult(response.data ?? null);
-      setMessage(response.message ?? "卷级版本差异已更新。");
+      setMessage(response.message ?? "Volume level version differences updated.");
     },
     onError: (error) => {
-      setMessage(error instanceof Error ? error.message : "加载卷级版本差异失败。");
+      setMessage(error instanceof Error ? error.message : "Failed to load volume level version differences.");
     },
   });
 
@@ -143,40 +143,40 @@ export function useVolumeVersionControl({
     mutationFn: () => analyzeVolumeImpact(novelId, { volumes: draftDocument.volumes }),
     onSuccess: (response) => {
       setImpactResult(response.data ?? null);
-      setMessage(response.message ?? "卷级草稿影响分析完成。");
+      setMessage(response.message ?? "Volume-level draft impact analysis completed.");
     },
     onError: (error) => {
-      setMessage(error instanceof Error ? error.message : "卷级草稿影响分析失败。");
+      setMessage(error instanceof Error ? error.message : "Volume level draft impact analysis failed.");
     },
   });
 
   const analyzeVersionImpactMutation = useMutation({
     mutationFn: () => {
       if (!selectedVersionId) {
-        throw new Error("请先选择一个卷级版本。");
+        throw new Error("Please select a volume-level version first.");
       }
       return analyzeVolumeImpact(novelId, { versionId: selectedVersionId });
     },
     onSuccess: (response) => {
       setImpactResult(response.data ?? null);
-      setMessage(response.message ?? "卷级版本影响分析完成。");
+      setMessage(response.message ?? "Volume-level version impact analysis completed.");
     },
     onError: (error) => {
-      setMessage(error instanceof Error ? error.message : "卷级版本影响分析失败。");
+      setMessage(error instanceof Error ? error.message : "Volume level version impact analysis failed.");
     },
   });
 
   const loadSelectedVersionMutation = useMutation({
     mutationFn: () => {
       if (!selectedVersionId) {
-        throw new Error("请先选择一个卷级版本。");
+        throw new Error("Please select a volume-level version first.");
       }
       return getVolumeVersion(novelId, selectedVersionId);
     },
     onSuccess: (response) => {
       const version = response.data;
       if (!version) {
-        setMessage("读取卷级版本内容失败。");
+        setMessage("Failed to read volume level version content.");
         return;
       }
       try {
@@ -186,13 +186,13 @@ export function useVolumeVersionControl({
         setCritiqueReport(parsed.critiqueReport ?? null);
         setBeatSheets(parsed.beatSheets ?? []);
         setRebalanceDecisions(parsed.rebalanceDecisions ?? []);
-        setMessage(`已加载 V${version.version} 到当前卷级草稿。`);
+        setMessage(`Loaded V${version.version} to the current volume-level draft.`);
       } catch {
-        setMessage("读取卷级版本内容失败。");
+        setMessage("Failed to read volume level version content.");
       }
     },
     onError: (error) => {
-      setMessage(error instanceof Error ? error.message : "读取卷级版本内容失败。");
+      setMessage(error instanceof Error ? error.message : "Failed to read volume level version content.");
     },
   });
 

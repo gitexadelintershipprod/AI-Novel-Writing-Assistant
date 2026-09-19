@@ -26,7 +26,7 @@ import type { LLMProvider } from "@ai-novel/shared/types/llm";
 
 export type PanelImageStatus = "idle" | "generating" | "done" | "error";
 
-/** 生图实际使用的参考素材元数据（写入 imageData.referenceImages，供前端弹窗溯源展示） */
+/** 生图实际使用的Reference material元数据（写入 imageData.referenceImages，供前端弹窗溯源展示） */
 export interface PanelReferenceImageMeta {
   /** character_sheet=三视图 | character_expression=表情稿 | character_face=面部裁剪 | asset=角色资产 | scene=场景设定图 */
   kind: "character_sheet" | "character_expression" | "character_face" | "asset" | "scene";
@@ -120,23 +120,23 @@ const FORMAT_ZH_KEYWORDS: Record<string, string> = {
   webtoon:         "竖版条漫单格，韩漫竖屏格子，手机阅读条漫画格",
   "4koma":         "四格漫画，竖版四格，起承转合四格排版",
   single_page:     "单页漫画，日漫分格页面，大小格混排单页",
-  cinematic:       "电影分镜画格，横版宽幅，电影感构图",
+  cinematic:       "movie storyboard画格，横版宽幅，电影感构图",
   chat_comic:      "聊天漫画格，对话气泡式版式，轻松日常漫画",
-  chibi_comic:     "Q版萌漫，SD人物，可爱夸张比例漫画格",
-  ink_comic:       "水墨国风漫画格，毛笔线条，古典意境留白",
+  chibi_comic:     "Q version cute comics，SD人物，可爱夸张比例漫画格",
+  ink_comic:       "Chinese style of ink painting漫画格，毛笔线条，古典意境留白",
   drama_screenshot:"竖版短剧截图风，字幕条，剧情画面感",
 };
 
 const STYLE_ZH_KEYWORDS: Record<string, string> = {
-  webtoon_color:   "彩色韩漫风格，干净线条，鲜艳配色",
-  bl_manga:        "彩色少女漫风格，柔和色调，精致五官",
-  shounen_bw:      "黑白少年漫风格，粗犷线条，动感构图",
-  ink_traditional: "水墨国风，传统毛笔笔触，淡彩晕染",
-  chibi:           "Q版萌漫风格，圆润可爱，夸张表情",
-  realistic:       "写实漫画风格，细腻光影，真实感",
+  webtoon_color:   "Color manhwa style, clean lines, vivid colors",
+  bl_manga:        "Colorful girl comics风格，Soft colors, refined facial features",
+  shounen_bw:      "black and white shounen comics风格，Rough lines, dynamic composition",
+  ink_traditional: "Chinese style of ink painting，传统Brush strokes, light color smudges",
+  chibi:           "Q version cute comics风格，Mellow and cute, with exaggerated expressions",
+  realistic:       "写实漫画风格，Delicate light and shadow, realism",
 };
 
-// 九宫格方向 → 图像模型理解的位置描述
+// 九宫格方向 → image model理解的位置描述
 const ANCHOR_HINT_ZH: Record<string, string> = {
   "top-left":      "左上角",
   "top-center":    "上方居中",
@@ -150,7 +150,7 @@ const ANCHOR_HINT_ZH: Record<string, string> = {
 };
 
 const BUBBLE_TYPE_ZH: Record<string, string> = {
-  round:   "圆形对话气泡",
+  round:   "Round speech bubbles",
   spike:   "尖角爆炸气泡（激动喊叫）",
   cloud:   "云朵思维气泡（内心独白）",
   caption: "矩形旁白框（叙述）",
@@ -175,7 +175,7 @@ function stripSpeakerPrefix(text: string, speaker?: string): string {
 function buildDialoguePrompt(dialogues: DialogueEntry[]): string {
   if (dialogues.length === 0) return "";
   const lines = dialogues.map((d, i) => {
-    const bubbleDesc = BUBBLE_TYPE_ZH[d.bubbleType ?? "round"] ?? "圆形对话气泡";
+    const bubbleDesc = BUBBLE_TYPE_ZH[d.bubbleType ?? "round"] ?? "Round speech bubbles";
     const placement = d.anchorHint ? `位于${ANCHOR_HINT_ZH[d.anchorHint] ?? d.anchorHint}` : "";
     // 说话人只用于决定气泡尾巴指向，不进气泡文字
     const speakerHint = d.speaker ? `（气泡尾巴指向${d.speaker}）` : "";
@@ -186,9 +186,9 @@ function buildDialoguePrompt(dialogues: DialogueEntry[]): string {
 }
 
 const CROWD_DIVERSITY_PROMPT = [
-  "群众/路人/背景人物约束：如果本格出现非命名群众、围观者、路人、弟子群、士兵群或其他背景人物，他们必须是非主角、非同脸模板",
+  "Crowd / passerby / background-character rule: if this panel shows unnamed crowds, onlookers, passersby, disciple groups, soldier groups, or other background people, they must not be leads and must not share the same-face template",
   "每个群众人物在年龄、脸型、发型、服饰颜色、体型和站姿上要有清晰差异",
-  "命名角色参考图只用于对应命名角色，不要把命名角色的脸、发型或服装复制到群众人物身上",
+  "命名Character reference picture只用于对应命名角色，不要把命名角色的脸、发型或服装复制到群众人物身上",
   "avoid repeated identical faces, cloned faces, same hairstyle, same outfit template, duplicated crowd members",
 ].join("；");
 
@@ -213,7 +213,7 @@ function buildPanelPrompt(
 
   // 2. 画风声明
   const styleEn = presetData.style ?? "webtoon style, vibrant colors, clean lines";
-  const styleZh = STYLE_ZH_KEYWORDS[presetData.style ?? ""] ?? "彩色韩漫风格，干净线条，鲜艳配色";
+  const styleZh = STYLE_ZH_KEYWORDS[presetData.style ?? ""] ?? "Color manhwa style, clean lines, vivid colors";
 
   // 3. 角色外貌锚定（有设计稿时作为次要文字补充，没有时是主要一致性保障）
   //    角色描述里已携带【男性】/【女性】/【中性气质】标签，模型据此画对性别
@@ -225,7 +225,7 @@ function buildPanelPrompt(
   const dialoguePart = buildDialoguePrompt(dialogues);
 
   // 顺序：形态 → 画风 → 角色外貌 → 场景锚定 → 对白气泡 → 场景内容 → 质量词
-  // 对白在画面内容之前，确保图像模型赋予更高权重
+  // 对白在画面内容之前，确保image model赋予更高权重
   const parts = [
     `${formatZh}，${formatEn}`,
     `${styleZh}，${styleEn}`,
@@ -234,7 +234,7 @@ function buildPanelPrompt(
   if (sceneDesc) parts.push(sceneDesc);
   // 场景参考图防机位僵死：只锁定空间身份，镜头按本格自由运镜
   if (hasSceneRefImage) {
-    parts.push("场景参考图仅用于锁定色调、布局与材质身份，镜头角度、景别与构图必须严格按本格画面内容自由运镜，不要照搬参考图的机位");
+    parts.push("The scene reference only locks tone, layout, and material identity. Camera angle, shot size, and composition must follow this panel's content. Do not copy the reference camera position.");
   }
   parts.push(CROWD_DIVERSITY_PROMPT);
   if (dialoguePart) parts.push(dialoguePart);
@@ -270,8 +270,8 @@ export class ComicPanelImageService {
         },
       },
     });
-    if (!panel) throw new AppError(`未找到漫画格子：${panelId}`, 404);
-    if (!panel.visualPrompt) throw new AppError("该格子缺少 visualPrompt，无法生成图像。", 400);
+    if (!panel) throw new AppError(`Comic panel not found: ${panelId}`, 404);
+    if (!panel.visualPrompt) throw new AppError("This panel is missing visualPrompt, so an image cannot be generated.", 400);
 
     const project = panel.episode.project;
     const presetData = safeJsonParse<StylePresetData>(project.stylePreset, {});
@@ -294,7 +294,7 @@ export class ComicPanelImageService {
         // ── 文字描述锚定 ──────────────────────────────────────
         const desc = character.visualAnchor?.trim()
           ? extractVisualAnchorDesc(character.visualAnchor)
-          : "以角色参考图保持外貌一致";
+          : "以Character reference picture保持外貌一致";
         const genderTag = character.gender === "male" ? "【男性】"
           : character.gender === "female" ? "【女性】"
           : character.gender === "other" ? "【中性气质】"
@@ -351,14 +351,14 @@ export class ComicPanelImageService {
           if (sheetRef) {
             referenceMetas.push({
               kind: "character_sheet",
-              label: `${character.name} · 三视图`,
+              label: `${character.name} · three-view sheet`,
               url: `/api/comic/character-images/${character.id}/sheet`,
             });
           }
           for (const a of usedCostume) {
             referenceMetas.push({
               kind: "asset",
-              label: `${character.name} · 服装:${a.name}`,
+              label: `${character.name} · costume: ${a.name}`,
               url: `/api/comic/character-assets/${a.id}/image`,
             });
           }
@@ -382,7 +382,7 @@ export class ComicPanelImageService {
             finalRefImagePaths.push(expressionRef.filePath);
             referenceMetas.push({
               kind: "character_expression",
-              label: `${character.name} · 表情:${describeCharacterExpression(ref.expression ?? "neutral")}`,
+              label: `${character.name} · expression: ${describeCharacterExpression(ref.expression ?? "neutral")}`,
               url: `/api/comic/character-images/${character.id}/expressions`,
             });
           }
@@ -399,7 +399,7 @@ export class ComicPanelImageService {
         const bible = safeJsonParse<SceneBible>(scene.bible, {});
         const bibleParts: string[] = [];
         if (bible.palette) bibleParts.push(`色调${bible.palette}`);
-        if (bible.keyElements) bibleParts.push(`标志元素${bible.keyElements}`);
+        if (bible.keyElements) bibleParts.push(`Logo elements${bible.keyElements}`);
         if (bible.materials) bibleParts.push(`材质${bible.materials}`);
         if (bible.ambiance) bibleParts.push(`氛围${bible.ambiance}`);
         if (bible.layout) bibleParts.push(`空间${bible.layout}`);
@@ -415,7 +415,7 @@ export class ComicPanelImageService {
             hasSceneRefImage = true;
             referenceMetas.push({
               kind: "scene",
-              label: `场景:${scene.name}`,
+              label: `Scene: ${scene.name}`,
               url: `/api/comic/scenes/${scene.id}/image`,
             });
           }
@@ -448,7 +448,7 @@ export class ComicPanelImageService {
       size: imageSize,
       refImagePaths: uniqueRefImagePaths,
       referenceImages: referenceMetas,
-      title: `生成第 ${panel.order} 格图像`,
+      title: `Generate panel ${panel.order} image`,
       cleanup: async () => {
         await Promise.allSettled(spriteCleanups.map((fn) => fn()));
       },
@@ -502,7 +502,7 @@ export class ComicPanelImageService {
     return prisma.comicPanel
       .findUnique({ where: { id: panelId }, select: { imageData: true } })
       .then((p) => {
-        if (!p) throw new AppError(`未找到漫画格子：${panelId}`, 404);
+        if (!p) throw new AppError(`Comic panel not found: ${panelId}`, 404);
         return safeJsonParse<PanelImageData>(p.imageData, { status: "idle" });
       });
   }

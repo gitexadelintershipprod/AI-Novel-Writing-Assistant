@@ -27,33 +27,33 @@ import type { DirectorRiskAssessment } from "./directorRisk";
 export const DIRECTOR_CORRECTION_PRESETS = [
   {
     value: "more_hooky",
-    label: "更抓人一点",
-    description: "提高开篇钩子和阶段性反馈，让故事更有追更驱动力。",
-    promptHint: "强化开篇抓力、爽感回报和追更钩子。",
+    label: "More catchy",
+    description: "Improve the opening hook and staged feedback to make the story more compelling.",
+    promptHint: "Strengthen the grip of the opening chapter, the exciting rewards and the hook for catching up.",
   },
   {
     value: "stronger_conflict",
-    label: "冲突更强",
-    description: "让主角目标与阻力更直接对撞，减少温吞推进。",
-    promptHint: "提升主线矛盾强度，让推进更紧更直接。",
+    label: "Conflict is stronger",
+    description: "Let the protagonist's goal and resistance collide more directly, reducing lukewarm advancement.",
+    promptHint: "Increase the intensity of the main line of conflicts to make advancement tighter and more direct.",
   },
   {
     value: "sharper_protagonist",
-    label: "主角更鲜明",
-    description: "突出主角身份、欲望和人格标签，让人物更好记。",
-    promptHint: "增强主角辨识度、欲望驱动和人物标签。",
+    label: "The protagonist is more distinct",
+    description: "Highlight the protagonist's identity, desires, and personality labels to make the characters easier to remember.",
+    promptHint: "Enhance the protagonist's identification, desire drive and character labeling.",
   },
   {
     value: "more_grounded",
-    label: "更偏现实感",
-    description: "增强行为合理性和生活质感，减少悬浮设定感。",
-    promptHint: "补强现实质感、生活细节和行为逻辑。",
+    label: "More realistic",
+    description: "Enhance behavioral rationality and quality of life, and reduce the sense of suspended settings.",
+    promptHint: "Enhance the realistic texture, life details and behavioral logic.",
   },
   {
     value: "lighter_ending",
-    label: "结局别太沉重",
-    description: "保留力度，但避免过度压抑或纯悲观收束。",
-    promptHint: "让结尾保留希望感，不要过度沉重。",
+    label: "Don’t make the ending too heavy",
+    description: "Keep the intensity, but avoid excessive depression or purely pessimistic endings.",
+    promptHint: "Keep the ending hopeful without being overly heavy.",
   },
 ] as const;
 
@@ -62,23 +62,23 @@ export type DirectorCorrectionPreset = typeof DIRECTOR_CORRECTION_PRESETS[number
 export const DIRECTOR_CANDIDATE_SETUP_STEPS = [
   {
     key: "candidate_seed_alignment",
-    label: "整理项目设定",
-    description: "先把灵感、题材、目标读者和章节规模压成稳定输入。",
+    label: "Organize project settings",
+    description: "First, compress the inspiration, subject matter, target readers and chapter size into stable input.",
   },
   {
     key: "candidate_project_framing",
-    label: "对齐书级 framing",
-    description: "把书级卖点、前 30 章承诺和气质约束转成候选生成参考。",
+    label: "Align book-level framing",
+    description: "Turn book-level selling points, first 30 chapter commitments, and temperament constraints into candidate generation references.",
   },
   {
     key: "candidate_direction_batch",
-    label: "生成书级方案",
-    description: "产出当前可继续推进整本规划的候选方向。",
+    label: "Generate book-level plans",
+    description: "Output current candidate directions that can continue to advance the entire plan.",
   },
   {
     key: "candidate_title_pack",
-    label: "强化标题组",
-    description: "为每套候选补一组更适合封面展示和点击测试的书名。",
+    label: "Enhance title group",
+    description: "For each set of candidates, make up a set of book titles that are more suitable for cover display and click testing.",
   },
 ] as const;
 

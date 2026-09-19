@@ -19,11 +19,11 @@ export class ChapterContextAssemblyError extends Error {
     cause: unknown,
   ) {
     const operationLabel = operation === "review"
-      ? "章节审阅"
+      ? "chapter review"
       : operation === "audit"
-        ? "章节审计"
-        : "章节修复";
-    super(`章节上下文装配失败，无法继续${operationLabel}。请先检查当前项目的卷级规划、章节计划和运行时资产是否完整后重试。`);
+        ? "chapter audit"
+        : "chapter repair";
+    super(`Chapter context assembly failed, so ${operationLabel} cannot continue. Check that this project's volume plan, chapter plan, and runtime assets are complete, then retry.`);
     this.name = "ChapterContextAssemblyError";
     this.novelId = novelId;
     this.chapterId = chapterId;

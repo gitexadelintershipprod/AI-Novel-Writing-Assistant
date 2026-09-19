@@ -14,10 +14,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const ACTION_LABELS: Record<DirectorIssueAction, string> = {
-  auto_retry: "自动重试",
-  continue_with_warning: "提醒后继续",
-  pause_for_manual: "暂停处理",
-  fail_task: "结束任务",
+  auto_retry: "Automatic retry",
+  continue_with_warning: "Continue after reminder",
+  pause_for_manual: "Pause processing",
+  fail_task: "end task",
 };
 
 const CONFIGURABLE_ISSUES = DIRECTOR_ISSUE_CATALOG;
@@ -39,10 +39,10 @@ export default function NovelDirectorIssuePolicyCard({ novelId }: { novelId: str
   const mutation = useMutation({
     mutationFn: (override: DirectorIssuePolicyOverride | null) => saveNovelDirectorIssuePolicy(novelId, override),
     onSuccess: async (result) => {
-      setMessage(result.message ?? "本书处理规则已保存。");
+      setMessage(result.message ?? "The rules for handling this book have been saved.");
       await queryClient.invalidateQueries({ queryKey: queryKeys.tasks.directorIssuePolicy(novelId) });
     },
-    onError: (error) => setMessage(error instanceof Error ? error.message : "保存本书处理规则失败。"),
+    onError: (error) => setMessage(error instanceof Error ? error.message : "Failed to save book processing rules."),
   });
 
   if (!response || draft === null) return null;
@@ -61,8 +61,8 @@ export default function NovelDirectorIssuePolicyCard({ novelId }: { novelId: str
   return (
     <Card>
       <CardHeader>
-        <CardTitle>本书问题处理偏好</CardTitle>
-        <CardDescription>选择适合本书的处理方案，或逐项调整。保存后会用于后续任务；安全保护仍会优先保护作品。</CardDescription>
+        <CardTitle>Preferences for handling problems in this book</CardTitle>
+        <CardDescription>Choose a treatment that works for this book, or adjust it piece by piece. After saving, it will be used for subsequent tasks; security protection will still give priority to protecting the work.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="grid gap-3 md:grid-cols-2">
@@ -82,33 +82,33 @@ export default function NovelDirectorIssuePolicyCard({ novelId }: { novelId: str
           ))}
         </div>
         <label className="flex items-center justify-between gap-3 rounded-xl border border-border/70 px-3 py-2 text-sm">
-          <span className="font-medium">自动重试</span>
+          <span className="font-medium">Automatic retry</span>
           <select className="h-9 rounded-md border bg-background px-3 text-sm" value={draft.maxAutomaticRetries ?? response.effectivePolicy.maxAutomaticRetries} onChange={(event) => setDraft({ ...draft, maxAutomaticRetries: Number(event.target.value) })}>
-            <option value={0}>不自动重试</option>
-            <option value={1}>最多 1 次</option>
+            <option value={0}>Do not automatically retry</option>
+            <option value={1}>Maximum 1 time</option>
           </select>
         </label>
         {CONFIGURABLE_ISSUES.map((entry) => (
           <div key={entry.code} className="grid gap-2 rounded-md border p-3 md:grid-cols-[minmax(0,1fr)_220px]">
             <div>
               <div className="text-sm font-medium">{entry.label}</div>
-              <div className="mt-1 text-xs text-muted-foreground">全局：{ACTION_LABELS[response.effectivePolicy.issueActions[entry.code] ?? entry.defaultAction]}</div>
-              {entry.lockedReason ? <div className="mt-1 text-xs text-amber-700">安全提示：{entry.lockedReason}{entry.enforcedAction ? ` 当前触发时仍会${ACTION_LABELS[entry.enforcedAction]}。` : ""}</div> : null}
+              <div className="mt-1 text-xs text-muted-foreground">Global:{ACTION_LABELS[response.effectivePolicy.issueActions[entry.code] ?? entry.defaultAction]}</div>
+              {entry.lockedReason ? <div className="mt-1 text-xs text-amber-700">Safety tips:{entry.lockedReason}{entry.enforcedAction ? ` Still active when triggered${ACTION_LABELS[entry.enforcedAction]}。` : ""}</div> : null}
             </div>
             <select className="h-9 rounded-md border bg-background px-3 text-sm" value={overrideActions[entry.code] ?? ""} onChange={(event) => setAction(entry.code, event.target.value)}>
-              <option value="">继承全局</option>
+              <option value="">Inherit global</option>
               {DIRECTOR_ISSUE_ACTIONS.map((value) => <option key={value} value={value}>{ACTION_LABELS[value]}</option>)}
             </select>
           </div>
         ))}
         {hasChanges ? (
           <div className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm leading-6 text-amber-950" role="status">
-            你修改了本书的问题处理偏好。保存后会影响后续任务；安全保护触发时，系统可能仍会暂停或结束任务，并保留这次选择供复核。
+            You modified your problem-handling preferences for this book. Saving will affect subsequent tasks; when security protection is triggered, the system may still pause or end the task, and retain this selection for review.
           </div>
         ) : null}
         <div className="flex flex-wrap items-center gap-2">
-          <Button disabled={mutation.isPending} onClick={() => mutation.mutate(draft)}>{mutation.isPending ? "保存中…" : "保存本书偏好"}</Button>
-          <Button variant="outline" disabled={mutation.isPending} onClick={() => mutation.mutate(null)}>恢复继承全局</Button>
+          <Button disabled={mutation.isPending} onClick={() => mutation.mutate(draft)}>{mutation.isPending ? "Saving…" : "Save book preferences"}</Button>
+          <Button variant="outline" disabled={mutation.isPending} onClick={() => mutation.mutate(null)}>Restore inheritance global</Button>
           {message ? <span className="text-xs text-muted-foreground">{message}</span> : null}
         </div>
       </CardContent>

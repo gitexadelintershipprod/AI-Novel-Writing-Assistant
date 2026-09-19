@@ -44,39 +44,39 @@ export const INTENT_NAMES = [
 const WORKFLOW_RECIPES = [
   {
     intent: "produce_novel",
-    when: "用户要求创建并启动整本生成，或继续/完成当前小说的整本生产。",
+    when: "The user asks to create and start full-book generation, or to continue/finish this novel's full-book production.",
     examples: [
-      "创建一本20章小说《抗日奇侠传》，并开始整本生成",
-      "继续生成当前小说",
-      "完成这本小说",
+      "Create a 20-chapter novel titled Anti-Japanese Hero Legend and start full-book generation",
+      "Continue generating this novel",
+      "完成this novel",
       "把这本书写完",
     ],
   },
   {
     intent: "query_novel_production_status",
-    when: "用户在问整本生成卡在哪一步、是否启动、资产是否准备完成。",
+    when: "The user is asking where full-book generation is stuck, whether it started, and whether assets are ready.",
     examples: [
-      "整本生成到哪一步了",
-      "为什么整本生成没有启动",
-      "当前资产准备完成了吗",
+      "At what stage has the entire book been generated?",
+      "Why does the entire build not start?",
+      "Are the current assets ready",
     ],
   },
   {
     intent: "query_director_status",
-    when: "用户在问自动导演运行到哪、是否等待确认、当前节点或最近事件。",
+    when: "用户在问Auto-Director运行到哪、是否Waiting for confirmation、当前节点或最近事件。",
     examples: [
-      "自动导演现在到哪一步了",
+      "Auto-Director现在到哪一步了",
       "当前导演任务是不是卡住了",
-      "这条自动导演任务状态如何",
+      "这条Automatic director tasks状态如何",
     ],
   },
   {
     intent: "explain_director_next_action",
-    when: "用户询问当前小说下一步该做什么、为什么这样推进、是否能继续自动导演。",
+    when: "用户询问current novel下一步该做什么、为什么这样推进、是否能Continue to direct automatically。",
     examples: [
-      "这本书现在该做什么",
-      "下一步怎么推进",
-      "自动导演建议我接下来做什么",
+      "What this book should do now",
+      "What to do next",
+      "Auto-Director建议我接下来做什么",
     ],
   },
   {
@@ -90,43 +90,43 @@ const WORKFLOW_RECIPES = [
   },
   {
     intent: "run_director_next_step",
-    when: "用户明确要求创作中枢继续自动导演下一步。",
+    when: "用户明确要求creative centerContinue Auto-Director to the next step。",
     examples: [
-      "继续自动导演下一步",
-      "让导演继续推进一步",
+      "Continue Auto-Director to the next step",
+      "Let the director take one more step",
     ],
   },
   {
     intent: "run_director_until_gate",
-    when: "用户明确要求自动导演持续推进到下一个检查点或确认点。",
+    when: "用户明确要求Auto-Director持续推进到下一个检查点或确认点。",
     examples: [
-      "继续自动导演到检查点",
-      "让导演推进到需要我确认的地方",
+      "Continue Auto-Director to the checkpoint",
+      "Let the director advance to the next place that needs my confirmation",
     ],
   },
   {
     intent: "switch_director_policy",
-    when: "用户明确要求调整自动导演推进方式或自动化强度。",
+    when: "用户明确要求调整自动Director's approach或自动化强度。",
     examples: [
-      "把自动导演切到只给建议",
-      "改成推进到检查点",
-      "允许安全范围自动推进",
+      "Switch Auto-Director to suggestions only",
+      "Switch to advancing to a checkpoint",
+      "Allow auto-advance in a safe range",
     ],
   },
   {
     intent: "query_chapter_content",
-    when: "用户要查看某章或某段章节范围的正文/摘要。",
+    when: "用户要查看某章或某段Chapter scope的正文/摘要。",
     examples: [
       "返回给我第1章的内容",
-      "前两章都写了什么",
+      "What was written in the first two chapters?",
     ],
   },
   {
     intent: "inspect_failure_reason",
-    when: "用户在问生成失败、章节失败或阻塞原因。",
+    when: "The user is asking why generation failed, a chapter failed, or the run is blocked.",
     examples: [
-      "第三章为什么失败",
-      "生成第三章失败的原因是什么",
+      "Why did chapter 3 fail",
+      "Why did generating chapter 3 fail",
     ],
   },
   {
@@ -134,7 +134,7 @@ const WORKFLOW_RECIPES = [
     when: "用户要求推进某章写作。",
     examples: [
       "写第三章",
-      "继续写第5章",
+      "Continue writing5章",
     ],
   },
   {
@@ -147,7 +147,7 @@ const WORKFLOW_RECIPES = [
   },
   {
     intent: "query_progress",
-    when: "用户在问当前已经写完几章、进度到哪。",
+    when: "The user is asking how many chapters are written and where progress stands.",
     examples: [
       "当前写完了几章",
       "现在进度到哪了",
@@ -273,43 +273,43 @@ export function buildPlannerIntentPromptParts(input: PlannerInput): { systemProm
   return {
     systemPrompt: [
       readonly
-        ? "当前是创作中枢只读模式：只能查询小说状态、诊断问题、查看执行记录、解释下一步并推荐正式入口。不得创建、生成、写作、保存、修改、恢复、重试、取消或启动任何任务。"
-        : "创作中枢默认是协作式创作搭档，不是命令路由器。",
-      "你必须在 JSON 中显式返回 interactionMode、assistantResponse、shouldAskFollowup、missingInfo。",
+        ? "Creative Hub is in read-only mode: you may only query novel status, diagnose issues, view run records, explain the next step, and recommend the official entry. Do not create, generate, write, save, edit, recover, retry, cancel, or start any task."
+        : "creative center默认是协作式创作搭档，不是命令路由器。",
+      "You must explicitly return interactionMode, assistantResponse, shouldAskFollowup, and missingInfo in JSON.",
       "如果用户还在探索方向、比较方案、表达不满、寻求诊断，或者创作目标本身还不够清晰，优先把 interactionMode 设为 co_create 或 review，并把 shouldAskFollowup 设为 true。",
-      "只有当用户明确要求立即创建、绑定、保存、启动任务或直接写内容时，才把 interactionMode 设为 execute。",
+      "Set interactionMode to execute only when the user clearly asks to create, bind, save, start a task, or write content now.",
       "当下一步更适合追问澄清时，assistantResponse 用 ask_followup；当下一步更适合给方案备选时，assistantResponse 用 offer_options。",
-      "如果用户只是寒暄、打招呼、简单问候，且还没有进入具体创作任务，intent 应优先使用 social_opening，而不是 general_chat。",
-      "你是小说创作 Agent 的意图解析器，只能返回一个 JSON 对象。",
+      "If the user is only greeting and has not entered a writing task, prefer intent social_opening over general_chat.",
+      "你是Novel creation Agent 的意图解析器，只能返回一个 JSON 对象。",
       "你的任务不是直接规划所有工具，而是先识别用户真实意图和章节槽位。",
       `intent 必须是以下枚举之一：${(readonly ? INTENT_NAMES.filter((intent) => !["create_novel", "select_novel_workspace", "bind_world_to_novel", "unbind_world_from_novel", "produce_novel", "run_director_next_step", "run_director_until_gate", "switch_director_policy", "write_chapter", "rewrite_chapter", "save_chapter_draft", "start_pipeline", "ideate_novel_setup"].includes(intent)) : INTENT_NAMES).join(", ")}。`,
       ...(readonly ? [
-        "用户要求创建、生成、写作、修改、保存、启动、继续、恢复、重试、取消或审批时，统一返回 workflow_handoff，并在 note 中说明应该进入正式小说工作台、自动导演、任务中心或模型设置。",
+        "用户要求创建、生成、写作、修改、保存、启动、继续、恢复、重试、取消或审批时，统一返回 workflow_handoff，并在 note 中说明应该进入正式Novel workbench、Auto-Director、任务中心或Model settings。",
         "不要用 preview_pipeline_run 或任何只读工具替代正式执行。",
       ] : []),
       "优先使用原子意图语义目录识别列表、查询、检索、绑定这类单一意图。",
-      "只有在用户请求明显属于整本生产、章节写作、失败诊断等复合流程时，才使用 workflow intent。",
-      "如果用户表达命中目录中的 aliases 或 phrases，请返回对应的 canonical intent，不要返回别名或 tool 名。",
-      "如果用户明确提到小说标题，可以放入 novelTitle。",
+      "Use workflow intent only when the request clearly belongs to a compound flow such as full-book production, chapter writing, or failure diagnosis.",
+      "If the user wording matches aliases or phrases in the catalog, return the corresponding canonical intent, not an alias or tool name.",
+      "如果用户明确提到Novel title，可以放入 novelTitle。",
       "如果用户明确提到世界观名称，可以放入 worldName。",
       "如果用户是在描述一本完整新书的生产任务，请使用 produce_novel，并尽量提取 description、targetChapterCount、genre、worldType、styleTone、projectMode、pacePreference、narrativePov、emotionIntensity、aiFreedom、defaultChapterLength。",
-      "如果用户围绕自动导演询问当前状态、下一步、继续推进、推进到检查点、切换推进方式或手动改文影响，应优先使用对应 director intent，而不是普通任务状态或整本生产状态。",
-      "切换自动导演策略时，如果用户指定只给建议、推进下一步、推进到检查点或安全范围自动推进，应分别填 directorPolicyMode 为 suggest_only、run_next_step、run_until_gate、auto_safe_scope。",
+      "如果用户围绕Auto-Director询问Current status、下一步、keep pushing forward、Advance to checkpoint、切换Propulsion method或手动改文影响，应优先使用对应 director intent，而不是Common tasks状态或Whole production状态。",
+      "切换Auto-Director策略时，如果用户指定Just give advice、Proceed to the next step、Advance to checkpoint或Safe range automatic advancement，应分别填 directorPolicyMode 为 suggest_only、run_next_step、run_until_gate、auto_safe_scope。",
       "如果用户明确允许覆盖手写内容，mayOverwriteUserContent 可设为 true；否则不要猜测。",
       "如果用户在问某个关键词、关系模式、题材、设定或世界观原型是否存在于知识库、已索引的拆书资料或世界观中，或者想找类似于 X 的设定或参考案例，优先使用 search_knowledge，不要误判成 general_chat。",
-      "如果用户是在取消或解绑当前小说的世界观，例如不要这个世界观了、取消世界观绑定、先不用某某世界观，优先使用 unbind_world_from_novel，不要误判成 bind_world_to_novel。",
-      "如果用户想基于当前标题、已有设定或当前工作区信息生成几套备选方案，例如给我备选、给几个方向、提供 3 套核心设定或故事承诺或题材风格方案，优先使用 ideate_novel_setup，不要误判成 general_chat。",
+      "如果用户是在取消或解绑current novel的世界观，例如不要这个世界观了、取消世界观绑定、先不用某某世界观，优先使用 unbind_world_from_novel，不要误判成 bind_world_to_novel。",
+      "如果用户想基于当前标题、已有设定或当前工作区信息生成几套备选方案，例如Give me alternatives、给几个方向、提供 3 套core settings或story promise或题材风格方案，优先使用 ideate_novel_setup，不要误判成 general_chat。",
       "projectMode 只能是 ai_led、co_pilot、draft_mode、auto_pipeline；pacePreference 只能是 fast、balanced、slow；narrativePov 只能是 first_person、third_person、mixed。",
       "emotionIntensity 和 aiFreedom 只能是 low、medium、high；defaultChapterLength 是 500 到 10000 的整数。",
       "chapterSelectors 可包含：chapterId、orders、range{startOrder,endOrder}、relative{type,count}。",
-      "如果信息不足，不要猜测不存在的 chapterId，可以只返回 orders、range 或 relative。",
-      "如果用户问的是基础角色模板库，应该偏向 list_base_characters；如果用户问的是当前小说中的角色状态，应该偏向 inspect_characters，并要求小说上下文。",
-      "confidence 必须保守评估，范围 0 到 1。",
+      "If information is missing, do not guess a nonexistent chapterId. You may return only orders, range, or relative.",
+      "如果用户问的是Basic role模板库，应该偏向 list_base_characters；如果用户问的是current novel中的character status，应该偏向 inspect_characters，并要求小说上下文。",
+      "confidence must be a conservative score from 0 to 1.",
       "只返回 JSON，不要解释。",
     ].join("\n"),
     userPrompt: [
-      `当前目标: ${input.goal}`,
-      `上下文模式: ${input.contextMode}`,
+      `Current goals: ${input.goal}`,
+      `context mode: ${input.contextMode}`,
       `novelId: ${input.novelId ?? "none"}`,
       `currentRunId: ${input.currentRunId ?? "none"}`,
       `当前 run 状态: ${input.currentRunStatus ?? "queued"}`,
@@ -319,7 +319,7 @@ export function buildPlannerIntentPromptParts(input: PlannerInput): { systemProm
       `复合 workflow recipes:\n${workflowRecipes}`,
       `可用工具总览:\n${toolCatalog}`,
       `权限摘要:\n${permissionSummary}`,
-      "请输出一个合法 JSON 对象。",
+      "Output a valid JSON object.",
     ].join("\n\n"),
   };
 }

@@ -2,7 +2,7 @@ import type { DirectorAutoExecutionState } from "@ai-novel/shared/types/novelDir
 import type { DirectorAutoExecutionRange } from "./novelDirectorAutoExecution";
 
 export function isNoChaptersToGenerateError(error: unknown): boolean {
-  return error instanceof Error && error.message.includes("指定区间内没有可生成的章节");
+  return error instanceof Error && error.message.includes("There are no chapters to generate in the selected range");
 }
 
 export function shouldClearAutoExecutionCheckpoint(

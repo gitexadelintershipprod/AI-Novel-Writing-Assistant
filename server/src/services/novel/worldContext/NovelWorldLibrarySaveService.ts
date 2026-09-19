@@ -18,10 +18,10 @@ export class NovelWorldLibrarySaveService {
   } & NovelWorldSaveToLibraryInput): Promise<NovelWorldInstanceView> {
     const novelWorld = await this.viewService.getByNovelId(input.novelId);
     if (!novelWorld) {
-      throw new Error("这本书还没有本书世界。");
+      throw new Error("This book does not have a book world yet.");
     }
     if (novelWorld.sourceWorldId) {
-      throw new Error("本书世界已经关联世界库样本。");
+      throw new Error("This book's world is already linked to a world-library sample.");
     }
 
     const structuredData = normalizeWorldStructuredData(safeJsonParse<unknown>(novelWorld.structuredDataJson, null));
@@ -32,7 +32,7 @@ export class NovelWorldLibrarySaveService {
       lastGeneratedAt: new Date().toISOString(),
     };
     const bindingSupport = buildWorldBindingSupport(structuredData);
-    const title = novelWorld.title?.trim() || "本书世界";
+    const title = novelWorld.title?.trim() || "book world";
     const coverSummary = novelWorld.coverSummary?.trim() || structuredData.profile.summary || null;
     const worldType = structuredData.profile.identity || "custom";
     const structuredFields = applyStructuredWorldToLegacyFields(structuredData, {

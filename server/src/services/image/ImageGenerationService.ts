@@ -68,10 +68,10 @@ function buildBookAnalysisCharacterPrompt(
 ): string {
   const profile = parseBookAnalysisCharacterProfile(character.profileJson);
   const background = [
-    readProfileText(profile, "outerGoal") ? `外在目标：${readProfileText(profile, "outerGoal")}` : "",
-    readProfileText(profile, "innerNeed") ? `内在需求：${readProfileText(profile, "innerNeed")}` : "",
-    readProfileText(profile, "growthTrajectory") ? `成长轨迹：${readProfileText(profile, "growthTrajectory")}` : "",
-  ].filter(Boolean).join("\n") || "来自拆书角色档案。";
+    readProfileText(profile, "outerGoal") ? `External goals:${readProfileText(profile, "outerGoal")}` : "",
+    readProfileText(profile, "innerNeed") ? `Inner need：${readProfileText(profile, "innerNeed")}` : "",
+    readProfileText(profile, "growthTrajectory") ? `Growth path：${readProfileText(profile, "growthTrajectory")}` : "",
+  ].filter(Boolean).join("\n") || "来自Open book character files。";
   return buildCharacterPrompt(prompt, stylePreset, {
     name: readProfileText(profile, "name") || character.name,
     role: readProfileText(profile, "role") || character.role,
@@ -539,7 +539,7 @@ export class ImageGenerationService {
           data: {
             status: "queued",
             pendingManualRecovery: true,
-            error: "服务重启后任务已暂停，等待手动恢复。",
+            error: "The task paused after a service restart and is waiting for manual recovery.",
             heartbeatAt: null,
             currentStage: "queued",
             currentItemKey: null,
@@ -554,7 +554,7 @@ export class ImageGenerationService {
           where: { id: { in: queuedIds } },
           data: {
             pendingManualRecovery: true,
-            error: "服务重启后任务已暂停，等待手动恢复。",
+            error: "The task paused after a service restart and is waiting for manual recovery.",
             heartbeatAt: null,
             cancelRequestedAt: null,
           },

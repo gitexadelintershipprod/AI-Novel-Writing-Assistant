@@ -27,8 +27,8 @@ function rankForeshadowStatus(status: string | null | undefined): number {
   if (
     normalized.includes("resolved")
     || normalized.includes("complete")
-    || normalized.includes("兑现")
-    || normalized.includes("回收")
+    || normalized.includes("cash out")
+    || normalized.includes("Recycle")
   ) {
     return 4;
   }
@@ -62,8 +62,8 @@ function rankInformationStatus(status: string | null | undefined): number {
     normalized.includes("hint")
     || normalized.includes("suspect")
     || normalized.includes("partial")
-    || normalized.includes("线索")
-    || normalized.includes("怀疑")
+    || normalized.includes("clues")
+    || normalized.includes("doubt")
   ) {
     return 2;
   }

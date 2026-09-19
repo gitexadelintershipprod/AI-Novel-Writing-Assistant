@@ -159,18 +159,18 @@ export class CharacterConversationService {
   async sendTurn(request: SubjectRequest, sessionId: string, message: string) {
     const authorMessage = compact(message);
     if (!authorMessage || authorMessage.length > 800) {
-      throw new Error("每次想对角色说的话请控制在 800 字以内。");
+      throw new Error("Keep each message to the character within 800 characters.");
     }
     const session = await prisma.characterConversationSession.findFirst({
       where: { id: sessionId, ...this.activeWhere(request) },
       include: this.sessionInclude(),
     });
-    if (!session) throw new Error("没有找到可继续的角色对话，请重新开始一段谈话。");
+    if (!session) throw new Error("No continuable character conversation was found. Start a new one.");
     if (session.legacyDialogueSessionId) {
       await characterDialogueService.sendTurn(request.scopeId!, request.id, session.legacyDialogueSessionId, authorMessage);
       const mirrored = await this.mirrorLegacySession(session.legacyDialogueSessionId);
       const characterTurn = mirrored.turns.at(-1);
-      if (!characterTurn || characterTurn.role !== "character") throw new Error("角色回应没有成功保存，请稍后重试。");
+      if (!characterTurn || characterTurn.role !== "character") throw new Error("The character reply was not saved. Please try again.");
       return { session: mirrored, characterTurn, influence: mirrored.latestInfluence ?? null };
     }
     const resolved = await this.resolveSubject({ ...request, chapterAnchor: session.chapterAnchor ?? request.chapterAnchor });
@@ -183,13 +183,13 @@ export class CharacterConversationService {
         boundaries: resolved.projection.hardBoundaries.join("\n"),
         authorMessage,
         situation: `${resolved.projection.currentSituation}${resolved.projection.subjectiveState ? `\n${resolved.projection.subjectiveState}` : ""}`,
-        evidence: resolved.projection.evidence.map((item) => `${item.chapterOrder ? `第${item.chapterOrder}章｜` : ""}${item.label}：${item.detail}`).join("\n"),
+        evidence: resolved.projection.evidence.map((item) => `${item.chapterOrder ? `Chapter ${item.chapterOrder} | ` : ""}${item.label}: ${item.detail}`).join("\n"),
         history,
       }),
       options: { temperature: 0.55, stage: "character_conversation", entrypoint: "character_conversation_turn" },
     });
     if (resolved.projection.interactionPolicy !== "novel_influence" && result.output.influenceDraft) {
-      throw new Error("只读角色访谈不能生成后续创作影响，请重新开始这段谈话。");
+      throw new Error("A read-only character interview cannot generate later writing effects. Start this conversation again.");
     }
     await prisma.$transaction(async (tx) => {
       await tx.characterConversationTurn.createMany({
@@ -203,7 +203,7 @@ export class CharacterConversationService {
     const persisted = await prisma.characterConversationSession.findUniqueOrThrow({ where: { id: sessionId }, include: this.sessionInclude() });
     const serialized = serializeSession(persisted as GenericSessionRow);
     const characterTurn = serialized.turns.at(-1);
-    if (!characterTurn || characterTurn.role !== "character") throw new Error("角色回应没有成功保存，请稍后重试。");
+    if (!characterTurn || characterTurn.role !== "character") throw new Error("The character reply was not saved. Please try again.");
     return { session: serialized, characterTurn, influence: null };
   }
 
@@ -223,10 +223,10 @@ export class CharacterConversationService {
 
   private async requireNovelLegacySession(request: SubjectRequest, sessionId: string) {
     if (request.kind !== "novel_character" || request.scopeKind !== "novel" || !request.scopeId) {
-      throw new Error("只有小说内角色可以带入或放弃后续创作影响。");
+      throw new Error("Only in-novel characters can carry over or drop later creative effects.");
     }
     const session = await prisma.characterConversationSession.findFirst({ where: { id: sessionId, ...this.activeWhere(request) } });
-    if (!session?.legacyDialogueSessionId) throw new Error("当前会话不能影响后续小说创作。");
+    if (!session?.legacyDialogueSessionId) throw new Error("This session cannot affect later novel writing.");
     return session;
   }
 
@@ -294,7 +294,7 @@ export class CharacterConversationService {
   private async resolveSubject(request: SubjectRequest): Promise<{ projection: CharacterSubjectProjection; promptContext: string }> {
     if (request.kind === "base_character" && request.scopeKind === "base_library") {
       const character = await prisma.baseCharacter.findUnique({ where: { id: request.id } });
-      if (!character) throw new Error("基础角色不存在。");
+      if (!character) throw new Error("The base character does not exist.");
       return adaptCharacterSubject(baseCharacterSubjectAdapter, {
         character: {
           ...character,
@@ -304,12 +304,12 @@ export class CharacterConversationService {
       });
     }
     if (request.kind === "book_analysis_character" && request.scopeKind === "book_analysis") {
-      if (!request.scopeId) throw new Error("拆书角色对话需要分析范围。");
+      if (!request.scopeId) throw new Error("Book-analysis character chat requires an analysis range.");
       const row = await prisma.bookAnalysisCharacter.findFirst({
         where: { id: request.id, analysisId: request.scopeId },
         include: { arcs: { orderBy: { sortOrder: "asc" } }, scenes: { orderBy: { sortOrder: "asc" } }, appearance: { include: { snapshots: { include: { images: { include: { imageAsset: true } } }, orderBy: { chapterIndex: "asc" } } } } },
       });
-      if (!row) throw new Error("拆书项目中没有找到这个角色。");
+      if (!row) throw new Error("This character was not found in the book-analysis project.");
       const character = serializeCharacter(row);
       const fallbackAnchor = [
         ...character.evidence.map((item) => item.chapterIndex),
@@ -322,7 +322,7 @@ export class CharacterConversationService {
         .map((snapshot) => snapshot.chapterIndex + 1);
       const fallbackChapterAnchor = [...fallbackAnchor, ...appearanceFallbackAnchors].sort((left, right) => right - left)[0];
       const chapterAnchor = request.chapterAnchor ?? fallbackChapterAnchor;
-      if (!chapterAnchor) throw new Error("该拆书角色缺少带章节号的原文证据，暂时无法开始证据访谈。");
+      if (!chapterAnchor) throw new Error("This book-analysis character lacks source evidence with chapter numbers, so an evidence interview cannot start yet.");
       return adaptCharacterSubject(bookAnalysisCharacterSubjectAdapter, { analysisId: request.scopeId, characterId: request.id, chapterAnchor, character });
     }
     if (request.kind === "novel_character" && request.scopeKind === "novel" && request.scopeId) {
@@ -331,26 +331,26 @@ export class CharacterConversationService {
         prisma.characterMindSnapshot.findFirst({ where: { novelId: request.scopeId, characterId: request.id, isCurrent: true }, orderBy: { updatedAt: "desc" } }),
         prisma.storyStateSnapshot.findFirst({ where: { novelId: request.scopeId }, orderBy: { updatedAt: "desc" }, select: { summary: true } }),
       ]);
-      if (!character) throw new Error("当前小说中没有找到这个角色。");
-      if (!mind) throw new Error("请先让 AI 整理这个角色的当前想法，再开始对话。");
+      if (!character) throw new Error("This character was not found in the current novel.");
+      if (!mind) throw new Error("Let AI gather this character's current thoughts before starting the conversation.");
       const projection: CharacterSubjectProjection = {
         subject: { kind: "novel_character", id: character.id, scopeKind: "novel", scopeId: request.scopeId },
         name: character.name,
         role: character.role,
-        sourceLabel: "小说角色",
-        sourceDescription: "角色会结合当前小说处境回应；只有你确认后，谈话倾向才会带入后续创作。",
+        sourceLabel: "novel character",
+        sourceDescription: "The character will respond based on the current novel situation; only after you confirm it, the conversational tendencies will be carried into subsequent creations.",
         interactionPolicy: "novel_influence",
         identity: `身份/阵营/立场：${compact(character.identityLabel, "未指定")}｜${compact(character.factionLabel, "未指定")}｜${compact(character.stanceLabel, "未指定")}\n性格与背景：${compact(character.personality, "待补全")}｜${compact(character.background, "待补全")}`,
-        currentSituation: `当前目标：${compact(character.currentGoal, "待明确")}\n当前状态：${compact(character.currentState, "待明确")}\n最新正史局面：${compact(state?.summary, "待更新")}`,
-        hardBoundaries: ["作者的话不是客观事实，也不是必须执行的剧情命令。", "角色不得违背身份、阵营、资源、地点、已发生事件和信息边界。"],
-        subjectiveState: `角色如何理解局面：${mind.currentInterpretation}\n私下意图：${compact(mind.privateIntent, "未明确")}\n行动倾向：${compact(mind.actionTendency, "未明确")}`,
-        evidence: parseJson<string[]>(mind.evidenceJson, []).slice(0, 4).map((detail, index) => ({ label: `思路线依据 ${index + 1}`, detail, sourceType: "character_mind", sourceRef: mind.id, chapterOrder: null })),
+        currentSituation: `Current goals:${compact(character.currentGoal, "待明确")}\nCurrent status:${compact(character.currentState, "待明确")}\n最新正史局面：${compact(state?.summary, "待更新")}`,
+        hardBoundaries: ["The author's note is not objective fact, and it is not a plot command that must be executed.", "Characters must not break identity, faction, resource, place, established-event, or information bounds."],
+        subjectiveState: `角色如何理解局面：${mind.currentInterpretation}\n私下意图：${compact(mind.privateIntent, "未明确")}\nAction tendencies:${compact(mind.actionTendency, "未明确")}`,
+        evidence: parseJson<string[]>(mind.evidenceJson, []).slice(0, 4).map((detail, index) => ({ label: `Thought-line evidence ${index + 1}`, detail, sourceType: "character_mind", sourceRef: mind.id, chapterOrder: null })),
         chapterAnchor: null,
         chapterAnchorLabel: null,
       };
       return { projection, promptContext: `${projection.identity}\n${projection.currentSituation}\n${projection.subjectiveState}` };
     }
-    throw new Error("当前角色来源暂不支持对话。");
+    throw new Error("This character source does not support conversation yet.");
   }
 }
 

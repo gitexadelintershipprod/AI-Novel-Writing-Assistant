@@ -62,9 +62,9 @@ function buildSourceRangeLabel(input: {
   endTitle: string;
 }): string {
   if (input.startChapterIndex === input.endChapterIndex) {
-    return `第 ${input.startChapterIndex + 1} 章：${input.startTitle}`;
+    return `Chapter ${input.startChapterIndex + 1}: ${input.startTitle}`;
   }
-  return `第 ${input.startChapterIndex + 1}-${input.endChapterIndex + 1} 章：${input.startTitle} 至 ${input.endTitle}`;
+  return `Chapters ${input.startChapterIndex + 1}–${input.endChapterIndex + 1}：${input.startTitle} 至 ${input.endTitle}`;
 }
 
 export class BookAnalysisCommandService {

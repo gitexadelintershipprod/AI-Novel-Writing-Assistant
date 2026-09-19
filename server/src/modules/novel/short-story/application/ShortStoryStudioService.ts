@@ -70,7 +70,7 @@ export class ShortStoryStudioService {
       },
     });
     if (!novel || novel.narrativeForm !== "short_story") {
-      throw new AppError("短篇作品不存在。", 404);
+      throw new AppError("The short story does not exist.", 404);
     }
     const intentRow = novel.intentVersions[0] ?? null;
     const interpretation = intentRow
@@ -143,13 +143,13 @@ export class ShortStoryStudioService {
       orderBy: { updatedAt: "desc" },
     });
     if (!task) {
-      throw new AppError("没有可继续的短篇生成任务。", 404);
+      throw new AppError("There is no short-story generation task to continue.", 404);
     }
     if (task.checkpointType === "replan_required") {
-      throw new AppError("这篇作品需要先确认新的创作方向。", 409);
+      throw new AppError("This work needs a new creative direction confirmed first.", 409);
     }
     if (task.status !== "failed" && task.status !== "cancelled") {
-      throw new AppError("当前生成任务不需要重试。", 409);
+      throw new AppError("The current generation task does not need a retry.", 409);
     }
     await this.workflowService.retryTask(task.id);
     shortStoryProductionService.schedule(task.id);
@@ -165,11 +165,11 @@ export class ShortStoryStudioService {
       where: { id: segmentId, novelId },
     });
     if (!segment) {
-      throw new AppError("要保存的正文片段不存在。", 404);
+      throw new AppError("The draft fragment to save does not exist.", 404);
     }
     const content = input.content.trim();
     if (!content) {
-      throw new AppError("正文不能为空。", 400);
+      throw new AppError("Chapter text cannot be empty.", 400);
     }
     const updated = await prisma.shortStorySegment.updateMany({
       where: { id: segment.id, version: input.expectedVersion },
@@ -182,7 +182,7 @@ export class ShortStoryStudioService {
       },
     });
     if (updated.count === 0) {
-      throw new AppError("正文已在其他位置更新，请刷新后再保存。", 409);
+      throw new AppError("The draft was updated elsewhere. Refresh before saving.", 409);
     }
     return prisma.shortStorySegment.findUniqueOrThrow({ where: { id: segment.id } });
   }
@@ -271,7 +271,7 @@ export class ShortStoryStudioService {
       },
     });
     if (!proposed) {
-      throw new AppError("修改预览已失效，请重新生成。", 409);
+      throw new AppError("The change preview expired. Generate it again.", 409);
     }
     await prisma.$transaction([
       prisma.novelIntentVersion.update({
@@ -286,7 +286,7 @@ export class ShortStoryStudioService {
     await this.workflowService.markTaskRunning(context.task.id, {
       stage: "short_story_review",
       itemKey: "revision_apply",
-      itemLabel: "正在按确认的修改方向调整作品",
+      itemLabel: "Adjusting the work to the confirmed revision direction",
       progress: 0.9,
     });
     setImmediate(() => {
@@ -339,12 +339,12 @@ export class ShortStoryStudioService {
       await this.workflowService.recordCheckpoint(context.task.id, {
         stage: "short_story_review",
         checkpointType: "workflow_completed",
-        checkpointSummary: "已按确认的修改方向更新作品。",
-        itemLabel: "修改已完成",
+        checkpointSummary: "The work was updated using the confirmed revision direction.",
+        itemLabel: "The change is complete",
         progress: 1,
       });
     } catch (error) {
-      const message = error instanceof Error ? error.message : "作品修改未完成。";
+      const message = error instanceof Error ? error.message : "The work revision was not completed.";
       const task = await prisma.novelWorkflowTask.findFirst({
         where: { novelId, lane: "creation_studio" },
         orderBy: { updatedAt: "desc" },
@@ -353,7 +353,7 @@ export class ShortStoryStudioService {
         await this.workflowService.markTaskFailed(task.id, message, {
           stage: "short_story_review",
           itemKey: "revision_apply",
-          itemLabel: "修改暂时中断，可重试",
+          itemLabel: "The change paused. You can retry",
         });
       }
       throw error;
@@ -557,18 +557,18 @@ export class ShortStoryStudioService {
       },
     });
     if (!novel || novel.narrativeForm !== "short_story" || !novel.shortStoryPlan) {
-      throw new AppError("短篇作品尚未准备好。", 409);
+      throw new AppError("This short story is not ready yet.", 409);
     }
     const activeIntent = novel.intentVersions[0];
     const task = novel.workflowTasks[0];
     if (!activeIntent || !task) {
-      throw new AppError("短篇作品缺少可恢复的创作上下文。", 409);
+      throw new AppError("The short story is missing recoverable writing context.", 409);
     }
     const interpretation = parseJson<CreationIntentInterpretation | null>(activeIntent.structuredIntentJson, null);
     const selected = parseJson<{ selectedDirectionId?: string }>(activeIntent.impactScopeJson, {});
     const direction = interpretation?.directions.find((item) => item.id === selected.selectedDirectionId);
     if (!interpretation || !direction) {
-      throw new AppError("短篇作品缺少生效中的创作方向。", 409);
+      throw new AppError("This short story is missing an active writing direction.", 409);
     }
     return {
       novel,

@@ -96,8 +96,8 @@ export class CharacterResourceExtractionService {
         riskLevel: "low",
         status: "committed",
         summary: input.sourceType === MANUAL_BACKFILL_SOURCE_TYPE
-          ? "本章角色资源回填已检查，未发现需要进入账本的变化。"
-          : "本章角色资源同步已完成，未发现需要进入账本的变化。",
+          ? "This chapter's character-resource backfill was checked. No ledger-worthy changes were found."
+          : "This chapter's character-resource sync is complete. No ledger-worthy changes were found.",
         payloadJson: JSON.stringify({
           syncContentHash: input.contentHash,
           chapterOrder: input.chapterOrder,

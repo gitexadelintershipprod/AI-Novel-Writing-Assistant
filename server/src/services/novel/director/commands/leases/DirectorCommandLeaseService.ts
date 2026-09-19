@@ -6,10 +6,10 @@ import { directorIssueService, loadDirectorIssueTaskContext } from "../../issues
 import { parsePayload, resolveNumberEnv } from "../DirectorCommandServiceHelpers";
 
 const DEFAULT_STALE_AUTO_RECOVERY_MAX_ATTEMPTS = 2;
-const STALE_COMMAND_AUTO_RECOVERY_MESSAGE = "后台执行中断，系统已自动从最近进度继续。";
-const STALE_COMMAND_MANUAL_RECOVERY_MESSAGE = "后台执行中断，任务已暂停。点击恢复后会从最近进度继续。";
-const STALE_COMMAND_INTERNAL_MESSAGE = "Director Worker 租约过期，任务等待恢复。";
-const CANCELLED_COMMAND_MESSAGE = "自动导演任务已取消。";
+const STALE_COMMAND_AUTO_RECOVERY_MESSAGE = "Background execution interrupted. The system automatically continued from the latest progress.";
+const STALE_COMMAND_MANUAL_RECOVERY_MESSAGE = "Background execution interrupted and the task paused. Resume to continue from the latest progress.";
+const STALE_COMMAND_INTERNAL_MESSAGE = "The Director Worker lease expired. The task is waiting to recover.";
+const CANCELLED_COMMAND_MESSAGE = "The Auto-Director task was cancelled.";
 
 function isAutoRecoverableStaleCommand(command: {
   commandType: string;
@@ -246,7 +246,7 @@ export class DirectorCommandLeaseService {
         taskId,
         novelId: run.novelId,
         type: "run_cancelled",
-        summary: "自动导演已停止，后台运行状态已收束。",
+        summary: "Auto-Director stopped and the background run was closed out.",
         severity: "low",
         occurredAt: now,
       },

@@ -87,7 +87,7 @@ export function normalizeNovelBiblePayload(
     ...normalized,
     coreSetting:
       normalized.coreSetting
-      ?? (fallbackTitle?.trim() ? `${fallbackTitle.trim()}的核心设定` : null),
+      ?? (fallbackTitle?.trim() ? `${fallbackTitle.trim()} core settings` : null),
     rawContent: normalizeRawContent(raw),
   };
 }

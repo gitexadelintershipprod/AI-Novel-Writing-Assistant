@@ -22,7 +22,7 @@ export interface NovelFactEntry {
 /**
  * 事实账本服务
  *
- * 记录小说中已发生的不可逆事实（过程性目标完成、信息揭示、状态变化），
+ * 记录小说中已发生的不可逆事实（过程性目标完成、信息揭示、status change），
  * 供写章上下文消费，防止 LLM 重复写出已发生的事件。
  *
  * 写入方：ChapterContentFinalizationService（章节接收后自动写入）
@@ -62,7 +62,7 @@ export class NovelFactService {
   }
 
   /**
-   * 读取当前章节之前的所有事实，用于填充写章上下文。
+   * 读取Current chapter之前的所有事实，用于填充写章上下文。
    *
    * - completed/revealed：全量返回（里程碑性事实，不限距离）
    * - state_changed：只返回最近 recentChaptersWindow 章内的条目
@@ -96,7 +96,7 @@ export class NovelFactService {
   }
 
   /**
-   * 手动写入单条事实（供 Agent 工具调用）
+   * 手动写入单条事实（供 Agent Tool call）
    */
   async addManualFact(input: {
     novelId: string;

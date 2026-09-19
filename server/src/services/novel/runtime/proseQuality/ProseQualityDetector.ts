@@ -49,8 +49,8 @@ const NEGATIVE_FLIP_PATTERN = /(?:不是|并非|并不是|不算|不能说是|�
 const DASH_OR_ELLIPSIS_PATTERN = /——|—|--|……|…{2,}|\.{3,}/u;
 const AI_SELF_REFERENCE_PATTERN = /作为(?:一名|一个)?(?:AI|人工智能|语言模型)|我是(?:AI|人工智能|语言模型)|我无法(?:继续)?(?:创作|生成|提供|完成)|我不能(?:继续)?(?:创作|生成|提供|完成)|无法满足(?:该|这个)?请求|不能协助|as an AI|I (?:am|cannot|can't)[^。！？.!?\n]{0,40}AI/iu;
 const PLACEHOLDER_PATTERN = /TODO|TBD|待补充|此处省略|省略若干|略写|占位|PLACEHOLDER|\{\{[^}]{0,80}\}\}|\[[^\]]{0,40}待补[^\]]{0,40}\]/iu;
-const ENGINEERING_TERM_STRONG_PATTERN = /细纲|情节点|卷纲|功能标签|目标情绪|字数目标|章首钩子|章尾钩子|任务描述|任务单|scene\s*card|prompt|schema|runtime\s*package|上下文包|系统提示词|修复指令/iu;
-const ENGINEERING_TERM_SOFT_PATTERN = /本章|下一章|读者|伏笔|前文|后文|剧情推进|人物弧光|爽点|节奏点|钩子/u;
+const ENGINEERING_TERM_STRONG_PATTERN = /细纲|情节点|卷纲|功能标签|目标情绪|字数目标|章首钩子|章尾钩子|任务描述|任务单|scene\s*card|prompt|schema|runtime\s*package|上下文包|System prompt word|修复指令/iu;
+const ENGINEERING_TERM_SOFT_PATTERN = /本章|下一章|读者|伏笔|前文|后文|plot advancement|人物弧光|爽点|节奏点|钩子/u;
 
 export function detectProseQuality(content: string): ProseQualityReport {
   const segments = buildTextSegments(content);
@@ -113,7 +113,7 @@ export function buildProseQualityAuditReport(
     severity: finding.severity,
     code: finding.code,
     description: finding.message,
-    evidence: `第 ${finding.line} 行：${finding.excerpt}`,
+    evidence: `Line ${finding.line}: ${finding.excerpt}`,
     fixSuggestion: finding.fixSuggestion,
     status: "open",
     createdAt,
@@ -126,7 +126,7 @@ export function buildProseQualityAuditReport(
     chapterId: input.chapterId,
     auditType: "mode_fit",
     overallScore: scoreFindings(input.report.findings),
-    summary: `正文自然度/退化检测发现 ${issues.length} 个问题。`,
+    summary: `Prose naturalness detection found ${issues.length} issues.`,
     legacyScoreJson: null,
     issues,
     createdAt,
@@ -169,9 +169,9 @@ function scanNegativeFlip(
       severity: "high",
       line: segment.line,
       column: index + 1,
-      message: "正文出现高频 AI 式否定翻转句，容易显得概念化、模板化。",
+      message: "The draft uses frequent AI-style “not A, but B” flips, which reads conceptual and templated.",
       excerpt: formatExcerpt(match[0]),
-      fixSuggestion: "改成具体动作、感官细节或角色判断，避免用“不是 A，而是 B”解释主题。",
+      fixSuggestion: "Rewrite as concrete action, sensory detail, or a character judgment instead of explaining the theme with “not A, but B”.",
     });
   }
 }
@@ -189,9 +189,9 @@ function scanDashOrEllipsis(
     severity: "high",
     line: segment.line,
     column: match.index + 1,
-    message: "正文使用破折号、省略号或双连字符，容易形成模型化停顿。",
+    message: "The draft uses dashes, ellipses, or double hyphens in a way that creates mechanical pauses.",
     excerpt: formatExcerpt(segment.text),
-    fixSuggestion: "改写为自然的动作停顿、句读或人物反应，减少机械标点制造的情绪。",
+    fixSuggestion: "Rewrite as a natural action pause, sentence break, or character reaction instead of manufacturing emotion with mechanical punctuation.",
   });
 }
 
@@ -208,9 +208,9 @@ function scanAiSelfReference(
     severity: "critical",
     line: segment.line,
     column: match.index + 1,
-    message: "正文泄漏 AI 身份、拒绝话术或模型说明。",
+    message: "The draft leaks AI identity, refusal phrasing, or model explanation.",
     excerpt: formatExcerpt(segment.text),
-    fixSuggestion: "删除 AI 自述和拒绝话术，改成符合角色与场景的正文叙述。",
+    fixSuggestion: "Remove AI self-talk and refusal phrasing, and rewrite it as narration that fits the character and scene.",
   });
 }
 
@@ -227,9 +227,9 @@ function scanPlaceholderLeak(
     severity: "critical",
     line: segment.line,
     column: match.index + 1,
-    message: "正文包含占位、待补或省略提示。",
+    message: "The draft contains placeholders, unfinished notes, or omission markers.",
     excerpt: formatExcerpt(segment.text),
-    fixSuggestion: "补成完整可读的剧情内容，不能把占位符留给读者。",
+    fixSuggestion: "Fill it out into complete readable plot. Do not leave placeholders for the reader.",
   });
 }
 
@@ -244,9 +244,9 @@ function scanEngineeringTermLeak(
       severity: "high",
       line: segment.line,
       column: strongMatch.index + 1,
-      message: "正文泄漏任务单、细纲、提示词或运行态工程词。",
+      message: "The draft leaks task-sheet, outline, prompt, or runtime engineering terms.",
       excerpt: formatExcerpt(segment.text),
-      fixSuggestion: "删去工程词和写作指令，把信息改写成角色行动、环境变化或叙事结果。",
+      fixSuggestion: "Remove engineering terms and writing instructions, and rewrite the information as character action, environmental change, or a narrative result.",
     });
     return;
   }
@@ -258,9 +258,9 @@ function scanEngineeringTermLeak(
       severity: "medium",
       line: segment.line,
       column: softMatch.index + 1,
-      message: "正文出现偏创作说明的元叙事词，可能削弱沉浸感。",
+      message: "The draft uses meta-narrative craft terms that can break immersion.",
       excerpt: formatExcerpt(segment.text),
-      fixSuggestion: "把面向作者或读者的说明转成故事内部可见的行动、结果或信息差。",
+      fixSuggestion: "Turn author-facing or reader-facing explanation into action, consequence, or information gap that exists inside the story.",
     });
   }
 }
@@ -283,9 +283,9 @@ function scanPeriodStutter(
     severity: "medium",
     line: segment.line,
     column: 1,
-    message: "正文连续使用过短句号，节奏显得碎裂和机械。",
+    message: "The draft uses too many consecutive short sentences, so the rhythm feels fragmented and mechanical.",
     excerpt: formatExcerpt(matches.slice(0, 6).join("")),
-    fixSuggestion: "合并部分短句，并用动作链、视线转移或心理承接形成更自然的段落节奏。",
+    fixSuggestion: "Merge some short sentences and use action chains, gaze shifts, or interior continuity for a more natural paragraph rhythm.",
   });
 }
 
@@ -301,9 +301,9 @@ function scanLongParagraph(
     severity: "medium",
     line: segment.line,
     column: 1,
-    message: "正文段落过长，阅读节奏和移动端可读性下降。",
+    message: "This paragraph is too long, which hurts reading rhythm and mobile readability.",
     excerpt: formatExcerpt(segment.text),
-    fixSuggestion: "按动作转折、信息揭示或情绪变化拆成更短段落。",
+    fixSuggestion: "Split it at action turns, information reveals, or emotional shifts.",
   });
 }
 
@@ -320,9 +320,9 @@ function scanVerbatimRepeat(
         severity: "critical",
         line: segments[index].line,
         column: 1,
-        message: "正文出现相邻段落复读。",
+        message: "Adjacent paragraphs repeat the same wording.",
         excerpt: formatExcerpt(segments[index].text),
-        fixSuggestion: "删除重复段落，保留信息推进更明确的一版。",
+        fixSuggestion: "Delete repeated paragraphs and keep the version that advances information more clearly.",
       });
     }
   }
@@ -350,9 +350,9 @@ function scanVerbatimRepeat(
         severity: "critical",
         line: item.line,
         column: 1,
-        message: "正文多次重复同一句或高度相同的句子。",
+        message: "The same sentence, or a near-identical sentence, repeats too many times.",
         excerpt: formatExcerpt(item.sentence),
-        fixSuggestion: "保留一次有效表达，其余位置改成新的动作、反应或信息推进。",
+        fixSuggestion: "Keep one effective phrasing and rewrite the rest as new action, reaction, or information.",
       });
     }
   }
@@ -373,9 +373,9 @@ function scanTruncation(
     severity: "critical",
     line: lastSegment?.line ?? 1,
     column: Math.max(1, (lastSegment?.text.length ?? trimmed.length) - 20),
-    message: "正文结尾缺少完整句读，疑似生成中断或被截断。",
+    message: "The draft ending is missing a complete sentence stop, so generation may have been interrupted or cut off.",
     excerpt: formatExcerpt(lastSegment?.text ?? trimmed),
-    fixSuggestion: "补齐结尾句、动作结果和章节收束，确认正文不是半句停在输出末尾。",
+    fixSuggestion: "Complete the closing sentence, action result, and chapter wrap-up so the draft does not stop mid-sentence.",
   });
 }
 

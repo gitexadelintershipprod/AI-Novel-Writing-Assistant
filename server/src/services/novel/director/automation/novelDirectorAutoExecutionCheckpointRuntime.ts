@@ -118,8 +118,8 @@ export async function recordCompletedCheckpoint(
     await deps.workflowService.recordCheckpoint(input.taskId, {
       stage: "quality_repair",
       checkpointType: "chapter_batch_ready",
-      checkpointSummary: `《${input.request.candidate.workingTitle.trim() || input.request.title?.trim() || "当前项目"}》已完成${scopeLabel}正文。继续后会补齐下一段章节规划并进入后续写作。`,
-      itemLabel: `${scopeLabel}正文已完成，等待续拆下一段`,
+      checkpointSummary: `"${input.request.candidate.workingTitle.trim() || input.request.title?.trim() || "Current project"}" finished chapter text for ${scopeLabel}. After you continue, the next chapter-planning segment will be filled in and writing can resume.`,
+      itemLabel: `${scopeLabel} chapter text is done; waiting to split the next segment`,
       progress: 0.98,
       chapterId: completedState.firstChapterId ?? input.range.firstChapterId,
       seedPayload: deps.buildDirectorSeedPayload(input.request, input.novelId, {
@@ -143,7 +143,7 @@ export async function recordCompletedCheckpoint(
     stage: "quality_repair",
     checkpointType: "workflow_completed",
     checkpointSummary: buildDirectorAutoExecutionCompletedSummary({
-      title: input.request.candidate.workingTitle.trim() || input.request.title?.trim() || "当前项目",
+      title: input.request.candidate.workingTitle.trim() || input.request.title?.trim() || "Current project",
       scopeLabel,
       autoReview: completedState.autoReview,
       autoRepair: completedState.autoRepair,
@@ -189,7 +189,7 @@ export async function recordQualityRepairCheckpoint(
     stage: "quality_repair",
     checkpointType: input.checkpointType,
     itemLabel: input.checkpointType === "replan_required"
-      ? `${scopeLabel}等待处理重规划建议`
+      ? `${scopeLabel}Pending processing of re-planning suggestions`
       : buildDirectorAutoExecutionPausedLabel(checkpointState),
     checkpointSummary: buildDirectorAutoExecutionPausedSummary({
       scopeLabel,

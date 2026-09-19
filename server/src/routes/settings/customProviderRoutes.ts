@@ -30,7 +30,7 @@ const createCustomProviderSchema = z.object({
   key: z.string().trim().optional(),
   model: z.string().trim().optional(),
   imageModel: z.string().trim().optional(),
-  baseURL: z.string().trim().url("API URL 格式不正确。"),
+  baseURL: z.string().trim().url("The API URL format is invalid."),
   isActive: z.boolean().optional(),
   reasoningEnabled: z.boolean().optional(),
   concurrencyLimit: z.coerce.number().int().min(0).max(MAX_PROVIDER_CONCURRENCY_LIMIT).optional(),
@@ -39,7 +39,7 @@ const createCustomProviderSchema = z.object({
 
 const customProviderModelsSchema = z.object({
   key: z.string().trim().optional(),
-  baseURL: z.string().trim().url("API URL 格式不正确。"),
+  baseURL: z.string().trim().url("The API URL format is invalid."),
 });
 
 type APIKeyRecordLike = {
@@ -115,7 +115,7 @@ export function registerCustomProviderRoutes(router: Router): void {
             models,
             defaultModel: models[0] ?? "",
           },
-          message: `已获取 ${models.length} 个模型。`,
+          message: `Loaded ${models.length} models.`,
         } satisfies ApiResponse<{
           models: string[];
           defaultModel: string;
@@ -141,17 +141,17 @@ export function registerCustomProviderRoutes(router: Router): void {
         const baseURL = body.baseURL.trim();
         let model = normalizeOptionalText(body.model);
         let models = getFallbackModels(model);
-        let message = "自定义厂商已创建。";
+        let message = "The custom provider was created.";
 
         try {
           models = await refreshProviderModels(provider, apiKey, baseURL);
           model = model ?? models[0];
         } catch (error) {
           if (!model) {
-            const detail = error instanceof Error ? `：${error.message}` : "。";
-            throw new AppError(`未能获取模型列表，请检查 API URL，或手动填写一个默认模型${detail}`, 400);
+            const detail = error instanceof Error ? `: ${error.message}` : ".";
+            throw new AppError(`Could not load the model list. Check the API URL, or enter a default model manually${detail}`, 400);
           }
-          message = "自定义厂商已创建，但模型列表刷新失败。可以稍后在厂商卡片中刷新。";
+          message = "The custom provider was created, but refreshing the model list failed. You can refresh it later on the provider card.";
         }
 
         const data = await secretStore.createProvider(provider, {
@@ -222,11 +222,11 @@ export function registerCustomProviderRoutes(router: Router): void {
       try {
         const { provider } = req.params as z.infer<typeof providerSchema>;
         if (isBuiltInProvider(provider)) {
-          throw new AppError("内置厂商不能删除。", 400);
+          throw new AppError("Built-in providers cannot be deleted.", 400);
         }
         const existing = await secretStore.getProvider(provider);
         if (!existing) {
-          throw new AppError("没有找到这个自定义厂商。", 404);
+          throw new AppError("This custom provider was not found.", 404);
         }
         const [routeInUse, selection, ragSettings, ragRuntimeSettings] = await Promise.all([
           prisma.modelRouteConfig.findFirst({ where: { provider }, select: { taskType: true } }),
@@ -235,13 +235,13 @@ export function registerCustomProviderRoutes(router: Router): void {
           getRagRuntimeSettings(),
         ]);
         if (routeInUse) {
-          throw new AppError(`请先把模型路由 ${routeInUse.taskType} 改到其他厂商，再删除这个厂商。`, 400);
+          throw new AppError(`Move model route ${routeInUse.taskType} to another provider before deleting this one.`, 400);
         }
         if (selection?.provider === provider) {
-          throw new AppError("顶部默认模型正在使用这个厂商，请先切换默认模型。", 400);
+          throw new AppError("The top default model is using this provider. Switch the default model first.", 400);
         }
         if (ragRuntimeSettings.enabled && ragSettings.embeddingProvider === provider) {
-          throw new AppError("知识库正在使用这个向量服务，请先切换向量服务或暂停资料检索。", 400);
+          throw new AppError("The knowledge base is using this vector service. Switch it or pause retrieval first.", 400);
         }
         await secretStore.deleteProvider(provider);
         await saveProviderImageModel(provider, null);
@@ -249,7 +249,7 @@ export function registerCustomProviderRoutes(router: Router): void {
         evictSharedLimiters(provider);
         res.status(200).json({
           success: true,
-          message: "自定义厂商已删除。",
+          message: "Custom vendor deleted.",
         } satisfies ApiResponse<null>);
       } catch (error) {
         next(error);

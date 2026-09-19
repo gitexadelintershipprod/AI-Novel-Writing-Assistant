@@ -30,7 +30,7 @@ function normalizeOptionalText(value: string | null | undefined): string | null 
 function normalizeTitle(value: string): string {
   const trimmed = value.trim();
   if (!trimmed) {
-    throw new AppError("标题不能为空。", 400);
+    throw new AppError("Title cannot be empty.", 400);
   }
   if (countGeorgianWords(trimmed) > 10 || countUnicodeCodePoints(trimmed) > 80) {
     throw new AppError("A title must contain at most 10 words and 80 Unicode code points.", 400);
@@ -143,7 +143,7 @@ export class TitleLibraryService {
         select: { id: true },
       });
       if (!genre) {
-        throw new AppError("指定的类型不存在。", 400);
+        throw new AppError("The specified type does not exist.", 400);
       }
     }
 
@@ -152,7 +152,7 @@ export class TitleLibraryService {
       select: { id: true },
     });
     if (existing) {
-      throw new AppError("标题库中已存在同名标题。", 400);
+      throw new AppError("A title with the same name already exists in the title library.", 400);
     }
 
     const created = await prisma.titleLibrary.create({
@@ -185,7 +185,7 @@ export class TitleLibraryService {
     }).catch(() => null);
 
     if (!updated) {
-      throw new AppError("标题不存在。", 404);
+      throw new AppError("The title does not exist.", 404);
     }
 
     const genreMap = updated.genreId
@@ -203,7 +203,7 @@ export class TitleLibraryService {
       select: { id: true },
     });
     if (!existing) {
-      throw new AppError("标题不存在。", 404);
+      throw new AppError("The title does not exist.", 404);
     }
     await prisma.titleLibrary.delete({
       where: { id },

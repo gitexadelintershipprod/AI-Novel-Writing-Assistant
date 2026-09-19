@@ -31,7 +31,7 @@ export class ChapterService {
       select: { id: true },
     });
     if (!exists) {
-      throw new Error("章节不存在。");
+      throw new Error("The chapter does not exist.");
     }
     return prisma.chapter.update({
       where: { id: chapterId },
@@ -44,7 +44,7 @@ export class ChapterService {
       where: { id: chapterId, novelId },
     });
     if (deleted.count === 0) {
-      throw new Error("章节不存在。");
+      throw new Error("The chapter does not exist.");
     }
   }
 }

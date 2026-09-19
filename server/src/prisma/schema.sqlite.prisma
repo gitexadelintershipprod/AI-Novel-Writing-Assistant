@@ -2008,7 +2008,7 @@ model AgentApproval {
 
 model CreativeHubThread {
   id               String                  @id @default(cuid())
-  title            String                  @default("新对话")
+  title            String                  @default("New thread")
   archived         Boolean                 @default(false)
   status           CreativeHubThreadStatus @default(idle)
   latestRunId      String?

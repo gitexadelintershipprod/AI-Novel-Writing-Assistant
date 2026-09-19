@@ -35,8 +35,8 @@ export class ApprovalContinuationService {
 
     const latestApproval = detail.approvals[detail.approvals.length - 1];
     const errorMessage = latestApproval?.status === "expired"
-      ? "审批已过期，运行已停止。"
-      : "审批状态异常，运行已停止。";
+      ? "Approval expired and the run stopped."
+      : "Approval status is invalid and the run stopped.";
 
     await this.store.updateRun(runId, {
       status: "failed",
@@ -103,8 +103,8 @@ export class ApprovalContinuationService {
 
       const payload = this.executor.parseApprovalPayload(approval.payloadJson);
       if (!payload) {
-        await failRun(input.runId, "审批续跑数据损坏，无法继续执行。", "Planner", callbacks);
-        return this.executor.getRunDetailOrThrow(input.runId, "审批续跑数据损坏，运行已终止。");
+        await failRun(input.runId, "Approval-resume data is corrupted, so execution cannot continue.", "Planner", callbacks);
+        return this.executor.getRunDetailOrThrow(input.runId, "Approval-resume data is corrupted and the run was stopped.");
       }
 
       if (input.action === "reject") {
@@ -112,11 +112,11 @@ export class ApprovalContinuationService {
         if (alternatives.length === 0) {
           await failRun(
             input.runId,
-            input.note?.trim() || "用户拒绝高影响写入，且没有可执行替代路径。",
+            input.note?.trim() || "The user rejected a high-impact write, and there is no executable alternative path.",
             "Planner",
             callbacks,
           );
-          return this.executor.getRunDetailOrThrow(input.runId, "已拒绝该高影响写入，运行已停止。");
+          return this.executor.getRunDetailOrThrow(input.runId, "This high-impact write was rejected and the run stopped.");
         }
         await this.store.updateRun(input.runId, {
           status: "running",
@@ -128,7 +128,7 @@ export class ApprovalContinuationService {
         callbacks?.onRunStatus?.({
           runId: input.runId,
           status: "running",
-          message: "审批拒绝，改走替代路径",
+          message: "Approval was rejected; switching to an alternative path",
         });
         return this.executor.runActionPlan(
           input.runId,
@@ -151,7 +151,7 @@ export class ApprovalContinuationService {
       callbacks?.onRunStatus?.({
         runId: input.runId,
         status: "running",
-        message: "审批通过，继续执行",
+        message: "Approval passed; continuing execution",
       });
       const approvedActions = this.markApprovedContinuation(payload.plannedActions);
       return this.executor.runActionPlan(

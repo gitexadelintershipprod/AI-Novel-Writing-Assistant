@@ -51,7 +51,7 @@ export class ChapterRepairStreamRuntime {
       prisma.novelBible.findUnique({ where: { novelId } }),
     ]);
     if (!novel || !chapter) {
-      throw new Error("小说或章节不存在");
+      throw new Error("The novel or chapter does not exist");
     }
 
     const assembledContextPackage = await assembleChapterAuditContextPackage({
@@ -186,12 +186,12 @@ export class ChapterRepairStreamRuntime {
       runId,
       status: "running",
       phase: "finalizing",
-      message: "修复稿已生成，正在保存正文并重新审校。",
+      message: "The repair draft was generated. Saving the chapter text and reviewing again.",
     });
 
     const repairedContent = input.content.trim();
     if (!repairedContent) {
-      throw new ChapterPatchRepairFailedError("修复结果为空，未保存章节正文。");
+      throw new ChapterPatchRepairFailedError("The repair result was empty, so the chapter body was not saved.");
     }
 
     await this.deps.lifecycleService.saveWorkingContent({
@@ -245,8 +245,8 @@ export class ChapterRepairStreamRuntime {
       status: "succeeded",
       phase: "completed",
       message: pass
-        ? "章节修复已完成，本章已达到可继续推进状态。"
-        : "修复稿已保存，但仍有问题待继续处理。",
+        ? "Chapter repair is complete. This chapter can continue."
+        : "The repair draft was saved, but issues remain.",
     });
   }
 }

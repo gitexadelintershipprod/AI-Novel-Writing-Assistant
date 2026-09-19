@@ -95,10 +95,10 @@ export async function buildReferenceContext(input: {
   ]);
 
   if (knowledgeDocumentIds.length > 0 && documents.length !== knowledgeDocumentIds.length) {
-    throw new Error("参考资料缺失：部分知识文档不存在或已归档。");
+    throw new Error("Reference missing: some knowledge documents do not exist or were archived.");
   }
   if (bookAnalysisIds.length > 0 && analyses.length !== bookAnalysisIds.length) {
-    throw new Error("参考资料缺失：部分拆书分析不存在或已归档。");
+    throw new Error("Reference missing: some book-analysis results do not exist or were archived.");
   }
 
   const documentById = new Map(documents.map((item) => [item.id, item] as const));
@@ -115,14 +115,14 @@ export async function buildReferenceContext(input: {
     const version = document.activeVersion ?? document.versions[0];
     const excerpt = version?.content
       ? clipText(version.content, MAX_DOCUMENT_REFERENCE_CHARS)
-      : "（该文档暂无可用内容）";
+      : "(This document has no usable content)";
     return `【知识库】${document.title}（v${version?.versionNumber ?? 0}）\n${excerpt}`;
   });
 
   const analysisReferences = orderedAnalyses.map((analysis) => {
     const summary = analysis.summary?.trim()
       ? clipText(analysis.summary, MAX_ANALYSIS_SUMMARY_CHARS)
-      : "无";
+      : "None";
     const sectionLines = analysis.sections
       .map((section) => {
         const content = section.editedContent?.trim()

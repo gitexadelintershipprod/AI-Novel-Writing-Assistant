@@ -157,57 +157,57 @@ const FACTION_TYPE_ALIASES: Record<string, FactionNodeType> = {
   republic: "state",
   federation: "state",
   government: "state",
-  "国家": "state",
-  "政权": "state",
-  "政府": "state",
+  国家: "state",
+  政权: "state",
+  政府: "state",
   faction: "faction",
   force: "faction",
   camp: "faction",
-  "势力": "faction",
-  "阵营": "faction",
+  势力: "faction",
+  阵营: "faction",
   race: "race",
   tribe: "race",
   species: "race",
-  "种族": "race",
-  "族群": "race",
-  "民族": "race",
+  种族: "race",
+  族群: "race",
+  民族: "race",
   organization: "organization",
   org: "organization",
   army: "organization",
   party: "organization",
   group: "organization",
   guild: "organization",
-  "组织": "organization",
-  "公司": "organization",
-  "企业": "organization",
-  "部门": "organization",
-  "机构": "organization",
-  "社群": "organization",
-  "圈层": "organization",
-  "家庭共同体": "organization",
-  "社区组织": "organization",
-  "中介机构": "organization",
-  "机关": "organization",
-  "军队": "organization",
-  "部队": "organization",
-  "军团": "organization",
-  "地下组织": "organization",
+  组织: "organization",
+  公司: "organization",
+  企业: "organization",
+  部门: "organization",
+  机构: "organization",
+  社群: "organization",
+  圈层: "organization",
+  家庭共同体: "organization",
+  社区组织: "organization",
+  中介机构: "organization",
+  机关: "organization",
+  军队: "organization",
+  部队: "organization",
+  军团: "organization",
+  地下组织: "organization",
   other: "other",
-  "其他": "other",
+  其他: "other",
 };
 
 const EDGE_RELATION_LABELS = [
-  "同盟",
-  "合作",
-  "支援",
-  "对抗",
-  "敌对",
-  "统属",
-  "压制",
-  "贸易",
-  "竞争",
-  "中立",
-  "关联",
+  "alliance",
+  "cooperation",
+  "Support",
+  "Confrontation",
+  "hostile",
+  "Subordination",
+  "suppress",
+  "Trade",
+  "Competition",
+  "Neutral",
+  "association",
 ] as const;
 
 function cleanJsonText(source: string): string {
@@ -278,13 +278,13 @@ function inferFactionNodeType(label: string): FactionNodeType {
   if (/(国家|政府|政权|王朝|王国|帝国|联邦|共和国|朝廷|官府|军阀)/.test(label)) {
     return "state";
   }
-  if (/(公司|集团|企业|部门|机构|中介|物业|学校|医院|机关|家庭联盟|共同体|社群|圈|圈层|军|军队|部队|军团|旅|团|司令部|地下党|组织|协会|会|盟|帮|派|社|教团)/.test(label)) {
+  if (/(company|group|enterprise|department|institution|agency|property management|school|hospital|government office|family alliance|community|social group|circle|social circle|military|army|troops|legion|brigade|regiment|headquarters|underground party|organization|association|society|alliance|gang|faction|club|cult)/.test(label)) {
     return "organization";
   }
-  if (/(族|族群|民族|裔)/.test(label)) {
+  if (/(clan|ethnic group|ethnicity|descent)/.test(label)) {
     return "race";
   }
-  if (/(势力|阵营|集团|同盟|联盟)/.test(label)) {
+  if (/(power|camp|group|alliance|league)/.test(label)) {
     return "faction";
   }
   if (/(state|kingdom|empire|republic|federation|government)/i.test(label)) {
@@ -305,10 +305,10 @@ function normalizeNodeType(raw: unknown, label: string): FactionNodeType {
     if (alias) {
       return alias;
     }
-    if (/(公司|企业|部门|机构|社群|圈层|家庭共同体|社区组织|中介机构|机关|生活社群|兴趣联盟|地缘势力)/.test(raw)) {
+    if (/(company|enterprise|department|institution|social group|social circle|family community|community organization|agency|government office|residential community|interest league|regional power)/.test(raw)) {
       return "organization";
     }
-    if (/(临时联盟|人物|角色|情感|关系线)/.test(raw)) {
+    if (/(temporary league|figure|character|emotion|relationship line)/.test(raw)) {
       return "other";
     }
   }
@@ -322,53 +322,53 @@ function normalizeEdgeRelation(raw: unknown, sentence?: string): string {
       return value;
     }
     const normalized = normalizeAliasKey(value);
-    if (/(alliance|ally|同盟|联合|联手)/.test(normalized)) {
-      return "同盟";
+    if (/(alliance|ally|alliance|united|joining forces)/.test(normalized)) {
+      return "alliance";
     }
-    if (/(cooperate|合作|协作|配合)/.test(normalized)) {
-      return "合作";
+    if (/(cooperate|cooperation|collaboration|coordination)/.test(normalized)) {
+      return "cooperation";
     }
-    if (/(support|援助|支援)/.test(normalized)) {
-      return "支援";
+    if (/(support|aid|assistance)/.test(normalized)) {
+      return "Support";
     }
-    if (/(conflict|对抗|敌对|交战|围剿|镇压)/.test(normalized)) {
-      return "对抗";
+    if (/(conflict|confrontation|hostility|warfare|encirclement|suppression)/.test(normalized)) {
+      return "Confrontation";
     }
-    if (/(trade|交易|贸易)/.test(normalized)) {
-      return "贸易";
+    if (/(trade|transaction|commerce)/.test(normalized)) {
+      return "Trade";
     }
-    if (/(subordinate|统属|隶属|管辖|控制)/.test(normalized)) {
-      return "统属";
+    if (/(subordinate|dominion|subordination|jurisdiction|control)/.test(normalized)) {
+      return "Subordination";
     }
-    if (/(rival|竞争|争夺)/.test(normalized)) {
-      return "竞争";
+    if (/(rival|competition|contest)/.test(normalized)) {
+      return "Competition";
     }
   }
   if (!sentence) {
-    return "关联";
+    return "association";
   }
-  if (/同盟|联合|联手|结盟/.test(sentence)) {
-    return "同盟";
+  if (/alliance|united|joining forces|forming an alliance/.test(sentence)) {
+    return "alliance";
   }
-  if (/合作|协作|配合|联合抗敌|共同/.test(sentence)) {
-    return "合作";
+  if (/cooperation|collaboration|coordination|joint resistance|jointly/.test(sentence)) {
+    return "cooperation";
   }
-  if (/支援|援助|接应|策应/.test(sentence)) {
-    return "支援";
+  if (/support|aid|reinforcement|coordination/.test(sentence)) {
+    return "Support";
   }
-  if (/敌对|对抗|冲突|围剿|镇压|交战|打击|进攻|压迫/.test(sentence)) {
-    return "对抗";
+  if (/hostility|confrontation|conflict|encirclement|suppression|warfare|strikes|offensive|oppression/.test(sentence)) {
+    return "Confrontation";
   }
-  if (/隶属|统辖|控制|管辖|附属/.test(sentence)) {
-    return "统属";
+  if (/subordination|dominion|control|jurisdiction|dependency/.test(sentence)) {
+    return "Subordination";
   }
-  if (/贸易|交易|输送|通商/.test(sentence)) {
-    return "贸易";
+  if (/commerce|transaction|transport|trade relations/.test(sentence)) {
+    return "Trade";
   }
-  if (/竞争|争夺|角力/.test(sentence)) {
-    return "竞争";
+  if (/competition|contest|power struggle/.test(sentence)) {
+    return "Competition";
   }
-  return "关联";
+  return "association";
 }
 
 function clampMapCoordinate(value: unknown): number | undefined {
@@ -423,28 +423,28 @@ function inferDirectionFromText(text: string, index: number): WorldGeographyDire
   if (/东北|北东/.test(text)) {
     return "northeast";
   }
-  if (/西北|北西/.test(text)) {
+  if (/northwest|north west/.test(text)) {
     return "northwest";
   }
-  if (/东南|南东/.test(text)) {
+  if (/southeast|south east/.test(text)) {
     return "southeast";
   }
-  if (/西南|南西/.test(text)) {
+  if (/southwest|south west/.test(text)) {
     return "southwest";
   }
-  if (/北方|北部|北境|北岸|北线|冰原|雪原/.test(text)) {
+  if (/north|northern|northern reaches|north shore|northern front|ice plain|snowfield/.test(text)) {
     return "north";
   }
-  if (/南方|南部|南境|南岸|南线|雨林|热带/.test(text)) {
+  if (/south|southern|southern reaches|south shore|southern front|rainforest|tropical/.test(text)) {
     return "south";
   }
-  if (/东方|东部|东境|东岸|东线|海港|港口|海岸/.test(text)) {
+  if (/east|eastern|eastern reaches|east shore|eastern front|seaport|port|coast/.test(text)) {
     return "east";
   }
-  if (/西方|西部|西境|西岸|西线|荒漠|沙漠/.test(text)) {
+  if (/west|western|western reaches|west shore|western front|wasteland|desert/.test(text)) {
     return "west";
   }
-  if (/中心|中央|王城|帝都|首都|核心|腹地|内城/.test(text)) {
+  if (/center|central|royal city|imperial capital|capital|core|heartland|inner city/.test(text)) {
     return "center";
   }
   const sequence: WorldGeographyDirection[] = [
@@ -480,19 +480,19 @@ function inferRegionType(text: string): WorldGeographyRegionType {
   if (/大陆|洲|陆/.test(text)) {
     return "continent";
   }
-  if (/国|王朝|王国|帝国|联邦|共和国|领/.test(text)) {
+  if (/country|dynasty|kingdom|empire|federation|republic|territory/.test(text)) {
     return "country";
   }
-  if (/城|都|镇|港|堡|关/.test(text)) {
+  if (/city|capital|town|port|fortress|pass/.test(text)) {
     return "city";
   }
-  if (/山|谷|河|湖|海|岛|林|原|漠|矿|塔|遗迹|神殿/.test(text)) {
+  if (/mountain|valley|river|lake|sea|island|forest|plain|desert|mine|tower|ruins|temple/.test(text)) {
     return "landmark";
   }
-  if (/边境|边疆|边界|防线|封锁线/.test(text)) {
+  if (/border|frontier|boundary|defense line|blockade line/.test(text)) {
     return "border";
   }
-  if (/路|道|航线|商道|铁路|河道/.test(text)) {
+  if (/road|route|shipping lane|trade route|railway|waterway/.test(text)) {
     return "route";
   }
   return "region";
@@ -514,32 +514,32 @@ function normalizeRouteType(raw: unknown, relation: string): WorldGeographyRoute
     if (GEO_ROUTE_TYPES.has(normalized as WorldGeographyRouteType)) {
       return normalized as WorldGeographyRouteType;
     }
-    if (/路|road|道路/.test(normalized)) {
+    if (/road|road|roadway/.test(normalized)) {
       return "road";
     }
-    if (/river|河/.test(normalized)) {
+    if (/river|river/.test(normalized)) {
       return "river";
     }
-    if (/sea|海|航/.test(normalized)) {
+    if (/sea|sea|navigation/.test(normalized)) {
       return "sea";
     }
-    if (/portal|传送|门/.test(normalized)) {
+    if (/portal|teleport|gate/.test(normalized)) {
       return "portal";
     }
-    if (/trade|商|贸易/.test(normalized)) {
+    if (/trade|merchant|commerce/.test(normalized)) {
       return "trade";
     }
-    if (/military|军|战/.test(normalized)) {
+    if (/military|army|war/.test(normalized)) {
       return "military";
     }
-    if (/border|边/.test(normalized)) {
+    if (/border|border/.test(normalized)) {
       return "border";
     }
   }
-  if (/控制|封锁|边境|边界/.test(relation)) {
+  if (/control|blockade|border|boundary/.test(relation)) {
     return "border";
   }
-  if (/通道|道路|商道/.test(relation)) {
+  if (/passage|road|trade route/.test(relation)) {
     return "road";
   }
   return "other";
@@ -673,7 +673,7 @@ function normalizeGeographyEdges(
     seen.add(pairKey);
     const relation = typeof edge.relation === "string" && edge.relation.trim()
       ? edge.relation.trim()
-      : "相邻";
+      : "Adjacent";
     result.push({
       source,
       target,
@@ -712,13 +712,13 @@ function buildFactionLabels(world: VisualizationSource): string[] {
     world.conflicts ?? "",
   ].filter(Boolean).join("\n");
   const exclusions = new Set([
-    "核心冲突",
-    "主要势力",
-    "势力关系",
-    "政治结构",
-    "组织势力",
-    "阵营关系",
-    "社会结构",
+    "core conflict",
+    "main forces",
+    "power relations",
+    "political structure",
+    "organizational power",
+    "Faction relations",
+    "Social structure",
   ]);
   const fromLists = parseListFromText(combined, []);
   const namedEntities = extractNamedEntities(
@@ -762,7 +762,7 @@ function buildFactionEdges(
   const edges = Array.from(relationCounter.entries())
     .map(([key, bucket]) => {
       const [source, target] = key.split("|");
-      const relation = Array.from(bucket.entries()).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "关联";
+      const relation = Array.from(bucket.entries()).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "association";
       return { source, target, relation };
     })
     .slice(0, MAX_FACTION_EDGES);
@@ -773,7 +773,7 @@ function buildFactionEdges(
   if (nodes.length <= 1) {
     return [];
   }
-  const defaultRelation = world.conflicts?.trim() ? "对抗" : "关联";
+  const defaultRelation = world.conflicts?.trim() ? "Confrontation" : "association";
   return nodes.slice(1).map((node) => ({
     source: nodes[0].id,
     target: node.id,
@@ -784,7 +784,7 @@ function buildFactionEdges(
 function buildGeographyMap(world: VisualizationSource): WorldVisualizationPayload["geographyMap"] {
   const geoSeeds = parseListFromText(
     [world.geography ?? "", world.background ?? ""].filter(Boolean).join("\n"),
-    ["核心区域", "边境区域", "未知区域"],
+    ["Core region", "Border region", "Unknown region"],
   )
     .slice(0, MAX_GEO_NODES)
     .map((label, index) => {
@@ -803,7 +803,7 @@ function buildGeographyMap(world: VisualizationSource): WorldVisualizationPayloa
   const edges = geoSeeds.slice(1).map((node, index) => ({
     source: geoSeeds[index]?.id ?? geoSeeds[0].id,
     target: node.id,
-    relation: "相邻",
+    relation: "Adjacent",
     routeType: "other" as const,
     direction: node.directionHint,
   }));
@@ -815,7 +815,7 @@ function buildGeographyMap(world: VisualizationSource): WorldVisualizationPayloa
 }
 
 function buildPowerTree(world: VisualizationSource): WorldVisualizationPayload["powerTree"] {
-  return parseListFromText(world.magicSystem ?? world.technology ?? "", ["力量层级未明确"])
+  return parseListFromText(world.magicSystem ?? world.technology ?? "", ["Power hierarchy not yet defined"])
     .slice(0, MAX_POWER_ITEMS)
     .map((description, index) => ({
       level: `L${index + 1}`,
@@ -848,7 +848,7 @@ function buildStructuredWorldVisualizationPayload(world: VisualizationSource): W
     .map((item) => ({
       source: item.sourceForceId,
       target: item.targetForceId,
-      relation: item.relation || "关联",
+      relation: item.relation || "association",
     }))
     .slice(0, MAX_FACTION_EDGES);
 
@@ -869,7 +869,7 @@ function buildStructuredWorldVisualizationPayload(world: VisualizationSource): W
         terrain: item.terrain || undefined,
         summary: item.summary || undefined,
         controllingForceIds: item.controllingForceIds,
-        risk: item.risk || (item.riskLevel ? `风险等级 ${item.riskLevel}` : undefined),
+        risk: item.risk || (item.riskLevel ? `Risk level ${item.riskLevel}` : undefined),
         storyRelevance: item.storyRelevance || item.narrativeFunction || undefined,
       };
     })
@@ -881,7 +881,7 @@ function buildStructuredWorldVisualizationPayload(world: VisualizationSource): W
     .map((item) => ({
       source: item.sourceLocationId,
       target: item.targetLocationId,
-      relation: item.connectionType || "相邻",
+      relation: item.connectionType || "Adjacent",
       routeType: normalizeRouteType(item.connectionType, item.connectionType),
       distanceHint: item.distanceHint || undefined,
       risk: item.narrativeUse || undefined,
@@ -902,7 +902,7 @@ function buildStructuredWorldVisualizationPayload(world: VisualizationSource): W
       acc.push({
         source: relation.locationId,
         target: sibling.locationId,
-        relation: `${forceNameById.get(relation.forceId) ?? relation.forceId}${relation.relation ? `:${relation.relation}` : "控制"}`,
+        relation: `${forceNameById.get(relation.forceId) ?? relation.forceId}${relation.relation ? `:${relation.relation}` : "control"}`,
         routeType: "border",
       });
       return acc;
@@ -921,7 +921,7 @@ function buildStructuredWorldVisualizationPayload(world: VisualizationSource): W
   const bindingSupport = buildWorldBindingSupport(structure);
   const timeline = bindingSupport.compatibleConflicts.length > 0
     ? bindingSupport.compatibleConflicts.slice(0, MAX_TIMELINE_ITEMS).map((item, index) => ({
-      year: `阶段${index + 1}`,
+      year: `Stage ${index + 1}`,
       event: item,
     }))
     : buildTimeline(world);
@@ -950,12 +950,12 @@ function buildStructuredWorldVisualizationPayload(world: VisualizationSource): W
 }
 
 function buildTimeline(world: VisualizationSource): WorldVisualizationPayload["timeline"] {
-  return parseListFromText(world.history ?? "", ["当前历史脉络尚未明确"])
+  return parseListFromText(world.history ?? "", ["Current historical context not yet defined"])
     .slice(0, MAX_TIMELINE_ITEMS)
     .map((event, index) => {
-      const yearMatch = event.match(/\d{2,4}(?:年)?|民国\d+年|昭和\d+年|stage\s*\d+/i);
+      const yearMatch = event.match(/\d{2,4}(?:year)?|Minguo\d+year|Showa\d+year|stage\s*\d+/i);
       return {
-        year: yearMatch?.[0] ?? `阶段${index + 1}`,
+        year: yearMatch?.[0] ?? `Stage ${index + 1}`,
         event,
       };
     });
@@ -984,8 +984,8 @@ export function buildFallbackWorldVisualizationPayload(world: VisualizationSourc
 
 function buildVisualizationPrompt(world: VisualizationSource): string {
   return [
-    `世界名：${world.name}`,
-    `世界类型：${world.worldType ?? "custom"}`,
+    `World name:${world.name}`,
+    `World type:${world.worldType ?? "custom"}`,
     `概述：${world.description ?? "无"}`,
     `背景：${world.background ?? "无"}`,
     `势力：${world.factions ?? "无"}`,
@@ -994,7 +994,7 @@ function buildVisualizationPrompt(world: VisualizationSource): string {
     `地理：${world.geography ?? "无"}`,
     `历史：${world.history ?? "无"}`,
     `冲突：${world.conflicts ?? "无"}`,
-    `力量/科技：${[world.magicSystem, world.technology].filter(Boolean).join("\n") || "无"}`,
+    `Power/Technology:${[world.magicSystem, world.technology].filter(Boolean).join("\n") || "无"}`,
   ].join("\n\n");
 }
 
@@ -1050,7 +1050,7 @@ function sanitizeVisualizationPayload(
 
   const timeline = (draft?.timeline ?? fallback.timeline)
     .map((item, index) => ({
-      year: typeof item.year === "string" && item.year.trim() ? item.year.trim() : `阶段${index + 1}`,
+      year: typeof item.year === "string" && item.year.trim() ? item.year.trim() : `Stage ${index + 1}`,
       event: typeof item.event === "string" ? item.event.trim() : "",
     }))
     .filter((item) => item.event)

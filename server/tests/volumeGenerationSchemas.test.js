@@ -119,7 +119,7 @@ test("volume strategy schema rejects mismatched volume count and ordering rules"
   const messages = parsed.success ? [] : parsed.error.issues.map((issue) => issue.message);
   assert.ok(messages.some((message) => message.includes("volumes")));
   assert.ok(messages.some((message) => message.includes("sortOrder")));
-  assert.ok(messages.some((message) => message.includes("规划模式")));
+  assert.ok(messages.some((message) => message.includes("planning mode")));
 });
 
 test("volume strategy schema rejects fixed recommended count mismatches", () => {
@@ -146,7 +146,7 @@ test("volume strategy schema rejects fixed recommended count mismatches", () => 
   const parsed = schema.safeParse(payload);
   assert.equal(parsed.success, false);
   const messages = parsed.success ? [] : parsed.error.issues.map((issue) => issue.message);
-  assert.ok(messages.some((message) => message.includes("recommendedVolumeCount 必须严格等于 10")));
+  assert.ok(messages.some((message) => message.includes("recommendedVolumeCount must be strictly equal to 10")));
 });
 
 test("volume strategy schema rejects automatic counts outside decision range", () => {
@@ -278,10 +278,10 @@ test("volume beat sheet schema normalizes alias fields and wrapped payloads", ()
   assert.equal(parsed.beats[0].summary, "先把世界危险和主角当前困境钉死。");
   assert.equal(parsed.beats[0].chapterSpanHint, "1-2章");
   assert.deepEqual(parsed.beats[0].mustDeliver, ["压迫感", "主角处境", "首个异常信号"]);
-  assert.equal(parsed.beats[0].label, "开卷抓手");
+  assert.equal(parsed.beats[0].label, "Opening hook");
   assert.equal(parsed.beats[1].key, "first_escalation");
-  assert.equal(parsed.beats[1].label, "首次升级");
-  assert.equal(parsed.beats[2].label, "中段转向");
+  assert.equal(parsed.beats[1].label, "First escalation");
+  assert.equal(parsed.beats[2].label, "Midpoint turn");
 });
 
 test("volume beat sheet schema requires fixed slots and accepts custom titles", () => {
@@ -373,7 +373,7 @@ test("volume chapter beat block schema normalizes beat aliases and enforces beat
   });
 
   assert.equal(parsed.beatKey, "open_hook");
-  assert.equal(parsed.beatLabel, "开卷抓手");
+  assert.equal(parsed.beatLabel, "Opening hook");
   assert.equal(parsed.chapterCount, 2);
   assert.equal(parsed.chapters[1].beatKey, "open_hook");
 });
@@ -396,7 +396,7 @@ test("volume chapter beat block schema wraps top-level chapter arrays for the cu
   ]);
 
   assert.equal(parsed.beatKey, "open_hook");
-  assert.equal(parsed.beatLabel, "开卷抓手");
+  assert.equal(parsed.beatLabel, "Opening hook");
   assert.equal(parsed.chapterCount, 2);
   assert.deepEqual(parsed.chapters.map((chapter) => chapter.beatKey), ["open_hook", "open_hook"]);
   assert.equal(parsed.chapters[0].title, "第一束异常光");

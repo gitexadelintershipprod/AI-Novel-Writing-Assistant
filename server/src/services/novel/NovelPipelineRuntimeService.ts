@@ -1,7 +1,7 @@
 import type { NovelCorePipelineService } from "./novelCorePipelineService";
 
-const SERVER_RESTART_RECOVERY_MESSAGE = "章节流水线任务因服务重启中断，正在尝试恢复。";
-const STALE_PIPELINE_RECOVERY_MESSAGE = "章节流水线任务心跳超时，正在尝试恢复。";
+const SERVER_RESTART_RECOVERY_MESSAGE = "The chapter pipeline task stopped after a service restart and is trying to recover.";
+const STALE_PIPELINE_RECOVERY_MESSAGE = "The chapter pipeline task heartbeat timed out and is trying to recover.";
 const DEFAULT_WATCHDOG_INTERVAL_MS = 60000;
 const DEFAULT_STALE_THRESHOLD_MS = 3 * 60 * 1000;
 
@@ -42,7 +42,7 @@ export class NovelPipelineRuntimeService {
     await this.finalizeCancelledJobs(pendingCancellationRows);
     const rows = await this.pipelineService.listRecoverablePipelineJobs();
     for (const row of rows) {
-      await this.pipelineService.markPipelineJobPendingManualRecovery(row.id, "服务重启后任务已暂停，等待手动恢复。");
+      await this.pipelineService.markPipelineJobPendingManualRecovery(row.id, "The task paused after a service restart and is waiting for manual recovery.");
     }
   }
 
@@ -85,10 +85,10 @@ export class NovelPipelineRuntimeService {
       try {
         await this.pipelineService.resumePipelineJob(row.id);
       } catch (error) {
-        const message = error instanceof Error ? error.message : "章节流水线任务恢复失败。";
+        const message = error instanceof Error ? error.message : "The chapter pipeline task failed to recover.";
         await this.pipelineService.markPipelineJobPendingManualRecovery(
           row.id,
-          `${recoveryMessage} 恢复失败：${message}`,
+          `${recoveryMessage} Recovery failed：${message}`,
         );
       }
     }
@@ -99,8 +99,8 @@ export class NovelPipelineRuntimeService {
       try {
         await this.pipelineService.markPipelineJobCancelled(row.id);
       } catch (error) {
-        const message = error instanceof Error ? error.message : "章节流水线任务取消收尾失败。";
-        await this.pipelineService.markPipelineJobFailed(row.id, `${SERVER_RESTART_RECOVERY_MESSAGE} 取消收尾失败：${message}`);
+        const message = error instanceof Error ? error.message : "Cancelling the chapter pipeline task failed during wrap-up.";
+        await this.pipelineService.markPipelineJobFailed(row.id, `${SERVER_RESTART_RECOVERY_MESSAGE} Cancel wrap-up failed: ${message}`);
       }
     }
   }

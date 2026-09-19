@@ -609,11 +609,11 @@ export const chapterRuntimePackageSchema = z.object({
   obligationCoverage: chapterExecutionObligationCoverageSchema.default({
     status: "satisfied",
     missing: [],
-    summary: "旧运行记录未包含章节义务覆盖信息。",
+    summary: "Old run records do not contain chapter obligation coverage information.",
   }),
   failureClassification: chapterFailureClassificationSchema.default({
     code: "none",
-    summary: "旧运行记录未包含失败分类。",
+    summary: "Old run records do not contain failure classifications.",
     decisionReason: null,
     blockingObligations: [],
   }),

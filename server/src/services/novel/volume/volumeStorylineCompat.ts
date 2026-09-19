@@ -107,7 +107,7 @@ export async function getStorylineDiffCompat(
     status: diff.status,
     diffSummary: diff.diffSummary,
     changedLines: diff.changedLines,
-    affectedCharacters: diff.changedVolumes.filter((volume) => volume.changedFields.includes("主角变化")).length,
+    affectedCharacters: diff.changedVolumes.filter((volume) => volume.changedFields.includes("Protagonist changes")).length,
     affectedChapters: diff.changedChapterCount,
   };
 }

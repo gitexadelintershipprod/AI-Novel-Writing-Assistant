@@ -79,7 +79,7 @@ function resolveContinueContinuationMode(
 ): "auto_execute_range" | "skip_quality_repair" {
   return row.checkpointType === "replan_required"
     || row.currentItemKey === "quality_repair"
-    || Boolean(row.currentStage?.includes("质量"))
+    || Boolean(row.currentStage?.includes("quality"))
     ? "skip_quality_repair"
     : "auto_execute_range";
 }
@@ -101,7 +101,7 @@ function buildAlreadyProcessedResult(
     taskId: input.taskId,
     actionCode: input.actionCode,
     code: "already_processed",
-    message: "已处理",
+    message: "Already processed",
     task,
   };
 }
@@ -116,7 +116,7 @@ function buildFailedResult(
     taskId: input.taskId,
     actionCode: input.actionCode,
     code: "failed",
-    message: message.trim() || "执行失败",
+    message: message.trim() || "Execution failed",
     task,
   };
 }
@@ -141,35 +141,35 @@ function summarizeBatchResult(input: {
 }): { code: AutoDirectorBatchActionExecutionResult["code"]; message: string } {
   const parts: string[] = [];
   if (input.successCount > 0) {
-    parts.push(`${input.successCount} 条成功`);
+    parts.push(`${input.successCount} succeeded`);
   }
   if (input.failureCount > 0) {
-    parts.push(`${input.failureCount} 条失败`);
+    parts.push(`${input.failureCount} failed`);
   }
   if (input.skippedCount > 0) {
-    parts.push(`${input.skippedCount} 条跳过`);
+    parts.push(`${input.skippedCount} skipped`);
   }
   if (input.successCount > 0 && input.failureCount === 0 && input.skippedCount === 0) {
     return {
       code: "success",
-      message: parts[0] ?? "执行成功",
+      message: parts[0] ?? "Succeeded",
     };
   }
   if (input.successCount === 0 && input.failureCount === 0 && input.skippedCount > 0) {
     return {
       code: "skipped",
-      message: parts[0] ?? "已跳过",
+      message: parts[0] ?? "skipped",
     };
   }
   if (input.successCount === 0 && input.failureCount > 0 && input.skippedCount === 0) {
     return {
       code: "failed",
-      message: parts[0] ?? "执行失败",
+      message: parts[0] ?? "Execution failed",
     };
   }
   return {
     code: "partial_success",
-    message: parts.join("，") || "部分执行完成",
+    message: parts.join(", ") || "Partially completed",
   };
 }
 
@@ -201,7 +201,7 @@ export class AutoDirectorFollowUpActionExecutor {
       EXECUTED_ACTION_CACHE.set(executedCacheKey, {
         ...result,
         code: "executed",
-        message: "执行成功",
+        message: "Succeeded",
       });
       return result;
     }
@@ -230,7 +230,7 @@ export class AutoDirectorFollowUpActionExecutor {
           taskId: input.taskId,
           actionCode: input.actionCode,
           code: "forbidden",
-          message: "所选分区不支持该批量动作",
+          message: "This section does not support that batch action",
           task: await this.safeGetTaskDetail(input.taskId),
         };
         await this.recordActionLog(input, result);
@@ -245,7 +245,7 @@ export class AutoDirectorFollowUpActionExecutor {
         taskId: input.taskId,
         actionCode: input.actionCode,
         code: "state_changed",
-        message: "状态已变化",
+        message: "The state has changed",
         task: await this.safeGetTaskDetail(input.taskId),
       };
       await this.recordActionLog(input, result);
@@ -258,7 +258,7 @@ export class AutoDirectorFollowUpActionExecutor {
         taskId: input.taskId,
         actionCode: input.actionCode,
         code: "forbidden",
-        message: "当前任务不支持该操作",
+        message: "This task does not support that action",
         task: await this.safeGetTaskDetail(input.taskId),
       };
       await this.recordActionLog(input, result);
@@ -287,7 +287,7 @@ export class AutoDirectorFollowUpActionExecutor {
         taskId: input.taskId,
         actionCode: input.actionCode,
         code: "forbidden",
-        message: blockingReasons.join("；") || "当前任务需要先重新校验。",
+        message: blockingReasons.join("；") || "This task needs to be rechecked first.",
         task: await this.safeGetTaskDetail(input.taskId),
       };
       await this.recordActionLog(input, result);
@@ -301,7 +301,7 @@ export class AutoDirectorFollowUpActionExecutor {
         taskId: input.taskId,
         actionCode: input.actionCode,
         code: "executed",
-        message: "执行成功",
+        message: "Succeeded",
         task,
       };
       EXECUTED_ACTION_CACHE.set(executedCacheKey, result);
@@ -310,7 +310,7 @@ export class AutoDirectorFollowUpActionExecutor {
     } catch (error) {
       const result = buildFailedResult(
         input,
-        error instanceof Error ? error.message : "执行失败",
+        error instanceof Error ? error.message : "Execution failed",
         await this.safeGetTaskDetail(input.taskId),
       );
       await this.recordActionLog(input, result);
@@ -382,7 +382,7 @@ export class AutoDirectorFollowUpActionExecutor {
   }
 
   private resolveRouteTaskType(row: WorkflowTaskRow): TaskType {
-    if (row.checkpointType === "replan_required" || row.currentStage?.includes("质量")) {
+    if (row.checkpointType === "replan_required" || row.currentStage?.includes("quality")) {
       return "repair";
     }
     return "planner";
@@ -425,8 +425,8 @@ export class AutoDirectorFollowUpActionExecutor {
         actionCode: input.actionCode,
         code: "forbidden",
         message: blockedLabels.length > 0
-          ? `当前校验项包含高风险动作，不能安全修复，请人工处理：${blockedLabels.join("、")}`
-          : "当前没有可安全修复项，请先重新校验或人工处理。",
+          ? `This validation includes high-risk actions that cannot be auto-fixed. Handle them manually: ${blockedLabels.join(", ")}`
+          : "There is nothing safe to auto-fix. Recheck or handle it manually.",
         task: await this.safeGetTaskDetail(input.taskId),
       };
       await this.recordActionLog(mergeActionMetadata(input, {
@@ -450,7 +450,7 @@ export class AutoDirectorFollowUpActionExecutor {
       taskId: input.taskId,
       actionCode: input.actionCode,
       code: "executed",
-      message: "安全修复已完成",
+      message: "Safety repair is complete",
       task,
     };
     EXECUTED_ACTION_CACHE.set(executedCacheKey, result);
@@ -481,7 +481,7 @@ export class AutoDirectorFollowUpActionExecutor {
         taskId: input.taskId,
         actionCode: input.actionCode,
         code: "forbidden",
-        message: "当前任务没有可自动补齐的章节拆分入口，请先查看任务详情。",
+        message: "This task has no auto-fill chapter-split entry. Open the task details first.",
         task: await this.safeGetTaskDetail(input.taskId),
       };
       await this.recordActionLog(input, result);
@@ -503,7 +503,7 @@ export class AutoDirectorFollowUpActionExecutor {
       taskId: input.taskId,
       actionCode: input.actionCode,
       code: "executed",
-      message: "AI 将补齐章节拆分并继续推进。",
+      message: "AI will finish the chapter split and keep going.",
       task: await this.safeGetTaskDetail(input.taskId),
     };
     EXECUTED_ACTION_CACHE.set(executedCacheKey, result);

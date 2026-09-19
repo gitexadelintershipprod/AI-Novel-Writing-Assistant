@@ -55,8 +55,8 @@ export default function ChapterExecutionStatusFlow(props: ChapterExecutionStatus
       </div>
       <div className="text-xs leading-6 text-muted-foreground">
         <span className="font-medium text-foreground">
-          当前阶段：
-          {stages.find((stage) => stage.key === currentStageKey)?.label ?? "未开始"}
+          Current stage:
+          {stages.find((stage) => stage.key === currentStageKey)?.label ?? "Not Started"}
         </span>
         <span className="ml-2">{currentStageNote}</span>
       </div>

@@ -73,7 +73,7 @@ export class PipelineTaskAdapter {
     return {
       id: row.id,
       kind: "novel_pipeline",
-      title: `${row.novel.title} (${row.startOrder}-${row.endOrder}章)`,
+      title: `${row.novel.title} (${row.startOrder}-${row.endOrder} chapters)`,
       status: row.status as TaskStatus,
       progress: row.progress,
       currentStage: row.currentStage,
@@ -92,7 +92,7 @@ export class PipelineTaskAdapter {
       noticeSummary: notice.noticeSummary,
       failureCode: row.lastErrorType ?? (row.status === "failed" ? "PIPELINE_FAILED" : null),
       failureSummary: row.status === "failed"
-        ? normalizeFailureSummary(row.error, "章节流水线失败，但没有记录明确错误。")
+        ? normalizeFailureSummary(row.error, "The chapter pipeline failed without a recorded error.")
         : null,
       recoveryHint: buildTaskRecoveryHint("novel_pipeline", row.status as TaskStatus),
       tokenUsage: toTaskTokenUsageSummary({
@@ -111,7 +111,7 @@ export class PipelineTaskAdapter {
       targetResources: [{
         type: "generation_job",
         id: row.id,
-        label: `${row.startOrder}-${row.endOrder}章流水线`,
+        label: `${row.startOrder}-${row.endOrder} chapter pipeline`,
         route: `/novels/${row.novelId}/edit`,
       }],
     };

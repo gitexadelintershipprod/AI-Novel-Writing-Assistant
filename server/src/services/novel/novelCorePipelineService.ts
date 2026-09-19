@@ -121,13 +121,13 @@ export class NovelCorePipelineService {
         },
         data: {
           status: "cancelled",
-          error: `检测到同一本书相同章节区间存在重复流水线，已切换为主任务 ${primaryJob.id}。`,
+          error: `A duplicate pipeline for the same chapter range on this book was detected; switched to the primary task ${primaryJob.id}.`,
           cancelRequestedAt: cancelledAt,
           heartbeatAt: cancelledAt,
           finishedAt: cancelledAt,
         },
       });
-      logPipelineWarn("发现重复活跃批量任务，已取消重复项", {
+      logPipelineWarn("A duplicate active batch task was found and cancelled", {
         novelId: input.novelId,
         range: `${input.startOrder}-${input.endOrder}`,
         primaryJobId: primaryJob.id,
@@ -273,7 +273,7 @@ export class NovelCorePipelineService {
       },
     });
     if (!job) {
-      throw new Error("章节流水线任务不存在。");
+      throw new Error("The chapter pipeline task does not exist.");
     }
       if (job.status !== "queued" && job.status !== "running") {
         return;
@@ -310,7 +310,7 @@ export class NovelCorePipelineService {
     return this.withStartLock(rangeKey, async () => {
       const maxRetries = clampPipelineMaxRetries(options.maxRetries);
       const runtimeOptions: PipelineRunOptions = { ...options, maxRetries };
-      await ensureNovelCharacters(novelId, "启动批量章节流水");
+      await ensureNovelCharacters(novelId, "start the batch chapter pipeline");
 
       const existingActiveJob = await this.reconcileActivePipelineJobsForRange({
         novelId,
@@ -318,7 +318,7 @@ export class NovelCorePipelineService {
         endOrder: options.endOrder,
       });
       if (existingActiveJob) {
-        logPipelineWarn("检测到同区间已有活跃批量任务，复用现有任务", {
+        logPipelineWarn("An active batch task already covers this range. Reusing it", {
           novelId,
           range: `${options.startOrder}-${options.endOrder}`,
           reusedJobId: existingActiveJob.id,
@@ -334,7 +334,7 @@ export class NovelCorePipelineService {
         _count: { order: true },
       });
       if ((chapterStats._count.order ?? 0) === 0) {
-        throw new Error("当前小说还没有章节，请先创建章节后再启动流水线。");
+        throw new Error("This novel has no chapters yet. Create chapters before starting the pipeline.");
       }
 
       const chapters = await prisma.chapter.findMany({
@@ -351,10 +351,10 @@ export class NovelCorePipelineService {
       if (chapters.length === 0) {
         const minOrder = chapterStats._min.order ?? 1;
         const maxOrder = chapterStats._max.order ?? 1;
-        throw new Error(`指定区间内没有可生成的章节。当前可用章节范围为第 ${minOrder} 章到第 ${maxOrder} 章。`);
+        throw new Error(`There are no chapters to generate in the selected range. Available chapters are ${minOrder} to ${maxOrder}.`);
       }
 
-      logPipelineInfo("创建批量任务", {
+      logPipelineInfo("Create a batch task", {
         novelId,
         range: `${options.startOrder}-${options.endOrder}`,
         matchedChapters: chapters.length,
@@ -399,7 +399,7 @@ export class NovelCorePipelineService {
         },
       });
 
-      logPipelineInfo("批量任务已入队", {
+      logPipelineInfo("The batch task was queued", {
         jobId: job.id,
         novelId,
         totalCount: job.totalCount,
@@ -425,13 +425,13 @@ export class NovelCorePipelineService {
       where: { id: jobId },
     });
     if (!job) {
-      throw new Error("任务不存在。");
+      throw new Error("The task does not exist.");
     }
     if (job.status !== "failed" && job.status !== "cancelled") {
-      throw new Error("仅失败或已取消的任务支持重试。");
+      throw new Error("Only failed or cancelled tasks can be retried.");
     }
     if (job.status === "cancelled" && job.cancelRequestedAt && !job.finishedAt) {
-      throw new Error("任务仍在取消中，请等待取消完成后再重试。");
+      throw new Error("The task is still cancelling. Wait until that finishes, then retry.");
     }
 
     const payload = this.parsePipelinePayload(job.payload);
@@ -459,10 +459,10 @@ export class NovelCorePipelineService {
       where: { id: jobId },
     });
     if (!job) {
-      throw new Error("任务不存在。");
+      throw new Error("The task does not exist.");
     }
     if (job.status === "succeeded" || job.status === "failed" || job.status === "cancelled") {
-      throw new Error("仅排队中或运行中的任务可取消。");
+      throw new Error("Only queued or running tasks can be cancelled.");
     }
     if (job.status === "queued") {
       return prisma.generationJob.update({

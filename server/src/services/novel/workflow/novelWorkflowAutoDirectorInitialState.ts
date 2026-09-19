@@ -73,55 +73,55 @@ function resolveAutoDirectorInitialItem(stage: NovelWorkflowStage): {
   if (stage === "story_macro") {
     return {
       itemKey: "book_contract",
-      itemLabel: "正在准备 Book Contract 与故事宏观规划",
+      itemLabel: "Preparing the book contract and story plan",
       progress: DIRECTOR_PROGRESS.bookContract,
     };
   }
   if (stage === "character_setup") {
     return {
       itemKey: "character_setup",
-      itemLabel: "正在补齐角色准备",
+      itemLabel: "Completing character setup",
       progress: DIRECTOR_PROGRESS.characterSetup,
     };
   }
   if (stage === "world_setup") {
     return {
       itemKey: "world_setup",
-      itemLabel: "正在准备本书世界观",
+      itemLabel: "Preparing this book's world",
       progress: DIRECTOR_PROGRESS.worldSetup,
     };
   }
   if (stage === "volume_strategy") {
     return {
       itemKey: "volume_strategy",
-      itemLabel: "正在继续生成卷战略",
+      itemLabel: "Continuing volume-strategy generation",
       progress: DIRECTOR_PROGRESS.volumeStrategy,
     };
   }
   if (stage === "structured_outline") {
     return {
       itemKey: "beat_sheet",
-      itemLabel: "正在继续生成第 1 卷节奏板与细化",
+      itemLabel: "Continuing volume 1 beat sheet and detail work",
       progress: DIRECTOR_PROGRESS.beatSheet,
     };
   }
   if (stage === "chapter_execution") {
     return {
       itemKey: "chapter_execution",
-      itemLabel: "正在恢复当前章节批次",
+      itemLabel: "Resuming the current chapter batch",
       progress: 0.93,
     };
   }
   if (stage === "quality_repair") {
     return {
       itemKey: "quality_repair",
-      itemLabel: "正在恢复当前质量修复批次",
+      itemLabel: "Resuming the current quality-repair batch",
       progress: 0.975,
     };
   }
   return {
     itemKey: "auto_director",
-    itemLabel: "等待生成候选方向",
+    itemLabel: "Waiting to generate candidate directions",
     progress: defaultProgressForStage("auto_director"),
   };
 }

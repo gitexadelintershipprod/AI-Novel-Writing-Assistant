@@ -78,13 +78,13 @@ function buildAutoApprovalNotificationCopy(checkpointType: NovelWorkflowCheckpoi
 } {
   if (checkpointType === "replan_required") {
     return {
-      cardTitle: "AI 已记录重规划提醒并继续推进",
-      reasonLabel: "重规划提醒已记录",
+      cardTitle: "AI recorded a replan reminder and continued",
+      reasonLabel: "The replan reminder was recorded",
     };
   }
   return {
-    cardTitle: "AI 已自动通过并继续推进",
-    reasonLabel: "最近自动通过",
+    cardTitle: "AI auto-approved and continued",
+    reasonLabel: "Recently passed automatically",
   };
 }
 
@@ -237,7 +237,7 @@ export class AutoDirectorFollowUpNotificationService {
         after: {
           ...deriveAutoDirectorFollowUpState(snapshot)!,
           reason: input.pauseRequested ? "manual_recovery_required" : "auto_progress_running",
-          reasonLabel: input.pauseRequested ? "自动导演将在安全节点暂停" : "自动导演风险提醒",
+          reasonLabel: input.pauseRequested ? "Auto-Director will pause at a safe checkpoint" : "Auto-Director risk reminder",
         },
         occurredAt: snapshot.updatedAt,
       }),
@@ -245,8 +245,8 @@ export class AutoDirectorFollowUpNotificationService {
     };
     const channelSettings = await getAutoDirectorChannelSettings();
     const title = input.pauseRequested
-      ? `风险 ${input.assessment.score}/8：将在安全节点暂停`
-      : `风险 ${input.assessment.score}/8：已记录提醒`;
+      ? `Risk ${input.assessment.score}/8: will pause at a safe checkpoint`
+      : `Risk ${input.assessment.score}/8: reminder recorded`;
     await this.notifyDingTalk({
       event,
       after: snapshot,

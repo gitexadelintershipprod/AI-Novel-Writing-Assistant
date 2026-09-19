@@ -12,7 +12,7 @@ const metricIcons: Record<string, typeof Activity> = {
 
 export function HomeStatusStrip(props: { metrics: HomeMetric[]; pending?: boolean }) {
   return (
-    <section className="home-status-summary-grid grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="创作状态摘要">
+    <section className="home-status-summary-grid grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="Author status summary">
       {props.metrics.map((metric) => {
         const Icon = metricIcons[metric.id] ?? Activity;
         return (

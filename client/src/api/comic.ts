@@ -574,7 +574,7 @@ export async function deleteCharacterAsset(assetId: string): Promise<void> {
   await apiClient.delete(`/comic/character-assets/${assetId}`);
 }
 
-// ─── 生图前确认弹窗用 ─────────────────────────────────────────────────────────
+// ─── Confirm before drawing弹窗用 ─────────────────────────────────────────────────────────
 
 export interface ImageGenerationPreview {
   kind: string;
@@ -666,7 +666,7 @@ export async function rewriteCharacterVisualAnchor(
 }
 
 /**
- * 更新角色"外貌锚点"（生图源头）。
+ * 更新角色"appearance anchor"（生图源头）。
  * 改一次，三视图/表情稿/资产/格子图后续生成都会读新版（已有图不会自动重绘）。
  */
 export async function updateCharacterVisualAnchor(

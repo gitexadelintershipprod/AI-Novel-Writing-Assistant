@@ -17,12 +17,12 @@ const PIPELINE_STAGE_PROGRESS = {
 } as const;
 
 const PIPELINE_BACKGROUND_ACTIVITY_LABELS: Record<PipelineBackgroundSyncKind, string> = {
-  artifact_delta: "资产回灌中",
-  character_dynamics: "角色成长中",
-  state_snapshot: "状态同步中",
-  payoff_ledger: "账本校准中",
-  character_resources: "资源账本同步中",
-  canonical_state: "全局状态同步中",
+  artifact_delta: "Assets are being reintroduced",
+  character_dynamics: "Character development",
+  state_snapshot: "Status synchronizing",
+  payoff_ledger: "Ledger calibration in progress",
+  character_resources: "Resource ledger synchronization in progress",
+  canonical_state: "Global status synchronizing",
 };
 
 export const PIPELINE_QUALITY_NOTICE_CODE = "PIPELINE_QUALITY_REVIEW";
@@ -169,7 +169,7 @@ export function buildPipelineBackgroundActivityLabels(
     }
     labels.add(
       typeof activity.chapterOrder === "number"
-        ? `${baseLabel}(第${activity.chapterOrder}章)`
+        ? `${baseLabel}(Chapter ${activity.chapterOrder})`
         : baseLabel,
     );
   }
@@ -209,9 +209,9 @@ export function buildPipelineCurrentItemLabel(input: {
 }): string {
   const currentIndex = Math.min(input.totalCount, Math.max(1, input.completedCount + 1));
   if (typeof input.chapterOrder === "number") {
-    return `第${input.chapterOrder}章 · ${input.title.trim()} · 批次 ${currentIndex}/${input.totalCount}`;
+    return `Chapter ${input.chapterOrder} · ${input.title.trim()} · batch ${currentIndex}/${input.totalCount}`;
   }
-  return `第 ${currentIndex}/${input.totalCount} 章 · ${input.title.trim()}`;
+  return `Batch ${currentIndex}/${input.totalCount} · ${input.title.trim()}`;
 }
 
 export function parsePipelinePayload(payload: string | null | undefined): PipelinePayload {
@@ -297,12 +297,12 @@ export function getPipelineQualityNotice(
     };
   }
   return {
-    displayStatus: "已记录质量债务",
+    displayStatus: "Recorded quality debt",
     noticeCode: PIPELINE_QUALITY_NOTICE_CODE,
     noticeSummary: [
-      qualityAlertDetails.length > 0 ? `部分章节已记录质量债务，可继续后续章节：${qualityAlertDetails.join("; ")}` : null,
-      recoverableRepairDetails.length > 0 ? `部分章节保留正文并记录后续优化项：${recoverableRepairDetails.join("; ")}` : null,
-    ].filter(Boolean).join("。"),
+      qualityAlertDetails.length > 0 ? `Some chapters recorded quality debt and later chapters can continue: ${qualityAlertDetails.join("; ")}` : null,
+      recoverableRepairDetails.length > 0 ? `Some chapters kept their text and recorded follow-up polish items: ${recoverableRepairDetails.join("; ")}` : null,
+    ].filter(Boolean).join(". "),
     qualityAlertDetails,
     recoverableRepairDetails,
     backgroundActivityLabels: [],
@@ -311,11 +311,11 @@ export function getPipelineQualityNotice(
 
 function extractFirstReplanChapterOrder(details: string[]): number | null {
   for (const detail of details) {
-    const match = /第\s*(\d+)\s*章/u.exec(detail);
+    const match = /(?:Chapter\s+(\d+)|第\s*(\d+)\s*章)/u.exec(detail);
     if (!match) {
       continue;
     }
-    const order = Number.parseInt(match[1], 10);
+    const order = Number.parseInt(match[1] ?? match[2], 10);
     if (Number.isFinite(order) && order > 0) {
       return order;
     }
@@ -337,12 +337,12 @@ export function getPipelineReplanNotice(details: string[] | undefined): Pipeline
   }
   const firstReplanChapterOrder = extractFirstReplanChapterOrder(replanAlertDetails);
   const summaryPrefix = firstReplanChapterOrder
-    ? `已执行至第 ${firstReplanChapterOrder} 章，后续需重规划`
-    : "后续章节需要先处理重规划";
+    ? `Reached Chapter ${firstReplanChapterOrder}; later chapters need replan`
+    : "Later chapters need replan handling first";
   return {
-    displayStatus: "等待重规划处理",
+    displayStatus: "Waiting for replan handling",
     noticeCode: PIPELINE_REPLAN_NOTICE_CODE,
-    noticeSummary: `${summaryPrefix}：${replanAlertDetails.join("; ")}`,
+    noticeSummary: `${summaryPrefix}: ${replanAlertDetails.join("; ")}`,
     qualityAlertDetails: [],
     recoverableRepairDetails: [],
     backgroundActivityLabels: [],

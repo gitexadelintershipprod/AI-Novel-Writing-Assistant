@@ -12,7 +12,7 @@ import {
 function buildReadiness(overrides = {}) {
   return {
     novelId: "novel-1",
-    novelTitle: "测试小说",
+    novelTitle: "Test novel",
     hasActiveTask: false,
     activeTaskId: null,
     snapshot: {
@@ -27,44 +27,44 @@ function buildReadiness(overrides = {}) {
     entrySteps: [
       {
         step: "story_macro",
-        label: "故事宏观规划",
-        description: "补齐书级规划",
+        label: "Story planning",
+        description: "Complete book-level planning",
         available: true,
         recommended: false,
         status: "complete",
-        reason: "已具备书级规划",
+        reason: "Book planning is in place",
         previews: [],
       },
       {
         step: "character",
-        label: "角色准备",
-        description: "补齐角色资产",
+        label: "Character setup",
+        description: "Complete character assets",
         available: true,
         recommended: false,
         status: "complete",
-        reason: "角色资产已具备",
+        reason: "Character assets are ready",
         previews: [],
       },
       {
         step: "outline",
-        label: "卷战略",
-        description: "补齐卷规划",
+        label: "Volume strategy",
+        description: "Complete volume planning",
         available: true,
         recommended: true,
         status: "missing",
-        reason: "可以从卷战略继续",
+        reason: "You can continue from volume strategy",
         previews: [
           {
             strategy: "continue_existing",
-            summary: "AI 会沿用已有角色，继续生成卷战略与卷骨架。",
-            effectSummary: "不会重建已有角色。",
+            summary: "AI will keep the existing characters and continue generating the volume strategy and skeleton.",
+            effectSummary: "Existing characters will not be rebuilt.",
             effectiveStep: "outline",
             effectiveStage: "outline",
             skipSteps: ["story_macro", "character"],
             continueStep: "outline",
             restartStep: null,
             usesCurrentBatch: false,
-            impactNotes: ["保留已有资产。"],
+            impactNotes: ["Existing assets are kept."],
           },
         ],
       },
@@ -90,10 +90,10 @@ test("takeover guidance explains the recommended continuation and protected asse
     "auto_to_ready",
   );
 
-  assert.match(guidance.diagnosis, /卷规划/);
-  assert.match(guidance.nextStep, /沿用已有角色/);
-  assert.equal(guidance.actionLabel, "继续推进到可开写");
-  assert.ok(guidance.protectionNotes.some((note) => note.includes("3 个角色资产")));
+  assert.match(guidance.diagnosis, /Volume planning/);
+  assert.match(guidance.nextStep, /keep the existing characters/i);
+  assert.equal(guidance.actionLabel, "Continue to advance until you can start writing");
+  assert.ok(guidance.protectionNotes.some((note) => note.includes("3 character assets")));
 });
 
 test("takeover guidance prefers an active context task over a new takeover", () => {
@@ -107,9 +107,9 @@ test("takeover guidance prefers an active context task over a new takeover", () 
         id: "task-1",
         novelId: "novel-1",
         status: "waiting_approval",
-        currentStage: "章节执行",
+        currentStage: "Chapter execution",
         currentItemKey: "chapter_execution",
-        currentItemLabel: "正在查看第1章执行面板",
+        currentItemLabel: "Opening the chapter 1 execution panel",
         progress: 0.5,
         checkpointType: null,
         checkpointSummary: null,
@@ -136,14 +136,14 @@ test("takeover guidance prefers an active context task over a new takeover", () 
       },
       displayState: {
         stageKey: "chapter_execution",
-        stageLabel: "章节执行",
+        stageLabel: "Chapter execution",
         stepIndex: 5,
         totalSteps: 7,
         mode: "waiting",
-        headline: "等待确认",
-        description: "等待确认",
-        currentAction: "章节执行",
-        checkpointLabel: "暂无",
+        headline: "Waiting for confirmation",
+        description: "Waiting for confirmation",
+        currentAction: "Chapter execution",
+        checkpointLabel: "None yet",
         progressPercent: 50,
         requiresUserAction: false,
         isLiveRunning: false,
@@ -154,9 +154,9 @@ test("takeover guidance prefers an active context task over a new takeover", () 
     },
   );
 
-  assert.match(guidance.diagnosis, /章节执行/);
-  assert.match(guidance.nextStep, /第 11 章/);
-  assert.equal(guidance.actionLabel, "进入当前任务");
+  assert.match(guidance.diagnosis, /Chapter execution/);
+  assert.match(guidance.nextStep, /chapter 11/);
+  assert.equal(guidance.actionLabel, "Enter current task");
 });
 
 test("takeover progress inspection summarizes volume, outline detail, drafting, and quality assets", () => {
@@ -184,10 +184,10 @@ test("takeover progress inspection summarizes volume, outline detail, drafting, 
   }));
 
   assert.equal(inspection.cards.length, 4);
-  assert.match(inspection.cards[0].detail, /2 卷/);
+  assert.match(inspection.cards[0].detail, /2 volumes/);
   assert.match(inspection.cards[1].detail, /1-10/);
   assert.match(inspection.cards[2].status, /10/);
-  assert.match(inspection.cards[3].detail, /第 11 章/);
+  assert.match(inspection.cards[3].detail, /chapter 11/);
 });
 
 test("takeover chapter target starts after already written chapters", () => {
@@ -223,14 +223,14 @@ test("takeover chapter target starts after already written chapters", () => {
     },
     displayState: {
       stageKey: "chapter_execution",
-      stageLabel: "章节执行",
+      stageLabel: "Chapter execution",
       stepIndex: 5,
       totalSteps: 7,
       mode: "waiting",
-      headline: "等待确认",
-      description: "等待确认",
-      currentAction: "章节执行",
-      checkpointLabel: "暂无",
+      headline: "Waiting for confirmation",
+      description: "Waiting for confirmation",
+      currentAction: "Chapter execution",
+      checkpointLabel: "None yet",
       progressPercent: 50,
       requiresUserAction: false,
       isLiveRunning: false,
@@ -246,7 +246,7 @@ test("takeover chapter target starts after already written chapters", () => {
   assert.equal(target?.plan.mode, "chapter_range");
   assert.equal(target?.plan.startOrder, 11);
   assert.equal(target?.plan.endOrder, 11);
-  assert.equal(target?.actionLabel, "推进至第 11 章");
+  assert.equal(target?.actionLabel, "Advance to chapter 11");
 });
 
 test("takeover chapter target builds a chapter range when the user chooses a later chapter", () => {
@@ -274,7 +274,7 @@ test("takeover chapter target builds a chapter range when the user chooses a lat
   assert.equal(target?.selectedOrder, 15);
   assert.equal(target?.plan.startOrder, 11);
   assert.equal(target?.plan.endOrder, 15);
-  assert.match(target?.summary ?? "", /第 11 章开始/);
+  assert.match(target?.summary ?? "", /chapter 11/);
 });
 
 test("takeover chapter target clamps input to unwritten chapter range", () => {
@@ -298,8 +298,8 @@ test("takeover chapter target clamps input to unwritten chapter range", () => {
 });
 
 test("takeover start errors are translated into a recoverable user action", () => {
-  const message = formatTakeoverStartError(new Error("章节范围只能从节奏拆章、章节执行或质量修复开始。"));
+  const message = formatTakeoverStartError(new Error("A chapter range can only start from beats/chapters, chapter execution, or quality repair."));
 
-  assert.match(message, /不能直接从章节范围继续/);
-  assert.match(message, /推荐位置/);
+  assert.match(message, /cannot continue from a chapter range/i);
+  assert.match(message, /recommended place/i);
 });

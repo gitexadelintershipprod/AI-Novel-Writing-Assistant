@@ -56,24 +56,24 @@ export default function TaskCenterDetailPanel(props: TaskCenterDetailPanelProps)
 
   return (
     <TaskQueueSection
-      title="任务详情"
-      description="查看当前影响和推荐动作，运行参数按需展开。"
+      title="Mission details"
+      description="Check the current impact and recommended actions, and expand the running parameters as needed."
       className="overflow-hidden rounded-2xl border-border/40 bg-card/60 shadow-[0_12px_36px_rgba(15,23,42,0.035)]"
     >
       <div className="space-y-4 text-sm">
         {props.loading ? (
-          <WorkspaceStateNotice loading title="正在读取任务详情" description="正在同步任务状态、检查点和最近步骤。" />
+          <WorkspaceStateNotice loading title="Reading task details" description="Synchronizing task status, checkpoints, and recent steps." />
         ) : null}
         {props.errorMessage ? (
           <WorkspaceStateNotice
             tone="danger"
-            title="任务详情读取失败"
+            title="Failed to read task details"
             description={props.errorMessage}
-            action={<Button size="sm" variant="outline" onClick={props.onRetryLoad}>重新读取</Button>}
+            action={<Button size="sm" variant="outline" onClick={props.onRetryLoad}>reread</Button>}
           />
         ) : null}
         {!props.loading && !props.errorMessage && !task ? (
-          <WorkspaceStateNotice title="请选择一个任务" description="从任务列表选择一项后，可查看影响范围、恢复位置和可执行动作。" />
+          <WorkspaceStateNotice title="Please select a task" description="After selecting an item from the task list, you can view the impact area, recovery location, and executable actions." />
         ) : null}
 
         {task ? (
@@ -89,7 +89,7 @@ export default function TaskCenterDetailPanel(props: TaskCenterDetailPanelProps)
               <TaskQueueImpactNotice
                 severity={props.noticeSeverity}
                 title={props.noticeTitle}
-                description={task.noticeSummary ?? "任务已记录一条需要查看的结果提醒。"}
+                description={task.noticeSummary ?? "The task has recorded a result reminder that needs to be viewed."}
                 action={props.noticeAction ? (
                   <Button size="sm" variant="outline" disabled={props.noticeAction.disabled} onClick={props.noticeAction.onClick}>
                     {props.noticeAction.label}
@@ -101,8 +101,8 @@ export default function TaskCenterDetailPanel(props: TaskCenterDetailPanelProps)
             {task.failureCode || task.failureSummary ? (
               <TaskQueueImpactNotice
                 severity={props.failureIsQualityReminder ? "quality" : "blocking"}
-                title={props.failureIsQualityReminder ? "质量提醒" : "任务阻塞"}
-                description={task.failureSummary ?? "任务记录了需要处理的失败状态。"}
+                title={props.failureIsQualityReminder ? "Quality reminder" : "Task blocking"}
+                description={task.failureSummary ?? "The task records the failure status that needs to be handled."}
                 action={props.failureAction ? (
                   <Button size="sm" variant="outline" disabled={props.failureAction.disabled} onClick={props.failureAction.onClick}>
                     {props.failureAction.label}
@@ -112,11 +112,11 @@ export default function TaskCenterDetailPanel(props: TaskCenterDetailPanelProps)
             ) : null}
 
             {task.lastError && !props.failureIsQualityReminder && !task.failureCode && !task.failureSummary ? (
-              <WorkspaceStateNotice tone="danger" title="最近一次执行失败" description={task.lastError} />
+              <WorkspaceStateNotice tone="danger" title="The latest execution failed" description={task.lastError} />
             ) : null}
 
             {task.kind === "novel_workflow" && task.checkpointSummary ? (
-              <WorkspaceStateNotice compact title="最近检查点" description={task.checkpointSummary} />
+              <WorkspaceStateNotice compact title="latest checkpoint" description={task.checkpointSummary} />
             ) : null}
 
             {props.isAutoDirectorTask ? <DirectorRuntimeProjectionCard projection={props.runtimeProjection} /> : null}
@@ -125,14 +125,14 @@ export default function TaskCenterDetailPanel(props: TaskCenterDetailPanelProps)
               <WorkspaceStateNotice
                 compact
                 tone="info"
-                title="导演任务操作入口"
-                description="继续、恢复、切换模型和推进策略请回到小说页面的执行详情处理；任务中心保留状态、取消、归档和来源入口。"
+                title="Director task operation entrance"
+                description="Please return to the execution details of the novel page to handle continue, resume, switch models and advance strategies; the task center retains status, cancellation, archiving and source entries."
               />
             ) : null}
 
             {props.actions.length > 0 ? (
               <div className="space-y-2">
-                <div className="font-medium">可执行动作</div>
+                <div className="font-medium">Executable actions</div>
                 {props.actions.map((action) => (
                   <TaskQueueActionRow
                     key={action.key}
@@ -152,33 +152,33 @@ export default function TaskCenterDetailPanel(props: TaskCenterDetailPanelProps)
                   />
                 ))}
                 <TaskQueueActionRow
-                  title="打开来源页面"
-                  consequence="只打开任务来源，不会改变任务状态。"
-                  action={<Button asChild size="sm" variant="outline"><Link to={task.sourceRoute}>打开来源页面</Link></Button>}
+                  title="Open source page"
+                  consequence="Only the task source is opened and the task status will not be changed."
+                  action={<Button asChild size="sm" variant="outline"><Link to={task.sourceRoute}>Open source page</Link></Button>}
                 />
               </div>
             ) : (
               <TaskQueueActionRow
-                title="打开来源页面"
-                consequence="只打开任务来源，不会改变任务状态。"
-                action={<Button asChild size="sm" variant="outline"><Link to={task.sourceRoute}>打开来源页面</Link></Button>}
+                title="Open source page"
+                consequence="Only the task source is opened and the task status will not be changed."
+                action={<Button asChild size="sm" variant="outline"><Link to={task.sourceRoute}>Open source page</Link></Button>}
               />
             )}
 
             <details className="group border-t border-border/35 pt-3">
               <summary className="flex cursor-pointer list-none items-center justify-between text-sm font-medium marker:hidden">
-                <span>执行步骤 {props.steps.length > 0 ? `(${props.steps.length})` : ""}</span>
-                <span className="text-xs font-normal text-muted-foreground group-open:hidden">展开</span>
-                <span className="hidden text-xs font-normal text-muted-foreground group-open:inline">收起</span>
+                <span>Execution steps {props.steps.length > 0 ? `(${props.steps.length})` : ""}</span>
+                <span className="text-xs font-normal text-muted-foreground group-open:hidden">Expand</span>
+                <span className="hidden text-xs font-normal text-muted-foreground group-open:inline">close</span>
               </summary>
               <div className="mt-3 space-y-2">
                 {props.steps.length === 0 ? (
-                  <WorkspaceStateNotice compact title="暂无步骤状态" description="该任务尚未提供可展示的细分步骤。" />
+                  <WorkspaceStateNotice compact title="No step status yet" description="This task does not yet have a demonstrable breakdown." />
                 ) : props.steps.map((step) => (
                   <div key={step.key} className="flex items-center justify-between rounded-xl bg-muted/25 px-3 py-2">
                     <div>{step.label}</div>
                     <TaskQueueStatusBadge
-                      label={step.status === "succeeded" ? "已完成" : step.status === "failed" ? "失败" : step.status === "running" ? "进行中" : step.status === "cancelled" ? "已取消" : "未开始"}
+                      label={step.status === "succeeded" ? "Completed" : step.status === "failed" ? "failed" : step.status === "running" ? "In Progress" : step.status === "cancelled" ? "Canceled" : "Not Started"}
                       tone={step.status === "succeeded" ? "success" : step.status === "failed" ? "danger" : step.status === "running" ? "info" : "neutral"}
                       className="border-0 bg-background/70 font-normal"
                     />

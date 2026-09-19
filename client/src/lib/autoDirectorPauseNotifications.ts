@@ -86,9 +86,9 @@ export function buildAutoDirectorPauseNotificationBody(item: AutoDirectorFollowU
   const scope = item.executionScope?.trim();
   const summary = item.followUpSummary?.trim() || item.reasonLabel;
   const prefix = scope
-    ? `《${item.novelTitle}》${scope}需要处理`
-    : `《${item.novelTitle}》需要处理`;
-  return clipNotificationBody(`${prefix}：${summary}`);
+    ? `"${item.novelTitle}" ${scope} needs attention`
+    : `"${item.novelTitle}" needs attention`;
+  return clipNotificationBody(`${prefix}: ${summary}`);
 }
 
 export function showAutoDirectorPauseNotification(input: {
@@ -99,7 +99,7 @@ export function showAutoDirectorPauseNotification(input: {
     return false;
   }
 
-  const notification = new window.Notification("自动导演需要你处理", {
+  const notification = new window.Notification("Auto-Director needs you", {
     body: buildAutoDirectorPauseNotificationBody(input.item),
     tag: NOTIFICATION_TAG,
   });

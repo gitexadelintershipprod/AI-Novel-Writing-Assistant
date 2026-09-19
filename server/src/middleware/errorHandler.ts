@@ -22,42 +22,42 @@ const VALIDATION_FIELD_LABELS: Record<string, string> = {
   id: "项目 ID",
   field: "字段",
   provider: "模型提供商",
-  model: "模型",
-  temperature: "温度",
-  storyInput: "故事想法输入",
-  expansion: "故事引擎原型",
+  model: "model",
+  temperature: "temperature",
+  storyInput: "Story idea input",
+  expansion: "Story Engine Prototype",
   decomposition: "推进与兑现摘要",
-  constraints: "叙事规则",
+  constraints: "narrative rules",
   lockedFields: "锁定字段",
-  state: "故事状态",
+  state: "story status",
   expanded_premise: "扩展前提",
-  protagonist_core: "主角核心",
-  conflict_engine: "冲突引擎",
-  conflict_layers: "冲突层",
-  external: "外部压迫",
-  internal: "内部崩塌",
-  relational: "关系压力",
-  mystery_box: "核心未知",
+  protagonist_core: "Protagonist Core",
+  conflict_engine: "conflict engine",
+  conflict_layers: "conflict layer",
+  external: "external oppression",
+  internal: "internal collapse",
+  relational: "relationship stress",
+  mystery_box: "Core unknown",
   emotional_line: "情绪线",
-  setpiece_seeds: "高张力场面种子",
+  setpiece_seeds: "high tension scene seeds",
   tone_reference: "氛围参考",
-  selling_point: "卖点",
-  core_conflict: "核心冲突",
-  main_hook: "主钩子",
-  progression_loop: "推进循环",
-  growth_path: "成长路径",
-  major_payoffs: "关键兑现点",
+  selling_point: "selling point",
+  core_conflict: "core conflict",
+  main_hook: "main hook",
+  progression_loop: "advance cycle",
+  growth_path: "growth path",
+  major_payoffs: "Key redemption points",
   ending_flavor: "结局风味",
-  currentPhase: "当前阶段",
-  progress: "进度",
-  protagonistState: "主角当前处境",
+  currentPhase: "current stage",
+  progress: "Progress",
+  protagonistState: "Protagonist's current situation",
 };
 
 function formatValidationPath(path: PropertyKey[]): string {
   return path
     .map((segment) => {
       if (typeof segment === "number") {
-        return `第 ${segment + 1} 项`;
+        return `第 ${segment + 1} items`;
       }
       if (typeof segment === "symbol") {
         return segment.toString();
@@ -76,26 +76,26 @@ function formatZodIssueMessage(issue: ZodIssue): string {
   switch (code) {
     case "invalid_type":
       if (issueRecord.input === undefined) {
-        return "不能为空。";
+        return "This cannot be empty.";
       }
       if (issueRecord.expected === "string") {
-        return "必须是文本。";
+        return "Must be text.";
       }
       if (issueRecord.expected === "number") {
-        return "必须是数字。";
+        return "Must be a number.";
       }
       if (issueRecord.expected === "boolean") {
-        return "必须是布尔值。";
+        return "Must be a boolean.";
       }
       return issue.message || "类型不正确。";
     case "invalid_value":
       return issue.message || "取值不合法。";
     case "too_small":
       if (origin === "array") {
-        return `至少需要 ${issueRecord.minimum} 项。`;
+        return `至少需要 ${issueRecord.minimum} items。`;
       }
       if (origin === "string") {
-        return issueRecord.minimum === 1 ? "不能为空。" : `至少 ${issueRecord.minimum} 个字符。`;
+        return issueRecord.minimum === 1 ? "This cannot be empty." : `至少 ${issueRecord.minimum} 个字符。`;
       }
       if (origin === "number") {
         return `不能小于 ${issueRecord.minimum}。`;
@@ -103,7 +103,7 @@ function formatZodIssueMessage(issue: ZodIssue): string {
       return issue.message || "内容过短。";
     case "too_big":
       if (origin === "array") {
-        return `最多只能填写 ${issueRecord.maximum} 项。`;
+        return `最多只能填写 ${issueRecord.maximum} items。`;
       }
       if (origin === "string") {
         return `不能超过 ${issueRecord.maximum} 个字符。`;
@@ -197,7 +197,7 @@ function formatUpstreamConnectionError(error: unknown): string | null {
     ? `${cause.host}${cause.port ? `:${cause.port}` : ""}`
     : "上游模型服务";
   const code = cause?.code ? `（${cause.code}）` : "";
-  return `上游模型服务连接失败：当前服务器无法连接到 ${target}${code}。请检查该提供商的网络连通性，或切换到其它可用模型提供商。`;
+  return `上游模型服务Connection failed：当前服务器无法连接到 ${target}${code}。请检查该提供商的网络连通性，或切换到其它Available models提供商。`;
 }
 
 export function errorHandler(
@@ -212,20 +212,20 @@ export function errorHandler(
     && "type" in error
     && (error as { type?: string }).type === "entity.too.large"
   ) {
-    setRequestErrorMessage(res, "请求体过大，请缩短文本或分段上传。");
+    setRequestErrorMessage(res, "The request body is too large. Shorten the text or upload it in parts.");
     res.status(413).json({
       success: false,
-      error: "请求体过大，请缩短文本或分段上传。",
+      error: "The request body is too large. Shorten the text or upload it in parts.",
     });
     return;
   }
 
   if (error instanceof ZodError) {
     const detail = error.issues.map((issue) => formatValidationIssue(issue)).join(" ");
-    setRequestErrorMessage(res, "请求参数校验失败。", detail);
+    setRequestErrorMessage(res, "Request validation failed.", detail);
     res.status(400).json({
       success: false,
-      error: "请求参数校验失败。",
+      error: "Request validation failed.",
       message: detail,
     });
     return;
@@ -245,7 +245,7 @@ export function errorHandler(
     return;
   }
 
-  const message = error instanceof Error ? error.message : "服务器发生未知错误。";
+  const message = error instanceof Error ? error.message : "The server hit an unknown error.";
   const upstreamConnectionMessage = formatUpstreamConnectionError(error);
   if (upstreamConnectionMessage) {
     setRequestErrorMessage(res, upstreamConnectionMessage);

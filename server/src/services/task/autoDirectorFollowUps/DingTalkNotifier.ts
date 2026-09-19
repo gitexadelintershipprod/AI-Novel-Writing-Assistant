@@ -99,7 +99,7 @@ export class DingTalkNotifier {
       channelType: "dingtalk",
       event: input.event,
       card: {
-        title: input.cardTitle?.trim() || "自动导演跟进提醒",
+        title: input.cardTitle?.trim() || "Auto-Director follow-up",
         summary: input.event.summary,
         reasonLabel: input.reasonLabel,
         stage: input.stage,
@@ -108,12 +108,12 @@ export class DingTalkNotifier {
           ...callbackActions,
           buildLinkAction({
             actionCode: "open_detail",
-            label: "查看详情",
+            label: "View details",
             url: detailUrl,
           }),
           buildLinkAction({
             actionCode: "open_follow_up_center",
-            label: "打开跟进中心",
+            label: "Open the follow-up center",
             url: followUpCenterUrl,
           }),
         ],

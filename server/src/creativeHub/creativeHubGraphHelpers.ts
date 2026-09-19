@@ -5,7 +5,7 @@ export function latestHumanGoal(messages: CreativeHubMessage[]): string {
   if (typeof latestHuman?.content === "string" && latestHuman.content.trim()) {
     return latestHuman.content.trim();
   }
-  return "继续当前创作中枢任务。";
+  return "继续当前creative center任务。";
 }
 
 export function toRunStatusContext(status: CreativeHubThread["status"], latestError: string | null) {

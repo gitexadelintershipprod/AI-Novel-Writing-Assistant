@@ -60,7 +60,7 @@ function buildRepairSchemaContract<T>(schema: ZodType<T>): string {
   try {
     return JSON.stringify(toJSONSchema(schema), null, 2);
   } catch {
-    return "目标 Schema 无法序列化；仍须严格按照校验错误中的字段路径补齐。";
+    return "The target schema cannot be serialized. Still fill fields strictly by the paths in the validation errors.";
   }
 }
 
@@ -184,21 +184,21 @@ export async function repairWithLlm<T>(
   });
 
   const repairSystem = [
-    "你是 JSON 修复器。",
-    "你的任务是：只输出严格合法的 JSON 值，并且必须通过给定的结构校验。",
-    "最终输出可能是 JSON 对象，也可能是 JSON 数组；必须与目标结构一致。",
+    "你是 JSON fix器。",
+    "Your task: output a strictly valid JSON value that passes the given schema check.",
+    "The final output may be a JSON object or a JSON array; it must match the target structure.",
     "不要输出任何解释、Markdown 或额外字段。",
-    "如果校验错误提示某个字段缺失，必须直接使用错误路径里的字段名作为 JSON 键名，不要翻译成中文别名。",
+    "If a validation error says a field is missing, use the field name from the error path as the JSON key. Do not translate it into a Chinese alias.",
     "如果目标结构顶层是数组，就直接输出数组本身，不要再外包一层对象。",
-    "如果某个字段要求是数组，就必须输出 JSON 数组；即使只有一个元素，也不能压成字符串、数字或对象。",
-    "如果数组元素应为对象，就必须输出对象数组，例如 [{...}]；不能写成逗号拼接字符串。",
-    "如果原始 JSON 多包了一层无关包装键，例如 data、result、output、xxxProjection、xxxList 等，必须去掉包装层，把真正目标结构提升到顶层。",
-    "如果缺失必填字符串字段，必须补出非空字符串；可根据原始 JSON 中已有内容做最小、保守、语义一致的补全，不能输出空字符串、null 或 undefined。",
-    "如果校验错误是 expected string, received number/boolean，必须保留原值语义并改成 JSON 字符串，例如 19 改为 \"19\"、true 改为 \"true\"，不要删除字段。",
-    "如果校验错误指出某个数组数量过多或过少，必须把该路径的数组长度修正到错误里要求的精确数量，不能停留在接近正确的数量。",
-    "目标 JSON Schema 是最终字段合同；即使原始输出已截断、退化或缺少大量字段，也必须依据 Schema 重建完整对象。",
+    "If a field must be an array, output a JSON array. Even with one item, do not collapse it into a string, number, or object.",
+    "If array items should be objects, output an object array such as [{...}]; do not write a comma-joined string.",
+    "If the original JSON wrapped the payload in an extra key such as data, result, output, xxxProjection, or xxxList, remove that wrapper and lift the real target structure to the top.",
+    "If a required string field is missing, fill in a non-empty string. Make a minimal, conservative, meaning-consistent completion from the original JSON. Do not output an empty string, null, or undefined.",
+    "如果Validation error是 expected string, received number/boolean，must be retained原值语义并改成 JSON 字符串，例如 19 改为 \"19\"、true 改为 \"true\"，不要删除字段。",
+    "If a validation error says an array is too long or too short, fix that path to the exact length required. Do not leave it merely close.",
+    "The target JSON Schema is the final field contract. Even if the original output is truncated, degraded, or missing many fields, rebuild a complete object from the schema.",
     "遇到无意义复读、乱码、失控长文本时，丢弃异常段落并用最短的语义一致内容重建，禁止继续复述损坏内容。",
-    "所有字符串保持简洁，只保留通过结构校验与恢复原意所需的信息。",
+    "Keep every string short. Keep only what is needed to pass schema checks and restore the original meaning.",
   ].join("\n");
 
   const validationPaths = extractValidationPaths(validationError);
@@ -211,14 +211,14 @@ export async function repairWithLlm<T>(
     validationError,
     ...(validationPaths.length > 0 ? [
       "",
-      `至少需要修复这些路径：${validationPaths.join(", ")}`,
+      `至少Needs repair这些路径：${validationPaths.join(", ")}`,
     ] : []),
     ...(arrayLengthHints.length > 0 ? [
       "",
       "数组长度硬约束：",
       ...arrayLengthHints.map((hint) => hint.direction === "trim"
-        ? `- ${formatIssuePath(hint.path)} 必须最终恰好保留 ${hint.exactLength} 项；如果当前超过该数量，按原顺序裁掉多余项。`
-        : `- ${formatIssuePath(hint.path)} 必须最终补足到恰好 ${hint.exactLength} 项；如果当前不足，按原顺序保留已有项并补齐缺失项。`),
+        ? `- ${formatIssuePath(hint.path)} 必须最终恰好保留 ${hint.exactLength} items；如果当前超过该数量，按原顺序裁掉多余项。`
+        : `- ${formatIssuePath(hint.path)} 必须最终补足到恰好 ${hint.exactLength} items；如果当前不足，按原顺序Keep existing项并补齐缺失项。`),
     ] : []),
     "",
     "目标 JSON Schema（字段名、类型、必填项与长度约束以此为准）：",
@@ -227,7 +227,7 @@ export async function repairWithLlm<T>(
     "原始模型输出（可能包含多余文本、markdown 或截断）：",
     repairSource,
     "",
-    "请修复后只输出最终 JSON。",
+    "After fixing it, output only the final JSON.",
   ].join("\n");
 
   logStructuredRepairSession({

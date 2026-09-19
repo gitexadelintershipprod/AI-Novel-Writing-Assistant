@@ -75,7 +75,7 @@ function buildPayoffDirective(
         : "touch";
   const reason = payoff.statusReason?.trim()
     || payoff.summary?.trim()
-    || "按当前章节窗口轻触该伏笔，不提前兑现。";
+    || "按Current chapter窗口轻触该伏笔，不提前兑现。";
   return {
     title: payoff.title,
     ledgerKey: payoff.ledgerKey,

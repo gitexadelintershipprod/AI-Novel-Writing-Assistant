@@ -49,7 +49,7 @@ export async function applyChapterQualityClosure(input: {
       jobId: input.jobId,
       issueCode: "quality.acceptance_unavailable",
       stage: "chapter_review",
-      summary: `第${chapter.order}章接收检查未能执行，正文已保留并等待后续复查。`,
+      summary: `Acceptance could not run for chapter ${chapter.order}. The text is kept and waiting for later review.`,
       chapterId: chapter.id,
       chapterOrder: chapter.order,
       hasUsableOutput: true,
@@ -62,9 +62,9 @@ export async function applyChapterQualityClosure(input: {
 
   if (chapterResult.recoverableRepairFailure) {
     input.recoverableRepairDetails.push(
-      `第${chapter.order}章需要后续修复：${chapterResult.recoverableRepairFailure.message}`,
+      `Chapter ${chapter.order}需要后续修复：${chapterResult.recoverableRepairFailure.message}`,
     );
-    logPipelineWarn("章节局部修复未安全应用，已记录并继续后续章节", {
+    logPipelineWarn("Local chapter repair was not applied safely. It was recorded and later chapters continued", {
       jobId: input.jobId,
       order: chapter.order,
       reason: chapterResult.recoverableRepairFailure.message,
@@ -103,7 +103,7 @@ export async function applyChapterQualityClosure(input: {
       taskId: input.workflowTaskId,
       qualityDebtAttribution: chapterResult.qualityDebtAttribution ?? null,
     }).catch((error) => {
-      logPipelineError("记录章节质量闭环状态失败", {
+      logPipelineError("Recording the chapter quality-loop state failed", {
         jobId: input.jobId,
         novelId: input.novelId,
         chapterId: chapter.id,
@@ -114,7 +114,7 @@ export async function applyChapterQualityClosure(input: {
 
   if (chapterResult.reviewExecuted && !chapterResult.pass) {
     input.qualityAlertDetails.push(
-      `第${chapter.order}章（coherence=${final.score.coherence}, repetition=${final.score.repetition}, engagement=${final.score.engagement}）`,
+      `Chapter ${chapter.order} (coherence=${final.score.coherence}, repetition=${final.score.repetition}, engagement=${final.score.engagement})`,
     );
     logPipelineWarn("章节最终未达标", {
       jobId: input.jobId,
@@ -128,7 +128,7 @@ export async function applyChapterQualityClosure(input: {
       jobId: input.jobId,
       issueCode: "quality.chapter_below_threshold",
       stage: "chapter_review",
-      summary: `第${chapter.order}章质量分未达到 ${input.qualityThreshold} 分。`,
+      summary: `Chapter ${chapter.order} quality score did not reach ${input.qualityThreshold}.`,
       chapterId: chapter.id,
       chapterOrder: chapter.order,
       qualityScores: {
@@ -152,9 +152,9 @@ export async function applyChapterQualityClosure(input: {
     return { shouldStopAfterCurrentChapter: false };
   }
   const impactedOrders = replanRecommendation.affectedChapterOrders?.length
-    ? `影响章节=${replanRecommendation.affectedChapterOrders.join(",")}`
-    : `锚点章节=${replanRecommendation.anchorChapterOrder ?? chapter.order}`;
-  const detail = `第${chapter.order}章${replanRecommendation.scope === "global_book" ? "需要书级重规划" : "正在调整后续章节安排"}（${impactedOrders}；原因=${replanRecommendation.triggerReason ?? replanRecommendation.reason}）`;
+    ? `affected chapters=${replanRecommendation.affectedChapterOrders.join(",")}`
+    : `anchor chapter=${replanRecommendation.anchorChapterOrder ?? chapter.order}`;
+  const detail = `Chapter ${chapter.order}${replanRecommendation.scope === "global_book" ? " needs book-level replan" : " is adjusting later chapter arrangement"} (${impactedOrders}; reason=${replanRecommendation.triggerReason ?? replanRecommendation.reason})`;
   if (replanRecommendation.scope !== "global_book") {
     try {
       const result = await input.runLocalReplan({
@@ -165,11 +165,11 @@ export async function applyChapterQualityClosure(input: {
         reason: replanRecommendation.triggerReason ?? replanRecommendation.reason,
       });
       const plannedOrders = result.affectedChapterOrders.join(",") || "后续未完成章节";
-      const completedDetail = `第${chapter.order}章已调整后续章节安排（已刷新=${plannedOrders}）。`;
+      const completedDetail = `Chapter ${chapter.order}已调整后续Chapter arrangement（已刷新=${plannedOrders}）。`;
       if (!input.qualityAlertDetails.includes(completedDetail)) input.qualityAlertDetails.push(completedDetail);
       return { shouldStopAfterCurrentChapter: false };
     } catch (error) {
-      const failureDetail = `第${chapter.order}章后续章节调整失败，已保留正文并继续：${error instanceof Error ? error.message : String(error)}`;
+      const failureDetail = `Chapter ${chapter.order}Follow-up chapter adjustment failed，已保留正文并继续：${error instanceof Error ? error.message : String(error)}`;
       if (!input.recoverableRepairDetails.includes(failureDetail)) input.recoverableRepairDetails.push(failureDetail);
       const result = await reportPipelineIssue({
         governance: input.governance,

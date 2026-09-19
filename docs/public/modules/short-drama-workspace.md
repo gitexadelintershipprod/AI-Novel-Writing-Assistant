@@ -1,60 +1,60 @@
-# 短剧工作台
+# Drama studio
 
-短剧工作台用于把小说内容延展为短剧方向的结构、人物关系、场景段落和剧集素材。它适合在小说已有明确卖点和角色冲突后使用。
+Drama studio extends novel content into short-drama structure, character relationships, scene beats, and episode material. Use it after the novel has a clear selling point and character conflict.
 
-## 适合什么时候打开
+## When to open it
 
-- 想判断小说能否改成短剧。
-- 想把章节内容整理成剧集段落。
-- 想强化钩子、反转和场景冲突。
-- 需要为短视频或短剧化准备素材。
-- 想从小说主线中提取更快节奏的表达。
+- You want to judge whether the novel can become a short drama.
+- You want to turn chapter content into episode beats.
+- You want stronger hooks, reversals, and scene conflict.
+- You need material for short video or short-drama adaptation.
+- You want a faster-paced expression pulled from the novel main line.
 
-如果小说的主角目标、冲突和世界规则还不清楚，先回到自动导演和章节准备。
+If the protagonist goal, conflict, and world rules are still unclear, go back to Auto-Director and chapter preparation first.
 
-## 和小说内容的关系
+## How it relates to novel content
 
-短剧工作台应从小说内容衍生，而不是替代小说主线。
+Drama studio should grow from novel content. It should not replace the novel main line.
 
-它可以使用：
+It can use:
 
-- 小说简介。
-- 角色关系。
-- 已生成章节。
-- 关键冲突。
-- 世界规则。
-- 读者爽点和卖点。
+- the novel blurb;
+- character relationships;
+- generated chapters;
+- key conflicts;
+- world rules;
+- reader payoffs and selling points.
 
-生成短剧素材后，仍需确认是否符合原小说设定。短剧化会强化节奏和冲突，但不能随意破坏角色动机。
+After short-drama material is generated, still confirm that it matches the original novel setting. Short-drama adaptation can raise pace and conflict, but it should not casually break character motivation.
 
-## 推荐流程
+## Recommended flow
 
-1. 选择一本小说。
-2. 选择要改编的章节或剧情段。
-3. 提取核心冲突和人物目标。
-4. 拆成短剧场景或集数。
-5. 强化开场钩子、情绪反转和结尾悬念。
-6. 保存可复用素材。
+1. Choose a novel.
+2. Choose the chapters or plot stretch to adapt.
+3. Extract core conflict and character goals.
+4. Split them into short-drama scenes or episodes.
+5. Strengthen the opening hook, emotional reversal, and ending suspense.
+6. Save reusable material.
 
-短剧工作台适合做阶段性衍生，不建议在小说主线未稳定时大规模改编。
+Drama studio is for staged adaptation. Avoid a large rewrite while the novel main line is still unstable.
 
-## 关注哪些质量点
+## Quality points to watch
 
-短剧素材应重点检查：
+Check short-drama material for:
 
-- 每集是否有明确钩子。
-- 主角目标是否容易理解。
-- 冲突是否在画面中可表达。
-- 转折是否清楚。
-- 结尾是否有继续观看的理由。
-- 是否保留原小说核心卖点。
+- a clear hook in each episode;
+- a protagonist goal that is easy to understand;
+- conflict that can be shown on screen;
+- a clear turn;
+- an ending that gives a reason to keep watching;
+- the original novel’s core selling point still present.
 
-如果短剧版和小说版冲突，优先保护小说主线的一致性。
+If the drama version fights the novel version, protect the novel main line first.
 
-## 和创作主链的关系
+## How it relates to the main writing chain
 
-推荐先完成小说方向、角色和章节基础，再进行短剧化。短剧工作台可以帮助你从已有内容中提炼更强冲突，也可以反向发现小说节奏问题，但它不应成为新手完成长篇小说的主入口。
+Finish novel direction, characters, and chapter basics first, then adapt. Drama studio can pull stronger conflict from existing content, and it can also reveal novel pacing problems. It should not be a beginner’s main entry for finishing a long novel.
 
-## 使用建议
+## Usage tip
 
-先选择一个冲突强的章节做样例。看短剧化结果是否能保留人物动机、世界规则和爽点，再决定是否继续扩展到更多章节。
+Start with one high-conflict chapter as a sample. See whether the short-drama result keeps character motivation, world rules, and payoffs, then decide whether to expand to more chapters.

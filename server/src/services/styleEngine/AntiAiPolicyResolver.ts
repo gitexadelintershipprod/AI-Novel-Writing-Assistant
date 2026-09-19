@@ -63,7 +63,7 @@ export class AntiAiPolicyResolver {
     const globalBaselineRules = baselineRules.map((rule): AntiAiEffectiveRuleItem => ({
       rule,
       source: "global_baseline",
-      sourceLabel: "全局默认",
+      sourceLabel: "global default",
       styleProfileId: null,
       styleProfileName: null,
       bindingTargetType: null,

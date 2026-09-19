@@ -25,7 +25,7 @@ export function buildProductionExperienceSeed(
 ): DirectorWorkflowSeedPayload {
   const directorInput = seed.directorInput;
   if (!directorInput) {
-    throw new AppError("自动导演任务缺少继续生产所需的上下文。", 409);
+    throw new AppError("This Auto-Director task is missing the context needed to continue production.", 409);
   }
   const nextInput = applyDirectorRunModeContract({
     ...directorInput,
@@ -52,10 +52,10 @@ export class DirectorProductionExperienceService {
   ): Promise<NovelProductionExperienceSelectionResponse> {
     const task = await prisma.novelWorkflowTask.findUnique({ where: { id: taskId } });
     if (!task || task.lane !== "auto_director") {
-      throw new AppError("自动导演任务不存在。", 404);
+      throw new AppError("The Auto-Director task does not exist.", 404);
     }
     if (!task.novelId) {
-      throw new AppError("自动导演任务还没有绑定小说项目。", 409);
+      throw new AppError("The Auto-Director task is not bound to a novel project yet.", 409);
     }
 
     const seed = parseSeedPayload<DirectorWorkflowSeedPayload>(task.seedPayloadJson) ?? {};
@@ -83,7 +83,7 @@ export class DirectorProductionExperienceService {
 
     if (!selected) {
       if (task.checkpointType !== "production_experience_required") {
-        throw new AppError("自动导演还没有完成正文生产前的准备。", 409);
+        throw new AppError("Auto-Director has not finished pre-draft setup yet.", 409);
       }
       const nextSeed = buildProductionExperienceSeed(seed, experience);
 
@@ -98,9 +98,9 @@ export class DirectorProductionExperienceService {
             status: "waiting_approval",
             currentStage: "chapter_execution",
             currentItemKey: "chapter_batch_ready",
-            currentItemLabel: "已选择创作界面，准备开始全书生产",
+            currentItemLabel: "The writing interface is chosen. Ready to start full-book production",
             checkpointType: "chapter_batch_ready",
-            checkpointSummary: "章节执行资源已准备完成，AI 将开始全书生产。",
+            checkpointSummary: "Chapter execution resources are ready. AI will start full-book production.",
             pendingManualRecovery: false,
           },
         });

@@ -1,10 +1,11 @@
 import type { ApiResponse } from "@ai-novel/shared/types/api";
 import type { LLMProvider } from "@ai-novel/shared/types/llm";
 import type { BaseCharacter } from "@ai-novel/shared/types/novel";
+import type { GrowthStageValue, StoryFunctionValue } from "@ai-novel/shared/types/legacyProtocolValues";
 import { apiClient } from "./client";
 
 export interface CharacterGenerateConstraints {
-  storyFunction?: "主角" | "反派" | "导师" | "对照组" | "配角";
+  storyFunction?: StoryFunctionValue;
   externalGoal?: string;
   internalNeed?: string;
   coreFear?: string;
@@ -12,7 +13,7 @@ export interface CharacterGenerateConstraints {
   secret?: string;
   coreFlaw?: string;
   relationshipHooks?: string;
-  growthStage?: "起点" | "受挫" | "转折" | "觉醒" | "收束";
+  growthStage?: GrowthStageValue;
   toneStyle?: string;
 }
 

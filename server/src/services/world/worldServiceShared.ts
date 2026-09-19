@@ -45,113 +45,113 @@ const DEEPENING_LAYER_PRIMARY_FIELD: Record<WorldLayerKey, WorldTextField> = {
 
 const DEEPENING_TARGET_LAYER_ALIASES: Record<string, WorldLayerKey> = {
   foundation: "foundation",
-  "基础": "foundation",
-  "基础层": "foundation",
-  "世界基础": "foundation",
+  基础: "foundation",
+  基础层: "foundation",
+  世界基础: "foundation",
   power: "power",
-  "力量": "power",
-  "力量层": "power",
-  "能力体系": "power",
+  力量: "power",
+  力量层: "power",
+  能力体系: "power",
   society: "society",
-  "社会": "society",
-  "社会层": "society",
-  "政治": "society",
+  社会: "society",
+  社会层: "society",
+  政治: "society",
   culture: "culture",
-  "文化": "culture",
-  "文化层": "culture",
+  文化: "culture",
+  文化层: "culture",
   history: "history",
-  "历史": "history",
-  "历史层": "history",
+  历史: "history",
+  历史层: "history",
   conflict: "conflict",
-  "冲突": "conflict",
-  "冲突层": "conflict",
+  冲突: "conflict",
+  冲突层: "conflict",
 };
 
 const DEEPENING_TARGET_FIELD_ALIASES: Record<string, WorldTextField> = {
   description: "description",
   summary: "description",
   overview: "description",
-  "世界概述": "description",
-  "世界总览": "description",
-  "概述": "description",
-  "设定概述": "description",
+  世界概述: "description",
+  世界总览: "description",
+  概述: "description",
+  设定概述: "description",
   background: "background",
-  "背景": "background",
-  "基础背景": "background",
-  "世界背景": "background",
-  "故事背景": "background",
-  "时代背景": "background",
-  "起始背景": "background",
-  "开局背景": "background",
-  "角色定位": "background",
-  "人物定位": "background",
-  "身份定位": "background",
-  "主角身份": "background",
-  "时间地点": "background",
-  "时间与地点": "background",
-  "起始时间地点": "background",
+  背景: "background",
+  基础背景: "background",
+  世界背景: "background",
+  故事背景: "background",
+  时代背景: "background",
+  起始背景: "background",
+  开局背景: "background",
+  角色定位: "background",
+  人物定位: "background",
+  身份定位: "background",
+  主角身份: "background",
+  时间地点: "background",
+  时间与地点: "background",
+  起始时间地点: "background",
   geography: "geography",
   location: "geography",
-  "地理": "geography",
-  "地理环境": "geography",
-  "地理格局": "geography",
-  "地图": "geography",
-  "区域": "geography",
-  "场景地点": "geography",
+  地理: "geography",
+  地理环境: "geography",
+  地理格局: "geography",
+  地图: "geography",
+  区域: "geography",
+  场景地点: "geography",
   cultures: "cultures",
   culture: "cultures",
-  "文化": "cultures",
-  "文化习俗": "cultures",
-  "风俗": "cultures",
-  "习俗": "cultures",
-  "社会风貌": "cultures",
+  文化: "cultures",
+  文化习俗: "cultures",
+  风俗: "cultures",
+  习俗: "cultures",
+  社会风貌: "cultures",
   magicsystem: "magicSystem",
   powersystem: "magicSystem",
   power: "magicSystem",
-  "力量体系": "magicSystem",
-  "能力体系": "magicSystem",
-  "超凡体系": "magicSystem",
+  力量体系: "magicSystem",
+  能力体系: "magicSystem",
+  超凡体系: "magicSystem",
   politics: "politics",
-  "政治": "politics",
-  "政治结构": "politics",
-  "社会结构": "politics",
-  "权力结构": "politics",
-  "阵营关系": "politics",
-  "势力格局": "politics",
+  政治: "politics",
+  政治结构: "politics",
+  社会结构: "politics",
+  权力结构: "politics",
+  阵营关系: "politics",
+  势力格局: "politics",
   races: "races",
   race: "races",
-  "种族": "races",
-  "族群": "races",
+  种族: "races",
+  族群: "races",
   religions: "religions",
   religion: "religions",
-  "宗教": "religions",
-  "信仰": "religions",
+  宗教: "religions",
+  信仰: "religions",
   technology: "technology",
   tech: "technology",
-  "科技": "technology",
-  "技术体系": "technology",
+  科技: "technology",
+  技术体系: "technology",
   conflicts: "conflicts",
   conflict: "conflicts",
-  "冲突": "conflicts",
-  "核心冲突": "conflicts",
-  "首要冲突": "conflicts",
-  "当前冲突": "conflicts",
+  冲突: "conflicts",
+  核心冲突: "conflicts",
+  首要冲突: "conflicts",
+  当前冲突: "conflicts",
   history: "history",
-  "历史": "history",
-  "历史事件": "history",
-  "关键历史": "history",
+  历史: "history",
+  历史事件: "history",
+  关键历史: "history",
   economy: "economy",
-  "经济": "economy",
-  "经济系统": "economy",
-  "资源流通": "economy",
+  经济: "economy",
+  经济系统: "economy",
+  资源流通: "economy",
   factions: "factions",
   faction: "factions",
   organization: "factions",
   organizations: "factions",
-  "势力": "factions",
-  "势力关系": "factions",
-  "组织势力": "factions",
-  "主要势力": "factions",
+  势力: "factions",
+  势力关系: "factions",
+  组织势力: "factions",
+  主要势力: "factions",
 };
 
 export type LayerStateMap = Record<
@@ -388,14 +388,14 @@ export function buildWorldStructurePromptSource(world: {
   factions?: string | null;
 }): string {
   return [
-    `世界名称：${world.name}`,
-    `世界类型：${world.worldType ?? "custom"}`,
-    `世界概要：${world.description ?? "无"}`,
-    `规则/公理：${world.axioms ?? "无"}`,
+    `World name:${world.name}`,
+    `World type:${world.worldType ?? "custom"}`,
+      `World summary: ${world.description ?? "none"}`,
+    `Rules/Axioms:${world.axioms ?? "无"}`,
     `背景：${world.background ?? "无"}`,
     `地理：${world.geography ?? "无"}`,
     `文化：${world.cultures ?? "无"}`,
-    `力量体系：${world.magicSystem ?? "无"}`,
+    `Power system:${world.magicSystem ?? "无"}`,
     `政治：${world.politics ?? "无"}`,
     `种族：${world.races ?? "无"}`,
     `宗教：${world.religions ?? "无"}`,
@@ -419,7 +419,7 @@ export function buildStructureSectionInstructions(section: WorldStructureSection
   "coreConflict": "..."
 }`;
     case "rules":
-      return `只输出 JSON 对象，结构为：
+      return `Output only a JSON object with the following structure:
 {
   "summary": "...",
   "axioms": [{"id":"rule-1","name":"...","summary":"...","cost":"...","boundary":"...","enforcement":"..."}],
@@ -427,26 +427,26 @@ export function buildStructureSectionInstructions(section: WorldStructureSection
   "sharedConsequences": ["..."]
 }`;
     case "factions":
-      return `只输出 JSON 对象，结构为：
+      return `Output only a JSON object with the following structure:
 {
   "factions": [{"id":"faction-1","name":"...","position":"...","doctrine":"...","goals":["..."],"methods":["..."],"representativeForceIds":["force-1"]}],
   "forces": [{"id":"force-1","name":"...","type":"...","factionId":"faction-1","summary":"...","baseOfPower":"...","currentObjective":"...","pressure":"...","leader":"...","narrativeRole":"..."}]
 }
-补充约束：
-1. faction 是抽象阵营、立场、路线或世界站队，不是行业规则、社会压力机制或人际法则。
-2. force 是具体组织、圈层、部门、公司、网络或机构，必须是能施压、能参与冲突、能与地点建立关系的行动主体。
-3. 像“社会压力来源”“行业运作规则”“人际网络默认法则”这类世界级机制，应放到 rules，不要写进 factions / forces。`;
+Additional constraints:
+1. A faction is an abstract camp, stance, route, or world-side alignment, not an industry rule, social-pressure mechanism, or interpersonal law.
+2. A force is a concrete organization, circle, department, company, network, or institution, and must be an actor that can apply pressure, join conflicts, and form relationships with locations.
+3. 像“社会source of stress”“行业运作规则”“人际网络默认法则”这类世界级机制，应放到 rules，不要写进 factions / forces。`;
     case "locations":
-      return `只输出 JSON 数组，元素结构为：
+      return `Output only a JSON array whose elements have the following structure:
 [{"id":"location-1","name":"...","terrain":"...","summary":"...","narrativeFunction":"...","risk":"...","entryConstraint":"...","exitCost":"...","controllingForceIds":["force-1"]}]`;
     case "relations":
-      return `只输出 JSON 对象，结构为：
+      return `Output only a JSON object with the following structure:
 {
   "forceRelations": [{"id":"force-relation-1","sourceForceId":"force-1","targetForceId":"force-2","relation":"...","tension":"...","detail":"..."}],
   "locationControls": [{"id":"location-control-1","forceId":"force-1","locationId":"location-1","relation":"...","detail":"..."}]
 }`;
     default:
-      return "只输出合法 JSON。";
+      return "Output only valid JSON.";
   }
 }
 

@@ -7,7 +7,7 @@ test("professional recovery replans instead of skipping a replan checkpoint", ()
   assert.equal(resolveDirectorContinueMode({
     checkpointType: "replan_required",
     currentItemKey: "quality_repair",
-    currentStage: "质量修复",
+    currentStage: "Quality repair",
     pendingManualRecovery: false,
   }), "auto_execute_range");
 });

@@ -27,8 +27,8 @@ export interface VideoProviderPort {
 
 export class MockVideoProvider implements VideoProviderPort {
   readonly provider = "mock";
-  readonly label = "模拟视频通道";
-  readonly description = "用于联调视频生成链路的本地模拟 provider，不会生成真实视频。";
+  readonly label = "模拟video channel";
+  readonly description = "A local mock provider for testing the video pipeline. It does not generate real video.";
   readonly supportsRefImages = true;
   readonly costPerSecond = normalizeCostValue(process.env.DRAMA_VIDEO_MOCK_COST_PER_SECOND);
   readonly currency = readCostCurrency();
@@ -194,7 +194,7 @@ export class HttpVideoProvider implements VideoProviderPort {
     });
     const payload = await readJsonResponse(response);
     if (!response.ok) {
-      throw new Error(`视频通道创建任务失败：${response.status} ${response.statusText}`);
+      throw new Error(`Video channel failed to create the task: ${response.status} ${response.statusText}`);
     }
     return payload;
   }
@@ -207,7 +207,7 @@ export class HttpVideoProvider implements VideoProviderPort {
     });
     const payload = await readJsonResponse(response);
     if (!response.ok) {
-      throw new Error(`视频通道查询任务失败：${response.status} ${response.statusText}`);
+      throw new Error(`Video channel failed to query the task: ${response.status} ${response.statusText}`);
     }
     return payload;
   }
@@ -223,7 +223,7 @@ class VideoProviderRegistry {
   resolve(provider: string): VideoProviderPort {
     const resolved = this.providers.get(provider);
     if (!resolved) {
-      throw new Error(`未注册的视频 provider：${provider}`);
+      throw new Error(`Unregistered video provider: ${provider}`);
     }
     return resolved;
   }
@@ -254,8 +254,8 @@ const httpCreateUrl = process.env.DRAMA_VIDEO_HTTP_CREATE_URL?.trim();
 if (httpCreateUrl) {
   videoProviderRegistry.register(new HttpVideoProvider({
     provider: process.env.DRAMA_VIDEO_HTTP_PROVIDER_ID?.trim() || "http",
-    label: process.env.DRAMA_VIDEO_HTTP_PROVIDER_LABEL?.trim() || "HTTP 视频通道",
-    description: process.env.DRAMA_VIDEO_HTTP_PROVIDER_DESCRIPTION?.trim() || "通过环境变量配置的外部视频生成服务。",
+    label: process.env.DRAMA_VIDEO_HTTP_PROVIDER_LABEL?.trim() || "HTTP video channel",
+    description: process.env.DRAMA_VIDEO_HTTP_PROVIDER_DESCRIPTION?.trim() || "An external video-generation service configured through environment variables.",
     createUrl: httpCreateUrl,
     statusUrl: process.env.DRAMA_VIDEO_HTTP_STATUS_URL?.trim() || undefined,
     apiKey: process.env.DRAMA_VIDEO_HTTP_API_KEY?.trim() || undefined,

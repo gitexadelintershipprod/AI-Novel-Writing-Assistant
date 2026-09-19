@@ -28,15 +28,15 @@ export default function TitleStudioPage() {
       <header>
         <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div className="space-y-2">
-            <h1 className="text-3xl font-semibold tracking-normal text-foreground">标题工坊</h1>
+            <h1 className="text-3xl font-semibold tracking-normal text-foreground">title workshop</h1>
             <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
-              用项目资料、作品简报或参考标题生成候选；看中的标题可以复制，也可以沉淀到标题库里反复使用。
+              Use project information, work briefings or reference titles to generate candidates; the titles you like can be copied or stored in the title library for repeated use.
             </p>
           </div>
 
           <TabsList className="grid h-11 w-full grid-cols-2 rounded-full bg-muted/30 p-1 md:w-[300px]">
-            <TabsTrigger value="factory" className="rounded-full">生成候选</TabsTrigger>
-            <TabsTrigger value="library" className="rounded-full">标题库</TabsTrigger>
+            <TabsTrigger value="factory" className="rounded-full">Generate candidates</TabsTrigger>
+            <TabsTrigger value="library" className="rounded-full">title library</TabsTrigger>
           </TabsList>
         </div>
       </header>

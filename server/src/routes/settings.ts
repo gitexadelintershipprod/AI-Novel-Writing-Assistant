@@ -61,7 +61,7 @@ const upsertApiKeySchema = z.object({
   key: z.string().trim().optional(),
   model: z.string().trim().optional(),
   imageModel: z.string().trim().optional(),
-  baseURL: z.union([z.string().trim().url("API URL 格式不正确。"), z.literal("")]).optional(),
+  baseURL: z.union([z.string().trim().url("The API URL format is invalid."), z.literal("")]).optional(),
   isActive: z.boolean().optional(),
   reasoningEnabled: z.boolean().optional(),
   concurrencyLimit: z.coerce.number().int().min(0).max(MAX_PROVIDER_CONCURRENCY_LIMIT).optional(),
@@ -76,7 +76,7 @@ const ragSettingsSchema = z.object({
   embeddingProvider: z.string().trim().min(1).max(120),
   embeddingModel: z.string().trim().min(1),
   embeddingApiKey: z.string().trim().min(1).optional(),
-  embeddingBaseURL: z.string().trim().url("向量服务 API 地址格式不正确。").optional(),
+  embeddingBaseURL: z.string().trim().url("The vector-service API URL format is invalid.").optional(),
   collectionMode: z.enum(["auto", "manual"]),
   collectionName: z.string().trim().min(1),
   collectionTag: z.string().trim().min(1),
@@ -286,7 +286,7 @@ router.get("/style-engine-runtime", async (_req, res, next) => {
     res.status(200).json({
       success: true,
       data,
-      message: "写法引擎运行设置读取成功。",
+      message: "Writing-engine runtime settings were loaded.",
     } satisfies ApiResponse<typeof data>);
   } catch (error) {
     next(error);
@@ -302,7 +302,7 @@ router.put(
       res.status(200).json({
         success: true,
         data,
-        message: "写法引擎运行设置保存成功。",
+        message: "The writing engine running settings are saved successfully.",
       } satisfies ApiResponse<typeof data>);
     } catch (error) {
       next(error);
@@ -467,7 +467,7 @@ router.get("/api-keys", async (_req, res, next) => {
     res.status(200).json({
       success: true,
       data,
-      message: "厂商配置已加载。",
+      message: "Provider settings were loaded.",
     } satisfies ApiResponse<typeof data>);
   } catch (error) {
     next(error);
@@ -504,7 +504,7 @@ router.put(
       const existing = await secretStore.getProvider(provider);
       const existingRecord = existing as APIKeyRecordLike | null;
       if (!isBuiltInProvider(provider) && !existing) {
-        throw new AppError("没有找到这个自定义厂商。", 404);
+        throw new AppError("This custom provider was not found.", 404);
       }
 
       const nextKey = normalizeOptionalText(body.key) ?? normalizeOptionalText(existingRecord?.key);
@@ -530,24 +530,24 @@ router.put(
           getRagRuntimeSettings(),
         ]);
         if (routeInUse) {
-          throw new AppError(`模型路由 ${routeInUse.taskType} 正在使用这个厂商，请先改用其他厂商。`, 400);
+          throw new AppError(`Model route ${routeInUse.taskType} is using this provider. Switch that route to another provider first.`, 400);
         }
         if (selection?.provider === provider) {
-          throw new AppError("顶部默认模型正在使用这个厂商，请先切换默认模型。", 400);
+          throw new AppError("The top default model is using this provider. Switch the default model first.", 400);
         }
         if (ragRuntimeSettings.enabled && ragSettings.embeddingProvider === provider) {
-          throw new AppError("知识库正在使用这个向量服务，请先切换向量服务或暂停资料检索。", 400);
+          throw new AppError("The knowledge base is using this vector service. Switch it or pause retrieval first.", 400);
         }
       }
 
       if (requiresApiKey && !effectiveKey) {
-        throw new AppError("请先填写 API Key。", 400);
+        throw new AppError("Enter the API Key first.", 400);
       }
       if (!isBuiltInProvider(provider) && !nextModel) {
-        throw new AppError("请先为自定义厂商选择或填写默认模型。", 400);
+        throw new AppError("Choose or enter a default model for the custom provider first.", 400);
       }
       if (!isBuiltInProvider(provider) && !nextBaseURL) {
-        throw new AppError("请先填写自定义厂商的 API URL。", 400);
+        throw new AppError("Enter the custom provider's API URL first.", 400);
       }
 
       const data = (isBuiltInProvider(provider)
@@ -591,11 +591,11 @@ router.put(
       evictSharedLimiters(provider);
 
       let models = getFallbackModels(provider, data.model ?? undefined);
-      let message = "厂商配置已保存。";
+      let message = "Provider settings were saved.";
       try {
         models = await refreshProviderModels(provider, effectiveKey, nextBaseURL ?? getProviderEnvBaseUrl(provider));
       } catch {
-        message = "厂商配置已保存，但模型列表刷新失败。可以稍后在厂商卡片中刷新。";
+        message = "Provider settings were saved, but refreshing the model list failed. You can refresh it later on the provider card.";
       }
 
       res.status(200).json({
@@ -642,7 +642,7 @@ router.post(
     try {
       const { provider } = req.params as z.infer<typeof providerSchema>;
       if (!isBuiltInProvider(provider)) {
-        throw new AppError("自定义厂商暂不支持刷新余额。", 400);
+        throw new AppError("Custom providers cannot refresh balance yet.", 400);
       }
       const keyConfig = await secretStore.getProvider(provider);
       const data = await providerBalanceService.getProviderBalance({
@@ -669,7 +669,7 @@ router.post(
       const keyConfig = await secretStore.getProvider(provider);
       const effectiveKey = normalizeOptionalText(keyConfig?.key) ?? getProviderEnvApiKey(provider);
       if (providerRequiresApiKey(provider) && !effectiveKey) {
-        throw new AppError("请先配置 API Key，再刷新模型列表。", 400);
+        throw new AppError("Configure the API Key before refreshing the model list.", 400);
       }
       const models = await refreshProviderModels(
         provider,
@@ -686,7 +686,7 @@ router.post(
           models,
           currentModel,
         },
-        message: "模型列表已刷新。",
+        message: "The model list was refreshed.",
       } satisfies ApiResponse<{
         provider: string;
         models: string[];

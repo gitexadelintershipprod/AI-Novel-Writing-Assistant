@@ -52,7 +52,7 @@ export async function reportPipelineIssue(input: {
       applyAction: input.applyAction,
     });
   } catch (error) {
-    logPipelineWarn("自动导演问题治理失败", {
+    logPipelineWarn("Auto-Director issue governance failed", {
       jobId: input.jobId,
       issueCode: input.issueCode,
       error: error instanceof Error ? error.message : String(error),

@@ -23,7 +23,7 @@ import {
 } from "../taskArchive";
 
 function buildTaskTitle(name: string): string {
-  return `写法提取：${name}`;
+  return `Writing extraction：${name}`;
 }
 
 export class StyleExtractionTaskAdapter {
@@ -79,7 +79,7 @@ export class StyleExtractionTaskAdapter {
           ? (structuredFailure.failureCode ?? "STYLE_EXTRACTION_FAILED")
           : null,
         failureSummary: row.status === "failed"
-          ? (structuredFailure.failureSummary ?? normalizeFailureSummary(row.error, "写法提取任务失败，但没有记录到明确错误。"))
+          ? (structuredFailure.failureSummary ?? normalizeFailureSummary(row.error, "Style extraction failed without a recorded error."))
           : row.error,
         recoveryHint: buildTaskRecoveryHint("style_extraction", row.status as TaskStatus),
         tokenUsage: toTaskTokenUsageSummary({
@@ -143,7 +143,7 @@ export class StyleExtractionTaskAdapter {
         ? (structuredFailure.failureCode ?? "STYLE_EXTRACTION_FAILED")
         : null,
       failureSummary: row.status === "failed"
-        ? (structuredFailure.failureSummary ?? normalizeFailureSummary(row.error, "写法提取任务失败，但没有记录到明确错误。"))
+        ? (structuredFailure.failureSummary ?? normalizeFailureSummary(row.error, "Style extraction failed without a recorded error."))
         : row.error,
       recoveryHint: buildTaskRecoveryHint("style_extraction", row.status as TaskStatus),
       tokenUsage: toTaskTokenUsageSummary({

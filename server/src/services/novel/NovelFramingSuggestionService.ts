@@ -8,16 +8,16 @@ import { novelFramingSuggestionPrompt } from "../../prompting/prompts/novel/fram
 function buildInputSummary(input: BookFramingSuggestionInput): string {
   return [
     input.title?.trim() ? `书名：${input.title.trim()}` : "",
-    input.description?.trim() ? `一句话概述：${input.description.trim()}` : "",
+    input.description?.trim() ? `One sentence summary:${input.description.trim()}` : "",
     input.genreLabel?.trim() ? `作品类型：${input.genreLabel.trim()}` : "",
-    input.styleTone?.trim() ? `当前文风关键词：${input.styleTone.trim()}` : "",
+    input.styleTone?.trim() ? `当前Keywords for writing style:${input.styleTone.trim()}` : "",
   ].filter(Boolean).join("\n");
 }
 
 export class NovelFramingSuggestionService {
   async suggest(input: BookFramingSuggestionInput): Promise<BookFramingSuggestion> {
     if (!input.title?.trim() && !input.description?.trim()) {
-      throw new Error("请至少填写书名或一句话概述后再让 AI 帮你填写。");
+      throw new Error("Enter at least a title or a one-sentence summary before asking AI to fill the rest.");
     }
 
     const inputSummary = buildInputSummary(input);

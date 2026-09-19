@@ -24,7 +24,7 @@ export class StyleGenerationService {
   }> {
     const resolved = await this.resolver.resolve({ styleProfileId: input.styleProfileId });
     if (!resolved.context.compiledBlocks) {
-      throw new Error("该写法没有可执行规则。");
+      throw new Error("This writing style has no executable rules.");
     }
 
     const targetLength = input.targetLength ?? 1200;
@@ -33,7 +33,7 @@ export class StyleGenerationService {
 
 原文：
 ${input.sourceText ?? ""}`
-      : `任务：请围绕以下主题创作一段小说文本，控制在 ${targetLength} 字左右。
+      : `任务：请围绕以下主题创作一段小说文本，控制在 ${targetLength} characters左右。
 
 主题：
 ${input.topic ?? ""}`;

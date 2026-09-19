@@ -229,7 +229,7 @@ export class DramaShotKeyframeService {
       },
     });
     if (!shot) {
-      throw new AppError(`未找到短剧镜头：${shotId}`, 404);
+      throw new AppError(`Drama shot not found: ${shotId}`, 404);
     }
 
     const prompt = buildShotKeyframePrompt(shot);
@@ -243,7 +243,7 @@ export class DramaShotKeyframeService {
           refImages.push(url);
           referenceImages.push({
             kind: "character_sheet",
-            label: `${char.name} · 角色设计稿`,
+            label: `${char.name} · Character design draft`,
             url,
           });
         }
@@ -273,7 +273,7 @@ export class DramaShotKeyframeService {
       referenceImages,
       size: "1024x1536" as const,
       negativePrompt: "low quality, blurry, distorted face, extra fingers, duplicate body, text, watermark, subtitles",
-      title: `生成镜头 ${shot.order} 首帧图`,
+      title: `Generate first-frame image for shot ${shot.order}`,
     };
   }
 

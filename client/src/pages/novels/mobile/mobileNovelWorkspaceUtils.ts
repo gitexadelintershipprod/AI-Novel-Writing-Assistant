@@ -14,10 +14,10 @@ export function getMobileNovelWorkspaceStatusText(input: {
   workflowLabel: string;
 }): string {
   if (input.activeLabel === input.workflowLabel) {
-    return `当前步骤：${input.activeLabel}`;
+    return `Current steps:${input.activeLabel}`;
   }
 
-  return `当前步骤：${input.activeLabel} · 流程推荐：${input.workflowLabel}`;
+  return `Current steps:${input.activeLabel} · Process recommendation:${input.workflowLabel}`;
 }
 
 export function getMobileNovelSaveState(
@@ -28,16 +28,16 @@ export function getMobileNovelSaveState(
     case "basic":
       return {
         visible: true,
-        label: "保存基本信息",
-        savingLabel: "保存中...",
+        label: "Save basic information",
+        savingLabel: "Saving...",
         isSaving: props.basicTab.isSaving,
         onSave: props.basicTab.onSave,
       };
     case "story_macro":
       return {
         visible: true,
-        label: "保存故事规划",
-        savingLabel: "保存中...",
+        label: "Save story plan",
+        savingLabel: "Saving...",
         isSaving: props.storyMacroTab.isSaving,
         onSave: props.storyMacroTab.onSaveEdits,
       };
@@ -52,24 +52,24 @@ export function getMobileNovelSaveState(
     case "character":
       return {
         visible: true,
-        label: "保存角色",
-        savingLabel: "保存中...",
+        label: "save character",
+        savingLabel: "Saving...",
         isSaving: props.characterTab.isSavingCharacter,
         onSave: props.characterTab.onSaveCharacter,
       };
     case "outline":
       return {
         visible: true,
-        label: "保存卷工作区",
-        savingLabel: "保存中...",
+        label: "Save volume workspace",
+        savingLabel: "Saving...",
         isSaving: props.outlineTab.isSaving,
         onSave: props.outlineTab.onSave,
       };
     case "structured":
       return {
         visible: true,
-        label: "保存拆章",
-        savingLabel: "保存中...",
+        label: "Save the seal",
+        savingLabel: "Saving...",
         isSaving: props.structuredTab.isSaving,
         onSave: props.structuredTab.onSave,
       };

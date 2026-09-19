@@ -1,74 +1,72 @@
-# 世界样本库
+# World sample library
 
-世界样本库用于保存可复用的世界观样本。它适合沉淀常用的世界规则、势力、地点、关系网络和冲突结构，之后可以导入到具体小说中，再按本书需要改造成专属世界。
+The world sample library stores reusable world samples. It is a good place to keep world rules, factions, places, relationship networks, and conflict structures you use often. Later you can import a sample into a novel and reshape it for that book.
 
+## What the world sample library can do for you
 
+- Save reusable worlds, for example a cultivation sect world, a future city, an end-times base, or an invented dynasty.
+- Organize a world handbook: core rules, main factions, story stage, and key tension.
+- Use a sample as a reference when creating a new book, so you do not build every world from zero.
+- Save a mature novel world back to the sample library for later reuse.
+- Help you keep “a reusable world sample” separate from “the world this novel actually uses.”
 
-## 世界样本库能帮你做什么
+## When to use it
 
-- 保存可复用世界观，例如仙侠宗门世界、未来都市、末世基地、架空王朝等。
-- 整理世界手册，包括核心规则、主要势力、故事舞台和关键张力。
-- 在新书创建时作为参考来源，减少每本书从零搭世界的成本。
-- 把某本书中整理成熟的世界保存回样本库，方便后续复用。
-- 帮助你区分“通用世界样本”和“当前小说真正使用的本书世界”。
+- You often write in the same kind of world and want a base stage.
+- A new book needs an existing world as reference, but you do not want to damage the original sample.
+- You want to organize world rules first, then open different novels around them.
+- One novel’s world is mature, and you want it as a later-project reference.
+- You want to organize factions, places, rules, and conflict, not only a short world blurb.
 
-## 适合什么时候用
+## Before you start
 
-- 你经常写同一类世界，想沉淀一套基础舞台。
-- 新书需要参考一个已有世界，但又不想直接改坏原样本。
-- 想先整理世界规则，再围绕它开不同的小说。
-- 一本小说的世界已经成熟，想保存为后续项目的参考。
-- 想整理势力、地点、规则和冲突，而不是只写一段世界观简介。
+Content in the world sample library is a reusable asset. It is not the world a novel is currently using.
 
-## 开始前准备
+A useful split:
 
-世界样本库里的内容是可复用资产，不等于某本小说正在使用的世界。
+- World sample library: stores general samples for long-term reuse.
+- This novel’s world: the copy this novel actually uses, adjusted for protagonist, plot, and genre.
 
-推荐理解方式：
+You do not have to copy a sample unchanged. After import, you can still edit it for the current work.
 
-- 世界样本库：保存通用样本，适合长期复用。
-- 本书世界：某一本小说真正使用的世界副本，会根据主角、剧情和题材做调整。
+## Recommended path
 
-因此，不要担心导入样本后必须完全照搬。导入到小说后，你仍然可以为当前作品单独修改。
+1. Open World sample library.
+2. Browse existing samples or create a new one.
+3. Start with the world handbook: impression, core rules, main factions, story stage, and key tension.
+4. When you are ready to write a new book, import the sample from novel basics or this novel’s world entry.
+5. After import, trim the copy to what this novel will use.
+6. If this novel’s world later becomes more complete, you can save it back to the sample library.
 
-## 推荐使用路径
+## How it enters later writing
 
-1. 打开“世界样本库”。
-2. 查看已有世界样本，或创建新的世界样本。
-3. 先整理世界手册：世界印象、核心规则、主要势力、故事舞台和关键张力。
-4. 如果准备写新书，在小说基础信息或本书世界入口中导入这个样本。
-5. 导入后，围绕当前小说整理本书使用范围。
-6. 如果本书世界后续发展得更完整，可以选择保存回世界样本库。
+A world sample first becomes this novel’s world copy, then enters later writing. That split helps because:
 
-## 如何进入后续创作链路
+- the current novel can adjust the world to its own protagonist and plot;
+- the original sample is not polluted by one book’s temporary edits;
+- later characters, planning, chapters, and covers can use this novel’s world information;
+- if this novel’s world diverges from the source sample, you decide whether to sync.
 
-世界样本会先成为某本小说的本书世界副本，再进入后续创作。这样做的好处是：
+The world sample library is for long-term asset management. The world that actually affects writing is this novel’s world.
 
-- 当前小说可以按自己的主角和剧情调整世界。
-- 原世界样本不会被一本书的临时改动污染。
-- 后续角色、规划、章节和封面可以使用本书世界信息。
-- 如果本书世界和来源样本有差异，可以由你决定是否同步。
+## Common questions
 
-世界样本库更适合做长期资产管理；具体小说里真正影响写作的是本书世界。
+### Does a world sample affect every novel immediately?
 
-## 常见问题
+No. A sample usually needs to be imported into a novel first, becoming that novel’s world copy. Each novel can adjust its copy on its own.
 
-### 世界样本会直接影响所有小说吗
+### Should I create a world sample or a novel first?
 
-不会。世界样本通常需要先导入到某本小说，成为本书世界副本。每本小说可以在副本上单独调整。
+If you already have a mature world, create the sample first. If you only have a new idea, create the novel first, let the system generate a world from this book’s theme, then consider saving it as a sample.
 
-### 我应该先创建世界样本，还是先创建小说
+### Can I edit after import?
 
-如果你已经有成熟世界，可以先建世界样本。如果只是一个新灵感，通常先创建小说，让系统根据本书主题生成世界，再考虑保存为样本。
+Yes. This novel’s world can be edited for the current book. Syncing those edits back to the sample should be a manual choice.
 
-### 导入样本后还能改吗
+### How detailed should a world sample be?
 
-可以。导入后的本书世界可以根据当前小说修改。是否把修改同步回样本，应由你手动决定。
+Write enough to support the story first: core rules, main factions, key places, conflict tension, and taboo boundaries. Maps, faction graphs, and other visual assets can come later.
 
-### 世界样本要写多细
+### How is a world sample different from a genre base?
 
-先写能支撑故事的部分：核心规则、主要势力、关键地点、冲突张力和禁忌边界。地图、势力图谱等可视化资产可以后续再补。
-
-### 世界样本和题材基底有什么区别
-
-题材基底说明作品属于什么类型，世界样本说明故事发生在哪个舞台。一个题材可以有多个世界样本，同一个世界也可以服务不同类型的故事。
+A genre base says what kind of work this is. A world sample says where the story happens. One genre can have many world samples, and one world can serve different kinds of stories.

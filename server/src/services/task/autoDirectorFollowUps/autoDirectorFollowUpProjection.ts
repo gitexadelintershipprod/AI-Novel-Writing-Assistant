@@ -46,12 +46,12 @@ function resolveAutoApprovalRecordReason(checkpointType: string | null | undefin
   if (checkpointType === "replan_required") {
     return {
       reason: "auto_progress_running",
-      reasonLabel: "重规划提醒已记录",
+      reasonLabel: "The replan reminder was recorded",
     };
   }
   return {
     reason: "auto_approval_completed",
-    reasonLabel: "最近自动通过",
+    reasonLabel: "Recently passed automatically",
   };
 }
 
@@ -209,17 +209,17 @@ function getKnownReplacementTaskId(seedPayloadJson: string | null | undefined, k
 function buildSyntheticValidationSummary(row: FollowUpWorkflowRow): AutoDirectorFollowUpValidationSummary | null {
   if (row.pendingManualRecovery || row.status === "failed" || row.status === "cancelled") {
     return {
-      blockingReasons: [buildBlockingReason(row) ?? "任务状态需要重新校验后再继续。"],
+      blockingReasons: [buildBlockingReason(row) ?? "Recheck the task status before continuing."],
       warnings: [],
       requiredActions: [{
         code: "revalidate_assets",
-        label: "重新读取任务状态",
+        label: "Reread the task status",
         riskLevel: "low",
         safeToAutoFix: true,
       }],
       affectedScope: {
         type: "book",
-        label: getExecutionScopeLabel(row.seedPayloadJson) ?? "当前任务范围",
+        label: getExecutionScopeLabel(row.seedPayloadJson) ?? "Current task range",
       },
       nextAction: "revalidate",
     };
@@ -249,7 +249,7 @@ function getLatestMilestoneAt(milestonesJson: string | null | undefined): string
 }
 
 function getNovelTitle(row: Pick<FollowUpWorkflowRow, "novel" | "title">): string {
-  return row.novel?.title?.trim() || row.title.trim() || "AI 自动导演";
+  return row.novel?.title?.trim() || row.title.trim() || "Auto-Director";
 }
 
 function buildBlockingReason(row: FollowUpWorkflowRow): string | null {
@@ -361,8 +361,8 @@ export function projectAutoApprovalRecordItem(
     taskId: row.taskId,
     autoApprovalRecordId: row.id,
     novelId: row.novelId,
-    novelTitle: row.novel?.title?.trim() || task?.novel?.title?.trim() || task?.title?.trim() || "AI 自动导演",
-    taskTitle: task?.title ?? "AI 自动导演",
+    novelTitle: row.novel?.title?.trim() || task?.novel?.title?.trim() || task?.title?.trim() || "Auto-Director",
+    taskTitle: task?.title ?? "Auto-Director",
     lane: "auto_director",
     status: task?.status ?? "running",
     currentStage: row.stage ?? task?.currentStage ?? null,
@@ -379,7 +379,7 @@ export function projectAutoApprovalRecordItem(
     availableActions: [{
       code: "open_detail",
       kind: "navigation",
-      label: "查看任务详情",
+      label: "View task details",
       riskLevel: "low",
       requiresConfirm: false,
       targetUrl: `/tasks?kind=novel_workflow&id=${row.taskId}`,
@@ -476,7 +476,7 @@ export function buildSectionCounters(items: AutoDirectorFollowUpItem[]): AutoDir
 
 function buildMilestoneLabel(milestone: ReturnType<typeof parseMilestones>[number]): string {
   if (milestone.checkpointType === "rewrite_snapshot_created") {
-    return "重写前备份已创建";
+    return "Pre-rewrite backup created";
   }
   return buildWorkflowExplainability({
     status: "waiting_approval",

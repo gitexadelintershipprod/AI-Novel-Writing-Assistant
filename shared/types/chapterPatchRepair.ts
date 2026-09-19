@@ -186,7 +186,7 @@ export function applyChapterPatchRepairPlan(
       appliedPatches,
       failures: [{
         patchId: "plan",
-        reason: normalizedPlan.escalationReason?.trim() || "补丁计划要求整章重写。",
+        reason: normalizedPlan.escalationReason?.trim() || "The patch plan calls for an entire chapter to be rewritten.",
         failureType: "requires_full_rewrite",
       }],
     };
@@ -200,8 +200,8 @@ export function applyChapterPatchRepairPlan(
       failures.push({
         patchId: patch.id,
         reason: matchResult.occurrenceCount === 0
-          ? "目标片段不存在，不能安全应用局部补丁。"
-          : "目标片段出现多次，不能确定局部补丁位置。",
+          ? "The target fragment does not exist and the local patch cannot be safely applied."
+          : "The target fragment appears multiple times and the local patch position cannot be determined.",
         failureType: matchResult.occurrenceCount === 0 ? "missing_target" : "ambiguous_target",
         matchedBy: matchResult.matchedBy,
         occurrenceCount: matchResult.occurrenceCount,
@@ -218,7 +218,7 @@ export function applyChapterPatchRepairPlan(
     if (nextContent === beforePatch) {
       failures.push({
         patchId: patch.id,
-        reason: "局部补丁没有产生有效正文变化。",
+        reason: "The partial patch produced no valid text changes.",
         failureType: "no_effect",
         matchedBy: matchResult.match.matchedBy,
         occurrenceCount: matchResult.occurrenceCount,

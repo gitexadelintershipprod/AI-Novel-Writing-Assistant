@@ -297,22 +297,22 @@ export default function KnowledgePage() {
   const clearFinishedRagJobsMutation = useMutation({
     mutationFn: clearFinishedRagJobs,
     onSuccess: async (response) => {
-      setRagJobsActionMessage(response.message ?? "已清理已结束任务。");
+      setRagJobsActionMessage(response.message ?? "Cleaned completed tasks.");
       await queryClient.invalidateQueries({ queryKey: ragJobsQueryKey });
     },
     onError: (error) => {
-      setRagJobsActionMessage(error instanceof Error ? error.message : "清理任务失败。");
+      setRagJobsActionMessage(error instanceof Error ? error.message : "Cleanup task failed.");
     },
   });
 
   const deleteRagJobMutation = useMutation({
     mutationFn: (jobId: string) => deleteRagJob(jobId),
     onSuccess: async (response) => {
-      setRagJobsActionMessage(response.message ?? "任务记录已删除。");
+      setRagJobsActionMessage(response.message ?? "The task record has been deleted.");
       await queryClient.invalidateQueries({ queryKey: ragJobsQueryKey });
     },
     onError: (error) => {
-      setRagJobsActionMessage(error instanceof Error ? error.message : "删除任务失败。");
+      setRagJobsActionMessage(error instanceof Error ? error.message : "Delete task failed.");
     },
   });
 
@@ -359,17 +359,17 @@ export default function KnowledgePage() {
   const failedJobs = (ragJobsQuery.data?.data ?? []).filter((item) => item.status === "failed").slice(0, 5);
   const selectedDocument = detailQuery.data?.data;
   const ragHealthNotice = ragHealthQuery.isError
-    ? (ragHealthQuery.error instanceof Error ? ragHealthQuery.error.message : "加载 RAG 健康状态失败。")
+    ? (ragHealthQuery.error instanceof Error ? ragHealthQuery.error.message : "Failed to load RAG health status.")
     : (ragHealthQuery.data?.message && ragHealthQuery.data.message !== "RAG health check passed."
       ? (ragHealthQuery.data.message === "RAG health check failed."
-        ? "资料检索连接检查未通过。"
+        ? "Data retrieval connection check failed."
         : ragHealthQuery.data.message)
       : undefined);
   const recallErrorMessage = recallTestMutation.isError
-    ? (recallTestMutation.error instanceof Error ? recallTestMutation.error.message : "召回测试失败。")
+    ? (recallTestMutation.error instanceof Error ? recallTestMutation.error.message : "Recall test failed.")
     : null;
   const documentListErrorMessage = documentsQuery.isError
-    ? (documentsQuery.error instanceof Error ? documentsQuery.error.message : "知识资料加载失败。")
+    ? (documentsQuery.error instanceof Error ? documentsQuery.error.message : "Failed to load knowledge material.")
     : undefined;
   const hasDocumentFilters = Boolean(keyword.trim() || status);
 
@@ -397,11 +397,11 @@ export default function KnowledgePage() {
 
   const handleUpload = async (file: File) => {
     if (!isTxtFile(file)) {
-      throw new Error("仅支持 .txt 文件。");
+      throw new Error("Only .txt files are supported.");
     }
     const content = await readTextFile(file);
     if (!content) {
-      throw new Error("文件内容为空，或编码格式暂不支持。");
+      throw new Error("The file content is empty, or the encoding format is not supported yet.");
     }
     await createKnowledgeDocument({
       title: uploadTitle.trim() || undefined,
@@ -415,11 +415,11 @@ export default function KnowledgePage() {
       return;
     }
     if (!isTxtFile(file)) {
-      throw new Error("仅支持 .txt 文件。");
+      throw new Error("Only .txt files are supported.");
     }
     const content = await readTextFile(file);
     if (!content) {
-      throw new Error("文件内容为空，或编码格式暂不支持。");
+      throw new Error("The file content is empty, or the encoding format is not supported yet.");
     }
     await createKnowledgeDocumentVersion(selectedDocumentId, {
       fileName: file.name,
@@ -540,9 +540,9 @@ export default function KnowledgePage() {
         className="space-y-4"
       >
         <TabsList className="h-11 w-full justify-start gap-1 overflow-x-auto rounded-full bg-muted/30 p-1">
-          <TabsTrigger value="documents" className="rounded-full px-5">创作资料</TabsTrigger>
-          <TabsTrigger value="ops" className="rounded-full px-5">索引与任务</TabsTrigger>
-          <TabsTrigger value="settings" className="rounded-full px-5">检索设置</TabsTrigger>
+          <TabsTrigger value="documents" className="rounded-full px-5">Creative materials</TabsTrigger>
+          <TabsTrigger value="ops" className="rounded-full px-5">Indexes and tasks</TabsTrigger>
+          <TabsTrigger value="settings" className="rounded-full px-5">Retrieve settings</TabsTrigger>
         </TabsList>
 
         <TabsContent value="documents">

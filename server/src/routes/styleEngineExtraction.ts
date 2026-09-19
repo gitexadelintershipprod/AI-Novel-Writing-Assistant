@@ -106,7 +106,7 @@ router.post("/style-extractions/from-text", validate({ body: fromTextSchema }), 
     res.status(200).json({
       success: true,
       data,
-      message: "文本写法特征提取完成。",
+      message: "Text style-feature extraction is complete.",
     } satisfies ApiResponse<typeof data>);
   } catch (error) {
     next(error);
@@ -138,19 +138,19 @@ router.post(
       const body = req.body as z.infer<typeof fromKnowledgeDocumentTaskSchema>;
       const document = await knowledgeService.getDocumentById(body.documentId);
       if (!document) {
-        throw new AppError("知识库文档不存在。", 404);
+        throw new AppError("The knowledge document does not exist.", 404);
       }
       if (document.status === "archived") {
-        throw new AppError("归档知识库文档不能用于创建写法。", 400);
+        throw new AppError("Archived knowledge documents cannot be used to create a writing style.", 400);
       }
 
       const activeVersion = document.versions.find((version) => version.isActive);
       if (!activeVersion) {
-        throw new AppError("知识库文档没有可用的活动版本。", 400);
+        throw new AppError("The knowledge document has no usable active version.", 400);
       }
       const sourceText = activeVersion.content;
       if (!sourceText.trim()) {
-        throw new AppError("知识库文档活动版本内容为空，不能用于创建写法。", 400);
+        throw new AppError("The knowledge document's active version is empty, so it cannot be used to create a writing style.", 400);
       }
 
       const task = await styleExtractionTaskService.createTask({
@@ -172,7 +172,7 @@ router.post(
       res.status(202).json({
         success: true,
         data,
-        message: "知识库原文写法提取任务已提交。",
+        message: "The knowledge-base source style-extraction task was submitted.",
       } satisfies ApiResponse<typeof data>);
     } catch (error) {
       next(error);
@@ -186,7 +186,7 @@ router.post("/style-profiles/from-text", validate({ body: fromTextSchema }), asy
     res.status(201).json({
       success: true,
       data,
-      message: "从文本提取写法成功。",
+      message: "Writing style was extracted from the text.",
     } satisfies ApiResponse<typeof data>);
   } catch (error) {
     next(error);
@@ -199,7 +199,7 @@ router.post("/style-profiles/from-extraction", validate({ body: fromExtractionSc
     res.status(201).json({
       success: true,
       data,
-      message: "已按特征选择生成写法资产。",
+      message: "The writing asset was generated from the selected features.",
     } satisfies ApiResponse<typeof data>);
   } catch (error) {
     next(error);

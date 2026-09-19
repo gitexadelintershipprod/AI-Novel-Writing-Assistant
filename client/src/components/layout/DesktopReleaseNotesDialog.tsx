@@ -28,7 +28,7 @@ export default function DesktopReleaseNotesDialog() {
       <AppDialogContent
         className="max-w-xl"
         title={CURRENT_DESKTOP_RELEASE_NOTES.title}
-        description={`桌面版 ${CURRENT_DESKTOP_RELEASE_NOTES.version.startsWith("v") ? CURRENT_DESKTOP_RELEASE_NOTES.version : `v${CURRENT_DESKTOP_RELEASE_NOTES.version}`} 已准备完成。`}
+        description={`Desktop version ${CURRENT_DESKTOP_RELEASE_NOTES.version.startsWith("v") ? CURRENT_DESKTOP_RELEASE_NOTES.version : `v${CURRENT_DESKTOP_RELEASE_NOTES.version}`} is ready.`}
       >
         <div className="space-y-5">
           <div className="flex items-start gap-3 rounded-xl border border-primary/25 bg-primary/10 p-4">

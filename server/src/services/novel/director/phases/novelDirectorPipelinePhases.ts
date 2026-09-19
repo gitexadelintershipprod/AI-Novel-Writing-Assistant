@@ -56,21 +56,21 @@ function buildVolumeStrategyPhaseUpdate(event: VolumeGenerationPhaseEvent): {
   if (event.scope === "strategy") {
     return {
       itemKey: "volume_strategy",
-      itemLabel: event.phase === "load_context" ? "正在整理卷战略上下文" : "正在生成卷战略",
+      itemLabel: event.phase === "load_context" ? "Preparing volume-strategy context" : "Generating the volume strategy",
       progress: DIRECTOR_PROGRESS.volumeStrategy,
     };
   }
   if (event.scope === "strategy_critique") {
     return {
       itemKey: "volume_strategy",
-      itemLabel: event.phase === "load_context" ? "正在整理卷战略审查上下文" : "正在审查卷战略",
+      itemLabel: event.phase === "load_context" ? "Preparing volume-strategy review context" : "Reviewing the volume strategy",
       progress: DIRECTOR_PROGRESS.volumeStrategyCritique,
     };
   }
   if (event.scope === "skeleton") {
     return {
       itemKey: "volume_skeleton",
-      itemLabel: event.phase === "load_context" ? "正在整理卷骨架上下文" : "正在生成卷骨架",
+      itemLabel: event.phase === "load_context" ? "Preparing volume-skeleton context" : "Generating the volume skeleton",
       progress: DIRECTOR_PROGRESS.volumeSkeleton,
     };
   }
@@ -111,7 +111,7 @@ export async function runDirectorCharacterSetupPhase(input: {
     taskId,
     stage: "character_setup",
     itemKey: "character_setup",
-    itemLabel: "正在生成角色阵容",
+    itemLabel: "Generating the cast",
     progress: DIRECTOR_PROGRESS.characterSetup,
     callbacks,
     run: async () => dependencies.characterPreparationService.generateAutoCharacterCastOption(novelId, {
@@ -132,8 +132,8 @@ export async function runDirectorCharacterSetupPhase(input: {
       "character_setup",
       "character_cast_apply",
       targetOption.status === "applied"
-        ? `复用可直接使用的角色阵容「${targetOption.title}」`
-        : `复用候选角色阵容「${targetOption.title}」`,
+        ? `复用可直接使用的Cast of characters「${targetOption.title}」`
+        : `复用候选Cast of characters「${targetOption.title}」`,
       DIRECTOR_PROGRESS.characterSetupReady,
     );
   }
@@ -152,14 +152,14 @@ export async function runDirectorCharacterSetupPhase(input: {
       isBackgroundRunning: false,
     });
     const reason = [
-      "角色阵容候选已生成，但当前自动质量闸未通过，不能直接自动应用。",
+      "Cast candidates were generated, but the automatic quality gate did not pass, so they cannot be applied automatically.",
       buildCharacterCastBlockedMessage(assessment),
     ].join("\n");
     await dependencies.workflowService.recordCheckpoint(taskId, {
       stage: "character_setup",
       checkpointType: "character_setup_required",
       checkpointSummary: reason,
-      itemLabel: "等待审核角色准备",
+      itemLabel: "Waiting to review character setup",
       progress: DIRECTOR_PROGRESS.characterSetup,
       seedPayload: callbacks.buildDirectorSeedPayload(request, novelId, {
         directorSession: blockedSession,
@@ -178,7 +178,7 @@ export async function runDirectorCharacterSetupPhase(input: {
     taskId,
     stage: "character_setup",
     itemKey: "character_cast_apply",
-    itemLabel: `正在应用角色阵容「${targetOption.title}」`,
+    itemLabel: `ApplyingCast of characters「${targetOption.title}」`,
     progress: DIRECTOR_PROGRESS.characterSetupReady,
     callbacks,
     run: async () => {
@@ -211,7 +211,7 @@ export async function runDirectorCharacterSetupPhase(input: {
       novelId,
       novelTitle: request.candidate.workingTitle,
       checkpointType: "character_setup_required",
-      checkpointSummary: `角色准备已生成并应用「${targetOption.title}」。`,
+      checkpointSummary: `Character setup generated and applied "${targetOption.title}".`,
       stage: "character_setup",
     });
     return {
@@ -226,12 +226,12 @@ export async function runDirectorCharacterSetupPhase(input: {
     phase: "character_setup",
     isBackgroundRunning: false,
   });
-  const reason = `角色准备已生成并应用「${targetOption.title}」。建议先检查核心角色、关系与当前目标，再继续自动导演。`;
+  const reason = `Character setup generated and applied "${targetOption.title}". Review the core cast, relationships, and current goals before continuing Auto-Director.`;
   await dependencies.workflowService.recordCheckpoint(taskId, {
     stage: "character_setup",
     checkpointType: "character_setup_required",
     checkpointSummary: reason,
-    itemLabel: "等待审核角色准备",
+    itemLabel: "Waiting to review character setup",
     progress: DIRECTOR_PROGRESS.characterSetupReady,
     seedPayload: callbacks.buildDirectorSeedPayload(request, novelId, {
       directorSession: pausedSession,
@@ -279,7 +279,7 @@ export async function runDirectorVolumeStrategyPhase(input: {
     taskId,
     stage: "volume_strategy",
     itemKey: "volume_strategy",
-    itemLabel: "正在生成卷战略",
+    itemLabel: "Generating the volume strategy",
     progress: DIRECTOR_PROGRESS.volumeStrategy,
     callbacks,
     run: async ({ updateStatus, signal }) => dependencies.volumeService.generateVolumes(novelId, {
@@ -304,7 +304,7 @@ export async function runDirectorVolumeStrategyPhase(input: {
     taskId,
     stage: "volume_strategy",
     itemKey: "volume_strategy",
-    itemLabel: "正在审查卷战略",
+    itemLabel: "Reviewing the volume strategy",
     progress: DIRECTOR_PROGRESS.volumeStrategyCritique,
     callbacks,
     run: async ({ updateStatus, signal }) => dependencies.volumeService.generateVolumes(novelId, {
@@ -330,7 +330,7 @@ export async function runDirectorVolumeStrategyPhase(input: {
     taskId,
     stage: "volume_strategy",
     itemKey: "volume_skeleton",
-    itemLabel: "正在生成卷骨架",
+    itemLabel: "Generating the volume skeleton",
     progress: DIRECTOR_PROGRESS.volumeSkeleton,
     callbacks,
     run: async ({ updateStatus, signal }) => dependencies.volumeService.generateVolumes(novelId, {
@@ -366,7 +366,7 @@ export async function runDirectorVolumeStrategyPhase(input: {
       novelId,
       novelTitle: request.candidate.workingTitle,
       checkpointType: "volume_strategy_ready",
-      checkpointSummary: `卷战略与卷骨架已生成，共 ${persistedStrategyWorkspace.volumes.length} 卷。`,
+      checkpointSummary: `Volume strategy and skeleton generated, ${persistedStrategyWorkspace.volumes.length} volume(s).`,
       stage: "volume_strategy",
     });
     return persistedStrategyWorkspace;
@@ -380,8 +380,8 @@ export async function runDirectorVolumeStrategyPhase(input: {
   await dependencies.workflowService.recordCheckpoint(taskId, {
     stage: "volume_strategy",
     checkpointType: "volume_strategy_ready",
-    checkpointSummary: `卷战略与卷骨架已生成，共 ${persistedStrategyWorkspace.volumes.length} 卷。确认无误后再继续第 1 卷节奏与拆章。`,
-    itemLabel: "等待审核卷战略 / 卷骨架",
+    checkpointSummary: `Volume strategy and skeleton generated, ${persistedStrategyWorkspace.volumes.length} volume(s). Confirm them before continuing Volume 1 beats and chapter split.`,
+    itemLabel: "Waiting for reviewVolume strategy / skeleton",
     progress: DIRECTOR_PROGRESS.volumeStrategyReady,
     seedPayload: callbacks.buildDirectorSeedPayload(request, novelId, {
       directorSession: pausedSession,

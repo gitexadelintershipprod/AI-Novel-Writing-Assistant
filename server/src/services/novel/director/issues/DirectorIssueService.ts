@@ -148,7 +148,7 @@ export class DirectorIssueService {
         runId: input.runId,
         novelId: input.novelId,
         nodeKey: input.stage,
-        summary: `${catalog.label}已执行：${decision.action}`,
+        summary: `${catalog.label} executed: ${decision.action}`,
         affectedScope: occurrence.affectedScope ?? null,
         severity: severityFor(decision.action),
         metadata: { schemaVersion: 1, occurrence, decision },

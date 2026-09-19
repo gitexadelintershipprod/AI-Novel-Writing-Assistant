@@ -34,7 +34,7 @@ interface PayoffLedgerReadOptions extends PayoffLedgerSyncOptions {
   syncIfMissing?: boolean;
 }
 
-function compactText(value: string | null | undefined, fallback = "无"): string {
+function compactText(value: string | null | undefined, fallback = "None"): string {
   const normalized = String(value ?? "").replace(/\s+/g, " ").trim();
   return normalized || fallback;
 }
@@ -99,7 +99,7 @@ function formatMajorPayoffs(rawPlanJson: string | null | undefined): string {
     : [];
   return majorPayoffs.length > 0
     ? majorPayoffs.map((item, index) => `${index + 1}. ${item}`).join("\n")
-    : "无";
+    : "None";
 }
 
 export class PayoffLedgerSyncService {
@@ -204,7 +204,7 @@ export class PayoffLedgerSyncService {
     ]);
 
     if (!novel) {
-      throw new Error("小说不存在。");
+      throw new Error("The novel does not exist.");
     }
 
     const activeVolume = typeof chapterOrder === "number"
@@ -213,21 +213,21 @@ export class PayoffLedgerSyncService {
 
     const activeVolumeSummary = activeVolume
       ? [
-          `当前卷：第${activeVolume.sortOrder}卷《${activeVolume.title}》`,
-          `卷摘要：${compactText(activeVolume.summary)}`,
+          `Current volume:Volume ${activeVolume.sortOrder}"${activeVolume.title}"`,
+          `Volume summary:${compactText(activeVolume.summary)}`,
           `卷 open payoffs：${safeParseJson<string[]>(activeVolume.openPayoffsJson, []).join("；") || "无"}`,
           activeVolume.chapters.length > 0
-            ? `卷章节范围：${activeVolume.chapters[0]?.chapterOrder ?? "-"}-${activeVolume.chapters[activeVolume.chapters.length - 1]?.chapterOrder ?? "-"}`
-            : "卷章节范围：无",
+            ? `卷Chapter scope:${activeVolume.chapters[0]?.chapterOrder ?? "-"}-${activeVolume.chapters[activeVolume.chapters.length - 1]?.chapterOrder ?? "-"}`
+            : "卷Chapter scope:无",
         ].join("\n")
-      : `当前暂无激活卷窗口。${volumeRows.length > 0 ? `已有卷：${volumeRows.map((item) => `第${item.sortOrder}卷《${item.title}》`).join("；")}` : ""}`;
+      : `There is no active volume window.${volumeRows.length > 0 ? ` Existing volumes: ${volumeRows.map((item) => `Volume ${item.sortOrder} "${item.title}"`).join("; ")}` : ""}`;
 
     const latestChapterContext = [
-      typeof chapterOrder === "number" ? `当前章节序号：第${chapterOrder}章` : "当前章节序号：未知",
+      typeof chapterOrder === "number" ? `Current chapter number:Chapter ${chapterOrder}` : "Current chapter number:未知",
       snapshot?.sourceChapter
-        ? `最新状态快照来源：第${snapshot.sourceChapter.order}章《${snapshot.sourceChapter.title}》`
-        : "最新状态快照来源：无",
-      snapshot?.summary ? `状态快照摘要：${snapshot.summary}` : "",
+        ? `最新status snapshot来源：Chapter ${snapshot.sourceChapter.order}《${snapshot.sourceChapter.title}》`
+        : "最新status snapshot来源：无",
+      snapshot?.summary ? `status snapshot摘要：${snapshot.summary}` : "",
     ].filter(Boolean).join("\n");
 
     const openPayoffsText = volumeRows.length > 0
@@ -236,17 +236,17 @@ export class PayoffLedgerSyncService {
           if (openPayoffs.length === 0) {
             return "";
           }
-          return `【第${volume.sortOrder}卷 ${volume.title}】 ${openPayoffs.map((item) => compactText(item, "无")).join("；")}`;
-        }).filter(Boolean).join("\n\n") || "无"
-      : "无";
+          return `【Volume ${volume.sortOrder} ${volume.title}】 ${openPayoffs.map((item) => compactText(item, "无")).join("；")}`;
+        }).filter(Boolean).join("\n\n") || "None"
+      : "None";
 
     const chapterPayoffRefsText = volumeRows.flatMap((volume) => volume.chapters.map((chapter) => {
       const refs = safeParseJson<string[]>(chapter.payoffRefsJson, []);
       if (refs.length === 0) {
         return "";
       }
-      return `第${chapter.chapterOrder}章《${chapter.title}》 | ${refs.map((item) => compactText(item, "无")).join("；")}`;
-    })).filter(Boolean).join("\n\n") || "无";
+      return `Chapter ${chapter.chapterOrder}《${chapter.title}》 | ${refs.map((item) => compactText(item, "无")).join("；")}`;
+    })).filter(Boolean).join("\n\n") || "None";
 
     const foreshadowStatesText = snapshot?.foreshadowStates.length
       ? snapshot.foreshadowStates.map((item) => (
@@ -258,7 +258,7 @@ export class PayoffLedgerSyncService {
           item.payoffChapterId ? `payoffChapterId：${item.payoffChapterId}` : "",
         ].filter(Boolean).join(" | ")
       )).join("\n")
-      : "无";
+      : "None";
 
     const payoffConflictsText = openConflicts.length > 0
       ? openConflicts.map((row) => {
@@ -266,16 +266,16 @@ export class PayoffLedgerSyncService {
           return [
             `${conflict.conflictType}/${conflict.severity}：${conflict.title}`,
             compactText(conflict.summary),
-            conflict.resolutionHint ? `修复建议：${compactText(conflict.resolutionHint)}` : "",
+            conflict.resolutionHint ? `Repair suggestions:${compactText(conflict.resolutionHint)}` : "",
           ].filter(Boolean).join(" | ");
         }).join("\n")
-      : "无";
+      : "None";
 
     const payoffAuditIssuesText = recentAuditReports.length > 0
       ? recentAuditReports.flatMap((report) => report.issues.map((issue) => (
         `${issue.code} (${issue.severity})：${compactText(issue.description)} | 证据：${compactText(issue.evidence)}`
-      ))).join("\n") || "无"
-      : "无";
+      ))).join("\n") || "None"
+      : "None";
 
     return {
       chapterOrder,
@@ -485,7 +485,7 @@ export class PayoffLedgerSyncService {
               {
                 code: "source_superseded",
                 severity: "low",
-                summary: "Book Contract 阶段回报已修改或移除，这条旧承诺已退出当前执行义务。",
+                summary: "A Book Contract stage payoff was changed or removed, so this old promise is no longer an active obligation.",
                 stale: true,
               },
             ]);
@@ -494,7 +494,7 @@ export class PayoffLedgerSyncService {
               data: {
                 currentStatus: "failed",
                 riskSignalsJson: serializeLedgerJson(riskSignals),
-                statusReason: "Book Contract 来源已被新的阶段回报替换或移除。",
+                statusReason: "The Book Contract source was replaced or removed by a newer stage payoff.",
                 updatedAt: now,
               },
             });
@@ -509,7 +509,7 @@ export class PayoffLedgerSyncService {
           }
           const staleSignals = appendStaleRiskSignal(
             safeParseJson(row.riskSignalsJson, [] as Array<{ code: string; severity: "low" | "medium" | "high" | "critical"; summary: string; stale?: boolean }>),
-            "本轮 AI 对账没有再次命中这条伏笔，已保留旧账本并标记为 stale，等待下一次同步确认。",
+            "This AI ledger pass did not hit this payoff again. The old ledger was kept and marked stale until the next sync.",
           );
           await tx.payoffLedgerItem.update({
             where: { id: row.id },
@@ -531,7 +531,7 @@ export class PayoffLedgerSyncService {
           for (const row of existingRows) {
             const staleSignals = appendStaleRiskSignal(
               safeParseJson(row.riskSignalsJson, [] as Array<{ code: string; severity: "low" | "medium" | "high" | "critical"; summary: string; stale?: boolean }>),
-              "伏笔账本同步失败，已保留上次成功结果。",
+              "Foreshadowing-ledger sync failed. The last successful result was kept.",
             );
             await tx.payoffLedgerItem.update({
               where: { id: row.id },
@@ -560,7 +560,7 @@ export class PayoffLedgerSyncService {
       chapterId,
       auditType: "plot",
       overallScore: null,
-      summary: "系统根据伏笔账本补充了需要继续跟踪的兑现风险。",
+      summary: "The system added payoff risks from the foreshadowing ledger that still need tracking.",
       legacyScoreJson: null,
       issues: issues.map((issue) => ({
         id: `${reportId}:${issue.ledgerKey}:${issue.code}`,

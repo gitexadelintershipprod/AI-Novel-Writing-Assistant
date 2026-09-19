@@ -156,7 +156,7 @@ async function loadGenerationContext(params: {
   ]);
 
   if (!rawNovel) {
-    throw new Error("小说不存在。");
+    throw new Error("The novel does not exist.");
   }
 
   const novel: VolumeGenerationNovel = {
@@ -195,7 +195,7 @@ async function generateStrategy(params: {
     novelId: document.novelId,
     scope: "strategy",
     phase: "prompt",
-    label: "正在生成卷战略",
+    label: "Generating the volume strategy",
     options,
   });
   const generated = await runStructuredPrompt({
@@ -246,13 +246,13 @@ async function generateStrategyCritique(params: {
 }): Promise<VolumePlanDocument> {
   const { document, novel, workspace, storyMacroPlan, options } = params;
   if (!document.strategyPlan) {
-    throw new Error("请先生成卷战略建议。");
+    throw new Error("Please give me some strategic advice on how to make a volume.");
   }
   await notifyVolumeGenerationPhase({
     novelId: document.novelId,
     scope: "strategy_critique",
     phase: "prompt",
-    label: "正在评估卷战略",
+    label: "Evaluating the volume strategy",
     options,
   });
   const generated = await runStructuredPrompt({
@@ -296,10 +296,10 @@ async function generateSkeleton(params: {
 }): Promise<VolumePlanDocument> {
   const { document, novel, workspace, storyMacroPlan, options } = params;
   if (!document.strategyPlan) {
-    throw new Error("请先生成卷战略建议。");
+    throw new Error("Please give me some strategic advice on how to make a volume.");
   }
   if (document.critiqueReport?.overallRisk === "high") {
-    throw new Error("当前卷战略审查为高风险，请先重新生成或修订卷战略，再生成卷骨架。");
+    throw new Error("The current volume strategy is high-risk. Regenerate or revise it before building the skeleton.");
   }
   const chapterBudget = deriveChapterBudget({ novel, workspace, options });
   const volumeCountGuidance = buildVolumeCountGuidance({
@@ -314,7 +314,7 @@ async function generateSkeleton(params: {
     novelId: document.novelId,
     scope: "skeleton",
     phase: "prompt",
-    label: "正在生成卷骨架",
+    label: "Generating the volume skeleton",
     options,
   });
   const generated = await runStructuredPrompt({
@@ -372,7 +372,7 @@ async function generateRebalance(params: {
     novelId: document.novelId,
     scope: "rebalance",
     phase: "prompt",
-    label: `正在校准第 ${anchorVolume.sortOrder} 卷与相邻卷衔接`,
+    label: `Calibrating Volume ${anchorVolume.sortOrder} continuity with neighboring volumes`,
     options,
   });
   const generated = await runStructuredPrompt({
@@ -489,7 +489,7 @@ async function generateChapterDetail(params: {
   const targetChapter = getTargetChapter(targetVolume, options.targetChapterId);
   const detailMode = options.detailMode;
   if (!detailMode) {
-    throw new Error("生成章节细化时必须指定 detailMode。");
+    throw new Error("detailMode is required when generating chapter details.");
   }
 
   const promptInput = {
@@ -507,7 +507,7 @@ async function generateChapterDetail(params: {
     novelId: document.novelId,
     scope: "chapter_detail",
     phase: "prompt",
-    label: `正在细化第 ${targetVolume.sortOrder} 卷第 ${targetChapter.chapterOrder} 章 ${formatChapterDetailModeLabel(detailMode)}`,
+    label: `Detailing Volume ${targetVolume.sortOrder} chapter ${targetChapter.chapterOrder} ${formatChapterDetailModeLabel(detailMode)}`,
     options,
   });
   const generated = detailMode === "purpose"
@@ -597,16 +597,16 @@ export async function generateVolumePlanDocument(params: {
     scope,
     phase: "load_context",
     label: scope === "chapter_list"
-      ? "正在整理拆章上下文"
+      ? "Preparing chapter-split context"
       : scope === "beat_sheet"
-        ? "正在整理节奏板上下文"
+        ? "Preparing beat-sheet context"
         : scope === "skeleton"
-          ? "正在整理卷骨架上下文"
+          ? "Preparing volume-skeleton context"
           : scope === "strategy"
-            ? "正在整理卷战略上下文"
+            ? "Preparing volume-strategy context"
             : scope === "rebalance"
-              ? "正在整理相邻卷衔接上下文"
-              : "正在整理卷规划上下文",
+              ? "Preparing adjacent-volume handoff context"
+              : "Preparing volume-planning context",
     options,
   });
   const { novel, storyMacroPlan } = await loadGenerationContext({

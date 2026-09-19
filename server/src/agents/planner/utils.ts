@@ -254,7 +254,7 @@ export function extractNovelTitle(goal: string): string | null {
 
   const patterns = [
     /(?:创建|新建|建立)(?:一?本)?(?:小说|书)(?:作品)?(?:叫|名为|标题为)?[:：\s]*([^\n]+)$/u,
-    /(?:把|将)\s*(.+?)\s*(?:设为|切换到|绑定为|作为).*(?:当前工作区|当前小说|工作区)/u,
+    /(?:把|将)\s*(.+?)\s*(?:设为|切换到|绑定为|作为).*(?:当前工作区|current novel|工作区)/u,
     /(?:选择|切换到|打开|进入)(?:小说|工作区)?[:：\s]*([^\n]+)$/u,
   ];
   for (const pattern of patterns) {
@@ -332,13 +332,13 @@ export function normalizeIntentPayload(raw: unknown, input: PlannerInput): Recor
   }
   if (typeof payload.projectMode === "string" && payload.projectMode.trim()) {
     const projectModeValue = payload.projectMode.trim();
-    normalized.projectMode = projectModeValue === "AI 主导"
+    normalized.projectMode = projectModeValue === "AI-led"
       ? "ai_led"
-      : projectModeValue === "人机协作"
+      : projectModeValue === "Human-machine collaboration"
         ? "co_pilot"
-        : projectModeValue === "草稿优先"
+        : projectModeValue === "Draft first"
           ? "draft_mode"
-          : projectModeValue === "自动流水线"
+          : projectModeValue === "Automatic assembly line"
             ? "auto_pipeline"
             : projectModeValue;
   } else {
@@ -346,15 +346,15 @@ export function normalizeIntentPayload(raw: unknown, input: PlannerInput): Recor
   }
   if (typeof payload.pacePreference === "string" && payload.pacePreference.trim()) {
     const paceValue = payload.pacePreference.trim();
-    normalized.pacePreference = paceValue === "快节奏" ? "fast" : paceValue === "慢节奏" ? "slow" : paceValue === "均衡" ? "balanced" : paceValue;
+    normalized.pacePreference = paceValue === "fast paced" ? "fast" : paceValue === "slow pace" ? "slow" : paceValue === "equilibrium" ? "balanced" : paceValue;
   } else {
     delete normalized.pacePreference;
   }
   if (typeof payload.narrativePov === "string" && payload.narrativePov.trim()) {
     const povValue = payload.narrativePov.trim();
-    normalized.narrativePov = povValue === "第一人称"
+    normalized.narrativePov = povValue === "first person"
       ? "first_person"
-      : povValue === "第三人称"
+      : povValue === "third person"
         ? "third_person"
         : povValue === "混合"
           ? "mixed"
@@ -364,11 +364,11 @@ export function normalizeIntentPayload(raw: unknown, input: PlannerInput): Recor
   }
   if (typeof payload.emotionIntensity === "string" && payload.emotionIntensity.trim()) {
     const emotionValue = payload.emotionIntensity.trim();
-    normalized.emotionIntensity = emotionValue === "低" || emotionValue === "低情绪强度"
+    normalized.emotionIntensity = emotionValue === "low" || emotionValue === "Low emotion intensity"
       ? "low"
-      : emotionValue === "中" || emotionValue === "中等情绪强度"
+      : emotionValue === "in" || emotionValue === "Medium emotion intensity"
         ? "medium"
-        : emotionValue === "高" || emotionValue === "高情绪强度"
+        : emotionValue === "high" || emotionValue === "High emotion intensity"
           ? "high"
           : emotionValue;
   } else {
@@ -376,11 +376,11 @@ export function normalizeIntentPayload(raw: unknown, input: PlannerInput): Recor
   }
   if (typeof payload.aiFreedom === "string" && payload.aiFreedom.trim()) {
     const freedomValue = payload.aiFreedom.trim();
-    normalized.aiFreedom = freedomValue === "低" || freedomValue === "低 AI 自由度"
+    normalized.aiFreedom = freedomValue === "low" || freedomValue === "Low AI freedom"
       ? "low"
-      : freedomValue === "中" || freedomValue === "中 AI 自由度" || freedomValue === "中等 AI 自由度"
+      : freedomValue === "in" || freedomValue === "Medium AI freedom" || freedomValue === "中等 AI degrees of freedom"
         ? "medium"
-        : freedomValue === "高" || freedomValue === "高 AI 自由度"
+        : freedomValue === "high" || freedomValue === "High AI freedom"
           ? "high"
           : freedomValue;
   } else {

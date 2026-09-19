@@ -17,10 +17,10 @@ import {
 import NovelDirectorIssuePolicyCard from "../components/NovelDirectorIssuePolicyCard";
 
 const ACTION_LABELS: Record<DirectorIssueAction, string> = {
-  auto_retry: "自动重试",
-  continue_with_warning: "提醒后继续",
-  pause_for_manual: "暂停处理",
-  fail_task: "结束任务",
+  auto_retry: "Automatic retry",
+  continue_with_warning: "Continue after reminder",
+  pause_for_manual: "Pause processing",
+  fail_task: "end task",
 };
 
 export default function SimpleCreationIssueGovernancePanel(props: {
@@ -52,23 +52,23 @@ export default function SimpleCreationIssueGovernancePanel(props: {
             <ShieldAlert className="h-4 w-4" />
           </span>
           <div>
-            <div className="font-medium text-foreground">AI 问题处理</div>
-            <div className="mt-1 text-xs leading-5 text-muted-foreground">查看本书的问题处理动作，以及 AI 最近处理过的问题。</div>
+            <div className="font-medium text-foreground">AI problem solving</div>
+            <div className="mt-1 text-xs leading-5 text-muted-foreground">Check out the book's problem-solving actions, as well as recent problems AI has tackled.</div>
           </div>
         </div>
-        <Badge variant="outline">{issues.length} 条记录</Badge>
+        <Badge variant="outline">{issues.length} records</Badge>
       </summary>
 
       <div className="space-y-4 border-t border-border/60 px-5 py-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-            <span className="self-center">{policy?.source === "novel" ? `本书覆盖 ${overrideCount} 项` : "继承全局规则"}</span>
+            <span className="self-center">{policy?.source === "novel" ? `This book covers ${overrideCount} items` : "Inherit global rules"}</span>
           </div>
           <div className="flex flex-wrap gap-2">
             <Button size="sm" variant="outline" onClick={() => setManagementOpen(true)}>
-              <SlidersHorizontal className="h-4 w-4" /> 问题管理
+              <SlidersHorizontal className="h-4 w-4" /> problem management
             </Button>
-            <Button asChild size="sm" variant="outline"><Link to="/settings">全局规则</Link></Button>
+            <Button asChild size="sm" variant="outline"><Link to="/settings">global rules</Link></Button>
           </div>
         </div>
 
@@ -78,10 +78,10 @@ export default function SimpleCreationIssueGovernancePanel(props: {
               <div key={occurrence.fingerprint} className="rounded-xl border border-border/70 bg-muted/20 px-3 py-3 text-sm">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="font-medium text-foreground">{occurrence.summary}</span>
-                  <Badge variant="outline">风险分 {occurrence.riskScore ?? "待评估"}</Badge>
+                  <Badge variant="outline">Risk score {occurrence.riskScore ?? "To be evaluated"}</Badge>
                 </div>
                 <div className="mt-1 text-xs leading-5 text-muted-foreground">
-                  {occurrence.chapterOrder ? `第 ${occurrence.chapterOrder} 章 · ` : ""}{occurrence.issueCode}
+                  {occurrence.chapterOrder ? `Chapter ${occurrence.chapterOrder} · ` : ""}{occurrence.issueCode}
                   {decision ? ` · ${ACTION_LABELS[decision.action]}` : ""}
                 </div>
               </div>
@@ -89,7 +89,7 @@ export default function SimpleCreationIssueGovernancePanel(props: {
           </div>
         ) : (
           <div className="rounded-xl bg-muted/30 p-3 text-sm leading-6 text-muted-foreground">
-            AI 暂未记录需要关注的问题。普通章节质量项仍会由 AI 在后台继续处理。
+            The AI has not documented issues requiring concern yet. Normal chapter quality items will still continue to be processed by the AI ​​in the background.
           </div>
         )}
       </div>
@@ -97,8 +97,8 @@ export default function SimpleCreationIssueGovernancePanel(props: {
       <Dialog open={managementOpen} onOpenChange={setManagementOpen}>
         <DialogContent className="max-h-[85vh] max-w-3xl overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>本书问题管理</DialogTitle>
-            <DialogDescription>只保存这本书与全局规则不同的处理偏好，安全锁定项不能自动放行。</DialogDescription>
+            <DialogTitle>Book Problem Management</DialogTitle>
+            <DialogDescription>Only processing preferences that differ from global rules for this book are saved, and security locked items cannot be automatically released.</DialogDescription>
           </DialogHeader>
           <NovelDirectorIssuePolicyCard novelId={props.novelId} />
         </DialogContent>

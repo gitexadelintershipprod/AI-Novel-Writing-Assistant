@@ -46,7 +46,7 @@ test("constellation layout keeps long labels from covering each other", () => {
     })),
     ...Array.from({ length: 16 }, (_, index) => ({
       id: `foundation-${index + 1}`,
-      label: `故事类型${index + 1}`,
+      label: `story type${index + 1}`,
       kind: "foundation",
     })),
   ];

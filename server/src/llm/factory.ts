@@ -250,7 +250,7 @@ export async function resolveLLMClientOptions(
     ?? getProviderEnvApiKey(resolvedProvider);
 
   if (!apiKey && providerRequiresApiKey(resolvedProvider)) {
-    throw new Error(`未配置 ${providerName} 的 API Key。`);
+    throw new Error(`未配置 ${providerName} API Key.`);
   }
 
   const model = resolvedModel
@@ -258,7 +258,7 @@ export async function resolveLLMClientOptions(
     ?? getProviderEnvModel(resolvedProvider)
     ?? (isBuiltInProvider(resolvedProvider) ? PROVIDERS[resolvedProvider].defaultModel : undefined);
   if (!model) {
-    throw new Error(`未配置 ${providerName} 的默认模型。`);
+    throw new Error(`未配置 ${providerName} the default model.`);
   }
 
   const baseURL = resolveProviderBaseUrl(
@@ -267,7 +267,7 @@ export async function resolveLLMClientOptions(
     dbSecret?.baseURL,
   );
   if (!baseURL) {
-    throw new Error(`未配置 ${providerName} 的 API URL。`);
+    throw new Error(`未配置 ${providerName} API URL.`);
   }
 
   const temperature = resolveModelTemperature(resolvedProvider, model, resolvedTemperature);

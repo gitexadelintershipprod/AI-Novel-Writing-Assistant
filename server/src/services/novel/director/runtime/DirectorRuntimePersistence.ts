@@ -45,23 +45,23 @@ function sameJson(left: unknown, right: unknown): boolean {
 
 function artifactTypeLabel(type: DirectorArtifactType): string {
   const labels: Record<DirectorArtifactType, string> = {
-    book_contract: "书级创作约定",
-    story_macro: "故事宏观规划",
-    character_cast: "角色阵容",
-    volume_strategy: "分卷策略",
-    volume_beat_sheet: "卷节奏板",
-    volume_chapter_list: "卷拆章列表",
-    chapter_task_sheet: "章节任务单",
-    chapter_draft: "章节正文",
-    audit_report: "审校报告",
-    repair_ticket: "修复任务",
-    reader_promise: "读者承诺",
-    character_governance_state: "角色治理状态",
-    world_skeleton: "世界框架",
-    source_knowledge_pack: "续写资料包",
-    chapter_retention_contract: "章节留存约定",
-    continuity_state: "连续性状态",
-    rolling_window_review: "近期章节复盘",
+    book_contract: "Book contract",
+    story_macro: "Story planning",
+    character_cast: "Cast of characters",
+    volume_strategy: "Volume strategy",
+    volume_beat_sheet: "Volume beat sheet",
+    volume_chapter_list: "Volume chapter list",
+    chapter_task_sheet: "Chapter task sheet",
+    chapter_draft: "Chapter text",
+    audit_report: "Review report",
+    repair_ticket: "Repair task",
+    reader_promise: "Reader promise",
+    character_governance_state: "Character governance state",
+    world_skeleton: "World frame",
+    source_knowledge_pack: "Continuation knowledge pack",
+    chapter_retention_contract: "Chapter retention agreement",
+    continuity_state: "Continuity state",
+    rolling_window_review: "Recent-chapter review",
   };
   return labels[type];
 }
@@ -357,8 +357,8 @@ export function buildArtifactIndexedEvents(input: {
     artifactId: artifact.id,
     artifactType: artifact.artifactType,
     summary: input.stale
-      ? `${artifactTypeLabel(artifact.artifactType)}需要重新确认。`
-      : `${artifactTypeLabel(artifact.artifactType)}已纳入自动导演记录。`,
+      ? `${artifactTypeLabel(artifact.artifactType)} needs confirmation again.`
+      : `${artifactTypeLabel(artifact.artifactType)} has been recorded by Auto-Director.`,
     affectedScope: `${artifact.targetType}:${artifact.targetId ?? artifact.novelId}`,
     severity: input.stale ? "medium" : "low",
     occurredAt: input.occurredAt,

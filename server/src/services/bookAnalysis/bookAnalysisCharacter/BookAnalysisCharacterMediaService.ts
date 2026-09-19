@@ -40,7 +40,7 @@ export interface BookAnalysisCharacterAppearanceImageGenerateInput {
   overrides?: BookAnalysisCharacterImageOverrides;
 }
 
-const DEFAULT_NEGATIVE_PROMPT = "低清晰度，畸形，多余肢体，文字水印";
+const DEFAULT_NEGATIVE_PROMPT = "Low definition, deformity, extra limbs, text watermark";
 
 function parseProfile(profileJson: string | null): CharacterProfile {
   if (!profileJson?.trim()) {
@@ -78,9 +78,9 @@ function buildSourcePrompt(row: { name: string; role: string; profileJson: strin
   const scene = profile.highlightScenes?.[0];
   return compact([
     prompt,
-    profile.outerGoal ? `外在目标：${profile.outerGoal}` : "",
-    profile.innerNeed ? `内在需求：${profile.innerNeed}` : "",
-    scene ? `代表性高光场景：${scene.sceneLabel}，${scene.performance}` : "",
+    profile.outerGoal ? `External goals:${profile.outerGoal}` : "",
+    profile.innerNeed ? `Inner need：${profile.innerNeed}` : "",
+    scene ? `代表性Highlight scenes：${scene.sceneLabel}，${scene.performance}` : "",
   ]).replace(/；/g, "\n");
 }
 
@@ -93,12 +93,12 @@ function buildBaseCharacterData(row: { id: string; name: string; role: string; p
     role,
     personality: compact([profile.personality, profile.values, profile.speakingStyle]) || "待补充性格。",
     background: compact([
-      profile.outerGoal ? `外在目标：${profile.outerGoal}` : "",
-      profile.innerNeed ? `内在需求：${profile.innerNeed}` : "",
+      profile.outerGoal ? `External goals:${profile.outerGoal}` : "",
+      profile.innerNeed ? `Inner need：${profile.innerNeed}` : "",
       profile.wound ? `创伤：${profile.wound}` : "",
-      profile.misbelief ? `错误信念：${profile.misbelief}` : "",
-    ]) || "来源于拆书角色档案，背景待补充。",
-    development: compact([...(profile.arcStages ?? []), profile.growthTrajectory]) || "待补充成长轨迹。",
+      profile.misbelief ? `False belief:${profile.misbelief}` : "",
+    ]) || "来源于Open book character files，背景待补充。",
+    development: compact([...(profile.arcStages ?? []), profile.growthTrajectory]) || "待补充Growth path。",
     appearance: compact([
       profile.appearance,
       profile.physique,
@@ -165,7 +165,7 @@ function buildAppearanceSnapshotPrompt(input: {
   return [
     `角色：${profile.name || input.character.name}`,
     `定位：${profile.role || input.character.role}`,
-    `章节：第 ${input.snapshot.chapterIndex} 章${input.snapshot.chapterTitle ? `《${input.snapshot.chapterTitle}》` : ""}`,
+    `Chapter: Chapter ${input.snapshot.chapterIndex}s${input.snapshot.chapterTitle ? `《${input.snapshot.chapterTitle}》` : ""}`,
     input.snapshot.summaryCaption ? `本章形象概括：${input.snapshot.summaryCaption}` : "",
     renderJsonBlock("稳定外观特征", stableAppearance),
     renderJsonBlock("本章外貌、服装、状态与配饰", chapterAppearance),
@@ -173,7 +173,7 @@ function buildAppearanceSnapshotPrompt(input: {
     compact([profile.personality, profile.values, profile.speakingStyle])
       ? `气质参考：${compact([profile.personality, profile.values, profile.speakingStyle])}`
       : "",
-    "生成要求：保留稳定特征，突出本章服装、状态和情绪；输出可作为同一角色不同章节形象演变图；避免文字、水印和多余人物。",
+    "Generation rules: keep stable traits and highlight this chapter's costume, state, and emotion. The result should work as the same character's look evolving across chapters. Avoid text, watermarks, and extra people.",
   ].filter(Boolean).join("\n");
 }
 
@@ -184,7 +184,7 @@ function appendReferenceInstruction(prompt: string, referenceCount: number): str
   return [
     prompt,
     "",
-    "基础形象参考：本次会附带用户选中的角色基础形象图。请保持同一人物的脸型、发型、体态、标志性细节和整体辨识度，只改变本章场景、服装状态、姿态和情绪表现。",
+    "Base-look reference: this request includes the selected character base image. Keep the same face, hair, body, signature details, and recognizability. Change only this chapter's scene, costume state, pose, and emotion.",
   ].join("\n");
 }
 
@@ -216,7 +216,7 @@ export class BookAnalysisCharacterMediaService {
     const character = await this.loadGeneratedCharacter(analysisId, characterId);
     return {
       kind: "book_analysis_character",
-      title: `${character.name} 的角色形象图`,
+        title: `${character.name} character image`,
       prompt: buildSourcePrompt(character),
       negativePrompt: DEFAULT_NEGATIVE_PROMPT,
       referenceImages: [],
@@ -244,7 +244,7 @@ export class BookAnalysisCharacterMediaService {
       prompt,
       promptMode: input.overrides?.promptOverride?.trim() ? "direct" : "character_chain",
       negativePrompt: input.overrides?.negativePromptOverride?.trim() || DEFAULT_NEGATIVE_PROMPT,
-      stylePreset: input.stylePreset?.trim() || "写实角色设定图",
+      stylePreset: input.stylePreset?.trim() || "Realistic character setting diagram",
       provider: (input.overrides?.providerOverride as LLMProvider | undefined) ?? input.provider,
       size: input.overrides?.sizeOverride ?? "1024x1024",
       count: input.count ?? 1,
@@ -265,7 +265,7 @@ export class BookAnalysisCharacterMediaService {
     );
     return {
       kind: "book_analysis_character_appearance_snapshot",
-      title: `${snapshot.character.name} 第 ${snapshot.chapterIndex} 章形象图`,
+        title: `${snapshot.character.name} chapter ${snapshot.chapterIndex} image`,
       prompt: appendReferenceInstruction(buildAppearanceSnapshotPrompt({
         character: snapshot.character,
         snapshot,
@@ -274,7 +274,7 @@ export class BookAnalysisCharacterMediaService {
       negativePrompt: DEFAULT_NEGATIVE_PROMPT,
       referenceImages: referenceImages.map((asset) => ({
         kind: "book_analysis_character_base",
-        label: `${snapshot.character.name} · 基础形象${asset.isPrimary ? "（主图）" : ""}`,
+        label: `${snapshot.character.name} · basic image${asset.isPrimary ? " (primary)" : ""}`,
         url: buildImageAssetPublicUrl(asset.id),
         assetId: asset.id,
       })),
@@ -309,7 +309,7 @@ export class BookAnalysisCharacterMediaService {
       prompt,
       promptMode: "direct",
       negativePrompt: input.overrides?.negativePromptOverride?.trim() || DEFAULT_NEGATIVE_PROMPT,
-      stylePreset: input.stylePreset?.trim() || "同一角色章节形象演变图",
+      stylePreset: input.stylePreset?.trim() || "Image evolution chart of the same character in chapters",
       provider: (input.overrides?.providerOverride as LLMProvider | undefined) ?? input.provider,
       size: input.overrides?.sizeOverride ?? "1024x1024",
       count,
@@ -322,7 +322,7 @@ export class BookAnalysisCharacterMediaService {
         imagePromptJson: JSON.stringify({
           prompt,
           negativePrompt: input.overrides?.negativePromptOverride?.trim() || DEFAULT_NEGATIVE_PROMPT,
-          stylePreset: input.stylePreset?.trim() || "同一角色章节形象演变图",
+          stylePreset: input.stylePreset?.trim() || "Image evolution chart of the same character in chapters",
           provider: (input.overrides?.providerOverride as LLMProvider | undefined) ?? input.provider ?? "openai",
           size: input.overrides?.sizeOverride ?? "1024x1024",
           source: "appearance_snapshot",
@@ -361,7 +361,7 @@ export class BookAnalysisCharacterMediaService {
     });
     await characterLibrarySyncService.createBaseRevision(
       baseCharacter.id,
-      "从拆书角色档案加入角色库。",
+      "从Open book character filesAdd to character library。",
       "from_book_analysis_character",
       character.id,
     );

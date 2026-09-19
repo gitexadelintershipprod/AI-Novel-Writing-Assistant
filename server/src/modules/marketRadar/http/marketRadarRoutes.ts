@@ -54,7 +54,7 @@ router.get("/latest", async (_req, res, next) => {
 router.post("/scans", validate({ body: scanSchema }), async (req, res, next) => {
   try {
     const run = await marketRadarService.startScan(req.body.platforms);
-    res.status(run.status === "queued" || run.status === "running" ? 202 : 200).json(ok(run, "扫榜任务已准备。"));
+    res.status(run.status === "queued" || run.status === "running" ? 202 : 200).json(ok(run, "The ranking-scan task is ready."));
   } catch (error) { next(error); }
 });
 
@@ -62,7 +62,7 @@ router.get("/scans/:id", validate({ params: idParamsSchema }), async (req, res, 
   try {
     const { id } = req.params as z.infer<typeof idParamsSchema>;
     const run = await marketRadarService.getScan(id);
-    if (!run) { res.status(404).json({ success: false, error: "扫榜任务不存在。" }); return; }
+    if (!run) { res.status(404).json({ success: false, error: "The ranking-scan task does not exist." }); return; }
     res.json(ok(run));
   } catch (error) { next(error); }
 });
@@ -71,7 +71,7 @@ router.post("/scans/:id/analysis", validate({ params: idParamsSchema, body: anal
   try {
     const { id } = req.params as z.infer<typeof idParamsSchema>;
     const run = await marketRadarService.startAnalysis(id, req.body as StartMarketRadarAnalysisRequest);
-    res.status(run.report ? 200 : 202).json(ok(run, run.report ? "AI分析已完成。" : "AI分析已开始。"));
+    res.status(run.report ? 200 : 202).json(ok(run, run.report ? "AI analysis is complete." : "AI analysis has started."));
   } catch (error) { next(error); }
 });
 
@@ -84,7 +84,7 @@ router.post("/reports/:id/foundation-sync", validate({ params: idParamsSchema, b
   try {
     const { id } = req.params as z.infer<typeof idParamsSchema>;
     const { target } = req.body as z.infer<typeof foundationSyncSchema>;
-    res.json(ok(await marketRadarService.syncReportFoundation(id, target), "资源库处理完成。"));
+    res.json(ok(await marketRadarService.syncReportFoundation(id, target), "Resource-library processing is complete."));
   } catch (error) { next(error); }
 });
 
@@ -92,7 +92,7 @@ router.get("/briefs/:id", validate({ params: idParamsSchema }), async (req, res,
   try {
     const { id } = req.params as z.infer<typeof idParamsSchema>;
     const brief = await marketRadarService.getBrief(id);
-    if (!brief) { res.status(404).json({ success: false, error: "市场创作简报不存在。" }); return; }
+    if (!brief) { res.status(404).json({ success: false, error: "The market creative brief does not exist." }); return; }
     res.json(ok(brief));
   } catch (error) { next(error); }
 });

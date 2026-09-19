@@ -126,8 +126,8 @@ export function hasContinuableChapterQualityLoopRiskFlags(riskFlags: string | nu
 }
 
 /**
- * 标识必须先调整章节窗口的结构性问题。该判断只消费已落库的结构化质量闭环结果，
- * 供任务投影与阅读入口区分“待优化”与“等待重规划”。
+ * 标识必须先调整章节窗口的结构性问题。该判断只消费已落库的结构化Quality closed loop结果，
+ * 供任务投影与阅读入口区分“待优化”与“Waiting for re-planning”。
  */
 export function hasChapterQualityLoopReplanRequiredRiskFlags(riskFlags: string | null | undefined): boolean {
   const qualityLoop = parseRiskFlagsObject(riskFlags)?.qualityLoop;
@@ -293,8 +293,8 @@ function buildRetentionSignal(input: ChapterQualityLoopAssessmentInput): Chapter
     artifactType: "chapter_retention_contract",
     status,
     reason: status === "valid"
-      ? "章节留存信号满足继续推进要求。"
-      : "章节留存信号不足，需要优先用局部补丁修复推进目标、读者期待或结尾拉力。",
+      ? "The chapter retention signal meets the requirements for continued advancement."
+      : "The chapter retention signal is insufficient, and local patches need to be used first to repair the advancement goals, readers' expectations, or the pull of the ending.",
     issueCodes: retentionIssues.map(issueCode).slice(0, 6),
   };
 }
@@ -326,8 +326,8 @@ function buildContinuitySignal(input: ChapterQualityLoopAssessmentInput): Chapte
     artifactType: "continuity_state",
     status,
     reason: status === "valid"
-      ? "章节连续性状态可以继续使用。"
-      : "章节连续性或人物状态存在风险，需要局部修复后重新评估。",
+      ? "Chapter continuity status can continue to be used."
+      : "Chapter continuity or character status are at risk and need to be re-evaluated after partial repairs.",
     issueCodes: [
       ...continuityIssues.map(issueCode),
       ...runtimeContinuityIssues.map((issue) => issue.code),
@@ -343,7 +343,7 @@ function buildProseQualitySignal(input: ChapterQualityLoopAssessmentInput): Chap
     return {
       artifactType: "prose_quality",
       status: "valid",
-      reason: "正文自然度/退化检测未发现需要处理的问题。",
+      reason: "Text naturalness/degradation detection found no issues that need to be addressed.",
       issueCodes: [],
     };
   }
@@ -360,8 +360,8 @@ function buildProseQualitySignal(input: ChapterQualityLoopAssessmentInput): Chap
     artifactType: "prose_quality",
     status,
     reason: status === "valid"
-      ? "正文存在自然度或节奏提示，可作为后续局部优化参考。"
-      : "正文存在明显 AI 句式、退化或工程词泄漏，需要优先做本章局部修复。",
+      ? "There are naturalness or rhythm hints in the text, which can be used as a reference for subsequent local optimization."
+      : "There are obvious AI sentence patterns, degradation or leakage of engineering words in the text, and local repairs in this chapter need to be prioritized.",
     issueCodes: proseIssues.map((issue) => issue.code).slice(0, 8),
   };
 }
@@ -389,8 +389,8 @@ function buildRollingWindowSignal(input: ChapterQualityLoopAssessmentInput): Cha
     artifactType: "rolling_window_review",
     status,
     reason: status === "valid"
-      ? "近期章节复盘未发现必须打断后续批次的问题。"
-      : "近期章节复盘存在质量风险，需要修复后再继续扩大范围。",
+      ? "A recent chapter review found no issues that would require interruption of subsequent batches."
+      : "There are quality risks in the recent chapter review, and they need to be repaired before continuing to expand the scope.",
     issueCodes: blockingReportIssues.map((issue) => issue.code).slice(0, 8),
   };
 }
@@ -435,7 +435,7 @@ export function buildChapterQualityLoopAssessment(
     patchFirstRequired: budget?.nextAction === "patch_repair" || effectiveAction === "patch_repair",
     recheckRequired: effectiveAction !== "continue",
     pauseReason: effectiveAction === "manual_gate"
-      ? "章节质量存在不可自动放行的问题，需要确认修复边界。"
+      ? "There is a problem with chapter quality that cannot be automatically released, and the repair boundaries need to be confirmed."
       : null,
     rootCauseCode: input.runtimePackage?.failureClassification.code ?? null,
     blockingObligations: input.runtimePackage?.failureClassification.blockingObligations ?? [],

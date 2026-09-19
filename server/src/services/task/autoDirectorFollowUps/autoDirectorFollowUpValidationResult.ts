@@ -82,7 +82,7 @@ function normalizeRequiredAction(value: unknown): AutoDirectorValidationRequired
     code,
     label: typeof value.label === "string" && value.label.trim()
       ? value.label.trim()
-      : "重新校验任务状态",
+      : "Recheck the task status",
     riskLevel,
     safeToAutoFix: value.safeToAutoFix === true,
   };
@@ -94,7 +94,7 @@ function normalizeValidationResult(value: unknown): AutoDirectorValidationResult
   }
   const affectedScope = normalizeAffectedScope(value.affectedScope) ?? {
     type: "book",
-    label: "当前任务范围",
+    label: "Current task range",
   };
   return {
     allowed: false,

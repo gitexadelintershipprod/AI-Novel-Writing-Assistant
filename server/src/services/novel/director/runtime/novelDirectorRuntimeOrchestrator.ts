@@ -222,7 +222,7 @@ export class NovelDirectorRuntimeOrchestrator {
       return result.output?.output as T;
     }
 
-    const reason = result.reason ?? "当前自动导演策略需要确认后继续。";
+    const reason = result.reason ?? "The current Auto-Director strategy needs confirmation before continuing.";
     if (input.waitingState) {
       await this.deps.workflowService.markTaskWaitingApproval(input.taskId, {
         stage: input.waitingState.stage,
@@ -315,7 +315,7 @@ export class NovelDirectorRuntimeOrchestrator {
     const readiness = await input.module.inspectReadiness(context);
     if (!readiness.ready) {
       const blocker = readiness.blockers[0] ?? null;
-      const reason = blocker?.reason || input.module.defaultWaitingState?.itemLabel || "当前导演步骤需要补齐上游条件。";
+      const reason = blocker?.reason || input.module.defaultWaitingState?.itemLabel || "This director step needs earlier conditions filled in first.";
       if (input.module.defaultWaitingState) {
         await this.deps.workflowService.markTaskWaitingApproval(input.taskId, {
           stage: input.module.defaultWaitingState.stage,
@@ -390,7 +390,7 @@ export class NovelDirectorRuntimeOrchestrator {
             ? await input.module.acceptablePauseCriteria(output, context)
             : false;
           if (!acceptablePause) {
-            throw new Error(`${input.module.id} 未满足其完成标准。`);
+            throw new Error(`${input.module.id} has not met its completion criteria.`);
           }
         }
         const commit = input.module.commit
@@ -429,7 +429,7 @@ export class NovelDirectorRuntimeOrchestrator {
     ));
     const [entryAdapter, ...projectionAdapters] = nodeSequence;
     if (!entryAdapter) {
-      throw new Error("章节执行节点序列为空，无法继续自动导演运行。");
+      throw new Error("The chapter-execution node sequence is empty, so Auto-Director cannot continue.");
     }
     await this.runStepModule({
       module: entryAdapter,

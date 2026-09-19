@@ -14,7 +14,7 @@ export function resolveAutoExecutionScopeLabel(task: UnifiedTaskDetail | null): 
     return scopeLabel;
   }
   const fallbackCount = Math.max(1, Math.round(seedPayload?.autoExecution?.totalChapterCount ?? 10));
-  return `第 1-${fallbackCount} 章`;
+  return `Chapters 1–${fallbackCount}`;
 }
 
 export function formatTakeoverCheckpoint(
@@ -22,27 +22,27 @@ export function formatTakeoverCheckpoint(
   task: UnifiedTaskDetail | null,
 ): string {
   if (checkpoint === "candidate_selection_required") {
-    return "等待确认书级方向";
+    return "Waiting to confirm the book direction";
   }
   if (checkpoint === "book_contract_ready") {
-    return "Book Contract 待确认";
+    return "Book Contract to be confirmed";
   }
   if (checkpoint === "character_setup_required") {
-    return "角色准备待审核";
+    return "Role preparation pending review";
   }
   if (checkpoint === "volume_strategy_ready") {
-    return "卷战略 / 卷骨架待审核";
+    return "Volume Strategy/Volume Skeleton Pending Review";
   }
   if (checkpoint === "chapter_batch_ready") {
-    return `${resolveAutoExecutionScopeLabel(task)}自动执行已暂停`;
+    return `${resolveAutoExecutionScopeLabel(task)}Auto-run is paused`;
   }
   if (checkpoint === "replan_required") {
-    return "等待处理重规划建议";
+    return "Pending processing of re-planning suggestions";
   }
   if (checkpoint === "workflow_completed") {
-    return "主流程已完成";
+    return "The main process has been completed";
   }
-  return "导演流程进行中";
+  return "Director process in progress";
 }
 
 export function buildTakeoverTitle(input: {
@@ -55,35 +55,35 @@ export function buildTakeoverTitle(input: {
     input.mode === "running"
     && input.checkpointType === "chapter_batch_ready"
   ) {
-    return `《${input.novelTitle}》正在自动执行${input.scopeLabel}`;
+    return `"${input.novelTitle}" is running ${input.scopeLabel} automatically`;
   }
   if (input.mode === "waiting" || input.mode === "action_required") {
     if (input.checkpointType === "candidate_selection_required") {
-      return `《${input.novelTitle}》等待确认书级方向`;
+      return `"${input.novelTitle}" is waiting for you to confirm the book direction`;
     }
     if (input.checkpointType === "character_setup_required") {
-      return `《${input.novelTitle}》等待审核角色准备`;
+      return `"${input.novelTitle}" is waiting for character setup review`;
     }
     if (input.checkpointType === "volume_strategy_ready") {
-      return `《${input.novelTitle}》等待审核卷战略 / 卷骨架`;
+      return `"${input.novelTitle}" is waiting for volume strategy review`;
     }
     if (input.checkpointType === "workflow_completed") {
-      return `《${input.novelTitle}》本轮自动导演已完成`;
+      return `"${input.novelTitle}" finished this Auto-Director round`;
     }
     if (input.checkpointType === "replan_required") {
-      return `《${input.novelTitle}》需要处理重规划`;
+      return `"${input.novelTitle}" needs a replan before continuing`;
     }
   }
   if (input.mode === "failed") {
     if (input.checkpointType === "chapter_batch_ready") {
-      return `《${input.novelTitle}》${input.scopeLabel}自动执行已暂停`;
+      return `"${input.novelTitle}" ${input.scopeLabel} auto-run is paused`;
     }
-    return `《${input.novelTitle}》自动导演已中断`;
+    return `"${input.novelTitle}" Auto-Director was interrupted`;
   }
   if (input.mode === "loading") {
-    return `《${input.novelTitle}》自动导演状态同步中`;
+    return `"${input.novelTitle}" Auto-Director status is syncing`;
   }
-  return `《${input.novelTitle}》正在自动导演`;
+  return `"${input.novelTitle}" is directing automatically`;
 }
 
 export function buildTakeoverDescription(input: {
@@ -96,48 +96,48 @@ export function buildTakeoverDescription(input: {
     input.mode === "running"
     && input.checkpointType === "chapter_batch_ready"
   ) {
-    return `AI 正在后台自动执行${input.scopeLabel}，并会继续完成审核与修复。你仍可继续手动查看和编辑；如果同时修改当前章节，后续自动结果可能覆盖这部分内容。`;
+    return `AI is executing automatically in the background${input.scopeLabel}, and will continue to complete the review and repair. You can still continue to view and edit manually; if you modify the current chapter at the same time, subsequent automatic results may overwrite this part of the content.`;
   }
   if (input.mode === "waiting" || input.mode === "action_required") {
     if (input.checkpointType === "candidate_selection_required") {
-      return "书级方向候选已经生成。请先回到书级方向确认页选定或修正方案，自动导演才能继续推进后续主链。";
+      return "Book-level direction candidates have been generated. Please return to the book-level direction confirmation page to select or modify the plan before the automatic director can continue to advance the subsequent main chain.";
     }
     if (input.checkpointType === "character_setup_required") {
-      return "角色准备已经生成。你可以先检查核心角色、关系和当前目标，确认后再继续自动导演。";
+      return "Character preparation has been generated. You can check the core characters, relationships, and current goals first and confirm them before continuing with autodirecting.";
     }
     if (input.checkpointType === "volume_strategy_ready") {
-      return "当前可以审核并微调卷战略 / 卷骨架。确认后再继续自动生成节奏板、拆章和已选章节批次的细化资源。";
+      return "Volume strategy/volume skeleton can currently be reviewed and fine-tuned. After confirmation, continue to automatically generate detailed resources for rhythm boards, split chapters, and selected chapter batches.";
     }
     if (input.checkpointType === "workflow_completed") {
-      return `自动导演已经完成${input.scopeLabel}的章节执行、审核与修复。你可以直接进入章节执行继续写作，也可以完成并退出导演模式。`;
+      return `Auto-Director finished ${input.scopeLabel} writing, review, and repair. You can keep writing in chapter production, or finish and leave director mode.`;
     }
     if (input.checkpointType === "replan_required") {
-      return "AI 判断当前章节与相邻章节的安排需要调整。继续后会保留已有正文，先重规划附近章节，再从未生成的章节接着创作。";
+      return "The AI determines that the arrangement of the current chapter and adjacent chapters needs to be adjusted. After continuing, the existing text will be retained, and nearby chapters will be re-planned first, and then the ungenerated chapters will be continued.";
     }
     if (input.reviewScope) {
-      return "自动导演已到达审核点。请先检查当前阶段产物，再决定是否继续推进。";
+      return "AutoDirector has reached the review point. Please check the current stage of the product first before deciding whether to proceed.";
     }
   }
   if (input.mode === "failed") {
     if (input.checkpointType === "chapter_batch_ready") {
-      return `${input.scopeLabel}自动执行已暂停。可以先查看执行详情或质量修复区，再决定是否继续自动执行。`;
+      return `${input.scopeLabel}Automated execution is paused. You can first view the execution details or quality repair area before deciding whether to continue automatic execution.`;
     }
-    return "后台导演流程已中断。可以先查看执行详情，再决定是否从最近进度点恢复。";
+    return "The backend director process has been interrupted. You can check the execution details before deciding whether to resume from the latest progress point.";
   }
   if (input.mode === "loading") {
-    return "正在同步当前自动导演状态。";
+    return "Synchronizing the current automatic director status.";
   }
-  return "AI 正在后台接管这本书的开书流程。你可以继续手动操作当前项目；如果与自动导演同时改同一块内容，以最新写入结果为准。";
+  return "AI is taking over the book opening process in the background. You can continue to manually operate the current project; if the same piece of content is modified at the same time as the automatic director, the latest writing result shall prevail.";
 }
 
 export function buildContinueAutoExecutionActionLabel(scopeLabel: string, isPending: boolean): string {
-  return isPending ? "继续执行中..." : `继续自动执行${scopeLabel}`;
+  return isPending ? "Continue to execute..." : `Continue automatic execution${scopeLabel}`;
 }
 
 export function buildReplanAndContinueActionLabel(isPending: boolean): string {
-  return isPending ? "正在重规划..." : "重规划后继续";
+  return isPending ? "Re-planning..." : "Continue after re-planning";
 }
 
 export function buildContinueAutoExecutionToast(scopeLabel: string): string {
-  return `自动导演已继续执行${scopeLabel}，并会在后台自动审核与修复。`;
+  return `Autodirector has continued execution${scopeLabel}, and it will be automatically reviewed and repaired in the background.`;
 }

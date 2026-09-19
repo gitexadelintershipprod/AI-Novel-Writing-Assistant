@@ -164,12 +164,12 @@ export default function CharacterLibrary() {
     <div className="space-y-5">
       <AssetLibraryHeader
         icon={UsersRound}
-        context="跨小说复用资产"
-        title="基础角色库"
-        description="把常用角色原型、核心动机和形象资料沉淀为可复用资产。创建小说或完善人物时，可以让 AI 直接读取这些角色基础。"
+        context="Reuse assets across novels"
+        title="Basic character library"
+        description="Precipitate common character prototypes, core motivations and image data into reusable assets. When creating a novel or refining a character, you can have the AI ​​read directly into these character bases."
         actions={(
           <>
-            <OpenInCreativeHubButton bindings={{}} label="带着角色库继续创作" />
+            <OpenInCreativeHubButton bindings={{}} label="Keep creating with your character library" />
             <CharacterCreateDialog />
           </>
         )}
@@ -179,15 +179,15 @@ export default function CharacterLibrary() {
         items={[
           {
             key: "characters",
-            label: "可复用角色",
+            label: "Reusable roles",
             value: characterListQuery.isPending || characterListQuery.isError ? "—" : characters.length,
             detail: characterListQuery.isPending
-              ? "正在读取角色资产"
+              ? "Reading character assets"
               : characterListQuery.isError
-                ? "重新加载后查看"
+                ? "View after reloading"
                 : characters.length > 0
-                  ? "可在小说筹备和角色补充时继续使用"
-                  : "创建后即可用于新小说",
+                  ? "Can continue to be used during novel preparation and character additions"
+                  : "Once created, it can be used in new novels",
             icon: LibraryBig,
             tone: characterListQuery.isPending || characterListQuery.isError
               ? "neutral"
@@ -195,16 +195,16 @@ export default function CharacterLibrary() {
           },
           {
             key: "categories",
-            label: "角色类型",
+            label: "role type",
             value: characterListQuery.isPending || characterListQuery.isError ? "—" : categoryCount,
-            detail: "按主角、配角等角色定位整理",
+            detail: "Organized by role positioning such as protagonists, supporting roles, etc.",
             icon: UsersRound,
           },
           {
             key: "images",
-            label: "已有形象资料",
+            label: "Already have profile information",
             value: characterListQuery.isPending || characterListQuery.isError ? "—" : characterWithImageCount,
-            detail: "至少保存一张角色形象图",
+            detail: "Save at least one character image",
             icon: ImageIcon,
             tone: characterListQuery.isPending || characterListQuery.isError
               ? "neutral"
@@ -212,9 +212,9 @@ export default function CharacterLibrary() {
           },
           {
             key: "incomplete",
-            label: "待补核心资料",
+            label: "Core information to be supplemented",
             value: characterListQuery.isPending || characterListQuery.isError ? "—" : incompleteCharacterCount,
-            detail: "缺少性格、背景或成长轨迹",
+            detail: "Lack of character, background or growth trajectory",
             icon: CircleAlert,
             tone: characterListQuery.isPending || characterListQuery.isError
               ? "neutral"
@@ -228,23 +228,23 @@ export default function CharacterLibrary() {
       <AssetLibraryRecommendation
         icon={Sparkles}
         title={characterListQuery.isPending
-          ? "正在整理角色资产"
+          ? "Arranging character assets"
           : characterListQuery.isError
-            ? "先重新加载角色库"
+            ? "Reload the character library first"
             : characters.length === 0
-              ? "先建立第一个可复用角色"
+              ? "First create the first reusable role"
               : incompleteCharacterCount > 0
-                ? "优先补齐角色为什么行动、会付出什么代价"
-                : "角色基础可用于小说筹备"}
+                ? "Prioritize the completion of why the character acts and what price he will pay."
+                : "Character foundation can be used in novel preparation"}
         description={characterListQuery.isPending
-          ? "读取完成后会根据角色完整度推荐下一步。"
+          ? "After the reading is completed, the next step will be recommended based on the completeness of the character."
           : characterListQuery.isError
-            ? "现有角色不会受到影响，重新加载后即可继续管理。"
+            ? "Existing roles will not be affected and can be managed after reloading."
             : characters.length === 0
-              ? "从一个主角开始即可。先写清目标、弱点和成长方向，AI 会更容易生成有推动力的人物。"
+              ? "Just start with a protagonist. By writing down your goals, weaknesses, and growth directions first, it will be easier for the AI ​​to generate driving characters."
               : incompleteCharacterCount > 0
                 ? `${incompleteCharacterCount} characters are missing core details. Filling those in gives chapter planning and character dialogue a more reliable foundation.`
-                : "你可以带着整个角色库进入创作中枢，或为单个角色继续完善形象和对话。"}
+                : "You can bring your entire character library into the Creative Hub, or continue to refine the look and dialogue of a single character."}
         tone={characterListQuery.isError
           ? "danger"
           : characterListQuery.isPending || characters.length === 0
@@ -254,7 +254,7 @@ export default function CharacterLibrary() {
               : "success"}
         action={characterListQuery.isError ? (
           <Button type="button" size="sm" variant="outline" onClick={() => void characterListQuery.refetch()}>
-            重新加载
+            reload
           </Button>
         ) : undefined}
       />
@@ -303,26 +303,26 @@ export default function CharacterLibrary() {
       ) : null}
 
       <AssetLibrarySection
-        title="角色资产"
-        description="先维护能影响剧情选择的核心信息；形象图和扩展资料可以在需要时继续补充。"
+        title="character assets"
+        description="Maintain the core information that can influence plot choices first; image diagrams and expansion materials can be added as needed."
       >
         <div className="space-y-3">
           {characterListQuery.isLoading ? (
             <AssetLibraryEmptyState
               icon={UsersRound}
-              title="正在整理角色资产"
-              description="角色列表与形象资料加载完成后会显示在这里。"
+              title="Arranging character assets"
+              description="The character list and image information will be displayed here after loading."
             />
           ) : null}
 
           {characterListQuery.isError ? (
             <AssetLibraryEmptyState
               icon={CircleAlert}
-              title="角色库暂时无法加载"
-              description="现有角色不会受到影响。可以重新加载列表后继续。"
+              title="The character library cannot be loaded temporarily."
+              description="Existing characters will not be affected. You can reload the list and continue."
               action={(
                 <Button type="button" variant="outline" onClick={() => void characterListQuery.refetch()}>
-                  重新加载
+                  reload
                 </Button>
               )}
             />
@@ -348,7 +348,7 @@ export default function CharacterLibrary() {
                   extraActions={(
                     <OpenInCreativeHubButton
                       bindings={{ baseCharacterId: character.id }}
-                      label="带着角色继续"
+                      label="Continue with the character"
                     />
                   )}
                 />
@@ -356,8 +356,8 @@ export default function CharacterLibrary() {
               {characters.length === 0 ? (
                 <AssetLibraryEmptyState
                   icon={UsersRound}
-                  title="还没有基础角色"
-                  description="使用页面右上角的“创建角色”，先建立一个目标明确、弱点清晰的主角。"
+                  title="There is no basic role yet"
+                  description="Use \"Create Character\" in the upper right corner of the page to first create a protagonist with clear goals and clear weaknesses."
                 />
               ) : null}
             </>

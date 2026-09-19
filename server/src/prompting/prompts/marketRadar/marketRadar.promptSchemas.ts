@@ -47,7 +47,7 @@ export const marketProductionFoundationDraftSchema = z.object({
     context.addIssue({
       code: z.ZodIssueCode.custom,
       path: ["secondaryStoryMode", "existingId"],
-      message: "主推进模式和辅助推进模式不能引用同一个资源。",
+      message: "The main propulsion mode and the auxiliary propulsion mode cannot reference the same resource.",
     });
   }
 });

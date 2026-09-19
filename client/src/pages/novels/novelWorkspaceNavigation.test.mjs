@@ -6,7 +6,7 @@ import { tabFromDirectorProgress } from "./novelWorkspaceNavigation.ts";
 test("running chapter execution uses the active item over a stale chapter batch checkpoint", () => {
   assert.equal(tabFromDirectorProgress({
     status: "running",
-    currentStage: "章节执行",
+    currentStage: "Chapter execution",
     currentItemKey: "chapter_execution",
     checkpointType: "chapter_batch_ready",
   }), "chapter");
@@ -33,7 +33,7 @@ test("chapter quality node keeps the rail on chapter execution instead of regres
 test("waiting chapter batch checkpoint stays on structured outline before execution starts", () => {
   assert.equal(tabFromDirectorProgress({
     status: "waiting_approval",
-    currentStage: "章节执行",
+    currentStage: "Chapter execution",
     currentItemKey: "chapter_execution",
     checkpointType: "chapter_batch_ready",
   }), "structured");

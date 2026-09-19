@@ -29,7 +29,7 @@ export function chapterStatePairAfterManualQualityReview(pass: boolean): Chapter
 }
 
 /**
- * 流水线在某次循环内将章节标为已通过（自动审校跳过或达标）时的推荐成对取值。
+ * 流水线在某次循环内将章节标为已通过（Automatic review跳过或达标）时的推荐成对取值。
  */
 export function chapterStatePairAfterPipelineApproval(): ChapterStatePairPatch {
   return {

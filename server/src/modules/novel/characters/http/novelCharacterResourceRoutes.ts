@@ -139,7 +139,7 @@ export function registerNovelCharacterResourceRoutes(
         res.status(200).json({
           success: true,
           data,
-          message: "角色关键资源已加载。",
+          message: "Key character resources were loaded.",
         } satisfies ApiResponse<typeof data>);
       } catch (error) {
         next(error);
@@ -157,7 +157,7 @@ export function registerNovelCharacterResourceRoutes(
         res.status(200).json({
           success: true,
           data,
-          message: "角色资源已加载。",
+          message: "Character resources were loaded.",
         } satisfies ApiResponse<typeof data>);
       } catch (error) {
         next(error);
@@ -175,7 +175,7 @@ export function registerNovelCharacterResourceRoutes(
         res.status(200).json({
           success: true,
           data,
-          message: "本章关键资源已加载。",
+          message: "This chapter's key resources were loaded.",
         } satisfies ApiResponse<typeof data>);
       } catch (error) {
         next(error);
@@ -210,7 +210,7 @@ export function registerNovelCharacterResourceRoutes(
         res.status(200).json({
           success: true,
           data,
-          message: "资源变化已提取，低风险变化会用于后续写作。",
+          message: "Resource changes were extracted. Low-risk changes will be used in later writing.",
         } satisfies ApiResponse<typeof data>);
       } catch (error) {
         next(error);
@@ -282,7 +282,7 @@ export function registerNovelCharacterResourceRoutes(
         res.status(200).json({
           success: true,
           data,
-          message: "最近章节资源已回填。",
+          message: "The latest chapter resources were backfilled.",
         } satisfies ApiResponse<typeof data>);
       } catch (error) {
         next(error);
@@ -305,7 +305,7 @@ export function registerNovelCharacterResourceRoutes(
           },
         });
         if (!row) {
-          throw new AppError("没有找到可确认的角色资源变更。", 404);
+          throw new AppError("No character-resource change was found that can be confirmed.", 404);
         }
 
         const payload = characterResourceUpdatePayloadSchema.parse(parsePayload(row.payloadJson));
@@ -332,7 +332,7 @@ export function registerNovelCharacterResourceRoutes(
         res.status(200).json({
           success: true,
           data,
-          message: "资源变更已确认，后续写作会参考它。",
+          message: "The resource change has been acknowledged and will be referenced in subsequent writing.",
         } satisfies ApiResponse<typeof data>);
       } catch (error) {
         next(error);
@@ -356,7 +356,7 @@ export function registerNovelCharacterResourceRoutes(
           data: { status: "rejected" },
         });
         if (updated.count === 0) {
-          throw new AppError("没有找到可忽略的角色资源变更。", 404);
+          throw new AppError("No character-resource change was found that can be ignored.", 404);
         }
         const data: CharacterResourceLedgerResponse = {
           items: await characterResourceLedgerService.listResources(id),
@@ -365,7 +365,7 @@ export function registerNovelCharacterResourceRoutes(
         res.status(200).json({
           success: true,
           data,
-          message: "资源变更已忽略，不会影响后续写作。",
+          message: "The resource change was ignored and will not affect later writing.",
         } satisfies ApiResponse<typeof data>);
       } catch (error) {
         next(error);

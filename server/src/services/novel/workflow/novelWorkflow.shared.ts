@@ -9,19 +9,19 @@ import type {
 import { getNovelWorkflowLaneDescriptor } from "@ai-novel/shared/types/novelWorkflow";
 
 export const NOVEL_WORKFLOW_STAGE_LABELS: Record<NovelWorkflowStage, string> = {
-  project_setup: "项目设定",
-  creation_intent: "理解创作想法",
-  short_story_plan: "规划短篇",
-  short_story_draft: "生成完整作品",
-  short_story_review: "全篇审校",
-  auto_director: "AI 自动导演",
-  story_macro: "故事宏观规划",
-  world_setup: "世界观准备",
-  character_setup: "角色准备",
-  volume_strategy: "卷战略 / 卷骨架",
-  structured_outline: "节奏 / 拆章",
-  chapter_execution: "章节执行",
-  quality_repair: "质量修复",
+  project_setup: "Project setup",
+  creation_intent: "Understand the creative idea",
+  short_story_plan: "Plan a short story",
+  short_story_draft: "Generate the full work",
+  short_story_review: "Full-text review",
+  auto_director: "Auto-Director",
+  story_macro: "Story planning",
+  world_setup: "World setup",
+  character_setup: "Character setup",
+  volume_strategy: "Volume strategy / skeleton",
+  structured_outline: "Beats / chapters",
+  chapter_execution: "Chapter execution",
+  quality_repair: "Quality repair",
 };
 
 export const NOVEL_WORKFLOW_STAGE_PROGRESS: Record<NovelWorkflowStage, number> = {
@@ -41,19 +41,19 @@ export const NOVEL_WORKFLOW_STAGE_PROGRESS: Record<NovelWorkflowStage, number> =
 };
 
 export const NOVEL_WORKFLOW_STAGE_STEPS = [
-  { key: "project_setup", label: "项目设定" },
-  { key: "creation_intent", label: "理解创作想法" },
-  { key: "short_story_plan", label: "规划短篇" },
-  { key: "short_story_draft", label: "生成完整作品" },
-  { key: "short_story_review", label: "全篇审校" },
-  { key: "auto_director", label: "自动导演" },
-  { key: "story_macro", label: "故事宏观规划" },
-  { key: "world_setup", label: "世界观准备" },
-  { key: "character_setup", label: "角色准备" },
-  { key: "volume_strategy", label: "卷战略 / 卷骨架" },
-  { key: "structured_outline", label: "节奏 / 拆章" },
-  { key: "chapter_execution", label: "章节执行" },
-  { key: "quality_repair", label: "质量修复" },
+  { key: "project_setup", label: "Project setup" },
+  { key: "creation_intent", label: "Understand the creative idea" },
+  { key: "short_story_plan", label: "Plan a short story" },
+  { key: "short_story_draft", label: "Generate the full work" },
+  { key: "short_story_review", label: "Full-text review" },
+  { key: "auto_director", label: "Auto-Director" },
+  { key: "story_macro", label: "Story planning" },
+  { key: "world_setup", label: "World setup" },
+  { key: "character_setup", label: "Character setup" },
+  { key: "volume_strategy", label: "Volume strategy / skeleton" },
+  { key: "structured_outline", label: "Beats / chapters" },
+  { key: "chapter_execution", label: "Chapter execution" },
+  { key: "quality_repair", label: "Quality repair" },
 ] as const;
 
 export function buildNovelCreateResumeTarget(taskId: string, mode: "director" | null = null): NovelWorkflowResumeTarget {

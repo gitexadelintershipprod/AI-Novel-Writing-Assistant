@@ -156,7 +156,7 @@ export function usePromptTemplateEditor(input: {
   const loadVersionToDraft = useCallback((version: PromptTemplateVersionView) => {
     setSystemContent(getMessageContent(version.template, "system"));
     setHumanContent(getMessageContent(version.template, "human"));
-    setNotes(`基于 v${version.versionNo} 调整`);
+    setNotes(`Based on v${version.versionNo}`);
   }, []);
 
   const insertToken = useCallback((token: string) => {

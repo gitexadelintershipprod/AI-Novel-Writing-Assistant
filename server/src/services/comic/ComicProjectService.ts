@@ -110,9 +110,9 @@ export class ComicProjectService {
   }
 
   /**
-   * 更新角色"外貌锚点"。
-   * - appearance：主外貌描述（生图链路的主源头）
-   * - faceShapeOverride：脸型强覆盖（可选）。当与 appearance 中的描述冲突时（如 appearance 写"五官锐利"
+   * 更新角色"appearance anchor"。
+   * - appearance：Main appearance description（生图链路的主源头）
+   * - faceShapeOverride：脸型强覆盖(optional)。当与 appearance 中的描述冲突时（如 appearance 写"五官锐利"
    *   但用户希望脸型圆），此字段在生图 prompt 里以 FINAL OVERRIDE 形式出现，权重高于 appearance，
    *   并显式告诉模型"忽略前述与脸型冲突的词"。仅传入字段会被更新；其他字段保持。
    */
@@ -121,7 +121,7 @@ export class ComicProjectService {
     patch: { appearance?: string; faceShapeOverride?: string },
   ) {
     const character = await prisma.comicCharacter.findUnique({ where: { id: charId } });
-    if (!character) throw new Error(`角色不存在：${charId}`);
+    if (!character) throw new Error(`The character does not exist:${charId}`);
 
     let existing: Record<string, unknown> = {};
     if (character.visualAnchor) {
@@ -162,7 +162,7 @@ export class ComicProjectService {
    */
   async updateCharacterGender(charId: string, gender: "male" | "female" | "other" | "unknown") {
     const character = await prisma.comicCharacter.findUnique({ where: { id: charId } });
-    if (!character) throw new Error(`角色不存在：${charId}`);
+    if (!character) throw new Error(`The character does not exist:${charId}`);
     return prisma.comicCharacter.update({
       where: { id: charId },
       data: { gender },
@@ -170,7 +170,7 @@ export class ComicProjectService {
   }
 
   /**
-   * AI 协助重写"外貌锚点"。
+   * AI 协助重写"appearance anchor"。
    * 不直接落库，返回 { appearance, faceShapeOverride?, rationale } 给前端审阅，
    * 用户确认后再调用 updateCharacterVisualAnchor 保存。
    */
@@ -179,7 +179,7 @@ export class ComicProjectService {
     input: { userInstruction?: string; provider?: LLMProvider },
   ): Promise<ComicVisualAnchorRewriteOutput> {
     const character = await prisma.comicCharacter.findUnique({ where: { id: charId } });
-    if (!character) throw new Error(`角色不存在：${charId}`);
+    if (!character) throw new Error(`The character does not exist:${charId}`);
 
     let currentAppearance = "";
     let currentFaceShapeOverride: string | undefined;
@@ -221,7 +221,7 @@ export class ComicProjectService {
     patch: { format?: string; style?: string; promptKeywords?: string; imageSize?: string },
   ) {
     const project = await prisma.comicProject.findUnique({ where: { id: projectId }, select: { stylePreset: true } });
-    if (!project) throw new Error(`漫画项目不存在：${projectId}`);
+    if (!project) throw new Error(`The comic project does not exist: ${projectId}`);
     let current: Record<string, unknown> = {};
     try { if (project.stylePreset) current = JSON.parse(project.stylePreset); } catch { /* ignore */ }
     const merged = { ...current, ...Object.fromEntries(Object.entries(patch).filter(([, v]) => v !== undefined)) };
@@ -241,11 +241,11 @@ export class ComicProjectService {
   /**
    * 通过防腐层把内容源装配为标准化内容包并落库（导入即快照）：
    * 1) ComicSourceBundle（梗概/节拍/角色/硬事实）
-   * 2) ComicCharacter（角色资源导入）
+   * 2) ComicCharacter（Character resources导入）
    */
   async importSourceBundle(projectId: string) {
     const project = await prisma.comicProject.findUnique({ where: { id: projectId } });
-    if (!project) throw new Error(`未找到漫画项目：${projectId}`);
+    if (!project) throw new Error(`Comic project not found: ${projectId}`);
 
     const sourceRef: SourceRef = {
       type: project.sourceType as AdaptationSourceType,
@@ -266,7 +266,7 @@ export class ComicProjectService {
         update: { bundleJson: JSON.stringify(bundle), importedAt: new Date() },
       });
 
-      // 删除旧角色资源再重建（保证与源同步）
+      // 删除旧Character resources再重建（保证与源同步）
       await tx.comicCharacter.deleteMany({ where: { projectId } });
       if (bundle.characters.length > 0) {
         await tx.comicCharacter.createMany({

@@ -255,7 +255,7 @@ function buildWindowOrders(
 }
 
 function formatOrders(orders: number[]): string {
-  return orders.map((order) => `第${order}章`).join("、");
+  return orders.map((order) => `Chapter ${order}`).join("、");
 }
 
 function buildTriggerReason(signal: ReplanSignal, input: ReplanDecisionInput, blockingIssues: AuditIssue[], blockingLedgerKeys: string[]): string {
@@ -266,49 +266,49 @@ function buildTriggerReason(signal: ReplanSignal, input: ReplanDecisionInput, bl
       : `canonical 状态显示存在逾期 payoff，作为章节级质量债继续跟进。`;
   }
   if (signal === "next_action_replan") {
-    return `状态驱动决策已切到 replan，说明当前章节目标与现有计划窗口失配。`;
+    return `The state-driven decision switched to replan, meaning this chapter's goal no longer matches the current plan window.`;
   }
   if (signal === "blocking_audit") {
     const topIssues = blockingIssues.slice(0, 2).map((issue) => issue.description);
     return topIssues.length > 0
       ? `高优先级审计问题未解决：${topIssues.join("；")}。`
-      : `存在未解决的高优先级审计问题，需要先调整章节计划。`;
+      : `There are unresolved high-priority audit issues. Adjust the chapter plan first.`;
   }
   if (signal === "manual_request") {
     return input.reason?.trim() || "用户显式要求重规划当前窗口。";
   }
   if (blockingLedgerKeys.length > 0) {
-    return `伏笔账本存在待处理风险，需要重新校准章节职责。`;
+    return `The foreshadowing ledger has open risks. Recalibrate chapter duties.`;
   }
-  return "当前状态稳定，暂不建议重规划。";
+  return "Current status稳定，暂不It is recommended to re-plan。";
 }
 
 function buildWindowReason(signal: ReplanSignal, anchorChapterOrder: number | null, affectedChapterOrders: number[], protectedSecrets: string[]): string {
-  const chapterLabel = anchorChapterOrder ? `第${anchorChapterOrder}章` : "当前章";
+  const chapterLabel = anchorChapterOrder ? `Chapter ${anchorChapterOrder}` : "Current chapter";
   const secretHint = protectedSecrets.length > 0
     ? ` 同时要守住“${protectedSecrets.slice(0, 2).join("；")}”这类未公开信息。`
     : "";
   if (signal === "overdue_payoff") {
     if (affectedChapterOrders.length === 0) {
-      return `${chapterLabel}只用于定位逾期承诺；系统不会仅凭逾期距离或当前章引用自动选择重规划窗口。${secretHint}`.trim();
+      return `${chapterLabel}只用于定位逾期承诺；系统不会仅凭逾期距离或当前章引用automatic selection重规划窗口。${secretHint}`.trim();
     }
     return `以${chapterLabel}为锚点，窗口覆盖 ${formatOrders(affectedChapterOrders)}，因为逾期 payoff 往往需要补铺垫、兑现和兑现后的余波连续联动。${secretHint}`.trim();
   }
   if (signal === "blocking_audit") {
-    return `以${chapterLabel}向后展开 ${formatOrders(affectedChapterOrders)}，先修正当前阻塞问题，再避免旧计划继续污染后续章节。${secretHint}`.trim();
+    return `以${chapterLabel}向后展开 ${formatOrders(affectedChapterOrders)}，先修正currently blocked问题，再避免旧计划继续污染后续章节。${secretHint}`.trim();
   }
   if (signal === "next_action_replan") {
-    return `以${chapterLabel}为锚点联动 ${formatOrders(affectedChapterOrders)}，让当前状态目标重新对齐邻近章节职责。${secretHint}`.trim();
+    return `以${chapterLabel}为锚点联动 ${formatOrders(affectedChapterOrders)}，让Current status目标重新对齐邻近章节职责。${secretHint}`.trim();
   }
   if (signal === "manual_request") {
     return `本次按 ${formatOrders(affectedChapterOrders)} 执行手动重规划，优先围绕${chapterLabel}附近的连续章节收口。${secretHint}`.trim();
   }
-  return `当前没有必须调整的窗口。`;
+  return `There is no window that must be adjusted.`;
 }
 
 function buildWhyTheseChapters(signal: ReplanSignal, affectedChapterOrders: number[], chapterStateGoal?: ChapterStateGoal | null): string {
   if (affectedChapterOrders.length === 0) {
-    return "当前没有选中的重规划章节。";
+    return "No replan chapters are selected.";
   }
   const ordersLabel = formatOrders(affectedChapterOrders);
   const goalHint = chapterStateGoal?.summary?.trim()
@@ -321,12 +321,12 @@ function buildWhyTheseChapters(signal: ReplanSignal, affectedChapterOrders: numb
     return `选择${ordersLabel}，因为这组章节需要连续承担补铺垫、兑现逾期 payoff 和承接新盘面变化${goalHint}。`;
   }
   if (signal === "blocking_audit") {
-    return `选择${ordersLabel}，因为高优先级问题已经进入当前章节，并会直接影响紧邻的后续推进${goalHint}。`;
+    return `选择${ordersLabel}，因为高优先级问题已经进入Current chapter，并会直接影响紧邻的后续推进${goalHint}。`;
   }
   if (signal === "next_action_replan") {
     return `选择${ordersLabel}，因为 canonical state 已判定现有窗口失配，需要从锚点章向前后联动收口${goalHint}。`;
   }
-  return `选择${ordersLabel}，因为这些章节与当前状态目标直接相邻，调整成本最低${goalHint}。`;
+  return `选择${ordersLabel}，因为这些章节与Current status目标直接相邻，调整成本最低${goalHint}。`;
 }
 
 export function buildReplanDecision(input: ReplanDecisionInput): ReplanDecision {
@@ -368,8 +368,8 @@ export function buildReplanDecision(input: ReplanDecisionInput): ReplanDecision 
     reason: recommended
       ? triggerReason
       : signal === "overdue_payoff"
-        ? "逾期承诺已记录为章节级质量债，后续章节继续执行。"
-        : "当前没有阻塞性状态信号，无需重规划后续章节。",
+        ? "The overdue promise was recorded as chapter-level quality debt, and later chapters continued."
+        : "There is no blocking state signal, so later chapters do not need a replan.",
     blockingIssueIds,
     blockingLedgerKeys,
     affectedChapterOrders,

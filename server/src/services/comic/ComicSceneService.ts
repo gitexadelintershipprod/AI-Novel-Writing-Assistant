@@ -81,7 +81,7 @@ async function removeOldSceneFiles(sceneId: string, keepExt: string): Promise<vo
   }
 }
 
-/** 找已存盘的场景设定图路径 */
+/** 找已存盘的scene setting diagram路径 */
 export async function resolveSceneFile(sceneId: string): Promise<{ filePath: string; mimeType: string } | null> {
   const dir = sceneDir(sceneId);
   for (const [ext, mimeType] of IMAGE_EXTS) {
@@ -133,7 +133,7 @@ export class ComicSceneService {
       where: { id: input.projectId },
       select: { id: true },
     });
-    if (!project) throw new AppError(`项目不存在：${input.projectId}`, 404);
+    if (!project) throw new AppError(`Project not found: ${input.projectId}`, 404);
 
     return prisma.comicScene.create({
       data: {
@@ -156,7 +156,7 @@ export class ComicSceneService {
 
   async getScene(sceneId: string) {
     const scene = await prisma.comicScene.findUnique({ where: { id: sceneId } });
-    if (!scene) throw new AppError(`场景不存在：${sceneId}`, 404);
+    if (!scene) throw new AppError(`Scene not found: ${sceneId}`, 404);
     return scene;
   }
 
@@ -206,14 +206,14 @@ export class ComicSceneService {
     return { url };
   }
 
-  // ── AI 生成（prepare + generate 共享 buildContext） ───────────────────────
+  // ── AI generated（prepare + generate 共享 buildContext） ───────────────────────
 
   private async buildSceneGenerationContext(sceneId: string) {
     const scene = await prisma.comicScene.findUnique({
       where: { id: sceneId },
       include: { project: { select: { stylePreset: true } } },
     });
-    if (!scene) throw new AppError(`场景不存在：${sceneId}`, 404);
+    if (!scene) throw new AppError(`Scene not found: ${sceneId}`, 404);
 
     const stylePrefix = resolveComicStyleKeywords(scene.project.stylePreset);
     const bible = safeJsonParse<SceneBible>(scene.bible, {});
@@ -240,7 +240,7 @@ export class ComicSceneService {
       adapter,
       prompt,
       size: "1024x1024" as const,
-      title: `生成场景设定图：${scene.name}`,
+      title: `Generate scene setting art: ${scene.name}`,
     };
   }
 
@@ -273,7 +273,7 @@ export class ComicSceneService {
 
   async serveSceneImage(sceneId: string): Promise<{ filePath: string; mimeType: string }> {
     const resolved = await resolveSceneFile(sceneId);
-    if (!resolved) throw new AppError(`场景图片未找到：${sceneId}`, 404);
+    if (!resolved) throw new AppError(`Scene image not found: ${sceneId}`, 404);
     return resolved;
   }
 }

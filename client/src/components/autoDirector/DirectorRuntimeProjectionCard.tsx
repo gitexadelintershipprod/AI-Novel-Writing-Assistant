@@ -24,26 +24,26 @@ interface DirectorRuntimeProjectionCardProps {
 }
 
 const ISSUE_ACTION_LABELS: Record<DirectorIssueAction, string> = {
-  auto_retry: "自动重试",
-  continue_with_warning: "提醒后继续",
-  pause_for_manual: "暂停处理",
-  fail_task: "结束任务",
+  auto_retry: "Automatic retry",
+  continue_with_warning: "Continue after reminder",
+  pause_for_manual: "Pause processing",
+  fail_task: "end task",
 };
 
 const POLICY_SOURCE_LABELS: Record<DirectorIssueDecision["policySource"], string> = {
-  global: "全局规则",
-  novel: "本书规则",
-  task_snapshot: "任务启动规则",
-  safety: "安全底线",
+  global: "global rules",
+  novel: "book rules",
+  task_snapshot: "Task start rules",
+  safety: "Safety bottom line",
 };
 
 function formatDate(value: string | null | undefined): string {
   if (!value) {
-    return "暂无";
+    return "None yet";
   }
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
-    return "暂无";
+    return "None yet";
   }
   return date.toLocaleString();
 }
@@ -59,14 +59,14 @@ function formatDuration(value: number | null | undefined): string | null {
   }
   const seconds = Math.round(value / 1000);
   if (seconds <= 0) {
-    return "<1 秒";
+    return "<1 second";
   }
   if (seconds < 60) {
-    return `${seconds} 秒`;
+    return `${seconds}s`;
   }
   const minutes = Math.floor(seconds / 60);
   const restSeconds = seconds % 60;
-  return restSeconds > 0 ? `${minutes} 分 ${restSeconds} 秒` : `${minutes} 分`;
+  return restSeconds > 0 ? `${minutes} min ${restSeconds}s` : `${minutes} min`;
 }
 
 function formatUsageLine(usage: {
@@ -78,44 +78,44 @@ function formatUsageLine(usage: {
 }): string {
   const duration = formatDuration(usage.durationMs);
   return [
-    `${formatTokenCount(usage.llmCallCount)} 次调用`,
-    `输入 ${formatTokenCount(usage.promptTokens)}`,
-    `输出 ${formatTokenCount(usage.completionTokens)}`,
-    `总计 ${formatTokenCount(usage.totalTokens)} Tokens`,
-    duration ? `累计调用耗时 ${duration}` : null,
+    `${formatTokenCount(usage.llmCallCount)} calls`,
+    `Input ${formatTokenCount(usage.promptTokens)}`,
+    `Output ${formatTokenCount(usage.completionTokens)}`,
+    `Total ${formatTokenCount(usage.totalTokens)} tokens`,
+    duration ? `Cumulative call time ${duration}` : null,
   ].filter(Boolean).join(" · ");
 }
 
 function formatPolicyMode(mode: DirectorPolicyMode): string {
   if (mode === "suggest_only") {
-    return "只给建议";
+    return "Just give advice";
   }
   if (mode === "run_next_step") {
-    return "推进下一步";
+    return "Proceed to the next step";
   }
   if (mode === "auto_safe_scope") {
-    return "安全范围自动推进";
+    return "Safe range automatic advancement";
   }
-  return "推进到检查点";
+  return "Advance to checkpoint";
 }
 
 function formatStatus(status: DirectorRuntimeProjectionStatus): string {
   if (status === "running") {
-    return "推进中";
+    return "Advancing";
   }
   if (status === "waiting_approval") {
-    return "等待确认";
+    return "Waiting for confirmation";
   }
   if (status === "blocked") {
-    return "已暂停";
+    return "Suspended";
   }
   if (status === "failed") {
-    return "失败";
+    return "failed";
   }
   if (status === "completed") {
-    return "已完成";
+    return "Completed";
   }
-  return "待开始";
+  return "To be started";
 }
 
 function statusClassName(status: DirectorRuntimeProjectionStatus): string {
@@ -168,9 +168,9 @@ function formatQualityDebtSummary(summary: DirectorRuntimeProjection["qualityDeb
     return null;
   }
   const orderText = summary.deferredChapterOrders.length > 0
-    ? `：第 ${summary.deferredChapterOrders.join("、")} 章`
+    ? `: Chapter ${summary.deferredChapterOrders.join(", ")}`
     : "";
-  return `质量待回收${orderText}。系统会先继续写后续章节，并在质量修复阶段回收这些问题。`;
+  return `Quality to recover${orderText}. Later chapters will keep writing first; these issues come back in the quality-repair step.`;
 }
 
 function formatQualityBudgetSummary(summary: DirectorRuntimeProjection["qualityBudgetSummary"] | null | undefined): string | null {
@@ -178,9 +178,9 @@ function formatQualityBudgetSummary(summary: DirectorRuntimeProjection["qualityB
     return null;
   }
   const chapterText = typeof summary.currentChapterOrder === "number"
-    ? `第 ${summary.currentChapterOrder} 章`
-    : "当前章节";
-  return `${chapterText}质量预算：局部修复 ${summary.patchRepairUsed}/1，整章重写 ${summary.chapterRewriteUsed}/1，窗口重规划 ${summary.windowReplanUsed}/1。${summary.nextActionLabel}`;
+    ? `Chapter ${summary.currentChapterOrder}`
+    : "Current chapter";
+  return `${chapterText} quality budget: partial repair ${summary.patchRepairUsed}/1, full-chapter rewrite ${summary.chapterRewriteUsed}/1, nearby-chapter replan ${summary.windowReplanUsed}/1. ${summary.nextActionLabel}`;
 }
 
 function formatRootCauseSummary(projection: DirectorRuntimeProjection): string | null {
@@ -188,28 +188,28 @@ function formatRootCauseSummary(projection: DirectorRuntimeProjection): string |
     return null;
   }
   if (projection.rootCauseCode === "replan_required") {
-    return "当前问题来自章节职责失配，系统需要先调整附近章节安排。";
+    return "The current problem comes from the mismatch of chapter responsibilities, and the system needs to adjust the arrangement of nearby chapters first.";
   }
   if (projection.rootCauseCode === "draft_obligation_unmet") {
-    return "正文已经生成，但仍有本章必须完成的内容没有兑现。";
+    return "The main text has been generated, but there are still things that must be completed in this chapter that have not been fulfilled.";
   }
   if (projection.rootCauseCode === "draft_repair_exhausted") {
-    return "正文已经生成，但自动修复后仍有阻塞问题需要继续处理。";
+    return "The main text has been generated, but there are still blocking problems that need to be processed after automatic repair.";
   }
-  return "正文没有成功生成，需要重新执行当前章节。";
+  return "The main text was not successfully generated and the current chapter needs to be re-executed.";
 }
 
 function formatRiskAction(action: NonNullable<DirectorRuntimeProjection["latestRiskAssessment"]>["action"]): string {
   if (action === "forced_pause" || action === "pause_requested" || action === "paused") {
-    return "将在当前安全节点后暂停";
+    return "will pause after the current safe node";
   }
   if (action === "quality_debt_recorded") {
-    return "已记录质量债，后续章节会继续推进";
+    return "Quality debt has been recorded and will continue to advance in subsequent chapters.";
   }
   if (action === "notified") {
-    return "已发送风险提醒";
+    return "Risk alert sent";
   }
-  return "已记录，自动导演会继续判断下一步";
+  return "Already recorded, the automatic director will continue to determine the next step";
 }
 
 function riskScoreClassName(score: number): string {
@@ -220,20 +220,20 @@ function riskScoreClassName(score: number): string {
 
 function formatRiskCategory(category: NonNullable<DirectorRuntimeProjection["latestRiskAssessment"]>["category"]): string {
   const labels: Record<typeof category, string> = {
-    planning: "规划",
-    candidate_confirmation: "候选确认",
-    chapter_generation: "章节生成",
-    chapter_acceptance: "章节验收",
-    chapter_repair: "章节修复",
-    state_proposal: "状态提案",
-    replan: "重规划",
-    model_failure: "模型故障",
-    worker_failure: "执行器故障",
-    task_recovery: "任务恢复",
-    protected_content: "受保护正文",
-    runtime_safety: "运行时安全",
-    data_integrity: "数据完整性",
-    unknown: "其他",
+    planning: "planning",
+    candidate_confirmation: "Candidate confirmation",
+    chapter_generation: "Chapter generation",
+    chapter_acceptance: "Chapter Acceptance",
+    chapter_repair: "Chapter fixes",
+    state_proposal: "status proposal",
+    replan: "Heavy planning",
+    model_failure: "Model failure",
+    worker_failure: "Actuator failure",
+    task_recovery: "task recovery",
+    protected_content: "protected text",
+    runtime_safety: "Runtime security",
+    data_integrity: "data integrity",
+    unknown: "Others",
   };
   return labels[category];
 }
@@ -256,13 +256,13 @@ export default function DirectorRuntimeProjectionCard({
   const primaryText = projection.headline?.trim()
     || projection.currentLabel?.trim()
     || projection.lastEventSummary?.trim()
-    || "等待同步当前推进状态";
+    || "Waiting for synchronization of current advancement status";
   const detailText = projection.detail?.trim();
   const attentionText = projection.requiresUserAction
     ? projection.blockingReason?.trim()
       || projection.blockedReason?.trim()
       || projection.lastEventSummary?.trim()
-      || "请先处理当前停留点。"
+      || "Please process the current stop first."
     : projection.blockingReason?.trim() || projection.blockedReason?.trim();
   const progressLine = projection.progressBreakdown?.explanation?.trim()
     || projection.progressSummary?.trim()
@@ -271,15 +271,15 @@ export default function DirectorRuntimeProjectionCard({
   const qualityBudgetLine = formatQualityBudgetSummary(projection.qualityBudgetSummary);
   const rootCauseLine = formatRootCauseSummary(projection);
   const obligationLine = projection.blockingObligations && projection.blockingObligations.length > 0
-    ? `仍需处理：${projection.blockingObligations.slice(0, 3).map((item) => item.summary).join("；")}`
+    ? `Still needs attention: ${projection.blockingObligations.slice(0, 3).map((item) => item.summary).join("; ")}`
     : null;
   const activeExecutionLine = projection.activeExecution
-    ? `后台执行：${getDirectorNodeDisplayLabel({
+    ? `Running in the background: ${getDirectorNodeDisplayLabel({
       nodeKey: projection.activeExecution.stepType,
-      fallback: projection.currentAction || "自动导演任务",
+      fallback: projection.currentAction || "Automatic director tasks",
     })}${projection.activeExecution.resourceClass ? ` · ${projection.activeExecution.resourceClass}` : ""}`
     : null;
-  const waitingLine = projection.waitingReason ? `等待原因：${projection.waitingReason}` : null;
+  const waitingLine = projection.waitingReason ? `Waiting because: ${projection.waitingReason}` : null;
   const workerHealthLine = projection.workerHealth
     ? [
       `Execution queue: ${projection.workerHealth.queuedCommandCount} waiting`,
@@ -291,9 +291,9 @@ export default function DirectorRuntimeProjectionCard({
     activeExecutionLine,
     waitingLine,
     workerHealthLine,
-    projection.nextActionLabel ? `下一步：${projection.nextActionLabel}` : null,
-    projection.recommendedAction?.reason ? `推荐原因：${projection.recommendedAction.reason}` : null,
-    projection.isAutopilotRecoverable ? "AI 可以从当前进度继续处理。" : null,
+    projection.nextActionLabel ? `Next step: ${projection.nextActionLabel}` : null,
+    projection.recommendedAction?.reason ? `Why this is recommended: ${projection.recommendedAction.reason}` : null,
+    projection.isAutopilotRecoverable ? "The AI can continue processing from its current progress." : null,
     rootCauseLine,
     obligationLine,
     qualityBudgetLine,
@@ -311,8 +311,8 @@ export default function DirectorRuntimeProjectionCard({
   const latestRisk = projection.latestRiskAssessment ?? null;
   const riskHistory = projection.riskHistory ?? [];
   const affectedRiskChapters = latestRisk?.affectedChapterOrders.length
-    ? `第 ${latestRisk.affectedChapterOrders.join("、")} 章`
-    : "当前步骤";
+    ? `Chapter ${latestRisk.affectedChapterOrders.join(", ")}`
+    : "current step";
 
   return (
     <div className={cn("rounded-lg border bg-background/80 p-3", statusClassName(projection.status), className)}>
@@ -320,7 +320,7 @@ export default function DirectorRuntimeProjectionCard({
         <div className="flex min-w-0 items-start gap-2">
           <span className="mt-0.5 shrink-0">{statusIcon(projection.status)}</span>
           <div className="min-w-0">
-            <div className="text-sm font-semibold text-foreground">导演进度</div>
+            <div className="text-sm font-semibold text-foreground">Director's progress</div>
             <div className="mt-1 text-sm leading-5">{primaryText}</div>
           </div>
         </div>
@@ -342,17 +342,17 @@ export default function DirectorRuntimeProjectionCard({
       {latestRisk ? (
         <div className={cn("mt-3 rounded-md border px-3 py-2 text-sm leading-5", riskScoreClassName(latestRisk.score))}>
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <span className="font-medium">当前最高风险：{latestRisk.score}/8</span>
-            <span className="text-xs">影响：{affectedRiskChapters}</span>
+            <span className="font-medium">Current highest risk:{latestRisk.score}/8</span>
+            <span className="text-xs">Impact:{affectedRiskChapters}</span>
           </div>
           <div className="mt-1">{latestRisk.evidenceSummary}</div>
-          <div className="mt-1 text-xs opacity-85">{formatRiskAction(latestRisk.action)}。下一步：{latestRisk.recommendationReason}</div>
+          <div className="mt-1 text-xs opacity-85">{formatRiskAction(latestRisk.action)}. Next step: {latestRisk.recommendationReason}</div>
         </div>
       ) : null}
 
       <details className="mt-3 rounded-md border bg-background/70">
         <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-3 py-2 text-sm font-medium text-foreground">
-          <span>风险事件记录</span>
+          <span>Risk event record</span>
           <Badge variant="outline">{projection.riskHistoryTotal ?? riskHistory.length}</Badge>
         </summary>
         <div className="space-y-2 border-t px-3 py-3">
@@ -364,13 +364,13 @@ export default function DirectorRuntimeProjectionCard({
               </div>
               <div className="mt-1">{risk.evidenceSummary}</div>
               <div className="mt-1 opacity-85">
-                影响：{risk.affectedChapterOrders.length > 0 ? `第 ${risk.affectedChapterOrders.join("、")} 章` : "当前任务"} · {formatRiskAction(risk.action)}
+                Impact: {risk.affectedChapterOrders.length > 0 ? `Chapter ${risk.affectedChapterOrders.join(", ")}` : "current task"} · {formatRiskAction(risk.action)}
               </div>
-              <div className="mt-1 opacity-85">下一步：{risk.recommendationReason}</div>
+              <div className="mt-1 opacity-85">Next step: {risk.recommendationReason}</div>
             </div>
           )) : (
             <div className="text-xs leading-5 text-muted-foreground">
-              当前还没有需要评分的异常。自动导演运行后，每个需要决策的问题都会在这里留下分数、原因和处理动作。
+              There are currently no exceptions to score. After the automatic director runs, each issue that requires decision-making will leave scores, reasons and processing actions here.
             </div>
           )}
         </div>
@@ -379,19 +379,19 @@ export default function DirectorRuntimeProjectionCard({
       {progressBreakdown && !compact ? (
         <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
           <div className="rounded-md border bg-background/70 px-3 py-2">
-            <div className="text-[11px] text-muted-foreground">规划</div>
+            <div className="text-[11px] text-muted-foreground">planning</div>
             <div className="mt-1 text-sm font-semibold text-foreground">{formatPercent(progressBreakdown.planningProgress ?? progressBreakdown.planningPercent)}</div>
           </div>
           <div className="rounded-md border bg-background/70 px-3 py-2">
-            <div className="text-[11px] text-muted-foreground">章节</div>
+            <div className="text-[11px] text-muted-foreground">Chapter</div>
             <div className="mt-1 text-sm font-semibold text-foreground">{progressBreakdown.continuableChapters}/{progressBreakdown.totalChapters}</div>
           </div>
           <div className="rounded-md border bg-background/70 px-3 py-2">
-            <div className="text-[11px] text-muted-foreground">质量</div>
+            <div className="text-[11px] text-muted-foreground">quality</div>
             <div className="mt-1 text-sm font-semibold text-foreground">{formatPercent(progressBreakdown.qualityProgress ?? progressBreakdown.qualityRepairPercent)}</div>
           </div>
           <div className="rounded-md border bg-background/70 px-3 py-2">
-            <div className="text-[11px] text-muted-foreground">当前动作</div>
+            <div className="text-[11px] text-muted-foreground">current action</div>
             <div className="mt-1 text-sm font-semibold text-foreground">{formatPercent(progressBreakdown.activeJobProgress)}</div>
           </div>
         </div>
@@ -399,7 +399,7 @@ export default function DirectorRuntimeProjectionCard({
 
       {attentionText ? (
         <div className="mt-3 rounded-md border bg-background/70 px-3 py-2 text-sm leading-5">
-          {projection.requiresUserAction ? "需要你处理：" : "暂停原因："}{attentionText}
+          {projection.requiresUserAction ? "You need to handle:" : "Reason for suspension:"}{attentionText}
         </div>
       ) : null}
 
@@ -421,11 +421,11 @@ export default function DirectorRuntimeProjectionCard({
 
       {usageSummary ? (
         <div className="mt-3 rounded-md border bg-background/70 px-3 py-2 text-xs leading-5 text-muted-foreground">
-          <div className="font-medium text-foreground">AI 用量</div>
+          <div className="font-medium text-foreground">AI usage</div>
           <div className="mt-1">{formatUsageLine(usageSummary)}</div>
           {promptUsage.length > 0 && !compact ? (
             <div className="mt-2 space-y-1">
-              <div className="text-[11px] font-medium text-muted-foreground">阶段用量</div>
+              <div className="text-[11px] font-medium text-muted-foreground">Stage dosage</div>
               {promptUsage.map((item) => (
                 <div key={`${item.promptAssetKey}:${item.promptVersion ?? ""}:${item.nodeKey ?? ""}`} className="flex flex-wrap items-center justify-between gap-2 border-t pt-1">
                   <span className="min-w-0 truncate text-foreground">
@@ -438,7 +438,7 @@ export default function DirectorRuntimeProjectionCard({
           ) : null}
           {stepUsage.length > 0 && !compact ? (
             <div className="mt-2 space-y-1">
-              <div className="text-[11px] font-medium text-muted-foreground">推进步骤</div>
+              <div className="text-[11px] font-medium text-muted-foreground">Advance steps</div>
               {stepUsage.map((item) => (
                 <div key={item.stepIdempotencyKey} className="flex flex-wrap items-center justify-between gap-2 border-t pt-1">
                   <span className="min-w-0 truncate text-foreground">
@@ -453,13 +453,13 @@ export default function DirectorRuntimeProjectionCard({
       ) : null}
 
       <div className="mt-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
-        <span className="rounded-full bg-background/70 px-2 py-1">推进方式：{formatPolicyMode(projection.policyMode)}</span>
-        <span className="rounded-full bg-background/70 px-2 py-1">更新时间：{formatDate(projection.updatedAt)}</span>
+        <span className="rounded-full bg-background/70 px-2 py-1">Promotion method:{formatPolicyMode(projection.policyMode)}</span>
+        <span className="rounded-full bg-background/70 px-2 py-1">Update time:{formatDate(projection.updatedAt)}</span>
       </div>
 
       {recentIssues.length > 0 ? (
         <div className="mt-3 space-y-2">
-          <div className="text-xs font-medium text-muted-foreground">问题记录</div>
+          <div className="text-xs font-medium text-muted-foreground">Problem record</div>
           {recentIssues.map(({ occurrence, decision }) => {
             const target = occurrence.chapterId && projection.novelId
               ? `/novels/${projection.novelId}/chapters/${occurrence.chapterId}`
@@ -468,11 +468,11 @@ export default function DirectorRuntimeProjectionCard({
               <div key={occurrence.fingerprint} className="rounded-md border bg-background/70 px-3 py-2 text-xs leading-5">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="font-medium text-foreground">{occurrence.summary}</span>
-                  {target ? <Link className="text-primary hover:underline" to={target}>前往处理</Link> : null}
+                  {target ? <Link className="text-primary hover:underline" to={target}>Go to processing</Link> : null}
                 </div>
                 <div className="mt-1 text-muted-foreground">
-                  {occurrence.issueCode} · {occurrence.chapterOrder ? `第 ${occurrence.chapterOrder} 章 · ` : ""}
-                  风险分 {occurrence.riskScore ?? "待评估"}
+                  {occurrence.issueCode} · {occurrence.chapterOrder ? `Chapter ${occurrence.chapterOrder} · ` : ""}
+                  Risk score {occurrence.riskScore ?? "To be evaluated"}
                   {decision ? ` · ${ISSUE_ACTION_LABELS[decision.action]} · ${POLICY_SOURCE_LABELS[decision.policySource]}` : ""}
                 </div>
               </div>
@@ -483,7 +483,7 @@ export default function DirectorRuntimeProjectionCard({
 
       {recentEvents.length > 0 && !compact ? (
         <div className="mt-3 space-y-2">
-          <div className="text-xs font-medium text-muted-foreground">最近进展</div>
+          <div className="text-xs font-medium text-muted-foreground">recent developments</div>
           {recentEvents.map((event) => (
             <div key={event.eventId} className="rounded-md border bg-background/70 px-3 py-2 text-xs leading-5">
               <div className="text-foreground">{event.summary}</div>

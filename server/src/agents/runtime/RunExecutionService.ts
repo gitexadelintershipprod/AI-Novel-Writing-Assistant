@@ -223,7 +223,7 @@ export class RunExecutionService {
         stepType: "reasoning",
         status: "succeeded",
         inputJson: safeJson({
-          message: `工具 ${call.tool} 第 ${attempt + 1} 次失败，准备重试。`,
+          message: `Tool ${call.tool} failed on attempt ${attempt + 1}; retrying.`,
           errorCode: result.errorCode,
         }),
       });
@@ -231,7 +231,7 @@ export class RunExecutionService {
     return finalResult ?? {
       tool: call.tool,
       success: false,
-      summary: `${call.tool} 执行失败：unknown`,
+      summary: `${call.tool} Execution failed：unknown`,
       errorCode: "INTERNAL",
     };
   }
@@ -288,7 +288,7 @@ export class RunExecutionService {
         const call = action.calls[callIndex];
         const resolvedInput = resolveToolInput(currentContext, call.input);
         if (!canAgentUseTool(action.agent, call.tool)) {
-          const message = `权限拒绝：${action.agent} 不允许调用 ${call.tool}。`;
+          const message = `Permission denied: ${action.agent} is not allowed to call ${call.tool}.`;
           await this.store.addStep({
             runId,
             agentName: action.agent,
@@ -311,7 +311,7 @@ export class RunExecutionService {
           ? { required: false }
           : evaluateApprovalRequirement(call.tool, resolvedInput);
         if (approvalDecision.required) {
-          let diffSummary = approvalDecision.summary ?? "高影响写入操作待确认。";
+          let diffSummary = approvalDecision.summary ?? "A high-impact write is waiting for confirmation.";
           if (shouldUseDryRunPreview(call)) {
             const previewCall: ToolCall = {
               ...call,
@@ -351,7 +351,7 @@ export class RunExecutionService {
           const continuationActions: PlannedAction[] = [
             {
               agent: action.agent,
-              reasoning: `审批通过后继续执行 ${action.agent} 任务`,
+              reasoning: `After approval, continue the ${action.agent} task`,
               calls: [currentCallAfterApproval, ...action.calls.slice(callIndex + 1)],
             },
             ...plannedActions.slice(actionIndex + 1),
@@ -437,7 +437,7 @@ export class RunExecutionService {
       callbacks?.onRunStatus?.({
         runId,
         status: "succeeded",
-        message: "执行完成",
+        message: "Execution completed",
       });
     }
 

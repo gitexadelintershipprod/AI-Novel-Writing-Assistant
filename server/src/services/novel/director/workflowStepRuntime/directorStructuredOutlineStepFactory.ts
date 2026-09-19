@@ -81,7 +81,7 @@ async function inspectStructuredOutlineFactState(
       progress: buildSimpleProgress({
         status: "blocked",
         ratio: 0,
-        label: "等待卷战略与角色准备完成",
+        label: "Waiting for volume strategy and character setup to finish",
         evidence,
         nextAction: "prepare_upstream_assets",
       }),
@@ -97,7 +97,7 @@ async function inspectStructuredOutlineFactState(
       progress: buildSimpleProgress({
         status: beatsReady ? "completed" : "partially_done",
         ratio: beatsReady ? 1 : 0.25,
-        label: beatsReady ? "卷节奏板已就绪" : "正在准备卷节奏板",
+        label: beatsReady ? "The volume beat sheet is ready" : "Preparing the volume beat sheet",
         evidence,
         nextAction: beatsReady ? "run_chapter_list_generation" : "run_beat_sheet_generation",
       }),
@@ -124,15 +124,15 @@ async function inspectStructuredOutlineFactState(
         status: chapterListReady ? "completed" : beatsReady ? "partially_done" : "blocked",
         ratio: chapterListReady ? 1 : beatsReady ? 0.5 : 0,
         label: chapterListReady
-          ? volumeChapterListComplete ? "整卷拆章列表已就绪" : "当前节奏段章节列表已就绪"
-          : beatsReady ? "正在生成章节列表" : "等待卷节奏板完成",
+          ? volumeChapterListComplete ? "The full-volume chapter list is ready" : "The current beat's chapter list is ready"
+          : beatsReady ? "Generating the chapter list" : "Waiting for the volume beat sheet",
         evidence,
         nextAction: chapterListReady ? "run_chapter_detail_generation" : beatsReady ? "run_chapter_list_generation" : "run_beat_sheet_generation",
       }),
     };
   }
 
-  // JIT 模式下 chapter_detail_bundle 被主动跳过（Phase 1 懒规划），task sheet 在章节执行前
+  // JIT 模式下 chapter_detail_bundle 被主动跳过（Phase 1 懒规划），task sheet 在Chapter execution前
   // 即时生成。此时 chapterDetailReady = false 是预期状态，应视为已完成。
   const { request: directorRequest } = await loadDirectorModuleState(context);
   const isJITMode = isFullBookAutopilotRunMode(directorRequest?.runMode);
@@ -158,13 +158,13 @@ async function inspectStructuredOutlineFactState(
       ratio: effectiveDetailReady ? 1 : detailRatio,
       label: effectiveDetailReady
         ? isJITMode && !detailReady
-          ? "JIT 模式：章节任务单将在执行时即时生成"
-          : "章节任务单与执行细化已就绪"
+          ? "JIT mode: chapter task sheets will be generated at execution time"
+          : "Chapter task sheets and execution details are ready"
         : chapterListReady && totalDetailSteps > 0 && completedDetailSteps > 0
-          ? `已细化 ${completedDetailSteps}/${totalDetailSteps} 章，继续补齐剩余章节任务单`
+          ? `Detailed ${completedDetailSteps}/${totalDetailSteps} chapters; continue filling remaining chapter task sheets`
           : chapterListReady
-            ? "正在细化章节执行资源"
-            : "等待章节列表完成",
+            ? "Detailing chapter execution resources"
+            : "Waiting for the chapter list",
       evidence,
       nextAction: effectiveDetailReady ? "sync_execution_contracts" : chapterListReady ? "run_chapter_detail_generation" : "run_chapter_list_generation",
     }),

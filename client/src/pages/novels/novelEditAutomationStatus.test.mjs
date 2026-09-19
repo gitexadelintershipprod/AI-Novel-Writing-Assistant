@@ -154,19 +154,19 @@ test("failed tasks are not rewritten into waiting approval by stale projections"
     id: "task-failed",
     status: "failed",
     pendingManualRecovery: false,
-    currentItemLabel: "正在自动执行第 2-10 章",
-    lastError: "指定区间内没有可生成的章节。",
-    failureSummary: "指定区间内没有可生成的章节。",
+    currentItemLabel: "Auto-running chapters 2-10",
+    lastError: "There are no chapters to generate in the selected range.",
+    failureSummary: "There are no chapters to generate in the selected range.",
   };
   const result = buildDisplayAutoDirectorTask(task, {
     latestTask: { id: "task-failed", status: "failed" },
     status: "waiting_approval",
-    blockedReason: "该动作会自动推进较大范围的章节生成，需要确认后才能继续。",
-    detail: "该动作会自动推进较大范围的章节生成，需要确认后才能继续。",
+    blockedReason: "This action will auto-advance a large chapter range and needs confirmation first.",
+    detail: "This action will auto-advance a large chapter range and needs confirmation first.",
   });
 
   assert.equal(result.status, "failed");
-  assert.equal(result.lastError, "指定区间内没有可生成的章节。");
+  assert.equal(result.lastError, "There are no chapters to generate in the selected range.");
 });
 
 test("requested failed director task stays pinned after the active task disappears", () => {

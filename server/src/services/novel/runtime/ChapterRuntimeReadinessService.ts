@@ -23,19 +23,19 @@ export class ChapterRuntimeReadinessService {
     );
 
     if (!compactText(chapter.title)) {
-      reasons.push("请先补全章节标题，再生成正文。");
+      reasons.push("Fill in the chapter title before generating the draft.");
     }
 
     if (!hasChapterGoal) {
-      reasons.push("请先为本章准备章节任务或章节目标，再生成正文。");
+      reasons.push("Prepare this chapter's task or goal before generating the draft.");
     }
 
     if (!contextPackage.chapterWriteContext) {
-      reasons.push("章节写作上下文尚未准备完成，请先刷新本章上下文。");
+      reasons.push("Chapter writing context is not ready yet. Refresh this chapter's context first.");
     }
 
     if ((contextPackage.characterRoster ?? []).length === 0) {
-      reasons.push("请先在本小说中至少准备一个角色，再生成正文。");
+      reasons.push("Prepare at least one character in this novel before generating the draft.");
     }
 
     return {

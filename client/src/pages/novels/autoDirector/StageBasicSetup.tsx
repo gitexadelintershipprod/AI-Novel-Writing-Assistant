@@ -44,29 +44,29 @@ export default function StageBasicSetup({
     <section className="mx-auto w-full max-w-5xl space-y-7 py-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <div className="text-2xl font-semibold tracking-normal text-foreground">先定这本书的手感</div>
+          <div className="text-2xl font-semibold tracking-normal text-foreground">Decide on the feel of this book first</div>
           <div className={`mt-2 max-w-2xl text-sm leading-6 text-muted-foreground ${AUTO_DIRECTOR_MOBILE_CLASSES.wrapText}`}>
-            这里只确认影响整本书阅读感的基础参数。不确定时保持默认，AI 会继续根据你的起始想法判断。
+            Here we only confirm the basic parameters that affect the reading experience of the entire book. Leave the default when unsure and the AI ​​will continue to base its judgment on your starting thoughts.
           </div>
         </div>
         <div className="rounded-full bg-muted/55 px-3 py-1 text-xs text-muted-foreground">
-          约 1 分钟
+          about 1 minute
         </div>
       </div>
 
       <div className="flex items-start gap-3 border-y border-border/60 py-4">
         <div className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-emerald-500" />
         <div>
-          <div className="text-sm font-medium text-foreground">AI 会自动确定创作底座</div>
+          <div className="text-sm font-medium text-foreground">AI will automatically determine the creative base</div>
           <div className={`mt-1 text-xs leading-5 text-muted-foreground ${AUTO_DIRECTOR_MOBILE_CLASSES.wrapText}`}>
-            系统会根据起始想法确定题材和主要推进方式，并贯穿方向规划、正文、检查与修复。创建后仍可在作品设置中调整后续写法。
+            The system will determine the theme and main advancement method based on the initial idea, and run it through direction planning, text, inspection and repair. After creation, you can still adjust subsequent writing methods in the work settings.
           </div>
         </div>
       </div>
 
       <div className="grid gap-x-8 gap-y-6 md:grid-cols-2">
         <div className="space-y-2">
-          <FieldLabel htmlFor="director-basic-platform" hint="决定规划、正文、审校和修复采用哪类平台读感。">目标平台</FieldLabel>
+          <FieldLabel htmlFor="director-basic-platform" hint="Decide what kind of platform reading will be used for planning, copywriting, review and restoration.">target platform</FieldLabel>
           <SelectControl
             id="director-basic-platform"
             className={controlClassName}
@@ -80,7 +80,7 @@ export default function StageBasicSetup({
           </div>
         </div>
         <div className="space-y-2">
-          <FieldLabel htmlFor="director-basic-reader-channel" hint={BASIC_INFO_FIELD_HINTS.readerChannelPreference}>读者频道倾向</FieldLabel>
+          <FieldLabel htmlFor="director-basic-reader-channel" hint={BASIC_INFO_FIELD_HINTS.readerChannelPreference}>Reader channel tendencies</FieldLabel>
           <SelectControl
             id="director-basic-reader-channel"
             className={controlClassName}
@@ -99,7 +99,7 @@ export default function StageBasicSetup({
         </div>
 
         <div className="space-y-2">
-          <FieldLabel htmlFor="director-basic-pov" hint={BASIC_INFO_FIELD_HINTS.narrativePov}>叙事视角</FieldLabel>
+          <FieldLabel htmlFor="director-basic-pov" hint={BASIC_INFO_FIELD_HINTS.narrativePov}>narrative perspective</FieldLabel>
           <SelectControl
             id="director-basic-pov"
             className={controlClassName}
@@ -118,7 +118,7 @@ export default function StageBasicSetup({
         </div>
 
         <div className="space-y-2">
-          <FieldLabel htmlFor="director-basic-pace" hint={BASIC_INFO_FIELD_HINTS.pacePreference}>节奏偏好</FieldLabel>
+          <FieldLabel htmlFor="director-basic-pace" hint={BASIC_INFO_FIELD_HINTS.pacePreference}>rhythm preference</FieldLabel>
           <SelectControl
             id="director-basic-pace"
             className={controlClassName}
@@ -137,7 +137,7 @@ export default function StageBasicSetup({
         </div>
 
         <div className="space-y-2">
-          <FieldLabel htmlFor="director-basic-emotion" hint={BASIC_INFO_FIELD_HINTS.emotionIntensity}>情绪浓度</FieldLabel>
+          <FieldLabel htmlFor="director-basic-emotion" hint={BASIC_INFO_FIELD_HINTS.emotionIntensity}>emotional concentration</FieldLabel>
           <SelectControl
             id="director-basic-emotion"
             className={controlClassName}
@@ -156,7 +156,7 @@ export default function StageBasicSetup({
         </div>
 
         <div className="space-y-2">
-          <FieldLabel htmlFor="director-basic-estimated" hint={BASIC_INFO_FIELD_HINTS.estimatedChapterCount}>预计章节数</FieldLabel>
+          <FieldLabel htmlFor="director-basic-estimated" hint={BASIC_INFO_FIELD_HINTS.estimatedChapterCount}>Estimated number of chapters</FieldLabel>
           <Input
             id="director-basic-estimated"
             type="number"
@@ -175,16 +175,16 @@ export default function StageBasicSetup({
             onBlur={() => setEstimatedChapterCountDraft(null)}
           />
           <div className={`text-xs text-muted-foreground ${AUTO_DIRECTOR_MOBILE_CLASSES.wrapText}`}>
-            会作为整书结构密度和后续卷章规划的参考，不是硬性上限。
+            It will be used as a reference for the structural density of the entire book and the planning of subsequent chapters, and is not a hard upper limit.
           </div>
           {basicForm.estimatedChapterCount <= 60 ? (
             <div className={`rounded-lg bg-sky-50 px-3 py-2 text-xs leading-5 text-sky-900 ${AUTO_DIRECTOR_MOBILE_CLASSES.wrapText}`}>
-              紧凑全书模式：AI 会在有限篇幅内完成完整结局，必要时最多追加 5 章收尾。
+              Compact book mode: AI will complete the complete ending within a limited space, and add up to 5 additional chapters if necessary.
             </div>
           ) : null}
           {hasLargeChapterPlan ? (
             <div className={`rounded-lg bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-900 ${AUTO_DIRECTOR_MOBILE_CLASSES.wrapText}`}>
-              建议先小范围尝试：先查看规划和前期章节方向，确认符合想法后再扩大产出范围。
+              It is recommended to try it on a small scale first: check the planning and early chapter directions first, and then expand the output scope after confirming that it meets your ideas.
             </div>
           ) : null}
         </div>
@@ -193,9 +193,9 @@ export default function StageBasicSetup({
       <details className="group pt-2">
         <summary className="cursor-pointer list-none">
           <div>
-            <div className="text-base font-semibold text-foreground">补充读者与卖点</div>
+            <div className="text-base font-semibold text-foreground">Supplement readers and selling points</div>
             <div className={`mt-1 max-w-3xl text-sm leading-6 text-muted-foreground ${AUTO_DIRECTOR_MOBILE_CLASSES.wrapText}`}>
-              不确定可以先跳过。补充后，AI 会更清楚这本书写给谁、前 30 章要给读者什么。
+              If you are not sure, you can skip it first. After supplementation, the AI ​​will have a clearer idea of ​​who the book is for and what the first 30 chapters should give readers.
             </div>
           </div>
         </summary>
@@ -212,53 +212,53 @@ export default function StageBasicSetup({
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <div className="space-y-2">
             <FieldLabel htmlFor="director-basic-target-audience" hint={BASIC_INFO_FIELD_HINTS.targetAudience}>
-              目标读者
+              target audience
             </FieldLabel>
             <Input
               id="director-basic-target-audience"
               className={controlClassName}
               value={basicForm.targetAudience}
-              placeholder="例如：爱看都市高压逆袭、关系拉扯和持续追更钩子的读者"
+              placeholder="For example: Readers who like to watch urban high-pressure counterattacks, relationship pulls, and constant pursuit of hooks"
               onChange={(event) => onBasicFormChange({ targetAudience: event.target.value })}
             />
           </div>
 
           <div className="space-y-2">
             <FieldLabel htmlFor="director-basic-commercial-tags" hint={BASIC_INFO_FIELD_HINTS.commercialTagsText}>
-              核心商业标签
+              core business tags
             </FieldLabel>
             <Input
               id="director-basic-commercial-tags"
               className={controlClassName}
               value={basicForm.commercialTagsText}
-              placeholder="例如：逆袭，强冲突，悬念拉满，职场博弈"
+              placeholder="For example: counterattack, strong conflict, full of suspense, workplace game"
               onChange={(event) => onBasicFormChange({ commercialTagsText: event.target.value })}
             />
           </div>
 
           <div className="space-y-2">
             <FieldLabel htmlFor="director-basic-competing-feel" hint={BASIC_INFO_FIELD_HINTS.competingFeel}>
-              竞品感 / 熟悉阅读感
+              Competitive product sense/familiar reading sense
             </FieldLabel>
             <Input
               id="director-basic-competing-feel"
               className={controlClassName}
               value={basicForm.competingFeel}
-              placeholder="例如：现实职场压迫感里带一点冷幽默和高密度关系拉扯"
+              placeholder="For example: a bit of cold humor and high-density relationship tension in the real workplace pressure"
               onChange={(event) => onBasicFormChange({ competingFeel: event.target.value })}
             />
           </div>
 
           <div className="space-y-2">
             <FieldLabel htmlFor="director-basic-book-selling-point" hint={BASIC_INFO_FIELD_HINTS.bookSellingPoint}>
-              本书核心卖点
+              The core selling point of this book
             </FieldLabel>
             <textarea
               id="director-basic-book-selling-point"
               rows={3}
               className={`${controlClassName} min-h-[96px] resize-y`}
               value={basicForm.bookSellingPoint}
-              placeholder="例如：主角每次解决现实困局都会撬动更大的关系链和利益链，读者会一直期待下一次反压。"
+              placeholder="For example: every time the protagonist solves a real-life dilemma, he will leverage a larger chain of relationships and interests, and readers will always look forward to the next counter-pressure."
               onChange={(event) => onBasicFormChange({ bookSellingPoint: event.target.value })}
             />
           </div>
@@ -266,22 +266,22 @@ export default function StageBasicSetup({
 
         <div className="space-y-2">
           <FieldLabel htmlFor="director-basic-first30-promise" hint={BASIC_INFO_FIELD_HINTS.first30ChapterPromise}>
-            前 30 章承诺
+            First 30 Chapters Promise
           </FieldLabel>
           <textarea
             id="director-basic-first30-promise"
             rows={4}
             className={`${controlClassName} min-h-[120px] resize-y`}
             value={basicForm.first30ChapterPromise}
-            placeholder="例如：前 30 章必须让读者看到主角站稳第一阶段立场、核心对手浮出水面、关系线第一次强反转，并明确这本书后面会越写越狠。"
+            placeholder="For example: the first 30 chapters must allow readers to see the protagonist take a firm stand in the first stage, the core opponent emerges, and the relationship line reverses for the first time, and it must be clear that the book will become more and more ruthless later on."
             onChange={(event) => onBasicFormChange({ first30ChapterPromise: event.target.value })}
           />
         </div>
       </details>
 
       <div className="flex flex-col gap-2 pt-2 sm:flex-row sm:justify-between">
-        <Button type="button" variant="ghost" onClick={onBack}>返回想法</Button>
-        <Button type="button" onClick={onConfirm}>确认起始设置</Button>
+        <Button type="button" variant="ghost" onClick={onBack}>return ideas</Button>
+        <Button type="button" onClick={onConfirm}>Confirm initial settings</Button>
       </div>
     </section>
   );

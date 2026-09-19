@@ -9,6 +9,7 @@ export * from "./types/characterResource";
 export * from "./types/characterSync";
 export * from "./types/llm";
 export * from "./types/knowledge";
+export * from "./types/legacyProtocolValues";
 export * from "./types/novel";
 export * from "./types/novelCharacter";
 export * from "./types/pagination";

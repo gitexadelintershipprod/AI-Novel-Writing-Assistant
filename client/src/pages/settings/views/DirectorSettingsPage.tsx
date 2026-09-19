@@ -6,7 +6,7 @@ import { SettingsShell } from "../components/SettingsShell";
 export default function DirectorSettingsPage() {
   const [message, setMessage] = useState("");
   return (
-    <SettingsShell title="自动导演" description="设置问题处理、自动确认和创作提醒；每本书开始后会按当时设置保留自己的执行规则。">
+    <SettingsShell title="Auto-Director" description="Set up problem handling, automatic confirmation and creation reminders; after each book is started, it will retain its own execution rules according to the settings at that time.">
       <AutoDirectorSettingsSection onActionResult={setMessage} collapseAdvanced />
       <SettingsActionResult message={message} />
     </SettingsShell>

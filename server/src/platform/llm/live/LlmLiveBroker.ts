@@ -33,7 +33,7 @@ export class LlmLiveBroker {
       context,
       seq: this.nextSequence(),
       phase: "requesting",
-      phaseMessage: "正在连接模型",
+      phaseMessage: "Connecting model",
       preview: "",
       totalChars: 0,
       startedAt: now.toISOString(),
@@ -117,7 +117,7 @@ export class LlmLiveBroker {
       ...record.snapshot,
       seq,
       phase: record.snapshot.phase === "requesting" ? "streaming" : record.snapshot.phase,
-      phaseMessage: record.snapshot.phase === "requesting" ? "模型正在返回内容" : record.snapshot.phaseMessage,
+      phaseMessage: record.snapshot.phase === "requesting" ? "The model is returning content" : record.snapshot.phaseMessage,
       preview: preview.length > MAX_PREVIEW_CHARS ? preview.slice(-MAX_PREVIEW_CHARS) : preview,
       totalChars: record.snapshot.totalChars + content.length,
       updatedAt: now,
@@ -137,7 +137,7 @@ export class LlmLiveBroker {
     if (!record) {
       return;
     }
-    this.updatePhase(interactionId, "completed", "模型结果已准备完成");
+    this.updatePhase(interactionId, "completed", "Model results are ready");
     const snapshot = this.sessions.get(interactionId)?.snapshot;
     if (!snapshot) {
       return;
@@ -250,7 +250,7 @@ export class LlmLiveSession {
   }
 
   fail(error: unknown): void {
-    const message = error instanceof Error ? error.message : "模型调用失败";
+    const message = error instanceof Error ? error.message : "The model call failed";
     this.broker.fail(this.interactionId, message);
   }
 }

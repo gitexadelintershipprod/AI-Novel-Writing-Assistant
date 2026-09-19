@@ -83,9 +83,9 @@ export default function ShortStoryStudioPage() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["short-story", novelId] });
       setEditing(false);
-      toast.success("正文已保存，并保留了修改前快照。");
+      toast.success("The text has been saved, and the pre-modification snapshot has been retained.");
     },
-    onError: (error) => toast.error(error instanceof Error ? error.message : "保存失败，请刷新后重试。"),
+    onError: (error) => toast.error(error instanceof Error ? error.message : "Saving failed, please refresh and try again."),
   });
 
   const revisionPreviewMutation = useMutation({
@@ -93,30 +93,30 @@ export default function ShortStoryStudioPage() {
     onSuccess: (response) => {
       setRevisionImpact(response.data ?? null);
     },
-    onError: (error) => toast.error(error instanceof Error ? error.message : "暂时无法理解这次修改。"),
+    onError: (error) => toast.error(error instanceof Error ? error.message : "I cannot understand this modification at the moment."),
   });
 
   const revisionApplyMutation = useMutation({
     mutationFn: () => {
-      if (!revisionImpact) throw new Error("修改预览已失效。");
+      if (!revisionImpact) throw new Error("Edit preview is no longer available.");
       return applyShortStoryRevision(novelId, revisionImpact.intentVersionId);
     },
     onSuccess: async () => {
       setRevisionImpact(null);
       setRevisionInstruction("");
       await queryClient.invalidateQueries({ queryKey: ["short-story", novelId] });
-      toast.success("已开始按确认的范围修改作品。");
+      toast.success("The work has been modified according to the confirmed scope.");
     },
-    onError: (error) => toast.error(error instanceof Error ? error.message : "应用修改失败。"),
+    onError: (error) => toast.error(error instanceof Error ? error.message : "Applying changes failed."),
   });
 
   const exportMutation = useMutation({
     mutationFn: () => downloadNovelExport(novelId, "txt", "full", story?.novel.title),
     onSuccess: ({ blob, fileName }) => {
       createDownload(blob, fileName);
-      toast.success("导出已开始。");
+      toast.success("Export has started.");
     },
-    onError: (error) => toast.error(error instanceof Error ? error.message : "导出失败。"),
+    onError: (error) => toast.error(error instanceof Error ? error.message : "Export failed."),
   });
 
   const deriveMutation = useMutation({
@@ -124,27 +124,27 @@ export default function ShortStoryStudioPage() {
     onSuccess: (response) => {
       if (response.data?.resumeRoute) navigate(response.data.resumeRoute);
     },
-    onError: (error) => toast.error(error instanceof Error ? error.message : "暂时无法发展成长篇。"),
+    onError: (error) => toast.error(error instanceof Error ? error.message : "It cannot be developed into a full-length article at the moment."),
   });
 
   const retryMutation = useMutation({
     mutationFn: () => retryShortStoryProduction(novelId),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["short-story", novelId] });
-      toast.success("已从中断的位置继续生成。");
+      toast.success("The build has resumed where it left off.");
     },
-    onError: (error) => toast.error(error instanceof Error ? error.message : "继续生成失败。"),
+    onError: (error) => toast.error(error instanceof Error ? error.message : "Continue generation failed."),
   });
 
   if (storyQuery.isLoading) {
-    return <CenteredStatus label="正在打开作品…" />;
+    return <CenteredStatus label="Opening work..." />;
   }
   if (!story) {
     return (
       <div className="mx-auto max-w-2xl py-16 text-center">
-        <h1 className="text-xl font-semibold">作品暂时无法打开</h1>
-        <p className="mt-2 text-sm text-muted-foreground">请返回作品列表后重试。</p>
-        <Button asChild className="mt-5"><Link to="/novels">返回作品列表</Link></Button>
+        <h1 className="text-xl font-semibold">The work cannot be opened temporarily</h1>
+        <p className="mt-2 text-sm text-muted-foreground">Please return to the work list and try again.</p>
+        <Button asChild className="mt-5"><Link to="/novels">Return to work list</Link></Button>
       </div>
     );
   }
@@ -156,13 +156,13 @@ export default function ShortStoryStudioPage() {
           <div className="min-w-0 flex-1">
             <div className="flex min-w-0 items-center gap-2">
               <Button asChild variant="ghost" size="sm" className="-ml-2 shrink-0 text-muted-foreground">
-                <Link to="/novels"><ArrowLeft className="mr-1.5 h-4 w-4" />作品列表</Link>
+                <Link to="/novels"><ArrowLeft className="mr-1.5 h-4 w-4" />List of works</Link>
               </Button>
               <span className="h-4 w-px bg-border" />
               <h1 className="truncate text-xl font-semibold tracking-tight sm:text-2xl">{story.novel.title}</h1>
             </div>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              {story.intent?.understanding ?? "AI 正在整理这篇作品的创作方向。"}
+              {story.intent?.understanding ?? "AI is sorting out the creative direction of this piece."}
             </p>
           </div>
           <div className="flex shrink-0 flex-wrap gap-2 lg:justify-end">
@@ -172,7 +172,7 @@ export default function ShortStoryStudioPage() {
               onClick={() => exportMutation.mutate()}
               disabled={exportMutation.isPending || !story.continuousContent}
             >
-              <Download className="mr-2 h-4 w-4" />{exportMutation.isPending ? "导出中…" : "导出作品"}
+              <Download className="mr-2 h-4 w-4" />{exportMutation.isPending ? "Exporting…" : "Export your work"}
             </Button>
             <Button
               variant="outline"
@@ -180,7 +180,7 @@ export default function ShortStoryStudioPage() {
               onClick={() => deriveMutation.mutate()}
               disabled={deriveMutation.isPending || isProducing}
             >
-              <BookOpen className="mr-2 h-4 w-4" />{deriveMutation.isPending ? "准备中…" : "发展成长篇"}
+              <BookOpen className="mr-2 h-4 w-4" />{deriveMutation.isPending ? "In preparation…" : "Develop into a long story"}
             </Button>
           </div>
         </div>
@@ -197,7 +197,7 @@ export default function ShortStoryStudioPage() {
                   </span>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-4 text-sm">
-                      <span className="truncate font-medium">{story.production.currentAction ?? "AI 正在写完整作品"}</span>
+                      <span className="truncate font-medium">{story.production.currentAction ?? "AI is writing complete works"}</span>
                       <span className="shrink-0 tabular-nums text-muted-foreground">{Math.round(story.production.progress * 100)}%</span>
                     </div>
                     <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
@@ -215,12 +215,12 @@ export default function ShortStoryStudioPage() {
           {story.production.status === "failed" ? (
             <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm">
               <div className="min-w-0 flex-1">
-                <div className="font-medium text-destructive">生成暂时中断</div>
-                <p className="mt-1 break-words text-muted-foreground">{story.production.error ?? "可以从已保存的内容继续。"}</p>
+                <div className="font-medium text-destructive">Generate temporary interruption</div>
+                <p className="mt-1 break-words text-muted-foreground">{story.production.error ?? "You can continue from saved content."}</p>
               </div>
               <Button variant="outline" size="sm" onClick={() => retryMutation.mutate()} disabled={retryMutation.isPending}>
                 {retryMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
-                继续生成
+                Continue to generate
               </Button>
             </div>
           ) : null}
@@ -232,10 +232,10 @@ export default function ShortStoryStudioPage() {
                   <FileText className="h-4 w-4" />
                 </span>
                 <div>
-                  <div className="text-sm font-medium">{editing ? "编辑正文" : "完整成稿"}</div>
+                  <div className="text-sm font-medium">{editing ? "Edit text" : "Complete manuscript"}</div>
                   <div className="mt-0.5 text-xs tabular-nums text-muted-foreground">
-                    {story.continuousContent.replace(/\s+/g, "").length.toLocaleString()} 字
-                    {editing && changedSegments.length > 0 ? ` · ${changedSegments.length} 处未保存` : ""}
+                    {story.continuousContent.replace(/\s+/g, "").length.toLocaleString()} characters
+                    {editing && changedSegments.length > 0 ? ` · ${changedSegments.length} Not saved at` : ""}
                   </div>
                 </div>
               </div>
@@ -250,16 +250,16 @@ export default function ShortStoryStudioPage() {
                         setEditing(false);
                       }}
                     >
-                      取消
+                      Cancel
                     </Button>
                     <Button size="sm" onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending || changedSegments.length === 0}>
                       {saveMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                      保存修改
+                      Save changes
                     </Button>
                   </>
                 ) : (
                   <Button variant="outline" size="sm" onClick={() => setEditing(true)} disabled={isProducing || story.segments.length === 0}>
-                    <PencilLine className="mr-2 h-4 w-4" />直接编辑
+                    <PencilLine className="mr-2 h-4 w-4" />Edit directly
                   </Button>
                 )}
               </div>
@@ -268,14 +268,14 @@ export default function ShortStoryStudioPage() {
             <article className="min-h-[calc(100vh-15rem)] px-5 py-7 sm:px-8 sm:py-9 xl:px-10 2xl:px-12">
               {story.segments.length === 0 ? (
                 <div className="flex min-h-[45vh] items-center justify-center text-sm text-muted-foreground">
-                  {isProducing ? "第一段正文完成后会显示在这里。" : "暂时还没有正文。"}
+                  {isProducing ? "The first text paragraph will appear here after it is completed." : "There is no text yet."}
                 </div>
               ) : editing ? (
                 <div className="overflow-hidden rounded-lg border border-input bg-background focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10">
                   {story.segments.map((segment) => (
                     <textarea
                       key={segment.id}
-                      aria-label="作品正文"
+                      aria-label="Text of the work"
                       value={drafts[segment.id] ?? segment.content}
                       onChange={(event) => setDrafts((current) => ({ ...current, [segment.id]: event.target.value }))}
                       className="block w-full resize-none border-0 bg-transparent px-5 py-3 text-[16px] leading-8 outline-none first:pt-6 last:pb-6"
@@ -285,7 +285,7 @@ export default function ShortStoryStudioPage() {
                 </div>
               ) : (
                 <div className="whitespace-pre-wrap text-[16px] leading-8 text-foreground selection:bg-primary/15">
-                  {story.continuousContent || "正文仍在生成中。"}
+                  {story.continuousContent || "The text is still being generated."}
                 </div>
               )}
             </article>
@@ -298,9 +298,9 @@ export default function ShortStoryStudioPage() {
               <div>
                 <div className="flex items-center gap-2 text-base font-semibold">
                   <WandSparkles className="h-4 w-4 text-primary" />
-                  用一句话修改作品
+                  Modify the work in one sentence
                 </div>
-                <p className="mt-1.5 text-sm leading-6 text-muted-foreground">先预览影响范围，确认后 AI 才会修改正文。</p>
+                <p className="mt-1.5 text-sm leading-6 text-muted-foreground">Preview the scope of influence first, and then AI will modify the text after confirmation.</p>
               </div>
               <textarea
                 value={revisionInstruction}
@@ -308,7 +308,7 @@ export default function ShortStoryStudioPage() {
                   setRevisionInstruction(event.target.value);
                   setRevisionImpact(null);
                 }}
-                placeholder="例如：让结尾更温暖，但保留主角最后的选择。"
+                placeholder="For example: make the ending warmer, but retain the protagonist’s final choice."
                 className="min-h-32 w-full resize-y rounded-lg border border-input bg-background px-3.5 py-3 text-sm leading-6 outline-none focus:border-primary focus:ring-2 focus:ring-primary/10"
                 disabled={isProducing}
               />
@@ -318,7 +318,7 @@ export default function ShortStoryStudioPage() {
                 disabled={!revisionInstruction.trim() || revisionPreviewMutation.isPending || isProducing}
               >
                 {revisionPreviewMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
-                预览修改范围
+                Preview modification range
               </Button>
 
               {revisionImpact ? (
@@ -333,21 +333,21 @@ export default function ShortStoryStudioPage() {
           </Card>
 
           <details className="rounded-xl border bg-background px-4 py-3 text-sm shadow-sm">
-            <summary className="cursor-pointer font-medium">作品方向与优化建议</summary>
+            <summary className="cursor-pointer font-medium">Work direction and optimization suggestions</summary>
             <div className="mt-4 space-y-4 border-t pt-4 text-muted-foreground">
               <div>
-                <div className="text-xs font-medium text-foreground">创作方向</div>
-                <p className="mt-1.5 leading-6">{story.intent?.direction.premise ?? "暂未生成"}</p>
+                <div className="text-xs font-medium text-foreground">creative direction</div>
+                <p className="mt-1.5 leading-6">{story.intent?.direction.premise ?? "Not generated yet"}</p>
               </div>
               {story.plan?.qualityDebt.length ? (
                 <div>
-                  <div className="text-xs font-medium text-foreground">可继续优化</div>
+                  <div className="text-xs font-medium text-foreground">Can continue to optimize</div>
                   <ul className="mt-2 list-disc space-y-1.5 pl-5">
                     {story.plan.qualityDebt.map((item) => <li key={item}>{item}</li>)}
                   </ul>
                 </div>
               ) : (
-                <p>没有待处理的普通质量建议。</p>
+                <p>There are no general quality recommendations pending.</p>
               )}
             </div>
           </details>
@@ -365,26 +365,26 @@ function RevisionPreview(props: {
 }) {
   const impact = props.impact;
   const strategyLabel = impact.recommendedStrategy === "local_patch"
-    ? "局部调整"
+    ? "local adjustment"
     : impact.recommendedStrategy === "rewrite_downstream"
-      ? "从影响处向后调整"
-      : "重新规划整篇";
+      ? "Adjust backward from the point of impact"
+      : "Re-plan the entire article";
   return (
     <div className="rounded-xl border border-primary/25 bg-primary/[0.03] p-4">
-      <div className="font-medium">AI 对修改的理解</div>
+      <div className="font-medium">AI understanding of modifications</div>
       <p className="mt-2 text-sm leading-6">{impact.understoodGoal}</p>
       <div className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
-        <PreviewFact label="建议方式" value={strategyLabel} />
-        <PreviewFact label="影响范围" value={`${impact.affectedSegmentIds.length} text segments`} />
-        <PreviewFact label="结尾" value={impact.changesEnding ? "会改变" : "保持"} />
-        <PreviewFact label="核心意图" value={impact.changesCoreIntent ? "会改变" : "保持"} />
+        <PreviewFact label="Suggested way" value={strategyLabel} />
+        <PreviewFact label="Scope of influence" value={`${impact.affectedSegmentIds.length} text segments`} />
+        <PreviewFact label="ending" value={impact.changesEnding ? "will change" : "keep"} />
+        <PreviewFact label="core intent" value={impact.changesCoreIntent ? "will change" : "keep"} />
       </div>
       <p className="mt-4 text-sm leading-6 text-muted-foreground">{impact.summary}</p>
       <div className="mt-4 flex justify-end gap-2">
-        <Button variant="ghost" onClick={props.onCancel} disabled={props.applying}>先不修改</Button>
+        <Button variant="ghost" onClick={props.onCancel} disabled={props.applying}>Don’t modify it yet</Button>
         <Button onClick={props.onConfirm} disabled={props.applying}>
           {props.applying && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          确认并应用
+          Confirm and apply
         </Button>
       </div>
     </div>

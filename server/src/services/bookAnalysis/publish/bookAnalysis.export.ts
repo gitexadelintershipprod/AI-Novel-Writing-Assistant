@@ -15,18 +15,18 @@ import { getEffectiveContent } from "../shared/bookAnalysis.utils";
 function sectionContentToMarkdown(section: BookAnalysisSection): string {
   const content = getEffectiveContent(section);
   if (!content) {
-    return "_暂无内容_";
+    return "_No content yet_";
   }
   return content;
 }
 
 function formatTimelineNode(node: BookAnalysisTimelineNode): string {
   const meta = [
-    node.timeHint ? `时间：${node.timeHint}` : "",
-    node.phase ? `阶段：${node.phase}` : "",
-    node.sourceRefs?.length ? `来源：${node.sourceRefs.join("、")}` : "",
-  ].filter(Boolean).join("；");
-  return meta ? `${node.label}（${meta}）` : node.label;
+    node.timeHint ? `Time: ${node.timeHint}` : "",
+    node.phase ? `Phase: ${node.phase}` : "",
+    node.sourceRefs?.length ? `Sources: ${node.sourceRefs.join(", ")}` : "",
+  ].filter(Boolean).join("; ");
+  return meta ? `${node.label} (${meta})` : node.label;
 }
 
 function normalizeStructuredValue(value: unknown): string[] {
@@ -57,15 +57,15 @@ function buildTimelineSummaryRows(label: string, nodes: BookAnalysisTimelineNode
     phase: group.phase,
     items: group.nodes.map((node) => {
       const meta = [
-        node.timeHint ? `时间：${node.timeHint}` : "",
-        node.sourceRefs?.length ? `来源：${node.sourceRefs.join("、")}` : "",
-      ].filter(Boolean).join("；");
-      return meta ? `${node.label}（${meta}）` : node.label;
+        node.timeHint ? `Time: ${node.timeHint}` : "",
+        node.sourceRefs?.length ? `Sources: ${node.sourceRefs.join(", ")}` : "",
+      ].filter(Boolean).join("; ");
+      return meta ? `${node.label} (${meta})` : node.label;
     }),
   }));
-  const lines = [`- ${label}：`];
+  const lines = [`- ${label}:`];
   for (const { phase, items } of groups) {
-    lines.push(`  - ${phase}：${items.join("；")}`);
+    lines.push(`  - ${phase}: ${items.join("; ")}`);
   }
   return lines;
 }
@@ -85,7 +85,7 @@ function buildStructuredSummaryMarkdown(section: BookAnalysisSection): string[] 
         return buildTimelineSummaryRows(label, normalizeBookAnalysisTimelineNodes(value, 12));
       }
       const values = normalizeStructuredValue(value);
-      return values.length > 0 ? [`- ${label}：${values.join("；")}`] : [];
+      return values.length > 0 ? [`- ${label}: ${values.join("; ")}`] : [];
     })
     .slice(0, 18);
 
@@ -94,7 +94,7 @@ function buildStructuredSummaryMarkdown(section: BookAnalysisSection): string[] 
   }
 
   return [
-    "### 关键结论",
+    "### Key conclusions",
     "",
     ...rows,
     "",
@@ -102,8 +102,8 @@ function buildStructuredSummaryMarkdown(section: BookAnalysisSection): string[] 
 }
 
 export function buildPublishDocumentTitle(input: { novelTitle: string; versionNumber: number }): string {
-  const title = input.novelTitle.trim() || "未命名小说";
-  return `《${title}》拆书 v${input.versionNumber}`;
+  const title = input.novelTitle.trim() || "Untitled novel";
+  return `${title} book analysis v${input.versionNumber}`;
 }
 
 export function buildPublishFileName(
@@ -129,18 +129,18 @@ export function buildPublishMarkdown(
   publishedAtISO: string,
 ): { content: string; hasPublishableContent: boolean } {
   const markdownParts: string[] = [
-    `# ${detail.title}（发布版）`,
+    `# ${detail.title} (published edition)`,
     "",
-    "## 发布元信息",
+    "## Publish metadata",
     "",
-    `- 来源拆书ID：${detail.id}`,
-    `- 来源文档：${detail.documentTitle}`,
-    `- 来源文件名：${detail.documentFileName}`,
-    `- 来源版本：v${detail.documentVersionNumber}`,
-    `- 来源范围：${detail.sourceRange?.label ?? "全文"}`,
-    `- 当前激活版本：v${detail.currentDocumentVersionNumber}`,
-    `- 拆书状态：${detail.status}`,
-    `- 发布时间：${publishedAtISO}`,
+    `- Source analysis ID: ${detail.id}`,
+    `- Source document: ${detail.documentTitle}`,
+    `- Source file name: ${detail.documentFileName}`,
+    `- Source version: v${detail.documentVersionNumber}`,
+    `- Source range: ${detail.sourceRange?.label ?? "Full text"}`,
+    `- Currently active version: v${detail.currentDocumentVersionNumber}`,
+    `- Analysis status: ${detail.status}`,
+    `- Published at: ${publishedAtISO}`,
     "",
   ];
 
@@ -158,21 +158,21 @@ export function buildPublishMarkdown(
     markdownParts.push(`## ${section.title}`);
     markdownParts.push("");
     markdownParts.push(...structuredSummary);
-    markdownParts.push(content || "_暂无内容_");
+    markdownParts.push(content || "_No content yet_");
     markdownParts.push("");
 
     if (notes) {
-      markdownParts.push("### 人工备注");
+      markdownParts.push("### Manual notes");
       markdownParts.push("");
       markdownParts.push(notes);
       markdownParts.push("");
     }
 
     if (evidence.length > 0) {
-      markdownParts.push("### 证据摘录");
+      markdownParts.push("### Evidence excerpts");
       markdownParts.push("");
       for (const item of evidence) {
-        markdownParts.push(`- [${item.sourceLabel}] ${item.label}：${item.excerpt}`);
+        markdownParts.push(`- [${item.sourceLabel}] ${item.label}: ${item.excerpt}`);
       }
       markdownParts.push("");
     }
@@ -200,13 +200,13 @@ export function buildAnalysisExportContent(
   const markdownParts: string[] = [
     `# ${detail.title}`,
     "",
-    `- 文档：${detail.documentTitle}`,
-    `- 原文件：${detail.documentFileName}`,
-    `- 来源版本：v${detail.documentVersionNumber}`,
-    `- 来源范围：${detail.sourceRange?.label ?? "全文"}`,
-    `- 当前激活版本：v${detail.currentDocumentVersionNumber}`,
-    `- 状态：${detail.status}`,
-    detail.summary ? `- 摘要：${detail.summary}` : "",
+    `- Document: ${detail.documentTitle}`,
+    `- Original file: ${detail.documentFileName}`,
+    `- Source version: v${detail.documentVersionNumber}`,
+    `- Source range: ${detail.sourceRange?.label ?? "Full text"}`,
+    `- Currently active version: v${detail.currentDocumentVersionNumber}`,
+    `- Status: ${detail.status}`,
+    detail.summary ? `- Summary: ${detail.summary}` : "",
     "",
   ];
 
@@ -217,16 +217,16 @@ export function buildAnalysisExportContent(
     markdownParts.push(sectionContentToMarkdown(section));
     if (section.notes?.trim()) {
       markdownParts.push("");
-      markdownParts.push("### 人工备注");
+      markdownParts.push("### Manual notes");
       markdownParts.push("");
       markdownParts.push(section.notes.trim());
     }
     if (section.evidence.length > 0) {
       markdownParts.push("");
-      markdownParts.push("### 证据摘录");
+      markdownParts.push("### Evidence excerpts");
       markdownParts.push("");
       for (const evidence of section.evidence) {
-        markdownParts.push(`- [${evidence.sourceLabel}] ${evidence.label}：${evidence.excerpt}`);
+        markdownParts.push(`- [${evidence.sourceLabel}] ${evidence.label}: ${evidence.excerpt}`);
       }
     }
     markdownParts.push("");

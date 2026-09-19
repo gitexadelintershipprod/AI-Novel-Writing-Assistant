@@ -148,36 +148,36 @@ function buildMode(input: {
 function statusLabel(mode: DirectorDashboardMode): string {
   switch (mode) {
     case "queued":
-      return "等待执行";
+      return "Waiting for execution";
     case "running":
-      return "AI 接管中";
+      return "AI is taking over";
     case "waiting_user":
-      return "等待确认";
+      return "Waiting for confirmation";
     case "recovering":
-      return "等待恢复";
+      return "Waiting for recovery";
     case "failed":
-      return "执行异常";
+      return "Execution exception";
     case "completed":
-      return "已完成";
+      return "Completed";
     default:
-      return "暂未启动";
+      return "Not started";
   }
 }
 
 function headlineForMode(mode: DirectorDashboardMode, displayState: DirectorDisplayState): string {
   switch (mode) {
     case "queued":
-      return "等待自动导演";
+      return "Waiting for Auto-Director";
     case "running":
-      return "正在自动导演";
+      return "Auto-Directing";
     case "waiting_user":
-      return "等待确认";
+      return "Waiting for confirmation";
     case "recovering":
-      return "等待恢复";
+      return "Waiting for recovery";
     case "failed":
-      return "执行受阻";
+      return "Execution blocked";
     case "completed":
-      return "导演已完成";
+      return "Director finished";
     default:
       return displayState.headline;
   }
@@ -186,17 +186,17 @@ function headlineForMode(mode: DirectorDashboardMode, displayState: DirectorDisp
 function descriptionForMode(mode: DirectorDashboardMode, displayState: DirectorDisplayState): string {
   switch (mode) {
     case "queued":
-      return "任务已进入后台队列，执行器领取后会继续推进。";
+      return "The task is in the background queue. It will continue after a runner picks it up.";
     case "running":
-      return "AI 正在后台接管这本书的开书流程。你可以继续手动操作当前项目；如果与自动导演同时改同一块内容，以最新写入结果为准。";
+      return "AI is taking over the book opening process in the background. You can continue to manually operate the current project; if the same piece of content is modified at the same time as the automatic director, the latest writing result shall prevail.";
     case "waiting_user":
-      return "当前导演流程停在需要确认的位置。你可以先查看结果，再决定是否继续。";
+      return "The director flow is waiting for confirmation. Review the result before continuing.";
     case "recovering":
-      return "后台执行器连接中断后正在恢复，系统会优先从最近进度继续。";
+      return "The background runner disconnected and is recovering. The system will continue from the latest progress.";
     case "failed":
-      return "当前导演流程停在最近一步。可以先查看执行详情，再决定是否重试或继续。";
+      return "The director flow stopped at the latest step. Review the run details before retrying or continuing.";
     case "completed":
-      return "本轮导演流程已收尾，你可以继续推进章节、查看结果，或发起下一轮自动导演。";
+      return "This director round is wrapped. Continue chapters, review results, or start another Auto-Director run.";
     default:
       return displayState.description;
   }
@@ -262,7 +262,7 @@ function buildCurrentAction(input: {
     return input.task.lastError?.trim()
       || input.projection?.blockingReason?.trim()
       || input.projection?.lastEventSummary?.trim()
-      || "系统会从最近进度继续恢复。";
+      || "The system will resume from the latest progress.";
   }
   if (input.mode === "running") {
     return (staleActionProjection ? null : input.projection?.currentLabel?.trim())
@@ -294,32 +294,32 @@ function buildActions(mode: DirectorDashboardMode): {
 } {
   if (mode === "waiting_user") {
     return {
-      primaryAction: action("confirm_and_continue", "确认并继续", "primary"),
-      secondaryActions: [action("open_task_center", "查看执行详情", "secondary")],
+      primaryAction: action("confirm_and_continue", "Confirm and continue", "primary"),
+      secondaryActions: [action("open_task_center", "View execution details", "secondary")],
     };
   }
   if (mode === "failed") {
     return {
-      primaryAction: action("open_task_center", "查看执行详情", "primary"),
-      secondaryActions: [action("resume_from_checkpoint", "从最近进度恢复", "secondary")],
+      primaryAction: action("open_task_center", "View execution details", "primary"),
+      secondaryActions: [action("resume_from_checkpoint", "Resume from the latest progress", "secondary")],
     };
   }
   if (mode === "recovering") {
     return {
-      primaryAction: action("open_task_center", "查看执行详情", "primary"),
+      primaryAction: action("open_task_center", "View execution details", "primary"),
       secondaryActions: [],
     };
   }
   if (mode === "running" || mode === "queued") {
     return {
-      primaryAction: action("open_task_center", "查看执行详情", "primary"),
+      primaryAction: action("open_task_center", "View execution details", "primary"),
       secondaryActions: mode === "running"
-        ? [action("background_continue", "后台继续", "secondary")]
+        ? [action("background_continue", "Continue in background", "secondary")]
         : [],
     };
   }
   return {
-    primaryAction: action("open_task_center", "查看执行详情", "primary"),
+    primaryAction: action("open_task_center", "View execution details", "primary"),
     secondaryActions: [],
   };
 }
@@ -334,7 +334,7 @@ function buildDiagnostics(input: {
   if (input.task.pendingManualRecovery && input.liveRunning) {
     diagnostics.push({
       code: "stale_recovery_flag_ignored",
-      label: "恢复标记已被实时进度覆盖",
+      label: "The recovery mark was overwritten by live progress",
       detail: input.task.lastError ?? null,
       level: "info",
       source: "task",
@@ -351,7 +351,7 @@ function buildDiagnostics(input: {
   ) {
     diagnostics.push({
       code: "stale_action_projection_ignored",
-      label: "历史等待信号已被实时进度覆盖",
+      label: "The historical waiting signal was overwritten by live progress",
       detail: input.projection?.blockedReason ?? input.projection?.detail ?? null,
       level: "info",
       source: "projection",
@@ -369,7 +369,7 @@ function buildDiagnostics(input: {
   if (input.projection?.scopeSummary) {
     diagnostics.push({
       code: "scope_summary",
-      label: "工作区摘要",
+      label: "Workspace summary",
       detail: input.projection.scopeSummary,
       level: "info",
       source: "projection",

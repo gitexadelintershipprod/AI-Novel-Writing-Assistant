@@ -24,13 +24,13 @@ const baseTask = {
 test("task queue uses structured failure state as blocker", () => {
   const task = { ...baseTask, status: "failed", failureCode: "NOVEL_WORKFLOW_FAILED" };
   assert.equal(getTaskQueueTone(task), "danger");
-  assert.equal(getTaskQueueLevelLabel(task), "任务失败");
+  assert.equal(getTaskQueueLevelLabel(task), "Task failed");
 });
 
 test("task queue keeps a completed task notice as quality reminder", () => {
   const task = { ...baseTask, status: "succeeded", noticeCode: "PIPELINE_QUALITY_REVIEW", noticeSummary: "待局部修复" };
   assert.equal(getTaskQueueTone(task), "warning");
-  assert.equal(getTaskQueueLevelLabel(task), "质量提醒");
+  assert.equal(getTaskQueueLevelLabel(task), "Quality reminder");
 });
 
 test("task queue treats explicit replan checkpoint as blocker", () => {
@@ -43,12 +43,12 @@ test("task queue keeps replan notices blocking and labels them explicitly", () =
     ...baseTask,
     status: "succeeded",
     noticeCode: "PIPELINE_REPLAN_REQUIRED",
-    noticeSummary: "后续章节需要先重规划",
+    noticeSummary: "Later chapters need a replan first",
   };
   assert.equal(getTaskQueueTone(task), "danger");
-  assert.equal(getTaskQueueLevelLabel(task), "需要重规划");
+  assert.equal(getTaskQueueLevelLabel(task), "Needs re-planning");
   assert.equal(getTaskNoticeSeverity(task), "blocking");
-  assert.equal(getTaskNoticeTitle(task), "需要重规划");
+  assert.equal(getTaskNoticeTitle(task), "Needs re-planning");
 });
 
 test("a failed task cannot be downgraded by a residual quality notice", () => {
@@ -61,7 +61,7 @@ test("a failed task cannot be downgraded by a residual quality notice", () => {
     failureSummary: "模型服务不可用",
   };
   assert.equal(getTaskQueueTone(task), "danger");
-  assert.equal(getTaskQueueLevelLabel(task), "任务失败");
+  assert.equal(getTaskQueueLevelLabel(task), "Task failed");
   assert.equal(getTaskNoticeSeverity(task), "quality");
 });
 
@@ -78,15 +78,15 @@ test("task queue keeps structured pipeline and title review codes local", () => 
     failureSummary: "标题审查待局部处理",
   };
   assert.equal(getTaskQueueTone(pipelineReview), "warning");
-  assert.equal(getTaskQueueLevelLabel(pipelineReview), "质量提醒");
+  assert.equal(getTaskQueueLevelLabel(pipelineReview), "Quality reminder");
   assert.equal(getTaskQueueTone(titleReminder), "warning");
-  assert.equal(getTaskQueueLevelLabel(titleReminder), "质量提醒");
+  assert.equal(getTaskQueueLevelLabel(titleReminder), "Quality reminder");
 });
 
 test("task queue presents waiting approval as an action instead of a fault", () => {
   const task = { ...baseTask, status: "waiting_approval" };
   assert.equal(getTaskQueueTone(task), "info");
-  assert.equal(getTaskQueueLevelLabel(task), "待操作");
+  assert.equal(getTaskQueueLevelLabel(task), "To be operated");
 });
 
 test("must-handle filtering follows structured impact instead of failed and cancelled statuses", () => {

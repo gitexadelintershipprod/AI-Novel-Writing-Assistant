@@ -82,7 +82,7 @@ function tryParseStructuredJsonValue(source: string): { parsed: unknown } | { er
     if (fixed === source) {
       return {
         error: [
-          "JSON 解析失败：",
+          "JSON parse failed:",
           error instanceof Error ? error.message : String(error),
         ].join("\n"),
       };
@@ -95,9 +95,9 @@ function tryParseStructuredJsonValue(source: string): { parsed: unknown } | { er
     } catch (fixedError) {
       return {
         error: [
-          "JSON 解析失败：",
+          "JSON parse failed:",
           error instanceof Error ? error.message : String(error),
-          "截断修复后仍失败：",
+          "Still failed after truncation repair:",
           fixedError instanceof Error ? fixedError.message : String(fixedError),
         ].join("\n"),
       };
@@ -370,7 +370,7 @@ export async function parseStructuredLlmRawContentDetailed<T>(
   });
   if (!input.rawContent.trim()) {
     throw buildStructuredError({
-      message: `[${input.label}] 模型没有返回可用内容，无法执行结构校验或 JSON 修复。`,
+      message: `[${input.label}] 模型没有返回可用内容，无法执行结构校验或 JSON fix。`,
       category: "transport_error",
       strategy: input.strategy,
       profile: input.profile,
@@ -476,7 +476,7 @@ export async function parseStructuredLlmRawContentDetailed<T>(
         data: await repairWithLlm<T>({
           ...input,
           schema: runtimeSchema,
-        }, input.rawContent, `Zod 校验错误：\n${formatZodErrors(zodError)}`, attempt, getRepairHelpers<T>()),
+        }, input.rawContent, `Zod Validation error：\n${formatZodErrors(zodError)}`, attempt, getRepairHelpers<T>()),
         repairUsed: true,
         repairAttempts: attempt,
         diagnostics,

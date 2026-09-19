@@ -32,8 +32,8 @@ const PLANNER_OBJECTIVE_KEYS = [
   "purpose",
   "mission",
   "target",
-  "目标",
-  "章节目标",
+  "target",
+  "Chapter Objectives",
   "规划目标",
   "核心目标",
 ];
@@ -46,9 +46,9 @@ const PLANNER_SCENE_OBJECTIVE_KEYS = [
   "purpose",
   "mission",
   "target",
-  "目标",
+  "target",
   "场景目标",
-  "章节目标",
+  "Chapter Objectives",
 ];
 
 function collectPlannerTextFragments(value: unknown): string[] {

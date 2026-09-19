@@ -52,7 +52,7 @@ export function normalizeSourceProcessingMode(
 }
 
 function buildRepresentativeRanges(textLength: number, sliceLength: number): Array<{ label: string; start: number; end: number }> {
-  const labels = ["开篇", "前段", "承接", "中前段", "中段", "中后段", "后段", "收束"];
+  const labels = ["Beginning", "Early", "Setup", "Early-middle", "Middle", "Late-middle", "Late", "Resolution"];
   const lastStart = Math.max(0, textLength - sliceLength);
   return labels.map((label, index) => {
     const start = labels.length === 1
@@ -73,16 +73,16 @@ function buildRepresentativeSample(sourceText: string, limitChars: number): stri
   }
 
   const intro = [
-    "【系统抽样说明】",
-    "以下内容是从完整知识库原文中抽取的代表性样本，用于学习叙事节奏、语言质感、对白方式和段落组织。",
-    "完整原文已保存为来源快照，请不要把缺失情节当作原文缺陷。",
+    "[System sampling note]",
+    "The following excerpts are representative samples from the full knowledge-base source text, used to learn narrative rhythm, language texture, dialogue style, and paragraph organization.",
+    "The full source text was saved as a snapshot. Do not treat missing plot as a source defect.",
     "",
   ].join("\n");
   const estimatedHeaderChars = intro.length + 900;
   const sliceLength = Math.max(2_400, Math.floor((limitChars - estimatedHeaderChars) / 8));
   const ranges = buildRepresentativeRanges(normalized.length, sliceLength);
   const sections = ranges.map((range) => [
-    `【样本：${range.label}｜位置 ${range.start + 1}-${range.end} / ${normalized.length}】`,
+    `[Sample: ${range.label} | positions ${range.start + 1}-${range.end} / ${normalized.length}]`,
     normalized.slice(range.start, range.end).trim(),
   ].join("\n"));
 
@@ -90,7 +90,7 @@ function buildRepresentativeSample(sourceText: string, limitChars: number): stri
   if (sampled.length <= limitChars) {
     return sampled;
   }
-  return `${sampled.slice(0, Math.max(0, limitChars - 24)).trimEnd()}\n【样本已截断】`;
+  return `${sampled.slice(0, Math.max(0, limitChars - 24)).trimEnd()}\n[Sample truncated]`;
 }
 
 export function buildStyleExtractionSourceInput(

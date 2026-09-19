@@ -52,7 +52,7 @@ function normalizeSuggestedAxioms(raw: unknown): string[] {
         .find((value) => typeof value === "string") as string | undefined;
 
       if (title && description && effect) {
-        return `${title}（${description}，影响：${effect}）`.trim();
+        return `${title}（${description}, impact:${effect}）`.trim();
       }
       if (title && description) {
         return `${title}：${description}`.trim();

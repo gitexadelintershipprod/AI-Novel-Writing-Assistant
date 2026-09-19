@@ -14,7 +14,7 @@ export function registerWritingPlatformRoutes(router: Router): void {
     try {
       const { id } = paramsSchema.parse(req.params);
       const novel = await prisma.novel.findUnique({ where: { id } });
-      if (!novel) throw new AppError("小说不存在。", 404);
+      if (!novel) throw new AppError("The novel does not exist.", 404);
       const result = await runStructuredPrompt({
         asset: writingPlatformRecommendationPrompt,
         promptInput: {
@@ -36,7 +36,7 @@ export function registerWritingPlatformRoutes(router: Router): void {
       const { id } = paramsSchema.parse(req.params);
       const platform = platformSchema.parse(req.body?.platform);
       const novel = await prisma.novel.findUnique({ where: { id } });
-      if (!novel) throw new AppError("小说不存在。", 404);
+      if (!novel) throw new AppError("The novel does not exist.", 404);
       if (novel.writingPlatform === platform && novel.writingPlatformSnapshotJson) {
         res.json({ success: true, data: novel });
         return;
@@ -44,8 +44,8 @@ export function registerWritingPlatformRoutes(router: Router): void {
       const activeCount = await prisma.novelWorkflowTask.count({
         where: { novelId: id, status: { in: ["queued", "running", "waiting_approval"] } },
       });
-      if (activeCount > 0) throw new AppError("作品正在生成，完成或取消当前任务后再切换目标平台。", 409);
-      if (!supportsWritingPlatformForm(platform, novel.narrativeForm)) throw new AppError("所选平台不支持当前作品规模。", 400);
+      if (activeCount > 0) throw new AppError("The work is generating. Finish or cancel the current task before switching platforms.", 409);
+      if (!supportsWritingPlatformForm(platform, novel.narrativeForm)) throw new AppError("The selected platform does not support this work's scale.", 400);
       const snapshot = await writingPlatformProfileService.snapshot(platform, novel.narrativeForm);
       const updated = await prisma.novel.update({
         where: { id },

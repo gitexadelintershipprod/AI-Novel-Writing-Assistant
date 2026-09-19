@@ -83,7 +83,7 @@ export class AuditService {
       },
     });
     if (!chapter) {
-      throw new Error("绔犺妭涓嶅瓨鍦ㄣ€?");
+      throw new Error("The chapter does not exist.");
     }
     const content = options.content ?? chapter.content ?? "";
     const requestedTypes: AuditType[] = ["continuity", "character", "plot", "mode_fit"];
@@ -96,10 +96,10 @@ export class AuditService {
         issues: [{
           severity: "critical",
           category: "coherence",
-          evidence: "绔犺妭鍐呭涓虹┖",
-          fixSuggestion: "鍏堢敓鎴愭垨琛ュ叏姝ｆ枃锛屽啀杩涜瀹℃牎",
+          evidence: "The chapter has no content.",
+          fixSuggestion: "Generate or complete the chapter text first, then run review.",
         }],
-        summary: "绔犺妭鍐呭涓虹┖锛屽繀椤诲崌绾у畬鏁村鏍℃垨鍏堟敹鍥炴湰绔犳鏂囥€?",
+        summary: "The chapter has no content. Run a full review after recovering this chapter's text.",
         continueRecommendation: "full_audit",
         shouldRunFullAudit: true,
         triggerReasons: ["empty_content"],
@@ -123,10 +123,10 @@ export class AuditService {
       || issues.some((issue) => issue.severity === "high" || issue.severity === "critical");
     const summary = structured.summary?.trim()
       || (shouldRunFullAudit
-        ? "绔犺妭瀛樺湪楂橀闄╅棶棰橈紝寤鸿鍗囩骇瀹屾暣瀹℃牎銆?"
+        ? "This chapter has high-risk issues. We recommend upgrading to a full review."
         : issues.length > 0
-          ? "绔犺妭鍙互缁х画鎺ㄨ繘锛屼絾鏈夊彲閫夌殑淇寤鸿銆?"
-          : "绔犺妭鍙互缁х画鎺ㄨ繘锛屾湭鍙戠幇蹇呴』鍗囩骇鐨勯珮椋庨櫓闂銆?");
+          ? "This chapter can continue, but there are optional repair suggestions."
+          : "This chapter can continue. No high-risk issues that require an upgrade were found.");
     const auditReports = await this.persistLightAuditReports(novelId, chapterId, score, summary, issues);
     return {
       score,
@@ -156,7 +156,7 @@ export class AuditService {
       },
     });
     if (!chapter) {
-      throw new Error("章节不存在。");
+      throw new Error("The chapter does not exist.");
     }
     const content = options.content ?? chapter.content ?? "";
     const requestedTypes: AuditType[] = scope === "full" ? ["continuity", "character", "plot", "mode_fit"] : [scope];
@@ -165,13 +165,13 @@ export class AuditService {
       const reports = await this.persistAuditReports(novelId, chapterId, score, requestedTypes.map((type) => ({
         auditType: type,
         overallScore: 0,
-        summary: "章节内容为空。",
+        summary: "Chapter content is empty.",
         issues: [{
           severity: "critical",
           code: `${type}_empty`,
-          description: "章节内容为空，无法完成审计。",
+          description: "Chapter content is empty, so the audit cannot finish.",
           evidence: "chapter content empty",
-          fixSuggestion: "先生成或补全章节内容，再重新审计。",
+          fixSuggestion: "Generate or complete the chapter content before auditing again.",
         }],
       })));
       return {
@@ -179,8 +179,8 @@ export class AuditService {
         issues: [{
           severity: "critical",
           category: "coherence",
-          evidence: "章节内容为空",
-          fixSuggestion: "先生成或补全正文，再进行审校",
+          evidence: "Chapter content is empty",
+          fixSuggestion: "Generate or complete the draft before review",
         }],
         auditReports: reports,
       };
@@ -192,13 +192,13 @@ export class AuditService {
       return {
         auditType: type,
         overallScore: typeof matched?.overallScore === "number" ? matched.overallScore : score.overall,
-        summary: matched?.summary?.trim() || `${type} 审计已生成。`,
+        summary: matched?.summary?.trim() || `${type} audit generated.`,
         issues: (matched?.issues ?? []).map((issue, index) => ({
           severity: normalizeSeverity(issue.severity),
           code: issue.code?.trim() || `${type}_${index + 1}`,
-          description: issue.description?.trim() || `${type} 审计问题`,
-          evidence: issue.evidence?.trim() || "未提供证据",
-          fixSuggestion: issue.fixSuggestion?.trim() || "请根据上下文修复该问题。",
+          description: issue.description?.trim() || `${type} audit issue`,
+          evidence: issue.evidence?.trim() || "No evidence was provided",
+          fixSuggestion: issue.fixSuggestion?.trim() || "Fix this issue from the current context.",
         })),
       };
     });
@@ -469,8 +469,8 @@ export class AuditService {
       return {
         score: fallbackScore,
         summary: needsFullAudit
-          ? "蹇€熷畼娴嬬粨鏋滄樉绀哄綋鍓嶇珷鑺傚彲鑳藉瓨鍦ㄨ繛璐€ф垨瀹屾暣鎬ч棶棰橈紝寤鸿鍗囩骇瀹屾暣瀹℃牎銆?"
-          : "蹇€熷畼娴嬫湭鍙戠幇蹇呴』鍗囩骇鐨勯珮椋庨櫓闂銆?",
+          ? "The quick scan suggests this chapter may have continuity or completeness problems. We recommend upgrading to a full review."
+          : "The quick scan did not find high-risk issues that require an upgrade.",
         issues: [],
         continueRecommendation: needsFullAudit ? "full_audit" : "continue",
         shouldRunFullAudit: needsFullAudit,

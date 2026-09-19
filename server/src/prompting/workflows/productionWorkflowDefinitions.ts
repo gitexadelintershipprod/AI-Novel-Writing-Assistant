@@ -9,7 +9,7 @@ export const productionWorkflowDefinitions: WorkflowDefinition[] = [
       ? [{
         agent: "Planner",
         tool: "create_novel",
-        reason: `创建小说《${intent.novelTitle}》`,
+        reason: `Create a novel《${intent.novelTitle}》`,
         input: { title: intent.novelTitle },
         keyPrefix: `create_novel_${intent.novelTitle}`,
       }]
@@ -23,7 +23,7 @@ export const productionWorkflowDefinitions: WorkflowDefinition[] = [
       ? [{
         agent: "Planner",
         tool: "bind_world_to_novel",
-        reason: `将《${intent.worldName}》绑定为当前小说世界观`,
+        reason: `将《${intent.worldName}》绑定为current novel世界观`,
         input: {
           novelId: plannerInput.novelId,
           worldName: intent.worldName,
@@ -40,7 +40,7 @@ export const productionWorkflowDefinitions: WorkflowDefinition[] = [
       ? [{
         agent: "Planner",
         tool: "unbind_world_from_novel",
-        reason: "解除当前小说的世界观绑定",
+        reason: "解除current novel的世界观绑定",
         input: {
           novelId: plannerInput.novelId,
         },
@@ -77,7 +77,7 @@ export const productionWorkflowDefinitions: WorkflowDefinition[] = [
         actions.push({
           agent: "Planner",
           tool: "create_novel",
-          reason: `创建小说《${intent.novelTitle}》`,
+          reason: `Create a novel《${intent.novelTitle}》`,
           input: createNovelInput,
           keyPrefix: `produce_create_${intent.novelTitle}`,
         });
@@ -87,7 +87,7 @@ export const productionWorkflowDefinitions: WorkflowDefinition[] = [
         actions.push({
           agent: "Planner",
           tool: "generate_world_for_novel",
-          reason: "为当前小说生成世界观",
+          reason: "Generate a world for this novel",
           input: {
             ...(intent.description ? { description: intent.description } : {}),
             ...(intent.worldType ? { worldType: intent.worldType } : {}),
@@ -97,7 +97,7 @@ export const productionWorkflowDefinitions: WorkflowDefinition[] = [
         actions.push({
           agent: "Planner",
           tool: "bind_world_to_novel",
-          reason: "将生成的世界观绑定到当前小说",
+          reason: "Bind the generated world to the current novel",
           input: {},
           keyPrefix: "produce_bind_world",
         });
@@ -107,7 +107,7 @@ export const productionWorkflowDefinitions: WorkflowDefinition[] = [
         {
           agent: "Planner",
           tool: "generate_novel_characters",
-          reason: "生成核心角色设定",
+          reason: "Generate core character setups",
           input: {
             ...(intent.description ? { description: intent.description } : {}),
             ...(intent.genre ? { genre: intent.genre } : {}),
@@ -119,14 +119,14 @@ export const productionWorkflowDefinitions: WorkflowDefinition[] = [
         {
           agent: "Planner",
           tool: "generate_story_bible",
-          reason: "生成小说圣经",
+          reason: "Generate the novel bible",
           input: {},
           keyPrefix: "produce_bible",
         },
         {
           agent: "Planner",
           tool: "generate_novel_outline",
-          reason: "生成发展走向",
+          reason: "Generate the story direction",
           input: {
             ...(intent.description ? { description: intent.description } : {}),
           },
@@ -135,7 +135,7 @@ export const productionWorkflowDefinitions: WorkflowDefinition[] = [
         {
           agent: "Planner",
           tool: "generate_structured_outline",
-          reason: "生成结构化大纲",
+          reason: "Generate a structured outline",
           input: {
             targetChapterCount: intent.targetChapterCount ?? 20,
           },
@@ -144,7 +144,7 @@ export const productionWorkflowDefinitions: WorkflowDefinition[] = [
         {
           agent: "Planner",
           tool: "sync_chapters_from_structured_outline",
-          reason: "根据结构化大纲同步章节目录",
+          reason: "根据Structured outline同步Chapter table of contents",
           input: {},
           keyPrefix: "produce_sync_chapters",
         },
@@ -161,7 +161,7 @@ export const productionWorkflowDefinitions: WorkflowDefinition[] = [
         {
           agent: "Planner",
           tool: "queue_pipeline_run",
-          reason: "启动整本写作任务",
+          reason: "启动Whole writing assignment",
           input: {
             startOrder: 1,
             endOrder: intent.targetChapterCount ?? 20,
@@ -180,7 +180,7 @@ export const productionWorkflowDefinitions: WorkflowDefinition[] = [
     resolve: ({ intent, plannerInput }) => [{
       agent: "Planner",
       tool: "get_novel_production_status",
-      reason: "读取整本生产状态",
+      reason: "Read full-book production status",
       input: {
         ...(plannerInput.novelId ? { novelId: plannerInput.novelId } : {}),
         ...(intent.novelTitle ? { title: intent.novelTitle } : {}),

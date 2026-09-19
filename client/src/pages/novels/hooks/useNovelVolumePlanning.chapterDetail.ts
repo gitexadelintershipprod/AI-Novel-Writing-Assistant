@@ -58,7 +58,7 @@ interface RunChapterDetailBatchGenerationArgs {
 }
 
 function describeChapterTarget(target: ChapterDetailTarget): string {
-  return `第${target.chapterOrder}章《${target.title || "未命名章节"}》`;
+  return `Chapter ${target.chapterOrder}: "${target.title || "Unnamed chapter"}"`;
 }
 
 function buildFallbackLabel(targets: ChapterDetailTarget[]): string {
@@ -68,9 +68,9 @@ function buildFallbackLabel(targets: ChapterDetailTarget[]): string {
   const first = targets[0];
   const last = targets[targets.length - 1];
   if (!first || !last) {
-    return "当前章节范围";
+    return "Current chapter scope";
   }
-  return `第${first.chapterOrder}-${last.chapterOrder}章（共 ${targets.length} 章）`;
+  return `Chapters ${first.chapterOrder}–${last.chapterOrder} (${targets.length} chapters)`;
 }
 
 function resolveMissingChapterDetailModes(
@@ -125,13 +125,13 @@ export function buildChapterDetailBatchConfirmationMessage(
 ): string {
   return [
     batch.targets.length === 1
-      ? `将基于当前内容为${batch.label} AI 补齐章节目标、执行边界和任务单。`
-      : `将基于当前内容为${batch.label}连续补齐章节目标、执行边界和任务单。`,
+      ? `AI will complete chapter goals, production boundaries, and task lists for ${batch.label} based on the current content.`
+      : `AI will complete chapter goals, production boundaries, and task lists for ${batch.label}, working through them in order.`,
     batch.hasExistingDrafts
-      ? "会优先沿用各章已填写结果，只修正空缺、模糊和不够可执行的部分。"
-      : "当前这些章节还是空白，AI 会先补出首版，再按现有标题和摘要逐章收束。",
-    "不会改动章节标题和摘要。",
-    batch.missingCount > 0 ? `有 ${batch.missingCount} 章已不在当前卷草稿中，会自动跳过。` : "",
+      ? "Priority will be given to using the filled-in results of each chapter, and only the blank, vague and insufficiently executable parts will be corrected."
+      : "Currently, these chapters are still blank. AI will first make up the first edition, and then wrap it up chapter by chapter according to the existing titles and abstracts.",
+    "Chapter titles and abstracts will not be changed.",
+    batch.missingCount > 0 ? `${batch.missingCount} chapters are no longer in the current volume draft and will be skipped.` : "",
   ].filter(Boolean).join("\n\n");
 }
 
@@ -153,7 +153,7 @@ export async function runChapterDetailBatchGeneration({
   setFailure(null);
   setCurrentMode("");
   setCurrentChapterId(targets[0]?.chapterId ?? "");
-  setStructuredMessage(`正在为${label}补齐缺失的章节目标、执行边界和任务单...`);
+  setStructuredMessage(`Filling in missing chapter goals, production boundaries, and task lists for ${label}...`);
 
   try {
     for (const [targetIndex, target] of targets.entries()) {
@@ -175,7 +175,7 @@ export async function runChapterDetailBatchGeneration({
           workingDraft = result.nextDocument.volumes;
           processedModeCount += 1;
         } catch (error) {
-          const message = error instanceof Error ? error.message : "AI 暂时没有完成这一项细化。";
+          const message = error instanceof Error ? error.message : "AI has not yet completed this refinement.";
           setFailure({
             targetVolumeId,
             targets: targets.slice(targetIndex),
@@ -185,15 +185,15 @@ export async function runChapterDetailBatchGeneration({
             mode,
             message,
           });
-          setStructuredMessage(`第${target.chapterOrder}章的${mode === "purpose" ? "章节目标" : mode === "boundary" ? "执行边界" : "任务单"}暂未完成，可从这里继续细化。`);
+          setStructuredMessage(`Chapter ${target.chapterOrder} still needs its ${mode === "purpose" ? "chapter goal" : mode === "boundary" ? "production boundary" : "task list"}. You can continue refining it from here.`);
           return;
         }
       }
     }
     setStructuredMessage(
       processedModeCount > 0
-        ? `${label}的章节目标、执行边界和任务单已补齐并自动保存。`
-        : `${label}当前已经完整，无需重复生成章节细化。`,
+        ? `${label}The chapter objectives, execution boundaries and task orders have been completed and automatically saved.`
+        : `${label}It is now complete and there is no need to repeatedly generate chapter refinements.`,
     );
   } finally {
     setIsGenerating(false);

@@ -300,13 +300,13 @@ function normalizeLegacyChapter(raw: unknown, index: number): VolumeChapterPlan 
     return null;
   }
   const chapterOrder = parsePositiveInteger(raw.chapterOrder ?? raw.order ?? raw.chapter ?? raw.chapterNo ?? raw.index) ?? index + 1;
-  const title = pickFirstString(raw, ["title", "chapterTitle", "name", "chapterName"]) ?? `第${chapterOrder}章`;
+  const title = pickFirstString(raw, ["title", "chapterTitle", "name", "chapterName"]) ?? `Chapter ${chapterOrder}`;
   const summary = pickFirstString(raw, ["summary", "outline", "description", "content"]) ?? "";
   const beatKey = pickFirstString(raw, ["beatKey", "beat_key"]);
   const purpose = pickFirstString(raw, ["purpose", "goal", "chapterGoal"]);
-  const exclusiveEvent = pickFirstString(raw, ["exclusiveEvent", "exclusive_event", "chapterExclusiveEvent", "独占事件"]);
-  const endingState = pickFirstString(raw, ["endingState", "ending_state", "chapterEndingState", "章末状态"]);
-  const nextChapterEntryState = pickFirstString(raw, ["nextChapterEntryState", "next_chapter_entry_state", "nextEntryState", "下章起始状态"]);
+  const exclusiveEvent = pickFirstString(raw, ["exclusiveEvent", "exclusive_event", "chapterExclusiveEvent", "exclusive event"]);
+  const endingState = pickFirstString(raw, ["endingState", "ending_state", "chapterEndingState", "End-of-chapter state"]);
+  const nextChapterEntryState = pickFirstString(raw, ["nextChapterEntryState", "next_chapter_entry_state", "nextEntryState", "Starting state for the next chapter"]);
   const mustAvoid = pickFirstString(raw, ["mustAvoid", "must_avoid", "forbidden"]);
   const taskSheet = pickFirstString(raw, ["taskSheet", "task_sheet"]);
   const sceneCards = pickFirstString(raw, ["sceneCards", "scene_cards"]);
@@ -363,7 +363,7 @@ function normalizeLegacyVolume(raw: unknown, index: number): VolumePlan | null {
     id: volumeId,
     novelId: "",
     sortOrder: index + 1,
-    title: pickFirstString(raw, ["volumeTitle", "title", "name", "volume", "arcTitle"]) ?? `第${index + 1}卷`,
+    title: pickFirstString(raw, ["volumeTitle", "title", "name", "volume", "arcTitle"]) ?? `Volume ${index + 1}`,
     summary: pickFirstString(raw, ["summary", "outline", "description"]),
     openingHook: pickFirstString(raw, ["openingHook", "opening_hook", "startHook"]),
     mainPromise: pickFirstString(raw, ["mainPromise", "promise", "objective"]),
@@ -422,7 +422,7 @@ export function parseLegacyStructuredOutline(raw: string | null | undefined): Vo
       id: volumeId,
       novelId: "",
       sortOrder: 1,
-      title: "第1卷",
+      title: "Volume 1",
       summary: chapters.map((chapter) => `${chapter.chapterOrder}. ${chapter.title}`).join(" / "),
       openingHook: null,
       mainPromise: null,
@@ -457,18 +457,18 @@ function buildFallbackVolumeSkeleton(source: LegacyVolumeSource): VolumePlan[] {
       id: createLocalId("legacy-volume"),
       novelId: "",
       sortOrder: 1,
-      title: "第1卷",
-      summary: normalizeText(source.outline) ?? "待补全卷级结构。",
-      openingHook: "待补全开卷抓手。",
-      mainPromise: normalizeText(source.outline) ?? "待补全卷级主承诺。",
-      primaryPressureSource: "待补全主压迫源。",
-      coreSellingPoint: "待补全核心卖点。",
-      escalationMode: "待补全升级方式。",
-      protagonistChange: "待补全主角变化。",
-      midVolumeRisk: "待补全中段风险。",
-      climax: "待补全卷末高潮。",
-      payoffType: "待补全兑现类型。",
-      nextVolumeHook: "待补全下卷钩子。",
+      title: "Volume 1",
+      summary: normalizeText(source.outline) ?? "Volume structure still needs filling.",
+      openingHook: "Opening hook still needs filling.",
+      mainPromise: normalizeText(source.outline) ?? "Volume promise still needs filling.",
+      primaryPressureSource: "Main pressure source still needs filling.",
+      coreSellingPoint: "Core selling point still needs filling.",
+      escalationMode: "Escalation method still needs filling.",
+      protagonistChange: "Protagonist change still needs filling.",
+      midVolumeRisk: "Mid-volume risk still needs filling.",
+      climax: "Volume climax still needs filling.",
+      payoffType: "Payoff type still needs filling.",
+      nextVolumeHook: "Next-volume hook still needs filling.",
       resetPoint: null,
       openPayoffs: [],
       status: "active",
@@ -488,18 +488,18 @@ function buildFallbackVolumeSkeleton(source: LegacyVolumeSource): VolumePlan[] {
       id: volumeId,
       novelId: "",
       sortOrder: volumes.length + 1,
-      title: `第${volumes.length + 1}卷`,
+      title: `Volume ${volumes.length + 1}`,
       summary: chunk.map((item) => `${item.order}. ${item.title}`).join(" / "),
-      openingHook: chunk[0]?.expectation?.trim() || "待补全开卷抓手。",
-      mainPromise: chunk[0]?.expectation?.trim() || normalizeText(source.outline) || "待补全卷级主承诺。",
-      primaryPressureSource: "待补全主压迫源。",
-      coreSellingPoint: "待补全核心卖点。",
-      escalationMode: "逐步升级",
-      protagonistChange: "待补全角色变化。",
-      midVolumeRisk: "待补全中段风险。",
-      climax: chunk[chunk.length - 1]?.expectation?.trim() || "待补全卷末高潮。",
-      payoffType: "阶段兑现",
-      nextVolumeHook: "待补全下卷钩子。",
+      openingHook: chunk[0]?.expectation?.trim() || "Opening hook still needs filling.",
+      mainPromise: chunk[0]?.expectation?.trim() || normalizeText(source.outline) || "Volume promise still needs filling.",
+      primaryPressureSource: "Main pressure source still needs filling.",
+      coreSellingPoint: "Core selling point still needs filling.",
+      escalationMode: "Step-up escalation",
+      protagonistChange: "Character change still needs filling.",
+      midVolumeRisk: "Mid-volume risk still needs filling.",
+      climax: chunk[chunk.length - 1]?.expectation?.trim() || "Volume climax still needs filling.",
+      payoffType: "Staged payoff",
+      nextVolumeHook: "Next-volume hook still needs filling.",
       resetPoint: null,
       openPayoffs: [],
       status: "active",
@@ -546,7 +546,7 @@ export function mergeArcSignals(volumes: VolumePlan[], arcPlans: LegacyArcSignal
     const rawPlan = parseJsonRecord(arc.rawPlanJson);
     return {
       ...volume,
-      title: volume.title || arc.title || `第${index + 1}卷`,
+      title: volume.title || arc.title || `Volume ${index + 1}`,
       mainPromise: volume.mainPromise || normalizeText(arc.objective) || pickFirstString(rawPlan ?? {}, ["mainPromise", "objective"]),
       escalationMode: volume.escalationMode || normalizeText(arc.phaseLabel) || pickFirstString(rawPlan ?? {}, ["escalationMode", "phaseLabel"]),
       climax: volume.climax || pickFirstString(rawPlan ?? {}, ["climax", "ending"]),
@@ -580,23 +580,23 @@ export function buildDerivedOutlineFromVolumes(volumes: VolumePlan[]): string {
     .map((volume) => {
       const chapterSpan = volume.chapters.length > 0
         ? `${volume.chapters[0]?.chapterOrder ?? "-"}-${volume.chapters[volume.chapters.length - 1]?.chapterOrder ?? "-"}`
-        : "未拆章";
+        : "Unopened";
       const lines = [
-        `【第${volume.sortOrder}卷】${volume.title}`,
-        volume.summary ? `卷摘要：${volume.summary}` : "",
-        volume.openingHook ? `开卷抓手：${volume.openingHook}` : "",
-        volume.mainPromise ? `主承诺：${volume.mainPromise}` : "",
-        volume.primaryPressureSource ? `主压迫源：${volume.primaryPressureSource}` : "",
-        volume.coreSellingPoint ? `核心卖点：${volume.coreSellingPoint}` : "",
-        volume.escalationMode ? `升级方式：${volume.escalationMode}` : "",
-        volume.protagonistChange ? `主角变化：${volume.protagonistChange}` : "",
-        volume.midVolumeRisk ? `中段风险：${volume.midVolumeRisk}` : "",
-        volume.climax ? `卷末高潮：${volume.climax}` : "",
-        volume.payoffType ? `兑现类型：${volume.payoffType}` : "",
-        volume.nextVolumeHook ? `下卷钩子：${volume.nextVolumeHook}` : "",
-        volume.resetPoint ? `重置点：${volume.resetPoint}` : "",
-        volume.openPayoffs.length > 0 ? `未兑现事项：${volume.openPayoffs.join("、")}` : "",
-        `章节范围：${chapterSpan}`,
+        `[Volume ${volume.sortOrder}]${volume.title}`,
+        volume.summary ? `Volume summary:${volume.summary}` : "",
+        volume.openingHook ? `Unwinding handle:${volume.openingHook}` : "",
+        volume.mainPromise ? `Main promise:${volume.mainPromise}` : "",
+        volume.primaryPressureSource ? `Main source of oppression:${volume.primaryPressureSource}` : "",
+        volume.coreSellingPoint ? `Core selling points:${volume.coreSellingPoint}` : "",
+        volume.escalationMode ? `Upgrade method:${volume.escalationMode}` : "",
+        volume.protagonistChange ? `Protagonist changes:${volume.protagonistChange}` : "",
+        volume.midVolumeRisk ? `Mid-term risks:${volume.midVolumeRisk}` : "",
+        volume.climax ? `Climax at the end of the volume:${volume.climax}` : "",
+        volume.payoffType ? `Redemption type:${volume.payoffType}` : "",
+        volume.nextVolumeHook ? `Lower roll hook:${volume.nextVolumeHook}` : "",
+        volume.resetPoint ? `Reset point:${volume.resetPoint}` : "",
+        volume.openPayoffs.length > 0 ? `Unfulfilled items:${volume.openPayoffs.join("、")}` : "",
+        `Chapter scope:${chapterSpan}`,
       ].filter(Boolean);
       return lines.join("\n");
     })

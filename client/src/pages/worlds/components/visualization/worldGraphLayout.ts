@@ -45,14 +45,14 @@ export const GRAPH_NODE_SIZE = {
 } as const;
 
 export const ROUTE_STYLES: Record<string, { stroke: string; dash?: string; label: string }> = {
-  road: { stroke: "#64748b", label: "道路" },
-  river: { stroke: "#0284c7", dash: "6 5", label: "河流" },
-  sea: { stroke: "#2563eb", dash: "10 6", label: "海路" },
-  portal: { stroke: "#7c3aed", dash: "3 5", label: "传送" },
-  trade: { stroke: "#16a34a", dash: "8 5", label: "商道" },
-  military: { stroke: "#dc2626", dash: "5 4", label: "军道" },
-  border: { stroke: "#f59e0b", dash: "4 4", label: "边界" },
-  other: { stroke: "#64748b", label: "其他" },
+  road: { stroke: "#64748b", label: "road" },
+  river: { stroke: "#0284c7", dash: "6 5", label: "river" },
+  sea: { stroke: "#2563eb", dash: "10 6", label: "sea route" },
+  portal: { stroke: "#7c3aed", dash: "3 5", label: "transmit" },
+  trade: { stroke: "#16a34a", dash: "8 5", label: "Business Road" },
+  military: { stroke: "#dc2626", dash: "5 4", label: "military road" },
+  border: { stroke: "#f59e0b", dash: "4 4", label: "border" },
+  other: { stroke: "#64748b", label: "Others" },
 };
 
 const DIRECTION_COORDINATES: Record<WorldGeographyDirection, Point> = {
@@ -203,7 +203,7 @@ export function truncateText(text: string, maxLength: number): string {
 }
 
 export function getShortRelation(edge: GraphEdge): string {
-  return truncateText(edge.relation || "关系", 5);
+  return truncateText(edge.relation || "relationship", 5);
 }
 
 export function getNodeBadgeText(label: string): string {

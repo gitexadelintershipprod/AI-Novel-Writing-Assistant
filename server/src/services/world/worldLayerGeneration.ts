@@ -158,7 +158,7 @@ export async function buildWorldLayerGeneration(
   let layerRagContext = "";
   try {
     layerRagContext = await ragServices.hybridRetrievalService.buildContextBlock(
-      `世界分层生成 ${layerKey}\n${world.name}\n${world.description ?? ""}`,
+      `World layer generation ${layerKey}\n${world.name}\n${world.description ?? ""}`,
       {
         worldId: world.id,
         ownerTypes: ["world", "world_library_item"],
@@ -222,7 +222,7 @@ export async function buildWorldLayerGeneration(
   }
 
   if (Object.keys(layeredGenerated).length === 0) {
-    throw new Error(`世界分层生成未返回可用的 ${layerKey} 内容。`);
+    throw new Error(`World layer generation did not return usable ${layerKey} content.`);
   }
 
   return localizeLayerGenerationToChineseIfNeeded(options, layerKey, targetFields, layeredGenerated);
