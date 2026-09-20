@@ -7,6 +7,7 @@ This file is the complete user-visible update history. The root [README.md](../.
 ### 2026-09-20
 
 - Buttons, errors, task names, world templates, character roles, and public help pages now come from English source text, not only an on-screen translation overlay. Auto-Director, Task Center, and export headings stay readable even in native browser dialogs and notifications.
+- Remaining system messages, Creative Hub summaries, and image-generation prompts now use English control text. Generated fiction stays Georgian. Older saved Chinese protocol values are still understood.
 - Older books keep working: saved role names, world types, and beat labels are still understood, while new saves use English protocol values. Your novel text, knowledge files, and Georgian chapter output are unchanged.
 
 ### 2026-09-17
@@ -62,2076 +63,2140 @@ This file is the complete user-visible update history. The root [README.md](../.
 - The Windows desktop shell now uses English startup, update, import, failure, and diagnostic messages.
 - New English UI safeguards detect unclassified Chinese interface copy during development and keep intentional prompt, content, fixture, and protocol text explicitly documented.
 
-### 2026-08-26（章节审校与恢复边界）
-
-- 热门题材雷达会明确区分“库中已有”和“需要加入”：已有题材或推进方式可直接进入资源库定位，不会再误报为本次新增；缺少的方向确认加入后会刷新资源库并定位对应内容。
-- 使用市场信号开书时，开书页会直接显示并预填雷达推荐的题材基底、主要推进和辅助推进；用户手动选择的内容不会被覆盖。
-- 人工章节审校发现需要调整后续规划时，会保留当前正文并展示明确的重规划建议，等待用户确认后再改动章节窗口，不会在审校过程中静默重规划。
-- 审校结论、待处理问题和章节进度会作为同一个可恢复状态保存，减少审校完成后状态互相冲突、刷新后丢失待处理原因等问题。
-- 整本自动创作遇到有可用正文的局部质量问题时会记录质量债并继续；质量优先仍可在人工分阶段创作中停在已保存的章节边界等待确认。
-- 正文无法确认保存时，系统会停止自动重试，避免重复生成同一章；服务重启或后台任务失去响应后，如果自动恢复仍未成功，任务会保留恢复入口并从未完成章节继续。
-
-### 2026-08-25（自动导演问题治理）
-
-- 自动导演移除独立的风险阈值设置，问题是否重试、继续、暂停或结束统一由“问题处理规则”决定；风险分只用于解释严重程度，不再覆盖用户选择或形成第二套停止逻辑。
-- 后台任务失去响应或触发熔断时，会执行本书冻结的问题动作；只有真实完成重试、继续、暂停或结束后才记录“动作已执行”，避免运行记录与实际任务状态不一致。
-- “优先完成整本书”会保留可用正文并记录局部质量问题后继续；“质量优先”可在人工分阶段创作时停在已保存的章节边界等待确认，整本自动创作仍会记录质量债并继续。
-- 系统已能识别的问题会直接执行对应处理规则，不再重复发起一次 AI 风险判断；只有无法分类的运行异常才交给 AI 辅助识别，减少等待和无效模型调用。
-- 章节运行重试和质量修复共用同一个最多一次的自动处理机会，不会再由不同阶段分别重试，避免同一章节因一次问题被反复生成或修复。
-- 章节问题经过处理规则判断后会直接继续或暂停，自动导演不会再为同一个质量提醒重复发起一次模型评估，减少等待和重复通知。
-- 手动修复会先只读识别待修问题，再经过与自动创作相同的最终验收；检查过程中不会提前改动章节状态，通过后统一确认正文，仍有问题时保留修复稿并记录待处理项。
-- 接收检查暂时不可用时，系统会保留正文并等待复查，不会把一次并未执行的修文误算成自动重试机会。
-- 每个最终正文版本会先收束时间线状态再继续后续章节；通过验收的正文记录完整时间线，仍有局部质量问题但可继续使用的正文会保存最小承接状态，避免跳过修复后下一章失去上下文。
-- 单次章节自动修复只会先尝试一次局部补丁，失败后最多再进行一次整章修复；不会在中间隐藏追加第二轮补丁请求，实际模型调用与“最多一次重试”的设置保持一致。
-- 章节生成、审校和修复会通过同一个状态保存入口更新正文与进度，减少修复成功后仍显示旧状态、已完成章节再次进入待处理等状态不一致问题。
-
-### 2026-08-24（热门题材雷达分析范围）
-
-- 自动导演恢复创作时，章节规划中已有部分任务单或场景卡但字段尚未补齐，不会再反复卡在“同步章节执行合同”；系统会先同步章节种子，并在写作前自动补齐和校验当前章的完整执行合同。
-- 简易模式与专业模式改为两种创作界面：阅读书架优先呈现正文和进度，完整工作台呈现完整创作资料。两者共享同一套自动创作、审校、恢复、编辑、导出和删除能力；切换界面不会暂停正在进行的章节生产。
-- 自动导演标题区的简易模式和专业模式都会直接打开对应创作界面，不再因进行中的章节任务而提示“正文生产前的准备”未完成。任务已经失败时，页面会优先显示失败状态和实际检查点摘要，不再误显示为实时推进中。
-- “继续创作”列表中的作品也可直接删除，与“我的作品”保持一致；删除前仍会要求确认。
-- 自动导演的问题管理提供“优先完成整本书”和“质量优先”两套方案。两者都最多自动重试一次：前者会保留可用正文并把局部问题留到后续优化，后者会在局部问题处理后仍未解决时暂停等待确认；保存失败、数据风险和受保护内容始终优先保护作品。
-- 热门题材雷达横向铺满可用页面空间，各榜单使用统一高度的卡片并可在卡片内查看本次成功识别的全部记录；每张榜单卡片右上角可直接全选，也可按单本小说细化勾选，AI 分析入口保持在榜单数据上方。系统默认优先推荐新书榜和新晋作者榜，也允许加入成熟榜单作对照；页面会明确标注每个榜单本次成功识别的条数与最多 30 条上限，避免把单个公开页面的数据误认为平台全部榜单。
-- 自动导演的预计章节数支持先清空再输入新数值，例如可直接改为 30 章；未完成输入时不会自动恢复为默认章节数。
-- 自动导演页面将简易模式与专业模式整理到标题右侧的“进入创作”入口中，当前推荐路径更醒目；手动创建保持为独立的次要入口。
-- 专业创作的“导出”支持整本 TXT 正文下载，按章节顺序合并已保存内容；项目资产导出仍可继续使用 Markdown 和 JSON。
-- 全局内容区域采用更轻、更平的视觉层级：普通卡片默认去除可见边框和阴影，优先通过留白、排版和浅底色区分内容；输入、选择、警告和浮层仍保留必要边界。
-- 热门题材雷达的作品选择区改为紧凑排名表：开始分析操作与榜单内容分区呈现，已选作品只显示勾选状态，不再以整行色块反复干扰阅读。
-- 热门题材雷达移除重复的页面标题和榜单摘要，页面直接提供榜单范围、刷新和分析操作，减少进入页面后的无效阅读。
-- 热门题材雷达保留紧凑的页面标题，便于在直接进入榜单时确认当前位置。
-
-### 2026-08-23（开书灵感与模型配置）
-
-- 新增“热门题材雷达”，进入页面会先自动获取并展示番茄、起点和晋江的公开排行榜，可以逐榜查看排名、书名、作者和分类；扫榜到 100% 后会进入可分析状态。平台有可用新书榜或新晋作者榜时，AI 只分析这些当前开书样本；缺少新书数据时才参考成熟榜单，减少旧热门和过量信号干扰，并降低分析结果过长导致中断的概率。番茄书名会从公开作品信息中校正为正常文字。
-- 市场雷达会默认推荐一组适合开书的信号，并提供“跟随热门、热门中求差异、弱化市场”三档影响方式；确认后，所选信号会直接参与自动导演第一次生成题材、故事星图、整书方向和书名，不需要等生成后再靠质量复审补救。
-- 自动导演的“故事星图”会结合当前题材与推进方式生成 35 项可同时选择的具体开书素材，覆盖主角开局、题材舞台、金手指或核心优势、首章爆点、前期目标、核心阻力和关键关系；素材标签可以用完整短句表达设定，确认时不会再受 16 字限制，桌面星图会自动换行并避让其他词条。“换一组”会重新调用 AI，确认后再整理成可直接开书的一段想法。
-- 自动导演会结合每套方向的具体卖点、人物处境、推荐平台和目标读者直接确定主书名，减少书名只剩抽象情绪或泛化悬念、与网文题材辨识度不足的情况；其余书名仍作为不同卖点角度的备选。
-- 首次模型配置会优先展示推荐方案，也可以查看全部内置厂商或连接 OpenAI 兼容服务；模型厂商页集中显示可用连接、文本模型、图像模型与维护操作。
-- 知识库可以单独填写向量服务的 API Key 和地址，不会改动创作模型、默认模型或任务路由。
-- 批量细化章节目标、执行边界或任务单中途失败时，已完成结果会保留，并可从失败章节继续处理。
-- 书架、推进模式详情和写法引擎优化了信息层级与深色主题阅读效果，作品入口和当前选择更容易识别。
-- 章节编辑器和写法引擎新增“正文效果实验室”入口，会自动定位正文生成模板，并可带入当前小说和章节直接试写；试写结果只用于比较模板效果，不会改动章节正文。
-- 提示词编辑页隐藏了面向维护者的槽位摘要和锁定边界；安全槽位使用完整编辑宽度，高级模板才显示可插入的上下文引用与试写结果。
-- 提示词工作台的目录状态标签、沉浸编辑按钮、沉浸正文区、编辑区、底部操作栏和试写弹窗会跟随当前主题；深色暖纸主题会使用中性深蓝工作画布，避免大块棕色底色、白字失去背景或难以辨认的文字。
-- 正文效果实验室的文本试写会边生成边显示，减少等待完整结果的时间；需要结构化校验的测试仍会在校验完成后展示最终结果。
-
-### 2026-08-16（自动导演连续创作）
-
-- 自动导演发现局部章节计划失配时，会自动调整后续未生成章节的安排并继续创作；已保存正文、已确认章节和手动内容保持不变。
-- 从重规划检查点恢复时，会直接定位到首个未生成章节，避免再次处理已经完成的正文。
-- Windows 桌面版发布 `0.4.13`，包含本次自动导演连续创作与重规划恢复改进。
-
-### 2026-08-15（书架与主题体验）
-
-- 自动导演遇到章节与后续安排失配时，会自动调整尚未生成的相邻章节计划后继续写作；已保存正文、已确认章节和手动内容会保持不变。只有整书结构确实需要人工处理、正文无法保存或发生安全风险时才会暂停。
-- 从历史重规划检查点继续时，系统会先确认后续章节安排已经成功刷新，避免跳过调整直接推进而反复卡在相邻章节。
-- 书架作品卡片移除简介文本，封面、标题、创作进度和继续操作更集中。
-- 未生成小说封面时会使用统一的缺省图片作为背景，并继续显示作品标题，便于识别不同小说。
-- 简易创作模式的正文背景和文字会跟随当前主题，深色与夜航模式下不再出现突兀的浅色阅读区域。
-- 专业工作台的阶段横幅、自动导演进度、流程步骤和 AI 驾驶舱会统一跟随主题，状态色在深色界面中保持清晰但不过亮。
-- 简易创作和专业工作台遇到章节计划失配时，都会明确提示“重规划后继续”；AI 会保留已有正文，调整相邻章节安排后从未生成的章节接着创作，重规划失败时也不会静默跳过问题。
-- 分段生成章节列表时会避免把已完成章节标题重复带入模型上下文；新生成标题与本卷已有标题重复时，AI 会自动重试，仍无法消除时停止保存，避免重复标题进入正文生产。
-- 已有作品发现重复章节标题后，可以逐段重新生成标题并同步到目录；已完成正文会继续保留，不会因标题修复被改写。
-
-### 2026-08-13（创作中枢边界与独立 Agent 入口）
-
-- 首页顶部调整为面向日常创作的续写台，集中展示当前小说、推荐动作、整本创作旅程和真实进度；小说封面也会参与当前作品识别。
-- 首页摘要改为正在创作、等待确认、可以开始写和已沉淀章节，历史失败记录留在创作提醒与运行记录中，打开首页时更容易聚焦下一步。
-- 创作中枢聚焦小说状态查询、问题诊断、执行记录和下一步建议；小说创建、整本生产、正文写入与自动导演操作统一从正式工作台进入。
-- 创作中枢的查询与诊断保持只读，执行类请求会明确引导到小说工作台、自动导演、任务中心或模型设置。
-- 页面提供独立 Agent 驱动小说应用的 GitHub 仓库、克隆命令和启动方式，并明确两个项目使用各自的小说工作区与运行记录。
-- 运行记录和导演跟进入口移到系统区域，创作导航更聚焦小说内容与当前创作状态。
-- 生成小说封面时会把准确书名作为必须呈现的封面文字，同时拦截乱码、错别字、副标题和水印等干扰内容。
-- 产品预览与公开模块文档已同步新版界面截图，首页、拆书、世界观、题材、推进模式、标题和写法管理等入口可直接查看当前界面。
-- 首次配置 DeepSeek 时推荐使用 V4 Flash，兼顾中文长篇生成质量与响应速度；已有模型选择会继续保留。
-- 新增外观与主题设置，支持浅色、深色、跟随系统，以及墨砚、暖纸、夜航三套配色；主题偏好会在当前设备保留。
-- 修复首页创作提醒、状态色和小说列表在深色主题下仍显示浅色块的问题，首页内容会跟随当前主题保持一致。
-- 视觉资源库改为按图片原始比例排列的瀑布流，长图和横图可以自然展示，不再被统一高度裁切。
-- 修复夜航主题切换显示模式不生效的问题，浅色夜航与深色夜航现在会分别使用对应的背景、卡片和文字配色。
-- 小说预览页现在会继承主题设置，正文、目录、工具栏和章节选中态会与当前主题同步。
-- 桌面版发现新版本时，顶部版本入口会直接提示“立即更新”；每次客户端版本首次启动会展示一次本次更新介绍，之后不再重复打扰。
-- 桌面客户端启动页重新聚焦品牌、启动阶段和本地创作空间连接进度，更新与日志信息收进辅助区域，启动体验更简洁高级。
-- 启动页和桌面更新面板新增“下载近期日志包”，会收集最近几次的各类桌面日志，方便一次性提供给开发者排查。
-- Windows 桌面版发布 `0.4.12`，包含更清晰的启动引导和近期日志包导出能力。
-
-### 2026-08-12（简易创作、设置重构与问题修复）
-
-- Windows 桌面版发布 `0.4.11`。自动导演创建后的作品可以在简易模式与专业模式之间切换：简易模式聚焦章节书架和已保存正文，专业模式提供完整工作台；切换不会清空章节、规划或后台任务。
-- 简易书架增加预览模式快捷入口，并采用更轻的阅读界面；可以直接查看已完成章节、全书进度和 AI 正在处理的内容。
-- 自动导演准备过程会显示当前已经完成的章节数量，并保留已完成的故事、角色、卷章资源供随时查看；关闭过的情境提示会被记住，不会反复打断创作。
-- 系统设置改为清晰的设置总览，并拆分为“模型与厂商”“自动导演”“知识库与写法”“桌面与维护”四个页面；旧模型路由链接会自动进入新的模型页面。
-- 模型与厂商页优先显示正在使用的厂商，其他厂商收进统一管理入口；自动导演的确认放行、跟进通道与风险阈值默认按需展开。
-
-- 已有本地作品库升级后可以继续生成章节，事实账本所需的数据会在启动时自动补齐，不会因缺少历史数据表而中断。
-- 自动导演遇到需要重规划的章节时，使用任意“继续”入口都会保留当前可用正文并继续后续章节，不会反复停回同一位置。
-- 关闭知识库检索时，导入和维护资料不会再长期显示“排队中”；启用检索后再重建索引即可开始处理。
-- 世界骨架生成过长、截断或超时时会给出可重试提示，不会持续卡在生成中或保存半成品。
-- 根据本书主题生成世界会先给出可直接开书的紧凑设定，降低本地模型因输出过长而中断的概率，也不会对同一份大 JSON 反复修复。
-- 根据本书主题生成世界时会沿用当前选择的模型；使用本地 Ollama 等模型不再被要求配置 DeepSeek。
-- 小说预览页的目录入口会随目录展开状态回到对应位置；关闭目录后，正文和顶部信息自动恢复完整阅读宽度。
-- 预览页支持下载整本正文，也可以将正在阅读的单章直接下载为 TXT 文件。
-
-### 2026-08-11（正文生产方式与连续生成）
-
-- Windows 桌面版发布 `0.4.10`，包含自动导演风险治理、简易创作入口、连续生成与工作区导航优化。
-- 自动导演完成角色、卷章和开篇路线准备后，会先让你选择“简易创作”或“专业创作”，不会替你默认进入简易模式。
-- 选择简易创作后，AI 会继续自动完成整本书；选择专业创作后，会进入完整工作台供你检查、调整并安排正文生产。
-- 后续自动重规划会沿用你已确认的生产方式，不会重复把简易创作切回选择页。
-- 简易创作与专业创作共用同一套自动导演、章节写作、审校和恢复流程；简易页面只精简信息与操作，不维护独立的续写入口。
-- 点击继续生成后，按钮位置会持续显示排队或当前章节动作；用户可以直接确认 AI 是否正在工作，不必等待下一章保存后才看到变化。
-- 局部章节批次结束后可以按全书目标继续生成，系统会从真实章节进度接续并保留已有正文。
-- 从小说列表打开作品会直接进入对应的简易书架或专业工作台，不会先打开错误页面再自动跳转。
-- 自动导演页面移除“查看执行详情”“稍后回来查看”等非必要动作，运行记录仍可从全局导航按需访问。
-- AI 实况统一从顶部入口打开；准备过程中已完成的角色、卷章等资源可以随时查看，不再展示不可点击的生产方式标签。
-- 小说项目建立后，自动导演页面同时提供“进入简易创作”和“打开小说工作台”；选择简易创作会立即进入只读书架，后台准备不中断，资源具备后自动开始正文。
-
-### 2026-08-10（自动导演问题治理）
-
-- 自动导演会统一记录规划、正文生成、章节质量和后台运行问题，并显示问题类型、风险分、对应章节、实际处理动作与规则来源。
-- 所有问题类型都可选择自动重试、提醒后继续、暂停处理或结束任务；修改后会显示风险提示，内容保护、数据完整性和关键保存失败等安全底线仍会在运行时优先执行。
-- 每本小说可以只覆盖少量与全局不同的处理偏好；已启动任务会继续使用启动时的规则，避免运行中途因设置变化而改变处理方式。
-- 局部质量问题、接收检查暂不可用、局部修复失败和后台预取失败，在已有可用正文时会保留为可见提醒并继续全书；明确重规划、异常用量、受保护内容和数据完整性风险会停在可恢复位置等待处理。
-- 任务详情和导演进度会展示最近问题记录，可直接前往对应章节或小说工作区继续处理。
-- 简易创作书架会直接展示本书采用的提醒与暂停分数、规则来源和最近问题记录，并可就地打开本书问题管理，无需转为专业创作即可查看或调整处理偏好。
-
-### 2026-08-09（指定章节接管）
-
-- Windows 桌面版准备发布 `0.4.9`，包含本次自动导演章节接管与完成态展示修复。
-- 从已有项目接管自动导演时，选择“推进至第 N 章”会准确保留起止章节并继续准备、生成和审校该范围，不会回退到上一批已完成章节。
-- 接管任务会保留本次选择的推进方式与自动审批设置，任务进度会对应实际提交的章节范围。
-- 章节批次完成后，后台资源索引等收尾事件不会覆盖主任务的完成状态；页面会继续显示真实的完成进度和章节范围。
-- README 增加支付宝捐赠二维码，方便支持项目持续开发与维护。
-
-### 2026-08-08（世界图谱交互）
-
-- 势力图谱和地理地图支持直接拖动节点整理布局，并保留画布移动、滚轮缩放、按钮缩放、完整视口和一键重置。
-- 势力卡片使用更宽的双行名称区域，长名称可以直接阅读；悬停卡片或使用键盘聚焦时，还可查看完整名称和势力类型。
-- 关系文字会优先显示不遮挡节点和其他关系的简短名称；悬停关系线即可查看双方与完整关系，点击后可以固定详情。
-- 鼠标从关系线移动到详情浮层时会保持稳定，不会因命中区域切换而反复闪动。
-- 查看关系时会突出当前连线和两端节点，降低其他内容的视觉权重；地理路线详情还会展示路线类型、距离和风险。
-- 同一份世界数据会保持稳定的自动布局；重置后恢复清晰的自动排列，不会修改世界手册中保存的地点坐标或关系数据。
-- 世界时间线改为带有事件节点、推进轨道和上下交错事件卡的具象视图；桌面端可横向浏览，窄屏自动切换为纵向时间线，并保留筛选、显示数量和全屏查看。
-- 写法资产列表继续使用卡片内展开的阅读方式，选中后可在当前卡片查看读感、规则、样本和操作。
-- 应用与测试采用清晰的绑定与试写流程，绑定记录使用更易读的目标层级呈现，试写结果以专注阅读区域展示；正文修订仍从独立的去 AI 味入口完成。
-- 新建写法从“用模板开始、说一句想法、从素材学习”三个创作起点进入，AI 起草默认优先呈现，熟悉规则时仍可从空白创建。
-- 写法档案保持原有信息与展开方式，并用更轻的卡片层次、细色选中态和摘录式原文样本提升阅读舒适度。
-- 顶栏新增模型设置入口；首次没有可用模型时会自动打开快捷配置，之后也能随时在同一窗口切换厂商、密钥、地址和默认模型。多厂商维护与模型路由等高级配置仍集中在系统设置中。
-- 第一次完成模型检测后，可以直接用一句灵感开始第一本小说；页面会先说明“说想法、选择方向、阅读首章”的创作路径，也可随时查看完整创作向导。
-- 桌面版发布版本更新为 `0.4.8`，可从 GitHub Releases 获取对应安装包。
-
-### 2026-08-07（工作台阅读体验）
-
-- 拆书工作台采用更接近阅读报告的视觉层级，标题、结果工具、分析目录和正文区域更容易区分，长时间阅读时注意力更集中在内容本身。
-- 分析列表使用轻量目录样式展示选中项、进度和状态；点击任意历史结果会可靠切换对应拆书内容，同时保留搜索、筛选和新建拆书能力。
-- 打开可阅读结果后会直接进入分析列表、结果工具和拆书正文；仅在新建、生成或恢复任务时展示必要引导，创作中枢引用等操作集中到结果工具中。
-- 小节与角色页签、拆书分类页签使用清晰的文字导航；完成状态、预算、发布及维护操作保留原有功能，并降低重复边框和状态标签带来的视觉干扰。
-- 角色档案以人物阅读为主线展示动机、需求、说话方式、成长轨迹和关键场景；生成维度、手动添加及形象资料按需展开，参考图可直接勾选，章节形象按时间线阅读，访谈、编辑、扫描和图片生成能力保持可用。
-- 结构化结论、原文证据、分析正文和编辑区域通过留白与柔和分区组织，原文对照、重新生成、保存、发布知识库及创作中枢引用入口保持可用。
-- 运行记录采用任务收件箱式布局，状态统计和筛选更轻量；任务列表优先展示作品、进度、当前动作和异常原因，模型、Token、心跳与执行步骤按需展开。
-- 需要恢复、审批或重试的任务会优先提示，来源跳转、取消、归档和恢复操作保持可用；普通运行记录保持简洁，避免大量内部字段干扰判断。
-- 标题工坊使用更聚焦的命名流程组织按小说生成、自由工坊和参考改编；候选标题与标题库采用便于比较的双列卡片，标题潜力、命名方向、生成理由、复制和入库操作更容易浏览。
-- 知识资料库采用资料书架式布局，资料标题、版本、来源、可用状态和关联拆书更容易浏览；健康状态以轻量摘要呈现，减少重复提示对资料阅读的干扰。
-- “查看资料”和“继续创作”保持直接可见；新建拆书、召回测试、重建索引、启停和归档等维护操作可按需展开，上传、版本管理与检索设置能力保持可用。
-- 索引页会优先说明资料能否参与创作，连接异常时可直接进入检索设置；同步记录使用资料类型和同步动作展示，失败原因直接可见，任务编号与重试信息按需展开。
-- 检索设置围绕资料理解方式和资料库连接组织常用选项，集合命名、索引策略、召回质量和性能参数继续保留在高级配置中。
-- 世界样本库采用更轻盈的设定画廊，优先展示世界概念、核心张力以及规则、势力、地点和关系规模；具体创作线索与版本状态可按需展开。
-- 世界样本的导入说明改为简洁指引，世界手册、整理、删除和生成入口保持可用；加载、失败重试和空库状态也会给出明确反馈。
-- 世界详情采用统一的作者工作台导航，样本名称与世界内容成为首屏重点，创作模型和删除维护按需使用；手册整理与阅读页以世界印象、规则、势力、舞台和张力组织内容。
-- AI 分层、补齐设定和一致性检查各自聚焦一个清晰任务，问题回答、结果摘要与待处理事项更容易逐步完成；资料、素材、快照、导入导出和地图图谱入口继续完整保留。
-- 势力图谱会充分利用宽画布分散节点，势力名称和关系文字分别自动避让；地理地图会在地点坐标过度集中或重合时自动铺开，减少地标、标签和路线互相遮挡。
-- 图谱缩放改为更直接的放大、缩小和重置操作，画布仍可拖动浏览；筛选、图例、力量体系和世界时间线保持可用。
-- 地理地图会进一步拉开距离过近的地点，路线文字同时避让地标与地点名称；势力图谱和地理地图均可进入完整视口阅读，按 Esc 即可退出全屏。
-
-### 2026-08-03（短篇网文节奏）
-
-- 短篇会按“篇幅更短但完整收束的网络小说”进行方向设计、结构规划和正文生成，不会把短篇默认写成散文、文学小品或剧情梗概。
-- 开篇会更快进入压力、异常或冲突，主角拥有明确目标和主动行动；中段持续提供题材匹配的反转与回报，结尾给出清楚落点。
-- 全篇检查会识别慢热说明、空泛抒情、推进不足和不适合手机阅读的段落，并在不覆盖人工修改的前提下完成一次必要修整。
-
-### 2026-07-30（创作工作室与短篇完整成稿）
-
-- 新增以“先说想法”为起点的创作工作室。AI 会先理解想写的体验，推荐更适合短篇还是长篇，并给出两个差异清楚的方向；确认一个方向即可开始。
-- 首页和小说列表将“自动导演写长篇”与“创作短篇”并列展示；想快速完成一个故事时，可以直接进入短篇方向。
-- 短篇创作首屏采用简洁的创作画布，减少装饰和表单边框，让标题、想法输入与生成方向形成清晰的单一路径。
-- 短篇支持 3,000～30,000 字。系统会在后台完成规划、连续正文、全篇检查和一次必要修整，普通优化建议不会阻止完整成稿交付；生成中断后可从已保存的位置继续。
-- 短篇以一篇连续作品展示，不要求用户理解章节、阶段或检查点；可以直接阅读、编辑、保存和导出。
-- 用自然语言提出修改时，AI 会先展示理解、影响范围和建议调整方式，只有得到确认后才会改动已完成正文。
-- 短篇可以保留原作并发展成长篇；新长篇会继承核心人物、冲突和结尾意义，再交给自动导演继续准备整书。
-- 新创作入口使用功能开关逐步开放，原有自动导演和手动创建入口继续兼容。
-
-### 2026-07-29（桌面正式版 v0.4.7）
-
-- 桌面正式版 v0.4.7 发布，包含自动导演正文生产交接、简易创作实时章节书架、全局快捷模型配置和动态创作向导。
-- 自动导演会先准备方向、角色、世界与卷章资源，再让用户选择由 AI 自动完成整本书，或进入专业工作台继续检查和编辑。
-- 简易创作集中展示章节生产进度、可读成稿和创作资料，保留导出、异常恢复与不可逆转为专业创作的能力。
-- 桌面版可从工作区顶部直接打开中文“版本与更新”，发现新版本、下载进度和等待重启状态会就近提示。
-- 项目文档站同步更新自动导演、第一本书向导与桌面更新说明。
-
-### 2026-07-28（自动导演生产交接与简易创作）
-
-- 桌面版顶部版本号可以直接打开“版本与更新”，无需进入系统设置；发现新版本、下载进度和等待重启会在顶部给出醒目提示。
-- 桌面更新面板统一使用中文展示本机版本、更新状态、可用版本、检查时间与操作建议，系统设置仍保留相同的完整详情入口。
-- 网页端和桌面端会在缺少可用模型时提供同一套中文快捷配置，只需选择厂商、填写 API Key/API 地址并确认一个文本模型，就能一次准备规划、正文、审校、修复和重规划所需的创作任务。
-- 快捷配置会同时检测普通文本与结构化输出能力；检测失败时保留当前输入并说明具体问题，用户仍可浏览已有内容，但启动 AI 创作前会先完成配置。
-- 首页会持续提示尚未完成的创作环境配置；模型可用后提示自动消失，不会打扰已有配置的老项目。
-- “新手上路”升级为读取真实状态的“创作向导”，围绕创作环境、灵感方向、开书准备、生产方式和首章成稿展示唯一推荐下一步，不再要求用户阅读静态功能目录。
-- 首页会在第一章完成前显示紧凑的新手路线进度；第一章可读后自动恢复常规项目工作台。灵感、方向、准备、生产交接和简易书架提供可单独关闭的情境说明。
-- 新书自动导演和已有项目接管会先完成方向、角色、卷章规划与开写资源准备，再让用户选择正文生产方式，不会在规划未完成时要求新手理解生产参数。
-- 选择“简易创作”后，AI 复用同一个导演任务继续完成整本书的章节写作、审校、修复和必要重规划；选择“专业创作”则进入完整工作台检查规划并自行安排章节生产。
-- 开写前准备页会持续展示“简易创作 / 专业创作”的最终交接预告，并用阶段旅程突出 AI 当前正在准备的内容；实时指标、事件流水、Token 用量和里程碑改为按需展开。
-- 普通角色、分卷和拆章准备会自动推进到正文生产交接，不会被规划重算提示提前打断；用户保护内容和运行时安全风险仍会暂停。
-- 简易项目使用独立的实时章节书架，集中展示全书进度、当前任务和各章状态；只有完成稿可以打开阅读，生成中的内容保持隐藏。
-- 简易章节书架会只读展示整书承诺、故事世界、主要角色与分卷路线，让用户在关注章节产出的同时，也能了解 AI 正在依据哪些创作资源持续写作。
-- 自动导演和简易章节书架提供当前任务专属的“AI 实况”；模型开始生成候选、故事规划、角色、卷规划或章节内容时会自动打开对应实况，不必离开当前页面寻找运行记录。
-- 简易项目默认只读，仍可导出已完成章节、恢复安全暂停的任务，并可在确认后不可逆地转为专业创作，保留已有内容和后台任务。
-
-### 2026-07-17（v0.4.5 正式发布 / v0.4.6 导航修复发布 / README 补充 Ani Book Skill 介绍）
-
-**v0.4.6 导航修复**
-
-- 左侧导航菜单会在固定高度内独立滚动，窗口高度较小时也可以访问底部的系统入口。
-
-**v0.4.5 正式发布**
-
-- 章节执行左侧队列会在自身区域内滚动，章节较多时可以继续查看并选择最后一章。
-- 手动新建且尚未开始的空白章节会显示“移除空白章节”；确认后可安全移除。已经有正文、目标、任务单、场景卡或正在进入生产流程的章节会保留并受到保护。
-
-**README 与创作工作流说明补充**
-
-- README 现在补充了对 [Ani Book Skill](https://github.com/ExplosiveCoderflome/ani-book-skill) 的独立介绍，方便想在 Codex 本地工作区里直接推进长篇中文小说的人，更快理解这条 Skill 化工作流和本项目完整工作台形态之间的关系。
-- 现在可以更清楚地区分两条互补路径：如果你想用带界面、运行时和资产管理的完整产品，可以从本仓库开始；如果你更想直接在 Codex 里推进可恢复的长篇创作流程，也可以沿 README 进入 `Ani Book Skill`。
-- Ani Book Skill 入口已置于桌面版下载入口之后，打开仓库首页即可看到并直接进入。
-
-### 2026-07-16（章节队列操作优化）
-
-- 章节执行左侧队列会在自身区域内滚动，章节较多时可以继续查看并选择最后一章。
-- 手动新建且尚未开始的空白章节会显示“移除空白章节”；确认后可安全移除。已经有正文、目标、任务单、场景卡或正在进入生产流程的章节会保留并受到保护。
-
-### 2026-07-15（世界观准备与自动导演续写优化）
-
-- 所有页面顶部都可以打开“AI 实况”，随时查看模型正在生成、检查或修复的内容片段；正式内容仍会在检查完成后再保存到小说中。
-- “AI 实况”使用可拖动的终端风格悬浮日志窗口，不会遮住当前页面；打开时自动定位最新内容，阅读旧输出时也不会被后续片段强制拉回底部，关闭窗口也不会误触为拖动。
-- “AI 实况”会按每次 AI 调用分组展示；新调用开始时自动聚焦，已结束调用自动收起，需要时可展开查看完整预览。
-- 可以清空当前窗口中的实况内容，后台生成、小说保存和运行记录不会受到影响；之后的新调用仍会继续显示。
-- 原“任务中心”调整为“运行记录”，用于按需查询执行历史、异常和恢复位置，不再要求你离开当前创作页面确认 AI 是否仍在工作。
-- 小说工作台新增独立的“世界观准备”步骤。你可以在故事宏观规划完成后，集中生成、绑定、检查或补充本书的世界规则、地点与势力，再进入角色准备。
-- 自动导演继续创作时会识别世界观是否已准备好：缺少时会先带你完成该步骤；已有故事规划、角色或章节不会被清空，恢复入口也会定位到正确的工作台。
-- 角色准备、卷战略和节奏拆章会明确依赖本书世界观，减少后续角色设定和剧情规划脱离世界规则的情况。
-- 在小说内根据主题生成或新建空白世界时，世界会自动保存到世界库并与当前小说关联；后续可以直接复用、查看差异或按需手动同步，不需要再额外执行保存操作。
-- 小说工作台会根据实际的本书世界状态标记“世界观准备”是否完成，已生成的世界观不会再错误显示为待推进。
-- 角色工作台整合了关系图、思路线、跨来源角色对话与形象资料，让你可以在同一处理解角色关系、当前判断和后续行动倾向。
-- 创作中枢、拆书、资产库与运行记录改为更聚焦的工作台视图；章节计划会持续追踪读者回报、冲突、转折和章末钩子，帮助长篇创作保持推进感。
-- 首页与小说工作台的信息层级更紧凑，当前创作资产、待处理事项和下一步操作更容易聚焦。
-- 章节任务表的质量检查、自动导演接管与恢复路径补充了回归覆盖，局部质量问题仍会保留为可处理提醒，不会无故中断整本创作。
-
-### 2026-07-14（章节读者体验合同、承诺账本与核心工作台优化）
-
-- 章节细化会明确本章要回答的读者问题、可见回报、主角即时欲望、主要阻力、关键转折、情绪与信息变化、章末净变化及追读钩子，让章节不只“完成事件”，还要让读者实际获得推进和回报。
-- 每张场景卡会携带具体阻力、转折、情绪变化和读者价值，帮助正文减少顺滑但无变化的过场、重复冲突和空泛铺垫。
-- 正文生成、章节验收与局部修复会共用同一份读者体验目标；验收发现缺口后会给出针对同一目标的修复方向，减少“写的是一套、评的是另一套”。
-- 全书阅读承诺、主角幻想、核心卖点、第 3/10/30 章阶段回报、升级阶梯、关系主线和当前里程碑，会持续进入章节写作上下文，长篇推进更不容易丢失开书承诺。
-- 卷级读者回报和当前核心回报会随章节执行一起下沉，让每章局部收益与整卷目标保持一致。
-- 旧章节计划会兼容读取；新生成的章节计划必须提供完整体验合同与场景体验字段，避免不完整结果静默进入正文。
-- 普通爽点、钩子或情绪强度不足会作为本章修复建议或质量债继续处理，不会自动阻断整本写作；未启用时间线时也不会产生误导性的质量警告。
-- Book Contract 的第 3/10/30 章回报会作为稳定书级来源进入现有承诺账本，并保持明确的目标章节窗口，后续规划、正文与验收可以持续追踪同一批承诺。
-- 修改阶段回报后系统会在后台重新对账；只有回报内容真实变化才触发同步，格式空白或其他设定调整不会浪费一次 AI 调用。
-- 后台对账沿用持久任务、幂等和重试机制；同步失败时保留上次成功账本，不会拖慢 Book Contract 保存或删除已有承诺记录。
-- Book Contract 阶段回报被修改或移除时，旧承诺会退出后续正文义务，历史证据和已兑现记录继续保留，避免新旧承诺同时要求正文兑现。
-- 承诺逾期会作为质量提醒继续追踪，不会因为逾期章数或被当前章引用就暂停整本生产；只有 AI 明确判断计划失配、验收确认邻章职责失配或用户要求重规划时才停止。
-- 知识资料库会直接说明资料能否参与检索、是否仍在同步以及是否需要处理失败任务，并根据当前状态推荐上传资料、查看进度、重建索引或继续创作。
-- 题材基底库会展示题材数量、主要分类、关联小说和说明完整度；空库、加载失败和缺少题材说明时都会给出明确下一步。
-- 基础角色库会展示可复用角色、角色类型、形象资料和待补核心资料，帮助你先补齐角色目标、弱点与成长方向，再把角色带入小说筹备。
-- 知识、题材和角色页面统一为更安静的创作资产工作台；加载、失败、空态和危险操作都有更清晰的影响说明与恢复入口。
-- 任务中心会集中展示全局执行、等待操作和可恢复任务，并为列表与详情提供明确的加载、失败、空态和重新读取入口。
-- 任务失败或明确重规划会提示先处理；章节级质量提醒仍可继续主链，候选确认和章节批次待继续只显示为需要操作，不再统一渲染成系统故障。
-- 导演跟进会按阻塞、质量提醒、待操作和自动推进分级展示，每个恢复、重试或跳转动作都会说明执行后果和风险范围。
-- 拆书工作台会在首屏展示来源文档、版本、分析范围、当前阶段、进度和计划小节完成度，完成后可以直接进入第一份真正有内容的结果。
-- 拆书任务即使部分失败、取消或原文暂时无法读取，也会保留并展示已经生成的小节；页面会明确剩余缺口、预算续跑或重新生成入口，不再把“任务成功”误解成一定有可读内容。
-- 归档拆书结果仍可阅读和复制；未纳入本次生成的小节会明确标为“本次未选择”，不会被当作失败缺口。
-- 创作中枢会围绕当前小说、创作阶段和线程状态给出唯一推荐下一步；创作要求、AI 判断、工具结果与审批集中在推进记录中，完整生产参数和运行信息按需展开。
-- 切换创作线程时不会继续显示上一线程内容；读取失败可以直接重试或切换线程，创建、绑定、审批和生产提交期间也会明确锁定冲突操作。
-- 从拆书、角色或任务入口进入创作中枢时，资源绑定会保留在对应线程；切换小说会清除旧小说的章节与世界观上下文，避免不同作品资料混在同一轮创作里。
-
-### 2026-07-13（角色思路线与角色对话工作台）
-
-- 角色准备页的智能层现在会展示角色如何理解局面、想做什么、受压时的行动倾向、当前相信的判断和可能误判，帮助你在开写前更快看懂角色为什么会这样行动。
-- 可以让 AI 为单个角色整理或刷新当前想法；每条结论都会显示推断依据、来源和置信度，并明确说明它只是 AI 推断，不会自动改写小说正史。
-- 阵容确认后会自动准备角色思路线；章节定稿时，正文中明确发生的认知、情绪、意图和行动选择变化会同步回灌，让后续章节更容易保持角色行为连续。
-- 现在可以直接和角色自然交谈：角色会结合自身处境、已知信息和当前想法回应，也可以拒绝、误解或反问，而不是替你执行预设选项。
-- 对话后如形成稳定的行动倾向，你可以一键带入后续创作；它只作为有限章节内的软性引导，不会改写小说正史或强制剧情发生。
-- 正文实际承接这段对话带来的倾向时会记录依据；未承接的影响会在适用章节结束后自动失效，不会打断继续写作或自动导演。
-- 桌面工作台会跟随实际窗口高度铺满可用空间，角色列表与内容区不会在高分辨率或缩放显示下提前截断。
-- 智能层内容较长时，页面会保持单一内容滚动区，避免出现双滚动条或内容区被撑出工作台。
-- 桌面端会锁定页面外层滚动，长内容只在当前工作区内滚动，保持导航和阅读位置稳定。
-- 智能层以角色对话为主舞台：消息、输入与“带入后续创作”集中在一起；角色思路线收进场景分析器，按需查看角色的顾虑、误读和回应逻辑。
-- 角色对话主舞台支持全屏专注模式，使用全局统一的全屏与收起图标，并支持按 Esc 返回；全屏时谈话区和场景分析并排展开，长内容会在各自工作区内滚动。
-- 带 AI 标记的操作会让图标和文字保持在同一行，全屏图标也会与工作台标题对齐，紧凑布局下仍能清晰操作。
-- 角色对话扩展到小说角色、基础角色库与拆书角色：三处入口进入同一谈话工作台，但各自只读取所属来源的资料。
-- 基础角色可以围绕稳定设定进行只读访谈；拆书角色会锁定“截至第 N 章”的原文范围，以证据回应并在无法确认时明确说明。
-- 小说角色仍可在谈话后确认一条后续创作倾向；基础角色与拆书角色的谈话不会改写模板、原文、小说正史或后续正文。
-- 基础角色库的只读访谈会以紧凑的双栏工作区打开；对话和右侧人物资料保持同高，较长设定在资料区内单独滚动，全屏查看时仍可展开完整工作区。
-- 从基础角色库点击“与角色交谈”会直接进入全屏对话，不会再把谈话插入角色列表顶部。
-- 拆书角色会正确读取所选的截至章节，可以正常进入基于原文证据的访谈。
-- 从拆书角色档案点击“基于原文访谈”会直接进入全屏对话；退出全屏后回到角色档案。
-- 形象演变中的章节快照会优先显示有形象信息的关键章节，并支持分页浏览或按需展开全部章节，长篇拆书不再被连续快照卡片拉成长列表。
-- 拆书角色访谈会复用逐章形象快照中的原文证据；即使基础档案无法精确定位章节，也能在已有外形证据范围内安全访谈。
-- 三类角色的对话工作台统一为更专注的创作阅读界面：谈话成为视觉中心，回应依据收进轻量场景分析侧栏，减少卡片、阴影和边框带来的干扰。
-- 资产区新增“视觉资源库”：可以集中浏览已生成的角色形象、小说封面、拆书形象、漫画设定/分镜和短剧关键帧，并按类型、来源或关键词快速筛选。
-- 视觉资源库也可作为通用图片选择器使用；选择结果会带回可直接展示的图片地址与来源信息，后续在封面、参考图等创作步骤中可复用同一张素材。
-
-### 2026-07-10（逐步协作导演、角色关系页更紧凑、节奏段增量拆章、节奏板职能槽位）
-
-- 角色关系页打开后会直接显示关系网，减少顶部说明占用，让关系图和筛选操作更靠前。
-- 角色准备页新增独立“动态”标签页，动态角色系统不再挤在关系页下方，卷级职责、新角色候选和关系阶段可以单独查看。
-- 节奏 / 拆章页默认可以先生成下一段章节，已生成的段落可直接细化和开写；整卷一次生成章节标题仍保留为高级操作。
-- 自动导演会按节奏段推进拆章，当前段准备好后即可进入章节细化和正文执行，后续段会在继续推进时补齐。
-- 角色新增、关系调整或局部变更会提示受影响的后续节奏段；已有正文的段落默认锁定，避免为了接入新角色而重拆已写内容。
-- 节奏板现在会固定保留开卷、升级、中段、挤压、高潮、卷尾这些节奏职能，同时为每一段生成贴合本卷的短标题，例如「开卷抓手 · 夜市夺印」，方便看懂这一段在本卷里具体推进什么。
-- 自动导演新增“逐步协作”模式：每完成一个规划步骤就暂停，用户可以先检查、让 AI 完善或重新生成当前步骤，再继续后续规划。
-- 手动修改后可以在同一导演任务中“保存并确认”，系统会沿用已确认内容，从下一个未完成步骤继续，不会重新接管或覆盖已有正文。
-- 规划资产会记录用户确认状态和受影响的下游范围，已有正文保持锁定，减少手动模式与自动导演切换时的重复生成。
-
-### 2026-07-09（自动导演候选恢复、创作主链首屏、角色准备控制台、卷战略控制台与长期路线图）
-
-恢复到已经生成书级方向候选的自动导演任务时，候选页会保留起始想法，可以直接选择方案、继续生成新一轮，或按意见修正方向。
-
-- 从任务中心或恢复入口回到方向候选页后，系统会读取候选批次中的起始想法，避免页面有候选但继续操作时提示参数为空。
-- 如果任务记录确实缺少起始想法，页面会先提示补充想法，再继续生成或确认书级方向。
-- 项目设定页首屏改成“书级定位”工作台：标题、概述、目标读者、核心卖点、商业标签和前 30 章承诺会集中展示，并显示当前定位完成度，方便先确定这本书要兑现什么。
-- 本书世界和写法建议仍保留在项目设定页，但收进下方资产区，减少第一次进入时被大量设定项压住的感觉。
-- 故事宏观规划页首屏改成“故事引擎”控制台：故事想法、生成动作、就绪度、下一步建议和主线骨架集中在一起，方便把卖点、长期对立、主线钩子、推进回路和关键兑现点先整理清楚。
-- 故事引擎的高级字段、硬约束、约束引擎和故事状态仍保留在下方折叠区，适合需要精细调整时再展开。
-- 角色准备页改成“角色资产控制台”：左侧切换阵容，右侧按总览、档案、外显、资源、时间线、关系和智能层切换查看，减少大篇幅向下滚动。
-- 当前角色会先显示状态、目标、最近出场、故事作用和关键资源；需要编辑完整档案、补全外显资料、同步时间线或检查关系时，再进入对应标签页。
-- 角色资产控制台继续强化视觉层级：当前角色拥有更清晰的焦点面板，阵容导航、标签切换和总览仪表盘更接近角色管理台，而不是普通资料表单。
-- 角色关系页新增可交互关系网：可以用图谱查看完整角色关系、当前角色周边、高张力关系和动态阶段，点击角色或关系线即可查看目标、冲突、隐藏张力和下一转折点。
-- 查看单个角色时，关系网会把当前角色放在左侧作为起点，直接关系向右展开成树状视图，关系线和详情也会按当前查看方向说明双方是谁。
-- 关系网会按角色卡片大小自动避让节点，减少角色卡片互相压住导致关系难以阅读的问题。
-- 关系图里的角色卡片可以拖动整理，适合临时调整当前画布的阅读顺序；同一视图内切换焦点角色会保留整理过的位置，切换关系视图或重新进入后仍会回到系统自动布局。
-- 角色关系网支持全屏查看，适合在角色较多或关系较密时沉浸整理图谱；按 Esc 可以退出全屏。
-- 关系网里的主角会以更醒目的核心样式展示，方便在复杂关系中快速找到叙事中心。
-- 关系图角色卡片面积增大，姓名、身份、目标和标签有更稳定的展示空间。
-- 卷战略页改成控制台式布局：顶部集中生成、审查和保存动作，当前卷、战略总览和资产约束通过标签切换查看，减少纵向表单滚动。
-- 当前卷会先显示这一卷的承诺、压力源、兑现方式和紧张度缩略图；详细字段按卷定位、推进压力、兑现牵引分区编辑，避免所有卷信息挤成一张长表单。
-- 卷数建议改为动态结构判断：80 章左右的故事会优先保留三段式结构，超长篇也能扩展到更多卷，避免被少数巨卷压掉阶段回报。
-- 手动固定卷数和已有卷草稿仍可继续沿用；恢复系统建议后，会按故事体量重新给出结构建议区间和系统推荐卷数。
-- 卷规划会更严格保护作者已经确认的卷数：手动固定卷数和沿用草稿都会作为明确约束，不会在生成卷战略时被 AI 擅自改掉。
-- 重生成卷战略后，旧卷骨架会回到待生成状态，避免新战略和旧骨架混在一起让人误以为已经同步。
-- 自动导演会在卷战略后先做一次策略审查；如果风险过高，会先停在卷骨架前，提示重新生成或修订卷战略。
-- 公开路线图补充“叙事引擎工作台”长期方向：未来会继续探索把世界、角色、势力、资源、事件和章节正文组织成类似游戏编辑器的创作控制台，但当前阶段仍优先稳定自动导演、章节生产和质量闭环。
-
-## v0.4.1（2026-07-08 发布）
-
-本次版本汇总 0.4.0 之后的主线更新，重点放在自动导演开书体验、章节规划控制、正文质量保护、提示词编辑器和公开文档站。整体目标是让新手更容易从一个想法走到可持续写作，也让高级用户能更安全地调试正文生成。
-
-### 创作入口与项目工作台
-
-- 自动导演创建流程改成独立分步页面：从一句灵感开始，再确认作品定位、世界与写法、模型和运行方式，最后选择方向方案。已经确认的内容会收成摘要，方便回头调整。
-- 创建小说时优先推荐 AI 自动导演，手动创建保留为轻量表单，减少第一次开书时需要同时填写太多设定的压力。
-- 小说列表和首页更聚焦“下一步创作”：会突出最近项目、可继续章节、待处理事项和推荐入口，方便把项目库当作创作队列来使用。
-- 小说工作台七个步骤统一降低卡片和边框噪音，左侧流程、顶部建议和主操作更突出，日志与高级信息按需展开。
-- 本书世界区域更像世界门面：默认展示世界概要、核心规则、主要势力、故事舞台和生成链读取范围，完整手册进入全屏查看。
-
-### 章节规划、节奏与质量保护
-
-- 节奏拆章新增紧张度曲线和冲突强度锚定。手动指定某章强度后，后续拆章、章节细化和重规划会把它当作明确约束。
-- 曲线编辑会提示连续持平、卷末峰值偏弱、节拍起伏不足等问题，并在编辑时展示卷定位、节奏段摘要和章节目标，方便对齐整卷推进。
-- 章节正文增加自然度检查，能发现 AI 自述、占位符、提示词泄漏、截断、复读和模板化句式等问题；可修复问题进入本章修复链路，轻微残留会记录为质量债而不是阻断整本生成。
-- 带质量债务继续生成时，角色状态和资源变化会先进入待确认，减少错误信息直接污染后续章节。
-- 自动导演新增待确认状态自动放行开关，适合愿意接受自动推进风险的用户；默认关闭，开启前会说明风险。
-- 续写模式会更明确读取前作约束、角色状态、时间线和未完线索，减少续写时只靠标题或少量摘要导致承接不稳。
-
-### 提示词编辑与正文生成调试
-
-- Prompt Workbench 改成可视化工作台：左侧选择提示词，中间编辑和预览，右侧查看本次注入的上下文资料。
-- 正文生成提示词支持安全槽位和本书高级模板。安全槽位适合稳定微调，高级模板适合成熟用户完整调整正文生成提示词。
-- 高级模板里的书级合约、章节任务、时间线、角色硬事实、章节标题、语气与节奏等引用会显示成中文标签，输入 `@` 就能插入资料、章节参数或写作规则。
-- 正文生成预览会显示更清晰的中文上下文，缺少关键资料时也会用中文名称说明缺口，方便回到对应模块补齐。
-- 新增“测试产出”：保存前可以打开测试弹窗选择模型，用当前草稿真实生成一次结果；结构化提示词会显示解析后的 JSON，文本提示词会显示模型正文，方便判断这次提示词调整是否值得保存。
-- 提示词编辑器保留官方模板恢复和版本历史，本书提示词改坏时可以回滚或恢复官方默认。
-- 章节任务检查、章节接收评估和卷级章节列表生成更稳；当标题、摘要或章节功能不合格时，系统会给 AI 更明确的重试方向。
-
-### 界面与文档
-
-- 项目新增统一下拉控件，拆书、创作中枢、小说工作台、任务中心、标题工坊、世界库、漫画和短剧等页面不再混用浏览器原生下拉框。
-- 标题工坊、自动导演候选、AI 驾驶舱、小说创建表单和多个工作台页面都减少了灰底盒子和嵌套卡片，让主要输入和下一步动作更突出。
-- 应用左上角新增 GitHub 仓库入口，方便打开源码、Issue 和发布页。
-- 公开文档站改为真实页面路径并支持预渲染，文档可以直接分享、被搜索引擎收录，也能在站内搜索。
-- 提示词管理文档新增截图和详细使用方法，说明如何找到正文生成提示词、编辑高级模板、查看上下文、生成预览、保存修改和恢复官方模板。
-
-### 升级提示
-
-- 拉取源码运行的用户需要执行一次 `pnpm install`，本次包含新的前端可视化依赖；如果忘记安装，启动脚本会用中文提示。
-- 本次包含数据库迁移，桌面版会随应用启动流程使用已有数据库和配置；自行从源码运行服务端的用户应按现有数据库迁移流程更新。
-
-### 2026-07-08（提示词编辑更直观，正文生成预览更清晰）
-
-提示词编辑器更适合调试正文生成。打开高级模板时，书级合约、章节任务、时间线、角色硬事实、章节标题、语气与节奏等常用引用会显示成中文标签，调整提示词时更容易知道自己正在引用哪一类资料。
-
-正文生成预览也更接近真实写作资料。关键背景、章节任务、角色状态和风格要求会用更清晰的中文标题展示，减少难懂字段和内部编号混在提示词里的情况。
-
-- 在高级模板里输入 `@` 可以插入资料、章节参数或写作规则；插入后会显示为中文标签，方便确认这段提示词会使用什么资料。
-- 源码视图仍保留给高级用户排查模板，但日常编辑可以优先使用标签视图，不必反复对照底层名称。
-- 缺少关键写作资料时，预览会用“时间线”等中文名称说明缺少什么，方便回到对应模块补齐资料。
-- 正文预览里的书级合约、章节任务、当前局面和风格要求更接近正常阅读表达，模型看到的写作资料也更清楚。
-- 章节任务检查、章节接收评估和卷级章节列表生成更稳；当标题、摘要或章节功能不合格时，系统会给 AI 更明确的重试方向，减少反复生成仍改不到重点的情况。
-- README 和公开文档站补充提示词编辑器截图与使用方法，说明如何找到正文生成提示词、编辑高级模板、查看上下文、生成预览、保存修改和恢复官方模板。
-
-### 2026-07-07（Prompt Workbench 官方版本恢复、正文预览上下文与高级模板）
-
-Prompt Workbench 现在可以把已改动的槽位对齐到官方当前版，适合在全局提示词被误改后快速恢复某本书的可靠默认写法。
-
-正文写作提示词新增高级模板模式，成熟用户可以在某本书内完整改写 `novel.chapter.writer` 的 system / human 模板，同时保留官方恢复和必需上下文安全边界。
-
-- 新增“官方版本”入口，可查看槽位是否与官方当前版存在差异，并对单个槽位或全部槽位执行恢复。
-- 本书层恢复官方当前版时，会明确遮蔽全局覆盖；即使全局“章末钩子”等规则被改坏，本书预览和生成也会使用官方默认值。
-- 对官方文案更新、槽位移除等情况，工作台会显示对齐面板；可以选择“恢复官方当前版”，也可以“保留我的设置”并消除版本提醒。
-- 槽位卡片会显示当前来源：官方默认、全局覆盖、本书覆盖或本书使用官方默认，预览时更容易判断最终采用的是哪层设置。
-- “清除本书覆盖”和“恢复官方当前版”区分为不同语义，避免误把恢复官方默认操作变成重新继承全局坏值。
-- 生成预览会为可编辑槽位提示词提供完整样例输入，审校、正文改写、封面 brief 等提示词不再因为缺少样例数组字段弹出底层 JavaScript 报错。
-- 完整审校提示词预览会带上示例章节边界和结构义务上下文，右侧上下文面板能看到本次注入的审校资料块，不再一进预览就提示缺少 `chapter_boundary` 或 `structure_obligations`。
-- 本书范围的 Prompt Workbench 可以选择预览章节；生成完整审校预览时，会优先读取所选小说章节的正文、章节任务、章节边界和结构义务，不再把示例“旧仓库暗号”误当作当前书籍上下文。
-- 正文写作提示词 `novel.chapter.writer` 在本书范围生成预览时，会读取所选小说章节的正文写作上下文，右侧上下文面板可看到书级合约、章节任务、角色硬事实、义务合约、卷级窗口、参与角色、当前局面和风格合约，不再因为这些必需上下文缺失而无法预览。
-- 正文写作预览的书名、章节序号、章节标题和目标字数会跟随所选小说章节，便于确认预览内容来自当前书籍。
-- 缺少必需上下文时，Prompt Workbench 会用中文说明缺失的上下文组，方便判断是样本不足、小说资料不足还是运行时上下文装配问题。
-- 正文写作提示词在本书范围可切换“安全槽位”和“高级模板”：安全槽位继续适合稳定调整，高级模板允许成熟用户直接编辑 system / human 模板。
-- 高级模板编辑器支持输入 `@` 插入上下文、运行变量和槽位引用，例如章节任务、角色硬事实、章节标题或语气节奏槽位；右侧上下文面板也可以把当前资料块插入模板。
-- 生成高级模板预览时，会显示最终 messages、显式引用的上下文，以及系统自动追加的必需上下文保底，方便确认真实发送给模型的内容。
-- 每次保存高级模板都会生成本书版本历史，可以查看旧版本、回滚启用，也可以恢复官方模板；恢复官方不会删除历史版本，后续仍可查看或回滚。
-- 高级模板只影响 `novel.chapter.writer` 的本书正文生成，不开放 schema、contextPolicy、postValidate 或其他提示词的自由编辑。
-
-### 2026-07-06（正文自然度、提示词工作台与界面收束）
-
-章节生成后会多一道确定性正文检查，用来捕捉 AI 自述、占位符、工程词泄漏、截断、复读、破折号/省略号和模板化句式等问题。明显问题会进入本章修复链路；修复后仍有残留但正文可读时，会按质量债记录并继续推进后续章节，避免单章文字问题把整本自动导演打断。
-
-- 章节正文中的 AI 身份说明、拒绝话术、TODO / 待补、任务单和提示词等泄漏会被标成正文自然度/退化风险。
-- 重复段落、疑似截断结尾、模板化“不是 A，而是 B”句式、过密破折号/省略号会进入本章审校和修复建议。
-- 长段落、碎句等轻量节奏问题会作为提示保留，不会直接触发整章重写。
-- 章节执行风险摘要会显示“正文自然度/退化检测”，方便区分这是本章文字质量问题，而不是剧情重规划或全局链路失败。
-- 自动修复耗尽后，相关风险会按非阻塞质量债展示；没有重规划信号时，不会因为单章正文自然度问题暂停整本生产。
-- Prompt Workbench 改成可视化编辑工作台：左侧选择提示词，中间编辑已声明槽位并查看最终 messages，右侧查看本次预览注入的上下文块。
-- 正文生成提示词 `novel.chapter.writer` 的语气节奏、反 AI 味规则、章末钩子、叙事视角、反套路提醒、字数提示和自定义补充规则都可以在同一个页面里编辑、预览和保存覆盖。
-- 上下文注入面板会展示资料块的必需/可选、已注入/裁剪/摘要、token 估算和锁定状态；关键正文上下文只读展示，避免误关 required context 或破坏提示词治理边界。
-- 提示词目录固定在工作台左侧独立滚动，列表项更紧凑；浏览长目录时不会带动整个页面滚动，也能一屏看到更多提示词。
-- 正文生成主提示词会在目录里保留清晰入口；提示词工作台加入沉浸编辑模式，可以隐藏目录并铺开主体编辑区和右侧上下文调试台，配色也从灰黑界面调整为更有层次的深青、暖金和浅蓝灰工作台。
-- 小说创建主链路更聚焦默认开书路径：创建入口优先推荐 AI 自动导演，手动创建保留为轻量表单；自动导演的起始设置、世界写法、运行方式和方向候选都减少边框与卡片噪音，读者与卖点补充、模型选择、书名调整和方案微调改为按需展开。手动创建里的读者与卖点、参考世界样本、续写拆书引用和 AI 检测开关也进一步弱化外框，让标题、概述和核心设定更容易先被看到。方向候选改为分隔式列表，减少灰底方案卡堆叠，让书名、故事钩子、核心卖点和选用动作更突出；自动导演的起始设置、世界与写法、模型与运行方式也减少普通说明块外框，只保留真正需要选择或输入的控件边界；生成中和恢复现场的进度、事件、里程碑改成轻列表和轻量状态块，减少任务卡片堆叠；标题快速选填和资源推荐也改成更轻的列表与说明结构，减少辅助工具抢占手动创建表单的视觉层级；手动创建表单的作品定位、高级设置、续写来源和项目状态改用留白与分隔线组织，提示图标去掉小圆边框，让核心输入不再被大块浅底容器包住；方向候选项加入编号轨道，候选书名改成分隔式行列表，减少小标签和小盒子堆叠；创建后继续完善基本信息时，书级定位和标题工坊也改为轻量段落与分隔列表，减少从创建页进入工作台后的视觉落差；AI 接管入口和封面主画面也改成更轻的分隔段落，封面空状态与图库预览减少虚线框和图片边框；项目设定里的本书世界首屏去掉外层大卡片，来源、使用范围、同步状态和世界手册摘要改为轻量信息列与浅底内容块。
-- 独立标题工坊也换成更轻的工作台布局：标题说明、模型设置、生成模式、标题库筛选和候选结果减少外框与标签噪音，生成标题时更聚焦当前输入和候选本身。
-- 小说列表页也减少了顶部卡片、筛选框和项目卡里的小盒子堆叠，项目卡会更突出书名、当前推进状态和下一步主操作；没有后台运行进度的项目也会保持底部操作区对齐，方便把列表当作继续创作队列来扫读。
-- AI 驾驶舱弹窗更突出当前状态和下一步动作，后台执行、产物记录、AI 用量和自动化记录改成轻量摘要与按需展开，减少一打开就看到大量运行日志。
-- 小说生成主工作台七个步骤统一降低边框和卡片噪音：左侧流程改成轻量步骤轨道，顶部优先显示当前步骤、流程建议和主操作；项目设定、故事宏观规划、角色准备、卷战略、节奏拆章、章节执行和质量修复都更突出当前任务与下一步动作，日志、同步、连接诊断和高级配置按需展开。
-- 本书世界区域继续收紧首屏层级：来源、写作可用范围、同步状态和下一步动作合并到同一个紧凑面板；世界手册改成更像正文阅读区，主题、身份和气质减少标签边框干扰。
-- 项目设定里的本书世界进一步强化“世界门面”：首屏直接展示世界概要、核心规则、主要势力、故事舞台、关键张力和生成链读取范围；完整世界手册、生成约束、使用范围、同步与世界资产改为全屏手册查看，减少默认页的大面积设定堆叠。
-- 页面里的下拉选择控件统一改为项目封装样式，拆书、创作中枢、小说工作台、任务中心、标题工坊、世界库、漫画和短剧等页面不再混用浏览器原生下拉框，交互和视觉更一致。
-
-### 2026-07-03（紧张度锚定与曲线编辑体验）
-
-节奏拆章里的冲突强度开始具备“用户锚定”语义：当你手动指定某章的冲突强度后，后续拆章、章节细化和重规划会把这个值当作硬约束，不再被 AI 自动结果静默覆盖。卷工作区也可以直接查看和调整紧张度曲线，帮助你更直观地控制整卷节奏。
-
-- 章节列表重新生成时，会保留已经由用户锚定的冲突强度。
-- 章节细化和章节执行合同生成时，prompt 会看到本章目标冲突强度，以及相对前后章是上升、下降还是持平。
-- 重规划窗口内的用户锚定冲突强度会进入重规划上下文，AI 需要围绕这些固定点调整方案。
-- 节奏 / 拆章工作台新增可拖动的紧张度曲线，拖动章节节点会把该章冲突强度标为用户锚定。
-- 锚定点可以在曲线面板或章节高级设置里交还 AI 自动优化，误调某章后不用一直手动维护该章强度。
-- 卷骨架页新增只读曲线缩略图，方便在编辑卷信息时快速查看本卷紧张度走向。
-- 曲线面板会提示连续持平、卷末峰值偏弱、节拍内起伏不足等形状问题，并可叠加升级流、悬疑流参考线。
-- 节奏 / 拆章工作台里的曲线主视图改为只读展示，避免只是查看走势时误拖章节节点；需要调整时从“编辑紧张度曲线”进入专门弹窗。
-- 曲线编辑弹窗会同时展示本卷定位、当前节奏段摘要、必须交付项和选中章节摘要，拖动冲突强度时更容易对齐叙事目标。
-- 卷骨架页继续保持只读缩略图，并提供跳转到节奏 / 拆章的入口，避免同一个曲线在多个页面出现不同编辑规则。
-- 执行态章节继续只消费冲突强度数值；锚定语义保留在规划工作区，避免执行链出现额外状态分叉。
-- AI 自动导演开书迁入独立页面：从一句起始想法开始，再逐步展开导演起始设置、世界与写法、模型与运行方式，最后在主页面内选择方向候选和查看执行进度。
-- 起始想法后可以继续完善设定，也可以直接用默认设置生成方向；已经确认的阶段会收成摘要，方便回改后重新生成。
-- 自动导演起始页改成更安静的开场提问：输入框成为首屏主角，灵感参考改为按需展开的行式列表，选择灵感后会填入输入框继续编辑。
-- 自动导演的起始设置页减少了卡片和边框噪音：阶段摘要改为轻量进度轨道，读者频道、叙事视角、节奏、情绪和书级 framing 会在更安静的舞台里确认。
-- 自动导演的世界与写法、模型与运行方式步骤也改成更安静的确认舞台，减少大卡片和密集边框，让世界样本、写法、模型和运行范围更容易确认。
-- 自动导演恢复链接统一使用新页面，任务中心、候选确认、恢复入口和桌面重启后的链接会回到同一个候选或进度现场；旧的创建页导演链接会自动跳转。
-- 从源码运行时，`pnpm dev` 系列命令启动前会先检查依赖是否装全：拉取新代码后忘记执行 `pnpm install` 时，会用中文明确提示该怎么做，而不是抛出模块找不到的报错。
-- 本次为后续的曲线优化、世界地图、知识图谱和统计面板一次性引入了前端可视化依赖：从源码运行的用户拉取本次更新后需要执行一次 `pnpm install`（忘记执行时启动检查也会提示）。
-- 产品左上角项目名旁新增 GitHub 图标和仓库名入口，方便从应用内直接打开源码、Issue 和发布页。
-
-### 2026-07-02（写法引擎手动 JSON 规则保存修复）
-
-写法引擎的高级 JSON 编辑更可靠了：手动调整剧情推进、人物表达、语言质感和节奏密度这四组高级规则后，保存结果会按你当前填写的内容保留下来，不会再在退出重进后被旧特征规则悄悄覆盖。
-
-- 手动填写或修改高级 JSON 后，点击“保存当前写法”会优先保存你当前编辑的规则对象，重新进入同一套写法时可以继续看到刚才保存的内容。
-- 写法资产仍会保留已提取的特征池，后续继续试写、绑定和复用不会因为这次修复丢掉已有特征。
-- 当你明确重新提取写法特征时，系统仍然可以继续根据最新特征生成兼容规则，不会影响旧有的自动提取流程。
-
-### 2026-07-02（续写承接与参考资料链路加固）
-
-续写模式会更明确地承接前作：如果已绑定完成的拆书分析，章节写作会优先读取人物系统、故事时间线和剧情结构等结构化小节，把角色状态、终局摘要、关键事实和未完线索送进写作上下文。
-
-- 续写章节的前作约束会作为写作必需上下文进入生成，减少续写时只看到标题或少量摘要、承接不稳的情况。
-- 已绑定拆书分析时，系统优先使用结构化拆书结果组织续写信息；没有可用分析时仍沿用原有站内小说或知识库摘要路径。
-- 规划阶段读取参考资料失败时会自动降级为空参考，不会因为某份参考资料异常打断开书、规划或章节链路。
-- 关键写作上下文增加回归测试守护，写法约束、续写约束、角色硬事实和角色资源压力更不容易在后续改动中静默丢失。
-
-### 2026-07-01（首页创作驾驶舱、小说列表优化、质量债务待审保护与待确认状态自动放行）
-
-首页和小说列表更聚焦“下一步创作”：打开后优先看到值得继续的小说、需要处理的状态，以及每本书最明确的继续入口。
-
-章节在带质量债务继续生成时，系统会把从该正文提取出的角色状态和角色资源变更先放入待确认队列，避免未复核的信息直接写成后续章节的硬事实。
+### 2026-08-26 (Chapter review and recovery)
+
+- Market Radar clearly separates items already in your library from items you still need to add. Existing genres or story modes open at their library location instead of being reported as new; after you confirm a missing direction, the library refreshes and jumps to that content.
+- When you start a book from market signals, the opening page shows and prefills the recommended genre base plus primary and supporting story modes. Choices you made yourself are not overwritten.
+- If a manual chapter review says later planning needs to change, the current chapter text is kept and a clear replan suggestion is shown. The chapter window changes only after you confirm; review never silently replans in the background.
+- Review conclusions, open issues, and chapter progress are saved as one recoverable state, so finished reviews are less likely to conflict or lose the reason something is still pending after a refresh.
+- Full-book Auto-Director records local quality debt and continues when a chapter still has usable text. Quality-first mode can still pause at a saved chapter boundary during manual staged writing until you confirm.
+- If chapter text cannot be confirmed as saved, automatic retries stop so the same chapter is not generated again. After a restart or an unresponsive background task, if automatic recovery still fails, the task keeps a recovery entry and continues from the unfinished chapter.
+
+### 2026-08-25 (Auto-Director issue handling)
+
+- Auto-Director no longer has a separate risk-threshold setting. Retry, continue, pause, or stop is decided only by issue-handling rules. The risk score explains severity and does not override your choice or create a second stop path.
+- When a background task stops responding or trips a circuit breaker, the book uses the issue action frozen for that run. “Action applied” is recorded only after retry, continue, pause, or stop actually finishes, so the run log matches the real task state.
+- Finish-the-book-first keeps usable text, records local quality issues, and continues. Quality-first can pause at a saved chapter boundary during manual staged writing; full-book Auto-Director still records quality debt and continues.
+- Issues the system already recognizes run their handling rules directly, without an extra AI risk judgment. Only unclassified runtime exceptions go to AI-assisted identification, which cuts waiting and unused model calls.
+- Chapter retries and quality repair share one automatic handling chance (at most once). Separate stages no longer retry on their own, so one problem does not regenerate or repair the same chapter over and over.
+- After handling rules decide, Auto-Director continues or pauses immediately. It does not start another model evaluation for the same quality reminder.
+- Manual repair first identifies issues in read-only mode, then uses the same final acceptance as automatic writing. Chapter status does not change during the check. Passing text is confirmed together; remaining issues keep the repair draft and a follow-up item.
+- If acceptance checking is temporarily unavailable, the text is kept and waits for a later review. A repair that never ran is not counted as an automatic retry.
+- Each final chapter version settles timeline state before later chapters continue. Accepted text records a full timeline; usable text with remaining local quality issues saves a minimal carry-forward state so the next chapter still has context after a skipped repair.
+- One automatic chapter repair first tries a local patch, then at most one full-chapter repair. There is no hidden second patch request in between, so model calls match the at-most-once retry setting.
+- Chapter generation, review, and repair update text and progress through the same save path, which reduces stale status after a successful repair and completed chapters falling back into pending.
+
+### 2026-08-24 (Market Radar analysis range)
+
+- When Auto-Director resumes and a chapter already has a partial task sheet or scene cards with missing fields, it no longer loops on “sync chapter execution contract”. It syncs the chapter seed first, then fills and checks the full execution contract before writing.
+- Simple Mode and Professional Mode are two creation interfaces: the reading shelf emphasizes text and progress, and the full workbench shows complete creation materials. They share the same automatic writing, review, recovery, edit, export, and delete capabilities. Switching interfaces does not pause chapter production that is already running.
+- Simple Mode and Professional Mode in the Auto-Director title area open their creation interfaces directly. An in-progress chapter task no longer claims that pre-writing preparation is unfinished. Failed tasks show the failure state and the real checkpoint summary instead of looking like a live run.
+- Works in the Continue Writing list can be deleted, matching My Works. Deletion still asks for confirmation.
+- Auto-Director issue management offers Finish-the-book-first and Quality-first. Both retry automatically at most once: the first keeps usable text and leaves local issues for later polish; the second pauses for confirmation if a local issue remains after handling. Save failures, data risks, and protected content still protect the work first.
+- Market Radar uses the full available page width. Each ranking uses a consistent-height card and can show every record identified in this scan. The top-right of a card can select all titles or let you tick books one by one. The AI analysis entry stays above the ranking data. New-book and new-author rankings are recommended by default; mature rankings can be added for comparison. Each ranking shows how many titles were identified this time and the 30-title cap, so one public page is not mistaken for every ranking on the platform.
+- Expected chapter count can be cleared and typed again, for example 30. Incomplete input is not silently restored to the default.
+- Simple Mode and Professional Mode sit in Enter Creation to the right of the Auto-Director title, so the recommended path is easier to see. Manual create stays a separate secondary entry.
+- Professional export can download the whole book as TXT, merging saved chapters in order. Project-asset export still supports Markdown and JSON.
+- Global content uses a lighter, flatter hierarchy: ordinary cards drop visible borders and shadows and rely on spacing, type, and muted backgrounds. Inputs, selections, warnings, and floating layers keep the boundaries they need.
+- Market Radar’s title-selection area is a compact ranking table. Start analysis is separate from ranking content. Selected works show a check state only, without a full-row color block.
+- Duplicate page titles and ranking summaries are removed. The page leads with ranking range, refresh, and analysis.
+- A compact page title remains so you can tell where you are when you land on the rankings.
+
+### 2026-08-23 (Opening ideas and model setup)
+
+- Market Radar is new. Opening the page fetches public rankings from Tomato, Qidian, and Jinjiang, with rank, title, author, and category per list. After a scan reaches 100%, analysis is available. When new-book or new-author rankings exist, AI analyzes only those current opening samples. Mature rankings are used only when new-book data is missing, which cuts old-hit noise, excess signal, and overly long analyses that stall. Tomato titles are corrected from public work information into readable text.
+- Market Radar recommends a starter set of opening signals and three influence levels: follow the trend, differ within the trend, or downplay the market. After you confirm, those signals feed Auto-Director’s first genre, story star map, book direction, and titles. You do not wait for a later quality review to apply them.
+- Auto-Director’s story star map builds 35 selectable opening materials from the current genre and story mode, covering the protagonist start, setting stage, cheat ability or core advantage, first-chapter hook, early goal, core resistance, and key relationships. Labels can be full short sentences; confirm is no longer limited to 16 characters, and the desktop map wraps and avoids other chips. Refresh a set calls AI again, then turns the confirmed chips into an opening idea you can start from.
+- Auto-Director sets the main title from each direction’s selling points, character situation, recommended platform, and target readers, so titles are less likely to be only mood or vague suspense. Other titles stay as alternatives from different selling-point angles.
+- First-time model setup leads with a recommended plan. You can still browse every built-in provider or connect an OpenAI-compatible service. The provider page groups available connections, text models, image models, and maintenance.
+- Knowledge Library can take its own vector-service API key and address without changing writing models, the default model, or task routing.
+- If batch refinement of chapter goals, execution boundaries, or task sheets fails partway, finished results are kept and work can continue from the failed chapter.
+- The shelf, story-mode details, and Style Engine have clearer hierarchy and dark-theme reading. Work entries and the current selection are easier to spot.
+- The chapter editor and Style Engine add a prose-effect lab that opens the chapter-writing template and can try it with the current novel and chapter. Try-write results are for comparing templates only and do not change chapter text.
+- Prompt editing hides maintainer slot summaries and lock boundaries. Safe slots use the full editor width. Advanced templates show insertable context references and try-write results.
+- Prompt Workbench directory status, immersive-edit controls, the immersive text area, the editor, the bottom bar, and try-write dialogs follow the current theme. Dark Warm Paper uses a neutral deep-blue canvas so large brown backgrounds, white text without a backdrop, or hard-to-read copy do not appear.
+- Prose-effect lab text try-writes stream as they generate. Tests that need structured checks still wait until validation finishes.
+
+### 2026-08-16 (Auto-Director continuous writing)
+
+- When Auto-Director finds a local chapter-plan mismatch, it adjusts later unwritten chapters and continues. Saved text, confirmed chapters, and manual content stay as they are.
+- Resume from a replan checkpoint jumps to the first unwritten chapter instead of reprocessing finished text.
+- Windows desktop `0.4.13` includes this continuous-writing and replan-recovery work.
+
+### 2026-08-15 (Shelf and theme)
+
+- When a chapter no longer matches later planning, Auto-Director adjusts neighboring unwritten chapter plans and keeps writing. Saved text, confirmed chapters, and manual content stay as they are. It pauses only when the whole-book structure needs a person, text cannot be saved, or a safety risk appears.
+- Continuing from a historical replan checkpoint first confirms that later chapter plans refreshed successfully, so it does not skip the adjustment and stall on neighboring chapters again.
+- Shelf cards drop synopsis text so cover, title, progress, and continue stay in focus.
+- Books without a generated cover use a shared default image and still show the title, so novels stay distinguishable.
+- Simple Mode text background and type follow the current theme. Dark and Night Cruise no longer show a sudden light reading area.
+- Professional workbench stage banners, Auto-Director progress, flow steps, and AI Cockpit follow the theme. Status colors stay readable in dark UI without becoming too bright.
+- Simple Mode and Professional Mode both say Continue after replan when chapter plans mismatch. AI keeps existing text, adjusts neighboring plans, and writes from unwritten chapters. A failed replan is not skipped in silence.
+- Segmented chapter-list generation avoids sending already finished titles back into the model. If a new title duplicates one already in the volume, AI retries; if it still cannot uniquify, saving stops so duplicate titles do not enter writing.
+- Existing books with duplicate chapter titles can regenerate titles segment by segment and sync them to the contents. Finished chapter text is kept and is not rewritten to fix titles.
+
+### 2026-08-13 (Creative Hub boundary and Agent entry)
+
+- The home top area is a daily writing desk: current novel, recommended actions, the full-book journey, and real progress. The cover also helps identify the current work.
+- Home summaries are Writing now, Waiting for confirmation, Ready to write, and Settled chapters. Historical failures stay in creation alerts and run records so the next step is easier to see.
+- Creative Hub focuses on novel status, diagnosis, run records, and next-step advice. Creating a novel, full-book production, writing text, and Auto-Director actions start from the formal workbench.
+- Hub queries and diagnosis stay read-only. Action requests point you to the novel workbench, Auto-Director, Task Center, or model settings.
+- The page lists the separate agent-driven novel app’s GitHub repository, clone command, and how to start it, and makes clear that the two projects use their own novel workspaces and run records.
+- Run records and director follow-up move to System. Creation navigation stays on novel content and current writing status.
+- Cover generation treats the exact book title as required cover text and blocks garbled characters, typos, subtitles, and watermarks.
+- Product previews and public module docs use current screenshots. Home, Book Analysis, world, genre, story mode, title, and writing-style management show the current UI.
+- First-time DeepSeek setup recommends V4 Flash for Chinese long-form quality and speed. Existing model choices are kept.
+- Appearance and theme settings add Light, Dark, Match system, plus Inkstone, Warm Paper, and Night Cruise. The preference is stored on this device.
+- Home creation alerts, status colors, and the novel list no longer stay light in a dark theme.
+- The visual library is a masonry layout at each image’s original ratio. Tall and wide images are no longer cropped to one height.
+- Switching Night Cruise display mode now applies. Light and dark Night Cruise use their own background, card, and text colors.
+- Novel preview inherits the theme. Text, contents, toolbar, and selected chapter follow it.
+- When the desktop app finds a new version, the top version entry says Update now. The first launch of a client version shows the update intro once.
+- The desktop splash focuses on brand, startup stage, and local writing-space connection. Updates and logs sit in a secondary area.
+- The splash and desktop update panel can download a recent log pack of the latest desktop logs for support.
+- Windows desktop `0.4.12` includes clearer startup guidance and recent log-pack export.
+
+### 2026-08-12 (Simple Mode, settings, and fixes)
+
+- Windows desktop `0.4.11`. After Auto-Director creates a work, you can switch Simple Mode and Professional Mode. Simple Mode focuses on the chapter shelf and saved text; Professional Mode is the full workbench. Switching does not clear chapters, plans, or background tasks.
+- The simple shelf adds a preview shortcut and a lighter reading view for finished chapters, whole-book progress, and what AI is processing.
+- Auto-Director preparation shows how many chapters are already done and keeps finished story, character, and volume materials available. Closed situational tips stay closed.
+- Settings become an overview split into Models and providers, Auto-Director, Knowledge and style, and Desktop and maintenance. Old model-routing links open the new model page.
+- Models and providers lead with the provider in use; others sit in a shared management entry. Auto-Director confirmation, follow-up channels, and risk threshold expand when needed.
+- Existing local libraries can keep generating chapters after upgrade. Fact-ledger data is filled in at startup so missing historical tables do not stop writing.
+- When a chapter needs replanning, any Continue entry keeps current usable text and moves to later chapters instead of stalling on the same place.
+- With knowledge retrieval off, import and maintenance no longer stay Queued. Turn retrieval on and rebuild the index to process them.
+- World-skeleton generation that runs long, truncates, or times out shows a retry prompt instead of staying Generating or saving a half result.
+- Generating a world from this book’s theme first gives compact opening-ready setting, which lowers local-model stalls from huge output and avoids repairing the same large result over and over.
+- World-from-theme uses the currently selected model. Local Ollama and similar models no longer require DeepSeek.
+- Preview contents return to the matching place when you expand the contents. Closing contents restores full reading width for text and the top bar.
+- Preview can download the whole book or the chapter you are reading as TXT.
+
+### 2026-08-11 (Writing mode and continuous generation)
+
+- Windows desktop `0.4.10` includes Auto-Director issue handling, the Simple Mode entry, continuous generation, and workspace navigation.
+- After Auto-Director finishes character, volume, and opening-route prep, you choose Simple Creation or Professional Creation. Simple Mode is not chosen for you.
+- Simple Creation lets AI finish the whole book. Professional Creation opens the full workbench to inspect, adjust, and schedule writing.
+- Later automatic replans keep the writing mode you confirmed and do not send Simple Creation back to the choice page.
+- Simple and Professional share Auto-Director, chapter writing, review, and recovery. The simple page only trims information and actions; it does not own a separate continue-writing path.
+- After Continue generation, the button area shows queued or current chapter action so you can see AI working before the next chapter saves.
+- After a local chapter batch, generation can continue toward the whole-book goal from real chapter progress, keeping existing text.
+- Opening a work from the novel list goes straight to its simple shelf or professional workbench instead of the wrong page first.
+- Auto-Director drops extra actions such as View execution details and Come back later. Run records stay in global navigation.
+- AI Live View opens from the top. Prepared characters, volumes, and similar materials stay available. Non-clickable writing-mode tags are gone.
+- After a novel exists, Auto-Director offers Enter Simple Creation and Open novel workbench. Simple Creation opens a read-only shelf immediately; background prep continues and writing starts when materials are ready.
+
+### 2026-08-10 (Auto-Director issue handling)
+
+- Auto-Director records planning, writing, chapter-quality, and background issues together, with type, risk score, chapter, action taken, and rule source.
+- Every issue type can auto-retry, continue after a reminder, pause, or end the task. Changes show a risk note. Content protection, data integrity, and critical save failures still take priority at runtime.
+- Each novel can override a few handling preferences. Tasks already started keep the rules from launch so mid-run setting changes do not switch behavior.
+- Local quality issues, temporarily unavailable acceptance checks, local repair failures, and background prefetch failures stay visible reminders and the book continues when usable text exists. Explicit replan, unusual usage, protected content, and data-integrity risks stop at a recoverable place.
+- Task details and director progress show recent issues and can open the chapter or novel workspace.
+- The Simple Mode shelf shows this book’s reminder and pause scores, rule source, and recent issues, and can open this book’s issue management without switching to Professional Mode.
+
+### 2026-08-09 (Take over through a chapter)
+
+- Windows desktop `0.4.9` includes Auto-Director chapter takeover and completed-state display fixes.
+- Taking over an existing project with Advance to chapter N keeps the start and end chapters and continues prep, generation, and review for that range. It does not fall back to the previous finished batch.
+- Takeover keeps the advance method and auto-approval you chose. Progress matches the chapter range you submitted.
+- After a chapter batch finishes, background indexing and other wrap-up events do not overwrite the main task’s completed state. The page keeps real completion progress and chapter range.
+- README adds an Alipay donation QR code to support ongoing development.
+
+### 2026-08-08 (World graph interaction)
+
+- Faction graphs and geographic maps let you drag nodes. Pan, wheel zoom, button zoom, full viewport, and one-click reset remain.
+- Faction cards use a wider two-line name. Hover or keyboard focus shows the full name and faction type.
+- Relationship labels prefer short names that do not cover nodes or other links. Hover a line for both sides and the full relationship; click to pin details.
+- Moving from a relationship line to the detail overlay stays stable instead of flickering when the hit target changes.
+- Viewing a relationship highlights that link and its two nodes. Geographic route details also show type, distance, and risk.
+- The same world data keeps a stable automatic layout. Reset restores a clear arrangement without changing saved location coordinates or relationship data in the world handbook.
+- The world timeline is a concrete view with event nodes, a progress track, and staggered event cards. Desktop browses horizontally; narrow screens switch to a vertical timeline. Filters, display count, and full screen remain.
+- Writing-style assets still expand inside the card for tone, rules, samples, and actions.
+- Apply and test use a clear bind-and-try-write flow. Bindings show a readable target level; try-write results use a focused reading area. Prose revision still goes through the separate Anti-AI entry.
+- New styles start from Use a template, Describe an idea, or Learn from material. AI drafting is shown first; blank create remains when you know the rules.
+- Style files keep their information and expand pattern, with lighter cards, a thin selected state, and excerpt-style samples.
+- The top bar adds model settings. With no usable model, quick setup opens automatically. Later you can switch provider, key, address, and default model in the same window. Multi-provider maintenance and routing stay in Settings.
+- After the first successful model check, one idea can start the first novel. The page explains say an idea, pick a direction, read chapter one, and the full creation guide stays available.
+- Desktop `0.4.8` is on GitHub Releases.
+
+### 2026-08-07 (Workbench reading)
+
+- Book Analysis uses a reading-report hierarchy so title, result tools, analysis contents, and body stay distinct for long reading.
+- The analysis list is a light contents view for selection, progress, and status. Any historical result switches the matching analysis. Search, filter, and new analysis remain.
+- Opening a readable result goes to the list, result tools, and analysis body. Guidance appears only for new, generating, or recovering tasks. Creative Hub citations sit in result tools.
+- Section, character, and analysis-category tabs use text navigation. Completion, budget, publish, and maintenance remain, with less repeated border and status-tag noise.
+- Character files lead with motive, need, speech, growth, and key scenes. Generation dimensions, manual add, and visual materials expand when needed. Reference images can be ticked; chapter looks read on a timeline. Interview, edit, scan, and image generation stay available.
+- Structured conclusions, source evidence, analysis text, and editing use spacing and soft grouping. Source compare, regenerate, save, publish to Knowledge Library, and Creative Hub citation remain.
+- Run records use a task-inbox layout. Stats and filters are lighter. The list leads with work, progress, current action, and exception reason. Model, tokens, heartbeat, and steps expand when needed.
+- Tasks that need recovery, approval, or retry are highlighted. Source jump, cancel, archive, and recover remain. Ordinary records stay simple.
+- Title Studio organizes generate-from-novel, free studio, and reference adaptation. Candidates and the title library use comparable two-column cards for potential, naming direction, rationale, copy, and save.
+- Knowledge Library is a materials shelf for title, version, source, availability, and linked analysis. Health is a light summary.
+- View materials and Continue writing stay visible. New analysis, recall test, rebuild index, start/stop, and archive expand when needed. Upload, versions, and retrieval settings remain.
+- The index page says whether materials can join writing. Connection problems open retrieval settings. Sync records show material type and action, with failure reasons visible. Task ids and retries expand when needed.
+- Retrieval settings group how materials are understood and how the library connects. Collection names, index strategy, recall quality, and performance stay in advanced settings.
+- The world-sample library is a lighter setting gallery: concept, core tension, and the scale of rules, factions, places, and relationships. Creation clues and version status expand when needed.
+- Import help is a short guide. Handbook, organize, delete, and generate remain. Loading, retry, and empty library give clear feedback.
+- World details use shared author-workbench navigation. Sample name and world content lead. Writing model and delete are on demand. Handbook reading is organized by impression, rules, factions, stage, and tension.
+- AI layering, fill-in setting, and consistency check each own one task. Answers, summaries, and follow-ups are easier to finish step by step. Materials, assets, snapshots, import/export, and maps remain.
+- Faction graphs spread nodes on a wide canvas and keep names and relationship text from overlapping. Geographic maps unpack clustered or stacked coordinates so landmarks, labels, and routes overlap less.
+- Graph zoom is enlarge, reduce, and reset. The canvas still pans. Filters, legend, power system, and world timeline remain.
+- Geographic maps pull too-close places apart. Route text avoids landmarks and place names. Faction graphs and maps can open a full viewport; Esc exits.
+
+### 2026-08-03 (Short-story web-novel pacing)
+
+- Short stories are designed, planned, and written as shorter but complete web novels, not as essays, literary sketches, or plot summaries by default.
+- Openings reach pressure, anomaly, or conflict faster. The protagonist has a clear goal and acts. The middle keeps genre-matched turns and payoffs. The ending lands clearly.
+- Full-piece review flags slow-burn exposition, empty lyricism, weak advance, and passages that do not suit phone reading, then does one necessary pass that does not overwrite your edits.
+
+### 2026-07-30 (Creation Studio and finished short stories)
+
+- Creation Studio starts from say the idea. AI reads the experience you want, recommends short story or long novel, and offers two clearly different directions. Confirm one to begin.
+- Home and the novel list put Auto-Director long-form and Write a short story side by side. A fast finished story can go straight to the short-story path.
+- The short-story first screen is a simple canvas: title, idea, and generate directions as one path, with less decoration and form chrome.
+- Short stories support 3,000–30,000 words. Planning, continuous prose, full-piece review, and one necessary pass run in the background. Ordinary polish suggestions do not block delivery. After an interruption you continue from the saved position.
+- A short story is one continuous piece. You do not need chapters, stages, or checkpoints. Read, edit, save, and export directly.
+- Natural-language edits first show understanding, impact, and a suggested change. Finished text changes only after you confirm.
+- A short story can be kept and grown into a long novel. The new long novel inherits core characters, conflict, and ending meaning, then Auto-Director prepares the full book.
+- The new creation entry opens with a feature flag. Existing Auto-Director and manual create stay available.
+
+### 2026-07-29 (Desktop release 0.4.7)
+
+- Desktop 0.4.7 includes Auto-Director writing handoff, Simple Mode live chapter shelf, global quick model setup, and a dynamic creation guide.
+- Auto-Director prepares direction, characters, world, and volume materials, then you choose AI finishing the whole book or the professional workbench to inspect and edit.
+- Simple Creation shows chapter progress, readable drafts, and materials, with export, exception recovery, and an irreversible switch to Professional Mode.
+- The desktop workspace top bar opens Version and updates. New version, download progress, and waiting-to-restart show nearby. At the time this shipped, that panel used Chinese copy.
+- The docs site updates Auto-Director, first-book guide, and desktop update notes.
+
+### 2026-07-28 (Writing handoff and Simple Creation)
+
+- The desktop version number opens Version and updates without Settings. New version, download progress, and waiting to restart show at the top.
+- The desktop update panel showed local version, status, available version, last check, and advice in Chinese. Settings still has the same full details.
+- Web and desktop share the same quick setup when no model is available: pick a provider, enter API key or address, and confirm a text model to prepare planning, writing, review, repair, and replan. At the time this shipped, that setup used Chinese copy.
+- Quick setup checks ordinary text and structured output. Failed checks keep your input and explain the problem. You can still browse existing work, but AI creation waits for setup.
+- Home keeps reminding until the writing environment is configured. The reminder disappears when a model is available and does not nag already configured projects.
+- Getting Started becomes a Creation Guide that reads real status. It recommends one next step around environment, idea, opening prep, writing mode, and first-chapter draft instead of a static feature list.
+- Home shows a compact beginner route until chapter one is readable, then returns to the usual project workbench. Idea, direction, prep, handoff, and the simple shelf have optional situational notes you can dismiss.
+- New-book Auto-Director and existing-project takeover finish direction, characters, volume planning, and opening materials before you choose a writing mode. Beginners are not asked for production parameters while planning is unfinished.
+- Simple Creation reuses the same director task for chapter writing, review, repair, and needed replans. Professional Creation opens the full workbench to inspect plans and schedule writing yourself.
+- The pre-writing prep page previews the Simple / Professional handoff and uses a stage journey for what AI is preparing. Live metrics, event stream, token use, and milestones expand when needed.
+- Ordinary character, volume, and chapter-split prep advance to the writing handoff and are not interrupted early by plan-recalculate prompts. Protected user content and runtime safety risks still pause.
+- Simple projects use a live chapter shelf for whole-book progress, current task, and per-chapter status. Only finished drafts can be opened; in-progress text stays hidden.
+- The simple shelf read-only shows whole-book promises, story world, main characters, and volume route so you can see which materials AI is writing from.
+- Auto-Director and the simple shelf offer task-specific AI Live View. It opens when the model starts generating candidates, story plan, characters, volume plan, or chapter text, without leaving for run records.
+- Simple projects are read-only by default. You can still export finished chapters, recover safety-paused tasks, and irreversibly switch to Professional Mode after confirm, keeping content and background tasks.
+
+### 2026-07-17 (0.4.5 release / 0.4.6 navigation fix / Ani Book Skill)
+
+**0.4.6 navigation fix**
+
+- The left navigation menu scrolls inside a fixed height, so System entries at the bottom stay reachable in a short window.
+
+**0.4.5 release**
+
+- The chapter-execution queue on the left scrolls in its own area, so you can still see and select the last chapter when there are many.
+- Manually created blank chapters that have not started show Remove blank chapter. Confirm removes them safely. Chapters that already have text, goals, a task sheet, scene cards, or that have entered production stay protected.
+
+**README and writing-workflow notes**
+
+- README now introduces [Ani Book Skill](https://github.com/ExplosiveCoderflome/ani-book-skill) on its own, so people who want to drive a long Chinese novel from a local Codex workspace can see how that skill workflow relates to this project’s full workbench.
+- Two complementary paths are clearer: start from this repository for a product with UI, runtime, and asset management; follow README into Ani Book Skill if you prefer a recoverable long-form flow inside Codex.
+- The Ani Book Skill entry sits after the desktop download entry on the repository home page.
+
+### 2026-07-16 (Chapter queue)
+
+- The chapter-execution queue on the left scrolls in its own area, so you can still see and select the last chapter when there are many.
+- Manually created blank chapters that have not started show Remove blank chapter. Confirm removes them safely. Chapters that already have text, goals, a task sheet, scene cards, or that have entered production stay protected.
+
+### 2026-07-15 (World prep and Auto-Director continue)
+
+- AI Live View is available from the top of every page for fragments the model is generating, checking, or repairing. Formal content still saves to the novel after checks finish.
+- AI Live View is a draggable terminal-style overlay that does not cover the current page. It opens on the latest output; reading older output is not forced back to the bottom; closing is not treated as a drag.
+- Live View groups each AI call. A new call focuses automatically; finished calls collapse and can be expanded for the full preview.
+- You can clear the current window’s live output. Background generation, novel saves, and run records are unaffected. Later calls still appear.
+- Task Center is labeled Run records, for execution history, exceptions, and recovery points on demand. You do not leave the current writing page just to see whether AI is still working.
+- The novel workbench adds a World prep step after story-level planning: generate, bind, check, or fill this book’s world rules, places, and factions before character prep.
+- Auto-Director continue detects whether the world is ready. If it is missing, you finish that step first. Existing story plans, characters, or chapters are not cleared. Recovery opens the right workbench.
+- Character prep, volume strategy, and pacing splits depend on this book’s world so later character setting and plot planning stay inside the rules.
+- Generating or creating a blank world inside a novel saves it to the world library and links it to this book. You can reuse, view differences, or sync later without an extra save.
+- The workbench marks World prep complete from the real book-world state. A generated world is no longer shown as still pending.
+- The character workbench combines relationship graph, thought line, cross-source character conversation, and visual materials so relationships, current judgments, and likely next actions sit together.
+- Creative Hub, Book Analysis, asset libraries, and run records use more focused workbench views. Chapter plans keep tracking reader payoff, conflict, turns, and end-of-chapter hooks.
+- Home and the novel workbench are tighter, so current assets, pending items, and next actions are easier to see.
+- Chapter-task quality checks, Auto-Director takeover, and recovery have more regression coverage. Local quality issues stay as handleable reminders and do not stop the whole book without cause.
+
+### 2026-07-14 (Chapter reader contract, promise ledger, and workbenches)
+
+- Chapter refinement states the reader question this chapter answers, visible payoff, the protagonist’s immediate desire, main resistance, key turn, mood and information change, net change at the end, and the continue-reading hook, so the chapter does more than complete an event.
+- Each scene card carries specific resistance, turn, mood change, and reader value, which cuts smooth empty transitions, repeated conflict, and vague setup.
+- Writing, chapter acceptance, and local repair share the same reader-experience goal. Gaps get repair aimed at that goal, instead of writing one thing and judging another.
+- Whole-book reading promise, protagonist fantasy, core selling points, chapter 3/10/30 stage payoffs, upgrade ladder, relationship through-line, and current milestone stay in chapter-writing context so long books keep their opening promises.
+- Volume-level reader payoff and the current core payoff sink with chapter execution so each chapter’s local gain matches the volume goal.
+- Old chapter plans still load. Newly generated plans must provide a full experience contract and scene-experience fields so incomplete results do not silently enter writing.
+- Ordinary weak hooks, payoffs, or mood intensity become this chapter’s repair advice or quality debt. They do not automatically stop the whole book. With timeline off, misleading quality warnings are not raised.
+- Book Contract chapter 3/10/30 payoffs enter the existing promise ledger as a stable book-level source with a clear target chapter window, so later planning, writing, and acceptance track the same promises.
+- After you change stage payoffs, reconciliation runs in the background. Sync starts only when payoff content actually changes. Blank formatting or other setting edits do not spend an extra AI call.
+- Background reconciliation uses durable tasks, idempotency, and retries. A failed sync keeps the last successful ledger and does not slow Book Contract save or delete existing promises.
+- When Book Contract stage payoffs are changed or removed, old promises leave later writing obligations. Historical evidence and already-paid records stay, so old and new promises do not both demand fulfillment.
+- Overdue promises stay as quality reminders. Overdue chapter count or a citation in the current chapter does not pause the whole book. Stops happen only when AI judges a plan mismatch, acceptance confirms a neighbor-chapter duty mismatch, or you ask to replan.
+- Knowledge Library says whether materials can be retrieved, are still syncing, or need a failed task handled, and recommends upload, view progress, rebuild index, or continue writing.
+- The genre-base library shows genre count, main categories, linked novels, and how complete descriptions are. Empty library, load failure, and missing descriptions each have a next step.
+- The base character library shows reusable characters, types, visual materials, and core fields still to fill, so you complete goals, weaknesses, and growth before bringing a character into novel prep.
+- Knowledge, genre, and character pages are quieter asset workbenches. Load, failure, empty, and dangerous actions have clearer impact notes and recovery.
+- Task Center gathers global runs, waiting actions, and recoverable tasks, with clear load, failure, empty, and reload for list and details.
+- Task failure or explicit replan asks you to handle it first. Chapter-level quality reminders can continue the main chain. Candidate confirm and chapter-batch continue show as actions needed, not as system faults.
+- Director follow-up ranks blocked, quality reminder, waiting on you, and auto-advancing. Each recover, retry, or jump explains consequences and risk range.
+- Book Analysis first screen shows source document, version, analysis range, current stage, progress, and planned-section completion. When done, you can open the first result that actually has content.
+- Even if an analysis partly fails, is cancelled, or the source cannot be read, generated sections stay visible. Remaining gaps, budget continue, or regenerate are explicit. Task success is not treated as guaranteed readable content.
+- Archived analysis results can still be read and copied. Sections not included in this generation are labeled Not selected this time, not as failed gaps.
+- Creative Hub recommends one next step from the current novel, stage, and thread. Requirements, AI judgments, tool results, and approvals sit in the progress record. Full production parameters and run info expand when needed.
+- Switching creation threads does not keep the previous thread’s content. Read failures can retry or switch threads. Create, bind, approve, and production submit lock conflicting actions.
+- Entering Creative Hub from analysis, character, or task keeps resource binding on that thread. Switching novels clears the old novel’s chapter and world context so materials from different books do not mix.
+
+### 2026-07-13 (Character thought line and conversation)
+
+- Character prep’s intelligence layer shows how a character reads the situation, what they want, how they act under pressure, what they currently believe, and where they might misjudge, so you see why they would act that way before writing.
+- AI can organize or refresh one character’s current thoughts. Each conclusion shows basis, source, and confidence, and is labeled as AI inference that does not automatically rewrite canon.
+- After the cast is confirmed, thought lines are prepared. When a chapter is finalized, clear changes in cognition, mood, intent, and action choice feed back so later chapters keep behavior continuous.
+- You can talk with a character in natural language. They answer from situation, known information, and current thoughts, and can refuse, misunderstand, or ask back instead of running preset options.
+- If conversation produces a stable action tendency, you can carry it into later writing as a soft guide for a limited chapter window. It does not rewrite canon or force plot.
+- When later text actually takes on that tendency, the basis is recorded. Unadopted influence expires after the applicable chapters and does not interrupt writing or Auto-Director.
+- The desktop workbench fills actual window height. Character list and content are not clipped early on high-resolution or scaled displays.
+- Long intelligence-layer content stays in one scroll area, avoiding double scrollbars or content pushed out of the workbench.
+- Desktop locks outer-page scroll. Long content scrolls only in the current workspace so navigation and reading position stay put.
+- The intelligence layer centers conversation: messages, input, and Carry into later writing sit together. The thought line sits in the scene analyzer for concerns, misreads, and reply logic on demand.
+- Conversation supports focused full screen with the shared expand/collapse icons and Esc to leave. Full screen places talk and scene analysis side by side, each scrolling in its own area.
+- AI-marked actions keep icon and text on one line. The full-screen icon aligns with the workbench title in compact layouts.
+- Conversation covers novel characters, the base character library, and Book Analysis characters. All three open the same talk workbench but only read their own source materials.
+- Base characters support read-only interviews around stable setting. Analysis characters lock evidence through chapter N and say so when they cannot confirm.
+- Novel characters can still confirm one later-writing tendency after a talk. Base and analysis talks do not rewrite templates, source text, canon, or later prose.
+- Base-library interviews open a compact two-column workspace. Conversation and the character sheet share height; longer setting scrolls in the sheet. Full screen still expands the full workspace.
+- Talk with character from the base library opens full-screen conversation instead of inserting talk above the character list.
+- Analysis characters read the selected through-chapter correctly for evidence interviews.
+- Interview from source in an analysis character file opens full-screen conversation and returns to the file when you exit.
+- Appearance-evolution chapter snapshots prefer key chapters that have look information, with paging or expand-all so long analyses are not a long stack of snapshot cards.
+- Analysis interviews reuse per-chapter look-snapshot evidence, so interviews stay safe even when the base file cannot pinpoint a chapter.
+- All three conversation workbenches are quieter reading UIs: talk is the visual center; reply basis sits in a light scene-analysis sidebar, with fewer cards, shadows, and borders.
+- Assets add a Visual library for generated character looks, covers, analysis looks, comic settings/boards, and drama keyframes, filterable by type, source, or keyword.
+- The visual library also works as a shared image picker. The selection returns a displayable image address and source so the same asset can be reused for covers and reference images.
+
+### 2026-07-10 (Stepwise director, tighter relationships, incremental splits, beat slots)
+
+- The relationship page opens on the network. Top explanation takes less space so the graph and filters come first.
+- Character prep adds a Dynamics tab. The dynamic character system is no longer under relationships. Volume duties, new-character candidates, and relationship stages have their own view.
+- Pacing / split defaults to generating the next chapter segment first. Generated segments can be refined and written immediately. Generate all volume titles at once stays an advanced action.
+- Auto-Director splits by pacing segment. When the current segment is ready, chapter refinement and writing can start. Later segments fill in as you continue.
+- New characters, relationship changes, or local edits flag affected later pacing segments. Segments that already have text stay locked by default so new characters do not force a resplit of written work.
+- The pacing board keeps opening, upgrade, middle, squeeze, climax, and volume-end roles, and gives each segment a short volume-specific title such as Opening hook · Night-market seal, so you can see what that stretch actually advances.
+- Auto-Director adds Stepwise collaboration: it pauses after each planning step so you can inspect, ask AI to improve, or regenerate that step before later planning.
+- After a manual edit, Save and confirm in the same director task keeps confirmed content and continues from the next unfinished step. It does not retake over or overwrite existing text.
+- Planning assets record your confirm state and downstream impact. Existing text stays locked, which cuts duplicate generation when switching manual and Auto-Director.
+
+### 2026-07-09 (Candidate resume, first screens, character and volume consoles, roadmap)
+
+Resuming an Auto-Director task that already has book-level direction candidates keeps the starting idea on the candidate page so you can pick a plan, generate another round, or revise the direction from notes.
+
+- Returning to direction candidates from Task Center or recovery reads the starting idea from the candidate batch, so you are not told parameters are empty while candidates are on screen.
+- If the task record truly lacks a starting idea, the page asks you to add one before generating or confirming a book-level direction.
+- Project settings first screen is a Book positioning workbench: title, overview, target readers, core selling points, commercial tags, and the first-30-chapter promise, plus positioning completeness.
+- This book’s world and style suggestions stay on project settings but sit in the asset area below so the first visit is not buried in setting fields.
+- Story-level planning first screen is a Story engine console: idea, generate actions, readiness, next-step advice, and through-line skeleton for selling points, long opposition, main hooks, advance loops, and key payoff points.
+- Advanced story-engine fields, hard constraints, the constraint engine, and story state stay in a fold below.
+- Character prep is a Character asset console: switch the cast on the left; overview, file, outward look, resources, timeline, relationships, and intelligence layer on the right, with less long scrolling.
+- The current character leads with status, goals, last appearance, story role, and key resources. Full file, outward materials, timeline sync, or relationship checks have their own tabs.
+- The console’s visual hierarchy is closer to a character desk than a form: a clearer focus panel, cast navigation, tabs, and an overview dashboard.
+- Relationships add an interactive network for the full graph, the current character’s neighborhood, high-tension links, and dynamic stages. Click a character or link for goals, conflict, hidden tension, and the next turning point.
+- Viewing one character puts them on the left as the origin; direct relationships expand right as a tree. Lines and details name both sides for the current view direction.
+- The network avoids nodes by card size so character cards overlap less.
+- Character cards can be dragged to tidy the current canvas. Switching focus in the same view keeps those positions. Switching relationship views or re-entering restores automatic layout.
+- The network supports full screen for dense casts. Esc exits.
+- The protagonist uses a stronger core style so the narrative center is easy to find.
+- Relationship cards are larger, with more stable space for name, identity, goal, and tags.
+- Volume strategy is a console: generate, review, and save at the top; current volume, strategy overview, and asset constraints on tabs.
+- The current volume leads with promises, pressure sources, payoff method, and a tension thumbnail. Detail fields edit by volume positioning, advance pressure, and payoff pull instead of one long form.
+- Volume-count advice is dynamic: stories around 80 chapters prefer a three-act structure; extra-long books can use more volumes so a few huge volumes do not crush stage payoffs.
+- Manually fixed volume counts and existing volume drafts still apply. Restoring system advice gives a structure range and recommended count from story length.
+- Volume planning protects author-confirmed volume counts. Manual fixes and kept drafts are explicit constraints AI does not change while generating volume strategy.
+- Regenerating volume strategy returns the old volume skeleton to pending so new strategy and old skeleton are not mixed as if already synced.
+- Auto-Director runs a strategy review after volume strategy. If risk is too high, it stops before the volume skeleton and asks you to regenerate or revise.
+- The public roadmap adds a long-term Narrative Engine Studio direction: organizing world, characters, factions, resources, events, and chapter text more like a game editor, while this stage still prioritizes stable Auto-Director, chapter production, and the quality loop.
+
+## v0.4.1 (released 2026-07-08)
+
+This release gathers mainline updates after 0.4.0, focused on Auto-Director opening, chapter-planning control, prose quality protection, the prompt editor, and the public docs site. The goal is to help beginners go from one idea to sustainable writing, and to let advanced users debug chapter generation more safely.
+
+### Creation entry and project workbench
+
+- Auto-Director create is a separate step-by-step page: start from one idea, then confirm positioning, world and style, model and run mode, then pick a direction. Confirmed content collapses into a summary you can revisit.
+- Creating a novel recommends AI Auto-Director first. Manual create stays a light form so the first opening is not a pile of fields.
+- The novel list and home focus on next writing: recent projects, chapters you can continue, pending items, and recommended entries, so the library works as a writing queue.
+- The seven workbench steps use less card and border noise. Left flow, top advice, and primary actions stand out. Logs and advanced info expand when needed.
+- This book’s world is more of a world front: overview, core rules, main factions, story stage, and what the generation chain can read. The full handbook opens full screen.
+
+### Chapter planning, pacing, and quality protection
+
+- Pacing splits add a tension curve and conflict-intensity anchors. After you set a chapter’s intensity by hand, later splits, refinement, and replans treat it as a hard constraint.
+- Curve editing flags long flats, a weak volume-end peak, and weak beat movement, and shows volume positioning, segment summaries, and chapter goals while you edit.
+- Chapter prose adds a naturalness check for AI self-talk, placeholders, prompt leaks, truncation, repetition, and templated sentences. Fixable issues enter this chapter’s repair path. Light leftovers become quality debt instead of stopping the whole book.
+- Continuing with quality debt puts character state and resource changes into pending confirmation first, so bad facts pollute later chapters less.
+- Auto-Director adds a switch to auto-release pending-confirmation state, for users who accept that advance risk. It is off by default and explains the risk before you turn it on.
+- Continuation mode more clearly reads prior-work constraints, character state, timeline, and open threads, so sequels are not hanging on a title or a thin summary.
+
+### Prompt editing and chapter-generation debug
+
+- Prompt Workbench is a visual workbench: pick a prompt on the left, edit and preview in the middle, see injected context on the right.
+- Chapter-writing prompts support safe slots and this-book advanced templates. Safe slots are for stable tweaks; advanced templates are for mature users rewriting the full chapter-writing prompt.
+- In advanced templates, book contract, chapter task, timeline, character hard facts, chapter title, tone, and pacing references show as readable labels. Type `@` to insert materials, chapter parameters, or writing rules. At the time this shipped, those labels were Chinese.
+- Chapter-generation preview uses clearer context headings. Missing key materials are named in plain language so you can go back to the matching module. At the time this shipped, those names were Chinese.
+- Test output lets you pick a model and generate once from the current draft before saving. Structured prompts show parsed JSON; text prompts show model prose so you can judge whether the change is worth saving.
+- The prompt editor keeps official-template restore and version history so a broken book prompt can roll back or return to official defaults.
+- Chapter-task checks, chapter acceptance, and volume chapter-list generation are steadier. Unqualified titles, summaries, or chapter functions give AI a clearer retry direction.
+
+### Interface and docs
+
+- The project uses a shared dropdown. Book Analysis, Creative Hub, the novel workbench, Task Center, Title Studio, world library, comics, and drama no longer mix native browser selects.
+- Title Studio, Auto-Director candidates, AI Cockpit, novel-create forms, and several workbenches drop gray boxes and nested cards so primary input and next actions stand out.
+- The app top-left adds a GitHub repository entry for source, issues, and releases.
+- The public docs site uses real page paths and pre-rendering so docs can be shared, indexed, and searched on the site.
+- Prompt-management docs add screenshots and how to find the chapter-writing prompt, edit advanced templates, view context, generate a preview, save, and restore the official template.
+
+### Upgrade notes
+
+- Source users need `pnpm install` for new frontend visualization dependencies. If you skip it, the start script tells you what to do. At the time this shipped, that prompt was Chinese.
+- This includes a database migration. Desktop uses the existing database and config at startup. People running the server from source should follow the existing migration flow.
+
+### 2026-07-08 (Clearer prompt editing and chapter-generation preview)
+
+The prompt editor is better for debugging chapter generation. Opening an advanced template shows book contract, chapter task, timeline, character hard facts, chapter title, tone, and pacing as readable labels so you know which kind of material you are citing. At the time this shipped, those labels were Chinese.
+
+Chapter-generation preview is closer to real writing materials. Key background, chapter task, character state, and style requirements use clearer headings, with fewer opaque fields and internal ids mixed into the prompt.
+
+- In advanced templates, type `@` to insert materials, chapter parameters, or writing rules. Inserted items show as labels so you can confirm what the prompt will use.
+- Source view remains for advanced template debugging. Everyday editing can stay on the label view without matching underlying names.
+- When key writing materials are missing, preview names the gap in plain language, such as Timeline, so you can fill it in the matching module.
+- Book contract, chapter task, current situation, and style requirements in the prose preview read more like normal writing notes, so the model also sees clearer materials.
+- Chapter-task checks, chapter acceptance, and volume chapter-list generation are steadier. Unqualified titles, summaries, or chapter functions give AI a clearer retry direction instead of regenerating past the point.
+- README and the public docs site add prompt-editor screenshots and how to find the chapter-writing prompt, edit advanced templates, view context, generate a preview, save, and restore the official template.
+
+### 2026-07-07 (Prompt Workbench official restore, preview context, and advanced templates)
+
+Prompt Workbench can align changed slots to the current official version, which is useful after a global prompt was edited by mistake and a book needs a reliable default again.
+
+Chapter-writing prompts add advanced-template mode. Mature users can fully rewrite this book’s chapter-writer system and human templates while keeping official restore and required-context safety.
+
+- An Official version entry shows whether slots differ from the current official version and can restore one slot or all slots.
+- Restoring the official current version at book level clearly shadows global overrides. Even if a global end-of-chapter hook rule is broken, this book’s preview and generation use official defaults.
+- For official copy updates or removed slots, the workbench shows an alignment panel: Restore official current version, or Keep my settings and dismiss the version reminder.
+- Slot cards show the current source: official default, global override, book override, or book using official default, so preview makes the winning layer obvious.
+- Clear book override and Restore official current version are different actions, so restoring official defaults is not mistaken for inheriting a bad global value again.
+- Generation preview gives complete sample input for editable slot prompts. Review, prose rewrite, cover brief, and similar prompts no longer throw a low-level script error for a missing sample array field.
+- Full review-prompt preview includes sample chapter-boundary and structure-obligation context. The right context panel shows the injected review blocks instead of immediately complaining that those blocks are missing.
+- Book-scoped Prompt Workbench can pick a preview chapter. Full review preview prefers that novel chapter’s text, task, boundary, and structure obligations instead of treating a sample warehouse cipher as this book’s context.
+- Book-scoped chapter-writer preview reads that chapter’s writing context. The right panel can show book contract, chapter task, character hard facts, obligation contract, volume window, participating characters, current situation, and style contract, so preview is not blocked by missing required context.
+- Book name, chapter number, chapter title, and target length in the prose preview follow the selected novel chapter.
+- When required context is missing, Prompt Workbench names the missing context group in plain language so you can tell sample gaps from novel-material gaps or assembly problems. At the time this shipped, those names were Chinese.
+- Book-scoped chapter writing can switch Safe slots and Advanced template. Safe slots stay for stable tweaks; advanced templates let mature users edit system and human templates directly.
+- The advanced-template editor supports `@` to insert context, runtime variables, and slot references such as chapter task, character hard facts, chapter title, or tone-and-pacing slots. The right panel can also insert the current material block.
+- Advanced-template preview shows the final messages, explicitly cited context, and required context the system appends automatically, so you can confirm what the model actually receives.
+- Each advanced-template save creates book version history. You can view old versions, roll back, or restore the official template. Official restore does not delete history.
+- Advanced templates affect only this book’s chapter-writer generation. Schema, context policy, post-validate, and other prompts stay closed to free editing.
+
+### 2026-07-06 (Prose naturalness, Prompt Workbench, and quieter UI)
+
+After a chapter is generated, a deterministic prose check catches AI self-talk, placeholders, leaked engineering words, truncation, repetition, em-dash/ellipsis overuse, and templated sentences. Clear problems enter this chapter’s repair path. If leftovers remain after repair but the text is readable, they are recorded as quality debt and later chapters continue, so one chapter’s wording does not stop Auto-Director.
+
+- AI identity lines, refusal scripts, TODO / still-to-fill, task sheets, and prompt leaks in chapter text are flagged as prose naturalness / degeneration risk.
+- Repeated paragraphs, likely truncated endings, templated “not A but B” sentences, and dense dashes or ellipses enter this chapter’s review and repair advice.
+- Light pacing issues such as long paragraphs or fragments stay as tips and do not trigger a full-chapter rewrite.
+- Chapter-execution risk summaries show Prose naturalness / degeneration check so this is distinguished from plot replan or a global-chain failure.
+- After automatic repair is exhausted, related risks show as non-blocking quality debt. Without a replan signal, one chapter’s naturalness issue does not pause the whole book.
+- Prompt Workbench is a visual editor: pick a prompt on the left, edit declared slots and see final messages in the middle, view injected context blocks on the right.
+- Chapter-writing tone and pacing, Anti-AI rules, end-of-chapter hooks, narrative point of view, anti-trope reminders, length hints, and custom extra rules can be edited, previewed, and saved as overrides on one page.
+- The context-injection panel shows required/optional, injected/trimmed/summarized, token estimates, and lock state. Critical writing context is read-only so required context is not turned off by accident.
+- The prompt directory stays on the left and scrolls on its own. Compact list items show more prompts without scrolling the whole page.
+- The main chapter-writing prompt keeps a clear directory entry. Immersive edit hides the directory and opens the main editor plus the right-hand context debug desk. Color shifts from flat gray-black to layered deep teal, warm gold, and light blue-gray.
+- Novel create focuses on the default opening path: Auto-Director first, manual create as a light form. Starting settings, world and style, run mode, and direction candidates use less card noise. Reader and selling-point extras, model choice, title tweaks, and plan fine-tuning expand when needed. Manual create also softens frames around readers, world samples, continuation analysis, and AI-detect switches so title, overview, and core setting come first. Direction candidates become a divided list instead of stacked gray cards. In-progress and recovery progress, events, and milestones become light lists. Title quick-fill and resource tips get out of the way of the form. Positioning, advanced settings, continuation source, and project status use spacing and dividers. Direction candidates get a numbered track and title rows. After create, book positioning and Title Studio stay light so the jump into the workbench is smaller. AI takeover and the cover stage use lighter sections. This book’s world first screen drops the outer card for source, use range, sync, and handbook summary as light columns.
+- Title Studio is a lighter workbench: description, model, generate mode, library filters, and candidates drop frame and tag noise so input and candidates lead.
+- The novel list drops stacked top cards, filter boxes, and inner boxes. Cards lead with title, current advance, and the next primary action. Projects without background progress still align their bottom actions so the list reads as a continue-writing queue.
+- AI Cockpit highlights current state and next action. Background execution, artifact records, AI usage, and automation become light summaries that expand when needed.
+- The seven generation-workbench steps drop border and card noise. The left flow is a light step track. The top shows current step, advice, and primary actions. Project settings, story planning, character prep, volume strategy, pacing split, chapter execution, and quality repair lead with the current task. Logs, sync, connection diagnosis, and advanced config expand when needed.
+- This book’s world first screen merges source, writing range, sync, and next action into one compact panel. The handbook reads more like body text. Theme, identity, and tone drop tag borders.
+- Project settings strengthen the world front: overview, core rules, main factions, story stage, key tension, and what the generation chain can read. Full handbook, generation constraints, use range, sync, and world assets open as a full-screen handbook.
+- Dropdowns use the project control. Book Analysis, Creative Hub, novel workbench, Task Center, Title Studio, world library, comics, and drama no longer mix native browser selects.
+
+### 2026-07-03 (Tension anchors and curve editing)
+
+Conflict intensity in pacing splits can be user-anchored. After you set a chapter’s intensity by hand, later splits, refinement, and replans treat that value as a hard constraint that AI results do not silently overwrite. The volume workspace can also view and adjust the tension curve so volume pacing is easier to control.
+
+- Regenerating the chapter list keeps user-anchored conflict intensity.
+- Chapter refinement and execution-contract generation see this chapter’s target intensity and whether it rises, falls, or holds versus neighboring chapters.
+- User-anchored intensity inside a replan window enters replan context so AI adjusts around those fixed points.
+- Pacing / split adds a draggable tension curve. Dragging a chapter node marks that chapter’s intensity as user-anchored.
+- Anchors can be handed back to AI auto-optimize from the curve panel or chapter advanced settings, so a mistaken drag does not lock you into manual maintenance.
+- The volume-skeleton page adds a read-only curve thumbnail for this volume’s tension while you edit volume info.
+- The curve panel flags long flats, a weak volume-end peak, and weak movement inside a beat, and can overlay upgrade-flow or mystery-flow reference lines.
+- The main curve view on pacing / split is read-only so browsing the shape does not drag nodes. Adjust from Edit tension curve in a dedicated dialog.
+- The curve dialog shows this volume’s positioning, current segment summary, must-deliver items, and the selected chapter summary so intensity drags stay aligned with story goals.
+- The volume-skeleton page keeps the read-only thumbnail and a jump to pacing / split so the same curve does not have different edit rules on different pages.
+- Executing chapters still consume only the intensity number. Anchor meaning stays in the planning workspace so the execution chain does not grow another state fork.
+- AI Auto-Director opening moves to its own page: one starting idea, then director start settings, world and style, model and run mode, then direction candidates and execution progress on the main page.
+- After the starting idea you can refine settings or generate directions with defaults. Confirmed stages collapse into summaries for later edits and regenerate.
+- The Auto-Director start page is a quieter opening question. The input leads; inspiration references expand as a row list and fill the input for further editing.
+- Start settings drop card and border noise. Stage summaries become a light progress track. Reader channel, point of view, pacing, mood, and book-level framing confirm on a quieter stage.
+- World and style, plus model and run mode, are quieter confirmation stages so world samples, styles, models, and run range are easier to confirm.
+- Recovery links use the new page. Task Center, candidate confirm, recovery, and post-restart desktop links return to the same candidate or progress scene. Old create-page director links redirect.
+- Source `pnpm dev` commands check that dependencies are installed first. After pulling new code without `pnpm install`, the prompt says what to do instead of throwing a missing-module error. At the time this shipped, that prompt was Chinese.
+- Frontend visualization dependencies for later curves, world maps, knowledge graphs, and stats land in this update. Source users need `pnpm install` after pulling (the start check also reminds you).
+- A GitHub icon and repository name sit beside the product name at top left for source, issues, and releases from inside the app.
+
+### 2026-07-02 (Style Engine JSON save and continuation sources)
+
+Style Engine advanced JSON editing is more reliable. After you edit the four advanced rule groups—plot advance, character expression, language texture, and pacing density—the save keeps what you typed instead of silently restoring old extracted rules when you leave and return.
+
+- After you fill or edit advanced JSON, Save current style prefers the rules you are editing. Reopening the same style still shows that save.
+- Style assets still keep the extracted feature pool. Later try-write, bind, and reuse do not lose existing features because of this fix.
+- When you explicitly re-extract style features, compatible rules can still be generated from the latest features. The old automatic extract flow still works.
+
+Continuation mode takes prior work more clearly. If a finished Book Analysis is bound, chapter writing prefers structured sections such as character system, story timeline, and plot structure, and sends character state, ending summary, key facts, and open threads into writing context.
+
+- Prior-work constraints enter generation as required writing context, so sequels are less likely to see only a title or a thin summary.
+- With a bound analysis, structured analysis results organize continuation info first. Without usable analysis, in-app novel or Knowledge Library summaries still apply.
+- If planning fails to read a reference, it degrades to empty reference instead of stopping opening, planning, or the chapter chain.
+- Key writing context has regression guards so style constraints, continuation constraints, character hard facts, and resource pressure are less likely to disappear silently in later changes.
+
+### 2026-07-01 (Home cockpit, novel list, quality-debt review, auto-release)
+
+Home and the novel list focus on next writing: novels worth continuing, states that need handling, and each book’s clearest continue entry.
+
+When a chapter continues with quality debt, character state and resource changes extracted from that text go to a pending-confirmation queue first, so unreviewed facts are not written as later hard facts.
 
 > [!WARNING]
-> 自动导演高级设置新增“待确认状态自动放行”开关，默认关闭。开启前需要确认风险说明；开启后只处理生效基准时间之后产生、等待超过 14 天且没有命中未解决冲突的角色关系与信息认知提案。符合条件的提案会被提交为正史事实，并写入导演留痕记录。
-
-- 首页首屏突出当前最值得继续的小说或开书入口，并说明推荐原因。
-- 创作状态摘要改为围绕推进中、待处理、可写章节和失败任务展示，方便判断是否需要先处理阻塞。
-- 待处理事项会区分任务失败、等待确认、可恢复和可继续写作的项目，减少用户在多个模块之间来回找入口。
-- 最近小说列表保留直接继续、执行详情和打开项目入口，同时补充章节、角色、世界观等生成资产信号。
-- 首页增加角色与世界观资产摘要，让用户能快速判断当前项目是否具备继续长篇生成的基础。
-- 小说列表保留双列项目卡片墙，并强化标题、状态、推进说明和下一步主操作。
-- 自动导演状态在卡片中以紧凑推进区展示，章节、角色、世界观和资源准备度以轻量资产信息呈现。
-- AI 驾驶舱、执行详情、预览、导出和删除收敛为次级操作，让继续创作动作更突出。
-- 筛选区、空状态和加载态按项目库体验重新整理，页面首屏更紧凑。
-- 小说列表分页区会显示当前页和总页数，翻页时能确认自己所在的位置。
-- 标题工坊改为居中的内容工作区，生成表单、标题库和候选列表两侧留出呼吸空间。
-- 质量债务章节仍可继续推动后续自动生成，但相关角色状态、角色目标和角色资源变更会先进入待确认，减少错误信息污染后文。
-- 写作上下文会把待确认的角色状态和目标标为可按最新剧情合理调整，身份、阵营、位置等硬事实仍保持强约束。
-- 存量待确认提案不进入自动放行范围；命中未解决冲突的提案会继续保留为待确认，等待人工处理。
-
-### 2026-06-30（公开文档站真实路径、预渲染与 RAG 检索增强）
-
-公开文档站改为真实页面路径：每篇文档都可以用 `/docs/introduction` 这类独立 URL 直接打开、分享和被搜索引擎收录，旧的 `#/docs/...` 链接会自动跳到新地址。
-
-- 文档站 sitemap 已切换到真实路径，搜索引擎可以看到每篇文档的独立页面。
-- 构建时会为公开文档生成完整 HTML，页面源码中直接包含正文、标题、描述和 canonical 信息。
-- GitHub Pages 静态托管增加历史路径兜底，直接访问文档路径不再只依赖前端 hash 路由。
-- 本地文档站开发和预览仍使用 4173 端口，真实路径可以直接请求验证。
-- RAG 检索新增可选重排阶段：在向量 + 关键词融合后可接入外部 reranker，让更相关的分块排到前面；外部服务不可用时会自动沿用原融合结果。
-- RAG 索引新增可选上下文化分块：为 chunk 添加短上下文前缀后再生成向量，减少单个分块脱离小说、章节或角色背景后召回不准的问题；原始正文仍作为证据展示。
-- 知识库召回测试可以显示重排命中和上下文前缀，方便判断资料为什么被召回。
-- 新增 RAG 固定评测入口，覆盖角色事实、世界规则、章节连续性、风格设定和知识文档五类查询，用于比较检索质量和重排耗时。
-
-## v0.4.0（2026-06-29 发布）
-
-本次版本把 0.3 系列累积的 69 个改动整合发布，覆盖自动导演稳定性、章节生成上下文对齐、拆书深度档案、RAG 性能与召回质量、漫画与短剧改编工作台、公开介绍站和文档体系。下面按主题汇总用户可见变化，详细条目请继续往下阅读对应日期段。
-
-### 自动导演与小说生成主链
-
-- 全自动成书模式：每批章节完成后自动确认 pending 候选角色，角色进入正式名册并触发动态重建，消除后续章节角色一致性漂移。
-- 章节生成的角色资源账本上下文按本章参与者精准筛选，避免把全部角色塞进 prompt；高风险已入账与待确认提案分别走不同审计代码，正文不再把待确认资源写成既成事实。
-- LLM 限速器修复内存泄漏：provider 配置变更时淘汰旧限速器实例，长期运行不再持续累积内存。
-- 自动导演新增四种运行模式（先准备到可开写 / 全书自动成书 / 按范围执行 / 正文后去 AI 检测与修正）的完整说明、适用场景和切换路径；全书自动驾驶遇到模型不可用、配额耗尽、连续修复失败、重新规划等情况会主动停下而不是无限重试。
-- 自动导演浏览器暂停通知：到 checkpoint 时弹出系统通知。
-
-### 拆书与角色形象
-
-- 拆书角色档案分简要 / 标准 / 深入 / 完整四档，深入和完整档案回溯原文片段补全维度。
-- 角色形象演变：按 25% / 50% / 75% / 100% 覆盖率增量扫描出场章节，沉淀每章外貌、服装、状态和场景锚点，并基于章节快照生成同一角色阶段形象图。
-- 形象演变扫描会额外提取短外貌词条放入待确认区，用户勾选后融合到角色档案；章节形象图可引用角色基础形象图保持脸型 / 发型 / 标志细节一致。
-- 拆书新增双栏阅读工作区、章节证据回溯、范围定向分析、token 预算守卫、稿件诊断模式、章节标题修复等能力。
-
-### RAG 与知识库
-
-- 知识库索引流式并行：Embedding 与 Qdrant 写入并发可调，长文档不再需要等全部 Embedding 完成才开始写入向量库。
-- 检索可追踪：新增 retrieval trace 后端，方便复盘召回为什么命中或没命中。
-- 拆书产物进入 RAG facets 索引，召回结果包含拆书结论。
-- 重复 chunk 通过内容 hash 自动去重，重建索引不会产生重复向量。
-- 知识库上传改为拖拽区域 + 两步确认；百万字级小说原文预览改为虚拟滚动，不再卡顿。
-
-### 漫画与短剧工作台
-
-- 漫画工作台：场景一致性、角色视觉资产、视觉锚点控制；分镜与角色面板支持图像生成确认弹窗，避免误触消耗额度。
-- 短剧改编生产管线 v3：从小说内容衍生短剧剧本和镜头。
-
-### 公开介绍站与文档
-
-- GitHub Pages 公开介绍站上线：从一句灵感到整本小说的主链、产品控制台截图、文档入口和下载入口。
-- 介绍站从 5173 改为 4173，避免和其它 vite 项目或主程序冲突；品牌图标和浏览器 favicon 改为项目实际应用图标。
-- 文档站新增本地全文搜索、面包屑、文内目录、上 / 下一篇导航、tip / warn / checkpoint 提示块、GFM 表格支持。
-- 文档目录按"开始使用 / 实战手册 / 生产链深度 / 模块总览 / 创作主链 / 知识与写法 / 设定资产 / 衍生工坊 / 系统配置 / 项目动态"重新分组。
-- 新增 33 篇公开文档：项目介绍、安装与准备、常见问题、故障排查、第一本小说实操路径、按阶段恢复手册、端到端生产链、自动导演阶段全景、章节执行链、知识与 RAG 召回链；模块文档配套真实截图。
-- 公开文档不再出现内部 `snake_case` 阶段 key，统一使用「灵感对齐」「卷骨架」等中文名；技术别名对照表保留在自动导演阶段全景末尾供开发者查阅。
-
-### 升级提示
-
-- 升级后首次启动会沿用现有数据库与配置，无需手动迁移。
-- 如果你曾在 .env 配置过 RAG 并发数或类似运行参数，新版会把这类参数迁到设置面板里管理；旧 .env 值不会自动读入。
-
-### 2026-06-29（公开文档站完善：自动导演运行模式、TOC 跳转修复、图片渲染修复与品牌图标统一）
-
-公开文档站延续 6-29 早些时候的整理：自动导演的运行模式终于有了完整说明，文档内部的导航和图片显示问题也修好，介绍站的品牌图标和端口与主程序解耦。
-
-- 自动导演新增"运行模式"完整说明：先准备到可开写、全书自动成书、按范围执行、正文后去 AI 检测与修正四种模式的差异、适用场景和切换方式；全书自动驾驶的中断条件（模型不可用、配额耗尽、连续修复失败、要求重新规划等）首次写入文档。
-- 第一本小说实操路径新增"第一步半：选择运行模式"分流，第一本书统一推荐"先准备到可开写"，并指引切换到"自动到执行"的时机。
-- 公开文档里全部内部 `snake_case` 阶段 key（如 `candidate_seed_alignment`、`volume_skeleton` 等）替换为中文名「灵感对齐」、「卷骨架」等，普通用户不再被技术术语挡住；开发者可在自动导演阶段全景文末的"技术别名对照表"查到原 key。
-- 开发计划重写：按"已完成（近 3 月）/ 进行中 / 下一步关注"三段呈现，列出真实在做的能力（漫画改编、短剧改编、章节编辑器 v2、角色资源账本、自动导演执行面隔离等），不再用"更顺/更稳"这类空泛措辞。
-- 常见问题补充四条高频问答：运行模式怎么选、全书自动驾驶中途停下怎么办、介绍站端口是否会和主程序冲突、桌面版数据存在哪。
-- 使用方法页重写为按身份导航的索引（第一次跑通 / 想理解机制 / 任务卡住 / 想做衍生），避免和第一本小说实操路径内容重复。
-- 项目介绍补充"衍生工坊"层（漫画工作台 / 短剧工作台），并明确"主链跑通前不建议打开"。
-- 修复文档里 GFM 表格、删除线、任务列表等不渲染的问题（接入 `remark-gfm`），实操路径和深度文档的阶段对照表恢复正常显示。
-- 修复部分模块文档（题材基底库、推进模式库、写法引擎等）截图不显示的问题，资源解析改为目录通配 + 文件名兜底，新增图片不再需要手动登记白名单。
-- 修复文档右侧"本文目录"点击后跳回首页、不滚动到对应段落的问题。
-- 公开介绍站顶部品牌图标和浏览器 favicon 改为项目实际应用图标，不再是通用书本占位图。
-- 公开介绍站端口从 5173 改为 4173，避免和其它 vite 项目或常用本地端口冲突；主程序仍在 3000。
-
-### 2026-06-29（公开文档站导航、搜索、新手排障与生产链深度文档）
-
-公开文档站更适合第一次了解项目、排查使用问题和理解整本生产链：文档目录按开始使用、实战手册、生产链深度、模块总览、创作主链、知识与写法、设定资产、衍生工坊、系统配置和项目动态重新分组；项目介绍合并为一篇完整入口，并新增安装与准备、常见问题、故障排查、第一本小说实操路径、按阶段恢复手册、端到端生产链、自动导演阶段全景、章节执行链、知识与 RAG 召回链等文档。首页、新手上路、小说列表、创作中枢、导演跟进、任务中心、模型路由、系统设置、提示词管理、短剧工作台和漫画工作台的模块说明扩展为可直接阅读的使用指南，减少点进文档只看到占位说明的情况。
-
-- 文档页新增本地全文搜索，支持从公开文档中查找功能、问题和配置入口。
-- 每篇文档新增面包屑、GitHub 原文入口、右侧文内目录、当前章节高亮，以及上一篇 / 下一篇导航。
-- 文档首页按用户旅程展示分类，避免把所有功能模块平铺在一个大分类里。
-- 公开文档内容自动加载，新增公开 Markdown 后只需要在文档目录登记，不再为每篇文档手写 import。
-- 新增公开文档登记校验，发布站点前会检查 `docs/public/` 和更新日志中的公开文档是否都已进入文档目录。
-- 新增“实战手册”和“生产链深度”分类，覆盖第一本小说实操路径、按阶段恢复、端到端生产链、自动导演阶段全景、章节执行链和知识与 RAG 召回链。
-- 自动导演文档按真实阶段解释从 `candidate_seed_alignment` 到 `chapter_detail_bundle` 的阶段含义、输入产物、checkpoint、auto-approval 行为和失败恢复策略。
-- 自动导演实战文档补充从“生成第一批方案”到“确认书级方案”、再到 AI 驾驶舱自动完成规划、拆章、章节执行和质量修复的完整点击路径。
-- 自动导演文档加入真实界面截图，覆盖起始设置、灵感卡、方案生成、方案确认、AI 驾驶舱自动推进、角色准备和节奏拆章状态。
-- 文档站修复 Markdown 图片资源解析，流程图和自动导演截图会正确显示，不再只露出图片说明文字。
-- 模块文档补充真实产品截图，覆盖小说列表、创作中枢、任务中心、知识库、拆书、角色、题材、推进模式、标题工坊、写法引擎、模型配置和世界样本库等入口。
-- 公开介绍站首页换用更贴合文档入口的浅色生产链 banner，首屏标题、按钮和路径提示与新图保持一致，不再沿用旧的暗色海报背景。
-- 导演跟进、任务中心和创作中枢文档补充 checkpoint 类型、暂停原因、后台命令队列、并发限流、stale 恢复和自然语言意图到主链阶段的衔接方式。
-- 文档页支持流程图、长表格、折叠文内目录，以及 tip / warn / checkpoint 提示块，长篇机制文档阅读更清楚。
-- 自动导演阶段文档不再把内部阶段校验标记显示到正文里，阅读时不会出现溢出的技术注释。
-- 公开文档登记校验会同步核对自动导演阶段清单，代码新增阶段后如果文档遗漏会在检查中报错。
-- 公开介绍站顶部导航在文档页收起首页锚点，减少跨页面锚点跳转干扰。
-- 首页控制台截图区改为响应式网格，在平板和桌面宽度下更稳定。
-- 公开站设计规则和项目 wiki 补充了文档站边界、搜索范围、TOC、字体策略和响应式规则，方便后续维护。
-
-### 2026-06-28（RAG 向量优化、上传 UX 改进、角色形象词条融合与公开介绍站）
-
-知识库向量生成全面提速：Embedding 和 Qdrant 写入并发数现在可以在设置面板直接调整，无需重启；分块索引改为流式并行管道，长文档不再需要等全部 Embedding 完成才开始写入向量库。知识库上传界面新增拖拽区域，文件拖入即预览，确认后再上传；大型小说的文档原文预览改为虚拟滚动，不再因内容过多卡死页面。角色形象演变会把章节中新发现的外貌信息沉淀为待确认词条，用户勾选后可融合回角色外貌和稳定特征；章节形象图也可以引用角色基础形象图，让不同场景里的同一角色更一致。角色形象生成默认数量从 2 张调整为 1 张，减少单次生成成本。项目新增可托管到 GitHub Pages 的公开介绍站，访问者可以直接了解产品定位、长篇生产流程、核心能力、界面截图和用户向文档。
-
-- 知识库索引新增 Embedding 并发数（`embeddingConcurrency`）和 Qdrant 写入并发数（`qdrantUpsertConcurrency`）两个设置项，可在知识检索设置 → 高级配置中调整，改完立即生效无需重启。
-- RAG 分块流程重构为流式管道：Embedding 批次完成后立即推入 Qdrant 写入队列，两条链路并行推进，长文档索引速度显著提升。
-- 新增分块 facets（题材、卖点、角色名等元数据字段），让召回时的过滤条件更精确。
-- 重复 chunk 通过内容 hash 自动去重，重建索引不会产生重复向量。
-- 知识库上传改为拖拽区域：拖入文件即显示文件名和大小预览，确认后再触发上传，误操作更少。
-- 知识文档原文弹窗改为虚拟滚动渲染，百万字级小说浏览不再卡顿。
-- 形象演变扫描会额外提取“银灰色短发”“左肩旧伤”“常穿深色风衣”这类短外貌词条，先放入待确认区，不会自动改写角色档案。
-- 角色详情页新增待确认外貌词条操作：可以逐条勾选、忽略，并把选中的可信词条融合到角色外貌中。
-- 外貌融合会同时刷新角色档案外貌和形象演变的稳定特征，后续角色图和章节形象图会默认使用融合后的外貌信息。
-- 章节形象图生成会优先引用已生成的角色基础形象图，保持脸型、发型、体态和标志细节一致。
-- 角色有多张基础形象图时，可以在形象演变面板选择本次要用的参考图；生图确认弹窗会正确显示基础形象缩略图，也能再次排除不想发送的参考素材。
-- 外貌维度的原文召回改为专用视觉检索词，减少台词、心理等非外貌内容干扰，让首次角色外貌和形象演变的证据更聚焦。
-- 角色形象生成（包括章节快照图片）默认生成数量从 2 张改为 1 张。
-- 新增公开介绍网站，集中展示 AI 自动导演、长篇生产主链、RAG 知识回灌、写法引擎和真实产品截图，方便在 GitHub Pages 上托管和传播项目。
-- 新增 GitHub Pages 自动发布流程，推送到 `main` 或手动触发后会构建介绍站并发布静态页面。
-- 公开介绍站视觉改为“文学编辑部 + AI 控制台”方向，首屏突出从灵感到整本小说的主线，并用真实产品截图展示生产链。
-- 公开介绍站按钮排版已修正为图标和文字垂直居中，整体配色改为更清爽的墨色、瓷白和青蓝强调。
-- 公开介绍站文档入口改为面向使用者和潜在用户，集中展示基础介绍、进阶介绍、使用方法、侧栏功能模块、公开开发计划和更新日志。
-- 拆书模块公开文档扩展为完整使用手册，覆盖创建拆书、范围选择、阅读证据、角色档案、形象演变、发布复用、稿件诊断和预算恢复。
-- 题材基底库、推进模式库、标题工坊、知识库、世界样本库、写法引擎、反 AI 规则和基础角色库的公开文档扩展为完整使用手册，帮助用户理解这些资产如何服务后续创作。
-- 所有新增运行时可调参数统一规范为 AppSetting + 设置面板路径，禁止写入 `.env`，相关规则已沉淀至 Wiki（`docs/wiki/architecture/configuration-conventions.md`）。
-
-### 2026-06-27（拆书角色深度档案与形象演变）
-
-拆书角色档案现在可以按简要、标准、深入和完整四档生成；深入和完整档案会在原有拆书 notes 骨架上回溯原文片段，把台词、动作、心理和章节证据补进角色维度里。角色详情也新增“形象演变”，可以按 25% / 50% / 75% / 100% 覆盖率增量扫描角色出场章节，沉淀每章外貌、服装、状态和场景锚点，并基于指定章节快照生成同一角色的阶段形象图。
-
-- 角色档案新增“简要 / 标准 / 深入 / 完整”深度选择，适合先低成本看人物，再对关键角色做更完整分析。
-- 深入和完整档案会结合 source notes 与原文 RAG 证据，按外形、性格、能力、关系、弧线、语言风格、思维模式、价值观和秘密伏笔等维度组织内容。
-- 角色证据开始按维度记录来源类型、章节、摘录和 chunk 信息，方便后续在前端查看证据和追溯原文。
-- 角色详情新增“形象演变”，可以选择目标覆盖率并增量扫描章节；已完成快照不会重复重跑，手动保留的快照不会被覆盖。
-- 形象演变会汇总跨章节稳定特征，并展示不同章节的外貌、服装、配饰、身体状态、精神面貌和场景锚点。
-- 每个章节形象快照都可以直接发起图片生成；生成前仍会展示可确认的提示词，完成后图片会归属到对应章节快照。
-- 形象演变扫描改为后台任务：点击后会立即进入排队或扫描状态，页面持续刷新快照进度，长时间分析不再因为浏览器连接中断而显示网络失败。
-- 拆书角色路由拆入模块化入口，保持原有接口兼容，同时为后续角色证据、形象快照和图片资产扩展留出边界。
-
-### 2026-06-26（拆书预算上限、发布隔离与结构化检索）
-
-拆书创建时可以设置本次任务的 token 预算上限；生成过程中系统会累计已用量，达到上限后停止任务并保留已经完成的小节，避免长文档或完整拆书在不知情的情况下持续消耗模型额度。拆书详情页会显示预算用量和预算用尽原因，并支持直接调整预算；如果任务因预算用尽失败，可以扩容预算后续跑未完成小节，成功小节和冻结小节都会保留。角色档案改为先识别候选角色，再按需生成单个或全部深度档案，让用户先用低成本看清值得研究的人物，再决定是否投入更深分析。拆书发布到知识库时也会和用户上传文档区分来源，同一份拆书重复发布会沿用同一个知识文档并追加版本，减少标题相同导致的资料混合。发布后的拆书关键结论会带着题材、卖点、读者、优劣势和章节锚点进入检索索引，让后续创作召回更容易命中可复用结论。RAG 召回也开始记录后端 trace，为后续评估召回质量、定位 fallback 和分析检索耗时准备数据底座。
-
-- 新建拆书和诊断拆书都会携带预算上限，默认值与后端运行配置保持一致。
-- 拆书小节生成完成后会累计 token 用量；模型没有返回精确 usage 时，会按输入估算和输出长度做兜底统计。
-- 预算用尽时，任务状态会变为失败并带有 `budget_exceeded` 标记；已生成成功的小节不会丢失。
-- 拆书详情页顶部和运行元信息会显示已用 tokens / 预算上限，并在预算用尽时展示明确停止原因。
-- 拆书详情页可以单独调整预算上限；累计用量会保留，适合在任务运行中提高预算或给历史拆书补充成本边界。
-- 预算用尽失败后可以使用“扩容预算并续跑”，系统只重做未完成的小节，成功小节和冻结小节不会被覆盖。
-- 拆书并发执行会在出现首个错误后停止派发新小节，等待已启动的小节收尾后再统一结束，减少失败状态被并发进度覆盖的风险。
-- 拆书因预算用尽或其他失败原因重新生成时，已成功的小节会被保留，不会因为续跑未完成内容而覆盖已经完成的分析结果。
-- 拆书角色档案支持先“识别角色”得到候选清单，再对单个候选生成档案，或对待生成候选批量生成，减少一次性生成全量角色档案的成本。
-- 候选角色会显示定位、重要度、简述和出场章节提示；已生成档案继续展示人物资料、弧线节点、关键场景、配图和升格入口。
-- 角色档案“全部生成”按钮按候选 / 失败分布显示动态 tooltip；批量结束后会显示已生成 / 未完成数量，提示用户在预算或失败原因解决后继续批量生成。
-- 拆书结果页改为「小节分析」「角色档案」两个顶层视图互斥切换，工具栏在两视图共享并始终可见；视图状态写入 URL `?view=sections|characters`，刷新和分享链接都会回到对应视图。
-- 拆书分析列表不再因 URL 携带 `documentId` 而被静默过滤：从知识库点击「新建拆书」进入拆书页时，左侧列表始终显示用户所有未归档的拆书，避免误以为其他分析丢失；`documentId` 仅用于新建拆书对话框的源文档预填。
-- 角色识别与档案生成都会计入拆书 token 用量，但不会改变基础拆书任务状态；全量拆书仍不会自动生成深度角色档案。
-- 知识库文档会显示“上传文档”或“拆书发布”来源；拆书发布文档可以回到来源拆书继续查看。
-- 同一份拆书再次发布到知识库时，会在原发布文档上创建新版本，不会因为标题相同合并到用户上传文档或其他拆书发布文档。
-- 拆书发布版会把结构化结论写入知识库索引元数据，支持后续按题材、卖点、目标读者、优势、短板和章节锚点做更精准召回。
-- 已完成索引的知识库文档可以直接从文档列表进入召回测试，方便核对单份资料在创作检索中的命中效果。
-- 拆书证据 chip 会标出可定位原文的证据，点击后可在当前证据区或双栏原文中核对摘录。
-- RAG 召回会按采样率记录查询摘要、检索范围、候选数量、命中摘要、阶段耗时和 fallback 标记；记录不保存 chunk 正文，为后续召回回放和质量评估做准备。
-
-### 2026-06-25（拆书结果页首屏精简、范围选择与双栏对照）
-
-拆书从创建到阅读都更适合按目标推进：创建拆书时可以先选择全文、章节范围或按字数换算出的章节范围；结果页任务操作固定在顶部工具栏，分析信息、发布和运行元信息默认折叠；小节 Tab 更早进入首屏，证据从独立长面板收进对应小节内；宽屏用户可以打开双栏对照，一边读原文章节，一边核对拆书结论和证据。知识库上传也收进弹窗，文档列表主区更聚焦。
-
-- 新建拆书支持选择原文范围：可以分析全文，也可以按章节选择起止范围，或输入 `5k`、`5万` 这类字数范围并由系统换算为章节边界。
-- 选择局部范围时，拆书会保存来源范围并只分析对应原文；导出和详情中会显示本次拆书使用的来源范围。
-- 创建拆书时不会因为选中文档就立即加载章节；只有用户切到章节或字数范围时才准备章节数据，减少隐藏等待和额外成本。
-- 拆书详情页顶部新增跟随滚动的工具栏，复制、重新生成、发布、任务中心、导出、生成写法、归档和双栏入口不再占据大块信息卡。
-- 分析概要、发布到知识库和运行元信息默认收进“分析信息与发布”，需要时再展开。
-- 证据按小节内嵌展示为字段 chip，优先显示绑定的结构化字段和数组下标，方便判断关键结论依据。
-- 点击证据 chip 后可在当前小节内查看摘录；带章节定位的证据会继续显示原文高亮片段。
-- 宽屏双栏模式会在左侧显示原文章节，章节目录和正文改为左右并排，减少长章节阅读时反复上下移动。
-- 点击右侧证据可让左栏跳到对应章节并高亮摘录；左侧阅读章节变化时，右侧与该章证据关联的结构化字段会显示“本章”标识，方便按原文位置核对结论。
-- 知识库文档上传改为弹窗入口，文档列表页不再被常驻上传表单占用空间；上传成功后会回到列表继续查看索引状态。
-
-### 2026-06-24（拆书证据溯源、时间线结构化与聚焦生成）
-
-拆书结果更容易追溯来源，也更容易按自己的学习目标生成：新生成的拆书会把证据绑定到对应的结构化结论字段，查看关键结论时可以直接看到支撑摘录；源文档版本会按章节缓存，证据能跳回对应原文章节并高亮摘录；时间线会以结构化节点保存时间提示、阶段和来源片段；结构化结论字段内容过多时会提示哪些字段按上限保留；创建拆书和单节重跑时可以补充关注重点，让分析更贴近当前想学习的问题；用户可以在拆书页主动生成或维护深度角色档案，用角色弧线、关键场景和人物动机沉淀可复用的人物学习材料，并能为角色档案生成参考图、设为主图，或把角色升格到正式角色库继续用于创作；拆书页也可以选择“诊断稿子”，把自己的小说正文导出为知识文档后直接创建诊断拆书；同一份拆书重复发布到小说知识库时，会自动解除旧发布版绑定，减少后续 RAG 召回过时拆书内容的概率。
-
-- 拆书小节的证据会尽量绑定到具体关键结论字段，字段旁会显示来源提示，方便用户判断这条结论来自哪段原文摘录。
-- 知识文档版本会按章节缓存；拆书证据匹配到原文摘录时，可以在证据面板跳到对应章节并高亮查看上下文。
-- 章节切分优先识别标准中文章节标题；无法可靠识别时会保留整文单章，旧拆书和旧证据仍按原方式展示。
-- 故事时间线的关键节点和事件顺序会以节点形式展示，包含节点描述、时间提示、阶段标签和来源片段，历史字符串时间线也会自动按文本节点显示。
-- 时间线关键结论会按阶段聚合展示，发布和续写参考里的时间线维度也会使用中文字段名，方便把同一阶段的事件、风险和状态变化放在一起判断。
-- 拆书结构化结论数组超过上限时，会在关键结论区提示对应字段，帮助用户知道哪些内容经过截断展示。
-- 新生成拆书时，模型会收到数组上限和时间线节点格式说明，优先按重要度、叙事顺序保留更值得复用的结论。
-- 全量拆书会先生成总览，再让剧情、人物、世界观等小节参考总览里的作品定位和关键判断，减少不同小节之间口径不一致的情况。
-- 创建拆书时可以填写“本次拆书重点”，例如关注群像戏、主角语言风格或付费爽点；这个重点会进入所有小节的生成提示。
-- 每个小节可以填写“本节特别关注”，保存或重新生成该小节时会带入对应指令；单节重跑剧情、人物等小节时，也会继续参考已生成的总览定位。
-- 拆书页新增“角色档案”区域，可主动生成深度角色档案，也可手动添加、编辑或删除角色；档案会展示人物定位、外形/性格/目标等关键信息，并保留弧线节点和代表性场景。
-- 深度角色档案不会随全量拆书自动生成，需要用户在需要学习人物塑造或沉淀角色材料时主动触发，避免默认拆书成本突然增加。
-- 深度角色档案支持生成角色参考图、查看图片任务进度、设置主图和删除不需要的图片，生图前会先展示可确认的提示词。
-- 拆书角色可以一键升格到正式角色库；默认可携带当前主图，系统会复制出独立角色图片资产，后续修改或删除拆书图片不会影响已升格角色。
-- 拆书页新增“诊断稿子”入口，可选择自己的小说，将当前章节正文导出为知识文档并立即创建诊断拆书。
-- 诊断模式会显示独立提示和“诊断结论”文案，帮助用户把同一套拆书框架用于检查节奏、人物、主题、伏笔和商业卖点，不改变原小说正文。
-- 历史拆书证据没有字段绑定时仍会正常展示，不需要重新生成才能继续查看或导出。
-- 同一拆书反复发布到同一本小说时，只保留该拆书最新发布版的知识库绑定，旧发布文档本体不会被删除，避免影响其他引用。
-
-### 2026-06-23（角色资源账本、图片生成确认与自动导演暂停提醒）
-
-这次更新把长篇写作和视觉生产里的几个“容易跑偏或误触发”的环节收紧：角色资源账本会区分已入账高风险资源和真正待确认变更，写章时只带入本章相关资源；图片生成在漫画和短剧工作台里增加确认与参考素材链路，减少误覆盖和风格漂移；自动导演遇到等待确认、恢复或校验阻断时，可以通过浏览器桌面通知提醒用户回到跟进中心。
-
-- 角色资源账本不再把高风险已入账资源误写成“待确认事实”，写作上下文会分别提示“高风险已入账资源”和“待确认资源变更”。
-- 自动导演或手动确认资源变更时，会走统一提交链路，减少资源状态重复提交、版本快照缺失或确认结果不一致的问题。
-- 章节写作上下文会优先裁剪到本章参与角色和当前章节使用窗口相关资源，降低无关角色物品膨胀 prompt 的概率。
-- 资源归属、状态复用和可见性回退会进入冲突校验；有冲突的变更会等待确认，而不是直接写入账本。
-- 长期未触碰或超过预计使用窗口的角色资源会作为 stale 风险进入提示，帮助后续章节回收遗留道具、装备或线索。
-- 图片生成新增确认式流程，漫画和短剧工作台在生成角色、场景、分镜或关键帧图片前能更清楚地处理参考图、提示词和生成结果。
-- 漫画角色资产、场景和分格图片的参考素材链路更稳定，用户可以更直观看到当前图片使用了哪些角色、资产或场景参考。
-- 短剧视觉资产生成也接入统一图片生成确认体验，减少跨工作台行为不一致。
-- 系统设置新增“自动导演暂停提醒”。开启并授权浏览器通知后，自动导演等待确认、需要恢复或被校验拦住时会发送桌面通知，并可点击回到导演跟进中心。
-
-### 2026-06-18（漫画工作台一致性强化：场景库、角色资产、外貌锚点 AI 协助）
-
-漫画工作台围绕"长篇连载里同一个角色、同一处场景、同一件道具不能每格画得都不一样"做了系统性强化：新增独立的场景库（自动识别本话场景、可编辑场景圣经、可生成多视角设定图）、角色资产库（服装/武器/道具可生图或上传，分格时 LLM 会按情节引用，生图时自动合成参考图），外貌锚点从只读变成可编辑并新增脸型强覆盖字段，遇到不会改提示词的用户可以让 AI 协助重写外貌描述。角色长相辨识度、气泡文字质量、画风统一性也一并修复，避免"反派和主角长得一样""气泡里出现 XX说""项目选了水墨国风但角色还是韩漫"这类问题。
-
-- 漫画工作台新增「场景」tab。生成分格脚本时会自动识别本话出现的地点（最多 8 个），写入场景库；每个场景可编辑「场景圣经」（主色板、标志元素、材质、氛围、空间结构），并可一键生成十字四宫格设定图供后续参考。
-- 跨话同名场景自动复用，不会重复创建。用户编辑过的场景圣经在重新生成分格脚本时不会被覆盖。
-- 生成格子图时会按本格所属场景注入文字描述，并把对应设定图作为低权重参考图，明确告知模型"只锁定色调/布局/材质，镜头按本格自由运镜"，避免每格都画成同一机位。
-- 漫画角色页新增「角色资产库」。可为每个角色添加服装变体、武器、道具、载具、技能视觉等资产，AI 生成或直接上传图片；分格脚本生成时 LLM 会按剧情在 characterRefs 里引用资产名（如服装"战斗套装"、道具"月光剑"）。
-- 生格子图时会把角色三视图 + 当前所属服装 + 用到的道具自动合成为单张"雪碧图"参考图传给图像模型，比拼接多张参考图更稳，外形/服饰/道具的一致性显著提升。
-- 角色页「外貌锚点」从只读改为可编辑，新增 9 个骨相速记按钮（圆脸/方脸/鹅蛋脸/长脸/童颜/成熟/棱角分明/眼距偏宽/丹凤眼）一键追加描述；外貌一改，三视图、表情稿、资产图、格子图后续生成全部跟上。
-- 新增「脸型强覆盖」字段，专门解决"主外貌里有'锐利如刀刻''三角眼'等与期望脸型矛盾的词"场景：填入此字段的描述会在生图提示中以最高优先级出现，并显式压制 appearance 里的冲突骨相词，眼神/气质上的"锐利"保留，骨架按你写的来。
-- 新增「AI 协助优化外貌锚点」。可选输入期望（如"脸更圆但保留反派凶相"），AI 会消除内部矛盾词、保留标志特征、用骨相级具体词重写，并显示修改说明供审阅，确认后再采用。
-- 不同角色长相不再雷同：生图链路改用完整外貌描述（不再只用 40 字精简版），外貌描述权重提到画风词之前；prompt 加骨相级强约束，明确要求保留角色独特骨架，不要替换成模板美型脸。
-- 对白气泡不再出现"XX说"。气泡内只渲染台词正文，说话人改为决定气泡尾巴指向；历史脚本里的"XX说："前缀也会自动剥离，无需重新生成脚本即可重出图。
-- 画风一致性修复：角色三视图、表情稿、资产图、场景设定图原本固定生成彩色韩漫风，现在统一按项目画风（水墨国风/黑白少年漫/写实/Q版等）生成，全本风格统一。
-- 格子图详情弹窗新增「本次生图使用的参考素材」区块，缩略图网格显示本格实际用到的角色三视图、资产、场景设定图，点击可在新标签打开大图，方便溯源调试。
-- 顶部「图片模型」选择会跨项目和刷新缓存。选过 codex 之后下次进任意漫画项目都保持，配置失效时自动回退到第一个可用项。
-- 漫画项目详情页改为全宽布局，移除两侧大块留白，更适合宽屏审阅角色和格子图。
-
-### 2026-06-17（自动导演开书推荐路径引导）
-
-自动导演开书会更明确地推荐先准备到可开写阶段，让用户先查看规划是否符合自己的想法，再开始大量章节产出；预计章节数较大的项目也会提示先小范围尝试。自动导演恢复、全书自动执行和质量修复也更稳：明确跳过世界观时不会在恢复链路里重新强制准备世界，已准备章节列表的全书自动执行会在写章前即时补齐任务单，同章局部修复失败后会升级到整章修复，避免反复轻修卡住。漫画工作台也更适合连续制作：可以编辑分话大纲、查看跨话事实、检查角色设计稿准备情况，并用条带视图审阅分格成图；进入漫画工作台时也会提示图片生成暂只支持 `gpt-image-2`。桌面客户端和网页开发界面的顶部也会直接显示当前版本号，方便确认正在使用的客户端版本。
-
-- “先准备到可开写”在自动导演运行方式中会显示更醒目的推荐样式，并说明适合先查看书级规划、卷章方向和章节准备结果。
-- 预计章节数超过 200 章时，起始设置会提示先小范围尝试，确认规划和前期章节方向符合想法后再扩大产出范围。
-- 已选择暂不使用世界观的自动导演任务，在恢复或继续推进时会持续尊重这个选择，不会额外插入世界准备步骤。
-- 全书自动执行遇到已同步章节列表、任务单等待写章前即时生成的项目时，会继续进入章节产出，并在每章写作前补齐执行任务单。
-- 同一章节的质量问题如果已经尝试过局部修复，后续自动修复会切换到整章修复，减少重复轻修导致的卡顿。
-- 漫画分话大纲支持直接编辑标题、梗概、结尾悬念和付费卡点，生成分格脚本前会提示缺少三视图的角色。
-- 漫画角色页新增跨话事实库，可查看系统从分格脚本中提取的已发生事件、首次出现信息和状态变化，并删除不准确条目。
-- 漫画分格页新增条带阅读视图，方便按阅读流检查成图；对白气泡提示也更贴近中文漫画表达，减少文字位置和气泡类型偏差。
-- 漫画工作台顶部会提示图片生成暂只支持 `gpt-image-2`，方便在生成角色设计稿或格子图前确认图片模型配置。
-- 侧边栏的漫画工作台入口会显示 `Beta` 标识，提醒这个工作区仍处于 Beta 阶段。
-- 顶部应用名称旁会显示当前客户端版本号；新桌面包发布前可以先更新桌面版本源，避免安装包版本、界面版本和 Release tag 不一致。
-- Windows 桌面版更新到 `0.3.20`，用于发布包含漫画图片模型提示和顶部版本号显示的新安装包。
-
-### 2026-06-12（版本快照保留与数据库体积治理）
-
-版本历史会更轻量地加载最近快照，自动生成的版本快照会按每本小说保留最近窗口，减少长期生成后本地数据库持续膨胀的问题；需要清理已有旧快照时，也可以先备份再回收空间。
-
-- 自动导演和批量章节生产产生的自动快照会按每本小说保留最近 10 份，手动保存的版本继续完整保留，方便用户保住关键恢复点。
-- 版本历史列表只读取快照名称、类型和保存时间，打开页面时不再拉取整本小说正文快照，列表加载会更稳定。
-- 新增快照存量清理入口，执行前会创建并校验 SQLite 备份，清理后回收磁盘空间，适合处理长期测试生成后变大的本地数据库。
-- 快照保留数量可配置，默认策略优先兼顾恢复安全和本地运行体积。
-
-### 2026-06-11（章节写作进度、章节后置提取收敛与写法检测提速）
-
-章节生成会更清楚当前处于全书哪个阶段，并能注意到长期缺席但仍有职责的角色；章节定稿后的摘要、硬事实、角色动态和资产回灌会通过一次统一抽取完成，减少重复等待和重复覆盖风险；写法检测在未命中字面量违禁词时会更快返回。
-
-### 2026-06-16（漫画角色视觉识别与分格提示词控制）
-
-漫画角色页更适合持续打磨视觉资产，分格生成也更可控：左侧角色列表会直接显示已生成三视图的角色缩略头像；微调三视图时会更稳地保留角色相貌；生成分格脚本前可以控制信息密度并补充本次分格要求，格子图详情里也可以审查和修改单格画面脚本。
-
-- 已生成三视图的角色会在左侧列表显示头像缩略图，未生成的角色继续显示占位图标，切换当前角色时更容易识别对象。
-- 微调面板会显示可编辑提示词，并提供“恢复推荐提示词”入口，旧图没有历史提示词时也不用从空白开始。
-- 已生成三视图的角色可以继续选择使用这张三视图作为参考图，同时默认开启角色样貌锁定；没有外貌锚点的存量角色也可以临时补写样貌锁定词。
-- 需要彻底重画角色时，可以关闭外貌锚点锁定，让提示词完全按新的角色设定生成。
-- 分格脚本生成新增“舒展 / 均衡 / 紧凑”信息密度选择，并支持填写本次分格补充要求；已有格子时重新生成会提示覆盖风险。
-- 格子图详情可以查看并编辑单格画面脚本，支持保存后重抽；上次实际发送给图像模型的完整 Prompt 会作为审查记录展示。
-- 分格生成会记录本次密度、目标格数和补充要求，并为每格保留密度、视觉焦点和四格版式信息，方便之后审查脚本、微调画面脚本和重抽格子图。
-- 单格画面脚本在生图后被修改时，格子图会标记”待重抽”，提醒当前图片仍来自旧提示词。
-
-全自动导演模式下，章节生成完成后系统新检测到的角色候选现在会自动确认为正式角色，进入角色名册；之前未确认的候选角色不会纳入后续章节的角色动态和卷级规划，可能导致角色一致性逐渐漂移，这一问题已修复。同时修复了长期运行时 LLM 限速器配置缓存持续积累的内存泄漏，provider 配置修改后旧缓存立即释放。
-
-- 全自动导演（全书自动成书）在每完成一批章节、推进下一章前，会自动将当前小说所有待确认角色候选确认为正式角色，不再需要手动操作。
-- 修复 provider 并发数或请求间隔被修改后，旧的限速器实例永不释放的内存泄漏；配置变更会同步清除该 provider 下所有旧实例。
-- 服务器配置示例新增公网部署安全提示，提醒将 HOST 改为 127.0.0.1、关闭 LAN 访问，并收窄请求体大小上限。
-
-### 2026-06-15（漫画角色视觉资产升级）
-
-漫画工作台的角色页开始支持表情设计稿和三视图微调，并收拢成左侧角色列表、右侧当前角色详情的资产工作台；分格脚本也会把角色的服装、表情和光照作为结构化引用传给生图链路，让多角色同框和情绪格子的角色一致性更稳。
-
-- 角色页使用竖向角色列表选择当前角色，右侧详情区集中展示三视图、表情稿、外貌锚点、提示词和微调入口。
-- 角色详情区提供表情稿入口，可为同一角色生成正常、开心、愤怒、悲伤、惊讶、冷漠六类表情参考。
-- 已生成三视图的角色可以打开微调面板，基于当前提示词修改后重新生成，也可以勾选使用当前三视图作为参考图。
-- 分格脚本会为每格角色输出结构化引用，包含角色名、服装、表情和光照，后续格子图生成不再只依赖角色名。
-- 单角色格会继续使用完整三视图参考，多角色同框格会优先使用角色面部裁切参考，表情稿可用时会追加对应表情裁切图。
-- 从小说导入漫画角色时会优先带入角色外貌、体态、穿着和标志细节，并压缩成更适合生图提示词的短视觉锚点。
-
-### 2026-06-14（设置页创作可用性控制台）
-
-系统设置页改成面向创作可用性的控制台，会先告诉用户现在能不能开始写小说、还差哪一步；常用配置、质量增强、高级导演设置和系统维护也分层展示，减少新手被参数淹没的感觉。
-
-- 顶部新增创作可用性检查，集中显示正文模型、模型路由、知识库增强和写法引擎状态；基础链路可用时可以直接进入创建小说。
-- 模型厂商默认只展示可用状态、当前文本模型、图像模型和余额摘要，API 地址、请求限制、思考功能、余额明细和完整模型列表收进高级详情。
-- 每个模型厂商的连接测试结果会显示在对应厂商卡片里，未配置厂商会提示先完成配置再测试或刷新。
-- 写法引擎设置改为快速检测、稳定推荐和长文提取三种模式，分钟数仍可在高级设置中精调。
-- 知识库设置明确为可选增强，不配置也可以开始创作；配置后会增强设定、资料和上下文召回。
-- 审批授权偏好进入设置页时默认收起，保留用途说明，展开后仍可查看当前默认授权并保存新的审批点选择。
-- 导演跟进通道配置进入设置页时默认收起，展开后仍可配置站内访问地址、钉钉、企业微信和事件订阅。
-
-### 2026-06-11（章节写作进度、角色边界与写法检测提速）
-
-章节生成会更清楚当前处于全书哪个阶段，并能注意到长期缺席但仍有职责的角色；写法检测在未命中字面量违禁词时会更快返回，减少不必要的深度检测等待。
-
-- 章节写作会根据预计总章数提示当前处于开局、发展、收敛或尾声阶段，帮助后续章节更自然地控制支线展开、伏笔兑现和全书收束。
-- 长期缺席且缺席风险较高的角色，如果本章已经进入出场义务，会带上“宜自然带出”的提示，让 AI 在写作时主动意识到角色存在感问题。
-- 正文生成会更强调每段同时承担情节推进、人物揭示、张力制造或世界建构等复合功能，减少只做过渡的空泛段落。
-- 章节定稿后会用一次统一抽取同步章节摘要、正文硬事实、状态变化、资源变化、伏笔推进、角色动态和角色信息边界，减少同一章正文被多次深度读取。
-- 角色动态抽取不再和统一资产回灌重复抢写；当同一正文的统一抽取已经成功时，事件侧效应只保留为兜底路径，降低候选角色和关系阶段被重复覆盖的风险。
-- 下一章生成前更容易读到刚定稿章节产生的事实、状态、资源和伏笔变化，减少后台资产同步慢于章节推进造成的上下文陈旧。
-- 章节修复完成后也会走同一条统一资产回灌路径，避免修复稿先生成一份粗摘要、稍后再被深度摘要覆盖。
-- 升级后已有章节在首次重新同步时可能多执行一次资产提取，用于补齐新摘要、正文硬事实和角色信息边界；同步结果仍按幂等方式落库。
-
-- 角色动态抽取可以记录主要角色在章节结束时知道和不知道的关键信息，帮助后续章节避免角色超前知情。
-- 章节上下文会记录预算观测日志，便于排查关键上下文是否可能被预算挤出，后续优化章节生成稳定性时有更明确的依据。
-- 写法检测会先对启用的违禁类规则做字面量快扫；没有命中字面量违禁词时直接返回干净结果，有命中或只有复杂规则时仍走完整深度检测。
-
-### 2026-06-10（事实账本按验收覆盖入账）
-
-章节事实账本现在只记录接收闸门确认已经兑现的本章义务，避免后续章节把“计划要写但正文没写出来”的内容当成既成事实继续引用。
-
-- 本章 `mustHitNow` 义务只有在验收覆盖确认为完成时才会写入事实账本；如果验收显示部分义务缺失，系统会剔除对应条目。
-- 当章节接收闸门不可用时，系统不会把任何本章义务写入事实账本，因为正文是否兑现尚未被核实。
-- 伏笔写前指令不再直接变成“已揭示”事实；后续的揭示类事实会来自正文观测、伏笔状态迁移或时间线钩子解析。
-- 自动执行中被剔除的义务会保留为可见质量债，帮助任务中心提示“本章有义务未兑现但未入账”，而不是静默污染后续章节上下文。
-
-### 2026-06-10（短剧视觉、声音与版本管理生产闭环）
-
-短剧分镜视频页补齐角色参考图、首帧图、整集批量生产、配音合成、单集 SRT 字幕导出和生成历史管理，让短剧从提示词和镜头资产继续靠近可剪辑交付。
-
-- 角色设计稿生成完成后，分镜中点名的角色会自动进入视频任务参考图，不需要用户重复上传。
-- 分镜卡片可以为单个镜头生成 9:16 首帧图，生成后直接显示缩略图，便于在消耗视频额度前确认构图。
-- 创建视频任务时，如果镜头已有首帧图，会优先把首帧图作为参考图首位，再追加角色设计稿，帮助图生视频保持构图和角色造型一致。
-- 视频通道会声明是否支持参考图；不支持时仍按普通文本视频任务创建，避免外部接口因不认识参考图字段而失败。
-- 外部 HTTP 视频通道可以开启参考图能力，并可配置基础访问地址，把本地角色图端点转换为云端可访问地址。
-- 导出页可以下载当前选中集的 SRT 字幕文件，系统会按最新分镜镜头顺序和镜头时长推算字幕时间轴；没有分镜台词时会回退到台本正文逐行导出。
-- 分镜视频页新增整集批量任务，可以一键生成本集全部首帧图或创建本集全部视频任务，并显示进度、跳过数量、失败镜头和失败项重试入口。
-- 台本页新增整集配音入口，可以按角色的声音设定批量合成镜头台词，并逐句试听已经生成的音频。
-- 配音通道由后端统一暴露，默认模拟通道可用于本地联调；配置外部 HTTP 配音服务后会自动出现在工作台选择器中。
-- 已生成配音的台词会把真实音频时长用于 SRT 字幕时间轴，字幕更接近后续粗剪和成片节奏。
-- 导出页可以下载本集剪辑草稿 JSON，按镜头顺序带出视频轨、配音轨和字幕轨，方便继续做粗剪或交给外部剪辑流程处理。
-- 批量生成首帧、视频和配音前会显示预计费用，任务完成后会记录实际费用，项目页可汇总查看最近生产任务的成本。
-- 视频提示词重生成会保留旧版记录，分镜视频页可以区分当前提示词和历史版本；创建视频任务、批量生成和剪辑草稿导出都会使用当前版本，减少旧提示词误入生产链路。
-- 首帧图和角色设计稿重生成会保留历史版本，工作台可以打开旧版图片回看构图和角色造型变化，当前图片仍作为后续视频生成的默认参考。
-- 短剧策略会生成可执行的付费卡点计划，包含首付费集、免费引流、强度曲线和卡点强度目标；分集大纲和质量检查会按这份计划推进，减少“标了付费集但卡点不够强”的情况。
-- 质量页新增平台合规预检，可以批量检查已有台本的暴力血腥、医疗误导、封建迷信、低俗擦边、广告法用语等常见驳回风险；合规阻断会进入修复队列，提醒项不会阻断继续生产。
-
-### 2026-06-09（跨章设定漂移修复 + 测试重置工具 + 质量守卫补录）
-
-本次更新彻底修复了正文即兴硬事实无法跨章保持一致的问题，新增便于反复测试的章节重置工具，并补录早期的小说生成质量守卫。
-
-**正文即兴事实桥接（跨章设定漂移修复）**
-
-- 事实账本此前只从规划层字段（`obligationContract.mustHitNow` / `payoffDirectives`）提取事实，记不住正文 LLM 即兴写出的硬设定（如某次交易是私活、具体金额、具体次数、票号、斤数等），导致后续章节凭空改写成矛盾版本（例如把"私下放映收辛苦费"改写成"厂里正式外派、没收钱"）。
-- 章节摘要输出新增 `concreteFacts[]`：章节定稿时一次 LLM 调用同时生成摘要并抽取正文硬事实（主角承诺/交易条款、事件性质、关键数字日期），桥接写入事实账本。
-- 章节摘要服务此前只在前端 HTTP 触发、自动执行全程不跑；现已接入定稿流程，自动执行每章定稿即抽取并落账，下一章 JIT task sheet 能读到真实前文事实，从源头消除跨章设定矛盾。
-- 实测：粮票票号、斤数、事件性质等关键事实在多章中保持完全一致，此前的"私活→公务"类跨章矛盾不再出现。
-
-**章节正文一键重置（开发测试工具）**
-
-- 项目工具新增"重置所有章节正文"，可快速清空正文与相关派生状态，便于反复重新生成测试，无需从零重建小说。
-
-**JIT 模式结构化大纲误报修复**
-
-- 全书自动执行（懒规划）模式下 `chapter_detail_bundle` 步骤被主动跳过，但 `validateOutput` 仍按 `chapterDetailReady` 校验，导致误报"未产出结构化大纲事实"；现按 JIT 模式判定 `effectiveDetailReady`，主动跳过的步骤不再误报。
-
-**小说生成质量守卫（补录）**
-
-- `storyWorldSlice` 提示词增加世界观污染词防护，并新增 `rebuild_story_world_slice` 工具用于重建被污染的世界观切片。
-- 分卷窗口增加关键节点守卫与场景模式黑名单，缓解里程碑重复与节奏失衡。
-- 新增 `audit_chapter_continuity` 章节连续性诊断工具。
-
-**短剧创作链路后端骨架**
-
-- 新增独立短剧创作链路的后端基础能力：可以创建短剧项目，并从小说、原创灵感或导入文本整理出标准短剧素材包。
-- 前端新增“短剧工作台”入口，桌面端可从侧栏进入，移动端可从创作辅助导航进入；进入后可以直接选择已有小说进行短剧改编，也可以用原创灵感或导入文本创建短剧项目，并按“整理素材 → 生成策略 → 生成前 12 集”推进。
-- 短剧项目列表和项目页会显示“逆袭、重生复仇、马甲文”等中文赛道名，不再把 `counterattack`、`rebirth_revenge` 这类内部标识展示给用户。
-- 每个短剧项目现在有独立工作台，可以查看来源素材、短剧策略、分集台本、角色、质量检查、修复建议、分镜视频提示词和导出入口，不再只停留在项目列表按钮。
-- 短剧工作台支持直接编辑并保存单集标题、开场钩子、结尾卡点和台本正文；人工改写后会清空旧质量结果，方便重新检查。角色页改为短剧角色资产卡，可以维护出镜功能、观众识别、固定造型、表演声音、台词规则和冲突关系，并可保存到短剧角色库。
-- 来源素材页新增素材质量提示，能看到梗概、节拍、角色和硬事实是否足够支撑后续生产；角色页支持从短剧角色库导入角色，分镜视频页支持刷新视频任务状态。
-- 新建短剧项目时可以让 AI 推荐更适合的赛道，推荐结果会说明适配理由、素材信号、风险和备选方向，用户可以直接采用推荐赛道。
-- 来源素材页新增 AI 补充建议：当梗概、节拍、角色或硬事实不足时，系统会生成具体补充问题和下一步建议，帮助用户先补齐关键信息再继续生成策略、分集和台本。
-- 新建短剧项目改为“来源 → 内容 → 规格”分步向导，导入小说会自动生成短剧项目名，创建成功后直接进入项目工作台。
-- 待恢复任务不会再自动弹窗挡住短剧工作台或其他页面；需要处理时，可以从小说列表的“待恢复任务”入口打开详情并继续。
-- 短剧项目详情页新增“下一步”主任务卡，会根据当前产物自动引导用户整理素材、生成策略、生成分集、生成台本、质量检查、修复、生成分镜、生成视频提示词或导出，减少在多个按钮之间猜流程。
-- 短剧工作台新增“质量问题”页，集中汇总已检查集数、待修复集数、可继续质量债、通过集数和平均分，并可从问题列表直接跳转台本、重新检查或按建议修复。
-- 分镜视频页新增视频生成任务汇总，可以集中查看提示词数量、已创建任务、生成中、已完成和失败数量；每条视频提示词会展示 provider 状态、负面提示词、画幅、时长、结果链接或失败提示，并可直接创建任务或刷新状态。
-- 视频生成 provider 改为后端注册表驱动，工作台会读取当前可用 provider 并允许选择后创建任务；后续接入真实视频 provider 时，不需要把前端按钮继续写死到 mock。
-- 新增通用 HTTP 视频通道，可通过环境变量配置外部视频生成服务的创建任务接口和状态查询接口；配置后会自动出现在短剧工作台的视频通道选择中。
-- 视频任务的生成结果链接和失败原因会保存为稳定状态，工作台可以直接展示结果入口或失败说明，不再只能从 provider 原始回执里解析。
-- 短剧质量检查发现可修复问题时，会先把该集放入修复队列，下一步引导不会跳过修复直接进入分镜或视频任务，减少带着已知质量问题继续生产的情况。
-- 短剧项目现在可以生成竖屏付费短剧策略、分集大纲、单集台本，并对台本执行钩子、卡点、时长和一致性质量检查。
-- 单集台本支持按质量建议修复，并可导出 Markdown / JSON 分集文档，方便继续编辑或交付。
-- 短剧角色资源开始独立管理，可沉淀角色库；台本后续可继续生成分镜、视频提示词，并通过视频 provider 抽象创建视频生成任务。
-
-### 2026-06-08（日志清理与轮转）
-
-桌面端和开发日志会自动控制保留周期与单文件体积，减少长期运行后日志文件持续堆积的问题，同时保留最近排障所需的日志。
-
-- 桌面主日志超过体积上限后会自动轮转，新日志继续写入当前日志文件，不需要用户手动清空。
-- 开发会话日志、LLM 调试日志和结构化修复日志会按默认保留策略清理旧文件，最近 24 小时内的日志会保留，便于继续排查。
-- 日志清理只处理已知日志文件，不会清理数据库事件、小说数据、图片、备份或其他业务文件。
-
-### 2026-06-08（生成链路四阶段优化全量落地）
-
-生成链路优化（1.D + Phase 2 + Phase 3）：修复质量债务高发根因、消除每章重复全量查询、实现 N+1 章节执行预取，全书自动执行效率和质量双提升。
-
-**1.D 质量修复闭环子项**
-- **根因A（修复器结构化义务）**：`prepareChapterRepairExecution` 改为传入结构化 `issuesJson`，包含 `missingObligations`（kind/summary/evidence）和 `blockingIssueCodes`，修复器不再只看压扁文本猜问题类型，可定向补写未兑现义务。
-- **根因B（宽松锚点重试）**：`ChapterPatchRepairService` 锚点失配后，先用 `continuity_only` 宽松模式重试一次，再升级 `heavy_repair`；同步将 `patchRepair` 预算从 1 提升到 2，减少过早升级。
-- **根因E（issueSignature 拆分）**：`buildDirectorQualityLoopIssueSignature` 在签名头加 `length|` / `content|` 前缀，长度类与内容类问题获得独立预算计数器，避免补丁修好长度后浮出内容问题时触发误升级。
-
-**Phase 2 上下文分层缓存**
-- 新增 `BatchContextCache`：将 novel 全量查询（world/characters/storyMacroPlan/volumePlans，共 10+ 子查询）缓存为进程内稳定层，按 `novelId` 命中；订阅 `character:changed` / `volume:updated` / `outline:revised` / `pipeline:completed` 自动失效。
-- `GenerationContextAssembler` 稳定层走缓存，每章仅重查动态字段（canonicalState/payoffLedger/factLedger/recentChapters/RAG 等）。
-- 移除 `timelineContextService.buildForChapter` 调用（PR-B 后写作路径已不消费 timelineContext），`contextPackage.timelineContext = null`。
-- 合并 `baseContextPackage` + `contextPackage` 双重构建为单一 `sharedFields` 展开，消除 ~30 个字段两遍手抄。
-
-**Phase 3 N+1 执行预取**
-- `novelCorePipelineService` 在每章 `runPipelineChapter` 完成后（factLedger 已写入），非阻塞（fire-and-forget）触发下一章的 JIT task sheet 预取。
-- 仅在 `full_book_autopilot` 模式启用；预取失败不影响流水线，下一章组装时自动重试。
-- 结合 `BatchContextCache`，N+1 章正式组装时 novel 稳定层已命中缓存、task sheet 已就绪，组装延迟大幅降低。
-
-### 2026-06-08（懒规划 JIT task sheet 重构）
-
-懒规划（Phase 1）：把 task sheet 从"规划阶段全量预生成"改为"执行前即时生成（Just-In-Time）"，消除全量拆章门控并解决 task sheet 与实际前文脱节问题。
-
-- **全量拆章门控已消除**：全书自动执行（`full_book_autopilot`）模式下，`structured_outline` 阶段跳过 `chapter_detail_bundle` 步骤，只生成章节标题和节奏锚点（`chapter_list`），即可进入章节执行阶段，不再等待所有 N 章 task sheet 预生成完毕。
-- **新增 `ChapterPlanJITService`**：在每章执行前（`GenerationContextAssembler.assemble`）自动生成 task sheet。生成时将已写章节的事实账本（`NovelFactService.listForChapter`）注入提示词，task sheet 义务不再与实际前文矛盾，从根本上缓解根因 D（义务不可达）。
-- **兼容性保障**：旧小说若 task sheet 已存在且事实账本条目 < 3 条（前文未写 / 首章），跳过 JIT 直接复用，不破坏存量数据。手动单章模式不受影响。
-
-### 2026-06-08（质量债务根因诊断埋点）
-
-质量债务根因归因（Phase 0）：在章节 defer_and_continue 路径埋入结构化归因数据，支撑后续优化方向决策。
-
-- `chapterRuntimePipeline` 新增 `QualityDebtAttribution` 接口，收集首次/二次失败 issue code、`failureClassification.code`、patch 锚点失配标记、缺失义务种类，并自动推断根因 A/B/D/E 标签（A=开环修复、B=patch 失配、D=义务不可达、E=签名漂移）。
-- `ChapterQualityLoopService.recordAssessment` 接受 `qualityDebtAttribution` 并将其写入 `chapter.riskFlags` JSON 的 `qualityLoop` 节点，落库后可被聚合工具读取。
-- 新增 Agent 工具 `analyze_quality_debt_attribution`：确定性扫描（无 LLM），读取所有 defer_and_continue 章节的归因数据，输出根因 A/B/D/E 占比、Top 失败 issue code（TOP5）、Top 缺失义务种类（TOP3）及决策建议，帮助确定阶段一/阶段二的优化侧重。
-
-### 2026-06-08（事实账本 + 写章路径瘦身）
-
-事实账本（Novel Fact Ledger）：用一张极简的 `NovelFactEntry` 表替代 timeline 对写章上下文的介入，
-让 `completedMilestones` 字段得到真实填充，防止 LLM 在后续章节重复写出已发生的事件；
-同时彻底移除 timeline finalization 在写章路径中的所有干预点（PR-B）。
-
-- 新增 `NovelFactEntry` 数据表，记录已发生的不可逆事实（completed/revealed/state_changed 三类）。
-- 章节接收通过后，系统自动从 `obligationContract.mustHitNow` 和 `payoffDirectives(payoff/partial_reveal)` 提取已完成条目写入事实账本，无额外 LLM 调用。
-- `GenerationContextAssembler` 在组装写章上下文时读取事实账本，填充 `ChapterWriteContext.completedMilestones`，让写章 LLM 知晓"哪些事情已经发生，不要再重复"。
-- 事实账本读取策略：completed/revealed 类全量返回（不限章节距离），state_changed 类只取最近 15 章，控制上下文长度。
-- PR-B：从 `chapterWriter.prompts.ts` requiredGroups 移除 `timeline_context`；从 `ChapterContentFinalizationService`、`ChapterStreamGenerationOrchestrator`、`ChapterPipelineRuntimeAdapter`、`ChapterRuntimeCoordinator`、`ChapterRepairStreamRuntime`、`chapterRuntimePipeline` 移除全部 `timelineFinalizer` 依赖和调用点。`ChapterTimelineFinalizationService` 本身及前端时间轴展示不受影响。
-
-### 2026-06-08（质量守卫）
-
-小说生成质量守卫：针对世界设定污染、已完成事件反复重写、场景模式重复和卷节奏失控四类系统性问题，在上下文层、共享类型层和 Agent 工具层分别新增守卫机制。
-
-- 世界切片提示词新增防污染约束：切片自由文本字段禁止直接引用世界资产专有名词，世界来源与故事背景时代/地域明显不匹配时必须写出映射说明和禁用词，解决"高密东北乡"等历史世界专有词汇污染现代故事章节生成的问题。
-- 新增 `rebuild_story_world_slice` Agent 工具，强制重建已污染的世界切片，适用于发现世界来源与小说故事背景严重错配的场景。
-- `ChapterWriteContext` 新增 `completedMilestones` 字段，在 `chapter_mission` 上下文块中以"Already completed — do NOT re-pursue"标签展示已完成的过程性事件（如已办好的执照、已签的协议），配套写作约束禁止 AI 在后续章节重新追求这些目标。
-- `VolumeWindowContext` 新增 `keyMilestoneGuards` 字段，在 `volume_window` 上下文块中展示卷级关键节点守卫（目标章节范围 + 事件 + 节奏说明），防止 LLM 提前写出计划在后续章节才发生的高潮事件。
-- `ChapterWriteContext` 新增 `recentScenePatterns` 字段，在 `opening_constraints` 上下文块中展示场景模式黑名单，配套写作约束禁止重复使用相同"时间+地点+动作"组合的场景。
-- 新增 `audit_chapter_continuity` Agent 工具，对已生成章节正文进行确定性关键词组扫描，检测重复场景模式和开头段落重复，输出诊断报告和修复建议，无需 LLM 调用。
+> Auto-Director advanced settings add Auto-release pending confirmation, off by default. Confirm the risk note before turning it on. After it is on, it only processes character-relationship and information-cognition proposals created after the effective baseline, waiting more than 14 days, with no unresolved conflict. Qualifying proposals are submitted as canon and written into the director audit trail.
+
+- Home highlights the novel or opening entry most worth continuing, with why it is recommended.
+- Creation-status summaries center on in progress, pending, writable chapters, and failed tasks so you can see blockers first.
+- Pending items distinguish task failure, waiting for confirmation, recoverable, and ready to write, so you hunt less across modules.
+- The recent-novel list keeps continue, execution details, and open project, plus signals for generated chapters, characters, and world.
+- Home adds character and world asset summaries so you can tell whether a project is ready for more long-form generation.
+- The novel list keeps a two-column card wall and strengthens title, status, advance notes, and the next primary action.
+- Auto-Director status is a compact advance area on the card. Chapter, character, world, and resource readiness are light asset info.
+- AI Cockpit, execution details, preview, export, and delete become secondary so continue writing stays primary.
+- Filters, empty, and loading are arranged like a project library. The first screen is tighter.
+- List pagination shows current page and total pages.
+- Title Studio is a centered content workspace with breathing room around the generate form, title library, and candidates.
+- Quality-debt chapters can still drive later automatic generation, but related character state, goals, and resource changes enter pending confirmation first.
+- Writing context marks pending character state and goals as adjustable to the latest plot. Identity, faction, location, and other hard facts stay strong constraints.
+- Existing pending proposals are not auto-released. Proposals that hit unresolved conflicts stay pending for a person.
+
+### 2026-06-30 (Public docs real paths, prerender, and RAG)
+
+The public docs site uses real page paths. Each article opens, shares, and indexes at a URL such as `/docs/introduction`. Old `#/docs/...` links redirect.
+
+- The docs sitemap uses real paths so search engines see each article as its own page.
+- Build generates full HTML for public docs, with body, title, description, and canonical in the page source.
+- GitHub Pages static hosting adds history-path fallback, so opening a docs path no longer depends only on frontend hash routing.
+- Local docs development and preview still use port 4173. Real paths can be requested directly.
+- RAG retrieval adds an optional rerank stage after vector and keyword fusion. If the external reranker is unavailable, the original fused result is kept.
+- RAG indexing adds optional contextual chunks: a short context prefix is added before embedding so a chunk recalled without novel, chapter, or character background is less likely to miss. Original text still shows as evidence.
+- Knowledge Library recall tests can show rerank hits and context prefixes so you can see why a passage was recalled.
+- A fixed RAG evaluation entry covers character facts, world rules, chapter continuity, style setting, and knowledge documents, for comparing retrieval quality and rerank time.
+
+## v0.4.0 (released 2026-06-29)
+
+This release packages 69 changes accumulated in the 0.3 series: Auto-Director stability, chapter-generation context alignment, deeper Book Analysis character files, RAG performance and recall, comic and short-drama workbenches, the public intro site, and the docs system. Thematic user-visible changes are below; read the matching date blocks for detail.
+
+### Auto-Director and the novel generation chain
+
+- Full-book autopilot: after each chapter batch, pending candidate characters are confirmed into the official roster and dynamics rebuild, which cuts later character-consistency drift.
+- Chapter generation filters the character resource ledger to this chapter’s participants instead of stuffing every character into the prompt. High-risk already-booked items and pending proposals use different audit paths, so pending resources are not written as facts.
+- Long-running memory leak in the model rate limiter is fixed: when a provider’s settings change, old limiter instances are dropped.
+- Auto-Director documents four run modes (prepare until writable / full-book autopilot / run a range / post-prose Anti-AI detect and correct), when to use them, and how to switch. Full-book autopilot stops on unavailable models, exhausted quota, repeated repair failure, or replan instead of retrying forever.
+- Browser pause notifications: a system notification when Auto-Director reaches a checkpoint.
+
+### Book Analysis and character looks
+
+- Analysis character files have Brief / Standard / Deep / Full depth. Deep and Full go back to source excerpts to fill dimensions.
+- Look evolution: incremental scans of appearance chapters at 25% / 50% / 75% / 100% coverage, depositing per-chapter appearance, costume, state, and scene anchors, then generating stage look images from chapter snapshots.
+- Look-evolution scans also extract short appearance phrases into pending confirmation. After you tick them they merge into the character file. Chapter look images can reference the base character image for face, hair, and signature details.
+- Book Analysis adds a two-column reading workspace, chapter evidence jump-back, range-targeted analysis, token budget guard, manuscript diagnosis, and chapter-title repair.
+
+### RAG and Knowledge Library
+
+- Knowledge indexing streams in parallel. Embedding and Qdrant write concurrency are adjustable. Long documents no longer wait for every embedding before vector writes start.
+- Retrieval can be traced so you can review why a passage hit or missed.
+- Analysis outputs enter RAG facet indexes so recall includes analysis conclusions.
+- Duplicate chunks are deduplicated by content hash. Rebuilding an index does not create duplicate vectors.
+- Knowledge upload is a drop zone plus two-step confirm. Million-word novel previews use virtual scroll and no longer stall.
+
+### Comic and short-drama workbenches
+
+- Comic workbench: scene consistency, character visual assets, visual-anchor control. Boards and character panels use an image-generation confirm dialog so accidental taps do not spend quota.
+- Short-drama adaptation pipeline v3: derive short-drama scripts and shots from novel content.
+
+### Public intro site and docs
+
+- GitHub Pages public intro site: from one idea to a finished novel, product console screenshots, docs, and downloads.
+- Intro site moves from 5173 to 4173 so it does not collide with other Vite projects or the main app. Brand icon and favicon use the real app icon.
+- Docs site adds local full-text search, breadcrumbs, in-page contents, previous/next, tip / warn / checkpoint blocks, and GFM tables.
+- Docs tree regroups as Get started / Field manuals / Production-chain depth / Module overview / Creation main chain / Knowledge and style / Setting assets / Derivative studios / System config / Project news.
+- 33 public docs: project intro, install and prep, FAQ, troubleshooting, first-novel path, recover-by-stage handbook, end-to-end production chain, Auto-Director stage panorama, chapter execution chain, knowledge and RAG recall chain. Module docs include real screenshots.
+- Public docs no longer show internal snake_case stage keys. Readers see names such as Idea alignment and Volume skeleton. A technical alias table stays at the end of the Auto-Director stage panorama for developers.
+
+### Upgrade notes
+
+- First launch after upgrade keeps the existing database and config. No manual migration.
+- If you set RAG concurrency or similar run parameters in `.env`, the new version manages those in Settings. Old `.env` values are not read in automatically.
+
+### 2026-06-29 (Public docs, Auto-Director run modes, search, and production-chain guides)
+
+Public docs continue the same-day cleanup: Auto-Director run modes are fully documented, in-docs navigation and images are fixed, and the intro site’s brand icon and port are decoupled from the main app. The site is also better for a first look, troubleshooting, and understanding the production chain.
+
+- Auto-Director adds a full Run modes note: Prepare until writable, Full-book autopilot, Run a range, and Post-prose Anti-AI detect and correct, plus when to switch. Full-book autopilot stop conditions (unavailable model, exhausted quota, repeated repair failure, required replan, and similar) are documented for the first time.
+- The first-novel path adds Step 1.5: choose a run mode. The first book recommends Prepare until writable and when to switch to run through execution.
+- Public docs replace internal snake_case stage keys with readable names such as Idea alignment and Volume skeleton. Developers can still look up original keys in the technical alias table at the end of the Auto-Director stage panorama.
+- The development plan is rewritten as Done (last 3 months) / In progress / Next focus, listing real work (comic adaptation, short-drama adaptation, chapter editor v2, character resource ledger, Auto-Director execution-plane isolation) instead of vague “smoother/more stable”.
+- FAQ adds four frequent questions: how to pick a run mode, what to do when full-book autopilot stops, whether the intro-site port collides with the main app, and where desktop data lives.
+- How to use becomes an identity-based index (first successful run / want the mechanism / task stuck / want derivatives) so it does not repeat the first-novel path.
+- Project intro adds a Derivative studios layer (comic / short-drama workbenches) and says not to open them before the main chain runs.
+- GFM tables, strikethrough, and task lists render. Stage comparison tables in the path and depth docs display again.
+- Module-doc screenshots (genre-base library, story-mode library, Style Engine, and similar) display. New images no longer need a manual whitelist.
+- The right-hand In this article contents scrolls to the matching section instead of jumping home.
+- Intro-site brand icon and favicon use the real app icon, not a generic book placeholder.
+- Intro-site port moves from 5173 to 4173. The main app stays on 3000.
+- Docs pages add local full-text search across public docs for features, problems, and settings.
+- Each article adds breadcrumbs, a GitHub source link, right-hand contents with current-section highlight, and previous/next.
+- The docs home shows categories by user journey instead of one flat module list.
+- Public Markdown loads automatically. After adding a public article you only register it in the docs tree.
+- Publish checks that public articles and release-note docs are in the docs tree.
+- Field manuals and Production-chain depth cover the first-novel path, recover-by-stage, end-to-end chain, Auto-Director panorama, chapter execution chain, and knowledge and RAG recall chain.
+- Auto-Director docs explain real stages from idea alignment through chapter-detail bundle: meaning, inputs, checkpoints, auto-approval, and failure recovery.
+- Auto-Director field docs add the click path from Generate first batch through Confirm book-level plan to AI Cockpit finishing planning, splits, chapter execution, and quality repair.
+- Auto-Director docs add real screenshots for start settings, idea cards, plan generation, plan confirm, AI Cockpit auto-advance, character prep, and pacing-split status.
+- Markdown image resolution is fixed so flowcharts and Auto-Director screenshots show, not only alt text.
+- Module docs add product screenshots for novel list, Creative Hub, Task Center, Knowledge Library, Book Analysis, characters, genres, story modes, Title Studio, Style Engine, model settings, and world-sample library.
+- Intro-site home uses a light production-chain banner that matches the docs entry. Title, buttons, and path hints match the new art instead of the old dark poster.
+- Director follow-up, Task Center, and Creative Hub docs add checkpoint types, pause reasons, background command queues, concurrency limits, stale recovery, and how natural-language intent connects to main-chain stages.
+- Docs pages support flowcharts, long tables, collapsible in-page contents, and tip / warn / checkpoint blocks.
+- Auto-Director stage docs no longer dump internal stage-validation marks into the body.
+- Public-doc registration also checks the Auto-Director stage list so a new stage without docs fails the check.
+- Intro-site top nav hides home-page anchors on docs pages so cross-page hash jumps interfere less.
+- Home console screenshots use a responsive grid on tablet and desktop.
+- Public-site design rules document docs-site boundary, search scope, contents, type, and responsive rules for later maintenance.
+
+### 2026-06-28 (Faster knowledge vectors, upload UX, look phrases, intro site)
+
+Knowledge vectors are faster: embedding and Qdrant write concurrency can be changed in Settings without a restart. Chunk indexing is a streaming pipeline, so long documents no longer wait for every embedding before vector writes start. Knowledge upload adds a drop zone: files preview on drop and upload after confirm. Large-novel source previews use virtual scroll and no longer freeze the page. Look evolution deposits newly found appearance phrases for confirmation; after you tick them they merge into appearance and stable traits. Chapter look images can reference the base character image so the same character stays consistent. Default character-image count is 1 instead of 2. A public intro site can be hosted on GitHub Pages for positioning, the long-form production flow, capabilities, screenshots, and user docs.
+
+- Knowledge indexing adds embedding concurrency and Qdrant write concurrency under Knowledge retrieval settings → Advanced. Changes apply immediately.
+- Chunking streams: finished embedding batches enter the write queue while later batches still embed, which speeds long-document indexing.
+- Chunk facets (genre, selling points, character names, and similar metadata) make recall filters more precise.
+- Duplicate chunks are deduplicated by content hash. Rebuilding an index does not create duplicate vectors.
+- Knowledge upload is a drop zone: drop shows name and size, then confirm uploads.
+- Knowledge source dialogs use virtual scroll, so million-word novels browse without stalling.
+- Look-evolution scans extract short appearance phrases such as silver-gray short hair, old scar on the left shoulder, or often wears a dark coat into pending confirmation, without automatically rewriting the character file.
+- Character details add pending appearance phrases: tick, ignore, and merge trusted phrases into appearance.
+- Appearance merge refreshes the character file and look-evolution stable traits. Later character and chapter images use the merged look by default.
+- Chapter look images prefer the generated base character image for face, hair, body, and signature details.
+- With several base images, the look-evolution panel picks the reference for this run. The generate-confirm dialog shows base thumbnails and can exclude references you do not want sent.
+- Appearance-dimension recall uses visual search terms so dialogue and inner thought interfere less.
+- Character image generation, including chapter snapshots, defaults to 1 image.
+- A public intro site shows Auto-Director, the long-form production chain, knowledge recall, Style Engine, and real product screenshots for GitHub Pages hosting.
+- GitHub Pages auto-publish builds the intro site after a push to `main` or a manual trigger.
+- Intro-site visuals lean literary desk plus AI console. The first screen is from idea to finished novel, with real screenshots of the production chain.
+- Intro-site buttons vertically center icon and text. Color is ink, porcelain white, and teal accents.
+- Docs entry is for users and potential users: basics, advanced intro, how to use, sidebar modules, public development plan, and release notes.
+- Book Analysis public docs become a full handbook: create analysis, range, reading evidence, character files, look evolution, publish and reuse, manuscript diagnosis, and budget recovery.
+- Genre-base library, story-mode library, Title Studio, Knowledge Library, world-sample library, Style Engine, Anti-AI rules, and base character library public docs become full handbooks for how those assets serve later writing.
+- New runtime-tunable parameters live in Settings, not `.env`.
+
+### 2026-06-27 (Deep analysis character files and look evolution)
+
+Book Analysis character files can be generated at Brief, Standard, Deep, and Full. Deep and Full go back to source excerpts on top of the analysis notes skeleton and fold dialogue, action, inner life, and chapter evidence into character dimensions. Character details add Look evolution: incremental scans of appearance chapters at 25% / 50% / 75% / 100% coverage, depositing per-chapter appearance, costume, state, and scene anchors, then generating stage look images from chosen chapter snapshots.
+
+- Character files add Brief / Standard / Deep / Full so you can skim cheaply, then analyze key characters more fully.
+- Deep and Full combine source notes and original-text recall by appearance, personality, ability, relationships, arc, speech, thinking, values, and secret foreshadowing.
+- Character evidence records source type, chapter, excerpt, and chunk per dimension so you can view evidence and jump back to the source.
+- Look evolution on character details picks a coverage target and scans incrementally. Finished snapshots do not rerun. Manually kept snapshots are not overwritten.
+- Look evolution summarizes stable cross-chapter traits and shows per-chapter appearance, costume, accessories, body state, bearing, and scene anchors.
+- Each chapter look snapshot can start image generation. A confirmable prompt still shows first. Finished images belong to that snapshot.
+- Look-evolution scans run as background tasks. After click, queued or scanning starts immediately and the page refreshes snapshot progress. Long analysis no longer looks like a network failure when the browser connection drops.
+- Analysis character routes stay compatible while leaving room for later evidence, snapshots, and image assets.
+
+### 2026-06-26 (Analysis budget, publish isolation, structured retrieval)
+
+Creating an analysis can set a token budget for this task. Usage accumulates during generation. At the cap the task stops and keeps finished sections, so a long document or full analysis does not spend quota unnoticed. Analysis details show usage and why the budget ended, and you can raise the budget. If the task failed because the budget ran out, you can expand it and continue unfinished sections. Successful and frozen sections stay. Character files first identify candidates, then generate one or all deep files so you see who is worth studying before spending more. Publishing to Knowledge Library is a different source from user uploads. Republishing the same analysis appends a version on the same knowledge document so identical titles do not mix materials. Published key conclusions enter the index with genre, selling points, readers, strengths and weaknesses, and chapter anchors so later writing recall hits reusable conclusions. RAG recall also records traces for later quality review.
+
+- New analysis and diagnostic analysis carry a budget cap aligned with server run config.
+- After a section generates, token usage accumulates. If the model does not return exact usage, input estimate and output length are used.
+- When the budget is exhausted, the task fails with a budget-exceeded mark. Successfully generated sections are not lost.
+- Analysis details top and run metadata show used tokens / budget cap, and a clear stop reason when the budget ends.
+- Analysis details can change the budget cap alone. Cumulative usage is kept, so you can raise budget mid-run or add a cost boundary to historical analyses.
+- After a budget-exhausted failure, Expand budget and continue only remakes unfinished sections. Successful and frozen sections are not overwritten.
+- Concurrent analysis stops dispatching new sections after the first error, waits for started sections to finish, then ends together so a failure is not overwritten by concurrent progress.
+- Regenerating after budget exhaustion or other failure keeps successful sections instead of overwriting finished analysis while continuing unfinished ones.
+- Character files support Identify characters first, then generate a file for one candidate or batch remaining candidates, instead of generating every deep file at once.
+- Candidates show positioning, importance, a short description, and appearance-chapter hints. Generated files still show bio, arc beats, key scenes, art, and promote.
+- Generate all uses a dynamic hint from candidate / failure mix. After a batch it shows generated / unfinished counts and how to continue after budget or failure is resolved.
+- Results switch mutually between Section analysis and Character files. The toolbar is shared and always visible. The view is in the URL, so refresh and share return to the same view.
+- The analysis list is not silently filtered by a document id in the URL. New analysis from Knowledge Library still shows all your unarchived analyses. The document id only prefills the source in the new-analysis dialog.
+- Character identification and file generation count toward analysis token usage but do not change the base analysis task state. Full analysis still does not auto-generate deep character files.
+- Knowledge documents show Uploaded document or Analysis publish as source. Published analysis can return to the source analysis.
+- Publishing the same analysis again creates a new version on the original published document. Matching titles do not merge into user uploads or other published analyses.
+- Published analysis writes structured conclusions into knowledge-index metadata for more precise recall by genre, selling points, target readers, strengths, gaps, and chapter anchors.
+- Indexed knowledge documents can open a recall test from the document list to check how one source hits in writing retrieval.
+- Evidence chips mark locatable source evidence. Click to check the excerpt in the current evidence area or two-column source.
+- RAG recall samples query summary, retrieval scope, candidate count, hit summary, stage timing, and fallback marks. Records do not save chunk body, for later replay and quality review.
+
+### 2026-06-25 (Tighter analysis first screen, range, two-column compare)
+
+Analysis from create to reading is easier to drive by goal. Creating an analysis can choose full text, a chapter range, or a chapter range converted from word count. Result-page task actions stay in the top toolbar. Analysis info, publish, and run metadata fold by default. The sections tab reaches the first screen earlier. Evidence sits inside the matching section instead of a long separate panel. Wide screens can open two-column compare: source chapter on one side, conclusions and evidence on the other. Knowledge upload moves into a dialog so the document list stays focused.
+
+- New analysis can choose source range: full text, start and end chapters, or a length such as `5k` converted into chapter bounds.
+- A partial range is saved and only that source is analyzed. Export and details show the range used.
+- Creating an analysis does not load chapters just because a document is selected. Chapter data prepares only when you switch to chapter or length range.
+- Analysis details add a sticky toolbar: copy, regenerate, publish, Task Center, export, generate style, archive, and two-column no longer sit in a large info card.
+- Analysis overview, publish to Knowledge Library, and run metadata fold into Analysis info and publish.
+- Evidence embeds in the section as field chips, preferring bound structured fields and array indexes.
+- Click a chip to see the excerpt in this section. Evidence with a chapter location still highlights the source fragment.
+- Wide two-column mode shows source chapters on the left, with contents and body side by side so long chapters need less vertical hunting.
+- Clicking right-side evidence jumps the left pane to that chapter and highlights the excerpt. When the left reading chapter changes, related structured fields on the right show This chapter.
+- Knowledge document upload is a dialog. The document list is not occupied by a standing upload form. After success you return to the list and index status.
+
+### 2026-06-24 (Analysis evidence, timeline structure, focused generation)
+
+Book Analysis results are easier to trace and easier to aim at what you want to learn. New analyses bind evidence to the matching structured-conclusion fields, so key conclusions show supporting excerpts. Source-document versions are cached by chapter, so evidence can jump back to the matching source chapter and highlight the excerpt. The timeline stores time hints, stages, and source fragments as structured nodes. When structured-conclusion fields overflow their cap, the page says which fields were kept at the limit. Creating an analysis or rerunning one section can add a focus so the analysis stays closer to the question you are studying. You can generate or maintain deep character files on the analysis page—arc, key scenes, and motives as reusable character study material—and generate a reference image, set a main image, or promote the character into the official character library. Diagnose manuscript exports your novel text as a knowledge document and creates a diagnostic analysis. Republishing the same analysis to a novel’s Knowledge Library unbinds the old published version so later recall is less likely to hit stale analysis.
+
+- Section evidence binds to specific key-conclusion fields when it can. A source hint beside the field shows which excerpt the conclusion came from.
+- Knowledge-document versions are cached by chapter. When evidence matches a source excerpt, the evidence panel can jump to that chapter and highlight context.
+- Chapter splitting prefers standard Chinese chapter titles. If they cannot be recognized reliably, the whole text stays one chapter. Old analyses and old evidence still display as before.
+- Story-timeline key nodes and event order show as nodes with description, time hint, stage label, and source fragment. Historical string timelines also display as text nodes.
+- Timeline key conclusions group by stage. Published and continuation-reference timeline dimensions use readable field names so events, risks, and state changes in the same stage sit together. At the time this shipped, those field names were Chinese.
+- When structured-conclusion arrays exceed the cap, the key-conclusion area names the truncated fields.
+- Newly generated analyses tell the model the array cap and timeline-node format, and keep more reusable conclusions by importance and narrative order.
+- Full analysis generates an overview first, then plot, character, and world sections use that overview’s positioning and key judgments so sections disagree less.
+- Creating an analysis can fill This analysis focus, for example ensemble scenes, the protagonist’s speech, or paid payoff. That focus enters every section’s generation prompt.
+- Each section can fill Special focus for this section. Save or regenerate carries that instruction. Rerunning plot or character sections still uses the generated overview positioning.
+- The analysis page adds Character files: generate deep files, or add, edit, and delete characters by hand. Files show positioning, appearance, personality, and goals, plus arc beats and representative scenes.
+- Deep character files do not generate automatically with a full analysis. You trigger them when you want to study characterization or deposit character material, so default analysis cost does not jump.
+- Deep files can generate a character reference image, show image-task progress, set a main image, and delete unused images. A confirmable prompt still shows before generation.
+- Analysis characters can promote to the official character library in one step. The current main image can come along as a copied independent asset, so later edits or deletes of analysis images do not affect the promoted character.
+- Diagnose manuscript lets you pick your novel, export current chapter text as a knowledge document, and create a diagnostic analysis immediately.
+- Diagnosis mode uses its own hints and Diagnosis conclusions copy so the same analysis frame can check pacing, characters, theme, foreshadowing, and commercial selling points without changing the original novel text.
+- Historical analysis evidence without field binding still displays. You do not need to regenerate to view or export it.
+- Republishing the same analysis to the same novel keeps only the latest published Knowledge Library binding. Old published document bodies are not deleted, so other references stay intact.
+
+### 2026-06-23 (Character resource ledger, image-generation confirm, pause alerts)
+
+This update tightens long-form writing and visual production where things easily drift or fire by accident. The character resource ledger distinguishes high-risk already-booked resources from true pending changes, and chapter writing only brings in this chapter’s related resources. Image generation in comic and short-drama workbenches adds confirm and reference-material links, which cuts accidental overwrites and style drift. When Auto-Director is waiting for confirmation, recovery, or a validation block, a browser desktop notification can send you back to Follow-up.
+
+- The character resource ledger no longer labels high-risk already-booked resources as pending facts. Writing context separately flags High-risk booked resources and Pending resource changes.
+- Auto-Director or manual confirm of resource changes uses one submit path, which cuts duplicate submits, missing version snapshots, and inconsistent confirm results.
+- Chapter-writing context prefers this chapter’s participating characters and resources in the current use window, so unrelated inventory is less likely to bloat the prompt.
+- Ownership, state reuse, and visibility rollback enter conflict checks. Conflicting changes wait for confirmation instead of writing straight into the ledger.
+- Long-untouched resources or resources past their expected use window show as stale risk, so later chapters can reclaim leftover props, gear, or clues.
+- Image generation uses a confirm flow. Comic and short-drama workbenches handle reference images, prompts, and results more clearly before generating character, scene, panel, or keyframe images.
+- Comic character assets, scenes, and panel images have a steadier reference-material path, so you can see which character, asset, or scene references the current image used.
+- Short-drama visual generation uses the same image-generation confirm experience.
+- Settings add Auto-Director pause alerts. After you enable them and allow browser notifications, waiting for confirmation, needing recovery, or a validation block sends a desktop notification you can click to open Director Follow-up.
+
+### 2026-06-18 (Comic consistency: scenes, character assets, appearance-anchor help)
+
+The comic workbench is built so the same character, place, and prop do not look different in every panel of a long serial. It adds a scene library (auto-detect episode places, editable scene bible, multi-angle sheets), a character asset library (costumes, weapons, and props can be generated or uploaded; panel scripts cite them; generation composites a reference), and editable appearance anchors with a face-shape override. If you do not want to rewrite prompts by hand, AI can help rewrite appearance. Character distinctness, balloon text, and art-style unity are also fixed, so villains no longer share the hero’s face, balloons no longer say “XX said”, and an ink-wash project no longer draws Korean-webtoon faces.
+
+- Comics add a Scenes tab. Generating a panel script detects up to 8 places in this episode and writes them into the scene library. Each scene can edit a scene bible (palette, signature elements, materials, mood, spatial structure) and generate a four-quadrant reference sheet.
+- Same-named scenes reuse across episodes instead of duplicating. A scene bible you edited is not overwritten when the panel script regenerates.
+- Panel images inject the scene’s text description and use the matching sheet as a low-weight reference, locking tone, layout, and material while the camera for this panel stays free, so every panel is not the same shot.
+- The character page adds a Character asset library. Each character can add costume variants, weapons, props, vehicles, and skill visuals, generated or uploaded. Panel-script generation cites asset names in character refs, such as costume Combat set or prop Moonlight sword.
+- Panel generation composites the character turnaround, current costume, and used props into one sprite-sheet reference, which is steadier than stitching several references and improves body, costume, and prop consistency.
+- Appearance anchors are editable. Nine bone-structure shortcuts (round, square, oval, long, youthful, mature, angular, wide-set eyes, phoenix eyes) append description in one click. After appearance changes, later turnarounds, expression sheets, asset images, and panels follow.
+- Face-shape override exists for when the main appearance has conflicting words such as carved-sharp or triangular eyes. Text in this field has highest priority in the image prompt and suppresses conflicting bone-structure words in appearance. Sharp gaze or temperament can stay; the skeleton follows what you wrote.
+- AI-assisted appearance-anchor polish can take a wish such as rounder face, keep the villain menace. AI removes internal contradictions, keeps signature traits, rewrites with bone-structure-specific words, and shows a change note for review before adopt.
+- Characters look less alike. Generation uses the full appearance description instead of a 40-character short version, and appearance weight sits before style words. Prompts add bone-structure constraints to keep a unique skeleton instead of a template pretty face.
+- Dialogue balloons no longer show “XX said”. The balloon renders only spoken lines; the speaker drives the tail. Historical “XX said:” prefixes are stripped so you can redraw without regenerating the script.
+- Art-style consistency: turnarounds, expression sheets, asset images, and scene sheets used to always generate as color Korean-webtoon. They now follow the project style (ink wash, black-and-white shonen, realistic, chibi, and similar).
+- Panel-image details add References used this generation: a thumbnail grid of the turnaround, assets, and scene sheet this panel actually used. Click opens a large image in a new tab.
+- The top Image model choice persists across projects and refresh. After you pick Codex, the next comic project keeps it. If the config is invalid, it falls back to the first available option.
+- Comic project details are full width, with less side whitespace, for reviewing characters and panels on a wide screen.
+
+### 2026-06-17 (Recommended Auto-Director opening path)
+
+Auto-Director opening more clearly recommends Prepare until writable, so you can check that the plan matches your idea before a large chapter run. Projects with a large expected chapter count are also asked to try a small range first. Resume, full-book auto-run, and quality repair are steadier: skipping the world stays skipped on resume; full-book auto-run with a prepared chapter list fills the task sheet just before writing; a failed local repair on the same chapter upgrades to full-chapter repair instead of looping light patches. The comic workbench is better for continuous production: edit episode outlines, view cross-episode facts, check character-sheet readiness, and review finished panels in a strip view. Entering comics notes that image generation currently supports `gpt-image-2` only. Desktop and web-dev tops also show the current client version.
+
+- Prepare until writable is a clearer recommended style in Auto-Director run mode, and says it is for reviewing book-level plans, volume direction, and chapter-prep results first.
+- When expected chapters exceed 200, start settings suggest a small trial, then widen after planning and early chapters match the idea.
+- Auto-Director tasks that chose not to use a world keep that choice on resume or continue, without inserting a world-prep step.
+- Full-book auto-run continues into chapter production when the chapter list is synced and task sheets wait to generate just before writing, and fills the execution task sheet before each chapter.
+- If a chapter’s quality issue already tried local repair, later automatic repair switches to full-chapter repair, which cuts stalls from repeated light patches.
+- Comic episode outlines can edit title, synopsis, ending suspense, and paid card. Generating a panel script warns about characters missing a turnaround.
+- The comic character page adds a cross-episode fact library for events, first appearances, and state changes extracted from panel scripts, with delete for inaccurate rows.
+- The panel page adds a strip reading view for checking finished art in reading order. Balloon hints sit closer to Chinese comics expression, with fewer text-position and balloon-type misses. At the time this shipped, balloon copy targeted Chinese comics.
+- The comic workbench top notes that image generation currently supports `gpt-image-2` only, so you can confirm the image model before character sheets or panels.
+- The sidebar Comic Studio entry shows `Beta`.
+- The current client version sits beside the app name. Update the desktop version source before a new desktop package so installer, UI version, and Release tag stay aligned.
+- Windows desktop updates to `0.3.20` for the package that includes comic image-model hints and the top version number.
+
+### 2026-06-16 (Comic character recognition and panel-prompt control)
+
+The comic character page is better for ongoing visual polish, and panel generation is more controllable. The left character list shows thumbnail avatars for characters that already have a turnaround. Fine-tuning a turnaround keeps likeness more steadily. Before generating a panel script you can set information density and extra requirements for this run. Panel-image details can review and edit a single panel’s shot script.
+
+- Characters with a generated turnaround show a thumbnail in the left list. Others keep a placeholder, so switching the current character is easier to recognize.
+- The fine-tune panel shows an editable prompt and Restore recommended prompt, so old images without a stored prompt do not start from a blank box.
+- Characters with a turnaround can keep using it as a reference, with likeness lock on by default. Existing characters without an appearance anchor can temporarily fill likeness-lock words.
+- To fully redraw a character, turn off appearance-anchor lock so the prompt follows the new character setting.
+- Panel-script generation adds Loose / Balanced / Compact density and extra requirements for this run. Regenerating when panels already exist warns about overwrite risk.
+- Panel-image details can view and edit a single panel’s shot script, then redraw after save. The last full prompt sent to the image model is kept as a review record.
+- Panel generation records density, target panel count, and extra requirements, and keeps density, visual focus, and four-panel layout per panel for later script review, shot-script tweaks, and redraws.
+- If a panel’s shot script changes after the image was generated, the panel is marked Needs redraw so you know the current image still comes from the old prompt.
+
+In full-book Auto-Director, newly detected character candidates after a chapter finishes are confirmed into the official roster. Unconfirmed candidates used to stay out of later chapter dynamics and volume planning, which let consistency drift; that is fixed. A long-running memory leak in the model rate-limiter cache is also fixed: after a provider’s settings change, the old cache is released immediately.
+
+- Full-book Auto-Director confirms every pending character candidate for this novel before advancing to the next chapter after a batch, without a manual step.
+- Changing a provider’s concurrency or request interval no longer leaves old rate-limiter instances around forever. The change clears old instances for that provider.
+- Server config examples add a public-deploy safety note: set HOST to 127.0.0.1, turn LAN access off, and tighten the request-body size cap.
+
+### 2026-06-15 (Comic character visual assets)
+
+The comic character page supports expression sheets and turnaround fine-tuning, and becomes an asset workbench: character list on the left, current character details on the right. Panel scripts also pass costume, expression, and lighting as structured refs into image generation, so multi-character frames and emotion panels stay more consistent.
+
+- The character page uses a vertical list. The right details show turnaround, expression sheets, appearance anchors, prompts, and fine-tune.
+- Expression sheets can generate six references for the same character: normal, happy, angry, sad, surprised, and cold.
+- Characters with a turnaround can open fine-tune, regenerate from the current prompt, or tick use this turnaround as a reference.
+- Panel scripts output a structured ref per panel character: name, costume, expression, and lighting, so later panel images are not name-only.
+- Single-character panels still use the full turnaround. Multi-character panels prefer a face crop. When an expression sheet exists, the matching expression crop is added.
+- Importing comic characters from a novel prefers appearance, body, clothing, and signature details, compressed into short visual anchors suited to image prompts.
+
+### 2026-06-14 (Settings as a writing-readiness console)
+
+Settings becomes a writing-readiness console: it tells you whether you can start a novel and what is still missing. Common config, quality extras, advanced director settings, and system maintenance are layered so beginners are less buried in parameters.
+
+- The top adds a writing-readiness check for prose model, model routing, Knowledge Library extras, and Style Engine. When the base path is ready, you can go create a novel.
+- Provider cards default to availability, current text model, image model, and a balance summary. API address, rate limits, thinking, balance detail, and the full model list sit in advanced details.
+- Each provider’s connection-test result shows on its card. Unconfigured providers ask you to finish setup before test or refresh.
+- Style Engine settings become Fast detect, Stable recommended, and Long-text extract. Minutes can still be tuned in advanced settings.
+- Knowledge Library is an optional extra. You can start writing without it. After setup it improves setting, materials, and context recall.
+- Approval-authorization preferences stay folded when you enter Settings, with a purpose note. Expand to see current defaults and save new checkpoint choices.
+- Director follow-up channel config stays folded. Expand to set in-app access URL, DingTalk, WeCom, and event subscriptions.
+
+### 2026-06-12 (Version snapshots and database size)
+
+Version history loads recent snapshots more lightly. Auto-generated snapshots keep a recent window per novel so the local database grows less after long generation. When old snapshots need cleanup, you can back up first, then reclaim space.
+
+- Auto-snapshots from Auto-Director and batch chapter production keep the latest 10 per novel. Manually saved versions stay in full, so key restore points remain.
+- The version-history list reads only snapshot name, type, and save time. Opening the page no longer pulls whole-novel text snapshots, so the list loads more steadily.
+- Snapshot cleanup creates and checks an SQLite backup first, then reclaims disk space, which helps local databases that grew after long test generation.
+- Snapshot retention count is configurable. The default balances restore safety and local size.
+
+### 2026-06-11 (Chapter writing stage, unified extract, faster style checks)
+
+Chapter generation is clearer about where the book is, and notices long-absent characters who still have duties. After a chapter is finalized, summary, hard facts, character dynamics, and asset write-back complete in one unified extract, which cuts repeated waiting and overwrite risk. Style checks return faster when no literal banned words are hit.
+
+- Chapter writing uses expected total chapters to hint opening, development, convergence, or ending, so later chapters control side plots, payoff, and close more naturally.
+- Long-absent characters with high absence risk who already have an appearance duty get a Bring them in naturally hint so writing notices their presence.
+- Prose generation stresses that each paragraph should also advance plot, reveal character, build tension, or build world, which cuts empty transition paragraphs.
+- After finalization, one unified extract syncs chapter summary, hard facts, state changes, resource changes, foreshadowing, character dynamics, and information boundaries, so the same chapter text is not deep-read many times.
+- Character-dynamics extract no longer races unified asset write-back. When unified extract for the same text already succeeded, event side effects stay a fallback, which cuts candidate characters and relationship stages being overwritten twice.
+- The next chapter is more likely to see facts, state, resources, and foreshadowing from the just-finalized chapter, so background asset sync lag does not leave stale context.
+- Chapter repair also uses the same unified asset write-back, so a repair draft does not get a rough summary first and a deep summary later.
+- After upgrade, existing chapters may run one extra asset extract on first resync to fill the new summary, hard facts, and information boundaries. Results still save idempotently.
+- Character-dynamics extract can record what major characters know and do not know at chapter end, so later chapters leak less future knowledge.
+- Chapter context records budget-observation logs so you can see whether key context may have been squeezed out, which helps later stability work.
+- Style checks first fast-scan enabled banned-word rules. No literal hit returns a clean result immediately. Hits or complex-only rules still run full deep detect.
+
+### 2026-06-10 (Fact ledger coverage and short-drama production loop)
+
+The chapter fact ledger only records this chapter’s duties that the acceptance gate confirmed as fulfilled, so later chapters do not treat “planned but never written” as established fact.
+
+- This chapter’s must-hit-now duties enter the fact ledger only when acceptance coverage confirms them complete. Missing duties are dropped.
+- If the chapter acceptance gate is unavailable, no this-chapter duties enter the fact ledger, because fulfillment has not been verified.
+- Pre-writing foreshadowing instructions no longer become Revealed facts by themselves. Later reveal facts come from observing the prose, foreshadowing-state moves, or timeline-hook parsing.
+- Dropped duties during auto-run stay visible quality debt. Task Center can say this chapter had unfulfilled duties that were not booked, instead of silently polluting later chapter context.
+
+The short-drama storyboard-video page adds character reference images, first-frame images, whole-episode batch production, voice synthesis, per-episode SRT export, and generation-history management, moving short drama from prompts and shot assets closer to editable delivery.
+
+- After character design sheets finish, named storyboard characters enter the video task’s reference images automatically. You do not re-upload.
+- A storyboard card can generate a 9:16 first frame for one shot and show a thumbnail, so you can confirm composition before spending video quota.
+- Creating a video task prefers an existing first frame as the first reference, then character design sheets, so image-to-video keeps composition and likeness.
+- Video channels declare whether they support reference images. Unsupported channels still create ordinary text video tasks so external APIs do not fail on unknown reference fields.
+- External HTTP video channels can turn reference images on and set a base access URL that turns local character-image endpoints into cloud-reachable addresses.
+- Export can download SRT for the selected episode. The timeline is inferred from the latest storyboard shot order and durations. Without storyboard lines it falls back to script body line by line.
+- Storyboard video adds whole-episode batch tasks: generate every first frame or create every video task in this episode, with progress, skip count, failed shots, and retry.
+- The script page adds whole-episode voiceover: batch-synthesize shot lines from each character’s voice setting, and preview generated audio line by line.
+- Voice channels are exposed by the backend. A default mock channel is for local wiring. An external HTTP voice service appears in the workbench selector after it is configured.
+- Lines with generated voice use real audio duration for the SRT timeline, so subtitles sit closer to later rough-cut rhythm.
+- Export can download this episode’s edit-draft JSON with video, voice, and subtitle tracks in shot order, for rough cut or an external editor.
+- Batch first-frame, video, and voice show estimated cost first and record actual cost after. The project page can summarize recent production cost.
+- Regenerating a video prompt keeps the old version. Storyboard video distinguishes current prompt from history. Creating video tasks, batch generate, and edit-draft export use the current version.
+- Regenerating first frames and character design sheets keeps history. The workbench can open old images to compare composition and likeness. The current image stays the default later video reference.
+- Short-drama strategy generates an executable paid-card plan: first paid episode, free funnel, intensity curve, and card-intensity targets. Episode outlines and quality checks follow that plan so a labeled paid episode is less likely to have a weak card.
+- Quality adds a platform-compliance precheck for violence, medical mislead, feudal superstition, vulgar edge, and advertising-law wording in existing scripts. Blocking items enter the repair queue. Reminders do not stop production.
+
+### 2026-06-09 (Cross-chapter fact drift, test reset, quality guards)
+
+This update fixes improvised hard facts that would not stay consistent across chapters, adds a chapter-reset tool for repeated tests, and records earlier novel-generation quality guards.
+
+**Improvised facts across chapters**
+
+- The fact ledger used to extract only from the plan layer, so it forgot hard setting the prose invented (a deal is off-books, a specific amount, a count, a ticket number, a weight). Later chapters could rewrite a contradiction, for example turning a private screening for a hardship fee into an official factory dispatch that collected no money.
+- Chapter finalization now extracts a summary and hard facts from the prose in one call (promises and deal terms, event nature, key numbers and dates) and writes them into the fact ledger.
+- Chapter summaries used to run only from a frontend request and never during auto-run. They now run at finalization, so the next chapter’s just-in-time task sheet can read real prior facts and contradictions are cut at the source.
+- In testing, ticket numbers, weights, and event nature stayed consistent across chapters. Private-job-to-official-duty contradictions no longer appear.
+
+**One-click chapter-text reset (test tool)**
+
+- Project tools add Reset all chapter text, which clears prose and related derived state so you can regenerate for tests without rebuilding the novel from zero.
+
+**False “missing outline” on just-in-time planning**
+
+- Full-book auto-run (lazy planning) skips the full chapter-detail bundle on purpose, but validation still used to require a structured outline and falsely report that it was missing. Skipped steps no longer false-report.
+
+**Novel-generation quality guards (catch-up)**
+
+- World-slice prompts guard against polluting proper nouns from a mismatched source world, and a rebuild tool can reconstruct a polluted world slice.
+- Volume windows add key-beat guards and a scene-pattern blacklist, which eases repeated milestones and unbalanced pacing.
+- A chapter-continuity audit tool is added.
+
+**Short-drama creation chain**
+
+- You can create a short-drama project and assemble a standard material pack from a novel, an original idea, or imported text.
+- Short-drama Studio is in the desktop sidebar and mobile creation-assist nav. Pick an existing novel to adapt, or create from an original idea or import, then Organize materials → Generate strategy → Generate first 12 episodes.
+- Project lists and project pages show readable track names such as comeback, rebirth revenge, and hidden identity, not internal ids.
+- Each project has its own workbench: source materials, strategy, episode scripts, characters, quality checks, repair advice, storyboard video prompts, and export, instead of list-only buttons.
+- You can edit and save episode title, opening hook, ending card, and script body. Manual rewrites clear old quality results so you can recheck. The character page is short-drama character asset cards for on-screen function, audience recognition, fixed look, performance voice, line rules, and conflict relations, saveable to the short-drama character library.
+- Source materials show whether synopsis, beats, characters, and hard facts can support later production. Characters can import from the short-drama library. Storyboard video can refresh video-task status.
+- New projects can let AI recommend a better track, with fit reason, material signals, risks, and alternatives you can adopt.
+- Source materials add AI fill-in advice: when synopsis, beats, characters, or hard facts are thin, you get concrete questions and a next step before strategy, episodes, and scripts.
+- New projects are a Source → Content → Specs wizard. Importing a novel names the project automatically and opens the workbench.
+- Recoverable tasks no longer auto-popup over Short-drama Studio or other pages. Handle them from Recoverable tasks on the novel list.
+- Project details add a Next-step main-task card that guides organize materials, generate strategy, episodes, scripts, quality check, repair, storyboard, video prompts, or export from current artifacts.
+- Quality issues summarizes checked episodes, awaiting repair, continuable quality debt, passed episodes, and average score, and can jump to the script, recheck, or repair from advice.
+- Storyboard video summarizes prompt count, created tasks, generating, completed, and failed. Each video prompt shows provider status, negative prompt, aspect, duration, result link or failure, and can create a task or refresh.
+- Video providers come from a backend registry. The workbench reads what is available and lets you choose, so later real providers do not need mock-hardcoded buttons.
+- A generic HTTP video channel can be configured for an external create-task and status API, then appears in the workbench channel picker.
+- Video-task result links and failure reasons save as stable state. The workbench can show a result entry or failure note without parsing a raw provider receipt.
+- When quality check finds a repairable issue, that episode enters the repair queue first. Next-step guidance does not skip repair into storyboard or video with known quality problems.
+- Projects can generate vertical paid-drama strategy, episode outlines, and per-episode scripts, then quality-check hooks, cards, duration, and consistency.
+- Per-episode scripts can repair from quality advice and export Markdown / JSON episode documents.
+- Short-drama characters are managed separately and can settle into a library. Scripts can later generate storyboards and video prompts, and create video tasks through the video-provider abstraction.
+
+### 2026-06-08 (Logs, faster full-book runs, just-in-time task sheets, facts, quality guards)
+
+Desktop and development logs rotate and keep a retention window so long runs do not pile files forever, while recent troubleshooting logs stay.
+
+- The desktop main log rotates past a size cap. New lines keep writing to the current file. You do not empty it by hand.
+- Development-session, model-debug, and structured-repair logs clean old files by the default policy and keep the last 24 hours.
+- Log cleanup only touches known log files. It does not delete database events, novel data, images, backups, or other product files.
+
+Full-book auto-run is faster and quality repair is more precise: repair aims at what the chapter actually missed, the whole book is not re-queried for every chapter, and the next chapter’s task sheet can start while the current chapter finishes.
+
+- Chapter repair receives structured missing-obligation and blocking-issue detail, so it can fill unfulfilled duties instead of guessing from flattened text.
+- If a local patch cannot find its anchor, repair retries once in a looser continuity-only mode before upgrading to a heavier full-chapter repair, which cuts early upgrades.
+- Length problems and content problems keep separate retry budgets, so fixing length does not spend the budget that a later content issue still needs.
+- Stable book-wide context (world, characters, story plan, volume plans) is reused across chapters in a run. Each chapter only refreshes changing state, payoffs, facts, recent chapters, and recall.
+- After a chapter’s facts are written, the next chapter’s just-in-time task sheet can prefetch in the background during full-book autopilot. A prefetch miss does not stop the pipeline; the next chapter retries when it assembles.
+- Combined with reused book context, the next chapter starts with cache already warm and a task sheet ready, so assembly waits less.
+
+Lazy planning generates each chapter’s task sheet just before writing instead of pre-generating every sheet in planning, which removes the wait-for-all-chapters gate and keeps sheets aligned with what already happened.
+
+- Full-book autopilot can enter chapter execution after chapter titles and pacing anchors exist. It does not wait for every chapter’s task sheet to pre-generate.
+- Each chapter’s task sheet is generated just before writing, with already-written facts injected, so duties do not contradict prior prose.
+- Older novels that already have a task sheet and almost no fact-ledger rows (nothing written yet, or chapter one) reuse the existing sheet. Manual single-chapter mode is unchanged.
+
+Chapters that continue with quality debt now record a structured why (first and second failure codes, patch-anchor misses, missing-duty kinds), so later diagnosis can see open-loop repair, patch mismatch, unreachable duties, or signature drift without another model call.
+
+A slim fact ledger remembers irreversible events so later chapters do not rewrite what already happened. Timeline wrap-up no longer sits on the writing path. Timeline display itself is unchanged.
+
+- After a chapter passes acceptance, completed and revealed duties write into the fact ledger without an extra model call.
+- Writing context fills already-completed milestones from that ledger so the model is told what already happened and must not be pursued again.
+- Completed and revealed facts return in full. State-changed facts take the last 15 chapters, which keeps context length in check.
+
+Quality guards cover four systemic problems: source-world vocabulary leaking into the story, completed events being rewritten, repeated scene patterns, and volume pacing running away.
+
+- World-slice free text must not drop in world-asset proper nouns. When the source world and the story’s era or place clearly mismatch, the slice must include a mapping note and banned words, so a historical setting such as Gaomi Northeast Township does not pollute a modern story.
+- A rebuild tool can force-rebuild a polluted world slice when the source world and the novel’s background are badly mismatched.
+- Writing context labels completed process events (a license already obtained, an agreement already signed) as already done, and forbids pursuing those goals again.
+- Volume-window context shows key-beat guards (target chapter range, event, pacing note) so a climax planned for later chapters is not written early.
+- Opening constraints show a scene-pattern blacklist and forbid repeating the same time + place + action combination.
+- A continuity-audit tool scans generated chapter text for repeated scene patterns and repeated opening paragraphs, and returns a diagnosis and repair advice without a model call.
 
 ### 2026-06-05
 
-自动导演连续执行更稳，章节生成上下文更聚焦：系统会减少无明确目标窗口的伏笔逾期误判，避免批量写章被重复账本错误打断，并让章节检索更贴合当前章节任务。
+Auto-Director continuous runs are steadier and chapter-generation context is more focused: overdue foreshadowing without a clear target chapter window is less likely to be misjudged, batch writing is less likely to stop on duplicate-ledger errors, and chapter retrieval sits closer to this chapter’s task.
 
-- 节奏拆章中的章节列表聚焦查看、生成和删改既有章节，不再提供容易绕开自动规划链路的手动新增章节入口。
-- 伏笔账本同步会识别同义标题并复用已有未完成账本，减少 AI 把同一 payoff 新建成重复逾期项。
-- 缺少明确目标章节窗口的逾期 payoff 会降级为待跟进风险，不再直接触发整窗重规划或停止后续章节执行。
-- 章节写作会用当前章节目标、必须推进事项、冲突和出场角色组装知识库检索问题，让 RAG 上下文更贴近本章写作任务。
-- 章节生成上下文会减少未被正文写作实际消费的旧式大块背景拼接，把相关信息放入结构化运行时上下文，降低无效上下文膨胀。
-- Windows 桌面版更新到 `0.3.17`，用于打包包含本次自动导演、世界观和章节生产稳定性改进的新安装包。
-- Windows 桌面版打包流程切换到 Node 24 验证路径，并准备 `0.3.18` 安装包，用于提前验证 GitHub Actions 的 Node 24 运行时兼容性。
+- The chapter list in pacing splits is for viewing, generating, and editing existing chapters. A manual add-chapter entry that could bypass automatic planning is gone.
+- Foreshadowing-ledger sync recognizes synonymous titles and reuses an existing unfinished ledger, so AI is less likely to create a duplicate overdue item for the same payoff.
+- Overdue payoffs without a clear target chapter window degrade to follow-up risk. They no longer directly trigger a whole-window replan or stop later chapter execution.
+- Chapter writing builds Knowledge Library retrieval from this chapter’s goal, must-advance items, conflict, and appearing characters, so recall sits closer to this chapter’s writing task.
+- Chapter-generation context drops old bulk background that writing did not actually consume, and puts related information into structured runtime context, which cuts useless context bloat.
+- Windows desktop updates to `0.3.17` for the package that includes this Auto-Director, world, and chapter-production stability work.
+- Windows desktop packaging moves to a Node 24 verification path and prepares a `0.3.18` installer to verify GitHub Actions Node 24 runtime compatibility early.
 
 ### 2026-06-04
 
-自动导演连续写章更省资源、更少重复等待：系统会复用同一章节同一正文的质量门控结果，并收敛时间线上下文，减少任务重启后重复审校、重复抽取和重复细化章节合同。
+Continuous Auto-Director writing uses fewer resources and waits less: quality-gate results for the same chapter and same text are reused, and timeline context is tighter, so restarts repeat less review, extract, and execution-contract refinement.
 
-- 章节质量门控会复用已成功的接收判断和时间线检测，同一正文在任务取消、失败或重启后不再默认重新消耗一次 AI 调用。
-- 时间线抽取只携带近期关键事件和必要钩子，让后续章节不会因为整本历史持续增长而越来越慢。
-- 章节接收判断会区分硬阻断和可继续跟进的质量债务，轻量义务风险会保留提示并继续推进，减少不必要的自动补写。
-- 已经准备好任务单和场景预算的章节不会在恢复流程里重复生成章节执行合同，带有新指令的重生成仍可正常覆盖。
-- 自动导演会监控每章 AI 用量，单章消耗异常时自动暂停后续执行，避免上下文膨胀或质量循环继续扩大成本。
-- 时间线抽取不再阻塞章节接收，正文通过接收后会继续完成时间线定稿；下一章开始前仍会自动补齐必要的时间线 checkpoint。
-- 自动导演的用量暂停会聚焦仍在推进的章节范围，已经完成的章节不会因为历史累计用量偏高而反复拦住后续章节。
-- 章节批次会按当前执行范围统一判断审校、修复和状态提交；已经登记为可继续质量债的局部问题不会再把自动导演卡在章节状态提交，减少反复恢复和异常 Token 消耗。
-- 时间线定稿和章节资产回灌会在调用 AI 前先抢占同步记录，减少同一章节同一正文被并发后台入口重复抽取的情况。
+- Chapter quality gates reuse a successful acceptance judgment and timeline check. The same text no longer spends another AI call by default after cancel, failure, or restart.
+- Timeline extract carries only recent key events and necessary hooks, so later chapters do not get slower as whole-book history grows.
+- Chapter acceptance distinguishes hard blocks from continuable quality debt. Light duty risks keep a reminder and continue, which cuts unnecessary automatic rewrites.
+- Chapters that already have a task sheet and scene budget do not regenerate the execution contract during recovery. Regenerates with new instructions can still overwrite.
+- Auto-Director watches per-chapter AI usage and pauses later execution when one chapter’s spend is abnormal, so context bloat or a quality loop does not keep raising cost.
+- Timeline extract no longer blocks chapter acceptance. After prose passes acceptance, timeline finalization continues. The next chapter still fills necessary timeline checkpoints before it starts.
+- Usage pauses focus on the chapter range still advancing. Finished chapters do not keep blocking later chapters because historical cumulative usage is high.
+- Chapter batches judge review, repair, and state submit for the current execution range together. Local issues already booked as continuable quality debt no longer pin Auto-Director on chapter-state submit, which cuts repeated recovery and unusual token spend.
+- Timeline finalization and chapter-asset write-back claim a sync record before calling AI, so the same chapter and same text are less likely to be extracted twice by concurrent background entries.
 
 ### 2026-06-03
 
-章节批量生成更不容易被重复质量债务打断：系统会区分“继续但提示”“局部修复计划”和“必须停止重规划”，避免同一批逾期伏笔在连续章节里反复触发整窗重规划。
+Batch chapter generation is less likely to stop on repeated quality debt. The system distinguishes Continue with a reminder, Local repair plan, and Must stop to replan, so the same overdue foreshadowing batch does not trigger whole-window replan across consecutive chapters.
 
-- 短窗口、未直接影响当前章的逾期伏笔会作为提示保留，不再默认停止后续章节流水线。
-- 只有明确需要整窗调整的重规划建议才会暂停后续章节；局部计划问题会进入修复和质量提示，不再直接升级成整本流程阻塞。
-- 章节任务里的“必须推进”会过滤接收闸门不可用、结构化缺口等系统审计标签，避免 AI 把系统问题当成剧情义务去写。
-- 章节质量闭环会按新的重规划动作判断风险，减少把可继续的质量债务显示成必须重规划。
+- Short-window overdue foreshadowing that does not directly affect the current chapter stays a reminder and no longer stops the later chapter pipeline by default.
+- Only replan advice that clearly needs a whole-window change pauses later chapters. Local plan issues enter repair and quality reminders instead of becoming a whole-book block.
+- Must-advance on the chapter task filters system-audit tags such as acceptance-gate unavailable and structured gaps, so AI does not write system problems as plot duties.
+- The chapter quality loop judges risk with the new replan actions, so continuable quality debt is less likely to display as must replan.
 
 ### 2026-06-02
 
-重大更新：世界观从“字段表单”升级为更适合新手理解和直接开书的世界手册与世界骨架流程，同时自动导演可以在宏观规划后自动准备本书世界，让角色、地点、势力和章节上下文更容易保持一致。
+Major update: the world moves from a field form to a world handbook and world-skeleton flow that beginners can understand and start from. Auto-Director can also prepare this book’s world after story-level planning, so characters, places, factions, and chapter context stay more consistent.
 
-- 世界生成默认走“世界意图 -> 世界规模 -> 骨架预览 -> 保存世界”的流程，用户可以选择轻量舞台、标准长篇或复杂群像，并调整规则、势力、地点、冲突和故事入口数量。
-- 世界库和世界工作台会以世界卡片、世界手册、核心规则、主要势力、关键地点、关系网络和完整度诊断来展示结果，减少直接面对 `background / geography / factions` 这类字段名的负担。
-- 世界地图和势力图谱拥有更完整的数据支撑：地点包含相对坐标、方位、风险、控制势力和连接关系，势力包含目标、资源、控制地点、关系类型和紧张度。
-- 小说内新增本书世界管理能力：可以从世界库导入为本书副本，也可以根据本书主题生成专属世界，并由用户决定是否保存回世界库或手动同步差异。
-- 自动导演在宏观规划和书级约定之后新增本书世界准备步骤；没有选择参考世界时，系统会默认生成本书世界并在角色准备前构建可用的世界上下文。
-- 角色生成可以选择是否基于当前世界观，并能结合势力倾向、世界规则和身份边界生成更贴合本书舞台的人物。
-- 世界生成的参考资料检索更收敛，默认只使用当前世界、模板和用户明确选择的参考内容，减少无关知识库文档混入新世界生成。
-- 接收闸门会更稳定地识别“本章必须完成但正文缺失”的义务，减少把缺失义务输出成散乱文本而触发修复器的情况。
-- 时间线抽取会更稳定地记录事件、状态变化和后续钩子，中文类型名或简写钩子会被归一到可保存的结构化格式。
-- 章节资产抽取会更稳地处理资源状态，自动导演的高创造温度不会再传染到事实抽取类任务。
-- JSON 修复日志可以按 Prompt 和失败字段聚合，方便定位到底是示例、枚举、上下文还是模型输出导致的结构化失败。
+- World generation defaults to World intent → World scale → Skeleton preview → Save world. You can pick a light stage, standard long-form, or complex ensemble, and adjust counts for rules, factions, places, conflicts, and story entries.
+- The world library and world workbench show world cards, handbook, core rules, main factions, key places, relationship network, and completeness diagnosis, so you face fewer raw field names such as background / geography / factions.
+- World maps and faction graphs have fuller data: places include relative coordinates, direction, risk, controlling faction, and connections; factions include goals, resources, controlled places, relationship type, and tension.
+- A novel can manage this book’s world: import a library world as a book copy, or generate a world from this book’s theme. You decide whether to save back to the library or sync differences by hand.
+- Auto-Director adds this-book world prep after story-level planning and the book contract. Without a reference world, it generates this book’s world by default and builds usable world context before character prep.
+- Character generation can use the current world, and combine faction lean, world rules, and identity bounds so people fit this book’s stage.
+- World-generation retrieval is tighter: it defaults to the current world, templates, and references you explicitly chose, so unrelated Knowledge Library documents mix into a new world less often.
+- The acceptance gate more steadily recognizes duties this chapter must complete that are missing from the prose, and is less likely to dump missing duties as scattered text that trips the repairer.
+- Timeline extract more steadily records events, state changes, and later hooks. Chinese type names or shorthand hooks normalize into a savable structured format.
+- Chapter-asset extract handles resource state more steadily. Auto-Director’s high creative temperature no longer spreads into fact-extract tasks.
+- JSON-repair logs can group by prompt and failed field, so you can tell whether an example, enum, context, or model output caused a structured failure.
 
 ### 2026-05-29
 
-重大更新：本次把 2026-05-24 之后在预发布分支验证过的自动导演、章节生产、角色阵容、模型选择、灵感辅助和运行态治理合并进主线，并同步准备 Windows 桌面版 `0.3.16`。
+Major update: Auto-Director, chapter production, character casts, model selection, idea help, and runtime governance verified on the pre-release branch after 2026-05-24 merge into mainline, with Windows desktop `0.3.16`.
 
-- 自动导演从“当前项目继续”更顺：弹窗会先展示卷规划、拆章同步、章节细化、正文书写和质量进度，并按系统推荐位置一键继续；需要连续推进时，可以直接选择“推进至第 N 章”。
-- 已有项目从故事宏观规划、角色准备、卷战略或章节执行接管时，会更准确识别当前真实进度；已经完成的角色准备不会被重新显示为待推进，章节范围也不会误套到整书前置接管上。
-- 角色阵容应用更快：手动应用阵容会先同步角色和关系，外显资料与角色动态在后台补齐，按钮不再长时间卡在“应用中”。
-- 节奏拆章和章节执行衔接更直接：拆好的章节会自动连接到执行章节，旧项目也会优先按章节身份匹配，减少章节执行区看不到拆章结果的情况。
-- 章节生产链更稳：质量债会绑定到实际触发问题且已有正文的章节，空章节不会被误跳过；时间线、状态抽取和质量修复会更稳定地支撑后续章节继续写。
-- 自动导演驾驶舱状态统一：进度弹窗、小说页提示、任务中心和执行详情会优先使用同一份驾驶舱状态，减少同一任务在不同入口显示不同进度、不同等待状态或无效确认按钮。
-- 运行中的任务会优先显示真实推进态；历史审批投影、章节标题提醒或旧的等待确认信息不会再把正在细化、写作或审校的任务误显示成“等待确认”。
-- “让 AI 从当前项目继续自动导演”只会把真正的自动导演任务识别为当前任务；普通编辑流程任务不会再让接管弹窗误显示“进入当前任务”。
-- 未完成的等待确认提醒会明确显示为“收起此提醒”，避免让用户误以为收起动作会完成或结束任务。
-- 自动导演创建更适合新手默认路径：默认推荐“先准备到可开写”，并新增“读者频道倾向”，帮助 AI 判断男频 / 女频等阅读预期和爽点侧重。
-- 起始想法旁新增“没有想法？”入口，可临时生成 5 个横向灵感卡片；点击“使用这个”会把灵感填入上方输入框，已有内容时会先确认再覆盖。
-- 模型选择器切换厂商时会即时刷新该厂商模型列表，减少先去设置页刷新再回来选择的操作。
-- 首页、小说列表和任务恢复等首屏读取更轻，模型状态、恢复摘要和小说列表会分级加载，打开页面时更不容易被后台接口拖慢。
-- 后端章节运行时、自动导演模块、小说应用服务、事件副作用和路由边界继续收敛，Prompt 调用也补上质量遥测，为后续排查长链路生成和恢复问题提供更稳定的基础。
+- Continue from current project is smoother: the dialog first shows volume planning, split sync, chapter refinement, writing, and quality progress, then continues from the recommended place in one click. For a continuous run you can pick Advance to chapter N.
+- Taking over an existing project from story planning, character prep, volume strategy, or chapter execution recognizes real progress more accurately. Finished character prep is not shown as still pending. A chapter range is not mis-applied as whole-book pre-takeover.
+- Applying a cast is faster: a manual apply syncs characters and relationships first. Outward materials and character dynamics fill in the background. The button does not stay Applying for a long time.
+- Pacing splits connect to chapter execution more directly. Split chapters auto-link to execution chapters. Older projects prefer chapter identity, so the execution area is less likely to miss split results.
+- The chapter production chain is steadier: quality debt binds to the chapter that actually triggered the issue and already has text. Empty chapters are not skipped by mistake. Timeline, state extract, and quality repair more steadily support later writing.
+- Auto-Director cockpit state is unified: progress dialog, novel-page hints, Task Center, and execution details prefer the same cockpit state, so one task is less likely to show different progress, wait states, or a dead confirm button across entries.
+- Running tasks prefer the real advancing state. Historical approval projections, chapter-title reminders, or old waiting-for-confirm info no longer show a refining, writing, or reviewing task as Waiting for confirmation.
+- Let AI continue Auto-Director from this project only treats a real Auto-Director task as current. Ordinary edit-flow tasks no longer make the takeover dialog show Enter current task.
+- Unfinished waiting-for-confirm reminders say Dismiss this reminder, so dismiss is not mistaken for completing or ending the task.
+- Auto-Director create fits the beginner default: Prepare until writable is recommended, plus Reader-channel lean so AI can judge male-channel / female-channel reading expectations and payoff emphasis.
+- No idea? beside the starting idea can temporarily generate 5 horizontal inspiration cards. Use this fills the input above. Existing content asks confirm before overwrite.
+- Switching provider in the model picker refreshes that provider’s model list immediately, so you do not go to Settings, refresh, and come back.
+- Home, novel list, and task recovery first screens read lighter. Model status, recovery summaries, and the novel list load in stages, so opening a page is less slowed by background APIs.
+- Backend chapter runtime, Auto-Director, novel application services, event side effects, and route boundaries keep tightening. Prompt calls add quality telemetry for later long-chain generation and recovery diagnosis.
 
 ### 2026-05-28
 
-现有项目接管入口更像“续写助手”：打开“让 AI 从当前项目继续自动导演”后，系统会先给出接续诊断和资产保护说明，用户可以直接点主按钮继续推进。
+Existing-project takeover is more like a continuation assistant. After Let AI continue Auto-Director from this project, you first see a continuation diagnosis and asset-protection notes, then you can continue from the main button.
 
-- 默认入口会使用系统推荐的接续位置，不再要求先选择阶段卡片后再二次确认。
-- 当系统识别到下一章和全书章节数时，可以直接选择“推进至”目标章节，一键让 AI 从当前章连续执行到选定章节。
-- 已创建角色、卷规划和章节资产会在接管前明确提示是否保留，重跑和范围执行等控制收进高级设置。
-- 接续诊断会展示卷规划、拆章同步、章节细化、正文与质量进度；如果当前页面带有任务 ID，会优先显示该任务的真实阶段和下一章进度。
-- 章节范围不适合当前项目时，错误提示会说明可恢复动作，引导用户回到推荐位置继续推进。
-- 新建自动导演时，默认推荐“先准备到可开写”，全书自动成书仍可手动选择。
-- 自动导演创建新增“读者频道倾向”，默认由 AI 判断，用于辅助判断爽点、情绪重心和关系线权重。
-- 起始想法旁新增“没有想法？”入口，可临时生成 3 个不同方向的开书灵感；点击“使用这个”会填入上方输入框，已有内容时会先确认再覆盖。
-- 模型选择器切换厂商时会即时刷新该厂商的模型列表，减少手动去设置页刷新后再回来选择的步骤。
+- The default entry uses the recommended continuation place. You no longer pick a stage card and confirm a second time.
+- When the next chapter and whole-book chapter count are known, you can pick Advance to a target chapter and let AI run from the current chapter through that chapter in one click.
+- Created characters, volume plans, and chapter assets ask whether to keep them before takeover. Rerun and range-run controls sit in advanced settings.
+- Continuation diagnosis shows volume planning, split sync, chapter refinement, prose, and quality progress. If the page has a task id, that task’s real stage and next-chapter progress lead.
+- When a chapter range does not fit the current project, the error names a recoverable action and sends you back to the recommended place.
+- New Auto-Director recommends Prepare until writable. Full-book autopilot can still be chosen by hand.
+- Auto-Director create adds Reader-channel lean, judged by AI by default, to help payoff, emotional center, and relationship-line weight.
+- No idea? can temporarily generate 3 different opening inspirations. Use this fills the input above. Existing content asks confirm before overwrite.
+- Switching provider in the model picker refreshes that provider’s model list immediately.
 
-现有项目接管更顺：从“故事宏观规划”继续并选择“推进到可开写”时，系统会按整本书接管补齐前置资产，不再误判成章节范围任务而失败。
+Existing-project takeover is smoother: Continue from story-level planning and Advance until writable takes over the whole book and fills preceding assets, instead of failing as a chapter-range task.
 
-- 缺少 Book Contract 的旧项目可以从故事宏观规划继续补齐书级约定，再自动推进后续规划。
-- 点击继续恢复同一个接管任务时，会沿用修正后的整本接管判断，避免反复提示章节范围只能从拆章或章节执行开始。
-- 接管任务推进到卷战略等后续阶段后，左侧流程不会再把已经完成的角色准备误显示成“待推进”。
+- Older projects missing a Book Contract can continue from story-level planning to fill book-level agreements, then later planning.
+- Continue on the same takeover task uses the corrected whole-book takeover judgment, so you are not told a chapter range can only start from splits or chapter execution.
+- After takeover reaches later stages such as volume strategy, the left flow no longer shows finished character prep as pending.
 
-角色阵容应用更快：选择一套角色阵容后，系统会先同步角色和关系，让用户更快回到角色资产工作台；外显资料和角色动态会在后台继续补齐。
+Applying a cast is faster: after you pick a cast, characters and relationships sync first so you return to the character-asset workbench sooner. Outward materials and character dynamics keep filling in the background.
 
-- 应用阵容不再等待每个角色的外显资料逐个生成，按钮会更快结束“应用中”状态。
-- 新角色和关系会先进入角色资产区，用户可以立即查看和继续推进角色准备。
-- 外显资料、角色动态等补齐结果会随后进入角色资产，适合稍后刷新查看。
+- Apply no longer waits for each character’s outward materials one by one. The button leaves Applying sooner.
+- New characters and relationships enter the character-asset area first so you can view them and continue character prep immediately.
+- Outward materials and character dynamics arrive later. Refresh when you want to see them.
 
-节奏拆章和章节执行的衔接更直接：拆好的章节会连接到同一批执行章节，用户不需要反复处理“同步到章节执行”的内部步骤。
+Pacing splits connect to chapter execution more directly. Split chapters link to the same execution batch. You do not keep handling Sync to chapter execution as an internal step.
 
-- 节奏拆章保存后会自动准备章节执行入口，章节执行区可以直接看到对应章节。
-- 旧项目的卷级拆章会优先按章节身份连接，缺少连接时再按章序补齐，减少同名章节误匹配。
-- 节奏拆章页把同步工具收进连接诊断区，主流程聚焦选章、细化和继续执行。
+- Saving a pacing split prepares the chapter-execution entry. The execution area can see the matching chapters.
+- Older projects’ volume splits prefer chapter identity, then chapter order if a link is missing, which cuts same-name mismatches.
+- The pacing-split page puts sync tools in connection diagnosis. The main flow focuses on pick chapter, refine, and continue execution.
 
 ### 2026-05-27
 
-AI 驾驶舱继续执行更可靠：章节质量提醒或重规划建议被暂存时，系统会继续补齐最早还没有正文的章节，不会把空章节误当成已跳过。
+AI Cockpit continue is more reliable: when a chapter quality reminder or replan suggestion is parked, the system keeps filling the earliest chapter that still has no text, and does not treat empty chapters as already skipped.
 
-- 点击继续执行后，质量债会绑定到实际触发问题且已经生成正文的章节，后续空章节仍会按顺序进入写作。
-- 已经误记为空章节质量债的旧状态会在进度重算时被清理，避免直接跳到更后面的章节。
-- 等待质量修复或重规划处理时，任务详情会优先显示真实检查点，不再被陈旧的运行步骤误导成仍在执行。
-- 执行详情与 AI 驾驶舱会显示一致的章节级进度，例如正在审校或修复到第几章，而不是只显示泛化的批次节点名称。
+- After Continue, quality debt binds to the chapter that actually triggered the issue and already has generated text. Later empty chapters still enter writing in order.
+- Old state that mis-booked empty-chapter quality debt is cleaned on progress recalc, so the run does not jump further ahead.
+- While waiting for quality repair or replan, task details prefer the real checkpoint and are not misled by stale run steps into still executing.
+- Execution details and AI Cockpit show the same chapter-level progress, such as reviewing or repairing through which chapter, not only a generic batch-node name.
 
-自动导演的角色准备检查点更稳：角色阵容候选已经生成但需要确认时，会停在可处理的角色审核点，而不是被误判成执行失败。
+Auto-Director character-prep checkpoints are steadier: when a cast candidate is generated but needs confirm, the run stops at a handleable character-review point instead of being judged as execution failure.
 
-- 角色阵容候选会保留给用户审核或应用，任务详情会围绕“等待确认”继续引导处理。
-- 角色身份、题材承接和隐藏真相不再用固定词表或正则判断；这类创作语义会交给 AI 结构化理解和提示词治理处理。
-- 真正缺少角色、候选和恢复检查点时，系统才会把角色准备视为失败。
+- Cast candidates stay for you to review or apply. Task details keep guiding around Waiting for confirmation.
+- Character identity, genre uptake, and hidden truth are not judged with a fixed word list or regex. That creative meaning goes to AI structured understanding and prompt governance.
+- Character prep is treated as failed only when characters, candidates, and a recovery checkpoint are truly missing.
 
-打开页面时的首屏加载更轻：模型配置、任务恢复、导演跟进和小说列表会分级加载，减少多个后台接口同时拖慢页面。
+First-screen load is lighter: model config, task recovery, director follow-up, and the novel list load in stages, so several background APIs do not slow the page together.
 
-- 模型厂商状态会先显示当前配置和当前模型；完整模型列表在刷新模型时按厂商加载。
-- 待恢复任务和导演跟进数量会走更轻的摘要查询，减少打开页面时的长时间等待。
-- 小说列表改为分页读取，列表页不会一次拉取过多项目数据。
+- Provider status first shows current config and current model. The full model list loads per provider when you refresh models.
+- Recoverable-task and director-follow-up counts use a lighter summary query.
+- The novel list paginates, so the list page does not pull too many projects at once.
 
-章节时间线抽取更稳：差评值、评分、倒计时等数值状态会稳定进入连续性记录，减少章节完成后因为结构化字段类型不一致而触发修复或中断。
+Chapter timeline extract is steadier: numeric states such as rating, score, and countdown enter continuity records reliably, so a chapter is less likely to trip repair or interrupt after finish because a structured field type did not match.
 
-- 时间线状态变化会保留数值语义，并按连续性记录需要保存为可读状态文本。
-- 结构化修复会更明确地处理“需要字符串但拿到数值”的情况，降低同类输出反复修复的概率。
+- Timeline state changes keep numeric meaning and save as readable state text when continuity records need it.
+- Structured repair more clearly handles needed a string but got a number, which cuts the same output being repaired over and over.
 
 ### 2026-05-25
 
-自动导演的章节续跑判断更可靠：系统会优先检查章节正文、审校结果和状态快照等真实产物，减少任务异常中断后被旧状态卡住的情况。
+Auto-Director chapter-continue judgment is more reliable: it prefers real artifacts such as chapter text, review results, and state snapshots, so an abnormal interrupt is less likely to stick on old state.
 
-- 已经写出正文的章节，即使旧任务显示失败，也能按当前实际进度继续判断后续步骤。
-- 已处理完阻塞问题的章节，不会因为旧的“待修复”状态反复进入修复。
-- 章节缺少正文或关键产物时，不会只因为旧状态显示完成就被当作已通过。
+- Chapters that already have text can continue from current real progress even if the old task shows failed.
+- Chapters whose blocking issues are already handled do not re-enter repair because of an old Needs repair state.
+- A chapter missing text or a key artifact is not treated as passed only because old state showed complete.
 
 ### 2026-05-24
 
-知识库归档与恢复更稳：归档前会先确认，归档资料保留原文和版本，并能从归档列表恢复启用。
+Knowledge Library archive and restore are steadier: archive asks confirm first, archived materials keep source and versions, and you can restore them from the archived list.
 
-- 点击知识文档的归档按钮时会先确认，避免误把仍要使用的参考资料移出检索范围。
-- 在“仅归档”列表中可以直接恢复启用文档；恢复后系统会自动排队重建索引，索引完成后再重新参与召回和 RAG 检索。
-- 归档文档详情会收起上传版本、切换版本和手动重建索引等不可用动作，并把索引状态显示为空闲，减少误操作和状态误读。
-- 桌面客户端同步推进到 `0.3.15`，用于发布包含本轮知识库修复的正式安装包。
+- Archiving a knowledge document asks confirm first, so still-needed references are not pulled out of retrieval by accident.
+- The Archived only list can restore and enable a document. Restore queues an index rebuild. After the index finishes, the document joins recall and RAG again.
+- Archived-document details fold unavailable actions such as upload version, switch version, and manual rebuild index, and show index status as idle, which cuts mistaken clicks and misread status.
+- The desktop client moves to `0.3.15` for the official installer that includes this Knowledge Library fix.
 
 ### 2026-05-22
 
-重大更新：最近几天在 `beta` 验证过的封面生成、章节稳定性和自动导演恢复能力现在一起进入主线版本，封面准备、章节推进和任务恢复都会更顺。
+Major update: cover generation, chapter stability, and Auto-Director recovery verified on `beta` in recent days enter mainline together, so cover prep, chapter advance, and task recovery are smoother.
 
-- 在小说编辑页的基础信息区，可以先根据当前书名、简介、卖点、目标读者、世界氛围和推进模式自动整理一版封面输入草稿，再继续用 AI 优化或手动改成最终图片 Prompt；封面生成会默认按竖版主画面思路出图，结果直接进入当前小说的封面图库。
-- 如果本书还没有当前封面，第一张成功图会自动设为主图；已有封面后，可以在同一本书里查看候选图、切换当前封面和删除旧图，删除当前主封面时系统会自动补一张新的主图。
-- 任务中心和恢复入口开始识别“小说封面”任务，恢复时会直接回到这本书的基础信息页，而不是落到无关的图片或角色入口；OpenAI 图像默认模型也切换到 `gpt-image-2`，长时间出图时的超时与兼容字段处理会更稳。
-- 章节执行区现在会把本章概览、时间线、角色动态和资源风险拆到更清楚的右侧工作区；正文后的接收闸门会并行处理审校和时间线检测，只有明确要求下一章立刻承接的钩子才会进入硬阻断，中长期伏笔会更多作为提示保留。
-- 自动导演继续执行、现有项目接管和质量债务判断更稳；当章节可以继续推进时，系统会保留清晰的任务状态和执行范围，不再把非阻塞提醒混成失败或反复卡在同一检查点。
-- 角色阵容应用后会更稳定地补齐外显资料，桌面客户端同步推进到 `0.3.14`，用于发布这一轮主线更新。
+- In novel-edit basic info, you can auto-assemble a cover-input draft from current title, synopsis, selling points, target readers, world mood, and story mode, then AI-optimize or hand-edit into the final image prompt. Cover generation defaults to a vertical main-image approach. Results go into this novel’s cover gallery.
+- If this book has no current cover, the first successful image becomes the main cover. With a cover already, you can view candidates, switch the current cover, and delete old images. Deleting the current main cover auto-fills a new main image.
+- Task Center and recovery recognize Novel cover tasks and restore to this book’s basic-info page, not an unrelated image or character entry. The OpenAI image default model also switches to `gpt-image-2`, with steadier timeout and compatibility-field handling on long image jobs.
+- Chapter execution splits this-chapter overview, timeline, character dynamics, and resource risk into a clearer right workspace. The post-prose acceptance gate reviews and checks timeline in parallel. Only hooks that clearly require the next chapter to pick up immediately become hard blocks. Mid- and long-term foreshadowing stays more often as reminders.
+- Auto-Director continue, existing-project takeover, and quality-debt judgment are steadier. When a chapter can continue, task state and execution range stay clear. Non-blocking reminders are not mixed into failure or the same checkpoint loop.
+- Applying a cast more steadily fills outward materials. The desktop client moves to `0.3.14` for this mainline round.
+
+### 2026-05-29
+
+Major update: Auto-Director, chapter production, character casts, model selection, idea help, and runtime governance verified on the pre-release branch after 2026-05-24 merge into mainline, with Windows desktop `0.3.16`.
+
+- Continue from current project is smoother: the dialog first shows volume planning, split sync, chapter refinement, writing, and quality progress, then continues from the recommended place in one click. For a continuous run you can pick Advance to chapter N.
+- Taking over an existing project from story planning, character prep, volume strategy, or chapter execution recognizes real progress more accurately. Finished character prep is not shown as still pending. A chapter range is not mis-applied as whole-book pre-takeover.
+- Applying a cast is faster: a manual apply syncs characters and relationships first. Outward materials and character dynamics fill in the background. The button does not stay Applying for a long time.
+- Pacing splits connect to chapter execution more directly. Split chapters auto-link to execution chapters. Older projects prefer chapter identity, so the execution area is less likely to miss split results.
+- The chapter production chain is steadier: quality debt binds to the chapter that actually triggered the issue and already has text. Empty chapters are not skipped by mistake. Timeline, state extract, and quality repair more steadily support later writing.
+- Auto-Director cockpit state is unified: progress dialog, novel-page hints, Task Center, and execution details prefer the same cockpit state, so one task is less likely to show different progress, wait states, or a dead confirm button across entries.
+- Running tasks prefer the real advancing state. Historical approval projections, chapter-title reminders, or old waiting-for-confirm info no longer show a refining, writing, or reviewing task as Waiting for confirmation.
+- Let AI continue Auto-Director from this project only treats a real Auto-Director task as current. Ordinary edit-flow tasks no longer make the takeover dialog show Enter current task.
+- Unfinished waiting-for-confirm reminders say Dismiss this reminder, so dismiss is not mistaken for completing or ending the task.
+- Auto-Director create fits the beginner default: Prepare until writable is recommended, plus Reader-channel lean so AI can judge male-channel / female-channel reading expectations and payoff emphasis.
+- No idea? beside the starting idea can temporarily generate 5 horizontal inspiration cards. Use this fills the input above. Existing content asks confirm before overwrite.
+- Switching provider in the model picker refreshes that provider’s model list immediately, so you do not go to Settings, refresh, and come back.
+- Home, novel list, and task recovery first screens read lighter. Model status, recovery summaries, and the novel list load in stages, so opening a page is less slowed by background APIs.
+- Backend chapter runtime, Auto-Director, novel application services, event side effects, and route boundaries keep tightening. Prompt calls add quality telemetry for later long-chain generation and recovery diagnosis.
+
+### 2026-05-28
+
+Existing-project takeover is more like a continuation assistant. After Let AI continue Auto-Director from this project, you first see a continuation diagnosis and asset-protection notes, then you can continue from the main button.
+
+- The default entry uses the recommended continuation place. You no longer pick a stage card and confirm a second time.
+- When the next chapter and whole-book chapter count are known, you can pick Advance to a target chapter and let AI run from the current chapter through that chapter in one click.
+- Created characters, volume plans, and chapter assets ask whether to keep them before takeover. Rerun and range-run controls sit in advanced settings.
+- Continuation diagnosis shows volume planning, split sync, chapter refinement, prose, and quality progress. If the page has a task id, that task’s real stage and next-chapter progress lead.
+- When a chapter range does not fit the current project, the error names a recoverable action and sends you back to the recommended place.
+- New Auto-Director recommends Prepare until writable. Full-book autopilot can still be chosen by hand.
+- Auto-Director create adds Reader-channel lean, judged by AI by default, to help payoff, emotional center, and relationship-line weight.
+- No idea? can temporarily generate 3 different opening inspirations. Use this fills the input above. Existing content asks confirm before overwrite.
+- Switching provider in the model picker refreshes that provider’s model list immediately.
+
+Existing-project takeover is smoother: Continue from story-level planning and Advance until writable takes over the whole book and fills preceding assets, instead of failing as a chapter-range task.
+
+- Older projects missing a Book Contract can continue from story-level planning to fill book-level agreements, then later planning.
+- Continue on the same takeover task uses the corrected whole-book takeover judgment, so you are not told a chapter range can only start from splits or chapter execution.
+- After takeover reaches later stages such as volume strategy, the left flow no longer shows finished character prep as pending.
+
+Applying a cast is faster: after you pick a cast, characters and relationships sync first so you return to the character-asset workbench sooner. Outward materials and character dynamics keep filling in the background.
+
+- Apply no longer waits for each character’s outward materials one by one. The button leaves Applying sooner.
+- New characters and relationships enter the character-asset area first so you can view them and continue character prep immediately.
+- Outward materials and character dynamics arrive later. Refresh when you want to see them.
+
+Pacing splits connect to chapter execution more directly. Split chapters link to the same execution batch. You do not keep handling Sync to chapter execution as an internal step.
+
+- Saving a pacing split prepares the chapter-execution entry. The execution area can see the matching chapters.
+- Older projects’ volume splits prefer chapter identity, then chapter order if a link is missing, which cuts same-name mismatches.
+- The pacing-split page puts sync tools in connection diagnosis. The main flow focuses on pick chapter, refine, and continue execution.
+
+### 2026-05-27
+
+AI Cockpit continue is more reliable: when a chapter quality reminder or replan suggestion is parked, the system keeps filling the earliest chapter that still has no text, and does not treat empty chapters as already skipped.
+
+- After Continue, quality debt binds to the chapter that actually triggered the issue and already has generated text. Later empty chapters still enter writing in order.
+- Old state that mis-booked empty-chapter quality debt is cleaned on progress recalc, so the run does not jump further ahead.
+- While waiting for quality repair or replan, task details prefer the real checkpoint and are not misled by stale run steps into still executing.
+- Execution details and AI Cockpit show the same chapter-level progress, such as reviewing or repairing through which chapter, not only a generic batch-node name.
+
+Auto-Director character-prep checkpoints are steadier: when a cast candidate is generated but needs confirm, the run stops at a handleable character-review point instead of being judged as execution failure.
+
+- Cast candidates stay for you to review or apply. Task details keep guiding around Waiting for confirmation.
+- Character identity, genre uptake, and hidden truth are not judged with a fixed word list or regex. That creative meaning goes to AI structured understanding and prompt governance.
+- Character prep is treated as failed only when characters, candidates, and a recovery checkpoint are truly missing.
+
+First-screen load is lighter: model config, task recovery, director follow-up, and the novel list load in stages, so several background APIs do not slow the page together.
+
+- Provider status first shows current config and current model. The full model list loads per provider when you refresh models.
+- Recoverable-task and director-follow-up counts use a lighter summary query.
+- The novel list paginates, so the list page does not pull too many projects at once.
+
+Chapter timeline extract is steadier: numeric states such as rating, score, and countdown enter continuity records reliably, so a chapter is less likely to trip repair or interrupt after finish because a structured field type did not match.
+
+- Timeline state changes keep numeric meaning and save as readable state text when continuity records need it.
+- Structured repair more clearly handles needed a string but got a number, which cuts the same output being repaired over and over.
+
+### 2026-05-25
+
+Auto-Director chapter-continue judgment is more reliable: it prefers real artifacts such as chapter text, review results, and state snapshots, so an abnormal interrupt is less likely to stick on old state.
+
+- Chapters that already have text can continue from current real progress even if the old task shows failed.
+- Chapters whose blocking issues are already handled do not re-enter repair because of an old Needs repair state.
+- A chapter missing text or a key artifact is not treated as passed only because old state showed complete.
+
+### 2026-05-24
+
+Knowledge Library archive and restore are steadier: archive asks confirm first, archived materials keep source and versions, and you can restore them from the archived list.
+
+- Archiving a knowledge document asks confirm first, so still-needed references are not pulled out of retrieval by accident.
+- The Archived only list can restore and enable a document. Restore queues an index rebuild. After the index finishes, the document joins recall and RAG again.
+- Archived-document details fold unavailable actions such as upload version, switch version, and manual rebuild index, and show index status as idle, which cuts mistaken clicks and misread status.
+- The desktop client moves to `0.3.15` for the official installer that includes this Knowledge Library fix.
+
+### 2026-05-22
+
+Major update: cover generation, chapter stability, and Auto-Director recovery verified on `beta` in recent days enter mainline together, so cover prep, chapter advance, and task recovery are smoother.
+
+- In novel-edit basic info, you can auto-assemble a cover-input draft from current title, synopsis, selling points, target readers, world mood, and story mode, then AI-optimize or hand-edit into the final image prompt. Cover generation defaults to a vertical main-image approach. Results go into this novel’s cover gallery.
+- If this book has no current cover, the first successful image becomes the main cover. With a cover already, you can view candidates, switch the current cover, and delete old images. Deleting the current main cover auto-fills a new main image.
+- Task Center and recovery recognize Novel cover tasks and restore to this book’s basic-info page, not an unrelated image or character entry. The OpenAI image default model also switches to `gpt-image-2`, with steadier timeout and compatibility-field handling on long image jobs.
+- Chapter execution splits this-chapter overview, timeline, character dynamics, and resource risk into a clearer right workspace. The post-prose acceptance gate reviews and checks timeline in parallel. Only hooks that clearly require the next chapter to pick up immediately become hard blocks. Mid- and long-term foreshadowing stays more often as reminders.
+- Auto-Director continue, existing-project takeover, and quality-debt judgment are steadier. When a chapter can continue, task state and execution range stay clear. Non-blocking reminders are not mixed into failure or the same checkpoint loop.
+- Applying a cast more steadily fills outward materials. The desktop client moves to `0.3.14` for this mainline round.
 
 ### 2026-05-21
 
-重大更新：章节生产主链进一步收敛，自动导演和批量章节执行会更稳定地区分“可继续的质量债务”和“必须处理的重规划阻塞”。
+Major update: the chapter production chain tightens further. Auto-Director and batch chapter execution more steadily distinguish continuable quality debt from replan blocks that must be handled.
 
-- 章节修复达到上限但允许继续时，会先记录质量债务并保持后续章节推进；真正需要重规划的问题仍会停下来提示处理。
-- 自动导演继续执行时会保留清晰的任务状态和执行范围，减少点击继续后状态消失、摘要误报完成范围或把非阻塞提醒显示成出错的情况。
-- 章节进入下一章前会先用当前最终正文闭合时间线；初稿通过、修复通过、允许跳过都会留下可追踪的时间线结果，降低下一章忘记承接上一章钩子或回到旧时间点的概率。
-- 正文生成和修复会带入更完整的章节任务单、上一章尾段和连续性上下文，帮助章节目标、伏笔兑现、时间线承接和角色资源状态保持一致。
-- 章节资产回灌和结构化输出对常见字段偏差更稳，减少因为枚举名、范围字段或同步计划格式不一致导致章节批次中断。
+- When chapter repair hits its cap but continue is allowed, quality debt is recorded first and later chapters keep advancing. Issues that truly need replan still stop and ask you to handle them.
+- Auto-Director continue keeps a clear task state and execution range, so continue is less likely to drop status, mis-report a finished range, or show a non-blocking reminder as an error.
+- Before the next chapter, the current final text closes the timeline. Draft pass, repair pass, and allowed skip all leave a traceable timeline result, so the next chapter is less likely to forget the previous hook or jump back to an old time.
+- Writing and repair bring a fuller chapter task sheet, previous-chapter tail, and continuity context, so chapter goals, payoff, timeline pickup, and character-resource state stay aligned.
+- Chapter-asset write-back and structured output are steadier on common field drift, so enum names, range fields, or sync-plan shape mismatches interrupt a chapter batch less often.
 
 ### 2026-05-19
 
-章节生成链路更快、更稳：正文后的接收闸门会并行处理接收审校和时间线检测，同一章同内容会复用结果，减少重复等待。
+Chapter generation is faster and steadier: the post-prose acceptance gate reviews and checks timeline in parallel, and the same chapter with the same content reuses results, which cuts repeated waiting.
 
-- 只有明确要求“下一章马上承接”的时间线钩子才会进入硬阻断；中长期伏笔会以提示方式保留，不再被当成每章都必须解决的失败项。
-- 章节通过、待修、人工确认的状态边界更清晰，修复通过后不会再出现通过状态和待修状态互相打架的情况。
-- 章节详情会分开显示正文写作耗时、审校耗时和后台同步耗时，方便直接看出真正的卡点在写作、审校还是异步回灌。
+- Only timeline hooks that clearly require the next chapter to pick up immediately become hard blocks. Mid- and long-term foreshadowing stays as reminders, not as a failure every chapter must solve.
+- Passed, needs repair, and human-confirm boundaries are clearer. After repair passes, passed and needs-repair no longer fight each other.
+- Chapter details separately show writing time, review time, and background-sync time, so you can see whether the stall is writing, review, or async write-back.
 
-角色阵容应用会稳定补齐外显资料：从自动导演或角色准备页确认角色阵容后，角色外貌、体态、穿着、标志细节、声音口吻和登场印象会跟随当前选择的模型生成。
+Applying a cast steadily fills outward materials: after you confirm a cast from Auto-Director or character prep, appearance, body, clothing, signature details, voice, and first-impression generate with the currently selected model.
 
-- 角色页不再因为阵容已应用但外显资料仍为空，导致后续章节缺少可视化角色信息。
-- 批量应用角色阵容时会沿用当前任务的模型设置，减少补齐任务长时间等待或落回不可用默认模型的情况。
+- The character page no longer leaves outward materials empty after a cast is applied, so later chapters lack visual character info less often.
+- Batch-applying a cast reuses the current task’s model settings, so fill-in tasks wait less or fall back to an unavailable default model less often.
 
-任务详情里的章节同步状态更可靠：查看自动导演任务时，系统不会再把“可恢复提示”误显示成章节仍在反复执行伏笔同步或资源同步。
+Chapter-sync status in task details is more reliable: viewing an Auto-Director task no longer shows a recoverable hint as if the chapter were still looping foreshadowing sync or resource sync.
 
-- 已经稳定完成的章节，不会因为详情页持续轮询而反复追加“继续执行中”的假提示。
-- 当任务只是处于可恢复、可继续的状态时，详情页会保留当前进度判断，但不会把这类恢复建议混成真实运行中的同步步骤。
+- Stably finished chapters do not keep appending fake Still executing hints because the details page is polling.
+- When a task is only recoverable or continuable, details keep the current progress judgment and do not mix those recovery suggestions into real in-flight sync steps.
 
 ### 2026-05-18
 
-角色准备和章节正文生成新增角色硬事实约束，身份、阵营、立场、境界和当前状态会在写作前进入正文上下文。
+Character prep and chapter writing add character hard-fact constraints. Identity, faction, stance, realm, and current state enter writing context before prose.
 
-- 核心角色阵容和补充角色都会生成完整人物档案，包括性格、背景和成长线，减少角色编辑页长期缺少完整设定的情况。
-- 角色库会保存身份标签、阵营、立场、境界 / 战力、当前位置、可出场状态和禁止误写项，章节写作会把这些信息作为不可裁剪的约束。
-- 已有角色的人工编辑不会被自动阵容覆盖，系统只补齐缺失字段，避免重新生成角色时冲掉人工设定。
-- 章节列表规划会拦截过多空泛摘要、连续被动推进、第一人称长句章名、缺少主动行动或缺少阶段兑现 / 钩子的章节段，减少后续生成原地打转。
+- Core casts and supplemental characters both generate full files, including personality, background, and growth, so the character editor is less likely to sit without a complete setting.
+- The character library stores identity tags, faction, stance, realm / power, current location, can-appear state, and do-not-miswrite items. Chapter writing treats these as untrimmable constraints.
+- Manual edits on existing characters are not overwritten by an automatic cast. Only missing fields are filled, so regenerating a character does not wipe your setting.
+- Chapter-list planning intercepts too many empty summaries, consecutive passive advance, first-person long-sentence titles, missing active action, or missing stage payoff / hooks, so later generation spins in place less.
 
-章节执行页右侧改成章节侧栏，写当前章时可以先看本章概览，再切时间线、角色动态和资源风险。
+The right side of chapter execution becomes a chapter sidebar. While writing this chapter you can see this-chapter overview first, then switch timeline, character dynamics, and resource risk.
 
-- 右侧动态栏新增“本章概览”页签，章节状态、字数、目标、待处理问题和更新时间从时间线里分离出来，避免把章节摘要和时间线约束混在一起。
-- 时间线区展示章节时间锚点、上一章钩子、本章计划推进、禁止提前发生事项和最新时间线检测结果。
-- 角色动态区集中展示状态快照里的角色状态、关系变化和伏笔，帮助判断后续写作会受到哪些影响。
-- 资源与风险区保留本章关键资源、待确认资源变更和运行风险摘要；桌面端固定在右侧，移动端按分组折叠。
-- 左中右三栏改成同高工作区，左侧队列、中间正文和右侧侧栏分别在自己的区域内滚动，避免某一栏把整页高度撑乱。
-- 桌面端右侧侧栏内容可在工作区内独立滚动，长时间线、角色动态或资源风险不会挤出可视区域。
-- 右侧面板改为“动态栏 / AI 执行台”切换，同一时间只展示一个工作区，动态信息和执行操作都能使用完整右栏高度。
-- 章节概览、字数、目标、待处理问题和更新时间放进右侧“本章概览”；中间正文区直接展示正文，阅读和检查时更少被摘要信息打断。
-- 本章概览改成窄侧栏可读的竖向信息块，不再把四个指标挤进过窄的两列卡片里。
-- 章节详情和上下文诊断迁入右侧“资料诊断”，任务单、场景拆解、质量报告、修复记录和诊断信息不再堆在正文下方。
+- The right dynamics bar adds This chapter overview. Status, word count, goals, pending issues, and updated time leave the timeline so chapter summary and timeline constraints are not mixed.
+- The timeline area shows chapter time anchors, previous-chapter hooks, planned advance this chapter, must-not-happen-yet items, and the latest timeline check.
+- Character dynamics gather character state, relationship changes, and foreshadowing from the state snapshot, so you can see what later writing will be affected by.
+- Resources and risk keep this chapter’s key resources, pending resource changes, and a run-risk summary. Desktop pins this on the right. Mobile folds by group.
+- Left, middle, and right are equal-height workspaces. Queue, prose, and sidebar each scroll in their own area so one column does not stretch the whole page.
+- On desktop the right sidebar scrolls inside the workspace. Long timelines, dynamics, or resource risk do not push out of view.
+- The right panel switches Dynamics / AI execution desk, one workspace at a time, so both dynamics and execution actions can use full right-column height.
+- Overview, word count, goals, pending issues, and updated time sit in This chapter overview on the right. The middle shows prose, with less summary interrupting reading and checking.
+- This-chapter overview is vertical blocks readable in a narrow sidebar, not four metrics squeezed into too-narrow two-column cards.
+- Chapter details and context diagnosis move into Materials diagnosis on the right. Task sheets, scene breakdown, quality reports, repair records, and diagnosis no longer stack under the prose.
 
-章节生产新增时间线约束检查，自动导演写章时会追踪上一章钩子、计划事件、禁止提前发生的剧情和关键角色状态。
+Chapter production adds timeline-constraint checks. Auto-Director writing tracks previous-chapter hooks, planned events, plot that must not happen early, and key character state.
 
-- 章节生成前会带入独立时间线上下文，帮助正文承接上一章结尾，避免跳过伏笔或提前引用后续事件。
-- 正文完成后会抽取本章关键事件并进行时间线检测；如果出现未来事件泄漏、钩子未承接、时间倒退、重复事件或角色状态冲突，任务详情会显示时间线问题。
-- 时间线检测失败的章节会保留正文并标记为待修，不会把有问题的事件写入后续时间线，自动导演可继续交给现有修复链路处理。
+- Before generation, a separate timeline context helps the prose pick up the previous ending, skip less foreshadowing, and cite later events less early.
+- After prose finishes, this chapter’s key events are extracted and timeline-checked. Future-event leaks, unpicked hooks, time going backward, repeated events, or character-state conflicts show as timeline issues in task details.
+- A chapter that fails the timeline check keeps its text and is marked needs repair. Problematic events are not written into later timeline. Auto-Director can still hand them to the existing repair path.
 
-关闭自动审校后，章节自动执行不会再因为缺少审校报告而误判失败。
+Turning automatic review off no longer makes auto chapter execution fail for a missing review report.
 
-- 当章节范围选择“不执行自动审校”时，系统会把这次选择识别为可解释的跳过结果，正文完成后继续进入后续状态提交和资源同步。
-- 执行详情中的质量检查进度会显示本轮不执行自动审校，避免把 0 份审校报告误读成章节质量检查失败。
-- 桌面客户端推进到 `0.3.13`，用于发布本次自定义图像厂商、质量修复跳过和关闭自动审校后的章节执行稳定性更新。
+- When a chapter range chooses Do not run automatic review, that choice is an explainable skip. After prose finishes, later state submit and resource sync continue.
+- Quality-check progress in execution details shows this round does not run automatic review, so 0 review reports are not read as a chapter quality-check failure.
+- The desktop client moves to `0.3.13` for custom image providers, quality-repair skip, and chapter-execution stability after automatic review is off.
 
 ### 2026-05-15
 
-自动导演停在质量修复 / 重规划建议时，可以选择先跳过本次建议继续后续章节。
+When Auto-Director stops on a quality-repair / replan suggestion, you can skip this suggestion first and continue later chapters.
 
-- 顶部接管条和执行详情会在需要重规划的质量提示上提供“跳过本次建议，继续当前章节范围”的动作，适合先把整本书往后推进。
-- 被跳过的问题会进入质量待回收记录，后续仍能看到对应章节和原因，不会被当成已经修好。
-- 直接处理质量问题的入口仍然保留；想先修当前章节时，可以继续打开质量修复区。
+- The top takeover bar and execution details offer Skip this suggestion, continue the current chapter range on quality hints that need replan, which fits pushing the whole book forward first.
+- Skipped issues enter quality-to-reclaim records. You can still see the chapter and reason later. They are not treated as already fixed.
+- Direct quality-issue handling stays. To repair the current chapter first, you can still open the quality-repair area.
 
-角色形象图可以使用自定义图像厂商：在系统设置中为任意 OpenAI 兼容厂商填写图像模型后，角色形象图生成会把它作为可选厂商使用。
+Character look images can use a custom image provider: after you fill an image model for any OpenAI-compatible provider in Settings, character-look generation can use it as an optional provider.
 
-- 自定义厂商可以单独填写文本默认模型和图像模型，适合接入本地网关、聚合接口或兼容 `/images/generations` 的服务。
-- 角色形象图的厂商列表会按已启用、已配置且拥有图像模型的厂商展示，避免用户在不能生成图片的厂商上卡住。
-- 本地或自定义兼容服务可以不填写 API Key；系统会使用已保存的 API 地址和图像模型提交图片任务。
+- A custom provider can have its own default text model and image model, which fits a local gateway, aggregator, or a service compatible with `/images/generations`.
+- The character-look provider list shows enabled, configured providers that have an image model, so you are less stuck on a provider that cannot generate images.
+- Local or custom compatible services can omit an API key. The saved API address and image model are used to submit image tasks.
 
-章节执行会说明真正卡点并优先自动修复：当正文已经生成但漏掉本章必须兑现的伏笔、角色出场或目标变化时，系统会把这些缺口识别为章节义务问题，不再笼统显示为 `chapter.draft.write` 完成失败。
+Chapter execution names the real stall and prefers automatic repair: when prose is generated but missed foreshadowing, character appearance, or goal changes this chapter must pay, those gaps are chapter-duty issues, not a generic chapter-draft-write complete failure.
 
-- 章节写作、接收闸门、修文和重规划会共用同一份章节义务合同，减少规划说一套、正文执行另一套的情况。
-- 可局部补齐的义务缺口会进入自动补丁修复；章节职责过载或邻章分工失配时会归入重规划原因。
-- 执行详情会展示根因、缺失义务、质量预算和质量待回收摘要，帮助判断系统是在自动修复、自动重排，还是带风险继续后续章节。
-- 旧任务进入章节修复时会自动补齐新的章节义务上下文，避免历史运行记录因为缺少新字段而中断修复；资源不可用和逾期伏笔也会保留在修复提示里。
-- 桌面客户端推进到 `0.3.12`，用于发布本次章节执行恢复、章节义务修复和结构化输出稳定性更新后的 Windows 客户端包。
+- Writing, the acceptance gate, repair, and replan share one chapter-duty contract, so planning says one thing and execution another less often.
+- Locally fillable duty gaps enter automatic patch repair. Overloaded chapter duties or neighbor-chapter division mismatch become replan reasons.
+- Execution details show root cause, missing duties, quality budget, and quality-to-reclaim summary, so you can tell whether the system is auto-repairing, auto-reordering, or continuing later chapters with risk.
+- Old tasks entering chapter repair auto-fill the new chapter-duty context, so historical run records do not stop repair for missing new fields. Unavailable resources and overdue foreshadowing also stay in repair hints.
+- The desktop client moves to `0.3.12` for chapter-execution recovery, chapter-duty repair, and structured-output stability.
 
-自动导演“继续自动执行章节”会真正恢复章节批次：当任务停在第 2-10 章这类章节执行确认点时，点击继续会把章节范围授权带入后续恢复链路，不再只提示成功却停在原检查点。
+Auto-Director Continue automatic chapter execution truly resumes a chapter batch: when a task stops at a chapter-execution confirm such as chapters 2–10, Continue carries chapter-range authorization into later recovery, instead of only saying success while staying at the old checkpoint.
 
-- 如果恢复过程需要先同步章节执行合同或补齐结构化产物，系统仍会保留本次章节执行授权，随后继续进入正文生成、审校和修复。
-- 如果上一批已经生成正文但留下质量提醒，点击继续会把这次确认用于放行当前提醒并启动剩余章节，不会反复停在同一个质量修复检查点。
-- 如果章节批次停在需要重规划的确认点，顶部接管条会直接引导打开质量修复，而不是显示会空转的“继续自动导演”按钮。
-- 任务详情和顶部接管条不会因为命令已执行但章节执行节点仍待确认而给出误导性的成功反馈。
+- If recovery must first sync the execution contract or fill structured artifacts, this chapter-execution authorization is kept, then writing, review, and repair continue.
+- If the previous batch already generated text but left quality reminders, Continue uses this confirm to release the current reminder and start remaining chapters, instead of looping the same quality-repair checkpoint.
+- If the batch stops at a confirm that needs replan, the top takeover bar opens quality repair instead of a Continue Auto-Director button that would idle.
+- Task details and the top takeover bar do not give misleading success when a command ran but the chapter-execution node is still waiting for confirm.
 
-自动导演章节修复不再被“应推进 payoff”困住：当章节进入本该触碰伏笔或读者承诺的窗口时，系统会把它作为写作职责处理，不再把生成前的紧急 payoff 状态直接判定为写后失败并反复要求重规划。
+Auto-Director chapter repair is no longer stuck on should-advance payoff: when a chapter enters a window that should touch foreshadowing or a reader promise, that is treated as a writing duty, not as a post-write failure from a pre-generation urgent-payoff state that then loops replan.
 
-- 如果正文和审校已经显示章节可继续，系统不会因为同一个紧急 payoff 信号反复进入局部修复。
-- AI-driver 模式遇到真正需要重规划的通知时会停在确认点，不会自动确认后马上重跑同一章。
+- If prose and review already show the chapter can continue, the same urgent-payoff signal does not keep entering local repair.
+- AI-driver mode stops at confirm on a notification that truly needs replan, and does not auto-confirm then immediately rerun the same chapter.
 
-章节接收和资产回灌对 AI 结构化输出更稳：当模型使用常见别名或旧字段形状时，系统会按结构化语义自动归一，减少因为枚举名、风险字段或关系字段不一致导致的重复 JSON 修复。
+Chapter acceptance and asset write-back are steadier on AI structured output: common aliases or old field shapes normalize by structured meaning, which cuts repeated JSON repair from enum, risk, or relationship field mismatch.
 
-- 节奏、重复、中段铺垫等接收问题会归入正确的章节修复类别，不再因为字段名不一致反复触发结构化修复。
-- 伏笔状态、风险信号、关系变化和新角色候选的常见别名会在 schema 层规范化，降低后台资产回灌失败率。
+- Pacing, repetition, and mid-chapter setup acceptance issues go into the correct chapter-repair category, instead of retriggering structured repair because field names differed.
+- Common aliases for foreshadowing state, risk signals, relationship changes, and new-character candidates normalize at the schema layer, which lowers background asset write-back failure.
 
 ### 2026-05-14
 
-自动导演章节质量修复减少重复更新：当同一章已经有正文、但质量修复需要复审时，系统不会再把未变化的正文反复保存成草稿，也会在局部修复用尽后切换到整章修复。
+Auto-Director chapter quality repair repeats fewer saves: when the same chapter already has text and quality repair needs a recheck, unchanged prose is not saved as a draft again, and repair switches to full-chapter repair after local repair is exhausted.
 
-- 重试质量修复时，章节更新时间和后台 RAG 同步不会因为同一份正文被重新保存而反复刷新。
-- 同一问题已经尝试过局部修复后，后续自动修复会按质量预算升级处理，减少一直停留在局部修复的情况。
+- Retrying quality repair no longer refreshes chapter updated time and background knowledge sync because the same text was saved again.
+- After the same issue already tried local repair, later automatic repair upgrades by quality budget, so it stays on local repair less.
 
-章节质量修复重试更稳：当 AI 生成的局部修文补丁格式不合格、定位片段太短或需要删除重复段落时，系统会按可恢复修复处理，不再让自动导演直接卡在原始校验错误上。
+Quality-repair retry is steadier: when an AI local patch has a bad format, a location fragment that is too short, or needs to delete a repeated paragraph, it is treated as recoverable repair instead of pinning Auto-Director on the raw validation error.
 
-- 删除重复正文时，局部修文可以安全地把唯一命中的片段替换为空内容。
-- 如果局部补丁无法安全应用，系统会继续走整章轻修或待修状态，而不是把技术校验信息直接变成任务失败原因。
+- Deleting repeated prose can safely replace the unique matching fragment with empty content.
+- If a local patch cannot be applied safely, the run continues with a light full-chapter repair or needs-repair, instead of turning a technical validation message into the task failure reason.
 
-顶部模型选择会跟随系统保存的当前模型：重启项目或打开桌面端后，系统会优先恢复上次选择的可用厂商和模型，不再因为前端默认值回到 DeepSeek Chat。
+The top model picker follows the current model saved by the system. After restarting the project or opening the desktop app, the last available provider and model are restored first, instead of the frontend default returning to DeepSeek Chat.
 
-- 当前模型选择会保存到服务端设置中，换浏览器缓存或桌面启动环境后也更容易保持一致。
-- 没有保存当前模型时，系统会从已配置、启用且有可用模型列表的厂商里选择候选，不再把某个内置厂商的旧默认模型当作顶部选择。
-- 只配置了 API Key 但没有明确模型的厂商，会优先使用可获取到的模型列表；获取不到时会引导到设置页明确选择或填写模型。
-- 桌面客户端推进到 `0.3.11`，用于发布本次模型选择持久化和可用模型恢复逻辑后的 Windows 客户端包。
+- The current model choice saves in server settings, so a new browser cache or desktop start environment stays consistent more easily.
+- With no saved current model, a candidate is chosen from configured, enabled providers that have a usable model list, not an old built-in default as the top selection.
+- A provider with only an API key and no explicit model prefers a fetchable model list. If none can be fetched, Settings asks you to pick or fill a model.
+- The desktop client moves to `0.3.11` for model-choice persistence and available-model restore.
 
-自动导演的步骤定位和恢复提示更一致：系统会按同一份步骤目录判断当前阶段、等待确认点、可自动审批项和写入范围，减少不同入口显示不一致的问题。
+Auto-Director step location and recovery hints are more consistent: the same step catalog judges current stage, waiting-for-confirm points, auto-approvable items, and write range, so different entries disagree less.
 
-- 自动导演面板、任务详情和自动审批会使用同一套步骤与暂停点判断，方便用户理解当前卡在哪一步、下一步能否继续。
-- 旧任务里的历史阶段、节点和暂停点仍可识别，不需要迁移数据库或重建已有任务。
+- The Auto-Director panel, task details, and auto-approval use the same step and pause-point judgment, so you can see where it is stuck and whether the next step can continue.
+- Historical stages, nodes, and pause points on old tasks still recognize. You do not migrate the database or rebuild existing tasks.
 
-自动导演执行详情的任务定位更清晰：从旧链接、任务中心、小说列表或跟进中心进入时，系统都会识别同一条 AI 导演执行记录，避免展示的是失败任务、操作却找不到可重试任务。
+Execution-details task location is clearer: old links, Task Center, the novel list, or Follow-up all recognize the same AI director run, so you are less shown a failed task while actions cannot find a retryable one.
 
-- 执行详情里的继续自动执行、按任务模型重试、使用所选模型重试和跟进动作会操作当前展示的 AI 导演任务。
-- 旧的执行详情链接仍可打开，系统会自动对齐到新的导演任务参数，不影响历史通知和任务入口。
+- Continue automatic execution, retry with the task model, retry with the selected model, and follow-up actions operate the currently shown AI director task.
+- Old execution-details links still open. They align to the new director-task parameters, without breaking historical notifications and task entries.
 
-自动导演重试和恢复更稳：当章节自动执行失败、重试、服务重启恢复交错出现时，页面会优先展示当前真实任务状态，不会把已重新排队或恢复中的任务继续显示成旧失败。
+Auto-Director retry and recovery are steadier: when chapter auto-run failure, retry, and post-restart recovery interleave, the page prefers the current real task state and does not keep showing a requeued or recovering task as the old failure.
 
-- 使用当前模型或原任务模型重试后，执行详情、顶部接管条和自动导演总览会对齐到同一条 AI 导演执行记录。
-- 如果章节流水线因服务重启暂停，继续或重试会恢复待处理批次，再从当前章节继续推进。
-- 桌面客户端推进到 `0.3.10`，用于发布本次自动导演任务定位、重试恢复和进展显示修复后的 Windows 客户端包。
+- After retry with the current model or the original task model, execution details, the top takeover bar, and Auto-Director overview align to the same AI director run.
+- If the chapter pipeline paused because the service restarted, Continue or Retry restores the pending batch, then advances from the current chapter.
+- The desktop client moves to `0.3.10` for Auto-Director task location, retry recovery, and progress display.
 
 ### 2026-05-13
 
-章节正文生成回退为整章一次性写作：系统不再把章节合同、场景卡或分场景多轮写作接入正文生成主链，避免同一章被反复生成、成本飙升或每个场景都写成一整章。
+Chapter writing returns to writing a whole chapter in one pass. Chapter contracts, scene cards, or multi-round per-scene writing no longer sit on the writing main chain, so the same chapter is less generated over and over, cost less spikes, and each scene is less written as a whole chapter.
 
-- 正文 writer 不再接收 `chapter_boundary`、`scene_plan` 或 `scene_contract`，章节合同信息仅保留为规划、审校、诊断和局部修复的辅助资产。
-- 篇幅控制只在生成提示中给出目标长度和可接受区间，不再因为生成后的长度超出上限而强制失败或截断正文。
-- `TASK.md` 已记录禁令：在确认新的完整方案前，不再把章节合同重新接回正文生成热路径。
+- The writer no longer receives chapter-boundary, scene-plan, or scene-contract inputs. Chapter-contract information stays an auxiliary asset for planning, review, diagnosis, and local repair.
+- Length control only gives a target length and acceptable range in the generation prompt. Prose is not force-failed or truncated because generated length exceeded a cap.
+- A standing rule is recorded: chapter contracts stay off the writing hot path until a new complete plan is confirmed.
 
-正文生成开始使用更轻的接收闸门：系统会先确认本章具备可写目标，再整章生成正文，并用一次接收判断决定正文是否可继续、是否需要局部修文或是否需要人工确认，减少生成后一章多次检测和重复等待。
+Writing starts using a lighter acceptance gate: first confirm this chapter has a writable goal, then generate the whole chapter, then one acceptance judgment decides whether prose can continue, needs a local repair, or needs human confirm, which cuts multiple post-generation checks and repeated waiting.
 
-- 无场景卡时也可以进入正文生成，只要章节目标和上下文足够支撑写作。
-- 默认接收判断会同时关注连续性、角色、剧情推进、读感和写法风险，把可局部处理的问题交给修文链路。
-- 接收判断明确要求“修一次”时，系统只会进入一次局部修文；需要人工确认的问题会停在待修状态，方便用户决定继续、修复或重规划。
-- 完整审校仍保留为严格检查和手动审校能力，不再作为每章默认热路径的必要步骤。
+- Writing can start without scene cards if chapter goals and context can support it.
+- Default acceptance watches continuity, characters, plot advance, reading feel, and style risk together, and hands locally handleable issues to the repair path.
+- When acceptance clearly asks Repair once, only one local repair runs. Issues that need human confirm stop at needs-repair so you can continue, repair, or replan.
+- Full review stays as a strict check and a manual review capability. It is no longer a required step on every chapter’s default hot path.
 
-章节完成后的资产回灌开始合并为一次后台抽取：系统会用同一次结构化判断提取状态快照、角色资源、关系动态和伏笔 delta，再分别写回对应账本，减少同一章正文被多个后台 AI 任务重复读取。
+After a chapter finishes, asset write-back merges into one background extract: one structured judgment pulls state snapshot, character resources, relationship dynamics, and foreshadowing delta, then writes each ledger, so the same chapter text is deep-read by fewer background AI tasks.
 
-- 后台进度会显示“资产回灌中”，正文可读状态不再被状态快照、角色资源和伏笔多路同步混在一起。
-- 每章默认只写伏笔增量；只有 AI 判断账本存在高风险或需要全量校准时，才额外触发完整伏笔对账。
-- 同一章正文内容未变化时，后台资产回灌会命中 checkpoint，避免状态、资源和伏笔账本重复同步。
-- 章节流水和自动导演执行支持 `adaptive`、`deferred`、`strict` 三种资产同步模式：默认自适应，快速模式延后回灌，严格模式等待资产同步后再继续。
-- 自适应模式会在每 3 章、卷尾或 AI 判断高风险时触发完整伏笔校准，平时只写本章 delta。
-- 章节执行面板会把“正文可读”“资产回灌中”“账本校准中”分开提示，方便先看正文，再观察后台资产同步。
-- 旧的状态、角色动态、资源和伏笔同步能力仍保留，便于后续手动重建或兼容历史数据。
+- Background progress shows Writing assets back. Readable-prose status is no longer mixed with multi-path state-snapshot, resource, and foreshadowing sync.
+- Each chapter writes a foreshadowing increment by default. A full foreshadowing reconcile runs extra only when AI judges high ledger risk or a full calibration is needed.
+- If this chapter’s text has not changed, background asset write-back hits a checkpoint, so state, resource, and foreshadowing ledgers do not sync twice.
+- Chapter pipeline and Auto-Director support adaptive, deferred, and strict asset-sync modes: adaptive by default, fast mode defers write-back, strict waits for asset sync before continuing.
+- Adaptive mode triggers a full foreshadowing calibration every 3 chapters, at volume end, or when AI judges high risk. Otherwise it only writes this chapter’s delta.
+- The chapter-execution panel separates Prose readable, Writing assets back, and Ledger calibrating, so you can read prose first, then watch background asset sync.
+- Old state, character-dynamics, resource, and foreshadowing sync stay for later manual rebuild or historical data.
 
-章节生成遇到模型空返回时更稳：系统会先自动重试当前章一次；如果仍然没有正文，会停在当前章并记录清楚原因，不再把空章节当成已生成内容继续推进。
+Empty model returns are steadier: the current chapter retries once automatically. If there is still no prose, the run stops on this chapter with a clear reason, instead of treating an empty chapter as generated and continuing.
 
-- 手动单章生成和自动执行批量生成都会共用同一套空正文防线，避免空白内容写入章节正文。
-- 自动执行暂停时会保留章节、任务、模型和重试信息，方便定位是哪一章没有拿到正文，也方便从当前章继续恢复。
+- Manual single-chapter generate and automatic batch generate share the same empty-prose guard, so blank content is not written into chapter text.
+- When auto-run pauses, chapter, task, model, and retry info are kept, so you can see which chapter got no prose and resume from this chapter.
 
-自动导演候选方案可以稳定重新生成：已有两套方案后，再点击重新生成两套时，系统会真正进入新一轮候选生成，不会把上一轮候选误判成本轮已完成。
+Auto-Director candidate plans can regenerate reliably: after two plans exist, Generate two more truly starts a new candidate round, instead of treating last round’s candidates as this round already done.
 
-- 修复候选阶段运行态复用过早生效的问题，避免后台命令在读取新 batch 前报错中断。
-- 保留已生成候选用于恢复和对比，但手动触发的重新生成、定向修正和标题重做会强制执行本次命令。
+- Candidate-stage runtime reuse no longer applies too early, so a background command does not error before reading the new batch.
+- Generated candidates stay for recovery and compare, but manually triggered regenerate, directed revise, and title redo force this command.
 
-角色资产工作台更容易一眼看清谁是主角：主角会在角色列表顶部独立展示，右侧编辑区也会持续标明当前正在编辑主角还是其他关系角色。
+The character-asset workbench makes the protagonist easier to see: the protagonist stands alone at the top of the list, and the right editor keeps saying whether you are editing the protagonist or another relationship character.
 
-- 配角列表会避开重复展示主角，并优先显示与主角关系或角色定位，方便围绕主角理解整组人物。
-- 当前角色详情顶部新增编辑摘要，突出主角目标、故事作用、关系信息和最近出场章节，减少新手在资料区来回确认的负担。
-- 桌面客户端推进到 `0.3.9`，用于发布本次正文生成回退、空章节防线、候选重新生成修复和主角识别体验优化后的 Windows 客户端包。
+- The supporting-cast list does not repeat the protagonist, and prefers relationship to the protagonist or role positioning, so the group is easier to read around the lead.
+- Current-character details add an edit summary at the top for protagonist goals, story role, relationship info, and last appearance chapter, so beginners hunt less in the materials area.
+- The desktop client moves to `0.3.9` for whole-chapter writing return, empty-chapter guard, candidate regenerate, and protagonist recognition.
 
-查询小说进展时，系统会优先按真实产物判断整本书推进到哪里：规划、书级约定、角色、卷章规划、章节任务单、正文、审校、修复和状态提交都会进入同一份进展判断。
+Asking about novel progress prefers real artifacts to judge how far the whole book has come: planning, book contract, characters, volume planning, chapter task sheets, prose, review, repair, and state submit enter one progress judgment.
 
-- 后台任务成功、失败、排队或运行只作为补充状态展示，不会覆盖已经产出的小说事实。
-- 整本生成中断后，系统仍会说明正文写到第几章、哪些章节审校完成、哪些章节待修复，方便从可用产物继续推进。
-- 对话里询问“小说进展”或“整本生成到哪了”会走同一个事实进展入口，回答先说明真实产物进度，再补充后台任务情况。
+- Background task success, failure, queued, or running is only supplemental status. It does not overwrite already produced novel facts.
+- After a whole-book generate interrupts, the system still says which chapter prose reached, which chapters finished review, and which still need repair, so you can continue from usable artifacts.
+- Asking “novel progress” or “how far did whole-book generate get” uses the same fact-progress entry: real artifact progress first, then background-task status.
 
 ### 2026-05-12
 
-章节正文生成链路补强了章节合同和场景边界：系统会先确认任务单、场景卡和章节边界可执行，再进入正文写作，减少越章、提前揭密、重复推进和旧计划污染正文的问题。
+Chapter writing strengthens chapter contracts and scene boundaries: task sheet, scene cards, and chapter boundary are confirmed executable before writing, which cuts crossing chapters, revealing early, repeating advance, and old plans polluting new prose.
 
-- 伏笔推进会按铺垫、轻触、加压、局部揭示、兑现或禁止揭示等阶段进入正文，不再把待兑现或逾期伏笔直接塞进必须推进项。
-- 正文写作、审校和修复都会接收章节边界，受保护信息和不得越过的章节/场景范围优先级高于普通推进要求。
-- 进入正文生成前会校验章节执行合同；任务单、场景卡或边界发生变化时，会重建章节计划，避免旧计划继续影响新正文。
-- 有合法场景卡时，章节会优先按场景逐段生成，并把每个场景的入口、出口和禁止扩展传给写作链路；整章回退路径也会保留同一套边界校验。
+- Foreshadowing enters prose by stage: setup, light touch, pressure, partial reveal, payoff, or do-not-reveal. Pending or overdue foreshadowing is no longer stuffed into must-advance.
+- Writing, review, and repair all receive chapter boundaries. Protected information and chapter/scene ranges that must not be crossed outrank ordinary advance requirements.
+- The chapter execution contract is checked before writing. When the task sheet, scene cards, or boundary change, the chapter plan rebuilds so an old plan does not keep affecting new prose.
+- With valid scene cards, the chapter prefers generating scene by scene, and passes each scene’s entry, exit, and do-not-expand to writing. The whole-chapter fallback keeps the same boundary checks.
 
-正文生成后的去 AI 味检测与自动修正可以按小说单独控制。反 AI 规则仍主要作为生成前提示参与正文写作，规则中心的效果测试只用于预览规则效果，不会改变小说生成设置。
+Post-writing Anti-AI detect and automatic correct can be controlled per novel. Anti-AI rules still mainly participate as pre-generation hints. Rules-center effect tests only preview a rule’s effect and do not change novel generation settings.
 
-- 项目基础设置新增“正文后去 AI 检测与修正”开关，适合在需要更稳妥保留原文草稿时关闭生成后的自动检查和修订。
-- 自动导演入口提供同一项设置；开书或接管项目时的选择会写入小说配置，后续手动章节生成和自动执行都会沿用。
-- 关闭正文后检测时，章节生成前仍会使用已绑定写法和反 AI 规则提示，只跳过生成完成后的检测与自动修正。
-- 桌面客户端推进到 `0.3.6`，用于发布本次反 AI 规则中心、规则效果测试和正文后检测开关能力后的 Windows 客户端包。
+- Project basic settings add Post-prose Anti-AI detect and correct, which you can turn off when you want to keep the original draft more carefully.
+- Auto-Director offers the same setting. The choice at opening or takeover writes into the novel config and later manual chapter generate and auto-run follow it.
+- With post-prose detect off, generation still uses bound style and Anti-AI rule hints. Only post-generation detect and automatic correct are skipped.
+- The desktop client moves to `0.3.6` for the Anti-AI rules center, rule effect tests, and the post-prose detect switch.
 
 ### 2026-05-11
 
-反 AI 规则开始拥有独立管理入口：用户可以集中查看、创建和调整规则，控制哪些规则默认进入正文生成，哪些只作为写法资产的可选约束使用。
+Anti-AI rules get their own management entry: you can view, create, and adjust rules in one place, and control which rules default into writing versus optional constraints on a style asset.
 
-- 新增反 AI 规则中心，可以按全部、全局默认、写法专属可用和已停用筛选规则，并直接查看规则类型、严重度、生成指令、修正建议和自动改写状态。
-- 新建规则默认作为可选规则保存，不会自动影响所有小说正文生成；需要作为全局默认时，可以单独打开全局默认开关。
-- 规则启用、全局默认和自动改写支持快速切换，便于在调试生成效果时控制规则生效范围。
-- 生效预览可以查看当前全局默认规则，也可以选择一套写法，确认正文生成会叠加哪些写法专属反 AI 规则。
-- 规则中心新增去 AI 味效果测试：粘贴正文后，可以直接查看风险分、命中问题、原因和修订稿预览。
-- 规则列表里的任意规则都可以临时加入测试，用来比较单条规则对正文检测和修正的影响；测试不会改动规则启用状态、全局默认状态或写法绑定。
-- 去 AI 味检测和修正更稳：检测会覆盖全文里的高频模板词、绝色模板、解释腔和总结腔；修正时不会照抄检测建议里的示例句，也会避免新增原文没有的硬反转或事实线索。
-- 写法引擎保留写法资产里的规则绑定能力，并提供进入规则中心的入口，让规则库管理和单套写法绑定分工更清楚。
-- 新建或编辑反 AI 规则时，可以用自然语言描述想压制或强化的表达，让 AI 生成或优化可编辑草稿；草稿只会填入表单，用户检查后再保存。
-- AI 生成的新规则默认不会进入全局默认，也不会打开自动改写，适合先作为可选规则试用，避免影响所有小说正文生成。
+- The Anti-AI rules center filters All, Global default, Style-specific available, and Disabled, and shows type, severity, generation instruction, correction advice, and auto-rewrite status.
+- New rules save as optional by default and do not automatically affect every novel’s writing. Turn on Global default separately when you want that.
+- Enable, global default, and auto-rewrite switch quickly, so you can control the effective range while debugging generation.
+- Effective preview shows current global-default rules, or a style, so you can confirm which style-specific Anti-AI rules writing will stack.
+- The rules center adds an Anti-AI effect test: paste prose and see risk score, hits, reasons, and a revised-draft preview.
+- Any rule in the list can join a test temporarily to compare one rule’s effect on detect and correct. Tests do not change enable, global default, or style binding.
+- Anti-AI detect and correct are steadier: detect covers high-frequency template words, beauty templates, explaining tone, and summarizing tone across the full text. Correct does not copy example sentences from detect advice, and avoids adding hard reversals or fact clues the original did not have.
+- Style Engine keeps rule binding on style assets and offers an entry into the rules center, so library management and one-style binding stay separate.
+- Creating or editing an Anti-AI rule can describe in natural language what to suppress or strengthen, and let AI generate or polish an editable draft. The draft only fills the form until you check and save.
+- AI-generated new rules do not enter global default and do not turn auto-rewrite on, so they can be tried as optional without affecting every novel.
 
 ### 2026-05-10
 
-自动导演开书的方案确认更清楚：生成书级方向后，候选方案会在起始设置弹窗上方单独弹出，用户不用滚到表单下方寻找结果，也可以随时回到设置页重新查看已生成方案。
+Auto-Director opening plan confirm is clearer: after book-level directions generate, candidates pop above the start-settings dialog. You do not scroll to the bottom of the form for results, and you can return to settings to view generated plans again.
 
-- 生成第一批方案、继续生成下一轮、微调单套方案或重做标题组后，页面会打开独立的“确认书级方案”弹窗，方便直接比较两套方向并选用。
-- 起始设置弹窗保留“查看已生成方案”入口，关闭方案弹窗后也能重新打开结果，不必重新生成。
-- 自动导演推进中，工作台会跟随当前步骤和进度刷新对应内容。AI 写入故事规划、角色、卷章、章节或质量结果后，用户不必等任务暂停或手动刷新页面才看到最新填充内容。
-- 自动导演生成卷内章节列表更稳：如果模型把当前节奏段的章节列表直接输出成数组，系统会按当前节奏段合同自动整理为可校验的章节块，减少拆章阶段因为 JSON 顶层格式偏差中断。
-- 自动导演拆章时遇到章名句式过于集中，会先尝试让 AI 重写；如果仍然不够分散，会作为可处理提醒保留下来，不再直接中断整条自动推进流程。
-- 自动导演逐章细化任务单时，会把已完成章节及时同步到章节执行区；中途刷新页面也能看到已细化章节的目标、任务单和场景卡，不必等整卷全部细化完成。
-- 自动导演运行中会优先显示真实后台任务状态。章节执行或质量修复还在推进时，页面不再误显示“等待确认”或给出无效的继续按钮。
-- 章节正文改动后，角色关键资源同步会按新的正文内容重新检查，不会被旧同步记录挡住；后续章节更容易继续拿到最新的道具、线索、底牌和资源限制。
-- 角色页新增外显资料补齐：作者可以为当前角色或全书角色生成外貌、体态、常见穿着、标志细节、声音口吻和登场印象建议，确认后再写入角色卡。
-- 自动导演完成角色阵容应用后，会为新建或更新角色自动补齐缺失的稳定外显资料；已有明确内容会保留，低质量建议会跳过，不影响角色准备继续推进。
-- 章节生成会带入每个参与角色的短外显摘要，优先提供样貌/体态、标志细节和声音口吻等高辨识信息，让后续正文更容易写出读者记得住的角色。
-- 角色外显资料生成后的反馈更靠前：点击补齐后会在按钮下方显示生成进度、可写入项和确认入口，用户不必滚到资料卡底部寻找结果。
-- 角色外显资料补齐支持作者填写倾向：可以指定更有压迫感、带一点病弱感、声音更温和等方向，再让 AI 生成当前角色或全书角色的可写入建议。
-- 当作者填写补全倾向时，当前角色的外显资料可以生成覆盖已有内容的建议；页面会先展示差异和提醒，确认后再保存到角色卡。
-- 桌面客户端推进到 `0.3.5`，用于发布本次角色外显资料、自动导演拆章容错和章节细化同步后的 Windows 客户端包。
+- After Generate first batch, generate another round, fine-tune one plan, or redo a title group, Confirm book-level plan opens so you can compare two directions and pick one.
+- Start settings keep View generated plans, so you can reopen results after closing the plan dialog without regenerating.
+- While Auto-Director advances, the workbench refreshes matching content with the current step and progress. After AI writes story plan, characters, volumes, chapters, or quality results, you do not wait for a pause or a manual refresh to see the latest fill.
+- Volume chapter-list generation is steadier: if the model outputs the current pacing-segment chapter list as an array, it is arranged into validatable chapter blocks for the current segment contract, so splits interrupt less from top-level JSON shape drift.
+- When split titles are too concentrated in sentence pattern, AI is asked to rewrite first. If they are still not spread enough, it stays a handleable reminder instead of stopping the whole auto-advance.
+- While refining task sheets chapter by chapter, finished chapters sync to chapter execution in time. Refreshing mid-way still shows refined goals, task sheets, and scene cards. You do not wait for the whole volume to finish refining.
+- While Auto-Director runs, real background-task status leads. When chapter execution or quality repair is still advancing, the page no longer shows Waiting for confirmation or a dead Continue button.
+- After chapter text changes, character key-resource sync rechecks from the new text and is not blocked by an old sync record. Later chapters more easily keep the latest props, clues, trump cards, and resource limits.
+- The character page adds outward-material fill-in: you can generate appearance, body, usual clothing, signature details, voice, and first-impression suggestions for the current character or the whole book, then confirm onto the character card.
+- After Auto-Director applies a cast, missing stable outward materials auto-fill for new or updated characters. Clear existing content is kept. Low-quality suggestions are skipped, so character prep can continue.
+- Chapter generation brings a short outward summary for each participating character, preferring look/body, signature details, and voice so later prose is easier to remember.
+- Outward-material generation feedback sits closer: after Fill in, progress, writable items, and confirm show under the button. You do not scroll to the bottom of the materials card for results.
+- Fill-in supports an author lean: more oppressive, a little frail, a gentler voice, then AI generates writable suggestions for this character or the whole book.
+- When you fill a lean, this character’s outward materials can generate suggestions that overwrite existing content. The page shows the diff and a reminder first, then saves after confirm.
+- The desktop client moves to `0.3.5` for outward materials, Auto-Director split tolerance, and chapter-refinement sync.
 
 ### 2026-05-09
 
-桌面客户端发布到 GitHub Releases 时，会自动把本版本更新说明写入发布页正文。用户在下载 Windows 安装包或便携版前，可以直接在同一个 Release 条目里查看本次版本带来的主要能力和体验变化。
+When the desktop client publishes to GitHub Releases, this version’s update notes write into the release-page body. Before downloading the Windows installer or portable build, you can read the main capability and experience changes in the same Release entry.
 
-- 正式版和 Beta 桌面发布流程都会在上传安装包后同步发布说明，减少 Release 页面只显示版本号和资产列表、看不到更新内容的情况。
-- 发布说明来自项目维护的完整更新历史，并跟随当前桌面客户端版本写入对应的 GitHub Release，方便用户在下载前确认这个版本是否包含需要的功能或修复。
-- 桌面打包流程会复用已经完成的 staging 产物完成校验和发布，减少发布过程中重复构建带来的等待时间。
-- 小说预览页现在可以直接复制当前章节正文。查看已生成章节时，不需要进入编辑页就能把正文复制到剪贴板；如果浏览器限制标准剪贴板权限，页面会自动尝试备用复制方式。
-- 自动导演运行中的章节定位更准确：进入节奏 / 拆章时，页面会跟随当前后台正在处理的章节，不再因为旧链接参数刷新回第一章。
-- 小说列表的后台进度显示更轻：多本小说同时自动推进时，列表会从轻量汇总中显示当前动作，减少每本书反复拉取完整执行详情造成的卡顿。
-- 节奏 / 拆章中未归入节奏段的章节可以直接删除。用户清理多余章节时，不必先切到右侧详情面板逐个处理。
-- 桌面客户端推进到 `0.3.4`，用于发布本次自动导演进度显示、列表性能和章节拆分清理能力后的 Windows 客户端包。
+- Stable and Beta desktop publish both sync release notes after uploading packages, so the Release page is less a version number and asset list with no update content.
+- Notes come from the project’s full update history and write into the matching GitHub Release with the current desktop client version, so you can confirm before download whether this version has the capability or fix you need.
+- Desktop packaging reuses already finished staging artifacts for check and publish, which cuts waiting from rebuilding during publish.
+- The novel preview page can copy the current chapter’s prose. Viewing a generated chapter, you do not enter the editor to copy text. If the browser limits standard clipboard permission, a fallback copy is tried automatically.
+- Auto-Director chapter location while running is more accurate: entering Pacing / Split follows the chapter the background is currently processing, instead of refreshing back to chapter 1 from an old link parameter.
+- Novel-list background progress is lighter: when several novels auto-advance at once, the list shows the current action from a light summary, which cuts stall from repeatedly fetching full execution details per book.
+- Chapters in Pacing / Split that are not in a pacing segment can be deleted directly. Cleaning extra chapters, you do not switch to the right details panel one by one.
+- The desktop client moves to `0.3.4` for Auto-Director progress display, list performance, and split-chapter cleanup.
 
 ### 2026-05-08
 
-本次更新把当前预发布分支中领先于主分支的自动导演、任务恢复、章节执行、质量闭环、提示词治理和桌面客户端准备内容合并为一次正式发布入口。重点是让写作新手更容易从一句想法开始，由 AI 持续推进到可开写、可续写、可恢复和可排查的整本小说生产链。
+This update merges Auto-Director, task recovery, chapter execution, quality loop, prompt governance, and desktop-client prep that were ahead of the previous public surface into one formal release entry. The focus is making it easier for writing beginners to start from one idea and let AI keep advancing a whole-novel production chain that can start writing, continue, recover, and diagnose.
 
-- 新手入口更完整：新增“新手上路”帮助路径，并在首页、桌面侧栏、移动端入口、小说列表和小说工作台中提供更清晰的开始路线。用户可以按模型配置、AI 自动导演开书、确认方向、推进到可开写、进入章节执行的顺序完成第一本书。
-- 自动导演整本推进能力增强：选择方向后，系统可以连续准备故事规划、角色资产、卷战略、节奏拆章、章节任务单、正文生成、审校、修复和状态同步。普通质量问题、低风险状态提案和可修复审校问题优先由 AI 自动继续、修复、重写或重规划，只有模型不可用、服务异常、受保护正文、不可恢复风险等硬边界才停给用户处理。
-- AI 驾驶舱成为单本小说的统一状态入口：小说页、小说列表、任务中心和执行详情会围绕同一本书展示当前自动化状态、主原因、最近进展、后台队列、执行器状态、产物摘要、恢复建议和 AI 用量，减少不同入口各自显示不同进度的情况。
-- 后台执行链更稳：候选生成、方向细化、局部补丁、标题精修、方向确认、接管继续、恢复、重试、取消、工作区分析和手动编辑影响分析逐步进入统一后台命令与运行态。服务重启、Worker 中断、命令过期或旧任务残留时，系统会优先从最近安全进度恢复。
-- 自动导演候选生成的继续路径更可靠：书级候选方案生成中断后，后台继续和重试会沿用当前运行步骤继续生成，减少卡在 0% 并提示缺少执行器的情况。
-- 章节执行和节奏 / 拆章更一致：系统按真实章节产物判断目标章节是否具备可执行资源。缺少章节任务单、执行边界或场景拆解时，会先回到节奏 / 拆章补齐；执行指定章节范围时，会按本次范围验收正文完成情况，不会因为后续章节尚未开写而误报中断。
-- 质量闭环更适合整本成书：章节审校、局部修复、整章重写、窗口重规划、质量预算、质量待回收和状态同步形成连续判断。系统会记录同一问题的修复次数和受影响章节窗口，避免反复消耗同一轮模型调用，也支持先推进整本书、后集中处理可回收质量问题。
-- 正文保护和状态回灌更稳：AI 已生成或已修复正文不会被误判为用户手写受保护内容；真正受保护正文仍保持硬边界。章节完成后的伏笔账本、读者承诺、角色状态和连续性事实会继续影响后续章节和必要重规划。
-- 提示词和上下文治理升级：写法参考会先净化为可迁移写法指导，避免源作品实体污染新书。写法生成、状态提案解析、重规划窗口判断、章节任务单质量门禁、章节修复、工作区分析等产品级提示词纳入统一提示词资产与上下文经纪层，方便后续调参、审计和版本管理。
-- 提示词工作台的只读目录和资料检查能力更完整：可以看到每个提示词的上下文需求、可安全调整的表达槽位、锁定字段、结构化输出和重试 / 修复能力；也可以按小说、章节或任务读取当前提示词需要的资料，直接看到哪些资料已准备好、哪些缺输入、哪些被裁剪，方便先排查资料装配问题，再决定是否进入后续优化。
-- 提示词工作台新增自定义补充要求：用户可以为章节写作、章节审校和章节修复设置全局或单本小说补充要求，启用后会作为额外上下文参与真实生成，不会覆盖内置提示词、结构化输出和工具边界。
-- 提示词列表会优先展示支持自定义补充要求的提示词，打开管理页后可以先处理最常需要补充写法偏好和审校重点的生成链路。
-- 右上角全局错误提示更容易处理：关闭按钮会完整显示在提示卡片外侧，长错误信息仍会自动换行，用户可以直接关闭持续显示的失败提示。
-- 待恢复任务提醒更可控：关闭后同一浏览器会话内刷新页面不会重复自动弹出，小说列表顶部会在存在待恢复任务时提供快捷入口，方便需要时手动打开。
-- 主要弹窗的阅读和操作区更统一：恢复任务、继续自动导演、AI 驾驶舱、模型厂商配置、知识文档详情、题材编辑和角色图片预览会使用统一的标题区、可滚动内容区和底部操作区，减少滚动时底部露出背景或按钮区域混乱的问题。
-- 任务中心和恢复体验更清楚：任务面板会展示质量预算、质量待回收、章节执行摘要、运行投影、失败 / 取消动作和完成归档入口。取消后的任务会进入已取消终态，完成后的任务可以归档并刷新提醒区。
-- 开发启动体验更顺：前端页面可以先显示本地创作服务连接中，等待服务可用后自动进入工作台，减少刚打开页面就看到加载错误。
-- 桌面客户端正式发布准备完成：桌面版本推进到 `0.3.1`，用于触发本次整合后的公开客户端构建和启动体验优化；正式发布继续要求 `desktop/package.json` 版本与 `vX.Y.Z` tag 保持一致。
-- 桌面客户端版本推进到 `0.3.2`，用于发布候选生成继续路径修复后的 Windows 客户端包。
-- 桌面客户端版本推进到 `0.3.3`，用于发布提示词工作台与自定义补充要求能力后的 Windows 客户端包。
+- Beginner entry is more complete: Getting started help is added, and Home, the desktop sidebar, mobile entry, novel list, and novel workbench give a clearer start path. You can finish a first book by configuring models, opening with AI Auto-Director, confirming a direction, advancing to ready-to-write, and entering chapter execution.
+- Whole-book Auto-Director advance is stronger: after you pick a direction, the system can continuously prepare the story plan, character assets, volume strategy, pacing split, chapter task sheets, writing, review, repair, and state sync. Ordinary quality issues, low-risk state proposals, and repairable review issues prefer AI continuing, repairing, rewriting, or replanning automatically. Only hard boundaries such as unavailable model, service exception, protected prose, or unrecoverable risk stop for you.
+- AI Cockpit becomes the unified status entry for one novel: novel page, novel list, Task Center, and execution details show the same book’s automation status, main reason, recent progress, background queue, executor status, artifact summary, recovery advice, and AI usage, so different entries disagree less on progress.
+- The background execution chain is steadier: candidate generate, direction refine, local patch, title polish, direction confirm, takeover continue, recover, retry, cancel, workspace analysis, and manual-edit impact analysis gradually enter one background command and runtime. After service restart, worker interrupt, expired command, or leftover old task, the nearest safe progress is preferred.
+- Auto-Director candidate-generate continue is more reliable: after a book-level candidate generate interrupts, background Continue and Retry keep the current run step, so it sticks less at 0% with a missing-executor hint.
+- Chapter execution and Pacing / Split are more consistent: real chapter artifacts judge whether the target chapter has executable resources. Missing task sheet, execution boundary, or scene breakdown returns to Pacing / Split to fill first. Running a specified chapter range accepts prose completion for this range, and does not mis-report interrupt because later chapters have not started.
+- The quality loop better fits finishing a whole book: chapter review, local repair, full-chapter rewrite, window replan, quality budget, quality pending reclaim, and state sync form a continuous judgment. Repair count and affected chapter window for the same issue are recorded, so the same model round is not spent over and over, and you can advance the whole book first, then handle reclaimable quality issues together.
+- Prose protection and state write-back are steadier: AI-generated or AI-repaired prose is not mistaken for user-handwritten protected content. Truly protected prose stays a hard boundary. After a chapter finishes, foreshadowing ledger, reader promises, character state, and continuity facts keep affecting later chapters and necessary replan.
+- Prompt and context governance upgrades: style references first clean into transferable style guidance so source-work entities do not pollute a new book. Product-level prompts for style generate, state-proposal parse, replan-window judgment, chapter task-sheet quality gate, chapter repair, and workspace analysis enter unified prompt assets and a context broker, which makes later tuning, audit, and versioning easier.
+- Prompt Workbench read-only catalog and materials check are more complete: you can see each prompt’s context needs, expression slots that can be adjusted safely, locked fields, structured output, and retry / repair. You can also read materials the current prompt needs by novel, chapter, or task, and see what is ready, missing, or trimmed, so you diagnose materials assembly before later optimization.
+- Prompt Workbench adds custom extra requirements: you can set global or per-novel extras for chapter writing, review, and repair. When enabled they join real generation as extra context, without covering built-in prompts, structured output, or tool boundaries.
+- The prompt list prefers prompts that support custom extras, so opening management you can handle the generate paths that most often need extra style preference and review emphasis first.
+- Top-right global error hints are easier to handle: the close button fully shows outside the hint card. Long errors still wrap. You can close a failure hint that stays on screen.
+- Pending-recovery reminders are more controllable: after close, refresh in the same browser session does not auto-pop again. The novel-list top offers a shortcut when pending-recovery tasks exist, so you can open them when needed.
+- Main dialogs share a more unified read-and-action area: recover task, continue Auto-Director, AI Cockpit, model-provider config, knowledge-document details, genre edit, and character-image preview use a unified title, scrollable content, and bottom actions, so scrolling less exposes background at the bottom or a messy button area.
+- Task Center and recovery are clearer: the task panel shows quality budget, quality pending reclaim, chapter-execution summary, run projection, fail / cancel actions, and a complete-and-archive entry. Cancelled tasks enter a cancelled final state. Completed tasks can archive and refresh the reminder area.
+- Startup is smoother: the frontend can first show connecting to the local creation service, then enter the workbench when the service is available, so you see fewer load errors the moment the page opens.
+- Desktop client public-release prep is complete: desktop version moves to `0.3.1` for this combined public client build and startup polish. Public release still requires the desktop package version to match the `vX.Y.Z` tag.
+- Desktop client version moves to `0.3.2` for the candidate-generate continue-path fix.
+- Desktop client version moves to `0.3.3` for Prompt Workbench and custom extra requirements.
 
 ### 2026-05-07
 
-自动导演的节奏 / 拆章、章节执行和驾驶舱状态进一步统一：系统会按真实章节产物判断哪些章节还需要补齐执行资源，取消后的任务和已完成的提醒也会真正收束，不再把已停止或已完成的旧投影继续显示成待处理。
+Auto-Director Pacing / Split, chapter execution, and cockpit status unify further: real chapter artifacts judge which chapters still need execution resources filled. Cancelled tasks and completed reminders truly settle, so a stopped or completed old projection no longer stays pending.
 
-- 节奏 / 拆章与章节执行之间改用完整正文执行合同判断是否可同步。章节目标、执行边界、任务单和场景拆解缺一不可；手动细化当前章和自动导演批量细化会走同一套补齐口径，减少“看起来已细化但同步到章节执行区失败”的情况。
-- 自动导演继续或接管指定章节范围时，会优先从当前工作区真实产物恢复进度；历史“前 10 章”判断已收口为通用章节批次判断，避免旧状态把第 10 章当作特殊流程。
-- 自动导演执行指定章节范围时，会按本次章节范围验收正文完成情况；第 11-13 章这类批次完成后，不会因为后续章节尚未开写而误报 98% 中断。
-- 自动导演完成章节后，会把已收集到的伏笔账本、读者承诺和角色状态事实交给后续同步步骤判断；流程到 100% 时不再因为投影步骤看不到刚收集的事实而误报“已中断”。
-- 任务详情、小说页主横幅和左侧 AI 驾驶舱会按同一任务状态显示。真正取消自动导演后，任务会进入已取消终态，页面刷新后不再继续显示“出错需处理”。
-- 执行详情和驾驶舱的失败/取消按钮会指向当前展示的真实任务，方便用户停止旧任务、查看原因或从正确入口继续处理。
-- 自动导演完成后，小说页的“完成并收起”会归档这次完成记录并刷新提醒区，完成态横幅不会因为只剩历史投影而点不动。
+- Pacing / Split and chapter execution use a complete prose execution contract to judge whether they can sync. Chapter goal, execution boundary, task sheet, and scene breakdown are all required. Manual refine of the current chapter and Auto-Director batch refine use the same fill standard, so “looks refined but failed to sync to chapter execution” happens less.
+- Continue or takeover of a specified chapter range prefers restoring progress from current workspace artifacts. The historical first-10-chapters judgment closes into a general chapter-batch judgment, so old state does not treat chapter 10 as a special flow.
+- Running a specified chapter range accepts prose completion for this range. After a batch such as chapters 11–13 finishes, it does not mis-report 98% interrupt because later chapters have not started.
+- After Auto-Director finishes a chapter, collected foreshadowing ledger, reader promises, and character-state facts go to later sync-step judgment. At 100%, it no longer mis-reports Interrupted because the projection step cannot see facts just collected.
+- Task details, the novel-page main banner, and the left AI Cockpit show the same task state. After a true cancel, the task enters a cancelled final state. Refresh no longer keeps showing Error needs handling.
+- Fail / cancel buttons on execution details and the cockpit point at the currently shown real task, so you can stop the old task, see the reason, or continue from the right entry.
+- After Auto-Director completes, Complete and collapse on the novel page archives this completion record and refreshes the reminder area. A completed banner is not stuck because only a historical projection remains.
 
 ### 2026-05-06
 
-自动导演后台命令与桌面预览构建进一步对齐：同一套 API 进程会拉起导演命令消费循环，长篇小说后台任务不必再依赖单独启动第二个 Node 进程；命令入队与执行链也继续做减法，减少旧双轨运行时表带来的对齐成本。
+Auto-Director background commands and desktop preview builds align further: the same API process starts the director-command consume loop, so a long-novel background task does not depend on starting a second Node process. Command enqueue and the execution chain also keep simplifying, which cuts alignment cost from the old dual-track runtime tables.
 
-- 启动小说创作 API 服务时，会自动拉起自动导演后台命令队列（与 RAG 等后台任务同类方式同进程启动）；日常开发与环境部署一般只需运行一个服务端进程即可处理已排队的导演任务。
-- 导演命令执行维持在一条主执行链上；旧版并行运行时执行队列表与协调层已移除，恢复与排错路径更短。
-- 候选生成、方向细化、局部补丁、书名优化、接管继续、工作区分析和手动编辑影响分析仍统一走后台命令链；小说页和任务抽屉读取的运行投影与章节执行摘要能力与此前说明一致。
-- 规划与恢复仍优先结合当前工作区真实产物判断是否已完成步骤；用户手改内容后，系统更容易按现有数据决定跳过、续跑或回补。
-- 预发布桌面安装包仍在 GitHub Releases 的 Beta 渠道提供；需要试用预发布 Windows 安装包时，可在该页面的 Beta 条目下获取最新构建。
+- Starting the novel-creation API service automatically starts the Auto-Director background command queue in the same process as other background work such as knowledge retrieval. Day-to-day use generally needs one server process to handle queued director tasks.
+- Director commands stay on one main execution chain. The old parallel runtime execution-queue table and coordinator are removed, so recover and diagnose paths are shorter.
+- Candidate generate, direction refine, local patch, title polish, takeover continue, workspace analysis, and manual-edit impact analysis still share the background command chain. Run projection and chapter-execution summary on the novel page and task drawer stay as previously described.
+- Planning and recovery still prefer current workspace artifacts to judge whether a step is done. After you hand-edit content, skip, continue, or backfill from existing data is easier.
+- Pre-release desktop installers stay on the GitHub Releases Beta channel. To try a pre-release Windows installer, get the latest build under that page’s Beta entry.
 
-自动导演的任务显示与继续路径继续收口到“事实优先”的首步判断：小说页、任务中心和任务抽屉会优先读取统一的导演显示态与章节执行摘要，减少不同入口各自猜状态导致的进度错位。
+Auto-Director task display and continue keep closing to a facts-first first-step judgment: novel page, Task Center, and task drawer prefer a unified director display state and chapter-execution summary, so different entries guessing state misalign progress less.
 
-- 自动导演运行态新增统一显示构建层，先基于当前真实产物与步骤事实推导“现在卡在哪里、下一步该做什么”，再返回给前端展示。
-- 小说页工作区、任务抽屉和任务中心对导演状态的读取口径进一步一致；同一任务在多个入口之间切换时，步骤、阻塞原因与建议动作更容易保持一致。
-- 等待确认、可继续、局部可恢复和章节执行中的状态提示更贴近真实进度，不再过度依赖旧任务状态字段或单一百分比推断。
-- 章节执行进度推导补齐更多边界场景，单章修复、状态提交和可继续范围会更容易被正确识别，减少“看起来在跑但其实已停住”的误判。
+- Auto-Director runtime adds a unified display-build layer: first derive “where it is stuck now, what to do next” from current real artifacts and step facts, then return that to the frontend.
+- Novel-page workspace, task drawer, and Task Center read director status more consistently. Switching the same task among entries, step, block reason, and suggested action stay aligned more easily.
+- Waiting for confirmation, can continue, locally recoverable, and in chapter execution sit closer to real progress, instead of over-relying on old task-status fields or a single percentage.
+- Chapter-execution progress derivation covers more edge cases. Single-chapter repair, state submit, and continuable range are recognized more correctly, so “looks running but has already stopped” happens less.
 
 ### 2026-05-05
 
-自动导演继续、恢复、接管、重试和取消开始收口到统一执行链；系统会先读取同一份运行事实，再由 Pipeline 推进，减少不同入口各自判断状态导致的空转、重复执行和恢复错位。
+Auto-Director continue, recover, takeover, retry, and cancel start closing onto one execution chain. The same run facts are read first, then the pipeline advances, which cuts idle spinning, duplicate execution, and recovery misalignment from different entries each judging state.
 
-- 自动导演候选生成、候选改写、局部补丁和标题精修改为后台命令执行；界面会先提交任务，再读取结果展示候选，减少长时间请求阻塞页面。
-- 等待确认时的“确认并继续”成为独立审批命令，策略调整也会先进入后台命令队列；服务重启或 Worker 中断后，系统能按同一条可恢复路径继续处理。
-- 工作区 AI 分析和手动编辑影响分析在需要 AI 判断时进入后台命令，普通轻量事实读取仍可同步返回，减少分析类操作绕过导演运行态。
-- 章节执行进度改为按章节产物矩阵推导：系统会区分正文生成、审校、修复、状态提交和可继续范围；单章需要修复时会作为局部可恢复状态展示，不再直接等同于整本失败。
-- 自动导演步骤模块补齐输入、输出校验、提交、进度自检和恢复契约，章节修复与质量修复也拥有独立运行时步骤身份，后续排查和恢复能更准确定位到具体动作。
-- 运行投影新增章节执行摘要，任务中心和小说页可以读取更轻量、更可追溯的状态，而不是依赖旧任务状态或固定百分比猜测真实进度。
+- Auto-Director candidate generate, candidate rewrite, local patch, and title polish become background commands. The UI submits the task first, then reads results to show candidates, so a long request blocks the page less.
+- Confirm and continue while waiting for confirmation becomes an independent approval command. Policy adjustments also enter the background command queue first. After service restart or worker interrupt, the same recoverable path can continue.
+- Workspace AI analysis and manual-edit impact analysis enter background commands when they need AI judgment. Ordinary light fact reads can still return synchronously, so analysis operations bypass director runtime less.
+- Chapter-execution progress derives from a chapter-artifact matrix: writing, review, repair, state submit, and continuable range are distinguished. When a single chapter needs repair, it shows as locally recoverable, not as whole-book failure.
+- Auto-Director step modules fill input, output check, submit, progress self-check, and recovery contracts. Chapter repair and quality repair also have independent runtime step identity, so later diagnose and recover can locate a concrete action more accurately.
+- Run projection adds a chapter-execution summary. Task Center and the novel page can read lighter, more traceable status instead of guessing real progress from old task status or a fixed percentage.
 
 ### 2026-05-03
 
-自动导演后台运行方式完成一次整体收口：长流程任务按“每本小说自己的运行态”管理，后台执行器只承接耗时流程，不替代前台交互入口；多本小说可以同时启动自动导演，系统会按当前机器和模型资源调度推进。
+Auto-Director background running closes as a whole: long-flow tasks are managed as each novel’s own runtime. The background executor only takes time-consuming flows and does not replace the front-end interaction entry. Several novels can start Auto-Director at once, and the system schedules by current machine and model resources.
 
-- 侧边栏与首页提供「从零写全书」引导页，按推荐顺序链到创作中枢、创建小说、任务中心与小说列表，并与「新手上路」帮助页互相补充。
-- 写法引擎中“从样例提取公式”与“按公式改写 / 按主题生成”的模型提示纳入统一提示词资产，后续可独立调参和版本管理。
+- Sidebar and Home offer a Write a whole book from scratch guide, chaining in recommended order to Creative Hub, create novel, Task Center, and novel list, and complementary with Getting started help.
+- In Style Engine, Extract formula from sample and Rewrite by formula / Generate by theme prompts enter unified prompt assets, so later they can be tuned and versioned independently.
 
-- 自动导演接管、继续、恢复和确认书级方向会进入可恢复的后台运行态。每本小说都有独立进度、执行动作、检查点和事件记录，一本书等待或失败不会阻塞其他书继续推进。
-- 后台执行器可以同时处理多个不同小说的自动导演任务；同一本小说仍保持单一 active execution，避免同一本书被并发写入造成状态冲突。
-- 写作、轻审、严格审校、修复、重规划和状态解析按资源类型控制瞬时调用量。资源不足时，小说会显示等待后台执行或等待模型资源，而不是限制用户只能启动一本书。
-- 取消自动导演会立即收束对应小说的运行态、执行步骤和后台任务，不再把取消动作排成新的长任务；其他正在运行的小说不受影响。
-- 服务重启或后台执行器中断后，系统会扫描过期执行、排队命令和悬挂任务，把可恢复的自动导演任务重新接回队列，从最近安全进度继续。
-- 自动导演会优先展示每本小说的当前运行、接手、排队或等待确认状态；历史中断记录只作为排查线索保留，减少多本小说同时显示“后台执行器连接中断”的误判。
-- 后台执行器等待模型资源时会持续保活当前执行权，资源紧张时也会从已领取的进度继续，减少等待资源期间被误判为连接中断后反复恢复。
-- 任务面板和自动导演进度会显示当前后台执行、等待原因、执行队列和执行器信息，减少“接管任务已提交”长期停留但终端实际在运行的误判。
-- 历史自动导演命令会被安全采纳到新的运行态；正在运行的命令不会因为重新采纳被重置回等待执行，减少重复模型调用和进度倒退。
-- 新增运行态迁移，保留历史任务和命令数据，只为后续自动导演提供更稳定的恢复、取消、并发和进度解释基础。
+- Auto-Director takeover, continue, recover, and confirm book-level direction enter a recoverable background runtime. Each novel has independent progress, execution action, checkpoints, and event records. One book waiting or failing does not block other books.
+- The background executor can process Auto-Director tasks for several different novels at once. The same novel still keeps a single active execution, so one book is not written concurrently into a state conflict.
+- Writing, light review, strict review, repair, replan, and state parse control instantaneous call volume by resource type. When resources are short, the novel shows waiting for background execution or waiting for model resources, instead of limiting you to starting only one book.
+- Cancel Auto-Director immediately settles that novel’s runtime, execution steps, and background tasks, instead of queuing cancel as a new long task. Other running novels are unaffected.
+- After service restart or background-executor interrupt, expired executions, queued commands, and hanging tasks are scanned, and recoverable Auto-Director tasks rejoin the queue from the nearest safe progress.
+- Auto-Director prefers showing each novel’s current running, taking over, queued, or waiting-for-confirm status. Historical interrupt records stay as diagnose clues, so several novels less all show Background executor connection interrupted.
+- While the background executor waits for model resources, it keeps the current execution right alive. Under resource pressure it also continues from already claimed progress, so waiting for resources is less mistaken for a connection interrupt and then recovered over and over.
+- The task panel and Auto-Director progress show current background execution, wait reason, execution queue, and executor info, so Takeover task submitted stays less while the terminal is actually running.
+- Historical Auto-Director commands are adopted safely into the new runtime. A running command is not reset to waiting-to-run because it was re-adopted, which cuts duplicate model calls and progress rollback.
+- Runtime migration is added. Historical task and command data are kept, and later Auto-Director gets a more stable base for recover, cancel, concurrency, and progress explanation.
 
 ### 2026-05-02
 
-自动导演全书模式继续收口，并补上更清晰的新手入口：普通质量循环不再轻易打断新手，系统会把暂时修不动的问题纳入后续质量回收；第一次使用的用户也可以从“新手上路”直接按推荐路线开始第一本小说。
+Whole-book Auto-Director keeps closing in, and beginner entry is clearer: ordinary quality loops interrupt beginners less. Issues that cannot be repaired for now enter later quality reclaim. First-time users can also start a first novel from Getting started along the recommended path.
 
-- 新增“新手上路”帮助页，首页、桌面侧栏和移动端更多菜单都能进入；第一次使用时，可以按配置模型、AI 自动导演开书、确认方向、推进到可开写、进入章节执行的路线走。
-- 桌面版未配置模型时，可以先打开“新手上路”查看推荐路线，再进入系统设置完成模型厂商、API Key 和默认模型配置，减少首次启动时不知道下一步做什么的困惑。
-- 全书自动推进遇到重复重规划或自动修复耗尽时，会把当前章节登记为质量待回收并继续后续章节；只有硬故障、受保护正文和不可恢复风险才停下来。
-- 自动导演会保留质量循环计数、质量待回收章节和摘要，继续或恢复后不会把同类问题重新当成第一次失败处理，减少重复烧同一轮 LLM。
-- 自动导演遇到目标章节缺少节奏 / 拆章资源时，会提供“让 AI 补齐章节拆分后继续”入口；全书自动推进会先补齐可执行资源，再回到章节执行。
-- 任务面板会显示质量待回收的章节范围和处理方式，用户能看懂系统是在先完成整本书，再进入后续质量修复。
-- 全书自动推进会按同一问题、同一受影响章节窗口记录质量预算；服务恢复后会沿用已尝试的修复和重规划次数，减少跨章节重复处理同一类问题。
-- 任务面板会展示当前章节的质量预算用量，包括局部修复、整章重写、窗口重规划各用了几次，以及同类问题下一步会继续修复、重写、重规划还是进入质量待回收。
-- 章节质量闭环判定可继续时，章节卡片会优先显示“继续下一章”或“写本章”，减少质量可继续却仍提示修复的状态冲突。
-- 全书自动推进遇到普通状态提案时，会先让 AI 判断是自动应用、暂存归档还是重规划受影响章节；低置信度、高风险覆盖和受保护内容仍会停到人工恢复。
-- 手动/半自动模式的低风险质量提醒会走显式授权或保留确认，不会绕过用户选择；全书自动成书模式仍按自动推进策略处理普通问题。
-- 整本进度和任务状态继续以真实章节推进、质量状态和运行投影为准，减少“后台任务接近 99% 但整本还没推进完”的误导。
-- 选择“AI 自动推荐”进入自动推进时，新书初始化的占位卷不会再被当成真实分卷策略要求确认；已授权的卷战略和拆章检查点会直接交给 AI 继续处理。
-- 自动导演后台执行器会把接管、继续和取消纳入同一条执行生命周期。取消任务时会同步收束运行中的步骤和章节任务，避免再次点击继续后卡在“接管任务已提交”。
-- 自动导演任务会区分“等待后台执行器接手”“正在接手”“正在执行”和“中断后恢复”。后台执行器启动时会收束残留步骤，并把可恢复任务放回队列继续推进。
-- AI 驾驶舱和任务面板会显示后台执行的排队、接手、执行和恢复计数，并在任务等待接手时显示等待时长。
-- 点击继续或恢复后，已排队的自动导演任务会优先显示“等待后台执行器接手”；后台开始处理后会切换到真实执行步骤，减少 0% 卡在接管提示的误判。
-- 选择书级方向后，任务弹窗会显示方向提交、等待创建项目或真实执行步骤；不会继续停留在候选生成结果上，让用户误以为方向没有生效。
-- 自动导演刷新节奏 / 拆章执行资源时会保护已经写出的章节正文，更新任务单、场景卡和章节材料不会把已有正文清空。
+- Getting started help is added. Home, the desktop sidebar, and the mobile more menu can all open it. First use can follow configure models, open with AI Auto-Director, confirm a direction, advance to ready-to-write, then enter chapter execution.
+- When the desktop app has no model configured, you can open Getting started for the recommended path, then complete provider, API key, and default model in Settings, so first launch is less “what next?”
+- Whole-book auto-advance that hits repeated replan or exhausted automatic repair registers the current chapter as quality pending reclaim and continues later chapters. Only hard failure, protected prose, and unrecoverable risk stop.
+- Auto-Director keeps quality-loop counts, quality pending-reclaim chapters, and a summary. After Continue or Recover, the same kind of issue is not treated as a first failure again, which cuts burning the same model round twice.
+- When target chapters lack Pacing / Split resources, Let AI fill chapter splits then continue is offered. Whole-book auto-advance fills executable resources first, then returns to chapter execution.
+- The task panel shows quality pending-reclaim chapter range and how it will be handled, so you can see the system is finishing the whole book first, then later quality repair.
+- Whole-book auto-advance records a quality budget by the same issue and the same affected chapter window. After service recover, already-tried repair and replan counts are reused, so the same class of issue is less reprocessed across chapters.
+- The task panel shows this chapter’s quality-budget use: how many times local repair, full-chapter rewrite, and window replan ran, and whether the next step for the same issue is keep repairing, rewrite, replan, or enter quality pending reclaim.
+- When the chapter quality loop judges can-continue, the chapter card prefers Continue next chapter or Write this chapter, so quality can-continue no longer still prompts repair.
+- Ordinary state proposals during whole-book auto-advance first let AI judge auto-apply, stash-and-archive, or replan affected chapters. Low confidence, high-risk overwrite, and protected content still stop for human recover.
+- Low-risk quality reminders in manual / semi-automatic modes go through explicit authorize or keep-confirm, and do not skip your choice. Whole-book auto-complete still handles ordinary issues by auto-advance policy.
+- Whole-book progress and task status keep using real chapter advance, quality status, and run projection, so “background task near 99% but the book is not done” misleads less.
+- Choosing AI auto-recommend into auto-advance no longer treats a new book’s placeholder volume as a real volume strategy that needs confirm. Already authorized volume-strategy and split checkpoints go straight to AI to continue.
+- The Auto-Director background executor puts takeover, continue, and cancel on the same execution lifecycle. Cancel settles running steps and chapter tasks together, so clicking Continue again does not stick on Takeover task submitted.
+- Auto-Director tasks distinguish Waiting for background executor, Taking over, Running, and Recovering after interrupt. When the executor starts, leftover steps settle and recoverable tasks return to the queue.
+- AI Cockpit and the task panel show background-execution queue, takeover, run, and recover counts, and wait duration when a task is waiting to be taken over.
+- After Continue or Recover, a queued Auto-Director task prefers Waiting for background executor. After the background starts, it switches to the real execution step, so 0% stuck on a takeover hint happens less.
+- After you pick a book-level direction, the task dialog shows direction submitted, waiting to create the project, or the real execution step. It does not stay on candidate-generate results as if the direction did not take effect.
+- Refreshing Pacing / Split execution resources protects already-written chapter prose. Updating task sheets, scene cards, and chapter materials does not empty existing prose.
 
 ### 2026-05-01
 
-本次更新把自动导演模式优化改造收束为更完整的整本生产体验：用户可以更清楚地看到 AI 正在推进哪本书、为什么停住、下一步该点什么；系统也能更稳地从长任务中断、质量修复、章节批次和重规划中继续。
+This update closes Auto-Director mode work into a more complete whole-book production experience: you can more clearly see which book AI is advancing, why it stopped, and what to click next. The system also continues more steadily from long-task interrupts, quality repair, chapter batches, and replan.
 
-- 章节质量评分统一为“重复控制分”：分数越高代表重复越少、质量越好。自动审核、规则评分和章节通过判断会按同一口径处理，减少重复维度被反向理解后导致的误修复。
-- 章节质量闭环开始记录同一失败签名和修复预算。同一问题反复出现时，系统能识别“这是同一轮质量失败在循环”，并为局部修复、整章重写、窗口重规划和硬恢复提供清晰依据，降低单章反复消耗模型调用的风险。
-- 写法参考会先净化成可迁移写法指导。系统会从绑定写法里提取不该进入新书的源作品角色名、地名和专有称谓，正文生成时只注入抽象写法；如果审校发现源作品实体泄露，会自动触发整章重写。
-- LLM 调用路由开始按写作、轻审、严格审校、修复、重规划和状态解析分层记录。没有单独配置更强模型时，系统仍会继续使用当前模型，但会在用量账本里标记该路由处于降级执行，方便排查成本和质量问题。
-- 全书自动推进遇到普通状态提案、可修复审校问题和质量建议时，会优先由 AI 自动继续、修复、整章重修或重规划；只有模型不可用、连续租约 / 数据库失败、受保护正文冲突和数据安全风险才停给用户处理。
-- 局部补丁失败后会自动升级为整章重修，并在重修后重新进行质量审核，减少“目标片段不存在”这类问题把整本书卡在章节修复阶段。
-- 章节队列里的风险提示会显示为“建议重规划”“连贯性风险”等中文标签，不再把后台结构化 JSON 原文显示给用户。
-- 自动导演进度增加可解释字段。系统会同时给出阻塞原因、推荐动作、是否可由 AI 自动恢复、规划 / 章节执行 / 质量修复拆分进度和可见风险标签，让任务面板、工作台和 AI 工具读取同一份状态。
-- 整本进度会优先按“可继续章节 / 总章节”计算，不再把单个后台任务接近完成误显示为整本接近完成；进度面板会同时展示规划、章节、质量和当前动作进度。
-- 章节队列会按最新质量闭环派生下一步。章节已经复检为可继续时，会显示查看建议、写本章或继续下一章，不会继续残留“一键修复”。
-- 整本自动推进任务遇到 Worker 租约过期时，会优先从最近安全进度自动重新排队；同一任务连续失败超过阈值后才进入待恢复，降低长链路频繁手动恢复的概率。
-- 章节执行页和左侧流程会更贴近真实后台节点。正文已经开始生成或审校时，流程会显示章节执行正在推进，不再因为历史检查点停留在“节奏 / 拆章”。
-- 章节修复完成后的状态会自动收敛。最新质量复检判定可继续时，章节队列会切回“查看建议 / 写下一章”等后续动作，不会继续把同一章显示成“一键修复”。
-- 自动导演会更准确地区分 AI 生成正文和用户手写正文。AI 已生成或已修复的章节不会被误判为受保护手写内容，从而减少继续执行时反复停在确认覆盖风险的情况。
-- 旧修复票据会跟随最新质量状态自动失效。章节已经通过复检后，历史修复工单不会继续计入待修复摘要，也不会把自动导演重新拖回已处理的章节。
-- 全书自动推进的章节流水线会保留自动导演策略。继续或恢复后，只有普通状态提案、没有审校硬问题时，系统会继续章节写作；真正需要审核的风险仍会阻断，且不会提前把章节留下“生成中”的矛盾状态。
-- 自动导演新增更完整的全书自动推进能力。选择书级方向后，系统可以连续准备故事规划、角色资产、卷战略、节奏拆章、章节任务单、正文生成、审校、修复和状态同步，减少新手在多个页面之间手动判断下一步。
-- 每本小说都有自己的 AI 驾驶舱。小说列表、小说工作台和执行详情会围绕同一本书展示统一状态、主原因、最近进展、AI 用量、产物记录和唯一主动作，让用户直接看懂“这本书卡在哪里、下一步做什么”。
-- 任务入口进一步收敛。小说工作台左侧只保留极简状态入口，完整进度放进弹窗和执行详情；任务中心继续承担后台历史、筛选和排查，不再是继续当前小说的唯一入口。
-- 等待确认的入口更明确。自动导演遇到会影响用户编辑或受保护内容的动作时，进度弹窗、执行详情和 AI 驾驶舱都会露出“确认并继续”，不会只在日志里提示需要确认。
-- AI 驾驶舱新增自动化时间线和产物摘要。用户可以看到任务、命令、事件、自动确认、章节正文、审校报告、修复记录、读者承诺、角色状态、伏笔同步和产物依赖的近期状态。
-- AI 用量统计更接近真实工作内容。系统会按章节规划、正文写作、质量检查、文本修复、风格调整、伏笔同步、角色 / 状态同步等阶段展示调用次数、Token 和累计调用耗时，减少把整套质量闭环误看成“正文写作”的困惑。
-- 章节执行成本进一步收敛。昂贵的伏笔同步、角色资源抽取、状态快照和角色动态抽取会尽量只在最终保留正文确定后执行，避免初稿、风格改写稿和修复稿重复触发同类同步。
-- 章节局部修复更稳。局部补丁会在精确匹配失败后尝试确定性的空白等价匹配；无法唯一命中、多处命中或替换无效果时不会强行改文，而是升级为整章重修并复审。
-- 章节修复失败不再轻易卡死整本书。局部补丁无法安全落位时，系统会先尝试整章重修；正文为空、保存失败、核心结构缺失等不可恢复问题仍会暂停让用户处理。
-- 章节任务单进入正文前会经过质量门禁。系统会检查章节目标、执行边界、场景拆解和任务单是否足够明确，减少坏任务单直接进入正文生成导致的后续返工。
-- 章节质量闭环更连续。系统会把轻审、必要修复、复审、留存、连续性和近期复盘纳入同一条判断链，决定是继续推进、局部修复、重修还是重规划。
-- 重规划更贴近真实故事状态。AI 会结合章节目标、审校问题、伏笔账本和当前状态判断需要调整的章节窗口，重规划完成后可接回后续章节批次。
-- 全书自动推进新增暂停保护。系统会记录重复失败、修复失败、异常用量和可能影响受保护正文的风险，同类问题反复出现时会暂停新批次并给出恢复建议。
-- 自动导演恢复链补齐更多真实场景。服务重启、后台命令过期、旧任务取消或失败、旧批次仍有待写章节、历史产物缺少账本、章节正文为空但状态显示完成等情况，都会更准确地回到可继续的位置。
-- 点击继续自动导演后，章节执行会重新判断真实剩余章节。旧的成功步骤记录不会让新批次误以为章节执行已经完成；旧 `pipelineJob` 失败或取消时也会清空绑定并创建新的执行批次。
-- 卷规划和拆章写入更稳。遇到本地数据库短暂繁忙或并发写入时，系统会等待并重试，减少长链路因为瞬时锁冲突停到待恢复。
-- 自动审批授权更清楚。AI 自动推进和 AI 副驾确认会使用不同的审批边界：自动推进尽量减少新手逐项理解高级检查点，副驾确认仍保留关键节点给用户判断。
-- 已有小说接管和恢复更可靠。系统会从现有项目资产、接管请求、运行记录和产物账本恢复上下文，减少“缺少恢复所需上下文”或接管后重进导演模式又回到候选生成的情况。
-- 运行记录和账本更完整。自动导演会记录运行、步骤、事件、命令、AI 用量、产物、依赖、自动确认和恢复建议，为驾驶舱展示、任务排查和后续继续执行提供同一套依据。
-- 小说列表也能查看单本书驾驶舱。用户不必进入编辑页或任务中心，就能快速查看某本小说的 AI 运行状态、最近进展和可执行主动作。
+- Chapter quality scoring unifies as a repetition-control score: higher means less repetition and better quality. Automatic review, rule scoring, and chapter-pass judgment use the same standard, so a reversed understanding of the repetition dimension causes less wrong repair.
+- The chapter quality loop starts recording the same failure signature and a repair budget. When the same issue repeats, it can recognize this is the same quality-failure round looping, and give a clear basis for local repair, full-chapter rewrite, window replan, and hard recover, which lowers burning model calls on one chapter over and over.
+- Style references first clean into transferable style guidance. Character names, place names, and proper titles from the source work that should not enter the new book are extracted from the bound style. Writing only injects abstract style. If review finds source-work entities leaking, a full-chapter rewrite is triggered automatically.
+- Model-call routing starts recording by layer: writing, light review, strict review, repair, replan, and state parse. With no separately configured stronger model, the current model is still used, but the usage ledger marks that route as degraded, which makes cost and quality diagnosis easier.
+- Whole-book auto-advance prefers AI automatically continuing, repairing, full-chapter rewriting, or replanning for ordinary state proposals, repairable review issues, and quality suggestions. Only unavailable model, consecutive lease / database failure, protected-prose conflict, and data-safety risk stop for you.
+- A failed local patch upgrades automatically to a full-chapter rewrite, then quality review runs again, so issues such as target fragment does not exist pin the whole book in chapter repair less.
+- Risk hints in the chapter queue show user-facing labels such as Suggest replan and Continuity risk, instead of raw backend structured JSON.
+- Auto-Director progress adds explainable fields: block reason, recommended action, whether AI can auto-recover, split progress for planning / chapter execution / quality repair, and visible risk labels. Task panel, workbench, and AI tools read the same status.
+- Whole-book progress prefers continuable chapters / total chapters, and no longer shows a single background task near done as the whole book near done. The progress panel shows planning, chapter, quality, and current-action progress together.
+- The chapter queue derives the next step from the latest quality loop. When a chapter rechecks as can-continue, it shows View suggestions, Write this chapter, or Continue next chapter, instead of leftover One-click repair.
+- When a whole-book auto-advance task hits a worker-lease expiry, it prefers auto-requeue from the nearest safe progress. The same task enters pending recover only after consecutive failures pass a threshold, which lowers frequent manual recover on a long chain.
+- The chapter-execution page and left flow sit closer to real background nodes. When prose has started generating or reviewing, the flow shows chapter execution advancing, instead of staying on Pacing / Split because of a historical checkpoint.
+- After chapter repair finishes, status settles automatically. When the latest quality recheck judges can-continue, the chapter queue switches back to later actions such as View suggestions / Write next chapter, instead of still showing One-click repair on the same chapter.
+- Auto-Director distinguishes AI-generated prose and user-handwritten prose more accurately. AI-generated or AI-repaired chapters are not mistaken for protected handwritten content, so Continue less repeatedly stops on confirm-overwrite risk.
+- Old repair tickets expire automatically with the latest quality status. After a chapter passes recheck, historical repair tickets no longer count in the pending-repair summary, and Auto-Director is not dragged back to already-handled chapters.
+- The whole-book auto-advance chapter pipeline keeps Auto-Director policy. After Continue or Recover, chapter writing continues only when there are ordinary state proposals and no hard review issues. Risks that truly need review still block, and a chapter is not left in a contradictory Generating state early.
+- Auto-Director adds more complete whole-book auto-advance: after you pick a book-level direction, it can continuously prepare story plan, character assets, volume strategy, pacing split, chapter task sheets, writing, review, repair, and state sync, so beginners judge the next step across pages less.
+- Each novel has its own AI Cockpit. Novel list, novel workbench, and execution details show unified status, main reason, recent progress, AI usage, artifact records, and a single primary action around the same book, so you can see where this book is stuck and what to do next.
+- Task entries converge further. The left of the novel workbench keeps only a minimal status entry. Full progress goes in a dialog and execution details. Task Center keeps background history, filter, and diagnose, and is no longer the only entry to continue the current novel.
+- Waiting-for-confirm entry is clearer. When Auto-Director would affect your edits or protected content, the progress dialog, execution details, and AI Cockpit all show Confirm and continue, instead of only hinting confirm in logs.
+- AI Cockpit adds an automation timeline and artifact summary. You can see recent status of tasks, commands, events, auto-confirms, chapter prose, review reports, repair records, reader promises, character state, foreshadowing sync, and artifact dependencies.
+- AI usage stats sit closer to real work. Calls, tokens, and accumulated call time show by stage such as chapter planning, writing, quality check, text repair, style adjust, foreshadowing sync, and character / state sync, so the whole quality loop is less mistaken for Writing.
+- Chapter-execution cost converges further. Expensive foreshadowing sync, character-resource extract, state snapshot, and character-dynamics extract prefer running only after the finally kept prose is confirmed, so first draft, style rewrite, and repair draft less trigger the same sync twice.
+- Local chapter repair is steadier. After exact match fails, a local patch tries deterministic whitespace-equivalent match. If it cannot uniquely hit, hits in several places, or replace has no effect, it does not force a text change; it upgrades to a full-chapter rewrite and re-review.
+- Chapter-repair failure pins the whole book less. When a local patch cannot land safely, a full-chapter rewrite is tried first. Unrecoverable issues such as empty prose, save failure, or missing core structure still pause for you.
+- Chapter task sheets pass a quality gate before writing. Chapter goal, execution boundary, scene breakdown, and task sheet are checked for enough clarity, so a bad task sheet entering writing causes less later rework.
+- The chapter quality loop is more continuous. Light review, necessary repair, re-review, retention, continuity, and recent recap enter one judgment chain, deciding continue, local repair, rewrite, or replan.
+- Replan sits closer to real story state. AI judges the chapter window to adjust from chapter goals, review issues, foreshadowing ledger, and current state. After replan finishes, later chapter batches can reconnect.
+- Whole-book auto-advance adds pause protection. Repeated failure, repair failure, abnormal usage, and risk that may affect protected prose are recorded. When the same kind of issue repeats, new batches pause and recovery advice is given.
+- Auto-Director recovery covers more real scenes. Service restart, expired background command, old task cancel or fail, old batch still has chapters to write, historical artifacts missing a ledger, and empty chapter prose whose status shows complete all return more accurately to a continuable place.
+- After Continue Auto-Director, chapter execution rejudges real remaining chapters. An old successful-step record does not make a new batch think chapter execution is already done. When an old pipeline job fails or cancels, the binding clears and a new execution batch is created.
+- Volume planning and split writes are steadier. On brief local-database busy or concurrent write, it waits and retries, so a long chain stops at pending recover less from a momentary lock conflict.
+- Auto-approval authorize is clearer. AI auto-advance and AI copilot confirm use different approval boundaries: auto-advance tries to spare beginners from understanding every advanced checkpoint item by item; copilot confirm still keeps key nodes for you.
+- Existing-novel takeover and recover are more reliable. Context restores from existing project assets, takeover request, run records, and artifact ledger, so Missing recovery context, or re-entering director mode after takeover and returning to candidate generate, happens less.
+- Run records and ledgers are more complete. Auto-Director records run, steps, events, commands, AI usage, artifacts, dependencies, auto-confirms, and recovery advice, which gives cockpit display, task diagnose, and later Continue one shared basis.
+- The novel list can also open a single-book cockpit. You do not enter the editor or Task Center to quickly see that novel’s AI run status, recent progress, and executable primary action.
 
 ### 2026-04-30
 
-- 自动导演新增“全书自动成书”推进方式。选择方向后，系统会按全书范围自动准备规划、章节任务、正文生成、审校和修复；只有模型不可用、服务异常、受保护正文、不可恢复数据风险或连续自动修复失败时，才会停下来让用户处理。
-- AI 自动推进和 AI 副驾确认的授权边界更清楚。选择 AI 自动推进时，高级审批细项不会再要求新手逐项理解；选择 AI 副驾确认时，关键检查点仍会交给用户判断。
-- 小说工作台的 AI 驾驶舱会按“这本书”的自动化状态展示进展。系统会聚合自动导演任务、后台命令、运行事件、自动确认记录和产物概况，让用户直接看到这本书正在做什么、为什么停、下一步是什么；任务中心继续保留为执行详情入口。
-- 自动导演进入章节写作前会先检查章节目标、执行边界、任务单和场景拆解是否能被正文生成器可靠执行。全书自动模式会把普通质量问题交给 AI 自动重生或修复，AI 副驾模式才会把需要判断的检查点交给用户确认，减少坏任务单直接流入正文生成。
-- 章节修复默认更谨慎。系统会先尝试只替换有明确位置的局部片段，避免普通审校问题直接触发整章重写；只有用户选择重修或系统确认需要更大范围处理时，才会进入整章修复边界。
-- 章节审校后的处理更连续。系统会把章节留存、连续性和近期章节复盘汇总成同一份质量状态，决定是继续推进、先做局部修复，还是进入重规划，减少新手在多个质量提示之间来回判断。
-- AI 驾驶舱的产物记录更接近书本本身。除了任务和事件，系统会显示这本书已有多少可用产物、需复核产物、受保护内容、修复项和产物依赖，并按类型展示最近的产物状态。
-- AI 驾驶舱的产物摘要会提示受影响章节、需复核产物、修复记录和新版本产物，方便用户判断质量修复和重规划影响到了哪里。
-- AI 驾驶舱会显示自动导演的步骤耗时和 Token 用量。用户可以看到这本书最近哪些步骤调用了 AI、每步用了多少输入 / 输出 Token、总消耗和大致耗时，排查长任务更直观。
-- 全书自动推进增加暂停保护。系统会记录章节质量评估、修复失败、重复重规划和异常用量；当同一问题反复失败或可能影响受保护正文时，会暂停新批次并在 AI 驾驶舱给出恢复建议，避免长链路在坏状态里反复消耗。
-- 全书自动推进遇到重规划提示时，会先让 AI 完成章节窗口调整，再接回后续章节批次；重规划记录也会进入这本书的自动化时间线，方便回看系统为什么调整了这些章节。
-- 小说工作台左侧的 AI 驾驶舱只保留轻量状态入口，流程步骤导航有更多空间；点击“查看进度”可打开完整自动导演进度弹窗，任务中心继续承载执行详情。
-- 自动导演进度弹窗新增“全部进展”。用户可以在同一个弹窗里查看这次任务写入的进展流水，并看到已显示数量和总记录数，不必只依赖最近几条提示判断任务是否仍在推进。
-- 小说工作台顶部状态会跟随书本级自动化状态。后台运行已经中断或等待恢复时，顶部横幅、任务面板和 AI 驾驶舱会显示一致状态，减少同一个任务一处显示进行中、一处显示异常的混乱。
-- 重规划会更贴近当前故事状态。系统会结合章节目标、审校问题、伏笔账本和整本状态来判断应该调整哪些章节，并说明为什么选择这些章节，而不是只按固定窗口重排。
-- 自动导演恢复时会先判断目标章节是否真的具备可执行范围。已有章节留下待修状态、但后续章节还缺节奏 / 拆章细化时，系统会回到拆章阶段补齐资源，而不是让用户面对“没有可继续的章节执行范围”后手动判断怎么处理。
-- 自动导演后台执行短暂中断时，安全的继续 / 恢复任务会先回到队列并从最近进度继续；同一任务反复过期后才进入人工恢复，减少长拆章和章节细化过程里的频繁手动介入。
-- 自动导演从待恢复状态继续时，会先清理已经过期的后台恢复记录，再提交新的继续任务，减少“提示已继续但又回到待恢复”的状态循环。
-- 自动导演遇到本地数据库短暂繁忙时，会自动等待并重试卷规划写入；任务停在待恢复状态时，工作台和任务面板都会直接显示继续入口，避免用户找不到恢复操作。
-- 自动导演进入章节正文执行后，左侧流程会跟随真实运行步骤显示“章节执行”正在推进；历史任务里残留的开写前检查点不会再把步骤误显示为“节奏 / 拆章”或让章节执行看起来待推进。
+- Auto-Director adds a Whole-book auto-complete advance mode. After you pick a direction, planning, chapter tasks, writing, review, and repair prepare automatically for the whole-book range. It stops for you only on unavailable model, service exception, protected prose, unrecoverable data risk, or consecutive automatic-repair failure.
+- Authorize boundaries for AI auto-advance and AI copilot confirm are clearer. Choosing AI auto-advance no longer asks beginners to understand every advanced approval item. Choosing AI copilot confirm still gives key checkpoints to you.
+- The novel-workbench AI Cockpit shows progress by this book’s automation status. It aggregates Auto-Director tasks, background commands, run events, auto-confirm records, and artifact overview, so you can see what this book is doing, why it stopped, and what is next. Task Center stays the execution-details entry.
+- Before chapter writing, Auto-Director checks that chapter goal, execution boundary, task sheet, and scene breakdown can be executed reliably by the writer. Whole-book auto mode hands ordinary quality issues to AI to regenerate or repair. AI copilot mode only gives checkpoints that need judgment to you, so a bad task sheet flows into writing less.
+- Chapter repair is more cautious by default. It first tries replacing only a local fragment with a clear location, so ordinary review issues do not trigger a full-chapter rewrite. Full-chapter repair starts only when you choose rewrite or the system confirms a larger range is needed.
+- After chapter review, handling is more continuous. Chapter retention, continuity, and recent-chapter recap summarize into one quality status, deciding continue, local repair first, or replan, so beginners judge back and forth among several quality hints less.
+- AI Cockpit artifact records sit closer to the book itself. Besides tasks and events, it shows how many usable artifacts, need-recheck artifacts, protected content, repair items, and artifact dependencies this book has, and recent artifact status by type.
+- AI Cockpit artifact summary hints affected chapters, need-recheck artifacts, repair records, and new-version artifacts, so you can see where quality repair and replan landed.
+- AI Cockpit shows Auto-Director step time and token usage. You can see which recent steps called AI, input / output tokens per step, total spend, and approximate duration, which makes diagnosing long tasks more direct.
+- Whole-book auto-advance adds pause protection. Chapter quality assessment, repair failure, repeated replan, and abnormal usage are recorded. When the same issue fails repeatedly or may affect protected prose, new batches pause and AI Cockpit gives recovery advice, so a long chain burns less in a bad state.
+- When whole-book auto-advance hits a replan hint, AI first finishes chapter-window adjustment, then reconnects later chapter batches. Replan records also enter this book’s automation timeline, so you can look back at why those chapters were adjusted.
+- The left AI Cockpit on the novel workbench keeps only a light status entry, so flow-step navigation has more room. View progress opens the full Auto-Director progress dialog. Task Center still carries execution details.
+- The Auto-Director progress dialog adds All progress. In the same dialog you can see this task’s progress stream, shown count, and total records, instead of judging whether the task is still advancing from only the latest few hints.
+- Novel-workbench top status follows book-level automation status. When background running has interrupted or is waiting to recover, the top banner, task panel, and AI Cockpit show the same status, so one task is less in-progress in one place and abnormal in another.
+- Replan sits closer to current story state. It judges which chapters to adjust from chapter goals, review issues, foreshadowing ledger, and whole-book state, and explains why those chapters were chosen, instead of only rearranging a fixed window.
+- Auto-Director recover first judges whether the target chapter truly has an executable range. When existing chapters leave needs-repair but later chapters still lack Pacing / Split refine, it returns to split to fill resources, instead of leaving you facing No continuable chapter-execution range and judging by hand.
+- When Auto-Director background execution interrupts briefly, a safe Continue / Recover first returns to the queue and continues from the latest progress. The same task enters human recover only after repeated expiry, which cuts frequent manual intervention during long split and chapter refine.
+- Continuing from pending recover first cleans expired background-recover records, then submits a new continue task, so Hinted continued but back to pending recover loops less.
+- On brief local-database busy, it waits and retries volume-plan write automatically. When a task stops at pending recover, workbench and task panel both show a Continue entry, so you can find the recover action.
+- After Auto-Director enters chapter-prose execution, the left flow follows the real run step and shows Chapter execution advancing. A leftover pre-write checkpoint on a historical task no longer mis-shows the step as Pacing / Split or makes chapter execution look pending.
 
 ### 2026-04-29
 
-- 自动导演继续、恢复和已有项目接管进入更稳定的后台执行模式。点击继续后，页面会快速收到已提交结果，后续由后台继续推进，减少整页接口挂起和浏览器请求堆积。
-- 自动导演运行中的页面刷新更轻。运行状态会优先读取轻量进度信息，不再持续强拉完整卷工作区，查看任务中心、项目导航和当前进度时更顺畅。
-- 等待确认的步骤会按明确的用户确认继续，只放行当前停留点；后续新的高风险操作仍会停下来提示确认，减少“提示成功但又停回同一步”的状态循环。
-- 章节标题修复也进入后台命令队列。触发修复后页面会快速确认已接收，不再在请求中直接跑重型修复链，也不会立刻强刷完整卷工作区。
-- 自动导演后台执行失败时会更快回到可恢复状态。运行中的步骤会同步收束为失败，任务会显示等待手动恢复，减少后台命令失败后页面仍像排队或运行中的错位。
-- 自动导演继续旧任务时，产物依赖记录会先确认两端产物都已写入，再保存依赖关系。旧任务从章节细化、拆章或质量修复处恢复时，不再容易因为产物依赖外键顺序失败而停住。
-- 历史运行记录里的旧产物会在恢复时补进自动导演账本。旧任务只在早期快照里保存过产物时，系统也会先补齐这些产物，再保存新的依赖关系。
-- 自动导演恢复时遇到并发变化会更稳。如果产物依赖写入前目标产物已被更新任务取代或清理，系统会跳过这条过期依赖并继续保存其余运行记录。
-- 自动导演恢复样本会识别同一小说里的更新任务。旧失败任务已经被后续任务推进到等待确认或完成时，检查结果会把旧任务降为历史记录，避免误把它当作当前最高优先级问题。
-- 已有小说接管任务的恢复更可靠。即使任务还没来得及把完整导演输入写入运行记录，系统也会从原接管请求恢复上下文继续处理，减少“缺少恢复所需上下文”导致的恢复失败。
-- 已有小说接管后的继续入口也会复用原接管上下文。点击继续、重试或恢复时都会先确认是否能从接管请求恢复，减少从“继续前 10 章”等入口进入后又提示缺少恢复上下文的情况。
-- 自动导演继续前 10 章执行时会更准确识别用户选择。即使旧任务保存的是先准备到可执行资源的模式，只要章节任务单已同步到执行区，点击继续会直接批准进入章节写作，不会在章节执行入口再次停回等待确认；资源不完整时仍会先回到节奏 / 拆章补齐。
-- 已有小说接管恢复“继续前 10 章”时，如果目标章节还缺少节奏 / 拆章细化，系统会自动回到拆章阶段补齐缺口，不再反复停在“缺少节奏拆章”的待恢复状态。
-- 继续自动执行前 10 章时，章节写作后的自动审稿和状态同步会跟随同一次确认推进。用户选择范围执行后，不需要在写作、审稿和同步节点之间反复确认。
-- 已有小说接管会先进入后台分析和接管任务，不再把接管过程变成前台长等待。
-- 服务重启或后台执行中断后，任务会优先显示可解释的待恢复状态，减少“看起来运行中但实际已暂停”的错位。
-- 服务重启后的待恢复任务体验更顺畅。点击恢复后，页面会快速确认任务已开始后台恢复，不再长时间卡在请求等待或弹窗按钮“恢复中”的状态。
-- 小说工作台左侧流程状态更贴近自动导演真实进度。有正在推进的导演任务时，步骤完成态会优先跟随任务阶段，不会因为已有旧卷战略资产就把后续“卷战略 / 卷骨架”提前显示为已完成。
-- 自动导演的产物账本恢复更稳。同一产物或依赖在服务重启、重复恢复或并发恢复时会优先复用已有记录，减少唯一约束冲突和重复依赖边带来的恢复失败。
-- 自动导演规划恢复链进一步收口。已有故事宏观规划、书级约定、角色资产和卷规划时，系统会按真实缺口继续，不会跳过缺失资产，也不会在卷战略暂停点误穿透到拆章阶段。
-- 真实数据抽样回归已覆盖旧项目接管、持久化卷战略恢复到拆章、后台恢复入口和产物依赖重复恢复，后续继续任务更接近实际使用场景。
-- 自动导演接管已有小说后，退出再重新进入导演模式时会按真实任务阶段恢复，不会把已经推进到节奏拆章、章节细化或章节执行的任务重新显示成等待生成候选方向。
-- 按章节范围继续执行时，系统会按全书规划、卷章节计划和结构化目录判断可执行范围，不再因为当前只同步了少量正文章节，就把 1-10 章误判为超过全书规划。
-- 自动导演继续、恢复和章节流水线会更稳地复用已有运行记录与产物依赖。重复点击、服务重启后继续或同一产物重复入账时，会优先复用已有记录，减少重复创建、重复写入和依赖冲突。
-- 自动导演运行时账本的产物归属更准确。章节写作、审校、状态同步和伏笔 / 角色同步只登记各自真正产出的内容，后续恢复、局部重跑和过期判断更不容易被无关产物误导。
-- 自动导演恢复样本有了只读抽样检查。开发验证时可以快速看到当前数据库里哪些任务适合接管、待恢复、章节批次和改文影响回归；如果已有正文缺少章节正文账本基线，检查结果也会直接标出。
-- 历史正文的章节账本基线可以安全补齐。系统会先区分已追踪正文和真正缺少基线的历史章节，补齐时只新增缺失记录，不覆盖已有正文或已有账本，让改文影响回归更容易从真实样本开始。
-- 章节批次恢复会以真实正文是否存在作为完成依据。即使章节状态曾被标记为已修复或已完成，只要正文为空，系统仍会回到该章继续执行，避免自动导演误判整批已经完成。
-- 自动导演写入合同进一步统一。候选、确认建书、已有小说接管、故事宏观规划、书级创作约定、角色准备、卷规划、拆章、章节写作、审校、修复和状态提交都会通过统一步骤合同校验，减少不同入口各自写入导致的恢复分叉。
-- 故事宏观规划和书级创作约定拆成独立恢复节点。已有故事宏观规划但缺少书级约定时，系统会从书级约定继续，而不是跳过到角色准备。
-- 自动导演下一轮开发队列已明确为 13 项最高优先级任务，后续会优先推进真实数据恢复、Artifact Ledger 真相层、策略门禁、质量闭环、状态驱动重规划、章节任务单门禁、新手入口收敛和技术债收口。
-- 章节标题生成与修复会主动降低重复标题风险。拆章结果进入后续正文执行前，系统更容易发现同卷内标题过于相似的问题，并给出可继续推进的修复结果。
-- 自动导演确认方案、已有项目接管、结构化拆章、章节执行和恢复链路进一步收进统一运行时，为后续 P0 正常流程开发打下更稳定的恢复与校验基础。
-- 已有项目选择“重新生成当前步”时可以正常清空卷战略 / 卷骨架阶段并重新接管。系统会把“当前步骤已清空、等待重新生成”识别为有效状态，不再因为卷规划暂时为空而提示参数校验失败。
+- Auto-Director Continue, Recover, and existing-project takeover enter a more stable background-execution mode. After Continue, the page quickly gets a submitted result, then the background keeps advancing, so a whole-page request hang and browser request pile-up happen less.
+- Page refresh while Auto-Director is running is lighter. Run status prefers light progress, instead of continuously force-fetching the full volume workspace, so Task Center, project navigation, and current progress feel smoother.
+- Waiting-for-confirm steps continue on a clear user confirm and only release the current pause point. Later new high-risk operations still stop for confirm, so Hinted success but stopped back on the same step loops less.
+- Chapter-title repair also enters the background command queue. After you trigger repair, the page quickly confirms received. It does not run a heavy repair chain inside the request, and does not immediately force-refresh the full volume workspace.
+- Auto-Director background-execution failure returns to a recoverable state faster. Running steps settle as failed together, and the task shows waiting for manual recover, so after a background command fails the page looks less still queued or running.
+- When Auto-Director continues an old task, artifact-dependency records first confirm both ends are written, then save the dependency. Restoring an old task from chapter refine, split, or quality repair less often stops because a dependency write order failed.
+- Old artifacts in historical run records fill into the Auto-Director ledger on recover. When an old task only saved artifacts in an early snapshot, those artifacts are filled first, then new dependencies are saved.
+- Auto-Director recover is steadier under concurrent change. If the target artifact was replaced or cleaned by an update task before the dependency wrote, that expired dependency is skipped and the rest of the run record still saves.
+- Recover samples recognize a later task on the same novel. When an old failed task has already been advanced by a later task to waiting-for-confirm or complete, the check demotes the old task to history, so it is less treated as the current highest-priority problem.
+- Existing-novel takeover recover is more reliable. Even if the task has not yet written full director input into the run record, context continues from the original takeover request, so Missing recovery context fails recover less.
+- Continue after existing-novel takeover also reuses the original takeover context. Continue, Retry, or Recover first confirms whether restore from the takeover request is possible, so entering from Continue first 10 chapters and then being told recovery context is missing happens less.
+- Continue first 10 chapters recognizes your choice more accurately. Even if the old task saved a prepare-to-executable-resources mode, as long as chapter task sheets have synced to the execution area, Continue directly approves entering chapter writing, and does not stop back at waiting-for-confirm at the chapter-execution entry. Incomplete resources still return to Pacing / Split first.
+- When existing-novel takeover recovers Continue first 10 chapters and target chapters still lack Pacing / Split refine, it automatically returns to split to fill the gap, instead of repeatedly stopping at pending recover for missing pacing split.
+- Continue auto-run first 10 chapters: automatic review and state sync after writing follow the same confirm. After you choose a range to run, you do not confirm again between writing, review, and sync nodes.
+- Existing-novel takeover first enters background analysis and a takeover task, instead of turning takeover into a long wait on the page.
+- After service restart or background-execution interrupt, tasks prefer an explainable pending-recover status, so Looks running but actually paused happens less.
+- Pending-recover after service restart is smoother. After Recover, the page quickly confirms the task started background recover, instead of staying long on request wait or a Recovering dialog button.
+- Left flow status on the novel workbench sits closer to real Auto-Director progress. When a director task is advancing, step-complete prefers the task stage, so an old volume-strategy asset does not mark later Volume strategy / Volume skeleton complete too early.
+- Auto-Director artifact-ledger recover is steadier. The same artifact or dependency prefers reusing an existing record on service restart, repeated recover, or concurrent recover, so unique-constraint conflicts and duplicate dependency edges fail recover less.
+- Auto-Director planning-recover closes further. With story macro plan, book contract, character assets, and volume plan already present, it continues by real gaps, does not skip missing assets, and does not punch through a volume-strategy pause into split by mistake.
+- Recovery covering old-project takeover, persisted volume-strategy restore into split, background-recover entry, and duplicate artifact-dependency recover sits closer to real use, so later Continue feels more like actual writing.
+- After Auto-Director takes over an existing novel, leaving and re-entering director mode restores by the real task stage. A task already at pacing split, chapter refine, or chapter execution is not shown again as waiting to generate candidate directions.
+- Continue by chapter range judges the executable range from whole-book plan, volume chapter plan, and structured catalog. It no longer treats chapters 1–10 as beyond the whole-book plan just because only a few prose chapters have synced.
+- Auto-Director Continue, Recover, and the chapter pipeline more steadily reuse existing run records and artifact dependencies. Repeated clicks, continue after service restart, or the same artifact entering the ledger twice prefer reusing existing records, which cuts duplicate create, duplicate write, and dependency conflict.
+- Artifact ownership on the Auto-Director runtime ledger is more accurate. Chapter writing, review, state sync, and foreshadowing / character sync only register what they truly produced, so later recover, local rerun, and expiry judgment are less misled by unrelated artifacts.
+- Auto-Director recover samples get a read-only sampling check: which tasks fit takeover, pending recover, chapter-batch, and edit-impact checks can be seen quickly. If existing prose lacks a chapter-prose ledger baseline, the check marks it directly.
+- Historical prose can safely get a chapter-ledger baseline. Already-tracked prose and historical chapters that truly lack a baseline are distinguished first. Fill-in only adds missing records and does not overwrite existing prose or existing ledger, so edit-impact checks start more easily from real samples.
+- Chapter-batch recover uses whether real prose exists as the done basis. Even if chapter status was marked repaired or complete, empty prose still returns to that chapter to continue, so Auto-Director less misjudges the whole batch already done.
+- Auto-Director write contracts unify further. Candidates, confirm-and-create, existing-novel takeover, story macro plan, book-level creation contract, character prep, volume plan, split, writing, review, repair, and state submit all pass one step-contract check, so different entries writing on their own fork recover less.
+- Story macro plan and book-level creation contract split into independent recover nodes. With a story macro plan but no book-level contract, it continues from the book-level contract instead of skipping to character prep.
+- Later Auto-Director work is prioritized around recovering from real books, keeping artifact records truthful, policy gates, the quality loop, state-driven replan, chapter task-sheet gates, beginner entry, and closing technical debt.
+- Chapter-title generate and repair actively lower duplicate-title risk. Before split results enter later prose execution, overly similar titles in the same volume are easier to find, and a repair result that can keep advancing is given.
+- Auto-Director confirm-plan, existing-project takeover, structured split, chapter execution, and recover close further into one runtime, which gives later normal-flow work a more stable recover-and-check base.
+- On an existing project, Regenerate current step can clear Volume strategy / Volume skeleton and take over again. Current step cleared, waiting to regenerate is recognized as a valid state, so a temporarily empty volume plan no longer prompts a parameter-check failure.
 
 ### 2026-04-28
 
-- 自动导演开始收进统一运行时。新建、候选确认、已有项目接管和手动继续会沉淀到同一份运行状态里，后续更容易在自动、半自动和手动之间衔接。
-- AI 接管已有小说时会先分析当前工作区资产，再决定如何继续。系统会索引书级契约、故事规划、角色、分卷、章节任务单、正文草稿和审校报告等关键产物，减少接管链路和新建链路割裂的问题。
-- 自动导演的控制策略有了统一入口。只建议、运行下一步、运行到检查点和安全范围自动推进会走同一套策略判断；涉及用户手写内容覆盖时会进入保护逻辑，自动修复也默认只允许一次。
-- 自动导演运行状态新增快照、策略切换和继续入口。后续创作中枢可以通过统一接口读取下一步建议、切换推进策略和继续任务，而不是直接调用旧阶段函数。
-- 本次重构方案文档补充了 MVP 实现进度，明确哪些底座已落地、哪些章节执行和创作质量模块仍留到下一轮拆分。
-- 章节执行、章节质量修复和已有项目接管后的继续执行会先通过统一策略判断。任务需要确认或触及保护范围时，会进入明确的待处理状态，减少自动推进时误改用户内容的风险。
-- 自动导演运行状态会附带适合界面展示的进度摘要，包括当前节点、最近事件、是否需要用户处理和阻塞原因，方便后续任务中心与创作中枢给出清楚的继续入口。
-- 章节任务单、正文草稿、审校报告和修复工单会记录来源、依赖与用户内容保护状态，后续自动执行可以更稳地判断哪些内容适合继续推进。
-- 自动导演完整改造计划已明确为一次性执行路线，后续会继续把手动编辑影响分析、创作中枢、上下文代理、步骤运行时和质量模块纳入同一条主链。
-- 自动导演新增手动编辑影响分析入口。用户改过章节正文后，系统可以对比运行时记录的正文 hash 和当前正文，识别受影响章节、相关审校报告和后续产物，并用 AI 结构化判断最小复查或修复路径。
-- 自动导演运行时编排职责开始从主服务中拆出，章节执行、策略门禁、运行状态刷新和待确认处理会更集中，后续继续接入创作中枢与步骤运行时更容易维护。
-- 自动导演确认方案的重复提交保护更稳。任务已经绑定小说或另一条确认请求正在建书时，系统会优先复用已有结果，减少误触重复提交后重新建项目或被中间盘点打断的情况。
-- 自动导演的统一进度开始进入界面。开书进度面板、任务中心详情和小说工作台侧栏会读取同一份导演进度，展示当前节点、是否需要用户处理、最近进展和推进方式。
-- 任务中心新增章节改动影响检查。自动导演任务绑定小说后，可以直接检查当前正文和导演记录的差异，看到受影响章节、是否适合继续推进，以及建议的最小复查或修复路径。
-- 任务中心新增导演推进方式切换。自动导演任务进入统一运行时后，可以从任务详情里切换只给建议、推进下一步、推进到检查点或安全范围自动推进。
-- 自动导演的产物记录开始追踪内容版本变化。章节正文等内容变化后，依赖旧正文的审校报告会标记为需要重新确认，运行进度也会显示关键产物进入导演记录，减少手动改文后误用旧结果的风险。
-- 绑定的世界观、续写资料、章节任务单、正文、审校报告和修复任务会串成更完整的依赖链。世界规则或资料包进入导演记录后，系统更容易判断哪些章节任务单和修复结果需要重新确认。
-- 读者承诺、章节留存约定、连续性状态、角色治理状态和近期章节复盘开始进入自动导演产物记录。系统能把书级承诺、卷级承诺、章节任务、正文、状态快照和审校结果串起来，更容易判断下一章是否仍然有明确追读理由和局部复查依据。
-- 自动导演进度说明更完整。任务中心、开书进度面板和小说工作台侧栏会显示下一步建议、工作区范围、步骤完成数、产物记录数、受保护内容和待确认产物，让长任务等待时也能看清系统正在推进什么。
-- 自动导演长步骤等待时会写入运行时心跳。卷规划、拆章和章节细化等耗时步骤持续运行时，最近进展会显示“已等待”的状态更新，减少用户误以为任务卡住的情况。
-- 章节执行进度会拆成生成、质量检查、问题修复、状态提交、伏笔同步和角色资源同步等标准节点。长章节任务完成后，用户能更清楚地看到系统在写作、审校、修复和同步之间推进到哪一步。
-- 创作中枢开始接入自动导演运行时。用户在中枢里询问当前状态、下一步建议、手动改文影响，或要求继续自动导演时，系统会通过统一运行时读取和控制任务；继续推进和高自动化策略会先进入确认流程。
-- 提示词工作台有了只读目录和预览底座。后续界面可以先查看已登记的基础提示词、可配置槽位边界和参与预览的上下文块；预览只展示最终发送内容，不保存自定义覆盖，也不会直接调用模型。
-- 创作中枢上下文开始通过统一 Context Broker 组织。资源绑定、近期对话、小说基础信息状态和整本生产状态会按标准上下文块进入提示词预览，后续接入自定义提示词时更容易确认哪些内容会影响 AI 判断。
-- 章节写作、章节审校和自动导演工作区分析开始共用统一上下文组织方式。书级契约、故事宏观规划、章节任务、角色子集、局部状态、近期章节和工作区清单会按标准上下文块进入真实提示词调用，让提示词预览和实际执行更一致。
-- 章节修复会带上更完整的角色动态提示。局部修文时，系统更容易保留角色在当前卷中的职责、目标和关系压力，减少修复只改文本表面却丢掉人物驱动力的问题。
-- 自动导演的候选、书级规划、章节写作、质量检查、修复和状态同步会按统一步骤计划推进。章节流水线会复用同一批标准步骤，后续手动按钮和创作中枢更容易接入同一套执行能力。
-- 自动导演的运行记录开始落到独立账本。系统会同时保留运行、步骤、事件、产物和依赖关系，后续继续任务、恢复任务或检查工作区时，不再只依赖旧任务备注里的临时记录。
-- 自动导演继续或手动恢复时会记录明确的“已恢复运行”事件。用户确认服务重启后的恢复后，任务进度能说明这是从中断点继续，而不是突然重新开始某个阶段。
-- 规划、拆章、章节执行和修复会更严格地检查已有相关产物。已有正文或受保护内容进入影响范围时，系统会先走策略判断，减少正常流程里静默覆盖用户改动的风险。
-- 自动导演继续章节执行时会按真实章节结果重新找最早未完成章节。章节执行区和节奏规划一致时不会清空现有数据，但如果第 5 章已完成、第 6 章未生成、第 7 章曾被误触发，重新继续会先补跑第 6 章，避免跳章。
-- 等待审批的章节批次继续不会再误当成“跳过当前章继续”。系统会区分普通审批继续和失败后允许跳过审校阻断章的恢复动作，减少点击继续后漏掉当前章节的情况。
-- 服务重启后，被重启中断的自动导演会进入待恢复提示。仍在排队或运行中的自动导演会标记为待手动恢复，用户确认后再继续推进；等待审批、失败和取消的任务仍保留人工处理边界。
-- 服务重启后的自动导演恢复更稳。用户手动恢复时，系统会直接基于当前小说资产判断恢复点，不会再因为恢复判断自身递归而显示 `Maximum call stack size exceeded` 并停到失败状态。
-- AI 主驾执行章节时，质量修复后仍低于阈值的低风险提醒会记录通知并继续推进。系统会先完成本章的一次自动修复；如果仍未达标，会提醒用户关注结果，但不再把整条自动执行流程卡在质量修复检查点。
-- AI 主驾遇到重规划建议时会记录提醒并继续后续章节，不会自动执行重规划，也不会因为重规划建议暂停整条流程。提醒内容会明确标记为“重规划提醒已记录”，方便用户后续回看需要人工处理的方向调整。
-- 企业微信、钉钉和自动导演跟进中心会区分“自动通过”和“重规划提醒”。重规划场景不再显示成系统已自动通过或已自动重规划，避免用户误判后续章节已经被重新规划过。
-- 非 AI 主驾的人工审核链路仍会保留重规划检查点。用户选择按阶段确认或手动继续时，重规划建议仍会停在待处理状态，方便先人工确认再推进。
-- 自动导演开书和接管里的推进设置更清楚。默认仍是 AI 自动推进，但审批点细项会收进高级审批授权，设置页也统一为审批授权偏好，方便区分“执行目标范围”和“哪些检查点允许自动确认”。
-- 自动导演重试会直接续跑失败或取消的导演任务。无论从小说工作台还是任务中心按原模型重试，任务都会重新进入后台推进，减少“显示已恢复但进度停在原节点”的情况。
-- 已有项目的自动导演在节奏拆章完成后中断，再从项目页重新接管或续跑时，会识别已完成的拆章同步状态，不会误提示“目标范围缺少节奏拆章”。
-- 任务中心和导演跟进里的详情跳转在桌面客户端内更稳了。点击任务中心入口或跟进详情时会留在当前应用内打开，并且任务详情遇到旧任务数据缺少步骤或里程碑时会显示可继续查看的状态，不再因为单条异常任务让客户端进入黑屏。
+- Auto-Director starts closing into one runtime. New books, candidate confirm, existing-project takeover, and manual continue settle into the same run state, so later switching among automatic, semi-automatic, and manual is easier.
+- When AI takes over an existing novel, it first analyzes current workspace assets, then decides how to continue. It indexes key artifacts such as book contract, story plan, characters, volumes, chapter task sheets, prose drafts, and review reports, so takeover and new-book paths split less.
+- Auto-Director control policy has one entry. Suggest only, run next step, run to checkpoint, and auto-advance in a safe range share the same policy judgment. Overwriting your handwritten content enters protection. Automatic repair is allowed once by default.
+- Auto-Director run status adds snapshot, policy switch, and a Continue entry. Creative Hub can later read next-step advice, switch advance policy, and continue the task through one interface, instead of calling old stage functions directly.
+- The foundation that is already live is clearer, and chapter-execution and writing-quality pieces that still wait for a later split are called out, so you can see what Auto-Director already runs versus what still comes.
+- Chapter execution, chapter quality repair, and Continue after existing-project takeover first pass unified policy judgment. When a task needs confirm or touches a protected range, it enters a clear pending state, so auto-advance less edits your content by mistake.
+- Auto-Director run status includes a progress summary fit for the UI: current node, recent events, whether you need to act, and block reason, so Task Center and Creative Hub can later give a clear Continue entry.
+- Chapter task sheets, prose drafts, review reports, and repair tickets record source, dependencies, and user-content protection status, so later auto-run can more steadily judge what is fit to keep advancing.
+- Later Auto-Director work stays on one path: manual-edit impact analysis, Creative Hub, context assembly, step runtime, and quality modules keep joining the same main chain.
+- Auto-Director adds a manual-edit impact-analysis entry. After you change chapter prose, it can compare the runtime-recorded prose fingerprint with current prose, identify affected chapters, related review reports, and later artifacts, and use AI structured judgment for a minimal recheck or repair path.
+- Auto-Director runtime orchestration concentrates chapter execution, policy gates, run-status refresh, and waiting-for-confirm handling, so later Creative Hub and step runtime stay easier to keep stable.
+- Confirm-plan duplicate-submit protection is steadier. When a task is already bound to a novel, or another confirm request is already creating the book, existing results are reused first, so a mistaken double submit less rebuilds the project or is interrupted by a mid-inventory.
+- Unified Auto-Director progress starts entering the UI. The opening-progress panel, Task Center details, and novel-workbench sidebar read the same director progress: current node, whether you need to act, recent progress, and advance mode.
+- Task Center adds a chapter-edit impact check. After an Auto-Director task binds a novel, you can check the difference between current prose and director records, see affected chapters, whether Continue is fit, and a suggested minimal recheck or repair path.
+- Task Center adds director advance-mode switch. After an Auto-Director task enters the unified runtime, task details can switch Suggest only, Advance next step, Advance to checkpoint, or Auto-advance in a safe range.
+- Auto-Director artifact records start tracking content-version changes. After chapter prose or similar content changes, review reports that depend on old prose mark Need reconfirm. Run progress also shows key artifacts entering director records, so a manual edit less reuses an old result by mistake.
+- Bound world view, continuation materials, chapter task sheets, prose, review reports, and repair tasks form a more complete dependency chain. After world rules or a materials pack enter director records, it is easier to judge which chapter task sheets and repair results need reconfirm.
+- Reader promises, chapter-retention agreements, continuity state, character-governance state, and recent-chapter recap start entering Auto-Director artifact records. Book-level promises, volume-level promises, chapter tasks, prose, state snapshots, and review results can be chained, so it is easier to judge whether the next chapter still has a clear reason to keep reading and a local recheck basis.
+- Auto-Director progress copy is more complete. Task Center, the opening-progress panel, and the novel-workbench sidebar show next-step advice, workspace range, completed-step count, artifact-record count, protected content, and pending-confirm artifacts, so during a long wait you can still see what the system is advancing.
+- Long Auto-Director steps write a runtime heartbeat while waiting. While volume plan, split, and chapter refine keep running, recent progress shows a Waiting status update, so you less think the task is stuck.
+- Chapter-execution progress splits into standard nodes: generate, quality check, issue repair, state submit, foreshadowing sync, and character-resource sync. After a long chapter task finishes, you can more clearly see which step among writing, review, repair, and sync it reached.
+- Creative Hub starts connecting to Auto-Director runtime. Asking current status, next-step advice, manual-edit impact, or Continue Auto-Director in the hub reads and controls the task through the unified runtime. Continue and high-automation policy first enter a confirm flow.
+- Prompt Workbench gets a read-only catalog and preview base. Later UI can first view registered base prompts, configurable slot boundaries, and context blocks in the preview. Preview only shows the final send content, does not save custom overrides, and does not call the model directly.
+- Creative Hub context starts organizing through one context layer. Resource bindings, recent chat, novel basic-info status, and whole-book production status enter prompt preview as standard context blocks, so later custom prompts make it easier to confirm what will affect AI judgment.
+- Chapter writing, chapter review, and Auto-Director workspace analysis start sharing one context organization. Book contract, story macro plan, chapter tasks, character subset, local state, recent chapters, and workspace inventory enter real prompt calls as standard context blocks, so prompt preview and actual execution stay more consistent.
+- Chapter repair brings fuller character-dynamics hints. During local repair, character duties, goals, and relationship pressure in the current volume are easier to keep, so repair less only changes the text surface and drops character drive.
+- Auto-Director candidates, book-level planning, chapter writing, quality check, repair, and state sync advance by one step plan. The chapter pipeline reuses the same standard steps, so later manual buttons and Creative Hub more easily join the same execution capability.
+- Auto-Director run records start landing in a dedicated ledger. Run, steps, events, artifacts, and dependencies are kept together. Later Continue, Recover, or workspace check no longer rely only on temporary notes on an old task.
+- Continue or manual recover records a clear Run restored event. After you confirm recover after a service restart, task progress can say this continues from the interrupt point, instead of suddenly restarting a stage.
+- Planning, split, chapter execution, and repair check existing related artifacts more strictly. When existing prose or protected content enters the affected range, policy judgment runs first, so a normal flow less silently overwrites your edits.
+- Continue chapter execution re-finds the earliest unfinished chapter from real chapter results. When the chapter-execution area and pacing plan agree, existing data is not cleared. If chapter 5 is done, chapter 6 is not generated, and chapter 7 was triggered by mistake, Continue first backfills chapter 6 instead of skipping.
+- Continue on a waiting-approval chapter batch is no longer mistaken for Skip this chapter and continue. Ordinary approval-continue and a recover action that may skip a review-blocked chapter after failure are distinguished, so Continue less skips the current chapter.
+- After a service restart, Auto-Director interrupted by the restart enters a pending-recover hint. Still queued or running Auto-Director marks Pending manual recover, then continues after you confirm. Waiting-approval, failed, and cancelled tasks keep a human-handling boundary.
+- Auto-Director recover after service restart is steadier. Manual recover judges the recover point directly from current novel assets, and no longer shows `Maximum call stack size exceeded` and stops at failed because recover judgment recursed on itself.
+- When AI Driver runs chapters, a low-risk reminder that is still below threshold after quality repair records a notice and continues. One automatic repair for this chapter finishes first. If it still does not meet the bar, you are reminded to look at the result, but the whole auto-run is no longer pinned on the quality-repair checkpoint.
+- When AI Driver hits a replan suggestion, it records a reminder and continues later chapters. It does not auto-run replan, and does not pause the whole flow because of a replan suggestion. The reminder is clearly marked Replan reminder recorded, so you can later look back at direction adjustments that still need human handling.
+- WeCom, DingTalk, and Auto-Director Follow-up distinguish Auto-passed and Replan reminder. A replan scene no longer shows as the system already auto-passed or already auto-replanned, so you less think later chapters have already been replanned.
+- Non-AI-Driver human-review paths still keep a replan checkpoint. When you choose confirm-by-stage or manual continue, a replan suggestion still stops at pending, so you can confirm first then advance.
+- Opening and takeover advance settings are clearer. Default is still AI auto-advance, but approval-point items fold into advanced approval authorize. Settings also unify as approval-authorize preference, so Execution target range and Which checkpoints may auto-confirm stay distinct.
+- Auto-Director Retry directly continues a failed or cancelled director task. Retry with the original model from the novel workbench or Task Center both re-enter background advance, so Shown recovered but progress stuck on the original node happens less.
+- When Auto-Director on an existing project interrupts after pacing split finishes, then takeover or continue from the project page again, completed split-sync status is recognized, and Target range missing pacing split is not shown by mistake.
+- Task Center and director Follow-up detail jumps are steadier inside the desktop client. Clicking the Task Center entry or follow-up details stays in the current app. When old task data lacks steps or milestones, task details show a still-viewable status, instead of one abnormal task sending the client to a black screen.
 
 ### 2026-04-27
 
-- 模型路由现在可以按任务配置请求协议和结构化输出格式。不同渠道可以单独选择自动、OpenAI 兼容或 Anthropic 协议，也可以指定 `json_schema`、`json_object` 或提示词 JSON，减少因为某个中转渠道不支持某种格式而连续失败。
-- 选择 Anthropic 协议时，结构化格式会固定为提示词 JSON。页面不再展示不适用的原生 JSON 选项，后端也会把非法组合归一到可用方式，避免误配后快速失败。
-- 模型路由连通性检测会按协议和结构化格式一起测试，并在找到可用组合后保留偏好。结构化任务会优先使用已验证的组合，而不是在运行时反复尝试不兼容的响应格式。
-- 服务端新增空请求保护。模型调用在发往渠道前会拦截空消息、空批次和空白内容，便于区分真实模型兼容性问题和服务侧请求组装问题。
-- Anthropic 原生协议请求已接入模型调用链路。选择 Anthropic 协议后，普通调用、结构化调用和 JSON 修复调用会沿用同一协议，减少协议切换造成的失败。
-- 自动导演的企业微信和钉钉跟进通知会随任务状态变更重新触发。任务进入待确认、异常、恢复、完成等状态时，会按渠道配置发送提醒并记录投递结果，减少后台任务停住但协作群没有通知的情况。
-- 自动导演从节奏 / 拆章阶段接管或继续时，会把章节执行、质量修复和旧待确认检查点当成后续节点先重置。本次目标范围会重新进入节奏规划与章节细化，不会再被旧待修章节直接带到质量修复。
-- 自动导演的章节推进顺序更严格了。目标范围内的章节必须先完成节奏规划和全部章节细化，才会进入章节执行；章节执行会按单章依次完成写作、质量修复，再推进下一章，避免只细化一部分就提前开写后续章节。
-- 自动导演继续旧任务时会重新按真实章节资产校验目标范围。即使历史任务留下了 `chapter_batch_ready` 或自动执行状态，只要范围内还有章节缺少完整任务单、执行边界或场景拆解，系统都会回到节奏 / 拆章补齐细化，不会直接进入章节执行或质量修复。
-- 全书自动导演会按全书章节细化完成度判断是否可进入执行。旧执行区里和最新节奏拆章不一致的章节正文、完成状态和多余章节会在同步时清理，避免旧章节数据把未完成的后续卷误判成已可执行或已完成。
-- 系统配置里的模型供应商新增同模型并发上限和请求间隔。高失败率或对连续请求敏感的渠道可以按供应商配置限速，填 `0` 时保持不限制，减少同一模型短时间内被过量请求打爆。
-- 分卷、章节细化和故事规划保存更稳了。系统会尽量只更新变更过的卷规划和章节细化内容，并给大体量分卷写入、单独故事规划写入和自动导演批量规划落库更充足的事务时间，降低“模型已返回但规划结果没落库，继续时又重复调用模型”的风险。
-- 内部 PostgreSQL 部署和本地 SQLite 开发的数据库结构继续保持同步。模型供应商限流字段、角色同步表和分卷 / 工作流查询索引都会同时覆盖两套数据库，减少内网发版后才发现字段或索引缺失的情况。
-- 桌面端升级后会继续使用本地数据目录里的小说数据库。安装新桌面包后，升级启动不会因为本地数据库地址缺失而停在启动页。
-- 知识库检索设置更适合普通用户配置。页面会优先展示 Embedding 服务商、Embedding 模型和向量库连接，集合命名、索引重建、切块、召回候选数、超时和后台任务参数会收进高级配置，减少一打开就被大量技术参数压住。
-- 知识库 Embedding 服务商不再局限在 OpenAI 和 SiliconFlow。可用模型会跟随已配置的内置或自定义模型厂商加载，也可以填写 OpenAI 兼容、本地或自建服务提供的 Embedding 模型。
-- 向量库连接支持直接填写 Qdrant Cloud、自托管 Qdrant 或本机向量库 URL。使用本地服务时，可以直接填 `http://127.0.0.1:6333` 这类地址，不需要再围绕云端 Qdrant 配置理解整套参数。
-- 知识库运行状态里的最近任务可以清理了。已成功、失败或取消的索引记录支持一键清理，也可以单条删除；排队中和执行中的任务会保留，避免误删正在运行的索引任务。
-- 模型厂商设置更适合接入自定义 OpenAI 兼容服务。新增自定义厂商时可以先拉取可用模型，再选择默认模型；本地或免密服务也能更自然地配置 API 地址和模型。
-- Windows 桌面版打包运行时会明确使用桌面内置 SQLite 数据库配置，减少安装包启动时误走其他数据库模式的风险。
-- Windows 桌面版启动页会在进入工作区前检查新版本。启动受阻时也会同步检查更新；如果发布通道已有新版本，页面会提示下载，并在下载完成后引导重启安装。
-- 创作中枢顶部增加待完善提示。进入模块后可以先看到当前能力边界，适合先用于创作问题诊断、方案讨论和轻量推进。
-- 首页和小说列表加载更轻快。首页优先读取最近项目，小说列表不再把完整大纲、结构化大纲、书籍圣经和书级契约等重内容一起传回，进入页面时等待更少。
-- 卷规划历史版本打开更稳。版本列表会先显示摘要，选中某个版本时再读取完整内容，历史版本很多或单个版本很大时不容易拖慢页面。
-- 小说列表新增预览入口。可以直接按章节阅读已生成正文，查看已生成章节数量、总字数和章节状态，再决定回到工作区或编辑具体章节。
-- 首页和侧栏的任务概览刷新更省。短时间切换页面会复用已有概览，后台统计也减少重复读取归档记录，任务状态提示更快出现。
-- 自动导演连续生成前三章的链路更稳。章节正文、摘要、事实和角色时间线同步会避开重复保存，并在本地数据库短暂繁忙时自动等待重试。
-- 开书和已有项目接管弹窗里的模型选择、自动审批偏好更稳定。恢复任务、切换厂商或重新打开弹窗时，会减少重复刷新和配置回跳。
+- Model routing can now set request protocol and structured-output format per task. Different channels can separately pick Auto, OpenAI-compatible, or Anthropic protocol, and can specify `json_schema`, `json_object`, or prompt JSON, so a relay that does not support one format fails less in a row.
+- Choosing Anthropic protocol pins structured format to prompt JSON. The page no longer shows native JSON options that do not apply. Illegal combinations also normalize to a usable way, so a misconfig fails fast less.
+- Model-routing connectivity checks test protocol and structured format together, and keep the preference after a usable combination is found. Structured tasks prefer an already-verified combination, instead of repeatedly trying incompatible response formats at run time.
+- Empty requests are guarded before they go to a channel. Empty messages, empty batches, and blank content are intercepted, so a real model-compatibility issue and a service-side empty request stay distinguishable.
+- Anthropic native-protocol requests join the model-call path. After you choose Anthropic protocol, ordinary calls, structured calls, and JSON-repair calls keep the same protocol, so protocol switching causes fewer failures.
+- Auto-Director WeCom and DingTalk follow-up notices retrigger when task status changes. When a task enters waiting-for-confirm, abnormal, recover, or complete, a reminder sends by channel config and delivery is recorded, so a background task stops with no notice in the collab group less.
+- When Auto-Director takes over or continues from Pacing / Split, chapter execution, quality repair, and old waiting-for-confirm checkpoints reset as later nodes first. This target range re-enters pacing plan and chapter refine, and is no longer taken straight to quality repair by old needs-repair chapters.
+- Auto-Director chapter-advance order is stricter. Chapters in the target range must finish pacing plan and all chapter refine before chapter execution. Chapter execution finishes writing and quality repair one chapter at a time, then advances the next, so later chapters start writing less after only part of the range is refined.
+- Continue on an old task rechecks the target range from real chapter assets. Even if a historical task left a batch-ready or auto-run status, as long as any chapter in the range still lacks a complete task sheet, execution boundary, or scene breakdown, it returns to Pacing / Split to fill refine, and does not go straight into chapter execution or quality repair.
+- Whole-book Auto-Director judges whether execution can start from whole-book chapter-refine completeness. Chapter prose, complete status, and extra chapters in the old execution area that disagree with the latest pacing split clean up on sync, so old chapter data less misjudges an unfinished later volume as already executable or already done.
+- System settings add same-model concurrency cap and request interval per provider. A high-failure or burst-sensitive channel can rate-limit by provider. Fill `0` to keep unlimited, so the same model is less overwhelmed by too many requests in a short time.
+- Volume, chapter-refine, and story-plan saves are steadier. Only changed volume-plan and chapter-refine content is updated when possible, and large volume writes, standalone story-plan writes, and Auto-Director batch-plan saves get more transaction time, which lowers “the model returned but the plan did not save, so Continue calls the model again.”
+- Local and deployed database shapes stay in sync. Provider rate-limit fields, character-sync tables, and volume / workflow query indexes cover both, so a missing field or index shows up less only after an internal release.
+- After a desktop upgrade, the novel database in the local data directory keeps being used. After installing a new desktop package, upgrade start does not stop on the start page because a local database address is missing.
+- Knowledge-library retrieval settings fit ordinary users better. The page prefers Embedding provider, Embedding model, and vector-store connection. Collection naming, index rebuild, chunking, recall-candidate count, timeout, and background-task parameters fold into advanced config, so opening the page is less crushed by technical parameters.
+- Knowledge-library Embedding providers are no longer limited to OpenAI and SiliconFlow. Available models load from configured built-in or custom model providers. You can also fill an Embedding model from an OpenAI-compatible, local, or self-hosted service.
+- Vector-store connection supports filling a Qdrant Cloud, self-hosted Qdrant, or local vector-store URL directly. For a local service you can fill an address such as `http://127.0.0.1:6333`, without having to understand a full cloud-Qdrant config.
+- Recent tasks in knowledge-library run status can be cleaned. Successful, failed, or cancelled index records support one-click clean, or single delete. Queued and running tasks stay, so a running index task is not deleted by mistake.
+- Model-provider settings fit custom OpenAI-compatible services better. Adding a custom provider can fetch available models first, then pick a default. Local or no-secret services also configure API address and model more naturally.
+- The Windows desktop packaged runtime clearly uses the desktop built-in SQLite database config, so an installer start less takes another database mode by mistake.
+- The Windows desktop start page checks for a new version before entering the workspace. A blocked start also checks for updates. If the release channel already has a new version, the page prompts download, then guides restart-and-install after download finishes.
+- Creative Hub top adds a still-in-progress hint. After you enter the module you can first see current capability boundaries, which fits diagnosing writing questions, discussing a plan, and light advance.
+- Home and novel-list load lighter. Home prefers recent projects. The novel list no longer returns full outline, structured outline, book bible, and book contract together, so entering the page waits less.
+- Volume-plan history versions open more steadily. The version list shows a summary first, then reads full content when you pick a version. Many history versions, or one very large version, stall the page less.
+- The novel list adds a preview entry. You can read generated prose by chapter, see generated chapter count, total words, and chapter status, then decide to return to the workspace or edit a specific chapter.
+- Home and sidebar task-overview refresh costs less. Switching pages in a short time reuses an existing overview. Background stats also read archived records less twice, so task-status hints appear faster.
+- Auto-Director continuous generate of the first three chapters is steadier. Chapter prose, summary, facts, and character-timeline sync skip duplicate saves, and wait-and-retry automatically when the local database is briefly busy.
+- Model pick and auto-approval preference in opening and existing-project takeover dialogs are more stable. Recovering a task, switching provider, or reopening the dialog reduces duplicate refresh and config snap-back.
 
 ### 2026-04-26
 
-- 自动导演开书弹窗支持直接选择世界观。新建项目时可以在起始设置里绑定已有世界设定，让导演规划从一开始就遵守对应规则、舞台和边界。
-- 模型路由管理新增快速套用和统一保存。可以先选一套模型，一键填入全部任务、异常任务或空白路由，再一次性保存所有改动，批量调整多任务模型更省心。
-- DeepSeek V4 Pro 和 DeepSeek Reasoner 会按“思考”开关传递 thinking 配置。需要结构化输出或关闭思考时，模型调用会更贴近 DeepSeek 的接口能力。
-- 自动导演进入角色准备时会优先复用可用角色阵容。已有可直接使用的阵容会继续沿用，候选阵容会先通过质量判断再应用，减少同一本书重复生成角色的情况。
-- 项目授权口径已调整为 AGPLv3 + 商业授权说明。默认情况下，当前版本基于 GNU Affero General Public License v3.0 授权；如果将本项目或修改版本作为后端，以 SaaS、托管或其他形式向第三方提供服务，需要先取得作者商业授权。
-- 贡献入口已同步新的双许可证口径。提交 Pull Request 时，需要确认自己有权提交对应内容，并同意贡献可随项目按 AGPL-3.0-only 分发，同时可纳入项目维护者另行提供的商业授权。
-- 新增轻量贡献者许可协议。外部贡献者提交 Pull Request 时，可以通过 CLA 和 PR 模板确认自己有权提交内容，并明确贡献可用于项目开源版本和维护者另行提供的商业授权版本。
-- 角色库和小说内角色开始分清“可复用资产”和“本书剧情实例”。小说里的当前状态、目标、关系进度和章节结果不会自动污染外部角色库，也不会自动影响其他正在使用同一角色的小说。
-- 小说角色可以保存为角色库角色。系统会先把可复用设定、仅属于当前小说的剧情状态和需要确认的高风险内容拆开，帮助用户把稳定角色资产沉淀出来，而不是整张角色卡直接复制到角色库。
-- 角色库角色可以引入到当前小说，并保留来源版本和引用关系。后续角色库更新只会生成可选同步建议，用户可以选择应用、忽略或让当前小说保持独立。
-- 角色同步新增 AI 辅助判断。系统会用结构化方式区分基础身份、稳定人格、本书适配、运行状态和可沉淀成长，减少靠用户手动理解复杂边界的负担。
-- 角色系统升级路线进一步明确。后续会围绕角色叙事岗位、关系张力和章节角色上下文包推进，让角色不只是资料卡，而是能持续进入章节写作、审稿和修复的长篇叙事资产。
-- 内部 PostgreSQL 部署的任务恢复初始化更稳了。写法提取任务的状态字段会和系统统一的任务状态类型保持一致，服务重启后任务中心和自动恢复准备不会因为数据库字段类型差异被打断。
-- 内部 Web 环境的前端请求使用同站点 `/api`。线上页面在缺少额外前端配置时也会连接正确服务，减少打开页面后直接提示“网络连接失败”的情况。
-- 自动导演新版补齐移动端支持。跟进中心、开书自动导演、已有项目接管和自动推进偏好在手机宽度下会改成更适合单列阅读和触控的布局，风险提示、校验阻塞、安全修复和主要操作不会被横向内容挤出屏幕。
-- 手机端自动导演体验采用统一的移动布局规则。跟进中心、任务入口和设置页的单列阅读、触控间距和滚动行为会更一致，减少不同页面之间的操作落差。
-- 移动端小说详情页和创作工作台更适合手机操作。手机宽度下会使用独立工作区，顶部显示小说标题、当前步骤和流程推荐，步骤导航、任务进度、导出和保存入口也更容易触达。
-- 移动端首页、任务中心和导演跟进筛选更省空间。自动推进、待处理、可进入章节执行、失败任务、运行中和排队中等关键状态会压成紧凑四列；任务筛选和导演跟进筛选也会收成 1-2 行，手机上更快扫到当前状态并继续处理列表。
-- 移动端节奏 / 拆章更适合触控。卷选择改成紧凑点选，章节导航和同步差异跟随页面滚动，减少卡片内横向滑动和嵌套滚动。
-- 自动导演跟进中心的总览和分区入口收进同一张卡片。全部、待处理、自动推进、异常、已替代和需校验可以在更短页面里切换，减少上下滚动。
-- 已有项目重新接管时，按范围重置会更准确地清理目标章节、卷节奏和活动执行批次。选择重新生成或从指定阶段接管时，目标范围外的规划与正文资产会尽量保留，目标范围内的旧执行任务会更清楚地让出。
-- 卷拆章的章节列表生成更适合长链路续跑。系统会在每个节奏段生成后保存阶段性结果，服务中断或恢复时能识别已保存的章节列表片段，减少从头重跑整卷章节列表的概率。
-- 长篇卷规划的章节分配更贴近全书计划。前一卷生成后，后续卷不会因为只看已生成章节而被压缩成明显偏少的章数，更适合 400 章以上、分多卷推进的长篇项目。
-- 节奏板会先校验是否连续覆盖目标章节范围。模型返回的节奏段如果只覆盖少量章节、跳章或靠重叠段数凑总量，系统会先重试或停下提示，不会继续把明显不完整的节奏板带进拆章。
-- 自动导演任务取消后会更及时停止正在等待的模型调用。取消或被新任务替代时，后台高内存步骤会更快让出资源，减少取消后旧任务继续消耗模型调用和内存的情况。
-- 内部 PostgreSQL + MinIO 发布镜像会使用匹配 PostgreSQL 的运行时依赖。服务启动时不会因为生产镜像带着 SQLite 版 Prisma Client 而反复重启。
+- Auto-Director opening dialog supports picking a world view directly. A new project can bind an existing world setting in start settings, so director planning follows matching rules, stage, and boundaries from the start.
+- Model-routing management adds quick apply and unified save. Pick one model set, fill all tasks, exception tasks, or blank routes in one click, then save all changes once, so batch-adjusting models across tasks is less work.
+- DeepSeek V4 Pro and DeepSeek Reasoner pass thinking config by the Thinking switch. When structured output is needed or thinking is off, model calls sit closer to DeepSeek’s interface capability.
+- When Auto-Director enters character prep, it prefers reusing a usable cast. An already directly usable cast keeps being used. A candidate cast first passes quality judgment, then applies, so the same book generates characters twice less.
+- Project license wording adjusts to AGPLv3 plus a commercial-license note. By default this version is licensed under GNU Affero General Public License v3.0. If you provide this project or a modified version as a backend to third parties as SaaS, hosted, or similar service, you need the author’s commercial license first.
+- Contribution entry syncs the dual-license wording. Submitting a Pull Request, you need to confirm you have the right to submit the content, and agree the contribution may distribute with the project under AGPL-3.0-only, and may also enter a commercial license the maintainers offer separately.
+- A light contributor license agreement is added. External contributors submitting a Pull Request can confirm through the CLA and PR template that they have the right to submit, and that the contribution may be used in the project’s open-source version and in a commercial-license version the maintainers offer separately.
+- Character library and in-novel characters start separating reusable assets from this-book plot instances. Current state, goals, relationship progress, and chapter results in a novel do not automatically pollute the external character library, and do not automatically affect other novels using the same character.
+- A novel character can save as a character-library character. Reusable setting, plot state that belongs only to this novel, and high-risk content that needs confirm are split first, so you can settle stable character assets instead of copying the whole character card into the library.
+- A character-library character can import into the current novel and keep source version and reference. Later library updates only generate optional sync suggestions. You can apply, ignore, or keep this novel independent.
+- Character sync adds AI-assisted judgment. Structured distinction among base identity, stable personality, this-book adapt, runtime state, and settleable growth lowers the burden of understanding complex boundaries by hand.
+- Character-system next steps further clarify around character narrative posts, relationship tension, and chapter character-context packs, so a character is not only a materials card, but a long-form narrative asset that can keep entering chapter writing, review, and repair.
+- After service restart, Task Center and automatic-recover prep stay less interrupted because writing-formula extract task status stays consistent with the system’s unified task-status type.
+- Frontend requests in the internal web environment use same-site `/api`. Online pages still connect to the correct service when extra frontend config is missing, so opening a page less immediately shows Network connection failed.
+- Auto-Director’s new version fills mobile support. Follow-up, opening Auto-Director, existing-project takeover, and auto-advance preference switch to a layout fitter for single-column reading and touch at phone width. Risk hints, validation blocks, safe repair, and primary actions are not squeezed off screen by horizontal content.
+- Phone Auto-Director uses unified mobile layout rules. Follow-up, task entry, and Settings single-column reading, touch spacing, and scroll behavior stay more consistent, so the operation gap among pages is smaller.
+- Mobile novel-details and creation workbench fit phone operation better. At phone width an independent workspace is used. The top shows novel title, current step, and flow recommendation. Step navigation, task progress, export, and save are easier to reach.
+- Mobile Home, Task Center, and director Follow-up filters use less space. Key statuses such as auto-advance, pending, can enter chapter execution, failed, running, and queued compress into a compact four columns. Task filters and director Follow-up filters also fold into 1–2 rows, so on a phone you scan current status and keep handling the list faster.
+- Mobile Pacing / Split fits touch better. Volume pick becomes compact tap. Chapter navigation and sync diffs follow page scroll, which cuts in-card horizontal swipe and nested scroll.
+- Auto-Director Follow-up overview and section entries fold into the same card. All, Pending, Auto-advance, Abnormal, Replaced, and Need check can switch on a shorter page, which cuts up-and-down scroll.
+- When an existing project is taken over again, range reset more accurately cleans target chapters, volume pacing, and the active execution batch. Choosing regenerate or takeover from a specified stage, planning and prose assets outside the target range are kept when possible, and old execution tasks inside the target range more clearly give way.
+- Volume-split chapter-list generate fits long-chain continue better. A staged result saves after each pacing segment generates. On service interrupt or recover, already-saved chapter-list fragments are recognized, so rerunning the whole-volume chapter list from scratch is less likely.
+- Long-form volume-plan chapter assignment sits closer to the whole-book plan. After the previous volume generates, later volumes are not compressed into obviously too few chapters just because only generated chapters were counted, which better fits 400+ chapter projects advancing across several volumes.
+- The pacing board first checks whether it continuously covers the target chapter range. If model-returned pacing segments only cover a few chapters, skip chapters, or pad the total with overlapping segments, it retries or stops with a hint first, and does not keep taking an obviously incomplete pacing board into split.
+- After an Auto-Director task cancels, model calls still waiting stop more promptly. On cancel or replacement by a new task, high-memory background steps give resources back faster, so a cancelled old task keeps consuming model calls and memory less.
+- Internal PostgreSQL + MinIO publish images use matching PostgreSQL runtime dependencies, so the service does not restart over and over at start because the production image carried a SQLite Prisma Client.
 
 ### 2026-04-25
 
-- 角色工作台新增关键资源视角。主角、长期角色和临时角色会按不同关注点展示道具、线索、身份凭证、底牌、代价和消耗状态，写长篇时更容易知道每个角色手里还握着什么。
-- 章节执行后的状态沉淀会同步识别角色资源变化。低风险变更可以自动进入账本，高风险或不确定变更会保留为待确认项，避免重要资源被 AI 悄悄改丢。
-- 章节写作、审阅和修复上下文会带上本章相关的角色资源窗口，让 AI 在生成后续章节时更容易遵守“谁拥有、谁知道、还能不能用、什么时候该兑现”的边界。
-- 角色资源变化有了独立的计划和验证链路。后续扩展背包、线索、伏笔和角色行动约束时，可以继续沿着同一套账本推进，而不是散落在章节正文或角色备注里。
-- 小说任务抽屉新增资源变更待确认入口。你可以直接看到待判断的资源变化、来源章节、风险级别和证据，并选择确认入账或忽略，不必在多个页面之间找待处理项。
-- 章节执行页新增手动资源复查，角色准备页新增最近章节资源回填。手动改正文或接手旧项目时，可以让系统补查角色关键资源变化，并把确认后的结果用于后续写作。
-- 卷战略页新增本卷关键资源承诺。系统会只挑出影响本卷行动边界、铺垫或后续兑现的资源，帮助规划当前卷时看清哪些东西能用、哪些东西还不能提前用。
-- 发布流程新增 `beta` 预发分支规则。功能分支会先进入预发验证，稳定后再合入 `main` 发布；已完成的桌面分支也会先通过 `beta` 验证，再进入正式发布和分支退休流程。
-- 本地默认仍使用 SQLite，部署时可以通过配置切换到 PostgreSQL。角色资源账本、自动导演跟进日志和写法提取等数据结构会在两套数据库中保持一致，减少从本地开发到内网环境时的字段缺失问题。
-- 自动导演新增跟进中心。你可以集中查看需要继续执行、候选确认、重规划、运行失败或质量修复的任务，并直接执行继续、重试、跳转处理或批量处理。
-- 企业微信和钉钉可以接收自动导演跟进通知。审批、继续执行和进度变化可以按配置推送到协作工具，低风险动作也能通过安全回调入口处理。
-- 图片资产默认继续保存在本地文件中；只有在配置里显式选择 `s3` 或 `minio` 时，才会把生成图片写入 MinIO/S3，并通过同一图片访问入口读取。
-- 自动导演长链路的稳定性补强了。启动、继续、恢复、重试、批量处理和卷生成入口会避开同一本书同一范围的重复高内存任务；如果服务中断后任务还停在假运行中，系统会把它归到异常或需校验状态，方便继续处理。
-- 自动导演校验统一成同一套规则。开书范围执行、已有项目接管、跟进中心动作、批量动作和消息端回调都会先检查真实资产与目标范围，减少入口显示能点、后端却接不上的情况。
-- 自动导演跟进中心改成分区视图。待处理、自动推进、异常、已替代和需校验会分开显示；批量低风险继续、批量重试和重新校验也会按分区边界执行，用户更容易判断下一步该处理什么。
-- 需校验任务支持一键安全修复。系统只修复低风险状态对账、检查点、进度、恢复目标、替代原因和审计 / 通知记录；涉及清正文、重写、重规划、候选确认、模型切换或内容生成时，会停下来要求人工处理。
-- AI 推进自动通过审批点时现在有了审计记录。跟进中心会在自动推进分区展示每本书最近自动通过的记录，企业微信和钉钉也会发送“AI 已自动通过并继续推进”的通知，方便回看系统替你通过了什么。
-- 开书时的自动执行范围更清楚了。新建自动导演可以直接选择全书、前 N 章或前 1 卷；前 N 章默认 10 章，但会按全书规划上限校验，不再把所有范围都说成固定前 10 章。
-- 书本页接管自动导演更完整了。已有项目可以按全书、章节范围或卷范围接管，并按选择的范围限制可开始的导演节点，减少误把章节范围从项目设定或角色准备阶段接起来的风险。
-- 书本页选择继续已有进度时，会保留已有规划和正文资产，只把后续节点重新纳入推进；同一目标范围内被新任务接管的旧导演任务或章节流水线会标明“由本任务替代”，不再像普通异常取消一样让人误判。
-- 系统设置新增自动推进偏好。选择 AI 推进时，系统会先带入默认允许自动通过的审批点，开书和接管时还能按本书单独调整；未勾选的审批点仍会停下来等待人工确认。
-- 自动导演重新生成前会先创建重写前备份。书本页接管选择重新生成时，系统会在清理目标节点和后续资产前保存可恢复快照；如果备份失败，本次重写会停止，不会继续清除内容。任务详情和里程碑历史也会显示“重写前备份已创建”，方便从版本历史找回重写前内容。
-- 章节批次和质量修复会按结构化风险等级决定下一步。低风险修复且已授权自动推进时会继续章节执行；重规划、大范围返工或重写清理会等待人工确认，避免把高风险内容变更自动放行。
-- 自动导演和直连卷规划生成共用跨进程高内存保护。同一本书同一范围的高内存任务会被短租约拦截并返回可处理提示；直连卷生成支持轻量响应，减少大体积卷工作区在接口响应中重复传输。
+- The character workbench adds a key-resource view. Protagonist, long-term characters, and temporary characters show props, clues, identity credentials, trump cards, costs, and consumption status by different focus, so writing a long book it is easier to know what each character still holds.
+- State settle after chapter execution also recognizes character-resource changes. Low-risk changes can enter the ledger automatically. High-risk or uncertain changes stay pending confirm, so important resources are not quietly changed or dropped by AI.
+- Chapter writing, review, and repair context bring this chapter’s related character-resource window, so AI generating later chapters more easily respects who owns, who knows, whether it can still be used, and when it should pay off.
+- Character-resource changes have an independent plan-and-verify path. Later backpack, clue, foreshadowing, and character-action constraints can keep advancing along the same ledger, instead of scattering in chapter prose or character notes.
+- The novel task drawer adds a resource-change pending-confirm entry. You can see pending resource changes, source chapter, risk level, and evidence, then confirm into the ledger or ignore, without hunting pending items across pages.
+- The chapter-execution page adds manual resource recheck. Character prep adds recent-chapter resource backfill. When you hand-edit prose or take over an old project, the system can recheck character key-resource changes and use confirmed results in later writing.
+- The volume-strategy page adds this-volume key-resource promises. Only resources that affect this volume’s action boundary, setup, or later payoff are picked, so planning the current volume you can see what can be used and what must not be used early.
+- Release flow adds a `beta` pre-release branch rule. Feature work first enters pre-release verification, then merges to `main` when stable. Finished desktop branches also pass `beta` verification before public release and branch retirement.
+- Local default still uses SQLite. Deploy can switch to PostgreSQL by config. Character-resource ledger, Auto-Director follow-up logs, and writing-formula extract data stay consistent across both databases, so missing fields from local to an internal environment happen less.
+- Auto-Director adds Follow-up. You can centrally view tasks that need Continue, candidate confirm, replan, run failure, or quality repair, and directly Continue, Retry, jump to handle, or batch handle.
+- WeCom and DingTalk can receive Auto-Director follow-up notices. Approval, Continue, and progress changes can push to collab tools by config. Low-risk actions can also handle through a safe callback entry.
+- Image assets default to staying in local files. Only when config explicitly picks `s3` or `minio` do generated images write to MinIO/S3, and they still read through the same image-access entry.
+- Auto-Director long-chain stability is stronger. Start, Continue, Recover, Retry, batch handle, and volume-generate entries skip duplicate high-memory tasks for the same book and same range. If after a service interrupt a task still sits in fake-running, it is classified as abnormal or need-check, so you can keep handling it.
+- Auto-Director checks unify into one rule set. Opening-range run, existing-project takeover, Follow-up actions, batch actions, and message-end callbacks first check real assets and target range, so an entry looks clickable while the backend cannot connect less.
+- Auto-Director Follow-up becomes a sectioned view. Pending, Auto-advance, Abnormal, Replaced, and Need check show separately. Batch low-risk continue, batch retry, and recheck also run by section boundary, so the next thing to handle is easier to judge.
+- Need-check tasks support one-click safe repair. Only low-risk status reconcile, checkpoints, progress, recover target, replacement reason, and audit / notice records are repaired. Clearing prose, rewrite, replan, candidate confirm, model switch, or content generate stop for human handling.
+- When AI advance auto-passes an approval point, an audit record now exists. Follow-up’s auto-advance section shows each book’s recent auto-pass records. WeCom and DingTalk also send AI auto-passed and continued, so you can look back at what the system passed for you.
+- Opening auto-run range is clearer. New Auto-Director can pick whole book, first N chapters, or first 1 volume. First N chapters defaults to 10, but checks against the whole-book plan cap, and no longer describes every range as a fixed first 10 chapters.
+- Book-page Auto-Director takeover is more complete. An existing project can take over by whole book, chapter range, or volume range, and startable director nodes are limited by the chosen range, so a chapter range less starts from project setup or character prep by mistake.
+- Choosing Continue existing progress on the book page keeps existing planning and prose assets, and only brings later nodes back into advance. Old director tasks or chapter pipelines in the same target range that a new task took over mark Replaced by this task, instead of looking like an ordinary abnormal cancel.
+- Settings adds auto-advance preference. Choosing AI advance first brings default approval points allowed to auto-pass. Opening and takeover can still adjust per book. Unchecked approval points still stop for human confirm.
+- Auto-Director regenerate first creates a pre-rewrite backup. When book-page takeover chooses regenerate, a recoverable snapshot saves before cleaning the target node and later assets. If backup fails, this rewrite stops and does not keep clearing content. Task details and milestone history also show Pre-rewrite backup created, so you can find pre-rewrite content from version history.
+- Chapter batches and quality repair decide the next step by structured risk level. Low-risk repair with authorized auto-advance continues chapter execution. Replan, large-range rework, or rewrite cleanup wait for human confirm, so a high-risk content change is not auto-released.
+- Auto-Director and direct volume-plan generate share cross-process high-memory protection. High-memory tasks for the same book and same range are intercepted by a short lease and return a handleable hint. Direct volume generate supports a light response, so a large volume workspace repeats less in the interface response.
 
 ### 2026-04-24
 
-- 结构化输出在遇到“明明有内容，但被模型多包了一层单元素数组”的情况时更稳了。系统会优先做安全修正，减少因为轻微格式偏差就整段失败的情况。
-- 章节规划现在能更稳地识别模型返回的目标字段。即使模型把章节目标写成 `goal`、`chapterGoal` 或中文“章节目标”，系统也会归一到可执行规划目标，减少正文生成前因为目标字段命名漂移而中断。
-- 当模型服务或中转站返回的是 HTML 错误页时，系统现在会更准确地提示这是传输或服务异常，而不是把它误判成普通 JSON 格式问题，排查原因会更直接。
-- 如果模型输出的 JSON 被截断或结构不完整，失败提示会更明确地告诉你先重试，并在必要时建议切换更强模型或启用备用模型。
-- 任务中心现在会把自动导演任务的下一步说得更具体。选中任务后，可以直接看到它为什么停下、当前优先级以及现在最适合执行的动作，不再只剩一条笼统的继续或重试提示。
-- 当自动导演需要继续自动执行、普通恢复，或改用当前任务模型 / 路由模型重试时，可以直接在任务中心里完成，不需要先去别的页面判断该走哪条恢复路径。
-- 如果当前卡在候选确认、重规划或其他需要先处理的阶段，任务中心也会直接给出更贴近当前状态的入口和说明，减少“任务明明停住了，但不知道下一步该点哪里”的情况。
+- Structured output is steadier when the model wraps real content in an extra one-element array. A safe correction is preferred first, so a slight format drift fails the whole block less.
+- Chapter planning more steadily recognizes the goal field the model returns. Even if the model writes the chapter goal as `goal`, `chapterGoal`, or a Chinese “chapter goal” label, it normalizes to an executable planning goal, so writing interrupts less because the goal field name drifted.
+- When a model service or relay returns an HTML error page, the hint more accurately says this is a transport or service exception, instead of mistaking it for an ordinary JSON format problem, so diagnosis is more direct.
+- If model JSON is truncated or the structure is incomplete, the failure hint more clearly tells you to retry first, and when needed suggests switching to a stronger model or enabling a backup model.
+- Task Center now states an Auto-Director task’s next step more specifically. After you select a task, you can see why it stopped, current priority, and the action that best fits now, instead of only a vague Continue or Retry hint.
+- When Auto-Director needs Continue auto-run, ordinary recover, or retry with the current task model / routing model, you can finish it in Task Center, without first going to another page to judge which recover path to take.
+- If it is currently stuck on candidate confirm, replan, or another stage that must be handled first, Task Center also gives an entry and copy closer to the current state, so “the task stopped, but I don’t know where to click next” happens less.
+
 ### 2026-04-23
 
-- 写法创建入口收进同一个弹窗了。你可以在 `模板起步 / 空白-AI / 从素材提取` 之间选择，不需要再从不同页面入口猜该怎么创建写法。
-- `从素材提取` 支持直接粘贴文本、知识库原文和拆书结果三种来源。知识库原文会冻结活动版本作为来源快照；拆书结果会继续沿用文风与技法分析来生成写法。
-- 长篇知识库原文创建写法时默认使用智能抽样。系统会保留完整来源预览，但只把代表性样本交给模型学习写法，减少整本书一次性塞进模型导致的超时、上下文超限和不稳定。
-- 写法提取超时可以在系统设置里调整了。长文本或慢模型可以直接调高等待时间后重试，不需要再改 `.env` 或重启服务。
-- 写法列表和编辑区新增了“知识库原文”来源识别，历史文本提取、拆书生成和新知识库来源会按各自来源显示，后续追溯更清楚。
-- 知识库上传长篇小说后的索引状态现在会更贴近真实执行进度。即使历史 RAG 任务很多，知识库页面也会优先看到最近仍在更新的任务，不再容易把已经开始处理的文档长期误显示成“排队中”。
-- 知识库任务轮询对当前活跃任务更友好了。上传新文档、重建索引或等待向量生成时，页面会更快跟上最新运行状态，减少“后台已经在跑、前台还像没开始”的错位感。
-- 自动导演的恢复更贴近当前真实进度了。服务中断、页面刷新或重新继续任务时，系统会先检查已经生成好的卷工作区、章节细化和章节执行资产，再决定从哪里接着跑，减少回退到卷战略、重跑卷骨架，甚至把已细化章节重新覆盖掉的情况。
-- 自动导演在确认书级方案后不再把占位卷工作区误判成可直接进入 `节奏 / 拆章`。如果当前还没有真正的卷战略，系统会先回到 `卷战略 / 卷骨架` 继续推进，避免一确认方案就立刻报“请先生成卷战略建议，再生成当前卷节奏板”。
-- 前 10 章、指定章节范围和按卷继续执行现在统一成同一套范围规则。继续某一卷时，系统会按该卷当前真实章节起止范围推进；前 10 章也会明确按 `1-10` 章处理，减少继续任务时悄悄退回默认范围、或按错章节段执行的情况。
-- `节奏 / 拆章` 和 `章节执行` 之间的衔接更顺了。AI 生成当前卷章节列表、整卷拆章或章节细化后，会自动把最新结构同步到章节执行区，不再要求用户额外理解“先生成、再手动同步、再执行”这套内部步骤。
-- 角色阵容方案的应用更可控了。如果某套阵容和当前故事设定还有明显错位，界面会先提示需要确认的风险点；你仍然可以决定先应用再微调，但不会再在毫无提醒的情况下把问题阵容直接落到角色资产里。
+- Style-create entry folds into one dialog. You can choose among Template start / Blank-AI / Extract from materials, without guessing how to create a style from different page entries.
+- Extract from materials supports three sources: pasted text, knowledge-library original text, and book-analysis results. Knowledge-library original text freezes the active version as a source snapshot. Book-analysis results keep using style-and-technique analysis to generate a style.
+- Creating a style from a long knowledge-library original defaults to smart sampling. Full source preview is kept, but only representative samples go to the model to learn the style, which cuts timeout, context overflow, and instability from stuffing a whole book into the model at once.
+- Style-extract timeout can be adjusted in Settings. Long text or a slow model can raise wait time then retry, without editing hidden config files or restarting the service.
+- Style list and editor add knowledge-library original as a source type. Historical text extract, book-analysis generate, and new knowledge-library sources show by their own source, so later tracing is clearer.
+- After uploading a long novel to the knowledge library, index status sits closer to real execution progress. Even with many historical retrieval tasks, the knowledge-library page prefers recently still-updating tasks, and less often keeps a document that has already started processing as Queued for a long time.
+- Knowledge-library task polling is friendlier to currently active tasks. Uploading a new document, rebuilding an index, or waiting for vector generate, the page follows the latest run status faster, so “the background is already running, the page still looks not started” happens less.
+- Auto-Director recover sits closer to current real progress. On service interrupt, page refresh, or Continue again, already-generated volume workspace, chapter refine, and chapter-execution assets are checked first, then it decides where to continue, so rolling back to volume strategy, rerunning volume skeleton, or overwriting already-refined chapters happens less.
+- After confirming a book-level plan, Auto-Director no longer mistakes a placeholder volume workspace for ready to enter Pacing / Split. If there is still no real volume strategy, it returns to Volume strategy / Volume skeleton first, so confirming a plan does not immediately report Please generate volume-strategy suggestions first, then generate this volume’s pacing board.
+- First 10 chapters, specified chapter range, and continue-by-volume unify into the same range rule. Continuing a volume advances by that volume’s current real chapter start–end. First 10 chapters also clearly treat chapters 1–10, so Continue less quietly falls back to a default range or runs the wrong chapter segment.
+- Handoff between Pacing / Split and Chapter execution is smoother. After AI generates this volume’s chapter list, whole-volume split, or chapter refine, the latest structure syncs to the chapter-execution area automatically. You are no longer asked to understand an internal generate, then sync by hand, then execute.
+- Applying a character-cast plan is more controllable. If a cast still clearly mismatches the current story setting, the UI first hints risk points that need confirm. You can still apply first then fine-tune, but a problem cast no longer lands on character assets with no reminder.
 
 ### 2026-04-22
 
-- 写法检测、改写和章节写作现在会更稳定地跟上最新规则版本。相关 AI 任务会按当前真正生效的写法检测、改写和正文写作配置运行，减少规则已经升级、实际链路却还引用旧版本或直接取不到配置而中断的情况。
-- 写法资产开始统一成一份更稳定的“写法合同”。正文生成、检测和修正文稿会围绕同一套叙事、角色、语言、节奏和反 AI 约束协同执行，绑定写法后更容易把风格真正落到正文里，而不是每个环节各讲一套规则。
-- 自动导演按卷继续执行更可靠了。选择继续某一卷时，系统会按目标卷的真实章节范围接着跑；如果前一卷还有未完成章节，会直接拦住并提示先补前序卷，避免悄悄退回默认前 10 章或继续到错误范围。
-- 角色准备在模型输出不稳定时更容易补齐可用阵容。系统会优先把核心角色成员和关系分步补全，减少角色阶段因为一次结构化输出不完整就把整条开书流程卡住的情况。
-- 后台任务恢复和状态同步更稳了。数据库写入拥堵时会优先等待并重试，小说页和任务中心在继续、取消或重试自动导演后，也会更快同步到当前真实状态，减少“界面还停在旧任务上”的错位感。
-- Windows 桌面版补发 `0.2.2` 修复版。旧 `dev.db` 导入后如果数据库里已经带着半完成迁移记录，桌面端现在会优先接管已有结构，不再因为重复建表把启动卡死；选错成当前桌面库自身时，也会明确提示去选旧的 web/dev `dev.db`。
-- Windows 安装版图标和桌面运行时也一起补稳了。开始菜单、桌面快捷方式和系统入口会继续使用正式应用图标；桌面开发壳与打包环境也补上了 `better-sqlite3` 运行时依赖，减少启动时直接报缺模块或看起来还像 Electron 默认壳的情况。
+- Style detect, rewrite, and chapter writing more stably follow the latest rule version. Related AI tasks run by the style-detect, rewrite, and writing config that is actually in effect, so a rule already upgraded while the real path still references an old version, or cannot get config and interrupts, happens less.
+- Style assets start unifying into a more stable style contract. Writing, detect, and correction drafts coordinate around the same narrative, character, language, pacing, and Anti-AI constraints. After you bind a style, it is easier to land the style in prose, instead of each step stating a different rule set.
+- Auto-Director continue-by-volume is more reliable. Choosing to continue a volume keeps running by that target volume’s real chapter range. If the previous volume still has unfinished chapters, it stops and hints to fill the earlier volume first, instead of quietly falling back to default first 10 chapters or continuing to the wrong range.
+- Character prep more easily fills a usable cast when model output is unstable. Core cast members and relationships prefer completing step by step, so the character stage less pins the whole opening flow because one structured output was incomplete.
+- Background-task recover and status sync are steadier. When database writes congest, wait-and-retry is preferred. After Continue, Cancel, or Retry Auto-Director, the novel page and Task Center also sync to the current real state faster, so the UI less stays on an old task.
+- Windows desktop ships a `0.2.2` fix. After importing an old `dev.db`, if the database already carries a half-finished migration record, the desktop prefers taking over existing structure, instead of freezing start by creating tables again. If you pick the current desktop library itself by mistake, it clearly asks you to pick the old web/dev `dev.db`.
+- Windows installer icon and desktop runtime also stabilize together. Start menu, desktop shortcut, and system entry keep using the official app icon. The desktop development shell and packaged environment also include the `better-sqlite3` runtime, so start less reports a missing module or still looks like the Electron default shell.
 
 ### 2026-04-21
 
-- 写法提取开始真正围绕“可继续使用的写法资产”来组织结果。系统会优先保留可执行规则、证据化特征、短分析稿和可继续调整的反 AI 约束，不再把大量低价值展示信息塞进同一轮重调用里；从文本、简述或拆书生成写法后，后续编辑、复用和绑定都会更顺。
-- 写法工作台改成了更清楚的分区式入口。首页可以先看每套写法的读感定位、规则摘要、反 AI 约束、当前预设和高风险指纹，再决定是去编辑设定、做应用测试，还是直接进入“去 AI 味”；需要重新提取时，也会优先保留完整分析稿，不再只剩一句短摘要。
-- 写法提取任务的状态信息补全了。任务中心和相关详情现在会显示当前模型、调用次数、输入 / 输出 / 总 Token 等关键消耗，并在服务重启或任务中断后明确告诉你是应该重试还是手动恢复，减少“看起来还在排队、其实已经停住”的误判。
-- 写法检测与修正文稿的链路更可靠了。即使当前没有绑定反 AI 规则，只要还存在写法规则或角色表达规则，系统仍会继续做检测，不会再因为少一层约束就整段跳过。
-- 自动导演与现有项目接管的入口也一起收顺了。系统会更明确区分当前是在接管已有项目、继续推进已有任务，还是需要先回到正确的确认步骤，减少从小说页、任务中心和弹窗之间来回猜“现在该去哪里继续”的情况。
-- 自动导演收尾入口补齐了。按卷执行、按章节范围执行或继续自动执行跑完后，小说工作台现在会明确显示这轮已经完成，并直接给出“进入章节执行”和“完成并退出”入口，不再把已完成任务继续挂成“还在自动导演”。
-- 编辑页顶部接管提示和右侧任务面板的完成态也对齐了。当前批次的章节执行、审核和修复都完成后，会直接告诉你可以继续写作或退出导演模式，减少误点“继续自动导演”把已完成任务重新拉起的困惑。
+- Style extract starts organizing results around a style asset you can keep using. Executable rules, evidenced traits, a short analysis draft, and Anti-AI constraints you can keep adjusting are preferred. A large amount of low-value display information is no longer stuffed into the same heavy call. After generating a style from text, a brief, or book analysis, later edit, reuse, and bind are smoother.
+- The style workbench becomes a clearer sectioned entry. Home can first show each style’s reading-feel position, rule summary, Anti-AI constraints, current preset, and high-risk fingerprints, then you decide to edit settings, run an apply test, or enter Anti-AI. When you need to re-extract, the full analysis draft is preferred, instead of only a one-line short summary.
+- Style-extract task status is filled in. Task Center and related details now show current model, call count, and input / output / total tokens, and after service restart or task interrupt clearly say whether you should Retry or Recover by hand, so Looks still queued but already stopped happens less.
+- Style detect and correction drafts are more reliable. Even with no bound Anti-AI rules, as long as style rules or character-expression rules still exist, detect continues, instead of skipping the whole block because one constraint layer is missing.
+- Auto-Director and existing-project takeover entries also straighten together. Whether you are taking over an existing project, continuing an existing task, or need to return to the correct confirm step is distinguished more clearly, so guessing where to continue among novel page, Task Center, and dialogs happens less.
+- Auto-Director wrap-up entry is filled in. After run-by-volume, run-by-chapter-range, or Continue auto-run finishes, the novel workbench now clearly shows this round is complete, and gives Enter chapter execution and Complete and exit directly, instead of keeping a finished task hung as still in Auto-Director.
+- The editor-top takeover hint and the right task panel complete state also align. After this batch’s chapter execution, review, and repair all finish, it tells you you can keep writing or exit director mode, so clicking Continue Auto-Director and pulling a finished task up again happens less.
 
 ### 2026-04-20
 
-- 章节执行与自动导演交接开始优先走更轻的审校与更收敛的上下文装配。单章生成、前 10 章自动执行和后续修复链路现在会先判断是否真的需要升级完整审校；长链路推进时更省 Token，也更不容易因为审校或修复链路过重而中途卡住。
-- 章节写作上下文开始按“初稿 / 增补 / 审校 / 修复”阶段分别裁剪。卷窗口、伏笔账本、最近章节摘要和部分风格约束不再在每一轮都整包重复塞入，连续写长篇时，AI 更容易把注意力放回当前章真正要推进的任务。
-- 小说编辑页里的 AI 接管提示改得更贴近真实状态了。现在会明确区分“等待确认”和“需要处理重规划”，章节待修时也不会再把用户挡在工作台外；结果区可以直接一键修复，完成本轮导演交接后也能主动退出当前导演提示。
-- 项目设定页把标题辅助入口收回到了标题字段旁的“标题快速选填”；下方折叠区不再重复放一套标题工坊，而是只保留写法确认和本书世界边界整理，开书阶段不容易再被重复入口干扰。
-- 当时曾补充公开授权说明；当前授权口径以 2026-04-26 的 AGPLv3 + 商业授权说明为准。
-- 历史公开版本的许可证说明也一起补齐了。2026-04-19 之前发布的版本继续保留原本的 MIT 许可证，仓库内新增了历史 MIT 文本和 NOTICE 说明，回看旧版本或处理历史分发时不容易混淆。
-- 贡献入口现在明确了提交约束。提交 Pull Request 时，需要确认自己有权提交对应内容，并在包含第三方代码、素材或数据时说明来源与许可证，减少后续合并和发布时的授权不确定性。
-- README 里新增了独立的 Windows 桌面版入口。现在进入仓库首页后，可以直接点击 Releases / Latest Release 下载桌面版，也能马上看到安装版与 portable 版怎么选、旧本地数据怎么迁移，以及当前自动更新仍属于 Beta 能力的说明。
-- 源码开发的首次安装路径也收顺了。默认 `pnpm install` 现在先按 Web / Server 开发所需依赖完成安装，不再把 Electron 桌面运行时下载强塞进所有人的第一次安装；只有在你真的要启动桌面端开发壳时，才会按需补拉对应运行时。
+- Chapter execution and Auto-Director handoff start preferring a lighter review and tighter context assembly. Single-chapter generate, first-10-chapter auto-run, and later repair first judge whether a full review truly needs to upgrade. Long-chain advance spends fewer tokens, and is less likely to stick mid-way because review or repair is too heavy.
+- Chapter-writing context starts clipping by stage: first draft / add-on / review / repair. Volume window, foreshadowing ledger, recent-chapter summaries, and some style constraints are no longer stuffed in as a whole pack every round. Writing a long book continuously, AI more easily puts attention back on the task this chapter truly needs to advance.
+- AI takeover hints on the novel editor sit closer to real status. Waiting for confirmation and Needs replan are distinguished clearly. When a chapter needs repair, you are no longer blocked outside the workbench. The result area can one-click repair. After this director handoff finishes, you can also actively exit the current director hint.
+- Project-settings page pulls title-assist back beside the title field as Title quick fill. The fold below no longer repeats a title workshop; it only keeps style confirm and this-book world-boundary tidy, so opening is less disturbed by duplicate entries.
+- A public-license note was added at the time; the current license wording follows the 2026-04-26 AGPLv3 plus commercial-license note.
+- Historical public-version license notes are also filled in. Versions published before 2026-04-19 keep the original MIT license. Historical MIT text and a NOTICE are added in the repo, so looking back at old versions or handling historical distribution confuses less.
+- Contribution entry now states submit constraints. Submitting a Pull Request, you need to confirm you have the right to submit the content, and when it includes third-party code, materials, or data, state source and license, which lowers later merge-and-publish license uncertainty.
+- README adds a standalone Windows desktop entry. On the repo home you can click Releases / Latest Release to download the desktop app, and immediately see how to pick installer vs portable, how to migrate old local data, and that auto-update is still a Beta capability at this time.
+- First install for source development also straightens. Default `pnpm install` now installs Web / Server development dependencies first, and no longer force-downloads the Electron desktop runtime into everyone’s first install. Only when you truly start the desktop development shell does the matching runtime pull on demand.
 
 ### 2026-04-19
 
-- Windows 桌面版已经进入可分发的 Beta 阶段。现在可以产出 `Setup.exe` 和 `portable` 两种安装产物，普通用户不需要再自己准备 Node、pnpm 或 Prisma 环境，也不需要依赖源码目录来启动本地写作工作台。
-- 桌面端启动体验做了专门收口：应用点击后会先显示中文启动壳与品牌化首屏，不再先看到长时间白屏；如果本地服务启动失败，也会直接给出日志目录、日志路径和重试入口，排查问题比之前更直接。
-- 安装版开始支持更完整的 Windows 使用习惯了。安装器允许用户手动选择安装目录，卸载默认不会误删用户数据；应用本体、启动界面、快捷方式和安装器资源也统一切到了正式图标，不再混用 Electron 默认图标。
-- 桌面端数据开始和原本的 Web 开发数据分开存放，但补上了迁移入口。系统设置里现在可以手动选择旧的本地 `dev.db` 导入，桌面端会先备份当前数据库，再接管旧数据并自动重启，方便从原来的 Web 本地使用方式迁到桌面版。
-- 桌面版缺少模型配置时不再只给空白结果。启动后会明确引导去现有设置页完成模型与密钥配置；同时桌面版默认关闭 RAG / Qdrant 首发阻塞链路，尽量先保证主创作流程可以直接进入。
-- GitHub Releases Beta 发布链和安装版自动更新能力也已经接通。安装版会在后台检查 Beta 更新、提示用户下载并在重启后安装；便携版仍保持手动更新，避免误入自动替换流程。
-- 系统设置里的模型供应商配置现在补上了图片生成相关参数。支持图片生成的厂商可以直接在设置里填写图片模型、API 地址和 API Key，桌面化安装后不必再为了出图能力额外回头改 `.env`。
-- 知识库配置开始兼容旧版本的 `.env` 用法。像 Embedding、Qdrant、检索参数这类旧配置，升级后会更平滑地接进当前设置体系；旧知识库如果已经在用默认集合，也更不容易在升级后被悄悄切到新的集合名。
-- 知识库页的检索配置与相关文案改成了中文，旧版偏英文的 `Knowledge Retrieval Settings` 区域也收成了更统一的中文设置体验，新手排查知识库和 Embedding 参数时不容易混淆。
-- 长模型名和长选项现在在下拉框里能更完整地显示了。搜索型选择器会尽量展开宽度、支持换行，并保留悬浮完整提示，像模型选择这种超长选项不再频繁被截断到看不清。
-- 角色形象图弹窗里的“最终发送 Prompt 预览”现在可以直接手动编辑，不需要先经过 AI 优化才能改。你可以直接改最终发送给图片模型的 prompt，也可以先让 AI 优化后继续手调，出图前的控制感更强。
-- 新增自定义模型厂商时，弹窗不再强行要求先从一个还拿不到数据的模型下拉里选择。现在会明确引导先手动填写默认模型名，创建完成后再去刷新模型列表，减少首次接入自定义厂商时的卡顿感。
-- 角色列表里的“形象图库”现在支持直接删除图片了。无论是在卡片网格里，还是点开大图预览后，都可以把不满意的角色图直接删掉，不用再回数据库或手动清文件；如果删掉的是当前主图，系统也会自动补一张新的主图，避免图库状态断掉。
+- Windows desktop enters a distributable Beta stage. It can produce `Setup.exe` and `portable` install artifacts. Ordinary users no longer need to prepare Node, pnpm, or Prisma themselves, and no longer depend on a source directory to start the local writing workbench.
+- Desktop start is specially closed: after click, a Chinese start shell and branded first screen show first, instead of a long white screen. If the local service fails to start, log directory, log path, and Retry are given directly, so diagnosis is more direct than before.
+- The installer starts supporting fuller Windows habits. The installer lets you pick the install directory by hand. Uninstall by default does not delete user data by mistake. App body, start screen, shortcuts, and installer resources also unify to the official icon, instead of mixing the Electron default icon.
+- Desktop data starts storing separately from original Web development data, but a migrate entry is added. Settings can pick an old local `dev.db` to import by hand. The desktop first backs up the current database, then takes over old data and restarts automatically, so moving from original Web local use to desktop is easier.
+- When the desktop lacks model config, it no longer only gives a blank result. After start it clearly guides you to existing Settings to finish model and key config. Desktop also defaults to turning off RAG / Qdrant first-launch blocking, so the main creation flow can enter first when possible.
+- GitHub Releases Beta publish and installer auto-update also connect. The installer checks Beta updates in the background, prompts download, and installs after restart. Portable stays manual update, so it does not enter auto-replace by mistake.
+- Model-provider config in Settings fills image-generation parameters. Providers that support image generate can fill image model, API address, and API key in Settings. After a desktop install you do not have to go back to a hidden config file just for image capability.
+- Knowledge-library config starts compatible with older `.env` usage. Old config such as Embedding, Qdrant, and retrieval parameters more smoothly joins the current Settings system after upgrade. If an old knowledge library already uses the default collection, it is less quietly switched to a new collection name after upgrade.
+- At the time this shipped, knowledge-library retrieval settings and related copy became Chinese. The older English Knowledge Retrieval Settings area also folded into a more unified Chinese settings experience, so beginners diagnosing knowledge-library and Embedding parameters confused less.
+- Long model names and long options display more completely in dropdowns. Search selectors try to expand width, support wrap, and keep a hover full hint, so extra-long options such as model pick are less truncated until unreadable.
+- Final send Prompt preview in the character-image dialog can be edited by hand, without AI optimize first. You can edit the prompt finally sent to the image model, or let AI optimize then keep hand-tuning, so control before generate is stronger.
+- Adding a custom model provider, the dialog no longer forces picking from a model dropdown that still has no data. It clearly guides filling a default model name by hand first, then refresh the model list after create, which cuts stall on first connecting a custom provider.
+- Image gallery on the character list now supports deleting images directly. In the card grid or after opening a large preview, you can delete a character image you do not like, without going back to the database or cleaning files by hand. If the deleted image is the current primary, a new primary is filled automatically, so gallery status does not break.
 
 ### 2026-04-18
 
-- `节奏 / 拆章` 和自动导演的恢复点现在更细了。系统会按卷、节奏段和章节细化项来判断哪里已经完成，哪里还没完成；中途失败、换模型重试或服务重启后，不再默认从整个结构化大纲阶段重新开始。
-- 当前卷整卷拆章支持从第一个未完成节奏段继续。前面已经拆好的节奏段会保留下来，不会因为后半段失败就把整卷章节列表一起清空重跑。
-- 自动导演在卷内节奏板、章节列表和章节细化阶段的恢复也改成按真实进度续跑。已经完成的卷、节奏段和细化项会直接跳过，恢复后的提示和继续入口也会更贴近当前真实位置。
-- 批量章节细化重试现在只会补缺失的 `章节目标 / 执行边界 / 任务单`；如果某一章前两项已经齐了，只剩任务单没补，系统会直接从任务单继续，而不是再把整套细化从头跑一遍。
-- `节奏 / 拆章` 页在生成失败后，会先检查后端最近自动保存的工作区快照；只有确认后端确实已经保存了更新进度，才会把最新结果回填到当前页面，减少本地草稿被意外覆盖或误以为“刚才全白跑了”的挫败感。
+- Recover points for Pacing / Split and Auto-Director are finer. Completion is judged by volume, pacing segment, and chapter-refine items. After mid-fail, retry with another model, or service restart, it no longer defaults to restarting from the whole structured-outline stage.
+- Whole-volume split of the current volume can continue from the first unfinished pacing segment. Already-split earlier segments are kept, so a later-half failure does not clear and rerun the whole-volume chapter list together.
+- Auto-Director recover in in-volume pacing board, chapter list, and chapter refine also continues by real progress. Finished volumes, pacing segments, and refine items skip. Recover hints and Continue entries also sit closer to the current real place.
+- Batch chapter-refine retry now only fills missing chapter goal / execution boundary / task sheet. If a chapter already has the first two and only the task sheet is missing, it continues from the task sheet, instead of rerunning the whole refine from scratch.
+- After generate fails on the Pacing / Split page, the latest automatically saved workspace snapshot on the server is checked first. Only after confirming the server truly saved updated progress is the latest result filled back onto the current page, so a local draft is less overwritten by accident, and you less think the last run went fully blank.
 
 ### 2026-04-17
 
-- 自动导演、任务中心和小说工作台现在会更明确地告诉你 AI 正在推进哪一段真实范围。像“继续自动执行前 10 章”这种固定口径被收敛成当前批次真正覆盖的章节段或目标卷，接管、恢复和继续执行时更不容易误判自己到底会改到哪里。
-- 工作流恢复与继续执行更贴近当前真实进度。系统会综合已经完成的章节、当前阶段结果和恢复点状态来判断下一步，减少“看起来还能继续，实际却接不上当前内容”或“明明在补后半段，却还显示前 10 章”的错位感。
-- 章节编辑页升级成了更完整的 AI 修正工作台。左侧会展示本章在卷内的位置、节奏建议、前后章衔接和待处理问题卡；中间正文支持直接定位到问题片段；右侧则能围绕当前片段或整章发起 AI 修正，而不只是被动等你手动选中一小段文字。
-- 正文修改支持自然语言告诉 AI 怎么改了。现在既可以选中片段后直接说“压缩这段”“更压抑一点但别改事实”，也可以切到整章模式，让 AI 结合卷级任务、章节职责和已有约束来给出候选改写，再决定接受哪一版。
-- 章节编辑页里依赖 AI 分析的区域补上了明确的加载态。刚进入页面时，宏观定位、问题卡和推荐任务会先显示“AI 正在分析本章”的骨架屏与提示，不再像空白或出错。
-- 正文编辑区新增了段落编号与定位联动。问题卡和推荐任务可以直接把你带到对应段落，段落编号与正文片段会一起高亮；定位后也能直接取消，便于在长章里来回核对和修文。
-- 段落选区相关交互也更稳了。悬浮工具条会优先贴近选区出现，段落高亮不会再把文本高度撑乱，定位与选区高亮的反馈更适合长篇正文里连续精修。
+- Auto-Director, Task Center, and the novel workbench more clearly tell you which real range AI is advancing. Fixed wording such as Continue auto-run first 10 chapters closes into the chapter segment or target volume the current batch truly covers, so takeover, recover, and Continue less misjudge what will actually change.
+- Workflow recover and Continue sit closer to current real progress. Finished chapters, current-stage results, and recover-point status together judge the next step, so Looks like it can continue but cannot connect to current content, or Clearly filling the later half but still showing first 10 chapters, happens less.
+- The chapter editor upgrades into a more complete AI-correction workbench. The left shows this chapter’s place in the volume, pacing advice, adjacent-chapter join, and pending issue cards. Middle prose can locate an issue fragment directly. The right can start AI correction around the current fragment or the whole chapter, instead of only waiting for you to select a small span by hand.
+- Prose edit supports telling AI how to change in natural language. After selecting a fragment you can say Compress this or A bit more oppressive but don’t change facts. You can also switch to whole-chapter mode and let AI, with volume tasks, chapter duties, and existing constraints, give candidate rewrites, then decide which version to accept.
+- Areas on the chapter editor that depend on AI analysis add a clear loading state. Just entering the page, macro location, issue cards, and recommended tasks first show a skeleton and AI is analyzing this chapter, instead of looking blank or like an error.
+- The prose editor adds paragraph numbers linked to locate. Issue cards and recommended tasks can take you to the matching paragraph. Paragraph number and prose fragment highlight together. After locate you can also cancel, which fits checking and repairing back and forth in a long chapter.
+- Paragraph-selection interaction is also steadier. The hover toolbar prefers appearing next to the selection. Paragraph highlight no longer stretches text height. Locate and selection-highlight feedback better fits continuous polish in long-form prose.
 
 ### 2026-04-16
 
-- 自动导演、任务中心和编辑工作台现在更容易从真实断点继续了。系统会更明确地区分“正在恢复”“可以继续接管”还是“需要重新处理”，页面刷新、切页或服务重启后，也更不容易把用户带回错误入口。
-- 整本推进开始围绕统一状态流来判断下一步。章节执行、状态沉淀、后台恢复和重规划会更多参考当前已经写出的真实内容与阶段结果，减少“前面已经推进了，后面却还按旧状态继续跑”的错位感。
-- `节奏 / 拆章` 里的章节标题与摘要生成改成按当前卷的节奏段逐段生成，不再要求模型一次性吐完整卷几十章；章节较多时，后半段标题漂移、摘要发虚或整卷一起失真的情况会更少。
-- 当前卷的章节列表现在会显式挂到对应节奏段上，并支持只重生某一个节奏段的章节块；如果只是某一段标题不理想，不用整卷重跑，直接局部修正就行。
-- 节奏工作区会直接显示每个节奏段当前是 `待生成 / 生成中 / 已生成 / 需重试`，补章节或检查节奏覆盖时更直观，也更适合新手逐段确认而不是一次面对整卷结果。
-- 右上角错误提示不再自动消失了。遇到失败、结构校验问题或模型返回异常时，错误信息会一直保留到你手动关闭，排查问题时不用担心提示刚弹出来就没了。
+- Auto-Director, Task Center, and the editor workbench more easily continue from a real breakpoint. Recovering, can continue takeover, and needs re-handling are distinguished more clearly. After page refresh, page switch, or service restart, you are less brought back to the wrong entry.
+- Whole-book advance starts judging the next step around a unified status flow. Chapter execution, state settle, background recover, and replan more often reference already-written real content and stage results, so the front already advanced while the back still runs on old status happens less.
+- Chapter titles and summaries in Pacing / Split generate by the current volume’s pacing segments one segment at a time, instead of asking the model to spit tens of chapters for the whole volume at once. When there are many chapters, later-half title drift, hollow summaries, or the whole volume distorting together happen less.
+- This volume’s chapter list now explicitly hangs on the matching pacing segment, and supports regenerating only one segment’s chapter block. If only one segment’s titles are not ideal, you do not rerun the whole volume; local correct is enough.
+- The pacing workspace directly shows each pacing segment as Pending generate / Generating / Generated / Need retry. Filling chapters or checking pacing coverage is more direct, and better fits beginners confirming segment by segment instead of facing a whole-volume result at once.
+- Top-right error hints no longer disappear automatically. On failure, structure-check issues, or abnormal model return, the error stays until you close it by hand, so you do not worry a hint vanished right after it appeared.
 
 ### 2026-04-15
 
-- 自动导演从当前真实进度继续接管时更顺了。编辑页会直接告诉你现在位于哪一步，并支持从当前步骤重新交给 AI；如果章节自动执行批次本来就在跑，系统也会更明确地区分“恢复已有批次”还是“按当前范围新开一批”。
-- 章节执行区的状态反馈补得更完整了。正文生成后的后台同步、状态流转和结果面板会更清楚显示当前到底是在写作、收尾、同步资产还是等待处理，连续推进多章时更容易判断现在该继续等、继续修，还是直接进入下一步。
-- 结构化生成和状态抽取更稳了。像状态快照、角色动态、审计与相关规划链路，遇到模型输出边界不整齐、字段偏长或结构轻微漂移时，更不容易整步失败，长链路自动推进会更稳定。
-- 小说工作台新增导出能力。现在不仅能导出整本书正文，还可以按当前步骤或整本书导出 `Markdown / JSON`，覆盖项目设定、故事宏观规划、角色准备、卷战略、节奏拆章、章节执行和质量修复等内容，便于留档、协作或继续加工。
-- 小说编辑页里的 AI 接管入口更不容易误导了。如果自动导演已经在恢复、排队或等待接管，工作台不会再额外塞一个看起来还能立刻重开的面板；当接管状态还在加载时，也会先显示明确的加载态，而不是让用户误判成入口消失或系统卡住。
-- 角色形象图弹窗现在会直接展示原链路真正发送给图片模型的完整 prompt，不再只显示一段默认角色描述；用户在出图前能更清楚看到系统到底会怎么组织角色资料、风格预设和负向约束。
-- 角色形象图生成新增 AI prompt 优化。现在可以把当前角色描述一键转成更适合图片生成的 prompt，并按需切成中文或英文输出；如果选择优化结果出图，系统会直接把这条优化后的 prompt 发给图片接口，而不是再继续叠加原链路内容。
-- 角色形象图弹窗的交互也一起收顺了。语言切换、优化按钮、模式提示和长内容滚动都做了重排，弹窗在小屏或内容较长时不再轻易把标题、关闭按钮和主要操作顶出屏幕。
+- Auto-Director takeover from current real progress is smoother. The editor tells you which step you are on, and supports handing the current step back to AI. If a chapter auto-run batch is already running, Recover existing batch vs Open a new batch for the current range is distinguished more clearly.
+- Status feedback in the chapter-execution area is more complete. After writing, background sync, status flow, and the result panel more clearly show whether it is writing, wrapping up, syncing assets, or waiting. Advancing several chapters in a row, it is easier to judge whether to keep waiting, keep repairing, or enter the next step.
+- Structured generate and state extract are steadier. For state snapshot, character dynamics, audit, and related planning, uneven model-output boundaries, slightly long fields, or slight structure drift fail the whole step less, so long-chain auto-advance is more stable.
+- The novel workbench adds export. You can export whole-book prose, and also export `Markdown / JSON` by current step or whole book, covering project settings, story macro plan, character prep, volume strategy, pacing split, chapter execution, and quality repair, which fits archive, collab, or later processing.
+- AI takeover entry on the novel editor misleads less. If Auto-Director is already recovering, queued, or waiting to take over, the workbench no longer extra-inserts a panel that looks immediately reopenable. While takeover status is still loading, a clear loading state shows first, instead of looking like the entry vanished or the system stuck.
+- The character-image dialog now shows the full prompt the original path truly sends to the image model, instead of only a default character description. Before generate you can more clearly see how character materials, style preset, and negative constraints will be organized.
+- Character-image generate adds AI prompt optimize. Current character description can one-click convert into a prompt fitter for image generate, and switch to Chinese or English output as needed. If you generate from the optimized result, that optimized prompt is sent to the image API directly, instead of stacking original-path content on top.
+- Character-image dialog interaction also straightens. Language switch, optimize button, mode hints, and long-content scroll are rearranged. On a small screen or with long content, title, close, and primary actions are less pushed off screen.
 
 ### 2026-04-14
 
-- 章节执行主链重新收回到整章一次性生成了。“重写本章”和普通“生成本章”现在都会直接按整章写作，不再先按场景拆开跑，也不再在生成前额外刷新执行合同；正文等待链路更短，适合先把一章完整写出来再判断是否要细修。
-- 单章和批量章节流水线的默认自动修复预算也收紧成“初审后最多自动修一次，再复审一次”。如果一轮修复后问题还在，系统会停在当前结果让你决定下一步，不再反复自动循环多轮修文。
-- 自动执行章节批次在恢复、续跑和统计进度时，开始同时参考章节处理状态和生成状态。像“已待审”“已完成”“待修复”这些真实状态会被区分得更细，恢复旧批次时更不容易误把章节跳过，或把其实还要处理的章算成已完成。
-- 自动导演在卷拆章阶段如果只是章节标题结构过于集中，不会再把整条任务直接判成失败；系统会保留已经生成的章节列表，把问题改成可继续处理的提醒，并把你停回当前卷等待修复。
-- 小说编辑页、导演进度面板和任务中心现在都能直接发起“快速修复章节标题”。AI 会沿用这条导演任务当前绑定的模型，重写目标卷标题，修完后继续把你留在当前卷确认结果，不用手动重找入口。
-- 旧的自动导演候选任务如果因为历史数据里缺少候选 ID、或上次锁定的目标方案已经失效，系统现在会先自动补齐并把任务恢复回“等待确认书级方向”，减少明明还能继续却被卡死在错误恢复点的情况。
-- 已有项目从章节执行区接回自动导演时，系统会先判断当前是否已有活动批次、能否直接恢复，还是需要按你现在选定的章节范围新开批次；接管入口、进度标签和继续按钮也会更明确地告诉你现在到底是在恢复旧批次，还是继续新一轮自动执行。
-- 自动执行章节批次现在新增“正文生成后自动审核”和“审核不通过时自动修复”两个开关，用户可以自己决定正文写完后要不要继续跑质量检查与修复；这组选择只影响当前批次的正文后处理，不会连带改掉其他同步链路。
-- 批量章节流水线在服务重启、任务恢复或中途重新挂回时，恢复逻辑也补稳了：系统会优先按剩余未完成章节继续推进，不再因为恢复时已完成章节被过滤掉，就把前面还没写完的章直接跳过去。
+- Chapter-execution main chain returns to generating a whole chapter in one pass. Rewrite this chapter and ordinary Generate this chapter both write the whole chapter directly, no longer split by scene first, and no longer extra-refresh the execution contract before generate. The wait path is shorter, which fits writing a complete chapter first, then judging whether to polish.
+- Default automatic-repair budget for single-chapter and batch chapter pipelines also tightens to at most one automatic repair after first review, then one re-review. If issues remain after one repair round, it stops at the current result for you to decide next, instead of looping several automatic repair rounds.
+- Auto-run chapter batches, on recover, continue, and progress stats, start referencing both chapter handling status and generate status. Real statuses such as Pending review, Complete, and Needs repair are distinguished more finely. Recovering an old batch less skips a chapter by mistake, or counts a chapter that still needs handling as done.
+- If Auto-Director in volume split only has overly concentrated chapter-title structure, the whole task is no longer judged failed. The already-generated chapter list is kept, the issue becomes a continuable reminder, and you stop back on the current volume waiting for repair.
+- Novel editor, director progress panel, and Task Center can all start Quick-repair chapter titles directly. AI uses the model currently bound to this director task, rewrites the target volume’s titles, then keeps you on the current volume to confirm results, without hunting the entry by hand.
+- If an old Auto-Director candidate task lacks a candidate ID in historical data, or the last locked target plan is already invalid, it first auto-fills and restores the task to Waiting to confirm book-level direction, so a task that can still continue is less pinned on a wrong recover point.
+- When an existing project reconnects Auto-Director from the chapter-execution area, it first judges whether an active batch already exists, whether it can recover directly, or whether a new batch must open for the chapter range you selected now. Takeover entry, progress label, and Continue also more clearly say whether you are recovering an old batch or continuing a new auto-run round.
+- Auto-run chapter batches add Auto-review after writing and Auto-repair when review fails. You can decide whether quality check and repair keep running after prose is written. This choice only affects this batch’s post-prose handling, and does not change other sync paths.
+- Batch chapter-pipeline recover also stabilizes on service restart, task recover, or mid-way reattach: remaining unfinished chapters prefer continuing, instead of skipping earlier unfinished chapters because finished chapters were filtered out on recover.
 
 ### 2026-04-13
 
-- 伏笔账本更清晰：系统会把书级关键兑现、卷内未兑现事项、章节兑现关联和状态快照统一成 canonical 伏笔账本，并在大纲页集中显示待回收、紧急与逾期提示，方便检查遗漏。
-- 卷规划节奏更易落地：新增节奏板 + 章节列表工作台，可按节奏段分组查看章节、提示未映射章节，并引导生成或补齐章节列表与细化面板。
-- 章节执行更可控：支持场景拆解与长度预算控制，执行页提供推荐下一步、任务单/场景卡生成、审校与修复入口，并显示字数控制回收与场景执行反馈。
-- 后台推进更直观：小说列表与工作区新增运行中提示与进度条，随时知道 AI 正在推进到哪一步。
-- 自动导演创建入口更聚焦：灵感输入、关键开书参数、书级 framing 快填、模型选择和运行方式收进同一面板；就算创建页概述还没补完整，也可以先拿一句灵感让 AI 填出 framing 建议。
-- 方案筛选更细：自动导演会保留历次候选批次，支持只修某一套方案、只重做这套书名组，再确认进入项目前更容易把方向迭代到满意。
-- 任务中心更会“指路”：导演任务如果因为章节标题结构过于集中而需要返修，现在会直接给出“打开当前卷拆章”入口；失败或取消后也能按任务原模型重试，或临时切换成你选定的模型继续接跑。
-- 卷节奏与拆章更稳：节奏板生成会明确携带当前卷目标章节数，并强约束使用卷内章号；拆章时如果 beat sheet 给出的章节跨度明显失真，系统会优先守住预算章数，不再被异常跨度直接带偏。
-- 章节标题多样性检查不再一刀切：系统会先自动尝试把整批标题打散；如果语义已经可用但标题结构还是偏集中，会先保留结果并把问题转成明确提醒，方便继续推进后再回修当前卷。
-- 结构化生成兼容性更好：DashScope / ModelScope Qwen 这类模型在结构化规划里更少因为 thinking / JSON 边界触发整步失败；拆书分析和开书引导在未显式限制 token 时也更少被默认上限过早截断。
+- Foreshadowing ledger is clearer: book-level key payoffs, in-volume unpaid items, chapter-payoff links, and state snapshots unify into one canonical foreshadowing ledger. The outline page centrally shows pending reclaim, urgent, and overdue hints, so missed items are easier to check.
+- Volume-plan pacing is easier to land: a pacing-board plus chapter-list workbench is added. You can view chapters grouped by pacing segment, hint unmapped chapters, and be guided to generate or fill the chapter list and refine panel.
+- Chapter execution is more controllable: scene breakdown and length-budget control are supported. The execution page offers recommended next action, task-sheet / scene-card generate, review and repair entries, and shows word-count control reclaim and scene-execution feedback.
+- Background advance is more visible: novel list and workspace add running hints and a progress bar, so you always know which step AI is advancing.
+- Auto-Director create entry is more focused: inspiration input, key opening parameters, book-level framing quick-fill, model pick, and run mode fold into one panel. Even if the create-page overview is not complete yet, one inspiration line can let AI fill framing suggestions first.
+- Plan filtering is finer: Auto-Director keeps past candidate batches, supports revising only one plan, or redoing only that title group, so before confirm-into-project it is easier to iterate the direction until you are satisfied.
+- Task Center points the way more: if a director task needs return-repair because chapter-title structure is too concentrated, Open current-volume split is given directly. After fail or cancel you can also retry with the task’s original model, or temporarily switch to your selected model and keep running.
+- Volume pacing and split are steadier: pacing-board generate clearly carries this volume’s target chapter count, and strongly constrains in-volume chapter numbers. If a beat sheet’s chapter span is obviously distorted at split, budget chapter count is preferred, instead of being pulled off by an abnormal span.
+- Chapter-title diversity check is no longer one-cut: it first tries to spread the whole title batch automatically. If semantics are already usable but title structure is still concentrated, results are kept first and the issue becomes a clear reminder, so you can keep advancing then return-repair the current volume.
+- Structured generate compatibility is better: models such as DashScope / ModelScope Qwen fail a whole planning step less from thinking / JSON boundaries. Book analysis and opening guidance also truncate less early from a default cap when tokens are not explicitly limited.
 
 ### 2026-04-10
 
-- 章节编辑器现在可以直接从工作台进入独立正文页了。选中段落后可以马上发起 AI 改写，先看候选差异，再决定接受、拒绝或重试，避免直接覆盖原文。
-- 章节编辑体验更聚焦：正文、候选结果和确认流程收回到同一条编辑链路里，工作台继续保留原有章节执行入口，不再和精修编辑混在一起。
-- 自动导演如果停在“等待确认书级方向”，现在不会再在小说编辑页里弹出“已在后台推进”的假成功提示了；系统会把你直接带回书级方向确认入口，先选定或修正方案，再继续后面的主链。
-- 首页、小说列表、任务中心和小说编辑页里的相关继续按钮现在都和这个状态对齐了。遇到这种前置审核点时，按钮会明确变成“继续确认书级方向”或“去确认书级方向”，不会再让人误以为后台已经继续跑起来。
-- 旧任务里如果残留了“候选方向还没确认，却已经被挂到编辑页恢复入口”的脏状态，系统现在也会自动纠正回创建页的导演确认流，减少任务入口错位、状态看着能继续但其实不会推进的困惑。
-- 批量章节流水线如果已经跑完、只是部分章节低于质量阈值，系统现在会保留已生成结果，并把这类情况标成“已完成，部分章节需要复查”，而不是直接整批判成失败。
-- 任务中心现在会单独展示这类结果提醒，方便直接看出这是“有提醒的完成”还是“真正失败”；自动导演在章节批次待确认时也能继续接回后续处理，不用在完成、失败和待继续之间反复猜状态。
-- 自动导演在「生成书级方案」里如果模型顺带输出书名备选（titleOptions），提示词与校验已对齐四个固定风格标签，并对常见大小写、连字符或中文写法做了归一化；同时，使用 Kimi 2.5 推进书级规划时，对结构化返回的容错也更稳，减少刚开始自动导演就因模型输出边界而整步中断的情况。
-- 自动导演的角色准备现在会直接生成 1 套可自动落库的核心角色阵容，而不是先给多套候选再做内部猜测；如果这套阵容仍然带着功能位角色名、缺少主角锚点或撑不起长篇推进，系统会先停在角色审核点，避免把坏阵容继续带进卷规划和拆章。
-- 自动导演从中途恢复时，如果任务其实已经进入故事宏观规划阶段，系统现在会自动清掉过期的候选阶段残留状态，不会再被旧的“待选方向”痕迹误导回错误入口。
-- 结构化生成链路对“内容长度超出 schema 限制”的容错更稳了。像书级规划、角色阵容这类本来语义正确、只是字段略长的结果，系统现在会优先保留有效内容并继续推进，减少因为模型输出偏长而反复 repair 甚至整步失败的情况。
-- 角色工作台里的“角色阵容与关系诊断”区块现在被整理成独立组件，展开状态会更稳定，后续继续补角色、查缺口和梳理关系时不容易因为面板刷新反复收起。
+- The chapter editor can now enter a standalone prose page from the workbench. After selecting a paragraph you can start AI rewrite immediately, see candidate diffs first, then accept, reject, or retry, instead of overwriting the original directly.
+- Chapter-edit experience is more focused: prose, candidate results, and confirm fold back into one edit path. The workbench keeps the original chapter-execution entry, and no longer mixes with polish editing.
+- If Auto-Director stops at Waiting to confirm book-level direction, the novel editor no longer pops a fake Already advancing in the background success. You are taken back to the book-level direction confirm entry, pick or correct a plan first, then continue the later main chain.
+- Related Continue buttons on Home, novel list, Task Center, and novel editor now align with this status. At this pre-approval point, the button clearly becomes Continue confirming book-level direction or Go confirm book-level direction, so you less think the background already kept running.
+- If an old task leftover dirty state is Candidate direction not confirmed, but already hung on the editor recover entry, it also auto-corrects back to the create-page director confirm flow, which cuts task-entry misalignment and Looks like it can continue but will not actually advance.
+- If a batch chapter pipeline already finished and only some chapters are below the quality threshold, generated results are kept, and this is marked Complete, some chapters need recheck, instead of judging the whole batch failed.
+- Task Center now shows this kind of result reminder separately, so you can see whether this is complete-with-reminder or a true failure. Auto-Director can also reconnect later handling when a chapter batch is waiting for confirm, without guessing among complete, failed, and pending continue.
+- If in Generate book-level plan the model also outputs title options, the prompt and check align four fixed style labels, and normalize common case, hyphen, or Chinese wording. Using Kimi 2.5 for book-level planning, structured-return tolerance is also steadier, so Auto-Director less interrupts at the first step from a model-output boundary.
+- Auto-Director character prep now generates one core cast that can auto-save, instead of several candidates then internal guessing. If this cast still carries function-slot character names, lacks a protagonist anchor, or cannot support long-form advance, it stops at the character-review point first, so a bad cast is not taken into volume plan and split.
+- When Auto-Director recovers mid-way, if the task has actually entered story macro planning, expired leftover candidate-stage status is cleared automatically, and old waiting-to-pick-direction traces no longer mislead back to the wrong entry.
+- Structured generate is steadier when content length exceeds a schema limit. Results such as book-level plan or character cast that are semantically correct but slightly long prefer keeping valid content and continuing, so slightly long model output less loops repair or fails the whole step.
+- Character-cast and relationship diagnosis on the character workbench is arranged as an independent component. Expand state is more stable, so later filling characters, checking gaps, and sorting relationships less collapse again because the panel refreshed.
 
 ### 2026-04-09
 
-- 世界观现在可以直接在列表卡片和工作台页头删除，不用再先退回别的页面找入口；删除前会有明确确认，删完会自动刷新列表，在清理试验世界或废弃设定时更顺手。
-- 故事宏观规划这条链路里的“生成故事引擎 / 构建约束引擎 / 保存修改 / 重生成字段 / 状态加载”提示已经统一改成中文，不会再在中文界面里突然弹出英文成功提示打断理解。
-- 任务中心、首页和小说列表现在会把自动导演的“展示状态 / 最近健康阶段 / 阻塞原因 / 建议继续动作”说得更直白。遇到服务重启后的恢复任务时，也会明确显示“恢复中”而不是看起来像已经失败，继续按钮文案也会跟着当前检查点变化。
-- 自动导演的恢复链路补强后，像“其实已经推进到后面阶段，却还挂着排队中”或“还在跑的任务被旧可见记录抢走入口”这类错位状态会更少；系统会优先定位当前真正活跃的导演任务，并自动修正常见的陈旧检查点。
-- 节奏 / 拆章工作台现在会区分章节细化是“待细化”“细化中”还是“已细化”；如果你在保留已有内容的前提下重新同步卷规划，系统也会尽量保住章节原本的执行状态，减少把已推进章节误重置的情况。
-- 自动导演在“生成书级方案”这一步如果遇到结构化输出失败，现在会直接把任务标成失败，而不是长时间卡在 `10%` 看起来像还在运行；候选阶段也会把当前绑定模型和恢复上下文一起记进任务信息，任务中心里能更准确看到这次导演实际绑定的模型，并支持在服务重启后继续把这一步接起来。
-- 任务中心现在不会再把章节实时生成留下的内部轨迹任务混进全局任务列表；同一本书在跑自动导演或批量执行时，不会再额外冒出几张“章节 X 生成”的误导性运行卡片。
-- 小说列表导出正文时，文件名现在会优先使用“小说名 + 导出时间”；就算下载响应头被代理层吃掉，前端也会用同样的规则兜底，连续导出多份时更容易区分版本。
-- 系统设置里的模型路由页现在不只看“能不能连上”，还会把普通连通和结构化调用分开诊断；像当前用了哪种结构化策略、是否强制关闭 thinking、有没有可接管的结构化备用模型，都会直接显示出来，排查“为什么这家模型能聊天却老是出不了稳定 JSON”会直观很多。
-- 结构化任务新增全局“备用模型”配置。当前模型如果出现原生 JSON 不兼容、思考内容污染、JSON 截断或结构不匹配，系统会先尝试更保守的结构化策略，再按配置切到备用模型，像规划、标题、题材生成、拆书这类依赖结构化输出的链路不再那么容易因为单个模型不稳就整段卡死。
-- 模型选择器现在只展示已经配置、启用且确实有可用模型的厂商；如果当前还没有可运行模型，也会明确提示先去系统设置补配置，不再把一堆实际上不能用的 provider 混在下拉框里让人试错。
-- 拆书任务的状态和失败提示更贴近真实执行了：后台只要还有心跳，任务中心就不会长期把其实已经在跑的拆书误显示成排队中；遇到结构化输出类错误时，也会尽量翻译成更容易读懂的失败原因。拆书分析本身也补强了中文章节识别、读者信号 / 短板信号提炼和总览分析稿结构，复盘时更容易看出这本书到底强在哪、弱在哪。
+- World views can now delete directly on list cards and the workbench page header, without first going back to another page to find the entry. Delete has a clear confirm, then the list refreshes automatically, which is smoother when cleaning trial worlds or abandoned settings.
+- At the time this shipped, Generate story engine / Build constraint engine / Save edits / Regenerate field / Status loading hints on the story-macro-plan path unified to Chinese, so an English success toast no longer suddenly popped in a Chinese UI.
+- Task Center, Home, and novel list state Auto-Director display status / latest healthy stage / block reason / suggested continue action more plainly. After service-restart recover, Recovering shows clearly instead of looking already failed. Continue button copy also follows the current checkpoint.
+- After Auto-Director recover is stronger, misaligned status such as actually already at a later stage but still hung as queued, or a still-running task having its entry stolen by an old visible record, happens less. The currently truly active director task is preferred, and common stale checkpoints auto-correct.
+- The Pacing / Split workbench now distinguishes chapter refine as Pending refine, Refining, or Refined. If you re-sync volume plan while keeping existing content, original chapter execution status is kept when possible, so an already-advanced chapter resets less by mistake.
+- If Auto-Director hits structured-output failure at Generate book-level plan, the task marks failed directly, instead of staying long at `10%` looking still running. The candidate stage also records currently bound model and recover context into task info. Task Center more accurately shows the model this director actually bound, and can keep connecting this step after service restart.
+- Task Center no longer mixes internal trail tasks left by chapter live generate into the global task list. While the same book runs Auto-Director or a batch run, extra misleading Chapter X generate running cards no longer appear.
+- When the novel list exports prose, the file name prefers novel name + export time. Even if a download response header is eaten by a proxy, the frontend falls back to the same rule, so exporting several copies in a row is easier to tell apart by version.
+- Model-routing in Settings no longer only asks whether it can connect. Ordinary connectivity and structured calls are diagnosed separately. Which structured strategy is in use, whether thinking is force-off, and whether a structured backup model can take over all show directly, so diagnosing why this provider can chat but cannot produce stable JSON is much more visual.
+- Structured tasks add a global backup-model config. If the current model has native-JSON incompatibility, thinking-content pollution, JSON truncation, or structure mismatch, a more conservative structured strategy is tried first, then it switches to the backup model by config. Paths that depend on structured output such as planning, titles, genre generate, and book analysis no longer pin so easily because one model is unstable.
+- The model picker now only shows providers that are configured, enabled, and truly have available models. If there is still no runnable model, it clearly asks you to fill config in Settings first, instead of mixing a pile of actually unusable providers in the dropdown for trial-and-error.
+- Book-analysis task status and failure hints sit closer to real execution: as long as the background still has a heartbeat, Task Center no longer long mis-shows a book analysis that is already running as queued. Structured-output errors also try to translate into easier-to-read failure reasons. Book-analysis itself also strengthens Chinese chapter recognition, reader-signal / weakness-signal extract, and overview-analysis structure, so a recap more easily shows where this book is strong and where it is weak.
 
 ### 2026-04-08
 
-- 模型配置页现在内置支持 `MiniMax`，可以像其他主流服务商一样直接配置 API Key、模型和连接信息，不用再手动把它当成泛化兼容接口来接。
-- 每个模型服务商卡片上都新增了独立的“思考功能”开关，而且默认开启；如果你只想看最终正文、不想在界面里看到思考内容，现在可以按服务商分别关闭。
-- 对 `MiniMax M2.*` 这类会把思考内容混进正文的返回格式，系统现在会自动做分离和清洗；关闭思考显示后，正文区域不会再把 `<think>` 这类内容直接漏出来。
-- 章节执行流里，“先生成执行计划”之后会立刻把这一章推进到可写正文状态，并同步刷新界面提示；不需要再手动猜下一步该点哪里，计划出来后就能继续“写本章”。
-- 章节正文在实时输出结束后，现在会明确切到“收尾中”而不是继续显示“写作中”；系统会把保存草稿、审计和状态同步这段收尾过程单独标出来，章节队列也会更准确地切到待审校或待修复，不再让人误以为正文还没写完。
-- 自动导演在新建小说和接管现有项目时，现在都不再只能固定执行“前 10 章”。除了默认前 10 章，你也可以直接指定章节范围，或者让 AI 按整卷继续自动执行。
-- 选定自动执行范围后，系统会按这批章节对应的卷去准备节奏板、拆章、章节细化和后续写作链路；任务面板、导演进度卡、接管提示和继续执行按钮也会直接显示“第 11-20 章”或“第 2 卷”这类真实范围，不再一律写成前 10 章。
-- 章节执行队列里的状态徽标现在补上了更直白的说明文案；进入确认阶段后，也会更清楚区分“先运行审校”还是“直接确认结果”，减少已经审过一轮却又重复点完整审校的情况。
-- 导出小说时，导出文件名现在会自动带上时间戳；同一本书连续导出多份时，更容易区分新旧版本，也不容易被后一次导出直接覆盖。
+- Model settings now built-in support MiniMax. You can configure API key, model, and connection like other mainstream providers, without treating it as a generic compatible interface by hand.
+- Each model-provider card adds an independent Thinking switch, on by default. If you only want final prose and do not want thinking content in the UI, you can turn it off per provider.
+- For return formats such as MiniMax M2.* that mix thinking into prose, separate-and-clean happens automatically. After thinking display is off, the prose area no longer leaks content such as `<think>`.
+- In the chapter-execution flow, after Generate execution plan first, this chapter immediately advances to writable-prose status, and UI hints refresh together. You do not guess where to click next. After the plan is out, Write this chapter can continue.
+- After chapter prose live output ends, it clearly switches to Wrapping up instead of still showing Writing. Saving draft, audit, and state sync are marked as wrap-up separately. The chapter queue also more accurately switches to pending review or needs repair, so you less think prose is still unfinished.
+- Auto-Director on new novels and taking over existing projects is no longer fixed to only first 10 chapters. Besides default first 10, you can specify a chapter range, or let AI keep auto-running by whole volume.
+- After you pick an auto-run range, pacing board, split, chapter refine, and later writing prepare by the volume those chapters belong to. Task panel, director progress card, takeover hint, and Continue also directly show a real range such as Chapters 11–20 or Volume 2, instead of always writing first 10 chapters.
+- Status badges in the chapter-execution queue add plainer copy. After entering confirm, First run review vs Confirm results directly is distinguished more clearly, so a round already reviewed is less clicked as full review again.
+- Exporting a novel, the export file name automatically includes a timestamp. Exporting several copies of the same book in a row, old and new versions are easier to tell apart, and a later export less overwrites the previous one.
 
 ### 2026-04-07
 
-重大更新：小说创作页现在开始同时往“长期驻留工作台 + 新手可直接上手”的方向收敛，工作区会更明确地告诉你当前在哪一步、下一步做什么，以及点错后怎么回到更早状态。
+Major update: the novel-creation page starts closing toward a long-stay workbench that beginners can also start using directly. The workspace more clearly tells you which step you are on, what to do next, and how to return to an earlier state if you click wrong.
 
-- 小说编辑页补上了更稳定的步骤引导条，会固定显示当前步骤、流程进度、上一步 / 下一步和版本历史入口；新手进入工作区后，不用再先研究整页卡片和侧边内容，先按当前推荐步骤往下走就行。
-- 各个创作阶段开始默认收起低频信息，把项目概览、卷数策略审查、批量配置、质量报告、章节上下文诊断等内容改成按需展开；主区会优先保留当前最需要操作的内容，首屏更容易看懂，也更适合长时间驻留写作。
-- 章节执行页进一步收成“当前最推荐动作 + 正文主区 + 章节详情折叠区”的结构；像任务单、场景拆解、质量报告、修复记录和上下文诊断都不再默认铺满，逐章推进时更容易直接找到该点的按钮。
-- 章节执行页右侧“当前最推荐动作”里的主按钮和补充按钮现在统一按整行宽度对齐；像“先生成执行计划”这类入口不再出现一颗窄按钮夹在整列操作里的错位感，当前最该点哪一步会更直观。
-- 版本历史和章节恢复入口也更贴近实际创作对象了：版本页不再先展示原始快照数据，而是优先展示可读摘要和恢复动作，回头修前面章节时更容易直接找回合适版本。
-- 标题快速选填、书级 framing 自动填写、卷战略建议、角色补位、章节细化、批量质检这类 AI 参与的操作，现在都统一带有 `AI` 标记；需要让系统代做时，不用再靠猜哪些按钮背后会调用 AI。
-- 拆书页里的“从拆书生成写法”现在会明确显示生成中状态；生成完成后会自动跳到写法引擎并直接选中新建写法资产，用户不再需要在“请求到底有没有开始”和“跳转后该找哪一条资产”之间来回确认。
-- 进入小说创作页后，可以直接切到专属的创作工作台导航；左侧会固定显示当前作品的创作步骤、流程位置和任务入口，阶段切换不再依赖内容区顶部的大块卡片。
-- 顶部区域改成更轻的上下文信息栏，只保留小说名、当前步骤和必要的流程提示；正文区首屏会让出更多高度，章节规划、拆章和执行时更容易专注在当前内容上。
-- 创作导航现在支持区分“我正在查看哪里”和“AI 流程推进到哪里”，并补了更清晰的当前态高亮与对比度，减少看不清、分不出当前 tab 的问题。
-- 自动导演接管前 10 章自动执行时，如果后台已经有同一区间的活跃流水线，系统会优先挂回进度更靠前的那条主任务继续推进，减少重复批量任务互相打架、旧引用把新进度顶掉的情况。
-- 自动导演挂回这类已存在的前 10 章流水线时，也会主动把那条仍处于活跃状态的任务重新拉起；如果之前只是数据库里还挂着 `queued / running` 记录、实际执行已经因为重启或旧进程退出停住，现在不会再出现“看起来接回成功、实际一直不再推进”的卡死感。
-- 任务中心的全局列表也进一步收紧了去重规则：只有当外层工作流还在承担代理职责时，才会隐藏对应的章节流水线；如果外层工作流已经失败或取消，底层流水线会重新直接显示出来，排查和重试路径更直观。
+- The novel editor adds a more stable step-guide bar that pins current step, flow progress, Previous / Next, and version-history entry. After a beginner enters the workspace, they do not first study the whole page of cards and side content; following the currently recommended step is enough.
+- Each creation stage starts folding low-frequency information by default. Project overview, volume-count strategy review, batch config, quality reports, and chapter-context diagnosis expand on demand. The main area prefers keeping what you most need to operate now. The first screen is easier to understand, and better fits long-stay writing.
+- The chapter-execution page further closes into Current most-recommended action + prose main area + chapter-details fold. Task sheets, scene breakdown, quality reports, repair records, and context diagnosis no longer default to filling the page. Advancing chapter by chapter, the button you should click is easier to find.
+- On the right Current most-recommended action, primary and extra buttons now align to full row width. Entries such as Generate execution plan first no longer sit as a narrow button jammed in a whole column of actions. Which step to click now is more visual.
+- Version history and chapter-recover entries also sit closer to the actual writing object: the version page no longer shows raw snapshot data first, and prefers a readable summary and recover actions, so going back to repair earlier chapters it is easier to find a fitting version.
+- AI-involved operations such as title quick fill, book-level framing auto-fill, volume-strategy suggestions, character fill-in, chapter refine, and batch quality check now all carry an `AI` mark. When you want the system to do it for you, you do not guess which buttons call AI.
+- Generate style from book analysis on the book-analysis page now clearly shows Generating. After it finishes, it jumps to Style Engine and selects the new style asset directly, so you no longer confirm back and forth whether the request started and which asset to find after the jump.
+- After entering the novel-creation page, you can switch to dedicated creation-workbench navigation. The left pins this work’s creation steps, flow position, and task entry. Stage switch no longer depends on large cards at the top of the content area.
+- The top becomes a lighter context bar that only keeps novel name, current step, and necessary flow hints. The prose first screen gives more height, so chapter planning, split, and execution more easily focus on current content.
+- Creation navigation now distinguishes Where I am viewing and Where the AI flow has advanced, and adds clearer current-state highlight and contrast, so you less cannot see or cannot tell the current tab.
+- When Auto-Director takes over first-10-chapter auto-run, if the background already has an active pipeline for the same range, it prefers reattaching the main task whose progress is further ahead, so duplicate batch tasks fighting each other, or an old reference topping new progress, happens less.
+- When Auto-Director reattaches this kind of existing first-10-chapter pipeline, it also actively pulls that still-active task up again. If before only a queued / running record still hung in the database while actual execution had already stopped because of restart or an old process exiting, Looks reattached successfully but never advances again happens less.
+- Task Center’s global list also tightens dedupe: a matching chapter pipeline hides only while the outer workflow still acts as proxy. If the outer workflow already failed or cancelled, the underlying pipeline shows directly again, so diagnose and retry paths are more visual.
 
 ### 2026-04-06
 
-更新：自动导演在继续执行、查看状态和边写边收尾时更顺了，系统也开始把 Token 消耗直接展示到任务面板和小说列表里，排查“为什么花得快”不用再靠猜。
+Update: Auto-Director Continue, viewing status, and wrapping up while writing are smoother. Token use also starts showing directly on the task panel and novel list, so diagnosing why spend is fast does not rely on guessing.
 
-- 自动导演从“前 10 章暂停待收尾”继续执行后，页面状态会更贴近真实进度；像“章节其实已经继续在跑，但顶部还挂着已暂停 / 执行异常”的错位提示明显收敛，更容易判断现在到底该继续、收尾还是等待。
-- 小说创作页在 AI 接管时不再用整块遮罩把章节执行、质量修复等区域直接锁死；你仍然能看到顶部导演状态和下一步提示，但下方工作区可以直接进入和操作，不会再出现“系统叫我去修，但界面完全点不动”的体验。
-- 任务抽屉、自动导演进度面板和任务中心现在都会显示累计输入 Token、输出 Token、总 Token 和调用次数；排查某次导演为什么特别贵、到底是跑了很多轮还是单轮上下文很大，会直接一些。
-- 小说列表卡片也会显示每本小说的累计 Token 消耗，口径会优先按小说级任务汇总，并避免把已挂到自动导演任务里的章节流水线重复算两次；想快速看哪本书最费 Token，不用先进详情页一个个翻。
+- After Auto-Director continues from First 10 chapters paused pending wrap-up, page status sits closer to real progress. Misaligned hints such as chapters actually kept running but the top still hangs Paused / Execution abnormal converge clearly, so judging whether to continue, wrap up, or wait is easier.
+- During AI takeover, the novel-creation page no longer uses a whole-block overlay to lock chapter execution, quality repair, and similar areas. You can still see top director status and next-step hints, but the workspace below can be entered and operated, so The system told me to repair, but the UI cannot be clicked at all happens less.
+- Task drawer, Auto-Director progress panel, and Task Center now all show accumulated input tokens, output tokens, total tokens, and call count. Diagnosing why one director run was especially expensive, whether it ran many rounds or one round’s context was huge, is more direct.
+- Novel-list cards also show each novel’s accumulated token use. The count prefers novel-level task totals, and avoids counting a chapter pipeline already hung on an Auto-Director task twice. Wanting a quick look at which book spends the most tokens, you do not enter details one by one.
 
 ### 2026-04-02
 
-重大更新：自动导演现在不只会把新项目推进到“可开写”，还支持接管已有项目，并可继续自动执行前 10 章的写作、审校和修复链路。
+Major update: Auto-Director no longer only advances a new project to ready-to-write. It also supports taking over an existing project, and can keep auto-running writing, review, and repair for the first 10 chapters.
 
-- 自动导演的候选阶段改成了更完整的书级方案生成流：系统会先整理项目设定、对齐书级 framing，再产出两套整本方向和对应标题组；如果你已经偏向某一套，不必整批重来，可以直接让 AI 只微调这套方案，或者只重做这套的标题组。
-- 已有小说现在可以显式交给自动导演接管。系统会先判断故事宏观规划、角色准备、卷级策略和结构化大纲的就绪度，再从更合适的阶段接手，减少“前面已经做了一半却只能重开”的浪费。
-- 当自动导演把第 1 卷推进到可开写后，你现在可以选择继续让 AI 自动执行前 10 章；编辑页会同步展示运行中、暂停点和恢复入口，也会在需要时把你直接带到章节执行或质量修复区域。
-- 自动导演的长耗时阶段现在会把“整理上下文、生成节奏板、拆章节列表、校准相邻卷衔接”这些子步骤显式展示出来；如果某一步等得久，任务文案也会持续刷新已等待时长，减少“看起来像卡死，其实还在跑”的判断成本。
-- 小说流水线任务现在会持续刷新章内心跳和阶段进度。即使第 1 章还没完整结束，任务中心也不再长时间卡在 `0%`，更容易判断它是在生成、审校还是修复中。
-- 如果服务在章节流水线运行中重启，系统现在会自动尝试恢复还没完成的批量任务，并从未完成章节继续，而不是把整段任务默默留在“运行中”却没有任何实际执行。
-- 在任务中心取消自动导演带起的章节流水线时，外层自动导演任务也会同步停下；取消后的任务会立即显示为已取消，不会再出现“明明点了取消，界面却还一直 running”的混乱状态。
-- RAG 知识索引现在会根据当前 embedding 模型的单条输入上限自动收紧切块预算。像 `BAAI/bge-large-zh-v1.5` 这类有 512-token 硬限制的模型，不会再因为单个分块过长而直接报 `413 input must have less than 512 tokens`。
-- 章节执行和审校链补强了参与角色识别、分层上下文、卷内标题多样性和复盘提示，前 10 章连续自动推进时更不容易出现角色遗漏、标题过于相似或审校结果空转的问题。
-- 自动导演里的角色准备现在会优先产出可直接进入正文的人物，而不是“谜团催化剂”“导师位”这类功能槽位；如果角色阵容仍然抽象、缺少身份锚点或不适合直接落库，系统会先拦下来并停在角色审核点，而不是继续污染后续卷规划和拆章。
-- 角色资产、角色候选和补充角色现在都带有性别字段，角色工作台里也能直接查看和编辑，后续角色规划、关系判断和展示信息会更完整。
-- 本地启动链路也更稳了：开发环境默认改成局域网可访问，端口等待脚本会同时检查 `127.0.0.1`、`localhost` 和 `::1`，减少不同系统下“服务其实起来了，但启动脚本还在等”的误判。
-- 模型接入层现在补上了更通用的 OpenAI-compatible 入口：除了保留现有内置厂商外，你也可以在设置页里自己新增自定义厂商，直接填写厂商名称、API URL、模型名和可选 API Key，把本地模型网关、自建中转层或第三方兼容接口接进来；这些自定义厂商会同步出现在模型配置、连通性测试和模型路由里，不用再等待系统逐个单独适配。
-- 知识库文档上传不再被前端固定卡在 2MB 以内；只要还是 `.txt` 文档，就可以直接导入更大的资料文本，更适合导入整段设定、长篇拆书结果或整理后的世界观文档。
-- 知识库的“任务与健康”页现在会直接在页面内展示 RAG 健康状态；当向量库未配置、Qdrant 不可用，或健康检查接口返回 `304/503` 时，不再反复弹出错误提示，而是保留最近一次状态并给出明确说明，排查配置时不会打断当前操作。
+- Auto-Director candidate stage becomes a more complete book-level plan generate flow: it first tidies project settings, aligns book-level framing, then produces two whole-book directions and matching title groups. If you already lean to one, you do not redo the whole batch. You can let AI fine-tune only that plan, or redo only that title group.
+- An existing novel can now be handed to Auto-Director takeover explicitly. Readiness of story macro plan, character prep, volume strategy, and structured outline is judged first, then it takes over from a fitter stage, so already-half-done work is less wasted by only being able to start over.
+- After Auto-Director advances volume 1 to ready-to-write, you can choose to let AI keep auto-running the first 10 chapters. The editor shows running, pause points, and recover entries together, and when needed takes you directly to chapter execution or quality repair.
+- Auto-Director long-running stages now explicitly show substeps such as tidy context, generate pacing board, split chapter list, and calibrate adjacent-volume join. If one step waits long, task copy keeps refreshing waited duration, so Looks stuck but is still running costs less to judge.
+- Novel pipeline tasks now keep refreshing in-chapter heartbeat and stage progress. Even if chapter 1 has not fully ended, Task Center no longer stays long at `0%`, so judging whether it is generating, reviewing, or repairing is easier.
+- If the service restarts while a chapter pipeline is running, unfinished batch tasks try to recover automatically and continue from unfinished chapters, instead of silently leaving the whole task Running with no actual execution.
+- Cancelling an Auto-Director-started chapter pipeline in Task Center also stops the outer Auto-Director task together. After cancel, the task immediately shows Cancelled, so Clicked cancel but the UI still keeps running happens less.
+- Knowledge indexing now auto-tightens chunk budget by the current embedding model’s per-item input cap. Models such as `BAAI/bge-large-zh-v1.5` with a 512-token hard limit no longer report `413 input must have less than 512 tokens` just because one chunk is too long.
+- Chapter execution and review strengthen participating-character recognition, layered context, in-volume title diversity, and recap hints. Continuous auto-advance of the first 10 chapters less often misses characters, uses overly similar titles, or lets review results spin empty.
+- Auto-Director character prep prefers producing people who can enter prose directly, instead of function slots such as mystery catalyst or mentor post. If the cast is still abstract, lacks an identity anchor, or is not fit to save, it stops at the character-review point first, instead of polluting later volume plan and split.
+- Character assets, character candidates, and extra characters now all carry a gender field. The character workbench can also view and edit it directly, so later character planning, relationship judgment, and display info are more complete.
+- Local start is also steadier: the development environment defaults to LAN-accessible. Port-wait checks `127.0.0.1`, `localhost`, and `::1` together, so The service actually started, but the start script is still waiting happens less across systems.
+- Model access adds a more general OpenAI-compatible entry: besides keeping existing built-in providers, you can add a custom provider in Settings, filling provider name, API URL, model name, and optional API key, to connect a local model gateway, self-built relay, or third-party compatible API. These custom providers appear together in model config, connectivity test, and model routing, without waiting for one-by-one built-in adapters.
+- Knowledge-library document upload is no longer fixed at 2MB on the frontend. As long as it is still a `.txt` document, larger materials text can import directly, which better fits importing a whole setting, long book-analysis results, or a tidied world-view document.
+- Knowledge-library Tasks and health now shows retrieval health inside the page. When the vector store is not configured, Qdrant is unavailable, or the health check returns `304/503`, error toasts no longer pop repeatedly. The latest status is kept with a clear explanation, so diagnosing config does not interrupt current work.
 
 ### 2026-04-01
 
-重大更新：系统设置里的模型厂商卡片现在可以直接查看余额，并支持对已接入厂商即时刷新，切换模型和补配 Key 时更容易判断还能不能继续跑生成任务。
+Major update: model-provider cards in Settings can now view balance directly, and support instant refresh for connected providers, so switching models and filling a key it is easier to judge whether generate tasks can keep running.
 
-- 模型设置页的厂商卡片新增余额区块；配置好对应 API Key 后，可以直接看到当前可用余额、最近刷新时间和部分厂商的细分额度，不必再离开系统去各家控制台来回确认。
-- DeepSeek、SiliconFlow 和 Kimi 现在支持在卡片里直接刷新余额，适合在长链路导演、批量拆章或章节生成前先快速确认额度是否够用。
-- Qwen 卡片现在会明确提示当前系统保存的是 DashScope API Key，暂时不能直接读取阿里云账户余额，避免用户把“查询不到”误判成接口故障。
+- Provider cards on the model-settings page add a balance block. After the matching API key is configured, you can see current available balance, last refresh time, and some providers’ breakdown quotas, without leaving the system to each console to confirm back and forth.
+- DeepSeek, SiliconFlow, and Kimi now support refreshing balance directly on the card, which fits quickly confirming whether quota is enough before a long director run, batch split, or chapter generate.
+- The Qwen card now clearly hints that the system currently stores a DashScope API key and cannot read Alibaba Cloud account balance for now, so Cannot query is less mistaken for an API fault.
 
 ### 2026-03-31
 
-重大更新：自动导演开书现在升级为可持续恢复、可阶段审核、可显式接管、可换模型重试的开书流程，不再像一次性批处理那样跑完就失去状态感。
+Major update: Auto-Director opening upgrades to an opening flow that can keep recovering, review by stage, take over explicitly, and retry with another model, instead of a one-shot batch that loses status sense after it finishes.
 
-- 自动导演开书新增两种推进方式：可以直接一路推进到“前 10 章可开写”，也可以在角色准备、卷战略等关键阶段停下来审核，更适合新手边看边确认。
-- 重新进入同一本书时，系统会继续识别这本书是否仍在自动导演，并在创建页和编辑页给出统一的 AI 接管状态、阶段提示、审核入口和区域锁定，减少手动修改与后台结果冲突。
-- 角色准备现在变成正式阶段；只有角色资产和章节资源真的落到位后，系统才会提示“可进入章节执行”，避免出现前面步骤还空着却误报已可开写的假完成状态。
-- 自动导演失败后，任务中心现在既能保留异常状态，也支持直接“用当前模型重试”；切换右上角模型后，可以把新的模型配置写回任务并从最近检查点继续推进。
-- 切换到 Kimi K2 / K2.5 系列模型时，卷级规划等结构化生成链路现在会自动按模型要求收敛参数，不再因为 temperature 不兼容直接报错，多提供商切换更平滑。
-- 小说编辑页新增页内任务面板，不必再为了看自动导演进度和错误跳去完整任务中心；现在可以留在当前页面直接查看状态、最近检查点、绑定模型，并完成继续、取消或换模型重试。
-- 自动导演任务的阶段步骤会跟随当前真实进度同步展示，像“节奏 / 拆章细化中”这类卷内动作不会再在任务面板里被误显示为整列待处理。
-- 规划类提示词补强了结构化输出示例、项目上下文和分卷骨架约束，分卷规划、层级计划和结构化结果的稳定性更高，也更贴近项目设定里的卖点与商业定位。
+- Auto-Director opening adds two advance modes: you can go straight to first 10 chapters ready-to-write, or stop to review at key stages such as character prep and volume strategy, which better fits beginners watching and confirming as they go.
+- Re-entering the same book, it keeps recognizing whether this book is still in Auto-Director, and gives unified AI-takeover status, stage hints, review entry, and area lock on create and editor pages, so manual edits conflict with background results less.
+- Character prep becomes a formal stage. Only after character assets and chapter resources truly land does it hint Can enter chapter execution, so an empty earlier step less false-reports already ready-to-write.
+- After Auto-Director fails, Task Center both keeps abnormal status and supports Retry with current model directly. After switching the top-right model, the new model config can write back to the task and continue from the nearest checkpoint.
+- Switching to Kimi K2 / K2.5 series models, structured-generate paths such as volume planning auto-converge parameters by model requirements, and no longer error directly from temperature incompatibility, so switching providers is smoother.
+- The novel editor adds an in-page task panel. You no longer jump to full Task Center just to see Auto-Director progress and errors. You can stay on the current page to view status, nearest checkpoint, bound model, and finish Continue, Cancel, or retry with another model.
+- Auto-Director task stage steps show in sync with current real progress. In-volume actions such as Pacing / Split refining no longer mis-show as a whole column pending in the task panel.
+- Planning prompts strengthen structured-output examples, project context, and volume-skeleton constraints. Volume planning, layered plans, and structured results are more stable, and sit closer to selling points and commercial position in project settings.
 
 ### 2026-03-30
 
-重大更新：小说创建、自动导演、卷级拆章、章节执行和任务中心现在开始并到同一条“整本工作流”上；AI 自动导演也升级成更偏开书导演的模式，不再一口气把整本后半程写死。
+Major update: novel create, Auto-Director, volume split, chapter execution, and Task Center start joining one whole-book workflow. AI Auto-Director also upgrades toward an opening-director mode, instead of writing the later half of the whole book dead in one breath.
 
-- 任务中心新增小说主工作流视角：从创建、自动导演、故事规划、卷级拆章到章节执行，系统会尽量把这本书收进同一个主任务里，离开页面后也能继续从检查点恢复。
-- AI 自动导演升级为更贴近长篇开书的流程：先给出两套书级方向，再自动推进到 `Book Contract`、故事宏观规划、卷战略、第 1 卷节奏板和前 10 章细化，确认后可以更快进入真正可写状态。
-- 导演方案里的书名不再只是顺手生成的临时名字，而是会额外走一轮标题工坊增强；每套方案也能直接切换多个书名候选，减少“故事方向不错但名字太土”的情况。
-- 当前卷的章节细化支持按连续章节、当前可见章节和整卷批量生成；章节执行区也开始把“写本章”收成主动作，缺失执行计划时会优先自动补齐。
+- Task Center adds a novel main-workflow view: from create, Auto-Director, story planning, volume split, to chapter execution, this book is folded into one main task when possible. After leaving the page you can also keep recovering from a checkpoint.
+- AI Auto-Director upgrades to a flow closer to long-form opening: first two book-level directions, then auto-advance to Book Contract, story macro plan, volume strategy, volume-1 pacing board, and first-10-chapter refine. After confirm you can enter a truly writable state faster.
+- Titles in director plans are no longer only a temporary name generated along the way; an extra title-workshop enhance runs. Each plan can also switch several title candidates directly, so Good story direction but the name is too plain happens less.
+- Current-volume chapter refine supports generating by consecutive chapters, currently visible chapters, and whole-volume batch. The chapter-execution area also starts collecting Write this chapter as the primary action. When an execution plan is missing, it prefers auto-filling first.
 
 ### 2026-03-29
 
-重大更新：题材与推进模式的职责说明进一步拉开，标题工坊开始主动压低同批候选的重复感，卷拆章与章节执行区也补上了更多“生成得出来、看得清、切得稳”的保护。
+Major update: genre and advance-mode duty copy pull further apart. The title workshop starts actively lowering same-batch candidate repetition. Volume split and the chapter-execution area also add more generate-can-land, can-see, switch-steadily protection.
 
-- 小说基础信息、题材管理、推进模式管理和相关入口统一补强了命名与说明文案；现在更容易分清“题材基底”负责世界和货架定位，“推进模式”负责爽点兑现和推进逻辑。
-- 标题工坊开始同时校验字段契约、句式骨架和候选分布，不再轻易出现一批标题都长得很像、评分标签也几乎一样的情况，候选多样性更稳定。
-- 当前卷节奏板如果已经排到更后面的章节，重新生成当前卷章节列表时会自动补足所需章数，不再出现“点了生成但后半段章节没有真正展开”的假完成状态。
-- 章节执行区现在会按当前选中的章节隔离流式正文，切换章节时不会再把别章正在生成的内容误显示到眼前这一章；主写作区的信息层级也更适合连续写作。
-- 章节列表与节奏板的衔接提示补得更直白，相关乱码问题也已清理，生成链路在节奏板、相邻卷再平衡和拆章阶段的结构化输出兼容性更稳。
+- Novel basic info, genre management, advance-mode management, and related entries uniformly strengthen naming and explanation copy. It is easier to tell that genre base owns world and shelf position, and advance mode owns payoff delivery and advance logic.
+- The title workshop starts checking field contract, sentence skeleton, and candidate distribution together. A batch of titles that all look alike, with almost the same score labels, appears less easily. Candidate diversity is more stable.
+- If the current-volume pacing board already schedules later chapters, regenerating this volume’s chapter list auto-fills the needed chapter count. Clicked generate but later-half chapters never truly expanded false-complete happens less.
+- The chapter-execution area now isolates streaming prose by the currently selected chapter. Switching chapters no longer mis-shows another chapter’s still-generating content on this one. The main writing area’s information hierarchy also better fits continuous writing.
+- Join hints between chapter list and pacing board are plainer. Related garbled-text issues are also cleaned. Generate-path structured-output compatibility is steadier at pacing board, adjacent-volume rebalance, and split.
 
 ### 2026-03-28
 
-重大更新：卷级工作台进一步收紧为“先卷战略、再节奏板、再拆章、再细化”的稳定链路，章节写作也开始统一吃书级约束、卷级使命和本章任务，长链路创作更稳。
+Major update: the volume workbench further tightens into a stable path of volume strategy first, then pacing board, then split, then refine. Chapter writing also starts uniformly taking book-level constraints, volume mission, and this-chapter tasks, so long-chain creation is steadier.
 
-- 前置步骤现在会被明确锁定；一旦卷骨架、卷摘要或章节列表变化，系统也会自动清理过期的节奏板和再平衡建议，避免旧结果继续污染后续生成。
-- 结构化章节工作区新增“当前卷章节列表”，可以先看哪些章节已细化，再逐章补目标、边界和任务单；条件不满足时也会直接提示卡点。
-- 章节正文生成开始共用分层写作上下文，更稳地保住卖点、前 30 章承诺、卷使命、相邻卷窗口和本章任务，减少人物跑偏、节奏失焦和开头重复。
-- 章节执行页进一步收拢成三栏主路径，流式输出与已保存正文也合并到同一结果区，逐章推进更顺手。
+- Earlier steps now lock clearly. Once volume skeleton, volume summary, or chapter list changes, expired pacing board and rebalance suggestions also clean automatically, so old results less keep polluting later generate.
+- The structured chapter workspace adds Current-volume chapter list. You can first see which chapters are refined, then fill goal, boundary, and task sheet chapter by chapter. When conditions are not met, the stuck point is hinted directly.
+- Chapter-prose generate starts sharing layered writing context, more steadily keeping selling points, first-30-chapter promises, volume mission, adjacent-volume window, and this-chapter tasks, which cuts character drift, pacing unfocus, and opening repetition.
+- The chapter-execution page further closes into a three-column main path. Streaming output and already-saved prose also merge into the same result area, so advancing chapter by chapter is smoother.
 
 ### 2026-03-27
 
-重大更新：卷级工作台升级为更贴近连载网文的“卷战略 / 卷骨架 / 节奏 / 拆章”工作流，系统会先帮你判断怎么分卷、哪些卷该硬规划、哪些卷该留弹性。
+Major update: the volume workbench upgrades to a Volume strategy / Volume skeleton / Pacing / Split workflow closer to serialized web novels. It first helps you judge how to split volumes, which volumes should hard-plan, and which should keep elasticity.
 
-- 新增“卷战略建议”和“卷战略审稿”，会先推荐卷数与规划力度，再生成更适合长篇连载的卷骨架，减少一开始就把后半本写死。
-- 拆章前先经过“节奏板”，先明确开卷抓手、升级节点和卷尾钩子，再展开章节列表，章节规划更像真实追读节奏。
-- 单卷重生和结构化规划开始保留卷战略、节奏板、审稿结果和相邻卷再平衡建议；旧项目也能直接沿用，不必手工重建。
-- 侧栏导航、长耗时请求等待、模型搜索和大体积 JSON 修复链路一并优化，长时间创作与结构化生成都更顺畅。
+- Volume-strategy suggestions and Volume-strategy review are added. They first recommend volume count and planning strength, then generate a volume skeleton fitter for long serialized work, so the later half of the book is less written dead at the start.
+- Before split, a pacing board first clarifies opening hook, upgrade nodes, and volume-end hook, then expands the chapter list. Chapter planning more resembles real keep-reading rhythm.
+- Single-volume regenerate and structured planning start keeping volume strategy, pacing board, review results, and adjacent-volume rebalance suggestions. Old projects can also keep using them directly, without rebuilding by hand.
+- Sidebar navigation, long-request waiting, model search, and large JSON-repair paths also optimize together, so long creation and structured generate are both smoother.
 
 ### 2026-03-26
 
-重大更新：小说基础信息新增“流派模式”控制轴，角色区新增“补充角色”，同时产品级 Prompt 统一收口到 Prompt Registry，规划到审阅的 AI 链路开始用同一套标准协作。
+Major update: novel basic info adds a genre-mode control axis. The character area adds Extra characters. Product-level prompts also close into one prompt registry, so AI from planning to review starts collaborating on the same standard.
 
-- 新增独立的“流派模式”资产页，可直接选择或自定义爽感推进、建设经营、关系情感等模式；小说也可以绑定“主流派 + 副流派”，让后续规划、正文和审计围绕同一条控制轴展开。
-- 审计新增 `mode_fit` 视角，会检查章节有没有偏离该流派的核心驱动、读者奖励和冲突边界，减少越写越不像同一本书。
-- 角色资产工作台新增“补充角色”，AI 可以判断当前阵容缺口，给出关系补位或相对独立的新角色候选，并把建议关系一起落库。
-- 从书名、世界观、角色到续写、润色、审阅和拆书，AI 生成开始共用统一的 Prompt / Workflow Registry，并接入更稳的 JSON 修复与语义重试，跨工作台口径更一致。
+- A standalone Genre mode assets page is added. You can pick or customize modes such as payoff-advance, construction-and-management, and relationship-emotion. A novel can also bind main genre + sub genre, so later planning, prose, and audit unfold around the same control axis.
+- Audit adds a mode-fit view that checks whether a chapter drifted from that genre’s core drive, reader reward, and conflict boundary, so writing less and less like the same book happens less.
+- The character-asset workbench adds Extra characters. AI can judge current-cast gaps, give relationship fill-in or relatively independent new-character candidates, and save suggested relationships together.
+- From titles, world view, and characters to continuation, polish, review, and book analysis, AI generate starts sharing one prompt / workflow registry, and connects steadier JSON repair and semantic retry, so cross-workbench standards stay more consistent.
 
 ### 2026-03-25
 
-重大更新：小说规划正式升级为卷级工作台，角色准备也升级为动态角色系统，长篇主线、卷纲、章纲和角色推进开始放进同一套联动结构。
+Major update: novel planning formally upgrades to a volume workbench. Character prep also upgrades to a dynamic character system. Long-form main line, volume outline, chapter outline, and character advance start entering one linked structure.
 
-- “故事主线”升级为卷级工作台，可以按卷维护主承诺、冲突升级、主角变化、卷末高潮和承接钩子，长篇规划不再挤在一整块文本里。
-- 大纲升级为卷纲 / 章纲联动工作台，先出卷骨架，再出章节列表，最后补章节目标、执行边界和任务单，规划过程更分步，也更适合新手。
-- 卷级规划支持草稿、生效版、冻结、差异对比和影响分析，改结构前可以先判断会影响哪些卷和章节；旧项目也会自动回填进这套新结构。
-- 动态角色系统会持续沉淀卷级职责、关系阶段、缺席风险和新角色候选，并把这些信息送进后续规划、生成与重规划，让长篇角色推进更连续。
+- Story main line upgrades to a volume workbench. You can maintain main promise, conflict upgrade, protagonist change, volume-end climax, and carry-over hook by volume. Long-form planning no longer squeezes into one block of text.
+- Outline upgrades to a volume-outline / chapter-outline linked workbench: volume skeleton first, then chapter list, then fill chapter goal, execution boundary, and task sheet. Planning is more stepwise, and better fits beginners.
+- Volume planning supports draft, effective version, freeze, diff compare, and impact analysis. Before changing structure you can first judge which volumes and chapters will be affected. Old projects also auto-fill into this new structure.
+- The dynamic character system keeps settling volume-level duties, relationship stages, absence risk, and new-character candidates, and sends this information into later planning, generate, and replan, so long-form character advance is more continuous.
 
 ### 2026-03-24
 
-- 小说创建页和小说编辑页的基础信息区新增“书级 framing”，用户可以先把目标读者、核心卖点、熟悉阅读感和前 30 章承诺讲清楚，再进入后续规划与生成。
-- 基础信息支持 AI 一键补全书级 framing 建议，后续世界裁剪、写法推荐和主线规划会开始参考这些信息，开书定位更稳，也更适合小白直接起步。
-- 小说编辑页的角色区重构为“角色资产工作台”，新增角色和导入角色改成按需入口，日常主区更聚焦当前角色的状态、动机、成长弧和时间线维护。
-- 新增 AI 角色阵容方案，可一次生成多套核心角色与关键关系候选，并在确认后批量同步到小说角色资产，降低新手前期搭角色系统的门槛。
-- 模型设置补充更多可选提供商与默认模型，设置页也支持按需展开完整模型列表，减少配置时的信息拥挤和历史参数兼容问题。
+- Novel-create and novel-editor basic-info areas add book-level framing. You can first state target readers, core selling points, familiar reading feel, and first-30-chapter promises, then enter later planning and generate.
+- Basic info supports AI one-click fill of whole-book framing suggestions. Later world clip, style recommend, and main-line planning start referencing this information. Opening position is steadier, and better fits beginners starting directly.
+- The novel-editor character area rebuilds as a character-asset workbench. Add character and import character become on-demand entries. The daily main area more focuses on the current character’s state, motive, growth arc, and timeline upkeep.
+- AI character-cast plans are added. Several core-character and key-relationship candidates can generate at once, then batch-sync to novel character assets after confirm, which lowers the beginner threshold for building a character system early.
+- Model settings add more optional providers and default models. Settings also supports expanding the full model list on demand, which cuts crowding during config and historical-parameter compatibility issues.
 
 ### 2026-03-23
 
-- 章节运行时面板开始直接展示章节职责、阶段标签、必须推进/必须保留事项，并支持在发现结构问题后发起重规划，减少写到一半才发现方向漂移。
-- 章节生成上下文进一步收口到“规划 + 最新状态 + 活跃冲突 + 创作决策”这条主链，长篇连续生成时更容易保持人物、关系和伏笔的一致性。
-- 文本提取型写法资产现在会同时保存原文样本，方便回看、比对和继续微调。
-- 提取到的写法特征会沉淀成可编辑的特征池，用户可以在写法编辑里逐项启用或停用。
-- 当一次提取没有产出可用特征时，编辑页会明确提示原因，并支持直接重新提取。
+- The chapter-runtime panel starts showing chapter duties, stage labels, and must-advance / must-keep items directly, and supports starting replan after finding a structure issue, so direction drift is less only discovered halfway through writing.
+- Chapter-generate context further closes onto the main chain of plan + latest state + active conflict + creation decisions. Continuous long-form generate more easily keeps character, relationship, and foreshadowing consistency.
+- Text-extract style assets now also save original samples, which fits looking back, comparing, and keeping fine-tuning.
+- Extracted style traits settle into an editable trait pool. You can enable or disable them item by item in style edit.
+- When one extract produces no usable traits, the editor clearly hints the reason and supports re-extracting directly.
 
 ### 2026-03-22
 
-- 小说创建页新增了“AI 自动导演创建”入口，可以先生成多套整本方向候选，再继续追问和修正。
-- 整本批量生成与单章运行时主链进一步收拢，减少两条链路生成结果割裂的问题。
-- 小说编辑页补上了“正文开写前的写法确认”环节，降低新手选风格门槛。
+- The novel-create page adds an AI Auto-Director create entry. Several whole-book direction candidates can generate first, then you can keep asking and correcting.
+- Whole-book batch generate and single-chapter runtime main chains close further, so the two paths’ generate results split less.
+- The novel editor adds a style-confirm step before prose writing starts, which lowers the beginner threshold for picking a style.
 
 ### 2026-03-21
 
-- 写法引擎工作区重构为更聚焦的模块化界面，主流程更专注于选资产、编辑、绑定与试写。
-- 写法约束开始更深地接入章节生成、检测与自动修正链路。
-- 标题快选和模型连通性错误提示进一步优化。
+- The Style Engine workspace rebuilds into a more focused modular UI. The main flow more concentrates on pick asset, edit, bind, and trial write.
+- Style constraints start connecting more deeply into chapter generate, detect, and automatic-correct paths.
+- Title quick-pick and model-connectivity error hints further improve.
 
 ### 2026-03-20
 
-- 新增“写法引擎”模块，写法资产开始真正参与试写、生成约束、AI 味检测和一键修正。
-- 拆书页可将“文风与技法”一键转成写法资产。
-- 小说页开始更明确地区分“这本书真正会用到的世界切片”和全量世界资料。
+- A Style Engine module is added. Style assets start truly participating in trial write, generate constraints, Anti-AI detect, and one-click correct.
+- The book-analysis page can one-click turn Style and technique into a style asset.
+- The novel page starts more clearly distinguishing the world slice this book will actually use from full world materials.
