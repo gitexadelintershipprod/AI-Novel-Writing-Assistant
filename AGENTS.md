@@ -115,7 +115,7 @@ Do not add wiki entries for:
 
 ### Wiki Writing Rules
 
-- Use Chinese by default unless the surrounding document is clearly English-only.
+- Use English by default. The Georgian user guide stays Georgian. Dual-read Chinese protocol aliases in code stay until stored rows no longer need them.
 - Write for future developers and future AI agents.
 - Explain the reason behind a decision, not just the decision itself.
 - Prefer sections such as `Background / Decision / Current Rule / Examples / Failure Modes / Related Modules / Source Documents`.

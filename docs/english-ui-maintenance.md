@@ -1,6 +1,6 @@
 # English UI maintenance
 
-This fork ships English product copy on `main`. The overlay is a shrinking safety net until remaining dual-read aliases and comments are gone.
+This fork ships English product copy on `main`. Developer wiki, plans, and other internal docs are also English. The overlay is a shrinking safety net until remaining dual-read aliases and comments are gone.
 
 ## Baseline and remotes
 
@@ -11,7 +11,7 @@ This fork ships English product copy on `main`. The overlay is a shrinking safet
 
 ## Architecture
 
-Product **source copy is English**. New UI, API errors, workflow catalogs, and stored protocol values must be written in English. Do not add Chinese JSX, HTTP messages, or enum literals.
+Product **source copy is English**. New UI, API errors, workflow catalogs, stored protocol values, wiki pages, and other developer docs must be written in English. Do not add Chinese JSX, HTTP messages, or enum literals. Server control strings assembled into LLM context should be English; creative PromptAsset bodies stay Georgian (`language: "ka"`).
 
 The client still initializes i18next as English-only. `EnglishUiBoundary` plus `legacy-ui.json` remain a shrinking safety net for any leftover Han in source. Native `confirm` / `alert` / `Notification` and interpolated templates are not covered by the overlay, so those strings must be English in source.
 
@@ -27,7 +27,7 @@ Electron startup, splash, updater, failure-dialog, and log-bundle copy comes fro
 
 ## Retained Chinese source values
 
-Chinese source text remains only when changing it would alter generation, break dual-read, or describe user/fixture content. Every retained line has an exact path, text, and reason in `config/english-ui-allowlist.json`. The main classifications are:
+Chinese source text remains only when changing it would alter generation, break dual-read, or describe user/fixture content. Wiki and other developer docs must not keep Chinese prose; quoted dual-read aliases belong in `config/english-docs-allowlist.json`. Client/desktop leftover Han lines have an exact path, text, and reason in `config/english-ui-allowlist.json`. The main classifications are:
 
 - dual-read aliases and legacy protocol map keys;
 - AI prompts, templates, and authored content;
@@ -76,6 +76,7 @@ After every sync, review conflicts and run the complete English UI workflow. Fre
 ```bash
 pnpm install --frozen-lockfile
 pnpm check:english-ui
+pnpm check:english-docs
 pnpm typecheck
 pnpm lint
 pnpm test:all

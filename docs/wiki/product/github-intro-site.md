@@ -27,13 +27,13 @@
 
 ## Language Rule
 
-公开传播面与内部维护面分开：
+Keep the public surface and the internal maintenance surface in English, with one creative-language exception:
 
-- GitHub README、GitHub About、介绍站首页、导航、SEO 和文档壳（索引标题、搜索、面包屑、翻页）使用英语。
-- `docs/wiki/` 内部原则、工作流边界和架构规则继续使用中文。
-- 本 fork 的产品界面是英语；生成的小说正文是格鲁吉亚语（`ka-GE`）。
-- `docs/public/` 文章正文可以暂时保留中文；公开站索引必须用英语标题指向这些文章，直到后续单独做文档正文英译。
-- 格鲁吉亚使用说明放在 `docs/public/georgian-user-guide.md`，并登记到公开文档 manifest。
+- GitHub README, GitHub About, the intro-site home, navigation, SEO, and the docs chrome (index titles, search, breadcrumbs, pagination) use English.
+- `docs/wiki/` internal principles, workflow boundaries, and architecture rules use English. Quoted Chinese protocol aliases are allowed only when documenting dual-read of old stored values. English is canonical on write.
+- This fork's product UI is English; generated novel prose is Georgian (`ka-GE`).
+- `docs/public/` user-facing pages are English except the Georgian usage guide.
+- The Georgian usage guide lives at `docs/public/georgian-user-guide.md` and must stay registered in the public docs manifest.
 
 站点不应承担内部架构 wiki、执行计划或检查点浏览器职责。详细开发说明仍保留在 README 和 docs 中。
 

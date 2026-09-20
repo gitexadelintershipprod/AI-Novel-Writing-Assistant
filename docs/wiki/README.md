@@ -1,79 +1,125 @@
-# 项目开发 Wiki
+# Project development wiki
 
-本目录用于沉淀长期项目知识，帮助未来开发者和 AI Agent 理解项目为什么这样设计，以及后续应该如何维护。
+This directory holds durable project knowledge. It helps future developers and AI agents understand why the system is designed this way and how it should be maintained.
 
-Wiki 不记录单次提交改了什么，也不替代 release notes。它只记录跨阶段仍然有用的架构规则、工作流边界、运行协议、调试经验和产品设计依据。
+The wiki is not a record of what changed in a single commit, and it does not replace release notes. It records architecture rules, workflow boundaries, runtime contracts, debugging lessons, and product design rationale that remain useful across phases.
 
-## 使用方式
+Write wiki pages in English. Quoted Chinese protocol aliases such as `主角` are allowed only when documenting dual-read of old stored values. English is canonical on write.
 
-- 先从本页找到相关主题，再进入对应分类页面。
-- 如果页面内容来自历史计划、设计文档或检查点，保留来源链接，不搬空原文档。
-- 如果一次开发澄清了长期规则，应更新对应 Wiki；如果只是小改动或发布流水账，不写 Wiki。
-- 新页面默认使用 [entry-template.md](./entry-template.md) 的结构。
+## How to use it
 
-## 目录
+- Start here, then open the matching topic page.
+- If a page comes from a historical plan, design doc, or checkpoint, keep the source link. Do not empty the original document.
+- If a change clarifies a long-lived rule, update the matching wiki page. Skip the wiki for small edits and release-note narration.
+- New pages should follow [entry-template.md](./entry-template.md).
+
+## Contents
 
 ### Architecture
 
-- [模块边界与文档治理](./architecture/module-boundaries.md)
-- [当前模型选择与厂商默认模型边界](./architecture/model-selection.md)
-- [配置项归属与可见性规范](./architecture/configuration-conventions.md)
+- [Module boundaries and documentation governance](./architecture/module-boundaries.md)
+- [Current model selection and vendor default-model boundary](./architecture/model-selection.md)
+- [Configuration ownership and visibility](./architecture/configuration-conventions.md)
+- [Read-path performance boundaries](./architecture/read-path-performance-boundaries.md)
+- [Chapter runtime boundaries](./architecture/chapter-runtime-boundaries.md)
+- [Chapter identity and planning boundary](./architecture/chapter-identity-and-planning-boundary.md)
+- [Server architecture migration plan](./architecture/server-architecture-migration-plan.md)
+- [Novel application services](./architecture/novel-application-services.md)
+- [Event side-effect boundaries](./architecture/event-side-effect-boundaries.md)
+- [World context gateway](./architecture/world-context-gateway.md)
+- [World visualization assets](./architecture/world-visualization-assets.md)
+- [Visual asset catalog](./architecture/visual-asset-catalog.md)
+- [Image generation providers](./architecture/image-generation-providers.md)
+- [Drama Forge module boundary](./architecture/drama-forge-module-boundary.md)
 
 ### Workflows
 
-- [自动导演 Runtime 与恢复边界](./workflows/auto-director-runtime.md)
-- [简易创作模式](./product/simple-creation-mode.md)
-- [章节生产链路](./workflows/chapter-production-chain.md)
-- [读者体验合同](./workflows/reader-experience-contract.md)
-- [Payoff Ledger 来源与同步合同](./workflows/payoff-ledger-contract.md)
-- [角色资源账本工作流](./workflows/character-resource-ledger.md)
-- [通用角色主体与跨来源角色对话](./workflows/universal-character-conversation.md)
-- [拆书工作流](./workflows/book-analysis-workflow.md)
-- [图片生成确认与统一运行时](./workflows/image-generation-confirmation-runtime.md)
-- [Creative Hub 边界](./workflows/creative-hub-boundary.md)
+- [Auto-Director runtime and recovery](./workflows/auto-director-runtime.md)
+- [Auto-Director stage checklist](./workflows/auto-director-stage-checklist.md)
+- [Auto-Director world setup](./workflows/auto-director-world-setup.md)
+- [Auto-Director idea constellation](./workflows/auto-director-idea-constellation.md)
+- [Auto-Director candidate auto-confirm](./workflows/auto-director-candidate-auto-confirm.md)
+- [Chapter production chain](./workflows/chapter-production-chain.md)
+- [Lazy chapter planning](./workflows/lazy-chapter-planning.md)
+- [Volume planning](./workflows/volume-planning.md)
+- [Reader experience contract](./workflows/reader-experience-contract.md)
+- [Payoff ledger source and sync contract](./workflows/payoff-ledger-contract.md)
+- [Quality debt attribution](./workflows/quality-debt-attribution.md)
+- [Novel fact ledger](./workflows/novel-fact-ledger.md)
+- [Timeline constraint layer](./workflows/timeline-constraint-layer.md)
+- [Character resource ledger](./workflows/character-resource-ledger.md)
+- [Character intelligence layer](./workflows/character-intelligence-layer.md)
+- [Character dialogue layer](./workflows/character-dialogue-layer.md)
+- [Character influence proposals](./workflows/character-influence-proposals.md)
+- [Universal character conversation](./workflows/universal-character-conversation.md)
+- [Book analysis workflow](./workflows/book-analysis-workflow.md)
+- [Creative Hub boundary](./workflows/creative-hub-boundary.md)
+- [LLM live execution](./workflows/llm-live-execution.md)
+- [Image generation confirmation runtime](./workflows/image-generation-confirmation-runtime.md)
+- [Novel cover image generation](./workflows/novel-cover-image-generation.md)
+- [Market Radar to Auto-Director](./workflows/market-radar-to-auto-director.md)
+- [Creation Studio short story](./workflows/creation-studio-short-story.md)
+- [Pending-review auto-promotion](./workflows/pending-review-auto-promotion.md)
+- [Novel snapshot retention](./workflows/novel-snapshot-retention.md)
+- [Desktop release versioning](./workflows/desktop-release-versioning.md)
+- [Comic character asset pipeline](./workflows/comic-character-asset-pipeline.md)
+- [Comic scene consistency](./workflows/comic-scene-consistency.md)
+- [Comic panel production prompt governance](./workflows/comic-panel-production-prompt-governance.md)
+- [Short-drama workspace](./workflows/short-drama-workspace.md)
 
 ### Prompts
 
-- [Prompt Registry 与结构化输出](./prompts/prompt-registry-and-structured-output.md)
-- [平台写法配置与正文 Prompt 可编辑合同](./prompts/platform-writing-profiles.md)
+- [Prompt Registry and structured output](./prompts/prompt-registry-and-structured-output.md)
+- [Platform writing profiles and editable chapter-prompt contract](./prompts/platform-writing-profiles.md)
+- [Novel generation quality guards](./prompts/novel-generation-quality-guards.md)
+- [Georgian content policy](./prompts/georgian-content-policy.md)
 
 ### RAG
 
-- [Knowledge Bulk Import: storage before indexing](./rag/knowledge-bulk-import.md)
-- [知识库与上下文组装](./rag/knowledge-and-context-assembly.md)
+- [Knowledge bulk import: storage before indexing](./rag/knowledge-bulk-import.md)
+- [Knowledge base and context assembly](./rag/knowledge-and-context-assembly.md)
 
 ### Debugging
 
-- [重复故障模式与排查路径](./debugging/recurring-failure-modes.md)
+- [Recurring failure modes and diagnosis paths](./debugging/recurring-failure-modes.md)
+- [Log retention](./debugging/log-retention.md)
+- [LLM request limiter memory leak](./debugging/llm-request-limiter-memory-leak.md)
+- [Character continuity hard facts](./debugging/character-continuity-hard-facts.md)
+- [English UI dynamic copy](./debugging/english-ui-dynamic-copy.md)
 
 ### Product
 
-- [新手优先与整本小说完成原则](./product/beginner-first-novel-completion.md)
-- [工作台状态表达与下一步合同](./product/workspace-status-expression.md)
-- [GitHub Pages 公开介绍站](./product/github-intro-site.md)
+- [Beginner-first full-novel completion](./product/beginner-first-novel-completion.md)
+- [Simple creation mode](./product/simple-creation-mode.md)
+- [Workspace status and next-step contract](./product/workspace-status-expression.md)
+- [Settings readiness](./product/settings-readiness.md)
+- [World skeleton generation](./product/world-skeleton-generation.md)
+- [Narrative engine studio](./product/narrative-engine-studio.md)
+- [Task Center role](./product/task-center-role.md)
+- [GitHub Pages intro site](./product/github-intro-site.md)
 
-## 写作边界
+## Writing boundary
 
-Wiki 应写：
+Wiki pages should record:
 
-- 长期架构决策和原因。
-- 自动导演、章节生产、Creative Hub、Prompt、RAG、任务状态等核心链路的边界。
-- 可重复使用的调试结论和排查路径。
-- 新手优先、整本完成、低认知负担等产品原则如何影响实现。
+- Long-lived architecture decisions and the reasons behind them.
+- Boundaries for Auto-Director, chapter production, Creative Hub, Prompt, RAG, and task state.
+- Reusable debugging conclusions and diagnosis paths.
+- How beginner-first, full-novel completion, and low cognitive load shape the implementation.
 
-Wiki 不应写：
+Wiki pages should not record:
 
-- 单次提交的文件修改清单。
-- 临时 TODO。
-- 发布说明复制。
-- 很快会废弃的实现细节。
-- 只描述“本次改了什么”的流水账。
+- Per-commit file modification lists.
+- Temporary TODOs.
+- Copied release notes.
+- Implementation details that will be discarded soon.
+- Narration that only says what changed in the current task.
 
-## 与其他 docs 目录的关系
+## Relationship to other docs directories
 
-- `docs/wiki/`：稳定知识和原因。
-- `docs/plans/`：仍有执行价值的方案和任务拆解。
-- `docs/checkpoints/`：阶段性进度、迁移里程碑和审计记录。
-- `docs/design/`：系统设计、领域模型和产品机制。
-- `docs/releases/`：用户可见更新历史。
-- `README.md`：对外入口和最新公开摘要。
+- `docs/wiki/`: stable knowledge and reasons.
+- `docs/plans/`: plans that still have execution value.
+- `docs/checkpoints/`: phase progress, migration milestones, and audits.
+- `docs/design/`: system design, domain models, and product mechanics.
+- `docs/releases/`: user-visible update history.
+- `README.md`: public entry point and latest summary.

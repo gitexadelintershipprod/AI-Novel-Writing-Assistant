@@ -1,36 +1,36 @@
-# 标题
+# Title
 
-## 背景
+## Background
 
-说明这个问题为什么重要，历史上为什么反复出现，或者它影响哪条主链路。
+Explain why this problem matters, why it has shown up more than once, or which production chain it affects.
 
-## 决策
+## Decision
 
-写清楚当前稳定决策。不要只写“做了什么”，要解释为什么选择这条规则。
+Write the stable decision. Do not only say what was built; explain why this rule was chosen.
 
-## 当前规则
+## Current Rule
 
-- 写可执行的规则。
-- 说明哪些做法允许，哪些做法禁止。
-- 如果涉及 AI-first、Prompt、RAG、任务状态、恢复或前端投影，明确影响范围。
+- Write executable rules.
+- Say what is allowed and what is forbidden.
+- If the rule touches AI-first behavior, Prompt, RAG, task state, recovery, or frontend projection, name the affected scope.
 
-## 示例
+## Examples
 
-- 给出推荐做法。
-- 给出不推荐或禁止的做法。
+- Give a recommended approach.
+- Give a discouraged or forbidden approach.
 
-## 失败模式
+## Failure Modes
 
-- 写出常见问题表现。
-- 写出推荐排查路径。
-- 写出不能用来掩盖问题的短期手段。
+- Describe how the problem usually shows up.
+- Give a recommended diagnosis path.
+- Name short-term workarounds that must not hide the issue.
 
-## 相关模块
+## Related Modules
 
 - `server/src/...`
 - `client/src/...`
 - `shared/...`
 
-## 来源文档
+## Source Documents
 
-- 来源文档标题：`../relative/path.md`
+- Source document title: `../relative/path.md`

@@ -9,6 +9,7 @@
   },
   "scripts": {
     "check:english-ui": "node scripts/check-english-ui.cjs",
+    "check:english-docs": "node scripts/check-english-docs.cjs",
     "check:georgian-content": "node scripts/check-georgian-content.cjs",
     "update:georgian-content-allowlist": "node scripts/update-georgian-content-allowlist.cjs",
     "check:deps": "node scripts/check-deps.cjs",

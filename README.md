@@ -67,7 +67,7 @@ This repository is a fork of [ExplosiveCoderflome/AI-Novel-Writing-Assistant](ht
 | --- | --- |
 | Product UI | English |
 | Generated novel text | Georgian (`ka-GE`) |
-| Internal developer wiki | Chinese |
+| Internal developer wiki | English |
 
 Market Radar stays off until a Georgian or international source exists. The live deployment of this fork is a Docker stack, not a hosted SaaS.
 
@@ -136,6 +136,7 @@ pnpm test
 pnpm --filter @ai-novel/site build
 pnpm check:docs-manifest
 pnpm check:english-ui
+pnpm check:english-docs
 pnpm check:georgian-content
 ```
 
@@ -199,4 +200,4 @@ New contributions are submitted under [CLA.md](./CLA.md) and may ship under AGPL
 ## Notes
 
 - The product is still moving quickly. The README describes the current main path, not every historical experiment.
-- Public README, GitHub About, and intro-site chrome are English. Internal wiki stays Chinese. Generated fiction is Georgian.
+- Public README, GitHub About, intro-site chrome, and the internal developer wiki are English. Generated fiction is Georgian.
