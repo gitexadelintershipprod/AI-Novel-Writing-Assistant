@@ -1,105 +1,105 @@
-# 自动导演创建流程 UI 改造方案（渐进式舞台 + 独立路由页）
+# Auto-Director Creation Flow UI Redesign Plan (Progressive Stages + Dedicated Route Page)
 
-## 背景
+## Background
 
-自动导演创建目前是 `NovelCreate.tsx` 上方叠出的一个大弹窗（`NovelAutoDirectorDialog.tsx`，709 行，20+ 个 useState），内部一次性平铺全部内容：起始想法、导演起始设置（读者频道/叙事视角/节奏/情绪/章节数）、规划参考世界、本书世界处理、书级默认写法、模型设置、运行方式，方向候选阶段还要再叠一层 `NovelAutoDirectorCandidateDialog`——弹窗套弹窗。
+Auto-director creation is currently a large dialog stacked on top of `NovelCreate.tsx` (`NovelAutoDirectorDialog.tsx`, 709 lines, 20+ useState hooks). Internally it lays out everything at once: starting idea, director starting settings (reader channel / narrative POV / pacing / emotion / chapter count), planning reference world, this book's world handling, book-level default writing style, model settings, and run mode. The direction-candidate stage then stacks another `NovelAutoDirectorCandidateDialog` — a dialog nested inside a dialog.
 
-确认的问题：
+Confirmed problems:
 
-1. **同屏信息过载**：新用户第一眼面对十几个设置项，而产品文案自己都写着"先保持默认也可以"——说明大部分项不需要第一时间出现。
-2. **布局紧凑、无设计感、零动效**：早期功能堆叠的产物，继续加功能只会更乱。
-3. **弹窗形态撑不住这个流程**：这是一个多阶段、含长任务进度、支持中断恢复（workflowTaskId）的完整流程，被压在一个 Dialog 里，滚动局促、层级冲突、无法从 URL 恢复现场。
+1. **Same-screen information overload**: a new user immediately faces a dozen settings, while the product copy itself says "keeping the defaults is fine" — which means most items do not need to appear at first.
+2. **Tight layout, no design sense, zero motion**: an early feature-stacking artifact; adding more features will only make it messier.
+3. **The dialog shape cannot carry this flow**: this is a multi-stage process with long-task progress and interrupt/resume (`workflowTaskId`), crushed into a Dialog. Scrolling is cramped, stacking conflicts, and the scene cannot be restored from the URL.
 
-改造原则（用户已确认）：**纯 UI/交互层改造，功能语义全部沿用**——所有表单字段、默认值、mutation、候选批次逻辑、恢复逻辑不动，只改"怎么呈现、何时呈现"。
+Redesign principle (already confirmed by the user): **pure UI/interaction-layer redesign; all functional semantics are reused** — all form fields, defaults, mutations, candidate-batch logic, and resume logic stay unchanged. Only "how it is presented and when it is presented" changes.
 
-## 决策：独立路由页，不是当前页内全屏
+## Decision: a dedicated route page, not an in-page fullscreen overlay
 
-推荐**新路由页面**（如 `/novels/auto-director`，恢复场景带 `?taskId=` 参数），理由：
+Recommend a **new route page** (for example `/novels/auto-director`, with `?taskId=` in resume scenarios). Reasons:
 
-1. **恢复语义天然匹配 URL**：现在恢复依赖外部传入 workflowTaskId 再打开弹窗；路由页可以直接从 URL 恢复现场，刷新/崩溃/桌面版重启后回到同一页即回到同一流程——这对长任务流程是实质收益，不只是形式。
-2. **消灭弹窗套弹窗**：候选方向选择当前是 Dialog 里再弹 Dialog；页面形态下候选阶段就是页面的一个舞台区块，层级问题自然消失。
-3. **给渐进式布局留空间**：舞台式流程需要纵向呼吸感和阶段间过渡动画，Dialog 的固定高度+内部滚动是天然枷锁。
-4. **与项目已有心智一致**：单书工作台本身就是"左侧步骤 + 主区推进"的页面式流程，创建流程用同样的形态，新手从创建到工作台的心智是连续的。
+1. **Resume semantics match a URL naturally**: resume currently depends on an externally passed workflowTaskId then opening a dialog. A route page can restore the scene directly from the URL; after refresh / crash / desktop restart, returning to the same page returns to the same flow — a real gain for a long-task flow, not merely a form change.
+2. **Eliminate nested dialogs**: candidate-direction selection currently opens a Dialog inside a Dialog. In page form, the candidate stage is simply a stage block on the page; stacking problems disappear.
+3. **Leave room for a progressive layout**: a stage-based flow needs vertical breathing room and between-stage transition animation. A Dialog's fixed height plus inner scroll is a natural constraint.
+4. **Matches existing project mental model**: the single-book workbench is already a page-style flow of "left-side steps + main-area advance". Using the same shape for creation makes the beginner's mental model continuous from create to workbench.
 
-`NovelCreate.tsx` 保留为轻量入口页（一句灵感 + "进入自动导演"按钮跳转路由页），不再承载弹窗。
+`NovelCreate.tsx` remains a lightweight entry page (one-sentence inspiration + an "Enter auto-director" button that navigates to the route page) and no longer hosts the dialog.
 
-## 设计核心：五个舞台的渐进式披露
+## Design core: progressive disclosure across five stages
 
-关键取舍：**渐进不等于强制线性向导**。已完成的舞台折叠成可点击回改的摘要卡（不是消失），高级用户有"全部使用默认，直接生成方向"的快速通道，不惩罚熟练用户。
+Key tradeoff: **progressive does not mean a forced linear wizard**. Completed stages collapse into clickable summary cards that can be edited again (they do not disappear). Advanced users get a fast path of "use all defaults, generate directions immediately", without punishing skilled users.
 
-### Stage 0 · 起始想法（进入时唯一可见）
+### Stage 0 · Starting idea (the only thing visible on entry)
 
-- 页面中央一个大输入区：起始想法 textarea + "没有想法？"灵感入口（现有 `NovelAutoDirectorIdeaInspirationPanel` 原样复用）。
-- 两个出口：「继续完善设定」（进入 Stage 1）/「用默认设置直接生成方向」（跳到 Stage 4，中间三个舞台全用现有默认值）。
-- 这是新手的第一屏，也是整个流程唯一必填的东西——和产品"一句灵感启动整本书"的叙事完全一致。
+- Center of the page: a large input area — starting-idea textarea + "No idea?" inspiration entry (reuse existing `NovelAutoDirectorIdeaInspirationPanel` as-is).
+- Two exits: "Continue refining settings" (enter Stage 1) / "Generate directions with default settings" (jump to Stage 4; the three middle stages all use existing defaults).
+- This is the beginner's first screen, and the only required item in the whole flow — fully consistent with the product narrative of "one sentence of inspiration starts the whole book".
 
-### Stage 1 · 导演起始设置
+### Stage 1 · Director starting settings
 
-- 想法确认后从下方展开：读者频道倾向、叙事视角、节奏偏好、情绪浓度、预计章节数（现有 `NovelAutoDirectorSetupPanel` 的 basic form 区块拆出复用，字段与默认值零改动）。
-- 确认后折叠为一行摘要卡（如"AI 判断频道 · 第三人称 · 均衡节奏 · 中情绪 · 约 80 章"），点击摘要卡可展开回改。
+- After the idea is confirmed, expand from below: reader-channel preference, narrative POV, pacing preference, emotion intensity, expected chapter count (split out and reuse the basic form block of existing `NovelAutoDirectorSetupPanel`; fields and defaults are unchanged).
+- After confirm, collapse into a one-line summary card (for example "AI-judged channel · third person · balanced pacing · medium emotion · about 80 chapters"). Clicking the summary card expands it for edits.
 
-### Stage 2 · 世界与写法
+### Stage 2 · World and writing style
 
-- 规划参考世界样本、本书世界处理、书级默认写法（对应 SetupPanel 现有区块拆出）。
-- 同样确认后折叠为摘要卡。
+- Planning reference world samples, this book's world handling, book-level default writing style (split out from the corresponding existing SetupPanel blocks).
+- Likewise collapse into a summary card after confirm.
 
-### Stage 3 · 模型与运行方式（最后确认）
+### Stage 3 · Model and run mode (final confirmation)
 
-- 模型设置 + 自动导演运行方式（四种模式卡片 + 正文后去 AI 检测开关）。
-- 这一步的确认按钮就是"开始生成方向"——把"最容易被忽略但后果最重"的运行方式放在启动前最后一眼，位置本身就是提醒。
+- Model settings + auto-director run mode (four mode cards + post-body AI-detection toggle).
+- This step's confirm button is "Start generating directions" — putting the easiest-to-ignore but most consequential run mode as the last glance before launch; the position itself is the reminder.
 
-### Stage 4 · 方向候选与执行
+### Stage 4 · Direction candidates and execution
 
-- 现有 `NovelAutoDirectorCandidateBatches` / `CandidateSelectionContent` / `ProgressPanel` 平移为页面主区内容（不再是嵌套 Dialog）。
-- 上方常驻已折叠的 Stage 0–3 摘要条，方向不满意时可回改设定重新生成——这正是现有"继续生成/定向修订"功能的空间化表达。
+- Existing `NovelAutoDirectorCandidateBatches` / `CandidateSelectionContent` / `ProgressPanel` move into the page main area (no longer a nested Dialog).
+- Above, a persistent collapsed Stage 0–3 summary bar. If directions are unsatisfactory, settings can be edited and regenerated — this is a spatial expression of the existing "continue generating / directed revision" capability.
 
-### 动效（framer-motion 已在依赖中，零新增安装）
+### Motion (framer-motion is already a dependency; zero new installs)
 
-- 舞台展开/折叠：高度 + 透明度过渡（`AnimatePresence` + layout 动画）。
-- 摘要卡折叠：从表单到摘要行的收拢动画，让用户看见"设定被收好了"而不是突然消失。
-- 候选方案卡：批次到达时 stagger 依次浮现。
-- 进度阶段：当前阶段指示灯呼吸效果。
-- 尊重 `prefers-reduced-motion`。
+- Stage expand/collapse: height + opacity transition (`AnimatePresence` + layout animation).
+- Summary-card collapse: a fold-in animation from form to summary row, so the user sees "settings were put away" rather than a sudden disappearance.
+- Candidate cards: stagger in sequence when a batch arrives.
+- Progress stages: breathing effect on the current-stage indicator.
+- Respect `prefers-reduced-motion`.
 
-## 功能沿用清单（明确不动的东西）
+## Functional reuse list (explicitly unchanged)
 
-- 全部表单字段、选项、默认值、hint 文案（`NovelAutoDirectorDialog.constants.ts` 不动）。
-- 全部 mutation 与状态流转（`useNovelAutoDirectorCandidateMutations.ts`、`NovelAutoDirectorDialog.shared.ts` 不动或仅调整 import 路径）。
-- 候选批次、定向修订、标题组重做、恢复（workflowTaskId）、运行模式语义。
-- 后端 API、prompt、导演阶段编排零改动。
+- All form fields, options, defaults, and hint copy (`NovelAutoDirectorDialog.constants.ts` unchanged).
+- All mutations and state transitions (`useNovelAutoDirectorCandidateMutations.ts`, `NovelAutoDirectorDialog.shared.ts` unchanged or only import-path adjustments).
+- Candidate batches, directed revision, title-group redo, resume (`workflowTaskId`), and run-mode semantics.
+- Backend API, prompts, and director stage orchestration: zero change.
 
-## 分步执行计划（文件层级）
+## Step-by-step execution plan (file level)
 
-### Part 1：路由页骨架与舞台状态机
+### Part 1: Route-page shell and stage state machine
 
-- `client/src/pages/novels/autoDirector/AutoDirectorCreatePage.tsx`（新）：路由页外壳，舞台状态机（当前舞台、各舞台完成态、快速通道标记），从 URL 读取 `taskId` 恢复现场。
-- `client/src/pages/novels/autoDirector/directorCreateStages.ts`（新）：舞台定义、完成判定、摘要文案生成的纯函数。
-- 路由注册（按 vite-plugin-pages 的文件路由约定落位）。
+- `client/src/pages/novels/autoDirector/AutoDirectorCreatePage.tsx` (new): route-page shell, stage state machine (current stage, each stage's completed state, fast-path flag), restore scene from URL `taskId`.
+- `client/src/pages/novels/autoDirector/directorCreateStages.ts` (new): pure functions for stage definitions, completion judgment, and summary-copy generation.
+- Route registration (placed according to vite-plugin-pages file-routing conventions).
 
-### Part 2：舞台区块组件（从现有面板拆分复用）
+### Part 2: Stage block components (split and reuse from existing panels)
 
-- `client/src/pages/novels/autoDirector/StageIdea.tsx`（新）：Stage 0，内部复用 `NovelAutoDirectorIdeaInspirationPanel`。
-- `client/src/pages/novels/autoDirector/StageBasicSetup.tsx` / `StageWorldStyle.tsx` / `StageModelRun.tsx`（新）：从 `NovelAutoDirectorSetupPanel.tsx`（490 行）按区块拆出，表单状态结构不变，拆完后旧 SetupPanel 移除。
-- `client/src/pages/novels/autoDirector/StageSummaryCard.tsx`（新）：已完成舞台的折叠摘要卡（展开回改交互）。
-- `client/src/pages/novels/autoDirector/StageCandidates.tsx`（新）：Stage 4，内部复用 `NovelAutoDirectorCandidateBatches` / `CandidateSelectionContent` / `ProgressPanel`，消灭嵌套 Dialog。
+- `client/src/pages/novels/autoDirector/StageIdea.tsx` (new): Stage 0, internally reuses `NovelAutoDirectorIdeaInspirationPanel`.
+- `client/src/pages/novels/autoDirector/StageBasicSetup.tsx` / `StageWorldStyle.tsx` / `StageModelRun.tsx` (new): split by block from `NovelAutoDirectorSetupPanel.tsx` (490 lines). Form state structure unchanged; after the split, remove the old SetupPanel.
+- `client/src/pages/novels/autoDirector/StageSummaryCard.tsx` (new): collapsed summary card for a completed stage (expand-to-edit interaction).
+- `client/src/pages/novels/autoDirector/StageCandidates.tsx` (new): Stage 4, internally reuses `NovelAutoDirectorCandidateBatches` / `CandidateSelectionContent` / `ProgressPanel`; eliminate nested Dialog.
 
-### Part 3：入口切换与旧弹窗退役
+### Part 3: Entry switch and old-dialog retirement
 
-- `client/src/pages/novels/NovelCreate.tsx`：改为轻量入口（灵感输入直通路由页，或直接跳转）；移除 `NovelAutoDirectorDialog` 挂载。
-- 其他打开该弹窗的入口（若有恢复入口在导演跟进/任务中心）改为带 `taskId` 跳转路由页。
-- `NovelAutoDirectorDialog.tsx` / `NovelAutoDirectorCandidateDialog.tsx` / `NovelAutoDirectorDialogHeader.tsx` 在全部入口切换完成后删除。
+- `client/src/pages/novels/NovelCreate.tsx`: become a lightweight entry (inspiration input goes straight to the route page, or a direct jump); remove `NovelAutoDirectorDialog` mounting.
+- Other entrypoints that open this dialog (if resume entrypoints exist in director follow-up / task center) change to navigating to the route page with `taskId`.
+- `NovelAutoDirectorDialog.tsx` / `NovelAutoDirectorCandidateDialog.tsx` / `NovelAutoDirectorDialogHeader.tsx` are deleted after all entrypoints have switched.
 
-### Part 4：动效与收尾
+### Part 4: Motion and wrap-up
 
-- framer-motion 舞台过渡、摘要收拢、候选卡 stagger、`prefers-reduced-motion` 降级。
-- 验证：client typecheck + build；路由页懒加载确认（创建流程本就是独立 chunk 的天然边界）；UI 交互验收按项目规范留给用户。
+- framer-motion stage transitions, summary fold-in, candidate-card stagger, `prefers-reduced-motion` fallback.
+- Verification: client typecheck + build; confirm route-page lazy loading (creation flow is already a natural independent-chunk boundary); UI interaction acceptance is left to the user per project rules.
 
-## 执行顺序与门禁
+## Execution order and gates
 
-Part 1 → 2 → 3 → 4。**Part 3 完成前旧弹窗保持可用**（新旧并存期间以路由页为主入口做验证，确认恢复链路无回归后再删除旧组件）。本次为用户可见变更，完成时更新 release notes 与 README。
+Part 1 → 2 → 3 → 4. **Until Part 3 is complete, the old dialog remains usable** (during coexistence, use the route page as the primary entry for verification; delete old components only after confirming the resume chain has no regressions). This is a user-visible change; update release notes and README on completion.
 
-## 验收维度
+## Acceptance dimensions
 
-- **符合度**：功能语义零变化（字段/默认值/mutation/恢复链路与旧弹窗逐项对照）；Stage 0 进入时确实只见想法输入；每个舞台可回改；快速通道可用；无嵌套弹窗残留。
-- **完成度**：Part 1–4 全部为第一期必须项；旧弹窗组件删除干净、无死代码残留。
-- **风险性**：重点回归恢复链路（带 taskId 进入路由页各阶段现场恢复）、从 NovelCreate 到路由页的参数传递、快速通道生成的请求体与旧弹窗默认请求体逐字段一致。
+- **Fit**: zero change in functional semantics (fields / defaults / mutations / resume chain compared item-by-item with the old dialog); Stage 0 on entry truly shows only idea input; every stage can be edited again; the fast path works; no nested-dialog leftovers.
+- **Completeness**: Parts 1–4 are all first-phase must-haves; old dialog components are deleted cleanly with no dead-code leftovers.
+- **Risk**: key regressions are the resume chain (entering the route page with taskId restores each stage scene), parameter passing from NovelCreate to the route page, and field-by-field equality between the fast-path request body and the old dialog's default request body.

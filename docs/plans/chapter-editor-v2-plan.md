@@ -1,305 +1,305 @@
-# 章节编辑器 V2 改造方案
+# Chapter Editor V2 Redesign Plan
 
-## 本轮交付进度
+## This-round delivery progress
 
-### 已完成
+### Done
 
-- 已按 `Phase 1 + Phase 2 MVP` 落地共享 `ChapterEditorShell`，并把它收口到独立 `NovelChapterEdit` 这条正文中心编辑器页上；`ChapterManagementTab` 继续保留为工作台入口。
-- 已把正文编辑底座切到 Plate，支持正文编辑、选区监听、保存状态、字数统计和待确认 AI 会话。
-- 已新增章节编辑专用 preview 接口 `POST /novels/:id/chapters/:chapterId/editor/rewrite-preview`，请求/响应 contract 已固定到 shared types。
-- 已新增 `novel.chapter_editor.rewrite_candidates@v1` PromptAsset，并注册到 `server/src/prompting/registry.ts`。
-- 已打通首版选区 AI 改写闭环：`优化表达 / 扩写 / 精简 / 强化情绪 / 强化冲突 / 自定义指令`，返回 `2-3` 个候选版本和写作友好型 inline diff。
-- 已实现 `接受全部 / 拒绝全部 / 再生成 / 候选切换`，并在接受前先调用现有 novel snapshot 再更新章节正文。
+- Landed a shared `ChapterEditorShell` for `Phase 1 + Phase 2 MVP`, and closed it onto the independent prose-centered editor page `NovelChapterEdit`; `ChapterManagementTab` remains the workbench entry.
+- Switched the prose editing base to Plate, supporting prose editing, selection listening, save status, word count, and pending-confirmation AI sessions.
+- Added the chapter-editor-specific preview API `POST /novels/:id/chapters/:chapterId/editor/rewrite-preview`; request/response contract is frozen in shared types.
+- Added `novel.chapter_editor.rewrite_candidates@v1` PromptAsset and registered it in `server/src/prompting/registry.ts`.
+- Opened the first selection-rewrite loop: `Polish / Expand / Compress / Strengthen emotion / Strengthen conflict / Custom instruction`, returning `2-3` candidate versions and writer-friendly inline diffs.
+- Implemented `Accept all / Reject all / Regenerate / Switch candidate`, and before accept it first calls the existing novel snapshot then updates chapter prose.
 
-### 进行中
+### In progress
 
-- 问题列表目前已保留在 header / 轻侧区中作为入口与占位，但还没有进入“定位 -> 建议 -> diff -> 接受 -> 关闭”的完整修复闭环。
-- 版本入口已接入现有历史页跳转，但还没有做成章节编辑器内的独立版本抽屉。
-- 前端仓库当前没有独立测试 runner，本轮以 typecheck 和 production build 作为 client 侧验证基线。
+- The issue list currently remains in the header / light side area as an entry and placeholder, but has not yet entered the full repair loop of “locate -> suggest -> diff -> accept -> close.”
+- The version entry is wired to jump to the existing history page, but has not yet become an independent version drawer inside the chapter editor.
+- The frontend repo currently has no independent test runner; this round uses typecheck and production build as the client-side verification baseline.
 
-### 延后到后续阶段
+### Deferred to later phases
 
-- `Phase 3`：问题修复 preview、章节内版本抽屉、问题定位与关闭闭环。
-- `Phase 4`：光标续写、块级 diff、语义 diff、局部接受、更细粒度回滚。
-- style rewrite 现有独立能力暂未并入首版选区主链，继续作为后续并线项。
+- `Phase 3`: issue-fix preview, in-editor version drawer, issue locate-and-close loop.
+- `Phase 4`: cursor continue-writing, block-level diff, semantic diff, partial accept, finer-grained rollback.
+- Existing independent style-rewrite capability is not yet merged into the first-version selection main chain; it remains a later parallel item.
 
-### 本轮验证
+### This-round verification
 
 - `pnpm typecheck`
 - `pnpm --filter @ai-novel/client build`
 - `node --test tests/chapterEditorPreview.test.js`
 - `node --test tests/prompting-governance.test.js`
 
-## 1. 背景
+## 1. Background
 
-当前仓库里已经存在三套和章节编辑强相关的能力，但它们还没有汇成同一个产品闭环：
+The current repository already has three capabilities strongly related to chapter editing, but they have not yet converged into one product loop:
 
-- `NovelEdit -> ChapterManagementTab` 仍然是章节执行工作台，采用“章节队列 + 正文结果区 + AI 执行台”的三栏结构，适合批量执行、审校和修复入口。
-- 独立章节页 `NovelChapterEdit.tsx` 已经升级为正文中心的局部 AI 精修编辑器，承载真正的正文编辑与选区改写闭环。
-- `AiRevisionWorkspace.tsx`、`NovelDraftOptimizeService.ts`、`draftOptimize.prompts.ts` 已经提供了“选区预览优化 + 应用预览”的通用模式，但现在只服务大纲和结构化大纲，不服务章节正文。
+- `NovelEdit -> ChapterManagementTab` is still the chapter execution workbench, using a three-column structure of “chapter queue + prose result area + AI execution desk,” suitable for batch execution, review, and repair entry.
+- The independent chapter page `NovelChapterEdit.tsx` has already been upgraded into a prose-centered local AI polish editor, carrying the real prose-editing and selection-rewrite loop.
+- `AiRevisionWorkspace.tsx`, `NovelDraftOptimizeService.ts`, and `draftOptimize.prompts.ts` already provide a generic “selection preview optimize + apply preview” pattern, but currently only serve outline and structured outline, not chapter prose.
 
-结论不是“章节编辑器从零开始做”，而是：
+The conclusion is not “build a chapter editor from zero.” It is:
 
-> 现有基础设施已经够支撑 V2，但章节能力被分散在不同页面、不同 prompt、不同交互范式里，导致用户始终没有进入一个真正的“正文中心的局部 AI 精修编辑器”。
+> Existing infrastructure is already enough to support V2, but chapter capability is scattered across different pages, different prompts, and different interaction paradigms, so users never enter a true “prose-centered local AI polish editor.”
 
-## 2. 现状判断
+## 2. Current Assessment
 
-### 2.1 现有前端结构
+### 2.1 Existing frontend structure
 
-- `NovelEdit.tsx` 是主工作流入口，章节执行工作台仍挂在 `ChapterManagementTab.tsx`，而正文精修编辑器由 `NovelChapterEdit.tsx` 独立承载。
-- `ChapterManagementTab.tsx` 当前把章节页拆成三栏：
-  - 左侧 `ChapterExecutionQueueCard`
-  - 中间 `ChapterExecutionResultPanel`
-  - 右侧 `ChapterExecutionActionPanel`
-- 独立章节页 `NovelChapterEdit.tsx` 现在直接承载保存、style rewrite、AI 改写候选与 diff 确认，正文编辑已切到 Plate。
-- 当前几个相关文件已经接近不适合继续堆逻辑的状态：
-  - `NovelChapterEdit.tsx`：485 行
-  - `ChapterExecutionResultPanel.tsx`：419 行
-  - `ChapterRuntimePanels.tsx`：328 行
-  - `ChapterExecutionActionPanel.tsx`：321 行
-  - `useChapterExecutionActions.ts`：275 行
+- `NovelEdit.tsx` is the main workflow entry. The chapter execution workbench still hangs on `ChapterManagementTab.tsx`, while the prose-polish editor is independently owned by `NovelChapterEdit.tsx`.
+- `ChapterManagementTab.tsx` currently splits the chapter page into three columns:
+  - left `ChapterExecutionQueueCard`
+  - center `ChapterExecutionResultPanel`
+  - right `ChapterExecutionActionPanel`
+- The independent chapter page `NovelChapterEdit.tsx` now directly owns save, style rewrite, AI rewrite candidates, and diff confirmation. Prose editing has already switched to Plate.
+- Several related files are already close to a state where more logic should not be stacked:
+  - `NovelChapterEdit.tsx`: 485 lines
+  - `ChapterExecutionResultPanel.tsx`: 419 lines
+  - `ChapterRuntimePanels.tsx`: 328 lines
+  - `ChapterExecutionActionPanel.tsx`: 321 lines
+  - `useChapterExecutionActions.ts`: 275 lines
 
-这意味着 V2 不能继续把“选区工具条、diff、候选会话、问题导航、ghost text、版本抽屉”直接堆进现有组件里，必须抽出新的编辑器壳层和子模块。
+That means V2 cannot keep stacking “selection toolbar, diff, candidate session, issue navigation, ghost text, version drawer” directly into existing components. It must extract a new editor shell and submodules.
 
-### 2.2 现有后端基础
+### 2.2 Existing backend foundation
 
-当前后端已经具备以下能力，可直接复用为章节编辑器 V2 的底座：
+The backend already has the following capabilities, which can be reused as the Chapter Editor V2 base:
 
-- 章节生成与 runtime：
+- Chapter generation and runtime:
   - `POST /novels/:id/chapters/:chapterId/runtime/run`
   - `POST /novels/:id/chapters/:chapterId/generate`
-- 章节评审、审校、修复：
+- Chapter review, audit, and repair:
   - `POST /novels/:id/chapters/:chapterId/review`
   - `POST /novels/:id/chapters/:chapterId/audit/:scope`
   - `GET /novels/:id/chapters/:chapterId/audit-reports`
   - `POST /novels/:id/chapters/:chapterId/repair`
-- 章节上下文与后续规划：
+- Chapter context and later planning:
   - `GET /novels/:id/chapters/:chapterId/plan`
   - `POST /novels/:id/chapters/:chapterId/plan/generate`
   - `GET /novels/:id/chapters/:chapterId/state-snapshot`
   - `POST /novels/:id/replan`
-- 风格检查与风格改写：
+- Style check and style rewrite:
   - `POST /style-detection/check`
   - `POST /style-detection/rewrite`
-- 版本安全：
-  - 已有 novel 级 snapshot：`list/create/restoreNovelSnapshot`
-- Prompt 治理基础：
-  - 已有 `PromptAsset`、`registry.ts`
-  - 已有 `novel.draft_optimize.selection/full`
-  - 已有 `novel.chapter.writer`、`novel.review.chapter`、`novel.review.repair`
+- Version safety:
+  - existing novel-level snapshot: `list/create/restoreNovelSnapshot`
+- Prompt governance foundation:
+  - existing `PromptAsset`, `registry.ts`
+  - existing `novel.draft_optimize.selection/full`
+  - existing `novel.chapter.writer`, `novel.review.chapter`, `novel.review.repair`
 
-### 2.3 当前缺口
+### 2.3 Current gaps
 
-V2 需要补的不是“大而全章节系统”，而是下面这些正好缺失的环节：
+What V2 needs to add is not “a large all-in-one chapter system,” but these missing links:
 
-- 没有真正的正文中心布局，章节主视图仍偏“执行台”。
-- 没有选区级 AI 工具条。
-- 没有候选版本与 diff 确认态。
-- 没有章节正文专用的局部改写 prompt / route / session。
-- 问题修复还不是“定位 -> 建议 -> diff -> 接受 -> 关闭”的编辑器内闭环。
-- 没有章节级快照语义，只有 novel 级 snapshot。
-- 光标续写不存在，当前仍是整章生成/整章修复思路。
+- No true prose-centered layout; the chapter main view is still biased toward an “execution desk.”
+- No selection-level AI toolbar.
+- No candidate-version and diff-confirmation state.
+- No chapter-prose-specific local rewrite prompt / route / session.
+- Issue repair is not yet an in-editor loop of “locate -> suggest -> diff -> accept -> close.”
+- No chapter-level snapshot semantics; only novel-level snapshot.
+- Cursor continue-writing does not exist; the current approach is still whole-chapter generate / whole-chapter repair.
 
-## 3. 产品方向
+## 3. Product Direction
 
-### 3.1 章节编辑器负责什么
+### 3.1 What the chapter editor owns
 
-- 阅读、编辑当前章节正文。
-- 对选中内容进行局部 AI 改写。
-- 对光标位置进行局部续写预览。
-- 处理当前章节的审校问题、修复建议和采纳确认。
-- 提供足够可靠的快照与回退，降低用户使用 AI 的心理成本。
+- Read and edit current chapter prose.
+- Local AI rewrite of selected content.
+- Local continue-writing preview at the cursor.
+- Handle the current chapter’s audit issues, repair suggestions, and accept confirmation.
+- Provide reliable enough snapshot and rollback to lower the user’s psychological cost of using AI.
 
-### 3.2 章节编辑器不负责什么
+### 3.2 What the chapter editor does not own
 
-- 整章从零生成主入口。
-- 章节流程状态总控。
-- 复杂章节队列管理。
-- 宏观导演式流程推荐。
+- The main entry for generating a whole chapter from zero.
+- Overall chapter-flow status control.
+- Complex chapter-queue management.
+- Macro director-style flow recommendations.
 
-这些继续留在 `NovelEdit` 的工作流与章节执行层，不塞回编辑器主视图。
+Those stay in `NovelEdit` workflow and the chapter execution layer, and are not stuffed back into the editor main view.
 
-### 3.3 最终产品定位
+### 3.3 Final product positioning
 
-> 章节编辑器 V2 的目标不是“更复杂的章节工作台”，而是“正文中心的局部 AI 精修编辑器”。
+> The goal of Chapter Editor V2 is not “a more complex chapter workbench,” but “a prose-centered local AI polish editor.”
 
-## 4. 推荐落点
+## 4. Recommended Landing Point
 
-### 4.1 主入口选型
+### 4.1 Main-entry choice
 
-推荐把独立 `NovelChapterEdit` 作为 V2 的正文编辑主入口，而不是把章节编辑器塞回 `ChapterManagementTab` 的执行台三栏里。
+Recommend independent `NovelChapterEdit` as V2’s main prose-editing entry, instead of stuffing the chapter editor back into the three-column execution desk of `ChapterManagementTab`.
 
-原因：
+Reasons:
 
-- 用户当前主工作流已经在 `NovelEdit`。
-- 左侧章节队列、章节选择、章节上下文和 pipeline 状态已经挂在这里。
-- V2 最需要改的是中间正文区和右侧 AI 行为方式，不是另起一套路由。
+- The user’s current main workflow is already in `NovelEdit`.
+- Left chapter queue, chapter selection, chapter context, and pipeline status already hang here.
+- What V2 most needs to change is the center prose area and the right-side AI behavior, not a new route.
 
-### 4.2 独立章节页的角色
+### 4.2 Role of the independent chapter page
 
-`/novels/:id/chapters/:chapterId` 继续保留，但应当转成“沉浸式章节编辑入口”，与主工作流共享同一套编辑器组件，而不是继续维护自己的旧式三栏页面。
+`/novels/:id/chapters/:chapterId` remains, but should become an “immersive chapter-editing entry” that shares the same editor components with the main workflow, instead of continuing to maintain its own old-style three-column page.
 
-建议策略：
+Suggested strategy:
 
-- `NovelChapterEdit` 升级为 `ChapterEditorShell`
-- `ChapterManagementTab` 继续保留原章节执行工作台和“打开章节编辑器”入口
-- 编辑器本体只维护章节内闭环
-- 编辑器本身只维护章节内闭环
+- Upgrade `NovelChapterEdit` to `ChapterEditorShell`
+- `ChapterManagementTab` continues to keep the original chapter execution workbench and an “Open chapter editor” entry
+- The editor body only maintains the in-chapter loop
+- The editor itself only maintains the in-chapter loop
 
-## 5. 信息架构
+## 5. Information Architecture
 
-### 5.1 页面结构
+### 5.1 Page structure
 
-V2 推荐结构：
+Recommended V2 structure:
 
-- 顶部轻控制条
-- 左侧轻上下文面板
-- 中央正文编辑器主区
-- 右侧按需展开的 AI 结果抽屉
-- 选区/光标处浮动 AI 交互层
+- Top light control bar
+- Left light context panel
+- Center prose editor main area
+- Right AI-result drawer that expands on demand
+- Floating AI interaction layer at selection / cursor
 
-### 5.2 顶部轻控制条
+### 5.2 Top light control bar
 
-保留：
+Keep:
 
-- 章节标题
-- 字数
-- 保存状态
-- 当前写法资产
-- 问题数
-- 版本入口
-- 返回章节执行页
-- 保存 / 修订模式 / 更多操作
+- chapter title
+- word count
+- save status
+- current writing-style asset
+- issue count
+- version entry
+- back to chapter execution page
+- save / revise mode / more actions
 
-不保留：
+Do not keep:
 
-- 大段流程说明
-- 大型推荐流程
-- 批量执行入口堆叠
+- long process explanations
+- large recommended flows
+- stacked batch-execution entries
 
-### 5.3 左侧轻上下文面板
+### 5.3 Left light context panel
 
-只保留会直接帮助当前写作的内容：
+Keep only content that directly helps current writing:
 
-- 本章目标
-- 本章摘要
-- 前后文摘要
-- 当前角色状态
-- 必须命中的要点
-- 世界观限制摘要
+- this chapter’s goal
+- this chapter’s summary
+- adjacent-chapter summaries
+- current character state
+- must-hit points
+- worldbuilding-constraint summary
 
-默认窄栏或收起；不再长期占正文宽度。
+Default to a narrow column or collapsed; do not occupy prose width long-term.
 
-### 5.4 中央正文编辑区
+### 5.4 Center prose editing area
 
-这里是唯一主角，承载：
+This is the only protagonist. It carries:
 
-- 正文阅读与编辑
-- 选区监听
-- 光标监听
-- 问题高亮
-- diff 预览
-- 接受 / 拒绝
+- prose reading and editing
+- selection listening
+- cursor listening
+- issue highlight
+- diff preview
+- accept / reject
 - ghost text
 
-### 5.5 右侧结果抽屉
+### 5.5 Right result drawer
 
-默认收起，仅在以下场景出现：
+Collapsed by default. Appears only when:
 
-- AI 正在生成预览
-- 展示候选版本
-- 展示 diff 详情
-- 展示问题修复建议
-- 展示修改说明
+- AI is generating a preview
+- showing candidate versions
+- showing diff details
+- showing issue-fix suggestions
+- showing change notes
 
-### 5.6 浮动 AI 层
+### 5.6 Floating AI layer
 
-这是 V2 的核心新增交互。
+This is V2’s core new interaction.
 
-选中内容后弹出：
+After selecting content, show:
 
-- 优化表达
-- 扩写细节
-- 精简压缩
-- 强化情绪
-- 强化冲突
-- 改写风格
-- 降低 AI 味
-- 自定义指令
+- Polish expression
+- Expand detail
+- Compress
+- Strengthen emotion
+- Strengthen conflict
+- Rewrite style
+- Reduce AI flavor
+- Custom instruction
 
-光标位于段尾或空白段时弹出：
+When the cursor is at paragraph end or in an empty paragraph, show:
 
-- 继续写下一段
-- 生成过渡段
-- 增加对话
-- 增加环境描写
-- 增加心理描写
-- 推进冲突
+- Continue writing the next paragraph
+- Generate a transition paragraph
+- Add dialogue
+- Add environment description
+- Add interiority
+- Advance conflict
 
-## 6. 交互闭环
+## 6. Interaction Loop
 
 ```mermaid
 flowchart LR
-  A["选中文本 / 定位问题 / 放置光标"] --> B["发起 AI 操作"]
-  B --> C["生成 2-3 个候选版本"]
-  C --> D["默认展示 inline diff"]
-  D --> E["接受 / 拒绝 / 再生成"]
-  E --> F["接受前自动快照"]
-  F --> G["应用到正文并刷新问题状态"]
+  A["Select text / locate issue / place cursor"] --> B["Start AI operation"]
+  B --> C["Generate 2-3 candidate versions"]
+  C --> D["Default to inline diff"]
+  D --> E["Accept / Reject / Regenerate"]
+  E --> F["Auto snapshot before accept"]
+  F --> G["Apply to prose and refresh issue status"]
 ```
 
-### 6.1 首版必须闭环
+### 6.1 First-version must-have loop
 
-第一期必须打通以下动作：
+Phase one must open these actions:
 
-- 选中内容
-- 发起 AI 改写
-- 返回 2 到 3 个候选
-- 展示 inline diff
-- 接受全部
-- 拒绝全部
-- 再生成
-- AI 接受前自动快照
+- select content
+- start AI rewrite
+- return 2 to 3 candidates
+- show inline diff
+- accept all
+- reject all
+- regenerate
+- auto snapshot before AI accept
 
-### 6.2 第二期闭环
+### 6.2 Second-phase loop
 
-- 问题点击跳转
-- 问题修复 preview
-- 光标续写 ghost text
-- 块级 diff 视图
-- 修改说明
+- click issue to jump
+- issue-fix preview
+- cursor continue-writing ghost text
+- block-level diff view
+- change notes
 
-### 6.3 第三期闭环
+### 6.3 Third-phase loop
 
-- 局部接受
-- 语义 diff
-- 多风格对比
-- 更细粒度回滚
+- partial accept
+- semantic diff
+- multi-style comparison
+- finer-grained rollback
 
-## 7. 模块拆分
+## 7. Module Split
 
-建议新增或抽出的模块：
+Suggested new or extracted modules:
 
 - `ChapterEditorShell`
-  - 负责页面壳、布局编排、模式切换、抽屉开合
+  - page shell, layout orchestration, mode switching, drawer open/close
 - `ChapterEditorHeader`
-  - 标题、字数、保存状态、问题数、版本入口
+  - title, word count, save status, issue count, version entry
 - `ChapterContextSidebar`
-  - 本章目标、上下文、角色状态、约束
+  - this-chapter goal, context, character state, constraints
 - `ChapterTextEditor`
-  - Plate-based 正文编辑器、选区与光标监听、问题高亮、ghost text
+  - Plate-based prose editor, selection and cursor listening, issue highlight, ghost text
 - `SelectionAIFloatingToolbar`
-  - 选区意图操作
+  - selection intent actions
 - `CursorAIFloatingToolbar`
-  - 光标续写操作
+  - cursor continue-writing actions
 - `ChapterAIDiffDrawer`
-  - 候选版本、diff、接受/拒绝/再生成、说明
+  - candidates, diff, accept/reject/regenerate, notes
 - `ChapterIssueNavigator`
-  - 问题列表、定位、状态
+  - issue list, locate, status
 - `ChapterVersionDrawer`
-  - 快照列表、回退入口
+  - snapshot list, rollback entry
 
-建议新增 hooks：
+Suggested new hooks:
 
 - `useChapterEditorState`
 - `useChapterEditorSession`
@@ -307,15 +307,15 @@ flowchart LR
 - `useChapterIssueNavigation`
 - `useChapterEditorSnapshots`
 
-建议新增 shared model：
+Suggested new shared model:
 
 - `chapterEditor.types.ts`
 - `chapterEditorDiff.ts`
 - `chapterEditorSession.ts`
 
-## 8. 状态设计
+## 8. State Design
 
-建议把“正文状态”和“AI 会话状态”分开。
+Keep “prose state” and “AI session state” separate.
 
 ```ts
 type ChapterEditorMode = "edit" | "revise";
@@ -381,49 +381,49 @@ type ChapterEditorSession = {
 };
 ```
 
-## 9. AI 与后端边界
+## 9. AI and Backend Boundaries
 
-### 9.1 章节编辑器内 AI 只处理三类任务
+### 9.1 In-editor AI only handles three task types
 
-- 局部改写：输入选区内容与上下文
-- 局部续写：输入光标附近上下文
-- 问题修复：输入问题关联段落与问题描述
+- Local rewrite: input selected content and context
+- Local continue-writing: input near-cursor context
+- Issue fix: input the issue-related paragraph and issue description
 
-### 9.2 不在编辑器里做的事情
+### 9.2 Things not done in the editor
 
-- 整章从零生成
-- 大型执行计划生成
-- 全章流程推进推荐
-- 队列批处理
+- Generate a whole chapter from zero
+- Generate large execution plans
+- Recommend whole-chapter flow advancement
+- Queue batch processing
 
-### 9.3 Prompt 治理要求
+### 9.3 Prompt governance requirements
 
-所有新能力都必须走 `server/src/prompting/`：
+All new capability must go through `server/src/prompting/`:
 
-- 不在 service 里内联 `systemPrompt/userPrompt`
-- 不以关键词匹配代替 AI 意图理解
-- Prompt 要进入 registry，成为新的 `PromptAsset`
+- Do not inline `systemPrompt/userPrompt` in services
+- Do not replace AI intent understanding with keyword matching
+- Prompts must enter the registry as new `PromptAsset`s
 
-建议新增 prompt family：
+Suggested new prompt family:
 
 - `server/src/prompting/prompts/novel/chapterEditor/`
 
-建议新增 prompt asset：
+Suggested new prompt assets:
 
 - `novel.chapter_editor.rewrite_candidates@v1`
 - `novel.chapter_editor.continue_preview@v1`
 - `novel.chapter_editor.issue_fix_preview@v1`
 - `novel.chapter_editor.change_explain@v1`
 
-### 9.4 建议新增接口
+### 9.4 Suggested new APIs
 
-建议新增章节编辑器专用 preview 接口，而不是继续复用整章 repair：
+Add chapter-editor-specific preview APIs instead of continuing to reuse whole-chapter repair:
 
 - `POST /novels/:id/chapters/:chapterId/editor/rewrite-preview`
 - `POST /novels/:id/chapters/:chapterId/editor/continue-preview`
 - `POST /novels/:id/chapters/:chapterId/editor/issues/:issueId/fix-preview`
 
-返回统一结构：
+Return a unified shape:
 
 - `sessionId`
 - `operation`
@@ -431,222 +431,222 @@ type ChapterEditorSession = {
 - `candidates`
 - `activeCandidateId`
 
-说明：
+Notes:
 
-- 首版 preview 结果可以完全不落库，只有在“接受”时才更新 chapter content。
-- 接受动作首版不一定要做独立 session 持久化表，客户端可直接基于当前 active candidate 进行 patch 应用，再调用 `updateNovelChapter`。
-- 二期再考虑引入持久化的 `ChapterEditorSession` / `ChapterEditorSnapshot`。
+- First-version preview results can stay fully out of the database. Chapter content is updated only on “accept.”
+- First-version accept does not necessarily need an independent session persistence table. The client can patch from the current active candidate, then call `updateNovelChapter`.
+- Phase two can consider persistent `ChapterEditorSession` / `ChapterEditorSnapshot`.
 
-## 10. Diff 方案
+## 10. Diff Plan
 
-### 10.1 首版默认：写作友好型 inline diff
+### 10.1 First-version default: writer-friendly inline diff
 
-原因：
+Reasons:
 
-- 当前章节最常见的是局部润色、压缩、扩写、增强冲突、增强情绪。
-- 这类改动更适合柔和的行内修订体验，而不是代码式大红大绿块。
+- The most common chapter edits are local polish, compress, expand, strengthen conflict, strengthen emotion.
+- Those changes fit a gentle inline revision experience better than code-style red/green blocks.
 
-实现建议：
+Implementation suggestion:
 
-- 新增：浅绿色底
-- 删除：浅红底 + 删除线
-- 替换：删除 + 新增组合
+- Insert: light green background
+- Delete: light red background + strikethrough
+- Replace: delete + insert combination
 
-### 10.2 二期补充：块级 diff
+### 10.2 Phase-two addition: block-level diff
 
-适用于：
+Fits:
 
-- 整段重写
-- 风格改写
-- 人称转换
-- 大幅扩写
+- whole-paragraph rewrite
+- style rewrite
+- person conversion
+- large expansion
 
-在抽屉顶部提供切换：
+Provide a switch at the top of the drawer:
 
-- 沉浸视图
-- 对比视图
+- immersive view
+- comparison view
 
-### 10.3 三期增强：语义 diff
+### 10.3 Phase-three enhancement: semantic diff
 
-显示的不只是“改了哪里”，还包括：
+Show not only “what changed,” but also:
 
-- 增强情绪表达
-- 补充动作细节
-- 提升画面感
-- 压缩重复叙述
-- 弱化模板化表达
+- strengthened emotional expression
+- added action detail
+- improved visual sense
+- compressed repeated narration
+- weakened templated expression
 
-## 11. 版本与快照策略
+## 11. Version and Snapshot Strategy
 
-### 11.1 现实约束
+### 11.1 Practical constraint
 
-当前仓库已经有 novel 级 snapshot，没有 chapter 级 snapshot。
+The repository already has novel-level snapshot and no chapter-level snapshot.
 
-这意味着 V2 首版不应该等待全新的章节版本系统完工后再落地。
+That means V2 first version should not wait for a brand-new chapter version system to finish before landing.
 
-### 11.2 建议策略
+### 11.2 Suggested strategy
 
-Phase 1：
+Phase 1:
 
-- AI 接受前先调用现有 novel snapshot
-- label 带上章节信息，例如 `chapter-editor:{chapterOrder}:{operation}:{timestamp}`
-- 至少保证用户在接受 AI 改写前始终有安全网
+- Before AI accept, first call the existing novel snapshot
+- Label includes chapter information, for example `chapter-editor:{chapterOrder}:{operation}:{timestamp}`
+- At least guarantee the user always has a safety net before accepting an AI rewrite
 
-Phase 2：
+Phase 2:
 
-- 增补章节编辑器快照元数据
-- 在 UI 中按章节过滤、展示“手动保存 / AI 接受前 / 问题修复前”
+- Add chapter-editor snapshot metadata
+- In the UI, filter by chapter and show “manual save / before AI accept / before issue fix”
 
-Phase 3：
+Phase 3:
 
-- 如有必要，再引入 chapter-level snapshot 表，避免回退粒度过大
+- If necessary, then introduce a chapter-level snapshot table so rollback granularity is not too large
 
-## 12. 问题修复模式
+## 12. Issue-Fix Mode
 
-推荐把问题列表当作“导航”，不是“右侧报告中心”。
+Treat the issue list as “navigation,” not a “right-side report center.”
 
-问题处理链路：
+Issue handling chain:
 
-- 点击问题
-- 正文跳转到对应段落
-- 高亮问题区域
-- 调用 issue fix preview
-- 展示 diff
-- 用户接受或拒绝
-- 接受后调用 `resolveAuditIssue`
+- click issue
+- prose jumps to the corresponding paragraph
+- highlight the issue area
+- call issue fix preview
+- show diff
+- user accepts or rejects
+- after accept, call `resolveAuditIssue`
 
-首版定位策略可以先采用：
+First-version locate strategy can start with:
 
-- 以 `AuditReport`/`ReviewIssue` 里的 `evidence` 或 `excerpt` 做文本匹配
-- 匹配失败时退化为跳到最相关段落并显示“近似定位”
+- text-match `evidence` or `excerpt` from `AuditReport`/`ReviewIssue`
+- on match failure, degrade to jumping to the most related paragraph and showing “approximate locate”
 
-不要为了首版强行上复杂锚点系统。
+Do not force a complex anchor system for the first version.
 
-## 13. 复用策略
+## 13. Reuse Strategy
 
-V2 不建议从零重写一切，推荐复用以下基础：
+V2 should not rewrite everything from zero. Reuse:
 
-- 复用 `ChapterManagementTab` 作为章节执行工作台入口
-- 复用 `NovelChapterEdit` 路由作为沉浸式正文编辑入口
-- 复用 `AiRevisionWorkspace` 的选区优化交互范式，但升级为章节正文编辑器专用组件
-- 复用 `NovelDraftOptimizeService` 的 preview 思路，但扩展为 chapter editor 专用 service
-- 复用已有 `style detection/rewrite` 作为风格检查和“降低 AI 味”的辅助手段，不把它当作章节局部改写主路径
-- 复用已有 `chapter plan`、`state snapshot`、`audit reports`、`replan` 作为上下文和问题来源
+- Reuse `ChapterManagementTab` as the chapter execution workbench entry
+- Reuse the `NovelChapterEdit` route as the immersive prose-editing entry
+- Reuse `AiRevisionWorkspace` selection-optimize interaction, but upgrade it into chapter-prose-editor-specific components
+- Reuse `NovelDraftOptimizeService` preview thinking, but extend it into a chapter-editor-specific service
+- Reuse existing `style detection/rewrite` as an aid for style check and “reduce AI flavor,” not as the main path for chapter local rewrite
+- Reuse existing `chapter plan`, `state snapshot`, `audit reports`, `replan` as context and issue sources
 
-## 14. 分阶段计划
+## 14. Phased Plan
 
-### Phase 1：编辑器壳层收口
+### Phase 1: Editor-shell convergence
 
-目标：
+Goals:
 
-- 统一章节编辑入口
-- 正文主区上收
-- 上下文与动作区降级为轻侧区
+- Unify the chapter-editing entry
+- Raise the prose main area
+- Demote context and action areas to light side areas
 
-输出：
+Outputs:
 
 - `ChapterEditorShell`
-- 共享的沉浸式章节编辑入口
-- 从 `textarea` 过渡到可监听选区/光标的编辑器
-- 中央正文区成为默认主视图
+- Shared immersive chapter-editing entry
+- Transition from `textarea` to an editor that can listen to selection/cursor
+- Center prose area becomes the default main view
 
-验收：
+Acceptance:
 
-- 用户进入章节页后第一视觉是正文，不是操作台
-- 主工作流和独立路由共享同一套编辑器壳层
+- After entering the chapter page, the first visual is prose, not an operations desk
+- Main workflow and independent route share the same editor shell
 
-### Phase 2：局部 AI 改写闭环
+### Phase 2: Local AI rewrite loop
 
-目标：
+Goals:
 
-- 选区工具条
-- 候选版本
+- selection toolbar
+- candidate versions
 - inline diff
-- 接受 / 拒绝 / 再生成
+- accept / reject / regenerate
 
-输出：
+Outputs:
 
-- 选区操作 toolbar
+- selection-action toolbar
 - rewrite preview API
 - chapter editor prompt assets
 - diff drawer
-- 接受前自动 snapshot
+- auto snapshot before accept
 
-验收：
+Acceptance:
 
-- 用户能在 3 步内完成“选中 -> 改写 -> 确认采纳”
-- AI 改写不会直接覆盖正文
+- Users can complete “select -> rewrite -> confirm accept” within 3 steps
+- AI rewrite does not overwrite prose directly
 
-### Phase 3：问题修复与版本安全
+### Phase 3: Issue fix and version safety
 
-目标：
+Goals:
 
-- 问题定位
+- issue locate
 - issue fix preview
-- 版本安全
+- version safety
 
-输出：
+Outputs:
 
 - `ChapterIssueNavigator`
-- 修复 preview 闭环
-- 章节级版本展示入口
+- fix-preview loop
+- chapter-level version display entry
 
-验收：
+Acceptance:
 
-- 问题可一键跳转到正文
-- 接受修复后问题状态能关闭
+- Issues can one-click jump to prose
+- After accepting a fix, issue status can close
 
-### Phase 4：光标续写与差异化能力
+### Phase 4: Cursor continue-writing and differentiated capability
 
-目标：
+Goals:
 
-- 局部续写
-- 块级 diff
-- 修改说明
-- 局部接受
+- local continue-writing
+- block-level diff
+- change notes
+- partial accept
 
-输出：
+Outputs:
 
 - cursor preview
 - ghost text
 - block diff
 - semantic tags
 
-验收：
+Acceptance:
 
-- 用户能把章节编辑器当成长期写作和修文主场，而不是临时修补页
+- Users can treat the chapter editor as the long-term writing and revision home, not a temporary patch page
 
-## 15. 风险与约束
+## 15. Risks and Constraints
 
-### 15.1 最大风险
+### 15.1 Largest risks
 
-- 继续把新逻辑堆进现有大文件，导致编辑器与执行台相互污染。
-- 直接复用整章 repair 作为局部改写实现，导致行为太重、替换范围过大。
-- 没有快照保护就允许 AI 直接改正文，用户会迅速失去信任。
+- Continuing to stack new logic into existing large files, contaminating editor and execution desk with each other.
+- Directly reusing whole-chapter repair as local rewrite, making behavior too heavy and replacement range too large.
+- Allowing AI to change prose directly without snapshot protection, so users quickly lose trust.
 
-### 15.2 明确约束
+### 15.2 Explicit constraints
 
-- 不在章节编辑器里加入宏观导演式流程 UI。
-- 不新增关键词 fallback 路由。
-- 不在 service 里直接写未注册 prompt。
-- 单文件超过 700 行前必须拆模块；500 到 700 行区间也应主动避免继续扩张。
+- Do not add macro director-style flow UI inside the chapter editor.
+- Do not add keyword-fallback routing.
+- Do not write unregistered prompts directly in services.
+- Split modules before a single file exceeds 700 lines; the 500-to-700 range should also actively avoid further expansion.
 
-## 16. 验收清单
+## 16. Acceptance Checklist
 
-- 进入章节编辑器后，正文主区占据绝对视觉中心。
-- 选中正文能弹出 AI 工具条。
-- 至少 5 个局部改写意图可用。
-- 每次改写返回 2 到 3 个候选。
-- 默认显示 inline diff。
-- 用户可以接受、拒绝、再生成。
-- AI 接受前自动创建快照。
-- 审校问题可以在正文中定位并进入修复 preview。
-- 独立章节页和主工作流章节页共用一套编辑器组件，不再维持两套逻辑。
+- After entering the chapter editor, the prose main area occupies the absolute visual center.
+- Selecting prose can pop an AI toolbar.
+- At least 5 local rewrite intents are available.
+- Each rewrite returns 2 to 3 candidates.
+- Inline diff is shown by default.
+- Users can accept, reject, and regenerate.
+- A snapshot is created automatically before AI accept.
+- Audit issues can be located in prose and enter fix preview.
+- Independent chapter page and main-workflow chapter page share one set of editor components and no longer maintain two logics.
 
-## 17. 最终结论
+## 17. Final Conclusion
 
-对当前仓库最合适的改造方向不是另起一个“更大的章节系统”，而是把现有章节执行、正文编辑、局部 AI 预览、审校修复和快照保护收拢为同一条章节内闭环。
+The most suitable redesign for the current repository is not to start a “larger chapter system,” but to gather existing chapter execution, prose editing, local AI preview, audit repair, and snapshot protection into one in-chapter loop.
 
-最终目标可以收敛为一句话：
+The end goal can converge to one sentence:
 
-> 章节编辑器 V2 = 正文中心的局部 AI 精修编辑器。
+> Chapter Editor V2 = a prose-centered local AI polish editor.

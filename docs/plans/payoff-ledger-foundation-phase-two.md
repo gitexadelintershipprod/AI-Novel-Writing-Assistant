@@ -1,101 +1,101 @@
-# Payoff Ledger 基础加固：第二阶段实施方案
+# Payoff Ledger Foundation Hardening: Phase Two Implementation Plan
 
-## 背景
+## Background
 
-第一阶段已经把 Book Contract 的长期承诺下沉到章节写作上下文，并让章节细化、正文、验收和修复共用 `ReaderExperienceContract`。但 Book Contract 中第 3、10、30 章阶段回报尚未进入 Payoff Ledger 的同步来源，导致“写章看得到承诺，跨章账本却不一定知道承诺”。
+Phase one already sank Book Contract long-term promises into chapter-writing context, and made chapter detailing, body text, acceptance, and repair share `ReaderExperienceContract`. But Book Contract chapter-3, chapter-10, and chapter-30 stage payoffs had not yet entered Payoff Ledger’s sync sources, so “writing a chapter can see the promise, while the cross-chapter ledger does not necessarily know the promise”.
 
-这不是缺少新功能，而是现有合同没有闭环：Book Contract 更新只会刷新章节上下文缓存，已有 Payoff Ledger 不会因此重新对账。
+This is not a missing new feature; it is that the existing contract has no closed loop: updating Book Contract only refreshes the chapter context cache; an existing Payoff Ledger will not re-reconcile because of that.
 
-## 阶段原则
+## Phase principles
 
-本阶段只夯实已有基础，不扩展产品表面能力：
+This phase only hardens the existing foundation; it does not expand surface product capability:
 
-- 不增加页面、按钮、设置项或新的用户操作路径。
-- 不增加独立读者评分、质量面板或新的全局重规划分支。
-- 不新增数据库表或字段，不执行数据迁移。
-- 不用关键词、正则或硬编码分支替代 AI 的语义归并和状态判断。
-- 只补齐来源合同、持久副作用、幂等身份、历史兼容和回归验证。
+- Do not add pages, buttons, settings, or new user action paths.
+- Do not add independent reader scores, a quality panel, or a new global replan branch.
+- Do not add database tables or fields; do not run data migrations.
+- Do not replace AI semantic merge and state judgment with keywords, regex, or hard-coded branches.
+- Only complete source contracts, persistent side effects, idempotent identity, historical compatibility, and regression verification.
 
-## 原因分类
+## Cause classification
 
-主要原因：`incomplete closure`。
+Primary cause: `incomplete closure`.
 
-证据：
+Evidence:
 
-- `PayoffLedgerSyncService` 读取 Story Macro、卷 open payoffs、章节 payoff refs、状态快照、冲突和审校问题，但没有读取 Book Contract。
-- `BookContractService` 更新后只发出缓存失效事件，没有触发 Payoff Ledger 重新同步。
-- `getPayoffLedger()` 只在账本完全为空时自动同步；已有账本不会因为 Book Contract 改动自动刷新。
-- 当前正常保存 Book Contract 的产品路径可以持续复现该断点。
+- `PayoffLedgerSyncService` reads Story Macro, volume open payoffs, chapter payoff refs, state snapshots, conflicts, and review issues, but does not read Book Contract.
+- After `BookContractService` updates, it only emits a cache-invalidation event; it does not trigger Payoff Ledger re-sync.
+- `getPayoffLedger()` auto-syncs only when the ledger is completely empty; an existing ledger will not auto-refresh because of a Book Contract change.
+- The current normal product path of saving Book Contract can continuously reproduce this breakpoint.
 
-## 第二阶段目标
+## Phase two goals
 
-1. 将 Book Contract 的第 3、10、30 章回报作为稳定、可追溯的书级承诺来源送入现有 Payoff Ledger AI 同步。
-2. 使用固定来源引用和明确目标窗口，让重复同步能够语义归并而不是产生重复账项。
-3. Book Contract 的阶段回报发生变化时，通过现有持久副作用队列触发账本同步；普通字段变化不产生无意义同步。
-4. AI 同步结果必须覆盖所有非空 Book Contract 阶段承诺；缺失来源时进入现有语义重试，不用静默兜底伪造账项。
-5. 保留旧账本和旧来源枚举兼容，不引入数据库迁移。
+1. Send Book Contract chapter-3, chapter-10, and chapter-30 payoffs into the existing Payoff Ledger AI sync as a stable, traceable book-level promise source.
+2. Use fixed source references and explicit target windows so repeated sync can semantically merge instead of producing duplicate ledger items.
+3. When Book Contract stage payoffs change, trigger ledger sync through the existing persistent side-effect queue; ordinary field changes must not produce pointless sync.
+4. AI sync results must cover every non-empty Book Contract stage promise; missing sources enter the existing semantic retry; do not silently fabricate ledger items as a fallback.
+5. Keep compatibility with old ledgers and old source enums; do not introduce a database migration.
 
-## 稳定来源合同
+## Stable source contract
 
-Book Contract 阶段回报映射为三个结构化来源：
+Book Contract stage payoffs map to three structured sources:
 
-| 来源引用 | 目标窗口 | 含义 |
+| Source reference | Target window | Meaning |
 | --- | --- | --- |
-| `book_contract.chapter3Payoff` | 第 1–3 章 | 开篇承诺的第一次明确回报 |
-| `book_contract.chapter10Payoff` | 第 4–10 章 | 第一段稳定追读回报 |
-| `book_contract.chapter30Payoff` | 第 11–30 章 | 长线开局阶段的核心兑现 |
+| `book_contract.chapter3Payoff` | Chapters 1–3 | The first explicit payoff of the opening promise |
+| `book_contract.chapter10Payoff` | Chapters 4–10 | The first stretch of stable keep-reading payoff |
+| `book_contract.chapter30Payoff` | Chapters 11–30 | The core delivery of the long-opening stage |
 
-这些窗口来自 Book Contract 已有字段的确定语义，属于结构化输入的确定性投影。账项是否与其他承诺合并、当前处于何种状态、是否已有兑现证据，仍由 AI 根据完整上下文判断。
+These windows come from the determinate semantics of Book Contract’s existing fields; they are a deterministic projection of structured input. Whether an item merges with other promises, what state it is in, and whether there is already delivery evidence is still judged by AI from the full context.
 
-来源统一使用现有 `major_payoff` 类型，并通过固定 `refId` 区分 Book Contract 来源，避免扩展数据库和公共枚举。
+Sources uniformly use the existing `major_payoff` type, and distinguish Book Contract sources via a fixed `refId`, to avoid extending the database and public enums.
 
-## 同步与幂等规则
+## Sync and idempotency rules
 
-- Book Contract 保存前比较三个阶段回报的规范化值，只在它们实际变化时安排 Payoff Ledger 同步。
-- 同步通过现有 `NovelSideEffectJob` 持久队列执行，不在 HTTP 保存请求内等待 LLM。
-- 副作用任务幂等键由小说、合同更新时间组成；同一次保存事件只产生一个任务。
-- Worker 重试沿用现有租约、指数退避和 dead 状态规则。
-- AI 输出通过固定 `refId` 证明已覆盖每个非空阶段承诺；遗漏时触发现有 semantic retry。
-- 已存在账本在同步失败时继续保留，并沿用 stale 风险标记；不得删除用户已有数据。
+- Before saving Book Contract, compare the normalized values of the three stage payoffs; schedule Payoff Ledger sync only when they actually change.
+- Sync runs through the existing `NovelSideEffectJob` persistent queue; do not wait on the LLM inside the HTTP save request.
+- The side-effect job idempotency key is composed of novel and contract update time; one save event produces only one job.
+- Worker retries reuse existing lease, exponential backoff, and dead-state rules.
+- AI output proves coverage of every non-empty stage promise via the fixed `refId`; omission triggers the existing semantic retry.
+- On sync failure, an already-existing ledger is kept, and the existing stale risk mark is reused; must not delete user data that already exists.
 
-## 数据流
+## Data flow
 
 ```text
-Book Contract 保存
-  -> 比较 3/10/30 章回报是否变化
+Book Contract save
+  -> compare whether chapter 3/10/30 payoffs changed
   -> book-contract:updated
-  -> 持久副作用任务 payoff.bookContractSync
-  -> PayoffLedgerSyncService 读取最新 Book Contract
-  -> 已注册 AI Prompt 语义归并全部来源
-  -> postValidate 检查固定来源覆盖与窗口
-  -> 现有 PayoffLedgerItem 幂等 upsert
+  -> persistent side-effect job payoff.bookContractSync
+  -> PayoffLedgerSyncService reads the latest Book Contract
+  -> registered AI Prompt semantically merges all sources
+  -> postValidate checks fixed-source coverage and windows
+  -> existing PayoffLedgerItem idempotent upsert
 ```
 
-## 非目标
+## Non-goals
 
-- 连续多章只铺垫不回报的独立检测器。
-- 新的读者体验总分或排行榜。
-- 新的质量债 UI、管理页面或人工编辑器。
-- 自动改变 Book Contract 内容。
-- 普通逾期承诺自动升级为全局重规划。
+- An independent detector for many consecutive chapters of setup with no payoff.
+- A new reader-experience total score or ranking.
+- New quality-debt UI, admin pages, or a human editor.
+- Automatically changing Book Contract content.
+- Ordinary overdue promises automatically escalating to global replan.
 
-这些能力只有在基础来源、状态和同步稳定后，才适合进入后续阶段。
+These capabilities belong in later phases only after foundation sources, state, and sync are stable.
 
-## 验收标准
+## Acceptance criteria
 
-- Payoff Ledger 同步 Prompt 能看到所有非空的 3/10/30 章回报及固定来源引用、目标窗口。
-- AI 输出遗漏任一 Book Contract 来源引用时会失败并进入语义重试。
-- Book Contract 阶段回报变化会入队一次持久同步任务；其他字段单独变化不会入队。
-- Side-effect worker 可以执行该任务并调用现有 Payoff Ledger 同步服务。
-- 重复事件由幂等键收敛，不创建重复任务。
-- 旧账本、旧 Prompt 输出和旧来源类型仍能读取。
-- shared build、server typecheck/build 与 Payoff Ledger、事件副作用聚焦测试通过。
+- The Payoff Ledger sync Prompt can see all non-empty chapter 3/10/30 payoffs plus fixed source references and target windows.
+- If AI output omits any Book Contract source reference, it fails and enters semantic retry.
+- A Book Contract stage-payoff change enqueues one persistent sync job; other fields changing alone do not enqueue.
+- The side-effect worker can execute that job and call the existing Payoff Ledger sync service.
+- Duplicate events converge on the idempotency key and do not create duplicate jobs.
+- Old ledgers, old Prompt output, and old source types can still be read.
+- shared build, server typecheck/build, and Payoff Ledger / event side-effect focused tests pass.
 
-## 实施状态
+## Implementation status
 
-- [x] 原因分类与阶段边界确认
-- [x] 2A Book Contract 来源合同
-- [x] 2B 持久同步触发
-- [x] 2C AI 输出覆盖校验
-- [x] 2D 回归测试与 Wiki
-- [x] 针对性验证
+- [x] Cause classification and phase-boundary confirmation
+- [x] 2A Book Contract source contract
+- [x] 2B Persistent sync trigger
+- [x] 2C AI output coverage validation
+- [x] 2D Regression tests and Wiki
+- [x] Targeted verification

@@ -1,61 +1,61 @@
-# 提示词工作台、上下文装配与统一步骤运行时方案
+# Prompt Workbench, Context Assembly, and Unified Step Runtime Plan
 
-更新日期：2026-04-28
+Updated: 2026-04-28
 
-关联文档：
+Related documents:
 
 - `docs/wiki/workflows/auto-director-runtime.md`
 - `docs/plans/auto-director-execution-plane-isolation-plan.md`
 - `docs/plans/director-mode-module-state-refactor-checklist.md`
 
-## 1. 文档定位
+## 1. Document Purpose
 
-本文记录提示词可视化编辑、提示词拼接时的数据获取、创作中枢兼容、自动导演与章节流水线统一运行时的长期方案。
+This document records the long-term plan for visual prompt editing, data retrieval during prompt assembly, Creative Hub compatibility, and a unified runtime for Auto-Director and the chapter pipeline.
 
-核心结论：
+Core conclusions:
 
-- 提示词工作台不应只是一个大文本框，而应是 Prompt、Context、Step Runtime 的统一观察与调试入口。
-- 提示词模板不直接查数据库。数据获取由统一 Context Broker / Resolver 负责。
-- 自动导演模式与章节流水线不应长期分成两套链路。它们应共同调用同一批 Step Module。
-- 创作中枢、自动导演、章节流水线和手动按钮都应进入统一 Workflow Plan，再由 Step Module Runtime 执行。
+- The prompt workbench should not be only a large text box. It should be a unified observation and debug entry for Prompt, Context, and Step Runtime.
+- Prompt templates do not query the database directly. Data retrieval is owned by a unified Context Broker / Resolver.
+- Auto-Director mode and the chapter pipeline should not remain two long-lived separate chains. They should call the same set of Step Modules.
+- Creative Hub, Auto-Director, the chapter pipeline, and manual buttons should all enter a unified Workflow Plan, then be executed by Step Module Runtime.
 
-本文中的 TypeScript 结构是概念契约，落地时应结合现有 `server/src/prompting/`、`server/src/creativeHub/`、`server/src/services/novel/director/`、`server/src/services/novel/runtime/` 和 workflow task 体系逐步迁移。
+TypeScript structures in this document are conceptual contracts. Landing them should migrate gradually against the existing `server/src/prompting/`, `server/src/creativeHub/`, `server/src/services/novel/director/`, `server/src/services/novel/runtime/`, and workflow-task systems.
 
-## 2. 当前基础与约束
+## 2. Current Foundation and Constraints
 
-当前项目已经具备较好的 prompt 基座：
+The project already has a solid prompt base:
 
-- `server/src/prompting/core/promptTypes.ts` 定义 `PromptAsset`、`PromptContextBlock`、`ContextPolicy`、`PromptInvocationMeta`。
-- `server/src/prompting/core/promptRunner.ts` 统一处理注册检查、上下文筛选、结构化输出、repair、semantic retry 和日志。
-- `server/src/prompting/registry.ts` 统一注册产品级 prompt。
-- `server/src/prompting/prompts/novel/chapterLayeredContext.ts` 已经把章节写作上下文拆成多个 `PromptContextBlock`。
-- `server/src/services/novel/runtime/GenerationContextAssembler.ts` 已经有章节运行时上下文装配雏形。
-- `server/src/creativeHub/CreativeHubLangGraph.ts` 已有创作中枢图执行入口、resource binding、checkpoint、interrupt 和 AgentRun 记录。
+- `server/src/prompting/core/promptTypes.ts` defines `PromptAsset`, `PromptContextBlock`, `ContextPolicy`, `PromptInvocationMeta`.
+- `server/src/prompting/core/promptRunner.ts` uniformly handles registration checks, context filtering, structured output, repair, semantic retry, and logging.
+- `server/src/prompting/registry.ts` uniformly registers product-level prompts.
+- `server/src/prompting/prompts/novel/chapterLayeredContext.ts` already splits chapter-writing context into multiple `PromptContextBlock`s.
+- `server/src/services/novel/runtime/GenerationContextAssembler.ts` already has a prototype of chapter runtime context assembly.
+- `server/src/creativeHub/CreativeHubLangGraph.ts` already has a Creative Hub graph execution entry, resource binding, checkpoint, interrupt, and AgentRun records.
 
-因此本方案不建议把 prompt 变成纯数据库字符串，也不建议让可视化编辑器直接替代 `PromptAsset`。更合理的方向是保留代码级安全基座，在其上增加可视化、可审计、可回滚的覆盖层。
+Therefore this plan does not recommend turning prompts into pure database strings, and does not recommend letting the visual editor replace `PromptAsset` outright. The more reasonable direction is to keep the code-level safety base and add a visual, auditable, rollback-capable overlay on top.
 
-必须遵守的项目约束：
+Project constraints that must be kept:
 
-- 产品级 prompt 仍以 `server/src/prompting/` 为治理入口。
-- 意图识别、任务分类、规划、路由、工具选择等决策路径必须保持 AI-first。
-- 不用关键词匹配、硬编码 regex 或非 AI fallback 掩盖 AI 理解失败。
-- 面向新手用户时，应优先降低认知负担，让系统给出清晰默认值和自动推荐。
-- 自动导演、章节生产、创作中枢的扩展能力应走统一契约，不继续堆叠大型 service 分支。
+- Product-level prompts still use `server/src/prompting/` as the governance entry.
+- Decision paths such as intent recognition, task classification, planning, routing, and tool selection must stay AI-first.
+- Do not hide AI understanding failures with keyword matching, hard-coded regex, or non-AI fallbacks.
+- For beginner users, prefer lower cognitive load and let the system provide clear defaults and automatic recommendations.
+- Extensions to Auto-Director, chapter production, and Creative Hub should go through unified contracts, not keep stacking large service branches.
 
-## 3. 总体架构
+## 3. Overall Architecture
 
-长期目标是把系统拆成三层：
+The long-term goal is to split the system into three layers:
 
 ```text
-Prompt = 模板表达与输出契约
-Context = 数据、记忆、检索、状态与预算选择
-Orchestration = 创作中枢 / 自动导演 / 章节流水线 / 手动入口
+Prompt = template expression and output contract
+Context = data, memory, retrieval, state, and budget selection
+Orchestration = Creative Hub / Auto-Director / chapter pipeline / manual entry
 ```
 
-统一调用链：
+Unified call chain:
 
 ```text
-创作中枢 / 自动导演 / 手动按钮 / 预设章节流水线
+Creative Hub / Auto-Director / manual button / preset chapter pipeline
   ↓
 Workflow Planner
   ↓
@@ -70,67 +70,67 @@ Prompt Runner
 Artifact / State / Event / Trace
 ```
 
-关键判断：
+Key judgments:
 
-- 自动导演不是章节流水线的上层包装。
-- 章节流水线不是一个独立大黑箱。
-- 两者都应调用同一批创作步骤模块。
-- 区别只在于谁生成 `WorkflowPlan`，以及使用什么执行策略。
+- Auto-Director is not an upper wrapper around the chapter pipeline.
+- The chapter pipeline is not an independent large black box.
+- Both should call the same set of creation step modules.
+- The only differences are who generates the `WorkflowPlan` and which execution policy is used.
 
-## 4. 提示词工作台设计
+## 4. Prompt Workbench Design
 
-### 4.1 三层 Prompt 模型
+### 4.1 Three-layer Prompt model
 
-第一层：Base PromptAsset。
+Layer 1: Base PromptAsset.
 
-- 由代码维护。
-- 负责稳定默认行为。
-- 包含 `id`、`version`、`taskType`、`mode`、`contextPolicy`、`outputSchema`、`render()`、`postValidate()`。
-- 是测试、发布、回滚和故障诊断的安全基线。
+- Maintained in code.
+- Owns stable default behavior.
+- Includes `id`, `version`, `taskType`, `mode`, `contextPolicy`, `outputSchema`, `render()`, `postValidate()`.
+- Is the safety baseline for tests, release, rollback, and fault diagnosis.
 
-第二层：Prompt Override。
+Layer 2: Prompt Override.
 
-- 由数据库保存。
-- 只覆盖被声明为可编辑的片段。
-- 不直接替换整个 PromptAsset。
-- 支持草稿、发布、回滚、灰度和实验。
+- Stored in the database.
+- Only overrides fragments declared as editable.
+- Does not replace the entire PromptAsset.
+- Supports draft, publish, rollback, canary, and experiment.
 
-第三层：Prompt Experiment。
+Layer 3: Prompt Experiment.
 
-- 用于 A/B、灰度、样例集测试和失败率比较。
-- 记录命中条件、目标入口、启用范围、验证结果和回滚状态。
+- Used for A/B, canary, fixture-set testing, and failure-rate comparison.
+- Records hit conditions, target entrypoints, enablement scope, validation results, and rollback state.
 
-### 4.2 可编辑与不可编辑边界
+### 4.2 Editable and non-editable boundaries
 
-普通编辑可修改：
+Ordinary editing may change:
 
-- 表达风格。
-- 审稿标准。
-- 章节生成语气与节奏偏好。
-- 标题、摘要、开篇、结尾钩子的写作要求。
-- 面向用户的追问方式和选项组织方式。
+- expression style;
+- review standards;
+- chapter-generation tone and pacing preferences;
+- writing requirements for titles, summaries, openings, and ending hooks;
+- how follow-up questions and options are organized for the user.
 
-高级配置可调整：
+Advanced configuration may adjust:
 
-- 可选上下文组优先级。
-- 预算配置。
-- 是否允许刷新某类上下文。
-- 某些非关键上下文组是否启用。
+- optional context-group priority;
+- budget configuration;
+- whether a given context class may be refreshed;
+- whether some non-critical context groups are enabled.
 
-默认不开放自由编辑：
+Not open for free editing by default:
 
-- `outputSchema`。
-- `postValidate`。
-- `semanticRetryPolicy`。
-- intent 枚举。
-- 工具目录。
-- 权限摘要。
-- 关键 required context groups。
-- 审批策略和破坏性操作边界。
+- `outputSchema`;
+- `postValidate`;
+- `semanticRetryPolicy`;
+- intent enums;
+- tool catalog;
+- permission summary;
+- critical required context groups;
+- approval policy and destructive-action boundaries.
 
-### 4.3 Override 数据形态
+### 4.3 Override data shape
 
-不要保存一整段自由文本覆盖全部 prompt。建议保存结构化 slots：
+Do not save one free-text blob that overlays the entire prompt. Save structured slots:
 
 ```ts
 type PromptOverrideDraft = {
@@ -142,7 +142,7 @@ type PromptOverrideDraft = {
 };
 ```
 
-示例：
+Example:
 
 ```json
 {
@@ -150,14 +150,14 @@ type PromptOverrideDraft = {
   "baseVersion": "v5",
   "scope": "global",
   "slots": {
-    "system.role": "你是中文长篇网络小说写作助手。",
-    "system.structureRules": "开头迅速进入当前情境，中段必须有推进，结尾必须留下下一章压力。",
-    "system.antiAiRules": "避免空泛心理独白、重复回顾和无信息量描写。"
+    "system.role": "You are a writing assistant for long-form Chinese web novels.",
+    "system.structureRules": "Enter the current situation quickly at the opening, the middle must advance, and the ending must leave pressure for the next chapter.",
+    "system.antiAiRules": "Avoid empty psychological monologue, repeated recap, and descriptions with no information."
   }
 }
 ```
 
-Base PromptAsset 负责声明哪些 slots 可编辑：
+The Base PromptAsset declares which slots are editable:
 
 ```ts
 type PromptEditableSlot = {
@@ -170,54 +170,54 @@ type PromptEditableSlot = {
 };
 ```
 
-### 4.4 工作台界面能力
+### 4.4 Workbench UI capabilities
 
-提示词工作台建议包含：
+The prompt workbench should include:
 
-- Prompt Catalog：按能力、工作流、任务类型查看注册 prompt。
-- Slot Editor：片段化编辑，不把用户扔进整段 system prompt。
-- Context Preview：查看本次会使用哪些上下文块。
-- Final Messages Preview：预览最终 system / human messages。
-- Diff View：比较 Base、Override、Compiled Prompt。
-- Test Case Runner：选择小说、章节、创作中枢线程或样例输入做 dry-run。
-- Validation Report：显示 schema、postValidate、token 预算、required block、风险检查。
-- Publish / Rollback：发布、撤回、回滚到历史 revision。
-- Trace Explorer：从一次任务失败回看 prompt 版本、上下文块、模型、输出和错误。
+- Prompt Catalog: browse registered prompts by capability, workflow, and task type.
+- Slot Editor: fragment editing, instead of dropping the user into a whole system prompt.
+- Context Preview: see which context blocks this call will use.
+- Final Messages Preview: preview final system / human messages.
+- Diff View: compare Base, Override, and Compiled Prompt.
+- Test Case Runner: dry-run against a novel, chapter, Creative Hub thread, or fixture input.
+- Validation Report: show schema, postValidate, token budget, required blocks, and risk checks.
+- Publish / Rollback: publish, withdraw, and roll back to a historical revision.
+- Trace Explorer: from a failed task, look back at prompt version, context blocks, model, output, and error.
 
-对普通创作者，前台不应暴露“提示词工程”概念，而应包装成创作策略：
+For ordinary writers, the product surface should not expose “prompt engineering.” Wrap it as writing strategy:
 
-- 节奏更快。
-- 爽点更密。
-- 文风更口语。
-- 章节结尾更强。
-- 减少 AI 味。
-- 更重角色拉扯。
+- faster pacing;
+- denser pleasure points;
+- more colloquial voice;
+- stronger chapter endings;
+- less AI flavor;
+- heavier character pull.
 
-系统再把这些策略转成受控 override。
+The system then turns those strategies into controlled overrides.
 
-## 5. 提示词拼接时的数据获取
+## 5. Data Retrieval During Prompt Assembly
 
-### 5.1 基本原则
+### 5.1 Basic principle
 
-提示词模板不直接查数据库。
+Prompt templates do not query the database directly.
 
-`PromptAsset.render()` 只消费：
+`PromptAsset.render()` only consumes:
 
 - `promptInput`
 - `PromptRenderContext`
-- 已筛选的 `PromptContextBlock[]`
+- already filtered `PromptContextBlock[]`
 
-数据获取由统一 Context Broker / Resolver 完成。这样可以保证：
+Data retrieval is completed by a unified Context Broker / Resolver. That guarantees:
 
-- 数据来源可追踪。
-- 预算筛选统一。
-- prompt 可视化预览一致。
-- 创作中枢、自动导演、章节流水线可复用同一套上下文能力。
-- 失败恢复和重放可以选择使用快照或刷新数据。
+- data sources are traceable;
+- budget filtering is unified;
+- prompt visual preview is consistent;
+- Creative Hub, Auto-Director, and the chapter pipeline can reuse the same context capability;
+- failure recovery and replay can choose snapshot or refreshed data.
 
 ### 5.2 Context Requirement
 
-每个 PromptAsset 或 Step Module 声明自己需要的上下文：
+Each PromptAsset or Step Module declares the context it needs:
 
 ```ts
 type ContextRequirement = {
@@ -230,7 +230,7 @@ type ContextRequirement = {
 };
 ```
 
-示例：
+Example:
 
 ```ts
 const chapterWriteRequirements: ContextRequirement[] = [
@@ -247,7 +247,7 @@ const chapterWriteRequirements: ContextRequirement[] = [
 
 ### 5.3 Context Broker
 
-Context Broker 负责把运行入口、资源绑定和 prompt/step 需求转成上下文块。
+The Context Broker turns run entrypoint, resource bindings, and prompt/step requirements into context blocks.
 
 ```ts
 interface PromptExecutionContext {
@@ -278,7 +278,7 @@ interface ContextBroker {
 
 ### 5.4 Context Resolver Registry
 
-每类数据由独立 resolver 负责：
+Each data class is owned by an independent resolver:
 
 ```ts
 interface ContextResolver {
@@ -287,31 +287,31 @@ interface ContextResolver {
 }
 ```
 
-建议优先抽象这些 resolver：
+Prefer abstracting these resolvers first:
 
-| Context group | 主要来源 | 用途 |
+| Context group | Primary source | Purpose |
 | --- | --- | --- |
-| `creative_hub.bindings` | CreativeHubResourceBinding | 中枢理解当前绑定资源 |
-| `creative_hub.recent_messages` | CreativeHubCheckpoint messages | 中枢对话连续性 |
-| `creative_hub.latest_turn_summary` | checkpoint metadata | 中枢下一轮承接 |
-| `creative_hub.novel_setup_status` | NovelSetupStatusService | 新手开书引导 |
-| `creative_hub.production_status` | NovelProductionStatusService | 整本生产状态 |
-| `book_contract` | Novel / BookContract / CanonicalState | 书级承诺和硬约束 |
-| `story_macro` | StoryMacroPlan | 宏观冲突、卖点、成长线 |
-| `chapter_mission` | Chapter / StoryPlan / CanonicalState | 本章必须完成的状态变化 |
-| `volume_window` | VolumePlan / VolumeChapterPlan | 当前卷任务和相邻卷边界 |
-| `participant_subset` | Character / CharacterDynamics | 本章相关角色 |
-| `local_state` | CanonicalStateService | 当前局面、秘密、关系、冲突 |
-| `payoff_ledger` | PayoffLedgerSyncService | 伏笔兑现压力 |
-| `character_resource` | CharacterResourceLedgerService | 道具、资源、持有状态 |
-| `style_contract` | StyleBindingService | 写法引擎编译结果 |
-| `world_slice` | NovelWorldSliceService | 当前小说可执行世界规则 |
-| `rag_context` | HybridRetrievalService | 知识库检索补充 |
-| `recent_chapters` | ChapterSummary / Chapter content | 局部延续与防重复 |
+| `creative_hub.bindings` | CreativeHubResourceBinding | Hub understanding of currently bound resources |
+| `creative_hub.recent_messages` | CreativeHubCheckpoint messages | Hub conversation continuity |
+| `creative_hub.latest_turn_summary` | checkpoint metadata | Hub next-turn handoff |
+| `creative_hub.novel_setup_status` | NovelSetupStatusService | Beginner book-opening guidance |
+| `creative_hub.production_status` | NovelProductionStatusService | Whole-book production status |
+| `book_contract` | Novel / BookContract / CanonicalState | Book-level promises and hard constraints |
+| `story_macro` | StoryMacroPlan | Macro conflict, selling points, growth lines |
+| `chapter_mission` | Chapter / StoryPlan / CanonicalState | State changes this chapter must complete |
+| `volume_window` | VolumePlan / VolumeChapterPlan | Current-volume tasks and adjacent-volume boundaries |
+| `participant_subset` | Character / CharacterDynamics | Characters relevant to this chapter |
+| `local_state` | CanonicalStateService | Current situation, secrets, relations, conflicts |
+| `payoff_ledger` | PayoffLedgerSyncService | Planted-setup fulfillment pressure |
+| `character_resource` | CharacterResourceLedgerService | Items, resources, hold state |
+| `style_contract` | StyleBindingService | Writing-engine compile result |
+| `world_slice` | NovelWorldSliceService | Executable world rules for the current novel |
+| `rag_context` | HybridRetrievalService | Knowledge-base retrieval supplement |
+| `recent_chapters` | ChapterSummary / Chapter content | Local continuity and anti-repetition |
 
 ### 5.5 Context Plan
 
-运行前先生成 Context Plan：
+Generate a Context Plan before the run:
 
 ```ts
 type ContextPlan = {
@@ -325,34 +325,34 @@ type ContextPlan = {
 };
 ```
 
-Context Plan 的作用：
+The Context Plan exists so that:
 
-- 让工作台可预览本次会取哪些数据。
-- 让自动导演可理解某一步为什么缺数据。
-- 让失败恢复时知道哪些数据必须冻结，哪些可以刷新。
-- 让测试集能稳定复现一次 prompt 调用。
+- the workbench can preview which data this call will fetch;
+- Auto-Director can understand why a step is missing data;
+- failure recovery knows which data must stay frozen and which may refresh;
+- a test set can stably reproduce one prompt call.
 
-### 5.6 快照、刷新与混合模式
+### 5.6 Snapshot, fresh, and hybrid modes
 
-创作中枢和自动导演都需要重放能力，因此上下文要支持三种模式：
+Both Creative Hub and Auto-Director need replay, so context must support three modes:
 
-- `snapshot`：使用当时保存的上下文快照，保证复现。
-- `fresh`：重新查询最新数据，适合继续创作。
-- `hybrid`：关键事实使用快照，状态类数据刷新。
+- `snapshot`: use the context snapshot saved at that time, guaranteeing reproduction.
+- `fresh`: re-query latest data, suitable for continuing creation.
+- `hybrid`: use snapshot for key facts, refresh state-class data.
 
-建议默认：
+Suggested defaults:
 
-- 审批恢复：`snapshot` 或 `hybrid`。
-- 失败重放：`snapshot`。
-- 用户继续创作：`fresh`。
-- 自动导演接管：`fresh`。
-- 章节修复：`hybrid`。
+- approval recovery: `snapshot` or `hybrid`.
+- failure replay: `snapshot`.
+- user continues creating: `fresh`.
+- Auto-Director takeover: `fresh`.
+- chapter repair: `hybrid`.
 
-## 6. 创作中枢兼容设计
+## 6. Creative Hub Compatibility Design
 
-创作中枢不应只把绑定资源压成一条 system message。它应通过 Context Broker 生成标准上下文块。
+Creative Hub should not merely flatten bound resources into one system message. It should generate standard context blocks through the Context Broker.
 
-当前 `CreativeHubResourceBinding` 可作为统一 scope：
+Current `CreativeHubResourceBinding` can serve as the unified scope:
 
 ```ts
 type CreativeHubResourceBinding = {
@@ -368,7 +368,7 @@ type CreativeHubResourceBinding = {
 };
 ```
 
-创作中枢每个图节点可声明 prompt 和上下文：
+Each Creative Hub graph node can declare prompt and context:
 
 ```ts
 const creativeHubNodePromptPlan = {
@@ -395,7 +395,7 @@ const creativeHubNodePromptPlan = {
 };
 ```
 
-每次中枢调用 prompt 时记录：
+Each hub prompt call records:
 
 ```ts
 type PromptRunTrace = {
@@ -414,31 +414,31 @@ type PromptRunTrace = {
 };
 ```
 
-这样创作中枢可以在 UI 中展示：
+Then Creative Hub can show in the UI:
 
-- 本轮识别了什么意图。
-- 用了哪些资源绑定。
-- 哪些上下文参与了判断。
-- 最终调用了哪些步骤。
-- 哪一步失败或等待审批。
-- 用户如何从当前 checkpoint 继续。
+- what intent this turn recognized;
+- which resource bindings were used;
+- which context participated in the judgment;
+- which steps were finally called;
+- which step failed or is waiting for approval;
+- how the user can continue from the current checkpoint.
 
-## 7. 统一 Step Module Runtime
+## 7. Unified Step Module Runtime
 
-### 7.1 核心定位
+### 7.1 Core positioning
 
-自动导演、章节流水线和创作中枢都不应直接拥有独立创作链路。它们应统一调用 Step Module Runtime。
+Auto-Director, the chapter pipeline, and Creative Hub should not each own an independent creation chain. They should uniformly call Step Module Runtime.
 
-定位关系：
+Positioning:
 
 ```text
-自动导演 = 决策 / 编排层
-章节流水线 = 一套预设编排方案
-创作中枢 = 人机交互入口
-底层统一执行 = Step Module Runtime
+Auto-Director = decision / orchestration layer
+Chapter pipeline = one preset orchestration scheme
+Creative Hub = human-computer interaction entry
+Unified underlying execution = Step Module Runtime
 ```
 
-### 7.2 Step Module 契约
+### 7.2 Step Module contract
 
 ```ts
 interface WorkflowStepModule<I, O> {
@@ -460,37 +460,37 @@ interface WorkflowStepModule<I, O> {
 }
 ```
 
-Step Module 不应直接承担跨链路编排。它只负责一个清晰创作动作。
+A Step Module should not own cross-chain orchestration. It only owns one clear creation action.
 
-### 7.3 建议步骤模块
+### 7.3 Suggested step modules
 
-第一批可从现有能力包装迁移：
+The first batch can wrap and migrate existing capabilities:
 
-| Step id | 职责 |
+| Step id | Duty |
 | --- | --- |
-| `workspace.analyze` | 扫描当前小说资产、任务、风险和下一步建议 |
-| `book.candidate.generate` | 生成书级候选方向 |
-| `book.contract.generate` | 生成 Book Contract |
-| `story.macro.plan` | 生成故事宏观规划 |
-| `world.skeleton.ensure` | 为项目生成或补齐世界观骨架 |
-| `character.cast.prepare` | 生成或补齐角色阵容 |
-| `volume.strategy.plan` | 生成分卷策略 |
-| `volume.skeleton.plan` | 生成卷骨架 |
-| `volume.beat_sheet.plan` | 生成卷节奏段 |
-| `chapter.list.plan` | 生成章节列表 |
-| `chapter.task_sheet.plan` | 生成章节任务单 |
-| `chapter.context.prepare` | 装配章节写作上下文 |
-| `chapter.draft.write` | 生成章节正文 |
-| `chapter.quality.review` | 审核章节质量 |
-| `chapter.draft.repair` | 修复章节草稿 |
-| `chapter.state.commit` | 提交章节后的规范状态 |
-| `payoff.ledger.sync` | 同步伏笔账本 |
-| `character.resource.sync` | 同步角色资源账本 |
-| `workflow.summarize` | 生成本轮执行摘要 |
+| `workspace.analyze` | Scan current novel assets, tasks, risks, and next-step suggestions |
+| `book.candidate.generate` | Generate book-level candidate directions |
+| `book.contract.generate` | Generate Book Contract |
+| `story.macro.plan` | Generate story macro plan |
+| `world.skeleton.ensure` | Generate or complete the world skeleton for the project |
+| `character.cast.prepare` | Generate or complete the character cast |
+| `volume.strategy.plan` | Generate volume strategy |
+| `volume.skeleton.plan` | Generate volume skeleton |
+| `volume.beat_sheet.plan` | Generate volume beat segments |
+| `chapter.list.plan` | Generate chapter list |
+| `chapter.task_sheet.plan` | Generate chapter task sheet |
+| `chapter.context.prepare` | Assemble chapter writing context |
+| `chapter.draft.write` | Generate chapter prose |
+| `chapter.quality.review` | Review chapter quality |
+| `chapter.draft.repair` | Repair chapter draft |
+| `chapter.state.commit` | Commit canonical state after the chapter |
+| `payoff.ledger.sync` | Sync payoff ledger |
+| `character.resource.sync` | Sync character resource ledger |
+| `workflow.summarize` | Generate this-run execution summary |
 
-### 7.4 章节流水线变成 Workflow Template
+### 7.4 Chapter pipeline becomes a Workflow Template
 
-章节流水线不再是独立大服务，而是预设模板：
+The chapter pipeline is no longer an independent large service. It is a preset template:
 
 ```ts
 const fastChapterPipeline = {
@@ -507,17 +507,17 @@ const fastChapterPipeline = {
 };
 ```
 
-不同模式只是模板不同：
+Different modes are only different templates:
 
-- 快速写作：少量审核，低成本。
-- 标准写作：完整上下文、轻审、必要修复。
-- 精修写作：完整审核、修复、状态同步、账本同步。
-- 续写模式：加入前文续接与防重复约束。
-- 重写模式：加入保留边界和差异检查。
+- Fast writing: light review, low cost.
+- Standard writing: full context, light review, necessary repair.
+- Polished writing: full review, repair, state sync, ledger sync.
+- Continue-writing mode: add prior-text continuation and anti-repetition constraints.
+- Rewrite mode: add keep-boundaries and difference checks.
 
-### 7.5 自动导演变成 Workflow Planner
+### 7.5 Auto-Director becomes a Workflow Planner
 
-自动导演不直接执行章节链，而是生成或调整 Workflow Plan：
+Auto-Director does not execute the chapter chain directly. It generates or adjusts a Workflow Plan:
 
 ```ts
 type WorkflowPlan = {
@@ -532,12 +532,12 @@ type WorkflowPlan = {
 };
 ```
 
-示例：
+Example:
 
 ```text
-用户：把这本书继续往下写到第 10 章
+User: continue writing this book through chapter 10
 
-自动导演计划：
+Auto-Director plan:
 1. workspace.analyze
 2. world.skeleton.ensure
 3. character.cast.prepare
@@ -546,12 +546,12 @@ type WorkflowPlan = {
 6. pipeline.fast_chapter_generation(1-10)
 ```
 
-失败恢复示例：
+Failure-recovery example:
 
 ```text
-第 7 章失败
+Chapter 7 failed
 
-自动导演计划：
+Auto-Director plan:
 1. workspace.analyze
 2. chapter.quality.review(chapter=7)
 3. character.resource.sync
@@ -559,9 +559,9 @@ type WorkflowPlan = {
 5. chapter.state.commit(chapter=7)
 ```
 
-## 8. 统一运行记录
+## 8. Unified Run Records
 
-建议长期统一记录这些概念：
+Long term, unify these concepts:
 
 ```text
 WorkflowRun
@@ -573,7 +573,7 @@ ApprovalRecord
 DirectorEvent
 ```
 
-每一步至少记录：
+Each step should at least record:
 
 ```ts
 type WorkflowStepRun = {
@@ -591,7 +591,7 @@ type WorkflowStepRun = {
 };
 ```
 
-短期落地不一定立刻新增所有表。可以先复用或扩展：
+Short-term landing does not have to add every table immediately. Reuse or extend first:
 
 - `NovelWorkflowTask`
 - `AgentRun`
@@ -600,13 +600,13 @@ type WorkflowStepRun = {
 - task center detail step
 - auto director follow-up action log
 
-但概念上要向统一 StepRun 靠拢，避免后续继续出现多套任务状态。
+Conceptually, converge toward unified StepRun so later work does not keep producing multiple task-state systems.
 
-## 9. 与产物账本的关系
+## 9. Relationship to the Artifact Ledger
 
-Step Module 的输出应该写入产物账本或对应业务表，并建立版本、来源和依赖关系。
+Step Module output should write into the artifact ledger or the corresponding business table, with version, source, and dependency links.
 
-第一阶段可以先做索引式 Artifact Ledger：
+Phase one can start with an index-style Artifact Ledger:
 
 ```ts
 type ArtifactRecord = {
@@ -630,11 +630,11 @@ type ArtifactRecord = {
 };
 ```
 
-这样用户手动编辑和 AI 自动生成都能进入同一套产物体系。
+Then both user manual edits and AI generation can enter the same artifact system.
 
-## 10. 策略与审批
+## 10. Policy and Approval
 
-统一运行时必须把控制权变成策略，而不是流程分叉。
+The unified runtime must turn control into policy, not process forks.
 
 ```ts
 type RuntimePolicy = {
@@ -646,93 +646,93 @@ type RuntimePolicy = {
 };
 ```
 
-策略例子：
+Policy examples:
 
-- 新手开书：允许 AI 自动补齐规划，但关键候选方向要确认。
-- 章节生成：可以自动写草稿和轻审，但覆盖已有正文要审批。
-- 修复失败章节：可自动局部修复一次，再失败则暂停解释。
-- 接管已有项目：先分析，不直接覆盖下游产物。
+- Beginner book opening: allow AI to auto-complete planning, but key candidate directions need confirmation.
+- Chapter generation: can auto-write drafts and light-review, but overwriting existing prose needs approval.
+- Repairing a failed chapter: may auto local-repair once; if it still fails, pause and explain.
+- Taking over an existing project: analyze first; do not overwrite downstream artifacts directly.
 
-## 11. 可视化与调试能力
+## 11. Visualization and Debug Capability
 
-本方案最终应支撑这些 UI：
+This plan should eventually support these UIs:
 
-- Workflow Plan 视图：看到自动导演计划调用哪些 Step Module。
-- Step Run 视图：看到每步输入、输出、状态、审批、错误。
-- Prompt Trace 视图：看到每次 prompt 的版本、override、上下文和最终 messages。
-- Context View：看到数据来自哪里、token 估算、是否被丢弃。
-- Artifact View：看到产物版本、来源步骤、依赖关系、是否过期。
-- Replay View：从某个步骤用 snapshot/fresh/hybrid 模式重放。
+- Workflow Plan view: see which Step Modules Auto-Director plans to call.
+- Step Run view: see each step’s input, output, status, approval, and error.
+- Prompt Trace view: see each prompt’s version, override, context, and final messages.
+- Context View: see where data came from, token estimates, and whether it was dropped.
+- Artifact View: see artifact version, source step, dependencies, and staleness.
+- Replay View: replay from a step in snapshot/fresh/hybrid mode.
 
-这会让提示词可视化不只是 prompt 编辑器，而是 AI 创作系统的调试中控台。
+That makes prompt visualization more than a prompt editor. It becomes the debug control console of the AI creation system.
 
-## 12. 落地路线
+## 12. Landing Roadmap
 
-### 12.1 第一阶段：只读可视化与契约补齐
+### 12.1 Phase 1: Read-only visualization and contract completion
 
-- 新增 Prompt Catalog API，列出 prompt、版本、taskType、mode、contextPolicy。
-- 新增 Prompt Preview API，给定样例 scope 渲染最终 messages。
-- 为核心 prompt 补充 `editableSlots` 和 `contextRequirements` 的概念定义。
-- 将创作中枢 binding、recent messages、novel setup status 包装为标准 context blocks。
+- Add a Prompt Catalog API listing prompt, version, taskType, mode, contextPolicy.
+- Add a Prompt Preview API that renders final messages for a sample scope.
+- Add conceptual definitions of `editableSlots` and `contextRequirements` for core prompts.
+- Wrap Creative Hub binding, recent messages, and novel setup status as standard context blocks.
 
-### 12.2 第二阶段：Context Broker
+### 12.2 Phase 2: Context Broker
 
-- 抽出 `ContextBroker` 和 `ContextResolverRegistry`。
-- 先覆盖章节写作、章节审核、创作中枢规划、创作中枢最终回答。
-- 运行时记录 context block ids、dropped ids、snapshot hash。
-- 支持 snapshot/fresh/hybrid 三种上下文模式。
+- Extract `ContextBroker` and `ContextResolverRegistry`.
+- Cover chapter writing, chapter review, Creative Hub planning, and Creative Hub final answer first.
+- Record context block ids, dropped ids, and snapshot hash at runtime.
+- Support snapshot/fresh/hybrid context modes.
 
-### 12.3 第三阶段：Prompt Override
+### 12.3 Phase 3: Prompt Override
 
-- 增加 Prompt Override 草稿、发布、回滚。
-- 只开放低风险 slots。
-- 编译后记录 compiled hash。
-- Prompt Runner 调用时加载 active override。
-- 工作台支持 diff、preview、dry-run、validation report。
+- Add Prompt Override draft, publish, and rollback.
+- Open only low-risk slots.
+- Record compiled hash after compile.
+- Prompt Runner loads the active override on call.
+- Workbench supports diff, preview, dry-run, and validation report.
 
-### 12.4 第四阶段：Step Module 包装迁移
+### 12.4 Phase 4: Step Module wrap-and-migrate
 
-- 先把现有章节执行相关能力包装为 step modules。
-- 把现有自动导演阶段包装为 step modules。
-- 章节流水线改成 workflow template。
-- 自动导演改成 workflow planner，输出 workflow plan。
-- 创作中枢工具调用也进入同一 Step Runtime。
+- First wrap existing chapter-execution capabilities as step modules.
+- Wrap existing Auto-Director stages as step modules.
+- Turn the chapter pipeline into a workflow template.
+- Turn Auto-Director into a workflow planner that outputs a workflow plan.
+- Creative Hub tool calls also enter the same Step Runtime.
 
-### 12.5 第五阶段：统一追踪与重放
+### 12.5 Phase 5: Unified tracing and replay
 
-- 统一 WorkflowRun / StepRun / PromptTrace / ContextSnapshot 的概念。
-- 接入创作中枢 checkpoint。
-- 支持失败后从某一步重放。
-- 支持自动导演根据 step result 和 artifact health 动态调整下一步。
+- Unify WorkflowRun / StepRun / PromptTrace / ContextSnapshot concepts.
+- Connect Creative Hub checkpoints.
+- Support replaying from a given step after failure.
+- Support Auto-Director dynamically adjusting the next step from step result and artifact health.
 
-## 13. 风险与边界
+## 13. Risks and Boundaries
 
-主要风险：
+Main risks:
 
-- 如果过早允许自由编辑整个 prompt，会破坏结构化输出和业务校验。
-- 如果每个 prompt 自己取数，后续无法统一预览、追踪、重放。
-- 如果自动导演继续和章节流水线分开演化，后续会产生两套状态、两套错误恢复和两套上下文逻辑。
-- 如果 Step Module 颗粒度过细，系统会变成调度噪声；过粗则继续是黑箱。
-- 如果没有 artifact dependency，用户手动修改后系统仍然不知道哪些下游产物过期。
+- Opening free editing of the entire prompt too early will break structured output and business validation.
+- If each prompt fetches its own data, later unified preview, tracing, and replay become impossible.
+- If Auto-Director keeps evolving separately from the chapter pipeline, later work will produce two state systems, two error-recovery paths, and two context logics.
+- If Step Module granularity is too fine, the system becomes scheduling noise; if too coarse, it remains a black box.
+- Without artifact dependency, after a user edits by hand the system still does not know which downstream artifacts are stale.
 
-边界原则：
+Boundary principles:
 
-- Prompt 负责表达，不负责数据获取。
-- Context 负责取数、压缩、预算和快照，不负责业务执行。
-- Step Module 负责一个创作动作，不负责跨链路总编排。
-- Workflow Planner 负责选择步骤，不直接写正文或改数据库。
-- Runtime Policy 负责控制权，不让流程分叉替代策略。
+- Prompt owns expression, not data retrieval.
+- Context owns fetch, compression, budget, and snapshot, not business execution.
+- Step Module owns one creation action, not cross-chain total orchestration.
+- Workflow Planner owns step selection, and does not write prose or change the database directly.
+- Runtime Policy owns control; process forks must not replace policy.
 
-## 14. 最终目标
+## 14. End Goal
 
-最终系统应当形成这样的能力：
+The final system should provide:
 
-- 新手用户只表达目标，创作中枢负责理解、追问、推荐或执行。
-- 自动导演根据工作区状态生成下一步计划。
-- 章节流水线只是可复用模板，不再是独立黑箱。
-- 每个步骤都能看到输入、上下文、prompt、输出、产物和事件。
-- 提示词工作台能安全编辑表达片段，同时保护 schema、校验和上下文契约。
-- 失败后可以解释、恢复、重放或局部修复。
-- 新增能力通过 Step Module、Context Resolver、PromptAsset 和 Artifact 类型接入，而不是继续修改主 service 分支。
+- Beginner users only express a goal; Creative Hub understands, follows up, recommends, or executes.
+- Auto-Director generates the next-step plan from workspace state.
+- The chapter pipeline is only a reusable template, no longer an independent black box.
+- Every step can show input, context, prompt, output, artifact, and event.
+- The prompt workbench can safely edit expression fragments while protecting schema, validation, and context contracts.
+- After failure, the system can explain, recover, replay, or locally repair.
+- New capability attaches through Step Module, Context Resolver, PromptAsset, and Artifact types, instead of continuing to modify the main service branch.
 
-一句话：提示词可视化编辑要落在统一 AI 创作运行时之上；自动导演、章节流水线和创作中枢都应成为同一套模块化创作系统的不同入口与编排策略。
+In one sentence: visual prompt editing must sit on a unified AI creation runtime; Auto-Director, the chapter pipeline, and Creative Hub should all become different entries and orchestration policies of the same modular creation system.

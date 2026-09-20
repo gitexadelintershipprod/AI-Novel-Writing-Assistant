@@ -1,50 +1,50 @@
-# 产品页面 DESIGN 分批优化方案
+# Product Page DESIGN Batch Optimization Plan
 
-## 背景
+## Background
 
-客户端已经形成统一的产品设计规范，但页面级落地并不完整。当前 30 个真实页面中，首页、小说列表、创建小说、自动导演创建、标题工坊和 Prompt Workbench 已完成主要的页面级减噪；其余页面仍混合使用创作驾驶舱、传统后台卡片、普通聊天页和技术配置页等多种视觉语言。
+The client already has a unified product design system, but page-level landing is incomplete. Of the current 30 real pages, Home, Novel list, Create novel, Auto-director create, Title workshop, and Prompt Workbench have completed the main page-level noise reduction; remaining pages still mix visual languages such as creation cockpit, traditional back-office cards, ordinary chat pages, and technical configuration pages.
 
-本方案只优化现有页面的信息层级、视觉合同、状态表达、响应式与文案，不增加新的业务能力、API、数据库字段、路由或工作流分支。
+This plan only optimizes existing pages’ information hierarchy, visual contract, state expression, responsiveness, and copy. It does not add new business capability, APIs, database fields, routes, or workflow branches.
 
-客户端规范以 `docs/design/product-ui-design-system.md` 为准。`site/DESIGN.md` 只约束公开介绍站，不用于客户端页面。
+Client rules are governed by `docs/design/product-ui-design-system.md`. `site/DESIGN.md` only constrains the public marketing site; it is not used for client pages.
 
-## 目标
+## Goals
 
-- 让新手在每个核心页面首屏都能看见当前对象、当前阶段、主任务、推荐动作和关键状态。
-- 把页面从“功能和表单集合”收敛为 Dashboard、Workspace、Editor、Asset Library、Task Queue 或 Settings 中的一种主要类型。
-- 统一使用项目自有组件和 CSS 语义 token，减少硬编码颜色、可见边框、装饰渐变、过度阴影和卡片套卡片。
-- 让 Loading、Empty、Error、Disabled、Success 都说明影响和下一步，而不是只展示状态名。
-- 保持现有功能、数据和路由兼容；任何视觉改造不得覆盖正文、资产或任务状态。
+- On every core page, a beginner can see on the first screen the current object, current stage, main task, recommended action, and key status.
+- Converge pages from “a collection of features and forms” into one primary type among Dashboard, Workspace, Editor, Asset Library, Task Queue, or Settings.
+- Unify on project-owned components and CSS semantic tokens; reduce hard-coded colors, visible borders, decorative gradients, excessive shadows, and cards nested in cards.
+- Let Loading, Empty, Error, Disabled, and Success all explain impact and next step, rather than only showing a status name.
+- Keep existing features, data, and routes compatible; no visual change may overwrite body text, assets, or task state.
 
-## 页面设计合同
+## Page design contracts
 
 ### Dashboard
 
-先展示推荐下一步，再展示进度、风险和辅助信息。不得把统计数字当作页面主任务。
+Show the recommended next step first, then progress, risk, and supporting information. Must not treat statistic numbers as the page’s main task.
 
 ### Workspace
 
-必须展示当前工作对象、阶段、唯一主操作和辅助状态。两栏或三栏布局需要保证中央主任务区是视觉中心。
+Must show the current work object, stage, the single primary action, and supporting status. Two- or three-column layouts must keep the central main-task area as the visual center.
 
 ### Editor
 
-正文或主要内容必须占据视觉中心。诊断、参数和 AI 建议放在侧栏或次级面板，不得挤压主内容。
+Body text or main content must occupy the visual center. Diagnostics, parameters, and AI suggestions go in a sidebar or secondary panel; they must not squeeze main content.
 
 ### Asset Library
 
-资产条目不仅展示名称和编辑操作，还应尽可能说明来源、启用状态、影响范围、最近使用情况和下一步用途。
+Asset entries should not only show name and edit actions; they should also explain source, enabled status, impact scope, recent use, and next-step use when possible.
 
 ### Task Queue
 
-必须区分阻塞问题、可继续的质量提醒和普通任务，并说明处理或忽略后的影响。
+Must distinguish blocking issues, continue-with-warning quality reminders, and ordinary tasks, and explain the impact of handling or ignoring them.
 
 ### Settings
 
-按用户任务和可用性组织配置，优先回答“能否开始创作”和“如何修复”，技术参数进入次级区域。
+Organize configuration by user task and availability; prioritize answering “can I start writing” and “how do I fix this”; technical parameters go into a secondary area.
 
-## 当前页面基线
+## Current page baseline
 
-### 已基本对齐
+### Already largely aligned
 
 - `/`
 - `/novels`
@@ -60,7 +60,7 @@
 - `/auto-director/follow-ups`
 - `/creative-hub`
 
-### 部分对齐
+### Partially aligned
 
 - `/novels/:id/preview`
 - `/novels/:id/edit`
@@ -71,7 +71,7 @@
 - `/worlds`
 - `/style-engine`
 
-### 尚未完成页面级优化
+### Page-level optimization not yet done
 
 - `/help`
 - `/comic`
@@ -83,64 +83,64 @@
 - `/worlds/generator`
 - `/worlds/:id/workspace`
 
-## 分批实施
+## Batch implementation
 
-## 第一批：资产库基础与新手入口
+## Batch one: asset-library foundation and beginner entries
 
-范围：
+Scope:
 
-- 共享 Asset Library 页面页头、推荐动作、分区与空态合同。
-- 补充 `success`、`warning`、`info` 语义颜色 token。
+- Shared Asset Library page header, recommended actions, sections, and empty-state contract.
+- Add `success`, `warning`, `info` semantic color tokens.
 - `/knowledge`
 - `/genres`
 - `/base-characters`
 
-实施重点：
+Implementation focus:
 
-- 知识库首屏说明资料如何进入创作与检索，展示可用文档、处理中任务和失败任务，并根据状态给出下一步。
-- 题材基底库从单一管理 Card 改为“用途说明 + 资产概览 + 树工作区”，空态直接引导创建第一个题材基底。
-- 基础角色库明确它是跨小说复用资产，补齐 Loading、Error、Empty 和推荐动作，降低删除等危险操作的视觉权重。
-- 不新增“使用小说数”等后端尚未提供的数据，不伪造资产影响范围。
+- Knowledge-base first screen explains how materials enter creation and retrieval, shows available documents, in-progress tasks, and failed tasks, and gives a next step by status.
+- Genre-base library changes from a single management Card to “purpose explanation + asset overview + tree workspace”; empty state directly guides creating the first genre base.
+- Base-character library makes clear it is a cross-novel reusable asset; complete Loading, Error, Empty, and recommended actions; lower the visual weight of dangerous actions such as delete.
+- Do not add data the backend does not yet provide, such as “number of novels using this”; do not fabricate asset impact scope.
 
-验收：
+Acceptance:
 
-- 三页都有对象、用途、推荐动作和状态反馈。
-- 页面根布局不再由单个大 Card 承担全部层级。
-- 不新增硬编码色值，不使用装饰渐变。
-- 移动端页头动作可纵向排列，列表不产生横向滚动。
-- client typecheck 通过。
+- All three pages have object, purpose, recommended action, and status feedback.
+- The page root layout is no longer carried entirely by a single large Card.
+- No new hard-coded color values; no decorative gradients.
+- Mobile header actions can stack vertically; lists do not produce horizontal scroll.
+- client typecheck passes.
 
-## 第二批：核心创作与恢复工作台
+## Batch two: core creation and recovery workbenches
 
-范围：
+Scope:
 
 - `/creative-hub`
 - `/book-analysis`
 - `/tasks`
 - `/auto-director/follow-ups`
 
-实施重点：
+Implementation focus:
 
-- 创作中枢从普通聊天视觉收敛为“创作线程 + 当前小说 + 执行活动”工作台。
-- 拆书页把来源、分析阶段、结果和下一动作固定在首屏。
-- 任务与导演跟进统一阻塞、质量提醒、普通任务的视觉等级和处理后果说明。
-- 清理 Creative Hub 的硬编码 slate/amber/emerald 色和嵌套 Card。
+- Creative Hub converges from ordinary-chat visuals into a “creation thread + current novel + execution activity” workbench.
+- Book-analysis page pins source, analysis stage, results, and next action on the first screen.
+- Tasks and director follow-ups unify visual rank and handling-consequence copy for blocking, quality reminders, and ordinary tasks.
+- Clean Creative Hub’s hard-coded slate/amber/emerald colors and nested Cards.
 
-阶段拆分：
+Phase split:
 
-- 2A 任务与恢复合同：建立 Workspace / Task Queue 共享展示边界，统一任务中心和导演跟进的阻塞、质量债、待操作与普通进度语义。
-- 2B 拆书结果工作台：把来源、分析阶段、结果入口、部分完成和恢复动作固定在工作台首屏。
-- 2C Creative Hub 创作工作台：收敛为创作线程、推进记录和当前小说上下文，修复线程加载与错误状态。
+- 2A Task and recovery contract: establish shared Workspace / Task Queue display boundaries; unify blocking, quality debt, pending action, and ordinary-progress semantics for Task Center and director follow-ups.
+- 2B Book-analysis results workbench: pin source, analysis stage, result entry, partial completion, and recovery actions on the workbench first screen.
+- 2C Creative Hub creation workbench: converge into creation threads, progress records, and current novel context; fix thread loading and error states.
 
-兼容边界：
+Compatibility boundary:
 
-- 只消费现有结构化状态，不新增 API、数据库字段、路由、Prompt 或工作流分支。
-- `directorTaskId` 继续作为导演跟进事实标识，`workspaceTaskId` 不得作为替代。
-- 拆书源文读取失败不得隐藏已经生成的分析结果；Creative Hub 切换线程不得继续展示上一线程内容。
+- Only consume existing structured state; do not add APIs, database fields, routes, Prompts, or workflow branches.
+- `directorTaskId` continues as the director follow-up fact identifier; `workspaceTaskId` must not be used as a substitute.
+- Book-analysis source-text read failures must not hide already-generated analysis results; Creative Hub switching threads must not keep showing the previous thread’s content.
 
-## 第三批：世界、写法与模型基础设施
+## Batch three: world, writing-style, and model infrastructure
 
-范围：
+Scope:
 
 - `/worlds`
 - `/worlds/generator`
@@ -148,109 +148,109 @@
 - `/style-engine`
 - `/anti-ai-rules`
 - `/settings/model-routes`
-- `/settings` 内部遗留卡片
+- leftover cards inside `/settings`
 
-实施重点：
+Implementation focus:
 
-- 世界资产显示当前状态、可用于哪些创作步骤和推荐深化动作。
-- 世界生成器改为清晰的分步工作区，不再把整条流程包在一个大 Card 中。
-- 写法与防 AI 规则统一为资产库 + 编辑工作区，清理硬编码 slate 色和超大弹窗。
-- 模型路由按“开书、规划、正文、审核、资料处理”组织可用性和修复动作。
+- World assets show current status, which creation steps they can be used in, and recommended deepening actions.
+- World generator becomes a clear step-by-step workspace; no longer wrap the whole flow in one large Card.
+- Writing style and anti-AI rules unify as asset library + edit workspace; clean hard-coded slate colors and oversized dialogs.
+- Model routes organize availability and repair actions by “book opening, planning, body text, review, material processing”.
 
-## 第四批：短剧与漫画衍生生产
+## Batch four: short-drama and comic derivative production
 
-范围：
+Scope:
 
 - `/drama`
 - `/drama/projects/:id`
 - `/comic`
 - `/comic/projects/:id`
 
-实施重点：
+Implementation focus:
 
-- 项目库突出最近项目和下一生产动作。
-- 项目页统一来源、阶段、主任务、质量状态和下一步。
-- 漫画页清理统计小卡、技术标签和硬编码颜色，避免把生成参数放在首屏中心。
-- 不改变现有短剧、漫画生成和图片确认流程。
+- Project libraries highlight recent projects and the next production action.
+- Project pages unify source, stage, main task, quality status, and next step.
+- Comic pages clean statistic mini-cards, technical tags, and hard-coded colors; avoid putting generation parameters at the first-screen center.
+- Do not change existing short-drama, comic generation, and image-confirmation flows.
 
-## 第五批：阅读、帮助与兼容页收尾
+## Batch five: reading, help, and compatibility-page wrap-up
 
-范围：
+Scope:
 
 - `/novels/:id/preview`
-- `/novels/:id/edit` 各遗留 Tab
+- leftover Tabs on `/novels/:id/edit`
 - `/novels/:id/chapters/:chapterId`
 - `/help`
 - `/story-modes`
 - `/chat-legacy`
 
-实施重点：
+Implementation focus:
 
-- 小说预览补齐当前章节、阅读进度和进入编辑器的推荐动作。
-- 小说工作台和章节编辑器收敛圆角、侧栏权重和状态块。
-- 帮助页从营销 Hero 改为新手任务导航。
-- 推进模式改为可复用资产库，技术字段进入编辑详情。
-- 旧聊天页只做兼容性维护；确认无依赖后另行决定退役，不在视觉阶段擅自删除路由。
+- Novel preview completes current chapter, reading progress, and a recommended action into the editor.
+- Novel workbench and chapter editor converge corner radius, sidebar weight, and status blocks.
+- Help page changes from a marketing Hero to beginner task navigation.
+- Story modes become a reusable asset library; technical fields enter edit detail.
+- Old chat page is compatibility maintenance only; decide retirement separately after confirming no dependents; do not delete the route on the visual stage.
 
-## 第六批：全站一致性验收
+## Batch six: site-wide consistency acceptance
 
-范围：全部客户端页面。
+Scope: all client pages.
 
-实施重点：
+Implementation focus:
 
-- 清理一次性十六进制颜色和散落的 slate/amber/emerald/sky 状态色。
-- 检查圆角、阴影、卡片嵌套、标题层级和按钮主次。
-- 把 `index.css` 中依赖 DOM 结构的 `.mobile-route-*` 兜底逐步迁回页面或模块所有的响应式布局。
-- 检查键盘焦点、图标按钮可访问名称、对话框焦点管理和颜色之外的状态文字。
-- 对所有新增文案执行用户视角复核。
+- Clean one-off hex colors and scattered slate/amber/emerald/sky status colors.
+- Check corner radius, shadows, nested cards, heading hierarchy, and primary/secondary buttons.
+- Gradually move `.mobile-route-*` fallbacks in `index.css` that depend on DOM structure back into page- or module-owned responsive layout.
+- Check keyboard focus, accessible names on icon buttons, dialog focus management, and status text beyond color.
+- Run a user-perspective copy review on all newly added copy.
 
-## 实施边界
+## Implementation boundaries
 
-- 不在 `components/ui/` 写入业务逻辑。
-- 跨资产库复用的组合组件归属 `client/src/components/assetLibrary/`，页面业务组件继续留在各自模块。
-- 同一阶段只改一组具有共同页面类型的页面，验证通过后创建独立提交。
-- 不运行浏览器、截图或 Playwright 作为默认验收；UI 交互验收交给用户，代码侧执行 typecheck 和聚焦测试。
-- 每批开始前检查单文件长度；超过 700 行的页面必须先按职责拆分，不能继续堆叠视觉 JSX。
+- Do not write business logic into `components/ui/`.
+- Composition components reused across asset libraries belong in `client/src/components/assetLibrary/`; page business components stay in their own modules.
+- Each phase only changes one group of pages that share a page type; create an independent commit after verification passes.
+- Do not run browser, screenshots, or Playwright as default acceptance; UI interaction acceptance is left to the user; code side runs typecheck and focused tests.
+- Before each batch starts, check single-file length; pages over 700 lines must first be split by responsibility and must not keep stacking visual JSX.
 
-## 阶段状态
+## Phase status
 
-- 第一批：完成（2026-07-14）。
-- 第二批：完成（2026-07-14，2A / 2B / 2C 均已完成）。
-- 第三批：待开始。
-- 第四批：待开始。
-- 第五批：待开始。
-- 第六批：待开始。
+- Batch one: complete (2026-07-14).
+- Batch two: complete (2026-07-14; 2A / 2B / 2C all complete).
+- Batch three: not started.
+- Batch four: not started.
+- Batch five: not started.
+- Batch six: not started.
 
-## 第一批实施结果
+## Batch one implementation results
 
-- 建立 `client/src/components/assetLibrary/` 页面组合边界。
-- 补齐 `success`、`warning`、`info` 全局语义 token。
-- 知识资料库具备用途页头、资料/索引状态、动态推荐动作，以及加载、失败、空库和筛选无结果恢复入口。
-- 题材基底库具备用途页头、题材/关联小说/说明完整度摘要，以及树结构工作区和删除保护说明。
-- 基础角色库具备用途页头、角色/类型/形象/资料完整度摘要，以及加载、失败、空库和角色详情分区。
-- 未新增 API、路由、数据库字段或业务流程；后端未提供的数据没有在界面中推测。
+- Established `client/src/components/assetLibrary/` page-composition boundary.
+- Completed global semantic tokens for `success`, `warning`, `info`.
+- Knowledge library has a purpose header, material/index status, dynamic recommended actions, and recovery entries for loading, failure, empty library, and filter-no-results.
+- Genre-base library has a purpose header, genre / related-novels / explanation-completeness summary, plus a tree workspace and delete-protection copy.
+- Base-character library has a purpose header, character / type / image / material-completeness summary, plus loading, failure, empty library, and character-detail sections.
+- No new APIs, routes, database fields, or business flows; data the backend does not provide was not inferred in the UI.
 
-## 第二批 2A 实施结果
+## Batch two 2A implementation results
 
-- 建立无业务状态的 Workspace 页面组合和 Task Queue 展示边界。
-- 任务中心使用现有任务概览展示全局执行、等待操作和恢复候选，并为列表、详情补齐加载、失败、空态和重试。
-- 导演跟进继续以 `directorTaskId` 作为事实身份，旧 `taskId` 只用于兼容读取，未使用 `workspaceTaskId` 替代。
-- 明确区分必须处理、待操作、可继续质量提醒和普通进度；所有任务动作展示执行后果。
+- Established business-state-free Workspace page composition and Task Queue display boundaries.
+- Task Center uses the existing task overview to show global execution, waiting-for-action, and recovery candidates, and completes loading, failure, empty, and retry for list and detail.
+- Director follow-ups continue to use `directorTaskId` as fact identity; old `taskId` is compatibility read only; `workspaceTaskId` was not used as a substitute.
+- Explicitly distinguish must-handle, pending action, continue-with-warning quality reminders, and ordinary progress; all task actions show execution consequences.
 
-## 第二批 2B 实施结果
+## Batch two 2B implementation results
 
-- 拆书页首屏固定展示来源文档、版本、分析范围、生成阶段、进度和计划小节完成度，并提供唯一推荐下一步。
-- 成功有结果、成功无结果、部分完成、预算用尽、失败、取消和归档均由纯展示模型消费现有结构化状态，不新增业务判断入口。
-- 运行中可以阅读已完成小节；失败或取消时会保留已有结果并明确剩余缺口；归档结果继续支持只读查看和复制。
-- 冻结且没有内容的小节按“本次未选择”表达，不计入本轮缺口；冻结的历史结果继续可读。
-- 原文或章节读取失败只降级双栏对照，不隐藏已生成结果；中窄屏优先展示结果区，历史分析列表作为辅助入口。
+- Book-analysis first screen pins source document, version, analysis scope, generation stage, progress, and planned-section completeness, and provides a single recommended next step.
+- Success-with-results, success-with-no-results, partial completion, budget exhausted, failure, cancel, and archive are all consumed by a pure display model from existing structured state; no new business-judgment entry.
+- While running, completed sections can be read; on failure or cancel, existing results are kept and remaining gaps are made explicit; archived results still support read-only view and copy.
+- Frozen sections with no content are expressed as “not selected this round” and do not count as this-round gaps; frozen historical results remain readable.
+- Source-text or chapter read failures only degrade the two-column compare; they do not hide already-generated results; medium/narrow screens prioritize the results area; historical analysis list is a supporting entry.
 
-## 第二批 2C 实施结果
+## Batch two 2C implementation results
 
-- Creative Hub 收敛为线程管理、创作推进记录和当前小说上下文三部分；页头固定展示小说、阶段、线程状态与唯一推荐下一步。
-- 推荐动作只消费现有线程、审批、诊断、生产、开书准备和回合摘要等结构化状态；查询失败、待确认、运行中、失败恢复、初始化建议和生产入口保持明确优先级。
-- URL `threadId` 成为当前线程事实源；线程切换会立即清空旧消息，旧加载、流式事件、审批、资源绑定或新建响应不能覆盖用户后来进入的线程。
-- 无线程、线程加载失败或状态读取失败时，创作输入和资源修改保持禁用，并提供创建、重试或切换线程的恢复入口；运行、绑定、审批和生产提交均展示真实 pending/disabled。
-- 深链接资源只复用绑定完全一致的线程；小说切换清除旧章节与世界观绑定，已绑定但不在首屏小说列表中的项目仍保留可识别选项。
-- 自由输入、停止、编辑、分支、重新生成、工具结果与审批能力继续保留；运行标识、资源 ID 和模型参数默认收进折叠详情。
-- 删除无引用的旧重复 Creative Hub 页面和 Activity Feed，`/chat-legacy` 兼容入口及旧聊天页保持不变。
+- Creative Hub converges into three parts: thread management, creation-progress records, and current novel context; the header pins novel, stage, thread status, and a single recommended next step.
+- Recommended actions only consume existing structured state such as thread, approval, diagnostics, production, book-opening prep, and turn summary; query failure, pending confirmation, running, failure recovery, initialization suggestions, and production entries keep a clear priority.
+- URL `threadId` becomes the current-thread fact source; switching threads immediately clears old messages; old loading, stream events, approvals, resource bindings, or new-create responses cannot overwrite a thread the user entered later.
+- When there is no thread, thread load fails, or status read fails, creation input and resource edits stay disabled, with recovery entries to create, retry, or switch threads; run, bind, approve, and production submit all show real pending/disabled.
+- Deep-linked resources only reuse a thread whose bindings match completely; switching novels clears old chapter and world bindings; bound items that are not in the first-screen novel list still keep a recognizable option.
+- Free input, stop, edit, branch, regenerate, tool results, and approval capability remain; run identifiers, resource IDs, and model parameters default into collapsed detail.
+- Deleted unreferenced old duplicate Creative Hub pages and Activity Feed; `/chat-legacy` compatibility entry and the old chat page stay unchanged.

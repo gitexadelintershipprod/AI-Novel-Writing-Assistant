@@ -1,134 +1,136 @@
-# 当前阶段开发任务：正文生产与问题治理收束
+# Current-phase tasks: chapter production and issue-governance consolidation
 
-更新时间：2026-08-26
-当前集成分支：`beta`
-集成目标：`beta`
-已同步基线：`origin/beta@f8beac96`
-阶段状态：P0 工程收束完成，下一步进入治理兼容与不可达旧逻辑清理
+Updated: 2026-08-26
+Snapshot integration branch: `beta`
+Snapshot integration target: `beta`
+Synced baseline: `origin/beta@f8beac96`
+Phase status at snapshot: P0 engineering consolidation was complete; next work was governance compatibility and unreachable-legacy cleanup.
 
-## 阶段目标
+This file is a historical phase checklist from 2026-08-26. Current integration is single-branch `main`. Do not treat the `beta` merge steps below as the live branch workflow.
 
-把“正文生成 → 审核 → 问题识别 → 修复 → 保存 → 继续运行”收束为一条低耦合、可恢复、可解释的生产链。问题管理只负责给出治理动作，生成与运行模块只执行动作，不在各调用点重复判断、重试或修改任务状态。
+## Phase goal
 
-两条产品路线不是写死在执行代码中的分支，而是问题管理的预设配置：
+Consolidate “draft generation → review → issue identification → repair → save → continue” into one low-coupling, recoverable, explainable production chain. Issue management only emits governance actions. Generation and runtime modules only execute those actions. Call sites must not repeat judgment, retry, or task-state mutation.
 
-1. **连续完成优先**：允许审核与一次修复尝试；局部问题形成质量债并继续，只有明确重规划、无可用正文或运行安全/数据完整性问题才暂停。
-2. **质量优先**：人工分阶段创作遇到需要判断的问题时停在可恢复检查点；整本自动创作仍按质量债继续。
+The two product paths are issue-management presets, not hardcoded execution forks:
 
-共同硬边界：
+1. **Completion-first:** allow review plus one repair attempt; local problems become quality debt and the chain continues. Pause only for an explicit replan, no usable chapter text, or a runtime safety / data-integrity failure.
+2. **Quality-first:** human staged writing stops at a recoverable checkpoint when judgment is required; full-book auto-creation still continues with quality debt.
 
-- 单章自动修复的最大重试次数小于 2，即最多 1 次。
-- 局部质量问题不得自动升级为整本书失败或重规划。
-- 整本自动创作已有可用正文时，局部质量问题不得因预设或本书覆盖动作而暂停全局链路。
-- 只有结构化治理决定可以要求暂停、失败或重规划。
-- 正文保存、章节状态、时间线和任务状态必须在统一生命周期边界内提交。
-- 不增加新的执行路线、不引入新的依赖、不恢复“章节合同/分场景多轮正文生成”。
+Shared hard boundaries:
 
-## 已完成任务
+- Automatic repair retries per chapter are less than 2, meaning at most 1 attempt.
+- Local quality problems must not automatically escalate into whole-book failure or replan.
+- When full-book auto-creation already has usable chapter text, local quality problems must not pause the global chain because of a preset or a book-level override action.
+- Only a structured governance decision may require pause, failure, or replan.
+- Chapter save, chapter status, timeline, and task status must commit inside one lifecycle boundary.
+- Do not add a new execution path, introduce a new dependency, or restore “chapter contract / multi-scene multi-round draft generation”.
 
-### A. 当前分支前置产品任务
+## Completed work
 
-- [x] 热门题材雷达支持选择分析榜单与逐本勾选作品。
-- [x] 榜单采用固定高度列表，榜单内提供全选/取消全选，页面保留紧凑标题并移除冗余框架。
-- [x] 项目低边框视觉规范写入全局开发规则；现有兼容 UI 原语继续保留，但不再新增 shadcn 组件。
-- [x] 自动导演预计章节数允许清空后重新输入。
-- [x] 自动导演简易模式、专业模式入口移到更明显的位置。
-- [x] 专业创作导出支持 TXT。
+### A. Branch-front product tasks
 
-对应本地提交：`3210a5ff`、`fab0c354`、`ca010796`、`a89c6d0f`、`f2f31e33`、`c5ff1808`、`ec07fa05`、`36be4da4`、`fcd56814`、`04ed970d`、`e0ab3451`。
+- [x] Market Radar can select analysis charts and check individual titles.
+- [x] Charts use a fixed-height list with select-all / clear-all; the page keeps a compact title and drops redundant frames.
+- [x] The low-border visual rule is in the global development rules; existing compatibility UI primitives stay, but new shadcn components are not added.
+- [x] Auto-Director expected chapter count can be cleared and typed again.
+- [x] Simple-mode and professional-mode Auto-Director entries are easier to find.
+- [x] Professional export supports TXT.
 
-### B. 问题治理预设与运行边界
+Local commits: `3210a5ff`, `fab0c354`, `ca010796`, `a89c6d0f`, `f2f31e33`, `c5ff1808`, `ec07fa05`, `36be4da4`, `fcd56814`, `04ed970d`, `e0ab3451`.
 
-- [x] 把“连续完成优先 / 质量优先”实现为问题管理预设，而不是两套硬编码执行流程。
-- [x] 人工恢复动作遵守当前小说的问题治理策略。
-- [x] 移除章节运行前重复的问题评估，避免同一问题被二次判断。
-- [x] 章节运行与质量修复共用同一重试预算，自动修复最多 1 次。
-- [x] 运行时直接信任已生成的治理动作，不再额外套一层风险判定。
-- [x] 缩小自动导演运行前检查职责：只做运行安全与数据完整性检查，不拥有质量重试策略。
-- [x] 问题发现改为只读，不在识别阶段顺带修改任务、章节或问题状态。
+### B. Issue-governance presets and runtime boundary
 
-对应本地提交：`d7d8f281`、`9a929f4a`、`b2faf530`、`0a5185f2`、`8950981f`、`232068e3`、`1724c6df`。
+- [x] Implement “completion-first / quality-first” as issue-management presets instead of two hardcoded execution flows.
+- [x] Human recovery actions follow the current novel’s issue-governance policy.
+- [x] Remove the duplicate pre-run issue evaluation so the same problem is not judged twice.
+- [x] Chapter run and quality repair share one retry budget; automatic repair is at most 1 attempt.
+- [x] Runtime trusts the already-produced governance action and does not wrap another risk judgment.
+- [x] Shrink Auto-Director pre-run checks to runtime safety and data integrity; they do not own quality-retry policy.
+- [x] Issue discovery is read-only and does not mutate task, chapter, or issue state during identification.
 
-### C. 正文修复、终结与生命周期收束
+Local commits: `d7d8f281`, `9a929f4a`, `b2faf530`, `0a5185f2`, `8950981f`, `232068e3`, `1724c6df`.
 
-- [x] 手工修复与自动修复共用正文终结服务，避免修复成功后遗漏状态、摘要或后续同步。
-- [x] 正文释放前先完成时间线终结：正常正文写入稳定时间线，可用但有质量债的正文写入降级时间线。
-- [x] 时间线检查点写入成功后才释放后续状态，防止正文已完成但时间线仍未提交。
-- [x] 删除隐藏的“松散锚点补丁再次调用 LLM”动作；修复路径保持一次补丁尝试，必要时最多一次整章修复。
-- [x] 新增章节生命周期服务，统一管理 `Chapter.content`、生成状态与章节状态写入。
-- [x] 运行时、修复流和正文终结不再直接分散写章节生命周期字段。
-- [x] 补充章节运行边界、章节生产链与生命周期模块说明。
+### C. Repair, finalization, and lifecycle consolidation
 
-对应本地提交：`cc5d69a6`、`948dd3a5`、`ee979e82`、`1873a958`。
+- [x] Manual repair and automatic repair share the chapter-finalization service so a successful repair does not skip status, summary, or follow-up sync.
+- [x] Finalize the timeline before releasing chapter text: normal text writes the stable timeline; usable text with quality debt writes the degraded timeline.
+- [x] Later state is released only after the timeline checkpoint writes, so a finished chapter cannot outrun an uncommitted timeline.
+- [x] Delete the hidden “loose-anchor patch calls the LLM again” action; repair stays one patch attempt, then at most one whole-chapter repair if needed.
+- [x] Add a chapter lifecycle service that owns `Chapter.content`, generation state, and chapter-status writes.
+- [x] Runtime, repair flows, and chapter finalization no longer scatter-write lifecycle fields.
+- [x] Document chapter-run boundaries, the chapter production chain, and the lifecycle module.
 
-### D. 人工审核与恢复边界收束
+Local commits: `cc5d69a6`, `948dd3a5`, `ee979e82`, `1873a958`.
 
-- [x] 人工章节审核不再静默调用规划器；审核结果只返回结构化质量评估与重规划建议。
-- [x] 明确的 `stop_for_replan + global_book` 会记录为章节级可恢复检查点，保留正文并等待用户显式重规划。
-- [x] 质量标记、修复历史、`generationState` 与 `chapterStatus` 由章节生命周期服务一次提交，质量闭环不再直接写章节表。
-- [x] 正文无法确认保存时停止自动重试，避免同一章因保存结果不确定而被重复生成。
-- [x] 服务重启或租约过期后的自动恢复失败会进入人工恢复状态，不再直接终结为不可恢复失败。
+### D. Human review and recovery-boundary consolidation
 
-### E. 热门题材雷达创作基础收束
+- [x] Human chapter review no longer silently calls the planner; the result is a structured quality assessment and replan advice only.
+- [x] Explicit `stop_for_replan + global_book` is recorded as a chapter-level recoverable checkpoint, keeps the text, and waits for an explicit user replan.
+- [x] Quality marks, repair history, `generationState`, and `chapterStatus` commit once through the chapter lifecycle service; the quality loop no longer writes the chapter table directly.
+- [x] Stop automatic retry when chapter save cannot be confirmed, so the same chapter is not regenerated because save outcome is uncertain.
+- [x] Automatic recovery that fails after a service restart or lease expiry enters human recovery instead of terminating as unrecoverable failure.
 
-- [x] AI 市场分析输出结构化题材基底、主要推进模式和可选辅助推进模式。
-- [x] 雷达推荐在用户确认后复用统一题材基底库与推进模式库，缺失资产由 AI 结构化候选补充，不再维护雷达专属分类。
-- [x] 市场简报持久化统一资源引用，并兼容旧版仅保存信号数组的数据。
-- [x] 从雷达进入自动导演时直接展示并补齐推荐创作基础，不覆盖用户手动选择。
-- [x] 雷达报告分别提供“加入题材基底库”和“加入推进模式库”，服务端成功后才显示查看入口并定位真实节点。
-- [x] 已有资源明确显示“库中已有”而非新增成功；真正新建后主动刷新对应资源库缓存。
+### E. Market Radar creation-foundation consolidation
 
-## 已完成验证
+- [x] AI market analysis emits a structured genre base, a primary progression mode, and optional auxiliary progression modes.
+- [x] After user confirm, Radar recommendations reuse the shared genre-base library and progression-mode library; missing assets are filled by structured AI candidates instead of Radar-only categories.
+- [x] Market briefs persist unified resource references and still read the older signal-array-only shape.
+- [x] Entering Auto-Director from Radar shows and fills the recommended creation foundation without overwriting a manual user selection.
+- [x] Radar reports offer “add to genre-base library” and “add to progression-mode library”; the view entry appears and jumps to the real node only after the server succeeds.
+- [x] Existing resources show “already in library” instead of a create-success state; a true create refreshes the matching library cache.
 
-- [x] 共享契约与服务端构建通过，客户端类型检查通过。
-- [x] 章节运行、问题治理、自动导演、状态投影与服务边界定向回归通过：155 项中 149 通过、6 项按条件跳过、0 失败；集成保护回归 37 项全部通过。
-- [x] 文档清单校验通过：33 份文档、17 个键。
-- [x] 人工审核、质量闭环、恢复边界和状态投影补充了定向回归。
-- [x] 未运行浏览器、截图或视觉验收；按项目规则留给用户验收。
+## Completed verification
 
-## 剩余开发任务
+- [x] Shared contracts and server build passed; client typecheck passed.
+- [x] Targeted regressions for chapter run, issue governance, Auto-Director, state projection, and service boundaries: 149 of 155 passed, 6 skipped by condition, 0 failed; all 37 integration-guard regressions passed.
+- [x] Docs-manifest check passed: 33 documents, 17 keys.
+- [x] Extra targeted regressions for human review, quality closure, recovery boundaries, and state projection.
+- [x] Browser, screenshot, and visual acceptance were not run; project rules leave those to the user.
 
-### P0：工程收束
+## Remaining development tasks
 
-- [x] **收束人工审核 → 重规划入口**：人工审核不得直接改写为重规划或失败；先生成结构化问题与治理动作，仅当动作明确为 `replan` / `stop_for_replan` 时写入可恢复检查点并暂停。
-- [x] **审计剩余旁路**：检查正文生成、审核、修复、保存、恢复入口中是否仍存在绕过问题治理的直接状态写入、直接失败、额外 LLM 重试或直接重规划。
-- [x] **补齐两套预设的端到端回归**：
-  - 连续完成优先：局部审核失败、一次修复失败、可用正文降级后继续下一章。
-  - 质量优先（人工分阶段创作）：同类问题暂停、通知人工、处理后从检查点继续。
-  - 两条路线都必须验证自动修复不超过 1 次。
-- [x] **补齐恢复矩阵**：Worker 重启、租约过期、模型暂不可用、正文保存失败、明确重规划、已有正文的局部质量债；确认恢复不会重复生成已完成章节。
-- [x] **统一状态投影验收**：任务中心、AI 驾驶舱、简易模式、专业模式必须展示同一治理动作、质量债、暂停原因和恢复入口；不得用 `workspaceTaskId` 代替自动导演任务 ID。
+### P0: engineering consolidation
 
-### P1：治理兼容与清理
+- [x] **Close the human-review → replan entry:** human review must not rewrite itself into replan or failure. First produce a structured issue and governance action; write a recoverable checkpoint and pause only when the action is explicitly `replan` / `stop_for_replan`.
+- [x] **Audit remaining bypasses:** check draft generation, review, repair, save, and recovery entries for direct state writes, direct failure, extra LLM retries, or direct replans that skip issue governance.
+- [x] **Add end-to-end regressions for both presets:**
+  - Completion-first: local review failure, one repair failure, then continue to the next chapter after degraded usable text.
+  - Quality-first (human staged writing): the same class of problem pauses, notifies a human, and continues from the checkpoint after handling.
+  - Both paths must prove automatic repair happens at most once.
+- [x] **Complete the recovery matrix:** worker restart, lease expiry, temporarily unavailable model, chapter-save failure, explicit replan, local quality debt on usable text; confirm recovery does not regenerate finished chapters.
+- [x] **Unify state-projection acceptance:** Task Center, AI cockpit, simple mode, and professional mode must show the same governance action, quality debt, pause reason, and recovery entry. Never substitute `workspaceTaskId` for the Auto-Director task id.
 
-- [ ] 评估并补齐旧任务治理快照的兼容读取；只有真实旧数据需要时才增加迁移逻辑。
-- [ ] 清理已不可达的问题目录项、旧风险阈值接线和无调用方的兼容代码；删除前先用调用关系和回归测试证明不可达。
-- [ ] 逐个审计 `reportIssue` 调用点，保证治理动作执行成功后才记录为已处理，避免“记录成功但动作失败”。
-- [ ] 为降级完成的章节补齐可查询的质量债来源、修复尝试次数和后续人工处理入口。
+### P1: governance compatibility and cleanup
 
-### P2：集成与真实链路验收
+- [ ] Evaluate and fill compatibility reads for old task-governance snapshots; add migration logic only when real old rows need it.
+- [ ] Clean unreachable issue-catalog items, old risk-threshold wiring, and unused compatibility code; prove unreachability with call relationships and regression tests before deleting.
+- [ ] Audit each `reportIssue` call site so a governance action is marked handled only after it succeeds, avoiding “recorded success, action failed”.
+- [ ] Give degraded-finished chapters a queryable quality-debt source, repair-attempt count, and later human-handling entry.
 
-- [ ] 将功能分支合并到 `beta`，执行服务端构建、相关定向测试和组合回归。
-- [ ] 使用脱敏真实小说连续运行至少 10 章，验证局部质量债不中断整本生产、恢复不重复写章、明确重规划与数据安全问题仍会暂停。
-- [ ] 验证 `beta` 稳定后再决定是否进入 `main`；本机禁止推送，发布与桌面打包不属于当前阶段。
+### P2: integration and live-chain acceptance
 
-## 下一步执行顺序
+- [ ] Merge the feature branch into `beta`, then run the server build, related targeted tests, and combined regressions.
+- [ ] Run at least 10 consecutive chapters on a sanitized real novel and prove local quality debt does not stop full-book production, recovery does not rewrite chapters, and explicit replan plus data-safety problems still pause.
+- [ ] After `beta` is stable, decide whether to enter `main`; this machine must not push. Public release and desktop packaging are outside this phase.
 
-1. 评估旧任务是否存在缺少治理快照的真实兼容需求。
-2. 用调用关系证明不可达后，清理旧问题目录项、风险阈值接线和无调用方兼容代码。
-3. 逐个审计治理动作记录时机，并补齐质量债的可查询来源和人工处理入口。
-4. 完成 P1 后进入 `beta` 集成验证。
+## Next execution order
 
-## 当前工作区说明
+1. Decide whether old tasks have a real compatibility need for missing governance snapshots.
+2. After call relationships prove unreachability, clean old issue-catalog items, risk-threshold wiring, and unused compatibility code.
+3. Audit when governance actions are recorded, and add queryable quality-debt sources plus a human-handling entry.
+4. After P1, run `beta` integration verification.
 
-- 快照中的 `client/src/pages/novels/autoDirector/directorCreateStages.ts` 与目标基线一致，没有形成额外差异。
-- 快照未包含数据库或 `server/.backups/`；本次合并没有修改数据文件。
-- 快照中试图改变整本自动创作质量门禁的规则和测试未合入；全局自动链仍只因明确重规划、无可用正文或运行安全/数据完整性问题暂停。
+## Workspace notes from the snapshot
 
-## 明确不做
+- The snapshot’s `client/src/pages/novels/autoDirector/directorCreateStages.ts` matches the target baseline and adds no extra diff.
+- The snapshot did not include the database or `server/.backups/`; that merge did not change data files.
+- Snapshot changes that tried to alter the full-book auto-creation quality gate, and their tests, were not merged. The global auto chain still pauses only for an explicit replan, no usable chapter text, or a runtime safety / data-integrity failure.
 
-- 不增加第三套问题治理路线。
-- 不把两套预设复制成两套执行器。
-- 不增加修复重试次数或隐藏 LLM 调用。
-- 不为尚未出现的旧数据问题预建迁移框架。
-- 不在本阶段扩展新的 UI、创作能力或第三方依赖。
+## Explicitly out of scope
+
+- Do not add a third issue-governance path.
+- Do not copy the two presets into two executors.
+- Do not raise repair retry counts or hide extra LLM calls.
+- Do not pre-build a migration framework for old-data problems that have not appeared.
+- Do not expand new UI, creative capabilities, or third-party dependencies in this phase.

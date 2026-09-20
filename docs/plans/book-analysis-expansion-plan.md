@@ -1,632 +1,632 @@
-# 拆书模块扩展长期方案
+# Book Analysis Module Expansion Long-Term Plan
 
-## 1. 定位
+## 1. Positioning
 
-当前拆书模块的设计假设是"用户对源数据是消极接收者，拆书是一次性全自动产出"。所有产出都围绕 8 个固定小节、结构化关键结论和 Markdown 正文，目标是为后续小说生成、续写参考、知识库召回提供可复用素材。
+The current book-analysis module assumes that “the user is a passive receiver of source data, and analysis is a one-shot fully automatic product.” All output is organized around 8 fixed sections, structured key conclusions, and Markdown prose. The goal is reusable material for later novel generation, continuation reference, and knowledge-base recall.
 
-本方案要把拆书从"全自动产出工具"演进为"用户协同的研究工作台"，覆盖三类使用场景：
+This plan evolves book analysis from a “fully automatic production tool” into a “user-collaborative research workbench,” covering three use cases:
 
-- **学习场景**（主线）：新手作者通过精读 + 用户介入 + 对话式提问，把别人作品里的写法变成自己能复用的认知；
-- **续写场景**（副线）：维持现有 `NovelReferenceService` 链路对拆书结果的消费能力，新增维度不破坏已有契约；
-- **素材库场景**（远期）：从拆书沉淀出可跨小说复用的角色原型、场景模板等结构化资产，本期不主投但要为升格通道预留接口。
+- **Learning scenario** (main line): beginner authors, through close reading + user intervention + conversational questions, turn another work’s craft into cognition they can reuse;
+- **Continuation scenario** (side line): keep the existing `NovelReferenceService` chain’s ability to consume book-analysis results; new dimensions must not break existing contracts;
+- **Asset-library scenario** (later): settle reusable structured assets such as character archetypes and scene templates across novels; this cycle does not invest in it as a main effort, but must reserve an upgrade channel.
 
-明确不在本期范围的方向：
+Directions explicitly out of this cycle:
 
-- 拆书自动重跑 / 增量更新（章节实体落地之后再启动）；
-- 多本对比矩阵 / 跨书聚类（依赖足够规模的拆书库后再做）；
-- 智能匹配评分系统（依赖前面所有方向）。
+- Automatic rerun / incremental update of book analysis (start after chapter entities land);
+- Multi-book comparison matrix / cross-book clustering (do this after a large enough analysis library exists);
+- Intelligent matching / scoring system (depends on all of the above).
 
-## 2. 已完成阶段
+## 2. Completed Phases
 
-| 阶段 | 主要改动 | 状态 |
+| Phase | Main change | Status |
 |---|---|---|
-| PR-1 evidence 字段绑定 + publish 清理 | evidence 增加 `fieldKey/fieldIndex`、publish 重复发布只保留最新绑定 | ✅ 已合并 |
-| PR-2 结构化数组截断告警 | 引入 `BOOK_ANALYSIS_STRUCTURED_ARRAY_LIMIT`、警告字段、UI 提示 | ✅ 已合并 |
-| PR-3 timeline 字段结构升级 | 新增 `timelineNodeArray` 类型、节点含 `label/timeHint/phase/sourceRefs` | ✅ 已合并 |
-| PR-4 timeline 共享 utils 重构 | 节点归一化抽到 shared、`NovelReferenceService` 改用结构化访问 | ✅ 已合并 |
-| PR-5 overview → others 两阶段 | overview 先生成、其他小节并发时接收 `BookAnalysisOverviewContext` | ✅ 已合并 |
-| PR-5.1 收尾小修 | 删除 `runFullAnalysis` 第二阶段残留的 overview summary 分支死代码、`runSingleSection` 注入 overview context | ✅ 已合并 |
-| 阶段一：用户介入 | 全局拆书重点与小节特别关注，创建、重建、单节重跑和 Prompt 均携带 | ✅ 已实施 |
-| 阶段二：章节与证据回溯 | `DocumentChapter` 缓存、evidence 章节定位与原文高亮 | ✅ 已实施 |
-| 阶段三：深度角色档案 | 独立拆书角色、候选识别、按需生成档案、弧线与场景表现 | ✅ 已实施 |
-| 阶段四：角色配图与升格 | `book_analysis_character` 图片场景、主图管理与升格到角色库 | ✅ 已实施 |
-| 阶段五：诊断模式 | Novel 正文导出为知识文档，复用拆书链路创建诊断分析 | ✅ 已实施 |
-| P0 预算恢复补丁 | 预算可调整、预算用尽后扩容续跑、成功小节与冻结小节免覆盖 | ✅ 已实施 |
-| 阶段六 L2 工作台视图切换 | 顶层「小节分析 / 角色档案」互斥 Tab、Toolbar 上提到 Page 跨视图共享、URL `?view=` 同步 | ✅ 已实施 |
+| PR-1 evidence field binding + publish cleanup | evidence adds `fieldKey/fieldIndex`; duplicate publish keeps only the latest binding | ✅ Merged |
+| PR-2 structured-array truncation warning | introduce `BOOK_ANALYSIS_STRUCTURED_ARRAY_LIMIT`, warning fields, UI hints | ✅ Merged |
+| PR-3 timeline field-structure upgrade | add `timelineNodeArray` type; nodes include `label/timeHint/phase/sourceRefs` | ✅ Merged |
+| PR-4 timeline shared-utils refactor | node normalization extracted to shared; `NovelReferenceService` switches to structured access | ✅ Merged |
+| PR-5 overview → others two-stage | generate overview first; other sections receive `BookAnalysisOverviewContext` when concurrent | ✅ Merged |
+| PR-5.1 closing small fixes | delete leftover overview-summary dead code in `runFullAnalysis` stage two; `runSingleSection` injects overview context | ✅ Merged |
+| Phase 1: user intervention | global analysis focus and per-section special focus, carried on create, rebuild, single-section rerun, and Prompt | ✅ Implemented |
+| Phase 2: chapters and evidence backtrace | `DocumentChapter` cache, evidence chapter locate and source highlight | ✅ Implemented |
+| Phase 3: deep character dossiers | independent analysis characters, candidate recognition, on-demand dossier generation, arcs and scene performance | ✅ Implemented |
+| Phase 4: character images and promotion | `book_analysis_character` image scene, primary-image management, and promotion to character library | ✅ Implemented |
+| Phase 5: diagnosis mode | export Novel prose as a knowledge document and reuse the analysis chain to create a diagnostic analysis | ✅ Implemented |
+| P0 budget-recovery patch | adjustable budget, expand-budget-and-continue after budget exhausted, successful and frozen sections exempt from overwrite | ✅ Implemented |
+| Phase 6 L2 workbench view switching | top-level mutually exclusive “Section analysis / Character dossiers” Tab; Toolbar lifted to Page for cross-view sharing; URL `?view=` sync | ✅ Implemented |
 
-## 3. 范式转移
+## 3. Paradigm Shift
 
-新阶段的所有扩展都围绕三个根本性变化：
+All later-phase expansions center on three fundamental changes:
 
-- **源数据可访问** — 用户能查阅、索引、回溯原素材，不只是消费产出；
-- **用户介入** — 拆书有意图层、可定向、可对话；
-- **多维拆解** — 角色、场景作为一等实体，结构化能力从"小节字段"升级到"实体 + 子实体 + 交叉维度"。
+- **Source data is accessible** — users can look up, index, and backtrace original material, not only consume output;
+- **User intervention** — analysis has an intent layer, can be directed, and can be conversational;
+- **Multi-dimensional breakdown** — characters and scenes become first-class entities; structured capability upgrades from “section fields” to “entity + sub-entity + cross dimensions.”
 
-这三个变化共同把拆书从"产出固定模板"升级为"按需深挖的研究工作台"。
+Together these three changes upgrade book analysis from “produce a fixed template” to “an on-demand deep-dive research workbench.”
 
-## 4. 扩展方向矩阵
+## 4. Expansion Direction Matrix
 
-### 4.1 方向 A：源数据可访问性
+### 4.1 Direction A: source-data accessibility
 
-| 子方向 | 内容 | 是否本期 |
+| Sub-direction | Content | This cycle? |
 |---|---|---|
-| A1 章节实体 | 把 `DocumentVersion.content` 切分为 `Chapter`，附章节摘要、字数、出场角色 | 本期 |
-| A2 证据回溯 | evidence 字段补 `chapterIndex/offsetRange`，UI 点击跳原文高亮 | 本期 |
-| A3 章节标注 / 笔记 | 用户在原文上划线写批注，可主动喂给下一次拆书 | 远期 |
+| A1 chapter entity | Split `DocumentVersion.content` into `Chapter`, with chapter summary, word count, appearing characters | This cycle |
+| A2 evidence backtrace | evidence fields add `chapterIndex/offsetRange`; UI click jumps to source highlight | This cycle |
+| A3 chapter annotation / notes | users highlight original text and write notes, which can be fed into the next analysis | Later |
 
-A1 是 A2/A3 + 方向 D（场景识别）+ 方向 E（增量拆书 / 章节追读）的共同前置。本方案把 A1 列为最高优先级。
+A1 is the shared prerequisite for A2/A3 + Direction D (scene recognition) + Direction E (incremental analysis / chapter follow-read). This plan ranks A1 as highest priority.
 
-### 4.2 方向 B：用户介入
+### 4.2 Direction B: user intervention
 
-| 子方向 | 内容 | 是否本期 |
+| Sub-direction | Content | This cycle? |
 |---|---|---|
-| B1 全局指令层 | 拆书启动时输入"这次着重学群像戏轮转"，注入所有 section prompt 前置 | 本期 |
-| B2 小节级聚焦 | 每个小节单独的"特别关注"指令，适合二次精拆 | 本期 |
-| B3 对话式精读 | 选中原文 / evidence 点击 → 提问 AI | 远期（依赖 A2） |
+| B1 global instruction layer | On analysis start, enter “this time focus on ensemble-scene rotation,” injected as a prefix into all section prompts | This cycle |
+| B2 section-level focus | A separate “special focus” instruction per section, suitable for a second close analysis | This cycle |
+| B3 conversational close reading | Select original text / evidence and click → ask AI | Later (depends on A2) |
 
-### 4.3 方向 C：角色深度
+### 4.3 Direction C: character depth
 
-详见第 5 节，本期主体工作。
+See section 5. This cycle’s main work.
 
-### 4.4 方向 D：场景识别
+### 4.4 Direction D: scene recognition
 
-| 子方向 | 内容 | 是否本期 |
+| Sub-direction | Content | This cycle? |
 |---|---|---|
-| D1 场景自动识别 | 章节内继续切分为"地点+时间+在场人物稳定"的场景 | 远期（依赖 A1） |
-| D2 场景类型与技法 | 每场打标签（动作 / 对话 / 心理 / 转折），附技法分析 | 远期 |
-| D3 场景模板库 | 高价值场景抽象为可复用模板 | 远期 |
+| D1 automatic scene recognition | Further split chapters into scenes that are stable in “place + time + present characters” | Later (depends on A1) |
+| D2 scene type and craft | Tag each scene (action / dialogue / interiority / turn), plus craft analysis | Later |
+| D3 scene template library | Abstract high-value scenes into reusable templates | Later |
 
-本期只为方向 D 预留扩展点：方向 C 的 `BookAnalysisCharacterScene` 设计上不强制依赖正式的"场景"实体，先用文本描述承载，后续 D1 落地后再升级关联。
+This cycle only reserves an extension point for Direction D: Direction C’s `BookAnalysisCharacterScene` is designed not to require a formal “scene” entity; it first uses text description, then upgrades the link after D1 lands.
 
-### 4.5 方向 E：非线性方向
+### 4.5 Direction E: non-linear directions
 
-| 子方向 | 内容 | 是否本期 |
+| Sub-direction | Content | This cycle? |
 |---|---|---|
-| E1 拆自己稿子 | 同一套机制跑用户自己的稿子，定位为"诊断模式" | 验证项（轻投入） |
-| E2 对比拆书 | 多本同类作品的字段级交叉对比 | 远期 |
-| E3 写作目标匹配评分 | 根据用户写作意图推荐拆书库里最值得读的 N 本 | 远期 |
-| E4 增量章节追读 | 文档版本变化后只重跑变化章节相关的小节 | 远期（依赖 A1） |
+| E1 analyze one’s own draft | Run the same mechanism on the user’s own draft, positioned as “diagnosis mode” | Validation item (light investment) |
+| E2 comparative analysis | Field-level cross comparison of multiple similar works | Later |
+| E3 writing-goal matching scores | Recommend the N most worth-reading books in the analysis library from the user’s writing intent | Later |
+| E4 incremental chapter follow-read | After a document version changes, rerun only sections related to changed chapters | Later (depends on A1) |
 
-E1 是"零工程改动 / 可能打开新场景"的旁路验证，建议作为独立验证项穿插实施。
+E1 is a side-path validation of “zero architecture change / may open a new scenario.” Treat it as an independent validation item interleaved into delivery.
 
-## 5. 角色模块独立扩展（方案 A：保留并存）
+## 5. Independent Character-Module Expansion (Option A: keep coexistence)
 
-### 5.1 选型结论
+### 5.1 Selection conclusion
 
-**不复用 `Character`，不复用 `CharacterCandidate`，新建独立的 `BookAnalysisCharacter` 实体**，理由如下：
+**Do not reuse `Character`, do not reuse `CharacterCandidate`, create an independent `BookAnalysisCharacter` entity**, for these reasons:
 
-| 备选 | 主要问题 |
+| Alternative | Main problem |
 |---|---|
-| 全量复用 `Character` | 必须造占位 Novel；55+ 字段大量为"写作执行"设计，分析场景空置；14 个子表 cascade 牵连过重 |
-| 改造 `CharacterCandidate` | 其 status 状态机围绕"升格为 Character"设计，拆书没这个目的；`novelId` 必填，schema 也要改 |
-| 完全独立、零共享 | 错过 `BaseCharacter` 角色库沉淀价值；字段定义发散、用户感知不一致 |
-| **独立 + 共享字段 schema + 显式升格通道** ✓ | 拆书侧干净、角色库受益、字段一致性可控 |
+| Fully reuse `Character` | Must invent a placeholder Novel; 55+ fields are designed for “writing execution” and sit empty in analysis; 14 child tables cascade too heavily |
+| Adapt `CharacterCandidate` | Its status state machine is designed around “promote to Character,” which analysis does not need; `novelId` is required, so schema must also change |
+| Fully independent, zero sharing | Misses `BaseCharacter` library settlement value; field definitions diverge; user perception is inconsistent |
+| **Independent + shared field schema + explicit promotion channel** ✓ | Analysis side stays clean, character library benefits, field consistency is controllable |
 
-短剧模块对 `DramaCharacter` 已经采用了"独立实体"路径，拆书没有理由比短剧更侵入主创作链路。
+The short-drama module already took an “independent entity” path for `DramaCharacter`. Book analysis has no reason to invade the main creation chain more than short drama does.
 
-### 5.2 实体设计
+### 5.2 Entity design
 
-新增三个 Prisma 模型，全部挂在 `BookAnalysis` 下：
+Add three Prisma models, all hanging under `BookAnalysis`:
 
-| 模型 | 关系 | 主要字段 | 说明 |
+| Model | Relation | Main fields | Notes |
 |---|---|---|---|
-| `BookAnalysisCharacter` | BookAnalysis 1—N | name、role、status、briefDescription、importance、occurringChaptersJson、generationDepth、selectedDimensionsJson、profileJson、evidence | 拆书角色候选与完整档案共用实体；candidate 阶段 `profileJson` 可为空，generated 阶段保存 quick/standard/deep 档案 |
-| `BookAnalysisCharacterArc` | Character 1—N | chapterRef、stageLabel、stateSnapshotJson | 角色 × 章节弧线节点，对应想法 3 的"成长追踪" |
-| `BookAnalysisCharacterScene` | Character 1—N | sceneLabel、sceneType、performanceJson、evidence | 角色 × 场景表现，对应想法 4，本期 sceneLabel 是字符串，D1 落地后升级为关联 |
+| `BookAnalysisCharacter` | BookAnalysis 1—N | name, role, status, briefDescription, importance, occurringChaptersJson, generationDepth, selectedDimensionsJson, profileJson, evidence | Analysis character candidates and full dossiers share one entity; candidate stage `profileJson` may be empty; generated stage stores quick/standard/deep dossiers |
+| `BookAnalysisCharacterArc` | Character 1—N | chapterRef, stageLabel, stateSnapshotJson | Character × chapter arc nodes, corresponding to idea 3 “growth tracking” |
+| `BookAnalysisCharacterScene` | Character 1—N | sceneLabel, sceneType, performanceJson, evidence | Character × scene performance, corresponding to idea 4; this cycle `sceneLabel` is a string, upgraded to a relation after D1 lands |
 
-所有子表 `onDelete: Cascade`。Character 不挂 Novel，删除 BookAnalysis 时整树清理。
+All child tables `onDelete: Cascade`. Character does not hang on Novel. Deleting BookAnalysis cleans the whole tree.
 
-### 5.3 共享字段 schema
+### 5.3 Shared field schema
 
-新建 `shared/types/characterProfile.ts`，定义"通用人物维度"，作为三方对齐的口径：
+Create `shared/types/characterProfile.ts`, defining “common person dimensions” as the alignment contract for three sides:
 
-- **基础信息**：name、aliases、age、gender、role
-- **外形维度**：appearance、physique、attireStyle、signatureDetail
-- **性格维度**：personality、values、speakingStyle
-- **动机维度**：outerGoal、innerNeed、fear、wound、misbelief
-- **弧线维度**：arcStages（数组）、growthTrajectory
-- **关系维度**：keyRelations（含目标角色、关系类型）
-- **场景表现维度**：highlightScenes（含场景描述、表现分析）
+- **Basic information**: name, aliases, age, gender, role
+- **Appearance dimension**: appearance, physique, attireStyle, signatureDetail
+- **Personality dimension**: personality, values, speakingStyle
+- **Motivation dimension**: outerGoal, innerNeed, fear, wound, misbelief
+- **Arc dimension**: arcStages (array), growthTrajectory
+- **Relation dimension**: keyRelations (including target character, relation type)
+- **Scene-performance dimension**: highlightScenes (including scene description, performance analysis)
 
-三个角色实体的对齐策略：
+Alignment strategy for the three character entities:
 
-- `BaseCharacter`：字段最贴合 schema，新加字段时优先对齐；
-- `BookAnalysisCharacter`：使用 schema 子集 + 拆书专用字段（authorTechnique、readerFeedback、designReferences）；
-- `Character`：历史包袱重，已有字段保持现状，**仅在新加字段时对齐 schema**，不强制回溯改造。
+- `BaseCharacter`: fields fit the schema most closely; new fields should align first;
+- `BookAnalysisCharacter`: uses a schema subset plus analysis-specific fields (authorTechnique, readerFeedback, designReferences);
+- `Character`: heavy historical baggage; existing fields stay as-is; **only align the schema when adding new fields**; do not force a retrospective rewrite.
 
-字段中文标签、顺序、长度上限统一定义在 `shared/types/characterProfile.ts`，避免"性格 vs 性情"那类发散。
+Chinese field labels, order, and length limits are defined together in `shared/types/characterProfile.ts`, avoiding divergence such as “personality vs temperament.”
 
-### 5.4 升格通道
+### 5.4 Promotion channel
 
-用户在拆书结果中可主动把某个 `BookAnalysisCharacter` 升格为 `BaseCharacter`：
+Users can actively promote a `BookAnalysisCharacter` from analysis results into a `BaseCharacter`:
 
-- 由用户显式触发（UI 按钮"加入角色库"），**不自动同步**；
-- 升格时拷贝共享 schema 字段，拆书专用字段（如 evidence、sceneRefs）保留在原 `BookAnalysisCharacter` 中不携带；
-- 在 `BaseCharacter` 上通过 `sourceType` + `sourceRefId`（复用现有 `CharacterSyncProposal` 的字段模式）记录来源；
-- 升格后两者独立演化，不建立双向链 — 避免拆书数据反向污染角色库。
+- Triggered explicitly by the user (UI button “Add to character library”); **no automatic sync**;
+- On promotion, copy shared-schema fields; analysis-specific fields (such as evidence, sceneRefs) stay on the original `BookAnalysisCharacter` and are not carried;
+- On `BaseCharacter`, record source via `sourceType` + `sourceRefId` (reuse the existing `CharacterSyncProposal` field pattern);
+- After promotion the two evolve independently with no two-way link — avoid analysis data reverse-polluting the character library.
 
-### 5.5 角色图生成（复用现有图像模块）
+### 5.5 Character image generation (reuse existing image module)
 
-拆书角色档案应允许用户为每个角色生成参考形象图，帮助新手作者把"文字描述"转换为"视觉印象"，加深对角色塑造的理解。本期不重建图像链路，**完整复用现有 image 模块**。
+Analysis character dossiers should let users generate a reference likeness for each character, helping beginner authors turn “text description” into “visual impression” and deepen understanding of characterization. This cycle does not rebuild the image chain. **Fully reuse the existing image module**.
 
-#### 现有可复用资产
+#### Existing reusable assets
 
-| 资产 | 位置 | 复用价值 |
+| Asset | Location | Reuse value |
 |---|---|---|
-| `ImageGenerationTask` / `ImageAsset` 模型 | `server/src/prisma/schema.prisma` | polymorphic 设计（`baseCharacterId?` / `novelId?` 并列可选），天然支持新增可选关联字段 |
-| `ImageSceneType` 枚举 | 同上 | 已预留 `chapter_illustration` 槽位，证明该枚举本就是扩展点 |
-| `ImageGenerationService` | `server/src/services/image/` | 已支持 character + novel_cover 双 sceneType，新 sceneType 按现有 switch 分支扩展 |
-| `ImagePromptOptimizationService` | 同上 | prompt 优化能力可复用 |
-| `buildCharacterImagePrompt` | `shared/imagePrompt` | 接收字段对象不绑定实体，可直接喂 `BookAnalysisCharacter.profileJson` |
-| `imageAssetStorage` | `server/src/services/image/` | 文件存储、URL 构建、清理逻辑 |
-| `ImageGenerationConfirmDialog` + `useImageGenerationFlow` | `client/src/components/image/` | 生成确认弹窗、进度追踪流程 |
+| `ImageGenerationTask` / `ImageAsset` models | `server/src/prisma/schema.prisma` | polymorphic design (`baseCharacterId?` / `novelId?` both optional), naturally supports adding a new optional relation field |
+| `ImageSceneType` enum | same | already reserved `chapter_illustration` slot, proving the enum is an extension point |
+| `ImageGenerationService` | `server/src/services/image/` | already supports character + novel_cover dual sceneType; new sceneType extends via existing switch branches |
+| `ImagePromptOptimizationService` | same | prompt-optimization capability is reusable |
+| `buildCharacterImagePrompt` | `shared/imagePrompt` | accepts a field object, not bound to an entity; can feed `BookAnalysisCharacter.profileJson` directly |
+| `imageAssetStorage` | `server/src/services/image/` | file storage, URL building, cleanup logic |
+| `ImageGenerationConfirmDialog` + `useImageGenerationFlow` | `client/src/components/image/` | generation confirm dialog and progress-tracking flow |
 
-#### 选型结论：扩展 sceneType + 新增可选关联
+#### Selection conclusion: extend sceneType + add optional relation
 
-三种候选路径的对比：
+Comparison of three candidate paths:
 
-| 路径 | 实现方式 | 优势 | 劣势 | 评估 |
+| Path | Implementation | Advantage | Disadvantage | Assessment |
 |---|---|---|---|---|
-| 扩展 sceneType + 加可选关联字段 | `ImageSceneType` 加 `book_analysis_character`，task/asset 加 `bookAnalysisCharacterId String?` | 完全复用 provider / 存储 / UI / prompt；轻量侵入 | 修改 image 模型 schema | ✅ 推荐 |
-| 升格后再配图 | 拆书角色不直接配图，升格为 `BaseCharacter` 后走现有 character 配图流程 | 零侵入 image 模型 | 违背"先看图判断要不要升格"的直觉；阻断学习场景闭环 | 不推荐 |
-| 完全独立配图实体 | 新建 `BookAnalysisCharacterImageAsset` | 完全解耦 | 重复实现存储、provider、UI、prompt 优化，违背复用原则 | 不推荐 |
+| Extend sceneType + add optional relation field | add `book_analysis_character` to `ImageSceneType`; add `bookAnalysisCharacterId String?` to task/asset | fully reuses provider / storage / UI / prompt; light intrusion | modifies image model schema | ✅ Recommended |
+| Image only after promotion | analysis characters do not get images directly; after promotion to `BaseCharacter`, use existing character image flow | zero intrusion on image model | violates the intuition of “see the image first, then decide whether to promote”; blocks the learning-scenario loop | Not recommended |
+| Fully independent image entity | create `BookAnalysisCharacterImageAsset` | fully decoupled | duplicates storage, provider, UI, prompt optimization; violates reuse | Not recommended |
 
-推荐**路径 1**，理由：
+Recommend **path 1**, because:
 
-- `ImageSceneType` 设计本就是扩展点（`chapter_illustration` 已预留）；
-- 新增 `bookAnalysisCharacterId` 与现有 `baseCharacterId` / `novelId` 同构，复用 `resolveTaskOwnerKey` / `buildAssetOwnerWhere` 等现有模式；
-- 单点新增枚举 + 字段，影响面可控；
-- 升格时可选拷贝已生成图资产（详见下文）。
+- `ImageSceneType` was designed as an extension point (`chapter_illustration` already reserved);
+- new `bookAnalysisCharacterId` is isomorphic with existing `baseCharacterId` / `novelId`, reusing `resolveTaskOwnerKey` / `buildAssetOwnerWhere` and similar existing patterns;
+- single-point enum + field addition, blast radius controllable;
+- on promotion, optionally copy already generated image assets (see below).
 
-#### 与升格通道的协作
+#### Collaboration with the promotion channel
 
-- 用户在拆书阶段为 `BookAnalysisCharacter` 生成的图保留在拆书侧（`sceneType = book_analysis_character`）；
-- 用户升格该角色为 `BaseCharacter` 时，**默认携带已选定的主图（`isPrimary = true`）**：克隆 `ImageAsset` 副本，新副本以 `baseCharacterId` 为 owner，`sceneType = character`；
-- 拆书侧原资产保留，BookAnalysis 删除时随之 cascade；
-- 升格弹窗提供 checkbox "同时把主图加入角色库"，默认勾选，用户可取消；
-- 不建立双向同步：升格后两侧图资产独立演化。
+- Images generated for a `BookAnalysisCharacter` during analysis stay on the analysis side (`sceneType = book_analysis_character`);
+- When the user promotes that character to `BaseCharacter`, **by default carry the selected primary image (`isPrimary = true`)**: clone an `ImageAsset` copy; the new copy uses `baseCharacterId` as owner, `sceneType = character`;
+- Original analysis-side assets remain; they cascade when BookAnalysis is deleted;
+- The promotion dialog provides a checkbox “also add the primary image to the character library,” checked by default, user may uncheck;
+- No two-way sync: after promotion, image assets on both sides evolve independently.
 
-#### 按文件层级改动清单（仅角色图部分）
+#### File-level change list (character images only)
 
-- `server/src/prisma/schema.prisma` — `ImageSceneType` 增加 `book_analysis_character`；`ImageGenerationTask` / `ImageAsset` 增加 `bookAnalysisCharacterId String?` 字段 + 反向关系；`BookAnalysisCharacter` 增加 `imageTasks` / `imageAssets` 反向关系
-- `server/src/prisma/schema.sqlite.prisma` — 对称同步
-- `server/src/prisma/migrations/` — 新增迁移，纯加列、加枚举值
-- `shared/types/image.ts` — `ImageSceneType` 联合类型扩展
-- `shared/imagePrompt/` — `buildCharacterImagePrompt` 评估是否需要 BookAnalysisCharacter 适配器；若 profile 字段命名一致则无需新文件
-- `server/src/services/image/ImageGenerationService.ts` — `SupportedImageSceneType` 增加新值；`resolveTaskOwnerKey` / `buildAssetOwnerWhere` 扩展三元分支；character 分支共享 prompt 构建
-- `server/src/services/image/imageGenerationMappers.ts` — `toImageTask` / `toImageAsset` 增加 `bookAnalysisCharacterId` 字段映射
-- `server/src/services/image/types.ts` — `CharacterImageGenerationRequest` 类型评估是否需要 split 或加 owner 维度
-- `server/src/services/bookAnalysis/bookAnalysisCharacter/BookAnalysisCharacterImageService.ts` — 新增薄包装层，封装"为某 BookAnalysisCharacter 生成图"的入口，内部调用 `ImageGenerationService`
-- `server/src/services/bookAnalysis/bookAnalysisCharacter/BookAnalysisCharacterPromoteService.ts` — 升格逻辑增加"携带主图"分支：克隆 `ImageAsset` 副本到 `baseCharacterId` owner
-- `server/src/routes/bookAnalysis.ts` — 新增子路由：
-  - `POST /:id/characters/:characterId/images/generate` — 触发生成
-  - `GET /:id/characters/:characterId/images` — 列表
-  - `PATCH /:id/characters/:characterId/images/:assetId` — 设主图 / 排序
-  - `DELETE /:id/characters/:characterId/images/:assetId` — 删除
-- `client/src/pages/bookAnalysis/components/BookAnalysisCharacterImagePanel.tsx` — 新增，角色图列表、生成入口、设主图、删除
-- `client/src/pages/bookAnalysis/components/BookAnalysisCharacterPromoteDialog.tsx` — 增加"同时把主图加入角色库"checkbox
-- `client/src/pages/bookAnalysis/hooks/useBookAnalysisCharacterImages.ts` — 新增，复用 `useImageGenerationFlow` 的轮询逻辑
-- `client/src/api/bookAnalysis.ts` — 增加 character image 相关接口
-- `server/tests/bookAnalysisCharacterImage.test.js` — 新增：生成、设主图、删除、升格携带图
+- `server/src/prisma/schema.prisma` — add `book_analysis_character` to `ImageSceneType`; add `bookAnalysisCharacterId String?` field + reverse relation on `ImageGenerationTask` / `ImageAsset`; add `imageTasks` / `imageAssets` reverse relations on `BookAnalysisCharacter`
+- `server/src/prisma/schema.sqlite.prisma` — symmetric sync
+- `server/src/prisma/migrations/` — new migration, add-column and add-enum-value only
+- `shared/types/image.ts` — extend `ImageSceneType` union
+- `shared/imagePrompt/` — evaluate whether `buildCharacterImagePrompt` needs a BookAnalysisCharacter adapter; if profile field names already match, no new file
+- `server/src/services/image/ImageGenerationService.ts` — add new value to `SupportedImageSceneType`; extend `resolveTaskOwnerKey` / `buildAssetOwnerWhere` ternary branches; share prompt building with the character branch
+- `server/src/services/image/imageGenerationMappers.ts` — add `bookAnalysisCharacterId` field mapping to `toImageTask` / `toImageAsset`
+- `server/src/services/image/types.ts` — evaluate whether `CharacterImageGenerationRequest` needs a split or an owner dimension
+- `server/src/services/bookAnalysis/bookAnalysisCharacter/BookAnalysisCharacterImageService.ts` — add a thin wrapper that encapsulates the “generate images for a BookAnalysisCharacter” entry and internally calls `ImageGenerationService`
+- `server/src/services/bookAnalysis/bookAnalysisCharacter/BookAnalysisCharacterPromoteService.ts` — promotion logic adds a “carry primary image” branch: clone an `ImageAsset` copy onto `baseCharacterId` owner
+- `server/src/routes/bookAnalysis.ts` — add sub-routes:
+  - `POST /:id/characters/:characterId/images/generate` — trigger generation
+  - `GET /:id/characters/:characterId/images` — list
+  - `PATCH /:id/characters/:characterId/images/:assetId` — set primary / sort
+  - `DELETE /:id/characters/:characterId/images/:assetId` — delete
+- `client/src/pages/bookAnalysis/components/BookAnalysisCharacterImagePanel.tsx` — new, character image list, generate entry, set primary, delete
+- `client/src/pages/bookAnalysis/components/BookAnalysisCharacterPromoteDialog.tsx` — add “also add the primary image to the character library” checkbox
+- `client/src/pages/bookAnalysis/hooks/useBookAnalysisCharacterImages.ts` — new, reuse `useImageGenerationFlow` polling
+- `client/src/api/bookAnalysis.ts` — add character image APIs
+- `server/tests/bookAnalysisCharacterImage.test.js` — new: generate, set primary, delete, promotion carries image
 
-### 5.6 与现有 `character_system` 小节的共存（方案 A 决策）
+### 5.6 Coexistence with the existing `character_system` section (Option A decision)
 
-- `character_system` 保留为**快速概览层**，输出现有 structuredData（protagonistPositioning、supportingFunctions 等）和 Markdown，行为完全不变；
-- `BookAnalysisCharacter` 是**深度档案层**，作为可选启用项（类似拆书 preset 的轻 / 标准 / 完整模式）；
-- 两者数据共存，UI 上 `character_system` 摘要可点击展开到 `BookAnalysisCharacter` 详细档案；
-- 用户启用深度档案时，`BookAnalysisCharacter` 的生成可以选择"基于 character_system 已生成的角色清单"或"独立从原文识别"，前者成本低、后者覆盖全。
+- `character_system` remains a **fast overview layer**, outputting existing structuredData (protagonistPositioning, supportingFunctions, etc.) and Markdown; behavior stays unchanged;
+- `BookAnalysisCharacter` is a **deep-dossier layer**, as an optional enablement (similar to analysis preset light / standard / full modes);
+- Both datasets coexist; in the UI, a `character_system` summary can click-expand into a `BookAnalysisCharacter` detailed dossier;
+- When the user enables deep dossiers, `BookAnalysisCharacter` generation can choose “based on the character list already generated by character_system” or “independently recognize from original text”; the former is cheaper, the latter covers more.
 
-这样做的代价是两套数据可能不一致，缓解策略：
+The cost is that the two datasets may diverge. Mitigation:
 
-- 深度档案生成时把 `character_system` structuredData 作为"已识别角色清单"传入，减少识别分歧；
-- UI 显示时如发现两侧角色名不匹配，给"刷新概览"按钮让用户决定；
-- 不强制双向同步，避免维护成本爆炸。
+- When generating deep dossiers, pass `character_system` structuredData as an “already recognized character list” to reduce recognition divergence;
+- If UI display finds mismatched character names on the two sides, give a “Refresh overview” button and let the user decide;
+- Do not force two-way sync, to avoid exploding maintenance cost.
 
-### 5.7 按文件层级的改动清单（角色档案主体）
+### 5.7 File-level change list (character-dossier body)
 
-> 角色图相关改动详见 5.5 节，本节聚焦角色档案与弧线、场景子实体。
+> Image-related changes are in section 5.5. This section focuses on character dossiers plus arc and scene sub-entities.
 
-#### shared 层
+#### shared layer
 
-- `shared/types/characterProfile.ts` — 新增，定义 `CharacterProfileSchema`、字段中文标签、长度上限
-- `shared/types/bookAnalysisCharacter.ts` — 新增，定义 `BookAnalysisCharacter` / `BookAnalysisCharacterArc` / `BookAnalysisCharacterScene` 接口、生成深度枚举、维度选择枚举
+- `shared/types/characterProfile.ts` — new; define `CharacterProfileSchema`, Chinese field labels, length limits
+- `shared/types/bookAnalysisCharacter.ts` — new; define `BookAnalysisCharacter` / `BookAnalysisCharacterArc` / `BookAnalysisCharacterScene` interfaces, generation-depth enum, dimension-selection enum
 
 #### Prisma schema
 
-- `server/src/prisma/schema.prisma` — 新增三个模型 + 三个关系；`BookAnalysis` 增加反向关系字段
-- `server/src/prisma/schema.sqlite.prisma` — 对称同步
-- `server/src/prisma/migrations/` — 新增迁移，纯加表，零数据迁移
+- `server/src/prisma/schema.prisma` — add three models + three relations; `BookAnalysis` adds reverse-relation fields
+- `server/src/prisma/schema.sqlite.prisma` — symmetric sync
+- `server/src/prisma/migrations/` — new migration, add-table only, zero data migration
 
-#### server 服务层
+#### server service layer
 
-- `server/src/services/bookAnalysis/bookAnalysisCharacter/` — 新建子目录，包含：
-  - `BookAnalysisCharacterService.ts` — CRUD、列表查询、删除
-  - `BookAnalysisCharacterGenerationService.ts` — 调用 LLM 生成角色档案、增量补维度
-  - `BookAnalysisCharacterPromoteService.ts` — 升格到 `BaseCharacter`
-  - `bookAnalysisCharacter.types.ts` — 内部类型
-  - `bookAnalysisCharacter.utils.ts` — 归一化、字段筛选、共享 schema 校验
+- `server/src/services/bookAnalysis/bookAnalysisCharacter/` — new subdirectory, including:
+  - `BookAnalysisCharacterService.ts` — CRUD, list query, delete
+  - `BookAnalysisCharacterGenerationService.ts` — call LLM to generate character dossiers, incrementally fill dimensions
+  - `BookAnalysisCharacterPromoteService.ts` — promote to `BaseCharacter`
+  - `bookAnalysisCharacter.types.ts` — internal types
+  - `bookAnalysisCharacter.utils.ts` — normalization, field filtering, shared-schema validation
   - `bookAnalysisCharacterSchemas.ts` — zod schema
-- `server/src/prompting/prompts/bookAnalysis/bookAnalysisCharacter.prompts.ts` — 新增角色档案、弧线节点、场景表现三类 prompt asset
-- `server/src/services/bookAnalysis/BookAnalysisService.ts` — 增加 `getCharacters` / `generateCharacters` 等方法转发
-- `server/src/services/bookAnalysis/bookAnalysis.publish.ts` — 发布到知识库时，可选携带角色档案进 publish payload（保持向后兼容，默认不开）
-- `server/src/services/bookAnalysis/bookAnalysis.export.ts` — 导出 Markdown 时增加角色档案章节
-- `server/src/services/character/CharacterLibrarySyncService.ts` — 增加"接受拆书来源升格"的入口（非必须，可放后续 PR）
+- `server/src/prompting/prompts/bookAnalysis/bookAnalysisCharacter.prompts.ts` — new prompt assets for character dossier, arc nodes, and scene performance
+- `server/src/services/bookAnalysis/BookAnalysisService.ts` — add `getCharacters` / `generateCharacters` and similar forwarding
+- `server/src/services/bookAnalysis/bookAnalysis.publish.ts` — when publishing to the knowledge base, optionally carry character dossiers into the publish payload (keep backward compatible, default off)
+- `server/src/services/bookAnalysis/bookAnalysis.export.ts` — when exporting Markdown, add a character-dossier chapter
+- `server/src/services/character/CharacterLibrarySyncService.ts` — add an entry for “accept analysis-source promotion” (optional; can wait for a later PR)
 
-#### server 路由
+#### server routes
 
-- `server/src/routes/bookAnalysis.ts` — 新增子路由：
-  - `GET /:id/characters` — 列表
-  - `POST /:id/characters/generate` — 生成 / 增量补维度
-  - `PATCH /:id/characters/:characterId` — 编辑
-  - `DELETE /:id/characters/:characterId` — 删除
-  - `POST /:id/characters/:characterId/promote` — 升格到角色库
-  - `GET /:id/characters/:characterId/arcs` — 弧线列表
-  - `GET /:id/characters/:characterId/scenes` — 场景表现列表
+- `server/src/routes/bookAnalysis.ts` — add sub-routes:
+  - `GET /:id/characters` — list
+  - `POST /:id/characters/generate` — generate / incrementally fill dimensions
+  - `PATCH /:id/characters/:characterId` — edit
+  - `DELETE /:id/characters/:characterId` — delete
+  - `POST /:id/characters/:characterId/promote` — promote to character library
+  - `GET /:id/characters/:characterId/arcs` — arc list
+  - `GET /:id/characters/:characterId/scenes` — scene-performance list
 
-#### client 层
+#### client layer
 
-- `client/src/pages/bookAnalysis/components/BookAnalysisCharacterPanel.tsx` — 新增，角色档案主面板
-- `client/src/pages/bookAnalysis/components/BookAnalysisCharacterCard.tsx` — 新增，单个角色卡片
-- `client/src/pages/bookAnalysis/components/BookAnalysisCharacterArcList.tsx` — 新增，弧线节点列表
-- `client/src/pages/bookAnalysis/components/BookAnalysisCharacterSceneList.tsx` — 新增，场景表现列表
-- `client/src/pages/bookAnalysis/components/BookAnalysisCharacterPromoteDialog.tsx` — 新增，升格到角色库确认弹窗
-- `client/src/pages/bookAnalysis/hooks/useBookAnalysisCharacters.ts` — 新增，数据获取与变更
-- `client/src/pages/bookAnalysis/hooks/useBookAnalysisWorkspace.ts` — 增加角色档案的入口跳转、与 character_system 概览的联动
-- `client/src/api/bookAnalysis.ts` — 增加 character 相关接口调用
+- `client/src/pages/bookAnalysis/components/BookAnalysisCharacterPanel.tsx` — new, character-dossier main panel
+- `client/src/pages/bookAnalysis/components/BookAnalysisCharacterCard.tsx` — new, single character card
+- `client/src/pages/bookAnalysis/components/BookAnalysisCharacterArcList.tsx` — new, arc-node list
+- `client/src/pages/bookAnalysis/components/BookAnalysisCharacterSceneList.tsx` — new, scene-performance list
+- `client/src/pages/bookAnalysis/components/BookAnalysisCharacterPromoteDialog.tsx` — new, promote-to-library confirm dialog
+- `client/src/pages/bookAnalysis/hooks/useBookAnalysisCharacters.ts` — new, data fetch and mutation
+- `client/src/pages/bookAnalysis/hooks/useBookAnalysisWorkspace.ts` — add character-dossier entry jumps and linkage with character_system overview
+- `client/src/api/bookAnalysis.ts` — add character-related API calls
 
-#### 测试
+#### tests
 
-- `server/tests/bookAnalysisCharacter.test.js` — 新增：CRUD、生成、归一化、升格、与 character_system 数据联动
-- `server/tests/bookAnalysis.publish.test.js`（如已存在则扩展，否则新建）— 验证发布携带角色档案时的内容
-- `server/tests/bookAnalysis.test.js` — 增加联动场景：character_system 生成后启动深度档案的清单复用
+- `server/tests/bookAnalysisCharacter.test.js` — new: CRUD, generation, normalization, promotion, linkage with character_system data
+- `server/tests/bookAnalysis.publish.test.js` (extend if it already exists, otherwise create) — verify content when publish carries character dossiers
+- `server/tests/bookAnalysis.test.js` — add linkage scenario: after character_system generation, start deep dossiers with list reuse
 
-#### 文档
+#### docs
 
-- `docs/wiki/workflows/book-analysis-workflow.md` — 增加"深度角色档案"章节，引用本 plan
-- `docs/wiki/workflows/book-analysis-character-deep-dive.md` — 新增（可选），独立沉淀深度角色档案的稳定决策
-- `docs/releases/release-notes.md` — 各阶段 PR 落地时同步
+- `docs/wiki/workflows/book-analysis-workflow.md` — add a “Deep character dossiers” section, citing this plan
+- `docs/wiki/workflows/book-analysis-character-deep-dive.md` — new (optional), independently settle stable decisions for deep character dossiers
+- `docs/releases/release-notes.md` — sync when each phase PR lands
 
-#### 估算
+#### Estimate
 
-整个角色扩展约 1500-2000 行新增代码（含测试），单一 PR 不可承担，需拆分为至少 3 个 PR（见第 6 节）。
+The whole character expansion is about 1500-2000 new lines (including tests). A single PR cannot carry it; split into at least 3 PRs (see section 6).
 
-## 6. 阶段化交付路线
+## 6. Phased Delivery Roadmap
 
-### 6.1 总体策略
+### 6.1 Overall strategy
 
-从"零碎 PR 单元"切换为"用户价值阶段"：每个阶段交付一个用户可感知的完整能力，单阶段 1-2 PR，按依赖串行推进，每阶段结束后留 1-2 周观察期再启动下一个。
+Switch from “fragmented PR units” to “user-value phases”: each phase delivers one user-perceptible complete capability, 1-2 PRs per phase, advanced serially by dependency, with a 1-2 week observation window after each phase before starting the next.
 
-### 6.2 阶段总览
+### 6.2 Phase overview
 
-| 阶段 | 交付的用户价值 | 范围估算 | PR 数 | 预估周期 |
+| Phase | User value delivered | Scope estimate | PR count | Estimated cycle |
 |---|---|---|---|---|
-| 阶段一 | 可以告诉拆书"这次重点看什么"（用户介入 + 上轮收尾） | ~300 行 | 1 | 1 周 |
-| 阶段二 | 可以查阅原文章节，从结论一键回到出处 | ~800 行 | 2 | 3 周 |
-| 阶段三 | 可以深入研究每个角色（多维度档案 + 弧线 + 场景表现） | ~1300 行 | 2 | 4 周 |
-| 阶段四 | 可以为角色配图，并把学到的角色升格到自己的角色库 | ~700 行 | 2 | 3 周 |
-| 阶段五 | 可以用同一套工具诊断自己的稿子（旁路） | ~150 行 | 1 | 1 周 |
-| 阶段六 | 拆书页面变成可聚焦的工作台，主体内容一屏可见 | ~1300 行 | 3 | 4 周 |
+| Phase 1 | Can tell analysis “what to focus on this time” (user intervention + last-round closing) | ~300 lines | 1 | 1 week |
+| Phase 2 | Can browse original chapters and one-click from a conclusion back to the source | ~800 lines | 2 | 3 weeks |
+| Phase 3 | Can deeply study each character (multi-dimension dossier + arc + scene performance) | ~1300 lines | 2 | 4 weeks |
+| Phase 4 | Can generate character images and promote learned characters into one’s own character library | ~700 lines | 2 | 3 weeks |
+| Phase 5 | Can diagnose one’s own draft with the same tool (side path) | ~150 lines | 1 | 1 week |
+| Phase 6 | Analysis page becomes a focusable workbench; main content is visible on one screen | ~1300 lines | 3 | 4 weeks |
 
-总跨度约 4550 行 / 11 个 PR / 16 周。阶段一是其他阶段的前置；阶段三和四强串行；阶段六依赖阶段二（章节）、阶段三（角色档案）已落地；其余可并行。
+Total span about 4550 lines / 11 PRs / 16 weeks. Phase 1 is a prerequisite for other phases; phases 3 and 4 are strongly serial; phase 6 depends on phase 2 (chapters) and phase 3 (character dossiers) already landed; the rest can run in parallel.
 
-### 6.3 阶段依赖
+### 6.3 Phase dependencies
 
 ```
-阶段一 (用户介入 + 收尾) ─┐
-                          ├─→ 阶段二 (章节 + evidence 回溯) ─┐
-                          │                                  │
-                          ├─→ 阶段三 (角色档案) ─→ 阶段四 (配图 + 升格)
-                          │                                  │
-                          ├─→ 阶段五 (拆自己稿子)             │
-                          │                                  ↓
-                          └────────────────────→ 阶段六 (UI 工作台化重构)
+Phase 1 (user intervention + closing) ─┐
+                                       ├─→ Phase 2 (chapters + evidence backtrace) ─┐
+                                       │                                           │
+                                       ├─→ Phase 3 (character dossiers) ─→ Phase 4 (images + promotion)
+                                       │                                           │
+                                       ├─→ Phase 5 (analyze own draft)             │
+                                       │                                           ↓
+                                       └──────────────────────────→ Phase 6 (UI workbench refactor)
 ```
 
-### 6.4 阶段一：拆书引导能力 + 上轮收尾
+### 6.4 Phase 1: analysis guidance + last-round closing
 
-**交付价值**：用户在拆书启动时可以告诉系统"这次重点学群像戏的轮转"，也可以在某个小节单独要求"特别关注主角的语言风格"。同时清理 PR-5 遗留的两个小问题。
+**Delivered value**: When starting analysis, the user can tell the system “this time focus on ensemble-scene rotation,” and can also separately ask a section to “pay special attention to the protagonist’s speaking style.” Also clean up two leftover small issues from PR-5.
 
-**范围**：
-- 收尾：删除 `runFullAnalysis` 第二阶段循环里 overview summary 赋值的死代码；`runSingleSection` 重跑非 overview 小节时自动加载已生成的 overview section 并注入 context
-- B1 全局指令层：拆书启动 UI 加"本次拆书重点关注"文本框，存储到 `BookAnalysis.userFocusInstruction`，注入所有 section prompt 前置段
-- B2 小节级聚焦：每个 section 卡片头部加"该节特别关注"输入框，存储到 `BookAnalysisSection.focusInstruction`，单节重跑时注入
+**Scope**:
+- Closing: delete dead code that assigned overview summary in the `runFullAnalysis` stage-two loop; when `runSingleSection` reruns a non-overview section, automatically load the already generated overview section and inject context
+- B1 global instruction layer: analysis-start UI adds a “this analysis focuses on” text box, stored as `BookAnalysis.userFocusInstruction`, injected as a prefix into all section prompts
+- B2 section-level focus: each section card header adds a “this section special focus” input, stored as `BookAnalysisSection.focusInstruction`, injected on single-section rerun
 
-**文件层级**：
-- `server/src/prisma/schema.prisma` / `schema.sqlite.prisma` — `BookAnalysis` 加 `userFocusInstruction String?`；`BookAnalysisSection` 加 `focusInstruction String?`
-- `server/src/prisma/migrations/` — 纯加列
-- `shared/types/bookAnalysis.ts` — 接口扩展
-- `server/src/services/bookAnalysis/bookAnalysis.generation.ts` — runSingleSection 加载 overview context、死代码清理
-- `server/src/services/bookAnalysis/bookAnalysis.sectionWriter.ts` — `generateSection` 增加指令参数
-- `server/src/services/bookAnalysis/BookAnalysisCommandService.ts` — 启动 / 重跑接收并存储指令
-- `server/src/prompting/prompts/bookAnalysis/bookAnalysis.prompts.ts` — Prompt 注入用户指令段
-- `server/src/routes/bookAnalysis.ts` — 启动 / 重跑接口增加指令参数
-- `client/src/pages/bookAnalysis/components/BookAnalysisStartDialog.tsx` — 全局指令文本框
-- `client/src/pages/bookAnalysis/components/BookAnalysisSectionCard.tsx` — 小节聚焦输入框
-- `client/src/pages/bookAnalysis/hooks/useBookAnalysisWorkspace.ts` — 指令状态管理
-- `server/tests/bookAnalysis.test.js` — 指令存储、注入、重跑携带
+**File level**:
+- `server/src/prisma/schema.prisma` / `schema.sqlite.prisma` — `BookAnalysis` adds `userFocusInstruction String?`; `BookAnalysisSection` adds `focusInstruction String?`
+- `server/src/prisma/migrations/` — add-column only
+- `shared/types/bookAnalysis.ts` — interface extension
+- `server/src/services/bookAnalysis/bookAnalysis.generation.ts` — runSingleSection loads overview context, dead-code cleanup
+- `server/src/services/bookAnalysis/bookAnalysis.sectionWriter.ts` — `generateSection` adds instruction parameters
+- `server/src/services/bookAnalysis/BookAnalysisCommandService.ts` — start / rerun receive and store instructions
+- `server/src/prompting/prompts/bookAnalysis/bookAnalysis.prompts.ts` — Prompt injects user-instruction segment
+- `server/src/routes/bookAnalysis.ts` — start / rerun APIs add instruction parameters
+- `client/src/pages/bookAnalysis/components/BookAnalysisStartDialog.tsx` — global-instruction text box
+- `client/src/pages/bookAnalysis/components/BookAnalysisSectionCard.tsx` — section-focus input
+- `client/src/pages/bookAnalysis/hooks/useBookAnalysisWorkspace.ts` — instruction state management
+- `server/tests/bookAnalysis.test.js` — instruction storage, injection, rerun carrying
 
-**验收要点**：
-- 全局指令进入所有 section system prompt；小节聚焦指令只进入该节
-- runSingleSection 重跑 plot_structure 时能拿到 overview context
-- 旧拆书（指令字段为空）行为不变
+**Acceptance**:
+- Global instruction enters every section system prompt; section-focus instruction only enters that section
+- runSingleSection rerunning plot_structure can obtain overview context
+- Old analyses (instruction fields empty) behave unchanged
 
-### 6.5 阶段二：章节实体与证据回溯
+### 6.5 Phase 2: chapter entity and evidence backtrace
 
-**交付价值**：用户能在拆书界面看到原文按章节切分的列表，可以单独阅读某一章；拆书结论的 evidence 显示"出自第 N 章"，点击可跳到原文该章对应位置。
+**Delivered value**: Users can see original text split by chapter in the analysis UI and can read a single chapter; analysis-conclusion evidence shows “from chapter N,” and click jumps to that position in the original.
 
-**拆分**：先 A1 章节实体（PR），后 A2 证据回溯（PR）。
+**Split**: A1 chapter entity first (PR), then A2 evidence backtrace (PR).
 
-**A1 范围**：
-- 新增 `Chapter` 实体挂 `DocumentVersion` 下（一对多），含 `chapterIndex / title / startOffset / endOffset / summary / wordCount`
-- 章节切分服务支持三种模式：规则切分（标题正则）/ LLM 切分 / 用户手动校对
-- 切分时机：用户进入"拆书结果"页面首次查看"原文章节"时按需切分，结果缓存到 `Chapter` 表
-- UI 章节列表：左侧面板列出章节，点击查看该章节内容（只读）
+**A1 scope**:
+- Add a `Chapter` entity under `DocumentVersion` (one-to-many), with `chapterIndex / title / startOffset / endOffset / summary / wordCount`
+- Chapter-split service supports three modes: rule split (title regex) / LLM split / user manual correction
+- Split timing: on-demand when the user first views “original chapters” on the “analysis result” page; cache results in the `Chapter` table
+- UI chapter list: left panel lists chapters; click to view that chapter’s content (read-only)
 
-**A1 文件层级**：
-- `server/src/prisma/schema.prisma` / sqlite — 新增 `Chapter` 模型 + 反向关系；迁移
-- `shared/types/documentChapter.ts`（新增）— `Chapter` 接口
+**A1 file level**:
+- `server/src/prisma/schema.prisma` / sqlite — add `Chapter` model + reverse relation; migration
+- `shared/types/documentChapter.ts` (new) — `Chapter` interface
 - `server/src/services/bookAnalysis/documentChapter/` —
-  - `DocumentChapterService.ts`：CRUD、查询
-  - `DocumentChapterSplitService.ts`：切分（规则 + LLM）
-- `server/src/prompting/prompts/bookAnalysis/documentChapter.prompts.ts` — LLM 切分 prompt
-- `server/src/routes/bookAnalysis.ts` — 章节列表 / 切分 / 校对接口
+  - `DocumentChapterService.ts`: CRUD, query
+  - `DocumentChapterSplitService.ts`: split (rules + LLM)
+- `server/src/prompting/prompts/bookAnalysis/documentChapter.prompts.ts` — LLM split prompt
+- `server/src/routes/bookAnalysis.ts` — chapter list / split / correction APIs
 - `client/src/pages/bookAnalysis/components/BookAnalysisChapterList.tsx`
 - `client/src/pages/bookAnalysis/components/BookAnalysisChapterReader.tsx`
 - `client/src/pages/bookAnalysis/hooks/useDocumentChapters.ts`
 - `server/tests/documentChapter.test.js`
 
-**A2 范围**：
-- `BookAnalysisEvidenceItem` 增加可选 `chapterIndex?: number` + `excerptOffsetRange?: [number, number]`
-- 生成 evidence 时让 Prompt 输出 chapterIndex（基于 notes 的 sourceLabel 反查）
-- 后端归一化阶段补齐 chapterIndex（若 LLM 没给但 sourceLabel 能匹配到章节）
-- UI：evidence 卡片显示"第 N 章"标签；点击 → 跳章节阅读器并高亮 excerpt 位置
+**A2 scope**:
+- `BookAnalysisEvidenceItem` adds optional `chapterIndex?: number` + `excerptOffsetRange?: [number, number]`
+- When generating evidence, have the Prompt output chapterIndex (reverse-lookup from notes sourceLabel)
+- Backend normalization fills chapterIndex (if the LLM did not give it but sourceLabel can match a chapter)
+- UI: evidence cards show a “Chapter N” tag; click → jump to the chapter reader and highlight the excerpt position
 
-**A2 文件层级**：
-- `shared/types/bookAnalysis.ts` — `BookAnalysisEvidenceItem` 扩展
-- `server/src/services/bookAnalysis/bookAnalysis.utils.ts` — `normalizeBookAnalysisEvidence` 增加章节定位归一
-- `server/src/prompting/prompts/bookAnalysis/bookAnalysis.prompts.ts` — evidence 规则补 chapterIndex 要求
-- `server/src/services/bookAnalysis/bookAnalysis.sectionWriter.ts` — 把可用章节信息传给归一化
-- `client/src/pages/bookAnalysis/components/BookAnalysisEvidenceList.tsx` — 章节标签 + 跳转按钮
+**A2 file level**:
+- `shared/types/bookAnalysis.ts` — extend `BookAnalysisEvidenceItem`
+- `server/src/services/bookAnalysis/bookAnalysis.utils.ts` — `normalizeBookAnalysisEvidence` adds chapter-locate normalization
+- `server/src/prompting/prompts/bookAnalysis/bookAnalysis.prompts.ts` — evidence rules add chapterIndex requirement
+- `server/src/services/bookAnalysis/bookAnalysis.sectionWriter.ts` — pass available chapter info into normalization
+- `client/src/pages/bookAnalysis/components/BookAnalysisEvidenceList.tsx` — chapter tag + jump button
 - `client/src/pages/bookAnalysis/hooks/useBookAnalysisChapterJump.ts`
-- `server/tests/bookAnalysis.test.js` — 章节定位归一测试
+- `server/tests/bookAnalysis.test.js` — chapter-locate normalization tests
 
-**验收要点**：
-- 旧文档无 Chapter 时按需切分，不强制对所有历史文档回填
-- LLM 切分失败有 fallback 退回规则切分
-- 新生成 evidence 至少 70% 带合法 chapterIndex；历史 evidence 无该字段时 UI 优雅降级
-- 跳转后章节阅读器自动滚动到 excerpt 大致位置
+**Acceptance**:
+- Old documents without Chapter split on demand; do not force backfill of all historical documents
+- LLM split failure has a fallback to rule split
+- Newly generated evidence has a valid chapterIndex at least 70% of the time; historical evidence without the field degrades gracefully in the UI
+- After jump, the chapter reader auto-scrolls to the approximate excerpt position
 
-### 6.6 阶段三：角色深度档案
+### 6.6 Phase 3: deep character dossiers
 
-**交付价值**：用户可以先低成本识别拆书结果中的角色候选，再为值得研究的角色生成深度档案，选择想分析的维度（外形 / 性格 / 动机 / 弧线 / 关系 / 场景表现）和深度（quick / standard / deep）；档案包含角色在不同章节的状态变化和在关键场景的具体表现。
+**Delivered value**: Users can first cheaply identify character candidates in analysis results, then generate deep dossiers for characters worth studying, choosing dimensions (appearance / personality / motivation / arc / relations / scene performance) and depth (quick / standard / deep); dossiers include the character’s state changes across chapters and concrete performance in key scenes.
 
-**拆分**：先 C1 主体，后 C2+C3 子实体。
+**Split**: C1 body first, then C2+C3 sub-entities.
 
-**C1 范围**：新增 `BookAnalysisCharacter` 实体、shared `CharacterProfileSchema`、候选识别服务、单角色档案生成服务（输入是源 notes + 用户选维度 + 深度 + character_system 已识别角色清单）、批量生成候选入口、UI 主面板（"识别角色"、候选卡、"全部生成"、完整档案卡）、与 character_system 联动（清单复用、UI 跳转）。
+**C1 scope**: add `BookAnalysisCharacter` entity, shared `CharacterProfileSchema`, candidate-recognition service, single-character dossier generation service (input is source notes + user-selected dimensions + depth + character_system already-recognized character list), batch generate-candidates entry, UI main panel (“Identify characters,” candidate cards, “Generate all,” full dossier cards), linkage with character_system (list reuse, UI jump).
 
-**C2+C3 范围**：新增 `BookAnalysisCharacterArc`（角色 × 章节弧线节点）和 `BookAnalysisCharacterScene`（角色 × 场景表现）；弧线节点 chapterRef 依赖阶段二的 Chapter 实体；场景 sceneLabel 本期字符串承载，方向 D 落地后升级关联。
+**C2+C3 scope**: add `BookAnalysisCharacterArc` (character × chapter arc nodes) and `BookAnalysisCharacterScene` (character × scene performance); arc-node chapterRef depends on Phase 2 Chapter entity; this cycle sceneLabel is a string, upgraded to a relation after Direction D lands.
 
-**文件层级**：见 5.7 节"角色档案主体改动清单"，含 Prisma 三模型、shared 两文件、server 服务目录、prompt、路由、client 5 个组件、测试。
+**File level**: see section 5.7 “character-dossier body change list,” including three Prisma models, two shared files, server service directory, prompt, routes, 5 client components, tests.
 
-**验收要点**：
-- 用户可选维度 + 深度生成档案；历史 BookAnalysis 默认不生成，需主动触发
-- 用户可先识别候选角色，再单个或批量生成候选档案；已生成档案不会被重复识别覆盖
-- 与 character_system 共存，角色清单复用
-- 弧线节点能引用真实 chapterIndex（依赖阶段二 A1）
-- 主档案 deep 模式自动生成弧线 + 场景，但用户可禁用
-- 成本提示：生成前显示预估 token
+**Acceptance**:
+- Users can generate dossiers with selected dimensions + depth; historical BookAnalysis does not generate by default and must be triggered actively
+- Users can first identify candidate characters, then generate candidate dossiers one-by-one or in batch; already generated dossiers are not overwritten by re-identification
+- Coexists with character_system; character-list reuse
+- Arc nodes can reference real chapterIndex (depends on Phase 2 A1)
+- Main-dossier deep mode auto-generates arcs + scenes, but users can disable
+- Cost hint: show estimated tokens before generation
 
-### 6.7 阶段四：角色图生成 + 升格通道
+### 6.7 Phase 4: character image generation + promotion channel
 
-**交付价值**：用户可以为深度档案的每个角色生成 AI 配图；可以把喜欢的角色"加入角色库"成为 `BaseCharacter`，升格时可携带已生成的主图。
+**Delivered value**: Users can generate AI images for each deep-dossier character; they can “add to character library” a liked character as a `BaseCharacter`, and promotion can carry the already generated primary image.
 
-**拆分**：先角色图生成，后升格通道（依赖图）。
+**Split**: character images first, then promotion channel (depends on images).
 
-**角色图范围**：扩展现有 image 模块 — `ImageSceneType` 加 `book_analysis_character`、`ImageGenerationTask` / `ImageAsset` 加 `bookAnalysisCharacterId String?`、复用 `ImageGenerationService` / `buildCharacterImagePrompt` / `useImageGenerationFlow` / `ImageGenerationConfirmDialog`、新建薄包装 `BookAnalysisCharacterImageService`、UI 在角色卡新增配图区。
+**Character-image scope**: extend existing image module — add `book_analysis_character` to `ImageSceneType`, add `bookAnalysisCharacterId String?` to `ImageGenerationTask` / `ImageAsset`, reuse `ImageGenerationService` / `buildCharacterImagePrompt` / `useImageGenerationFlow` / `ImageGenerationConfirmDialog`, create thin wrapper `BookAnalysisCharacterImageService`, UI adds an image area on the character card.
 
-**升格范围**：新建 `BookAnalysisCharacterPromoteService` 从 BookAnalysisCharacter 创建 BaseCharacter 副本（仅携带 shared schema 字段）、升格弹窗（字段映射 + 携带主图 checkbox 默认勾选）、主图克隆做拷贝不是引用、BaseCharacter 上用 `sourceType / sourceRefId` 记录来源、两侧独立演化不建双向链。
+**Promotion scope**: create `BookAnalysisCharacterPromoteService` to create a BaseCharacter copy from BookAnalysisCharacter (carry shared-schema fields only), promotion dialog (field mapping + carry-primary-image checkbox default checked), primary-image clone is a copy not a reference, BaseCharacter records source with `sourceType / sourceRefId`, both sides evolve independently with no two-way link.
 
-**文件层级**：见 5.5 节"角色图改动清单"和 5.4 节"升格通道"。
+**File level**: see section 5.5 “character-image change list” and section 5.4 “promotion channel.”
 
-**验收要点**：
-- 生成图触发走现有 ImageGenerationService 链路；现有 character / novel_cover 路径无回归
-- 设主图、删除、排序行为与现有 character 配图一致
-- 升格创建 BaseCharacter，source 字段正确；删除拆书后升格出的 BaseCharacter 不受影响
-- 升格弹窗显示 schema 字段差异让用户确认映射
+**Acceptance**:
+- Image generation goes through the existing ImageGenerationService chain; existing character / novel_cover paths have no regression
+- Set primary, delete, and sort behavior matches existing character images
+- Promotion creates BaseCharacter with correct source fields; deleting the analysis does not affect the promoted BaseCharacter
+- Promotion dialog shows schema field differences so the user can confirm mapping
 
-### 6.8 阶段五：拆自己稿子（旁路验证）
+### 6.8 Phase 5: analyze one’s own draft (side-path validation)
 
-**交付价值**：用户可以把自己写到一半的稿子走完整拆书流程，得到节奏诊断 / 人物模糊点 / 主题清晰度 / 伏笔回收等结论。
+**Delivered value**: Users can run a half-written draft through the full analysis flow and get conclusions on pacing diagnosis / character blur / theme clarity / planted-setup recovery.
 
-**范围**：不新增任何架构能力（现有拆书已支持任意 DocumentVersion 输入），主要工作是入口和文案 — 新增"诊断模式"入口（与"参考别人作品"并列）、诊断模式下结果展示文案微调、增加从现有 Novel 一键导出全文为 Document 的功能。
+**Scope**: add no architecture capability (existing analysis already supports any DocumentVersion input). Main work is entry and copy — add a “diagnosis mode” entry (parallel with “reference someone else’s work”), slightly adjust result-display copy in diagnosis mode, add one-click export of an existing Novel’s full text as a Document.
 
-**文件层级**：
-- `server/src/services/novel/NovelExportService.ts` — Novel → Document 转换
-- `server/src/routes/novel.ts` 或 `bookAnalysis.ts` — `POST /novels/:id/export-as-document`
-- `client/src/pages/bookAnalysis/components/BookAnalysisStartDialog.tsx` — 模式切换 Tab
-- `client/src/pages/bookAnalysis/components/BookAnalysisDiagnosisTipBanner.tsx`（新增）— 诊断模式顶部提示
-- `client/src/pages/bookAnalysis/components/BookAnalysisStructuredSummary.tsx` — 诊断模式文案微调
-- `server/tests/bookAnalysis.diagnosis.test.js` — 诊断模式拆书全流程
+**File level**:
+- `server/src/services/novel/NovelExportService.ts` — Novel → Document conversion
+- `server/src/routes/novel.ts` or `bookAnalysis.ts` — `POST /novels/:id/export-as-document`
+- `client/src/pages/bookAnalysis/components/BookAnalysisStartDialog.tsx` — mode-switch Tab
+- `client/src/pages/bookAnalysis/components/BookAnalysisDiagnosisTipBanner.tsx` (new) — diagnosis-mode top hint
+- `client/src/pages/bookAnalysis/components/BookAnalysisStructuredSummary.tsx` — diagnosis-mode copy tweaks
+- `server/tests/bookAnalysis.diagnosis.test.js` — diagnosis-mode analysis full flow
 
-**验收要点**：
-- 从 Novel 一键导出 Document 后可立即拆书
-- 诊断模式与参考模式有明显文案区分
-- 不破坏现有"参考别人作品"路径
+**Acceptance**:
+- After one-click Novel → Document export, analysis can start immediately
+- Diagnosis mode and reference mode have clear copy distinction
+- Does not break the existing “reference someone else’s work” path
 
-### 6.9 阶段六：UI 工作台化重构
+### 6.9 Phase 6: UI workbench refactor
 
-**交付价值**：拆书页面从"5 个 Card 纵向堆叠的长滚动页"变成"分视图聚焦的研究工作台"。用户主体阅读路径无需滚动；证据与小节内容物理整合；常用任务操作（发布、归档、重跑、下载）通过顶部 sticky 工具栏始终可触达；宽屏用户可启用原文与拆书并排对照阅读。
+**Delivered value**: The analysis page changes from “5 Cards stacked vertically in a long-scrolling page” into “a research workbench focused by view.” The user’s main reading path needs no scrolling; evidence and section content are physically integrated; common task actions (publish, archive, rerun, download) stay reachable via a top sticky toolbar; wide-screen users can enable original-and-analysis side-by-side reading.
 
-**当前页面拥堵点（重构动因）**：
-- 主区纵向叠 5 个 Card：工具说明 / 任务详情 / 拆书内容 / 证据面板 / 角色档案，总高度 4-5 屏
-- 任务管理（发布、元信息、错误信息）默认占用一整张 Card，但实际是低频操作
-- 证据面板与小节内容物理割裂，用户读到结论想看出处必须滚动
-- 角色档案与小节内容并列堆叠，但两者是不同视角而非同级内容
-- 章节阅读器内嵌在 DetailPanel 中，没有独立位置承担"对照阅读"职责
-- 顶部工具操作随 Card 滚走，下方触发操作需要回滚
+**Current page congestion (reason to refactor)**:
+- Main area stacks 5 Cards vertically: tool explanation / task details / analysis content / evidence panel / character dossiers, total height 4-5 screens
+- Task management (publish, metadata, error info) occupies a whole Card by default, but is actually a low-frequency operation
+- Evidence panel is physically split from section content; reading a conclusion and wanting the source requires scrolling
+- Character dossiers and section content are stacked as peers, but they are different viewpoints, not same-level content
+- Chapter reader is embedded in DetailPanel and has no independent place to own “side-by-side reading”
+- Top tool actions scroll away with the Card; triggering them below requires scrolling back
 
-**关键决策**：
-- **任务管理走顶部 sticky 工具栏**：发布、归档、重跑、下载、风格提取整合为始终可见的顶部条，二级操作进下拉菜单，永远可触达不占主区
-- **章节阅读器仅在 L3 双栏视图出现**：L2 视图不为它单独开 Tab；只有用户用双栏对照阅读时才把章节阅读器放进中栏
-- **L2 顶层视图只有两个**：📖 小节分析 / 👥 角色档案，互斥单视图切换
-- **证据从独立 Card 收编为内嵌 Popover**：消费 PR-1 的 evidence fieldKey 绑定能力，挂在结构化关键结论旁
+**Key decisions**:
+- **Task management goes to a top sticky toolbar**: publish, archive, rerun, download, and style extraction are integrated into an always-visible top bar; secondary actions go into a dropdown; always reachable without occupying the main area
+- **Chapter reader appears only in the L3 dual-pane view**: L2 does not open a separate Tab for it; only when the user uses dual-pane side-by-side reading is the chapter reader placed in the center pane
+- **L2 top-level views are only two**: 📖 Section analysis / 👥 Character dossiers, mutually exclusive single-view switching
+- **Evidence is absorbed from a standalone Card into an embedded Popover**: consume PR-1 evidence fieldKey binding, hang next to structured key conclusions
 
-**拆分**：本阶段拆 3 个 PR，每个独立交付价值，可串行也可只做前一两步。
+**Split**: this phase splits into 3 PRs, each independently delivering value; they can be serial, or only the first one or two steps can be done.
 
-#### 6.9.1 L1 立即重构（约 250 行）
+#### 6.9.1 L1 immediate refactor (~250 lines)
 
-**目标**：消除明显冗余，把页面高度从 4-5 屏压到 2 屏内，主体内容上浮到首屏。
+**Goal**: remove obvious redundancy, compress page height from 4-5 screens to within 2 screens, and float main content onto the first screen.
 
-**改造点**：
+**Changes**:
 
-- 删除"拆书分析工作区"（Card 1，纯工具说明文字）
-- "任务详情"（Card 2）默认折叠，标题栏显示一行"标题 / 状态 / 进度"摘要 + 展开按钮；发布、元信息、风格提取、错误信息全部收入展开内容
-- 错误信息单独提升为顶部 Banner（与诊断模式 banner 同一槽位，强警示状态独占一行）
-- 删除"证据面板"独立 Card：证据 chip 内嵌到 `BookAnalysisStructuredSummary` 关键结论值旁，点击弹出 Popover 显示 excerpt + sourceLabel + 章节跳转按钮
-- 顶部新增 sticky 工具栏：复制 / 归档 / 重跑 / 下载（含格式下拉）/ 发布（含选小说）/ 风格提取，跟随滚动始终可见
+- Delete “Book analysis workspace” (Card 1, pure tool-explanation text)
+- “Task details” (Card 2) collapsed by default; title bar shows one-line “title / status / progress” summary + expand button; publish, metadata, style extraction, and error info all go into expanded content
+- Error info is separately promoted to a top Banner (same slot as the diagnosis-mode banner; strong warning occupies one exclusive row)
+- Delete the independent “Evidence panel” Card: evidence chips embed next to `BookAnalysisStructuredSummary` key-conclusion values; click opens a Popover showing excerpt + sourceLabel + chapter-jump button
+- Add a top sticky toolbar: copy / archive / rerun / download (with format dropdown) / publish (with novel picker) / style extraction, always visible while scrolling
 
-**文件层级**：
-- `client/src/pages/bookAnalysis/components/BookAnalysisDetailPanel.tsx` — 删 Card 1、Card 2 改折叠、删 Card 4，整体瘦身
-- `client/src/pages/bookAnalysis/components/BookAnalysisTaskDetailsCollapsible.tsx`（新增）— 折叠的任务详情卡片
-- `client/src/pages/bookAnalysis/components/BookAnalysisWorkspaceToolbar.tsx`（新增）— 顶部 sticky 工具栏
-- `client/src/pages/bookAnalysis/components/BookAnalysisErrorBanner.tsx`（新增）— 错误状态顶部 banner
-- `client/src/pages/bookAnalysis/components/BookAnalysisStructuredSummary.tsx` — 关键结论值旁挂证据 chip + Popover
-- `client/src/pages/bookAnalysis/components/BookAnalysisEvidencePopover.tsx`（新增）— chip 点击展开的证据气泡，含跳转按钮
-- `client/src/pages/bookAnalysis/BookAnalysisPage.tsx` — 主结构调整以容纳 sticky 工具栏
-- `client/src/pages/bookAnalysis/hooks/useBookAnalysisWorkspace.ts` — 新增任务详情展开状态、证据弹出选中状态
+**File level**:
+- `client/src/pages/bookAnalysis/components/BookAnalysisDetailPanel.tsx` — delete Card 1, Card 2 becomes collapsible, delete Card 4, overall slim-down
+- `client/src/pages/bookAnalysis/components/BookAnalysisTaskDetailsCollapsible.tsx` (new) — collapsible task-details card
+- `client/src/pages/bookAnalysis/components/BookAnalysisWorkspaceToolbar.tsx` (new) — top sticky toolbar
+- `client/src/pages/bookAnalysis/components/BookAnalysisErrorBanner.tsx` (new) — error-state top banner
+- `client/src/pages/bookAnalysis/components/BookAnalysisStructuredSummary.tsx` — hang evidence chip + Popover next to key-conclusion values
+- `client/src/pages/bookAnalysis/components/BookAnalysisEvidencePopover.tsx` (new) — evidence bubble opened by chip click, including jump button
+- `client/src/pages/bookAnalysis/BookAnalysisPage.tsx` — main-structure adjustment to hold the sticky toolbar
+- `client/src/pages/bookAnalysis/hooks/useBookAnalysisWorkspace.ts` — add task-details expand state and evidence-popover selected state
 
-**验收要点**：
-- 首屏直接能看到小节 Tab 内容
-- 任务详情折叠后不超过 1 行高度
-- 证据 chip 在每个有 fieldKey 绑定的结构化字段旁出现，点击展开 Popover
-- 错误状态以 Banner 形式置顶，不再藏在 Card 2 内
-- sticky 工具栏滚动时不消失
+**Acceptance**:
+- First screen can see section Tab content directly
+- Collapsed task details do not exceed 1 row of height
+- Evidence chips appear next to each structured field with fieldKey binding; click opens Popover
+- Error state is pinned as a Banner, no longer hidden in Card 2
+- Sticky toolbar does not disappear while scrolling
 
-#### 6.9.2 L2 顶层视图切换（约 450 行）
+#### 6.9.2 L2 top-level view switching (~450 lines)
 
-**目标**：把"小节内容 / 角色档案"两类视图改为顶层 Tab 平级切换，每次只显示一个，彻底消灭主区纵向堆叠。
+**Goal**: change “section content / character dossiers” into peer top-level Tab switching, showing only one at a time, fully eliminating vertical stacking in the main area.
 
-**改造点**：
+**Changes**:
 
-- 页面顶部 sticky 工具栏下方新增视图切换 Tab：📖 小节分析 / 👥 角色档案
-- 小节分析视图：现 DetailPanel 的小节 Tab 内容（含 L1 改造后的内嵌证据 Popover）
-- 角色档案视图：现 `BookAnalysisCharacterPanel` 内容
-- 两个视图互斥渲染，切换视图保留 sticky 工具栏始终可见
-- 章节阅读器**不在本阶段独立成视图**，仍以原状态嵌在 DetailPanel 中（等 L3 才提取）
-- 视图状态写入 URL search param（`?view=sections|characters`），刷新和分享链接保持视图
+- Below the page-top sticky toolbar, add view-switch Tabs: 📖 Section analysis / 👥 Character dossiers
+- Section-analysis view: current DetailPanel section-Tab content (including L1-refactored embedded evidence Popover)
+- Character-dossiers view: current `BookAnalysisCharacterPanel` content
+- The two views render mutually exclusively; switching views keeps the sticky toolbar always visible
+- The chapter reader **does not become an independent view in this phase**; it remains nested in DetailPanel as before (extracted only at L3)
+- View state writes to URL search param (`?view=sections|characters`); refresh and share links keep the view
 
-**文件层级**：
-- `client/src/pages/bookAnalysis/components/BookAnalysisWorkbenchViewTabs.tsx`（新增）— 顶层视图切换 Tab
-- `client/src/pages/bookAnalysis/BookAnalysisPage.tsx` — 主结构改为 sticky 工具栏 + 视图 Tab + 内容区
-- `client/src/pages/bookAnalysis/components/BookAnalysisDetailPanel.tsx` — 移除角色档案渲染入口（不再与小节内容堆叠）
-- `client/src/pages/bookAnalysis/hooks/useBookAnalysisWorkspace.ts` — 增加 `activeView: "sections" | "characters"` 状态、URL 同步
-- `client/src/pages/bookAnalysis/hooks/useBookAnalysisActiveView.ts`（新增）— 视图状态独立 hook，含 URL search param 读写
+**File level**:
+- `client/src/pages/bookAnalysis/components/BookAnalysisWorkbenchViewTabs.tsx` (new) — top-level view-switch Tabs
+- `client/src/pages/bookAnalysis/BookAnalysisPage.tsx` — main structure becomes sticky toolbar + view Tabs + content area
+- `client/src/pages/bookAnalysis/components/BookAnalysisDetailPanel.tsx` — remove character-dossier render entry (no longer stacked with section content)
+- `client/src/pages/bookAnalysis/hooks/useBookAnalysisWorkspace.ts` — add `activeView: "sections" | "characters"` state, URL sync
+- `client/src/pages/bookAnalysis/hooks/useBookAnalysisActiveView.ts` (new) — independent view-state hook, including URL search-param read/write
 
-**验收要点**：
-- 视图切换为单视图互斥，无纵向堆叠
-- URL search param 同步、可分享、刷新保留
-- 角色档案视图与小节分析视图共享同一 sticky 工具栏
-- 移动端窄屏行为：Tab 仍可切换，sticky 工具栏自动收缩为下拉菜单（基础响应式）
+**Acceptance**:
+- View switching is mutually exclusive single-view; no vertical stacking
+- URL search param syncs, is shareable, and survives refresh
+- Character-dossiers view and section-analysis view share the same sticky toolbar
+- Mobile narrow-screen behavior: Tabs still switch; sticky toolbar auto-collapses into a dropdown (basic responsive)
 
-#### 6.9.3 L3 双栏对照工作台（约 600 行）
+#### 6.9.3 L3 dual-pane comparison workbench (~600 lines)
 
-**目标**：宽屏（≥1440px）启用"左原文章节阅读器 / 右拆书内容"双栏对照视图；点击证据 chip 时左栏自动定位到来源章节并高亮 excerpt；切换章节时右栏自动滚动到本章相关的关键结论。
+**Goal**: on wide screens (≥1440px) enable a dual-pane comparison view of “left original-chapter reader / right analysis content”; clicking an evidence chip auto-locates the left pane to the source chapter and highlights the excerpt; switching chapters auto-scrolls the right pane to this-chapter related key conclusions.
 
-**改造点**：
+**Changes**:
 
-- 在小节分析视图内增加"模式切换"按钮：单栏（当前 L2 形态）/ 双栏（新增）
-- 双栏模式仅在视口宽度 ≥1440px 启用，窄屏自动降级到单栏并隐藏切换按钮
-- 双栏布局：左栏（flex 1）章节阅读器、右栏（flex 1）小节内容
-- 左栏使用现有 `documentChapters` 数据，提取出独立 `BookAnalysisChapterReader` 组件
-- 联动方向 A：右栏证据 chip 点击 → 左栏滚动到 chapterIndex 并高亮 excerpt 范围
-- 联动方向 B：左栏切换当前阅读章节 → 右栏在每个小节标题旁显示"本章涉及"小标，结构化字段中"来自本章的结论"加视觉强调
-- 双栏模式用户偏好持久化（localStorage），下次进入时默认沿用
-- 角色档案视图保持单栏（角色档案与原文对照价值低，不强制双栏）
+- Add a “mode switch” button inside the section-analysis view: single pane (current L2 form) / dual pane (new)
+- Dual-pane mode enables only when viewport width ≥1440px; narrow screens auto-degrade to single pane and hide the switch button
+- Dual-pane layout: left pane (flex 1) chapter reader, right pane (flex 1) section content
+- Left pane uses existing `documentChapters` data, extracted into an independent `BookAnalysisChapterReader` component
+- Linkage direction A: right-pane evidence-chip click → left pane scrolls to chapterIndex and highlights excerpt range
+- Linkage direction B: left pane switches currently read chapter → right pane shows a “this chapter involved” badge next to each section title, and visually emphasizes structured fields that are “conclusions from this chapter”
+- Dual-pane mode user preference persists (localStorage) and is reused by default next time
+- Character-dossiers view stays single-pane (character dossiers vs original comparison has low value; do not force dual pane)
 
-**文件层级**：
-- `client/src/pages/bookAnalysis/components/BookAnalysisDualPaneLayout.tsx`（新增）— 双栏布局壳
-- `client/src/pages/bookAnalysis/components/BookAnalysisChapterReader.tsx`（新增）— 从 DetailPanel 提取的独立章节阅读器
-- `client/src/pages/bookAnalysis/components/BookAnalysisChapterNavigator.tsx`（新增）— 章节导航（下拉或侧边列表）
-- `client/src/pages/bookAnalysis/components/BookAnalysisDetailPanel.tsx` — 移除章节阅读器逻辑（提取后），增加"本章涉及"小标
-- `client/src/pages/bookAnalysis/components/BookAnalysisStructuredSummary.tsx` — 增加"来自当前章节"视觉强调
-- `client/src/pages/bookAnalysis/hooks/useBookAnalysisChapterCorrelation.ts`（新增）— 双向联动 hook（chip→章节、章节→相关字段）
-- `client/src/pages/bookAnalysis/hooks/useBookAnalysisDualPanePreference.ts`（新增）— 双栏偏好持久化
-- `client/src/pages/bookAnalysis/hooks/useViewportSize.ts`（新增或复用现有响应式 hook）— 视口宽度检测
+**File level**:
+- `client/src/pages/bookAnalysis/components/BookAnalysisDualPaneLayout.tsx` (new) — dual-pane layout shell
+- `client/src/pages/bookAnalysis/components/BookAnalysisChapterReader.tsx` (new) — independent chapter reader extracted from DetailPanel
+- `client/src/pages/bookAnalysis/components/BookAnalysisChapterNavigator.tsx` (new) — chapter navigation (dropdown or side list)
+- `client/src/pages/bookAnalysis/components/BookAnalysisDetailPanel.tsx` — remove chapter-reader logic after extraction; add “this chapter involved” badges
+- `client/src/pages/bookAnalysis/components/BookAnalysisStructuredSummary.tsx` — add “from current chapter” visual emphasis
+- `client/src/pages/bookAnalysis/hooks/useBookAnalysisChapterCorrelation.ts` (new) — two-way linkage hook (chip→chapter, chapter→related fields)
+- `client/src/pages/bookAnalysis/hooks/useBookAnalysisDualPanePreference.ts` (new) — dual-pane preference persistence
+- `client/src/pages/bookAnalysis/hooks/useViewportSize.ts` (new or reuse existing responsive hook) — viewport-width detection
 
-**验收要点**：
-- 视口 ≥1440px 时显示双栏切换按钮；<1440px 隐藏
-- 双栏模式下证据 chip 点击有动画反馈左栏滚动 + 高亮
-- 左栏切章节时右栏视觉强调"本章相关"字段，不滚动右栏避免干扰
-- 双栏偏好持久化，刷新 / 切换分析保留
-- 单栏与双栏切换无数据丢失（小节展开状态、证据选中状态保留）
+**Acceptance**:
+- Viewport ≥1440px shows the dual-pane switch button; <1440px hides it
+- In dual-pane mode, evidence-chip click has animated feedback of left-pane scroll + highlight
+- When the left pane switches chapter, the right pane visually emphasizes “this-chapter related” fields and does not scroll the right pane, avoiding interference
+- Dual-pane preference persists across refresh / switching analyses
+- Switching single-pane and dual-pane loses no data (section expand state, evidence selected state kept)
 
-#### 6.9.4 阶段六共用前置要求
+#### 6.9.4 Phase 6 shared prerequisites
 
-- 阶段二 A1（DocumentChapter 实体）已落地（L3 双栏需要）
-- 阶段二 A2（evidence chapterIndex 绑定）已落地（L1 证据 Popover 跳转需要）
-- 阶段三 C1（BookAnalysisCharacter）已落地（L2 角色档案视图需要）
-- 不依赖阶段四（配图升格）和阶段五（诊断模式），但需测试不破坏
+- Phase 2 A1 (DocumentChapter entity) already landed (needed by L3 dual pane)
+- Phase 2 A2 (evidence chapterIndex binding) already landed (needed by L1 evidence Popover jump)
+- Phase 3 C1 (BookAnalysisCharacter) already landed (needed by L2 character-dossiers view)
+- Does not depend on Phase 4 (image promotion) or Phase 5 (diagnosis mode), but must test that they are not broken
 
-### 6.10 阶段性退出条件
+### 6.10 Phase exit conditions
 
-每阶段合并后留 1-2 周观察期，关注指标：
+After each phase merges, leave a 1-2 week observation window and watch:
 
-- 阶段一：全局指令填写比例（>30% 视为有效，<10% 调整入口）；overview context 注入后单节重跑质量人工抽检
-- 阶段二：章节列表查看比例、按部分章节二次拆书使用率；evidence 跳转点击率
-- 阶段三：深度档案生成完成率、用户人工编辑率、弧线 + 场景的填充密度
-- 阶段四：生图触发率（<15% 回看入口位置和成本提示）、单角色平均生图次数、主图设定率、升格次数、升格携带主图勾选率、升格后 BaseCharacter 在新小说创建中的复用率
-- 阶段五：诊断模式拆书启动率、用户在诊断模式产生的人工编辑量
-- 阶段六 L1：任务详情默认折叠后用户主动展开率、证据 chip 点击率（>15% 视为整合有效）、错误 banner 出现频率
-- 阶段六 L2：视图切换频率、URL 分享后落到正确视图的成功率、移动端 sticky 工具栏可用性
-- 阶段六 L3：双栏切换按钮在宽屏的启用率、单角色证据→章节跳转的平均交互链长度（链短意味着对照阅读真有效）、双栏偏好被持久化保留的用户比例
+- Phase 1: global-instruction fill rate (>30% treated as effective, <10% adjust the entry); human spot-check of single-section rerun quality after overview-context injection
+- Phase 2: chapter-list view rate, use of second analysis by partial chapters; evidence-jump click rate
+- Phase 3: deep-dossier generation completion rate, user manual-edit rate, fill density of arcs + scenes
+- Phase 4: image-generation trigger rate (<15% revisit entry placement and cost hint), average image generations per character, primary-image set rate, promotion count, rate of checking “carry primary image,” reuse rate of promoted BaseCharacter in new-novel creation
+- Phase 5: diagnosis-mode analysis start rate, amount of manual editing produced in diagnosis mode
+- Phase 6 L1: rate of users actively expanding task details after default collapse, evidence-chip click rate (>15% treated as integration effective), error-banner appearance frequency
+- Phase 6 L2: view-switch frequency, success rate of landing the correct view after URL share, mobile sticky-toolbar usability
+- Phase 6 L3: dual-pane switch enablement rate on wide screens, average interaction-chain length of single-character evidence→chapter jump (shorter chain means comparison reading is truly effective), share of users whose dual-pane preference is persisted
 
-### 6.11 通用约束
+### 6.11 Common constraints
 
-- 每阶段开始前更新本 plan 文档对应章节状态
-- 每阶段合并前更新 `docs/releases/release-notes.md`
-- 涉及稳定决策的内容（已稳定的字段、流程、约束）从 plan 迁移到 `docs/wiki/workflows/book-analysis-workflow.md`
-- 单 PR 测试套件必须全通过，不能 break 已有
-- Schema 改动一律纯加列 / 加表，禁止改类型或删字段
-- Prompt 改动通过 `BOOK_ANALYSIS_*` 等共享常量驱动，禁止硬编码 JSON 字段表
+- Before each phase starts, update this plan document’s corresponding section status
+- Before each phase merges, update `docs/releases/release-notes.md`
+- Content involving stable decisions (already-stable fields, flows, constraints) migrates from the plan into `docs/wiki/workflows/book-analysis-workflow.md`
+- Each PR’s test suite must fully pass and must not break existing tests
+- Schema changes are add-column / add-table only; changing types or deleting fields is forbidden
+- Prompt changes are driven by shared constants such as `BOOK_ANALYSIS_*`; hard-coded JSON field tables are forbidden
 
-## 7. 决策记录
+## 7. Decision Log
 
-### 7.1 已决定
+### 7.1 Decided
 
-- **方案 A 共存策略**：`character_system` 小节作为快速概览保留，`BookAnalysisCharacter` 作为深度档案并存，不替换；
-- **角色实体独立**：不复用 `Character` / `CharacterCandidate`；
-- **升格通道由用户显式触发**：不自动同步、不双向追踪；
-- **主线场景是"学习场景"**：扩展方向优先级以学习场景为锚点；
-- **方向 A1 + 方向 C 是本期主投入**：方向 D 仅做扩展点预留；
-- **角色图生成复用现有 image 模块**：扩展 `ImageSceneType` 枚举 + 新增可选关联字段，不重建图像链路；
-- **升格默认携带主图**：升格时默认勾选"同时把主图加入角色库"，用户可取消，避免学习场景接受的图丢失;
-- **任务管理走顶部 sticky 工具栏**：阶段六的发布、归档、重跑、下载、风格提取整合为始终可见的顶部条，二级操作进下拉菜单，不进入视图 Tab；
-- **章节阅读器只在 L3 双栏视图出现**：L2 视图只保留小节分析和角色档案两个 Tab，章节阅读器作为对照阅读的中栏在 L3 才被提取为独立组件。
+- **Option A coexistence strategy**: keep the `character_system` section as a fast overview; `BookAnalysisCharacter` coexists as deep dossiers and does not replace it;
+- **Character entity is independent**: do not reuse `Character` / `CharacterCandidate`;
+- **Promotion channel is user-explicit**: no automatic sync, no two-way tracking;
+- **Main-line scenario is the “learning scenario”**: expansion-direction priority is anchored on the learning scenario;
+- **Direction A1 + Direction C are this cycle’s main investment**: Direction D only reserves extension points;
+- **Character image generation reuses the existing image module**: extend the `ImageSceneType` enum + add an optional relation field; do not rebuild the image chain;
+- **Promotion carries the primary image by default**: on promotion, default-check “also add the primary image to the character library,” user may uncheck, avoiding loss of images accepted in the learning scenario;
+- **Task management goes to a top sticky toolbar**: Phase 6 publish, archive, rerun, download, and style extraction are integrated into an always-visible top bar; secondary actions go into a dropdown and do not enter view Tabs;
+- **Chapter reader appears only in the L3 dual-pane view**: L2 keeps only two Tabs, section analysis and character dossiers; the chapter reader is extracted as an independent component only at L3 as the comparison-reading center pane.
 
-### 7.2 待决定
+### 7.2 Still to decide
 
-- **章节切分策略**：是基于规则（如标题正则）、还是 LLM 切分、还是混合，PR-7 启动前需做小型 POC；
-- **深度档案的默认生成时机**：是与全量拆书一起跑（增加成本），还是用户在拆书结果页主动触发（默认不跑），建议初版选后者；
-- **升格携带哪些字段**：是只携带 schema 共同字段、还是允许用户在升格弹窗中按字段勾选；
-- **角色 × 场景表现的"场景"如何承载**：本期用字符串描述，方向 D 落地后是否回填关联，影响 PR-9 数据模型扩展性；
-- **现有 `CharacterCandidate` 是否参与"识别"过程**：如果 A1 章节实体落地，是否复用 CharacterCandidate 的章节级角色识别能力来辅助 `BookAnalysisCharacter` 初始化，需在 PR-8 启动前评估;
-- **角色图生成入口位置**：是放在角色卡片头部固定按钮、还是折叠到"更多操作"，影响生图触发率；
-- **角色图生成的 prompt 输入**：是只用 `BookAnalysisCharacter.profileJson` 的外形维度、还是把性格 / 高光场景也拼入以增加画面氛围，需小型 A/B 验证；
-- **升格携带图的批量策略**：单次升格是只携带主图、还是允许选择多张携带，前者实现简单、后者更灵活。
+- **Chapter-split strategy**: rule-based (for example title regex), LLM split, or mixed; a small POC is needed before PR-7 starts;
+- **Default generation timing for deep dossiers**: run together with full analysis (adds cost), or user-triggered on the result page (default off); first version should choose the latter;
+- **Which fields promotion carries**: only schema-common fields, or let the user check fields in the promotion dialog;
+- **How character × scene performance “scene” is carried**: this cycle uses a string description; whether to backfill a relation after Direction D lands affects PR-9 data-model extensibility;
+- **Whether existing `CharacterCandidate` participates in “recognition”**: if A1 chapter entity lands, whether to reuse CharacterCandidate’s chapter-level character recognition to help initialize `BookAnalysisCharacter`; evaluate before PR-8 starts;
+- **Character-image generation entry placement**: a fixed button at the character-card header, or folded into “more actions,” affecting image-generation trigger rate;
+- **Character-image generation prompt input**: only the appearance dimension of `BookAnalysisCharacter.profileJson`, or also splice personality / highlight scenes to increase visual atmosphere; needs a small A/B validation;
+- **Batch strategy for carrying images on promotion**: a single promotion carries only the primary image, or allows selecting multiple; the former is simpler, the latter more flexible.
 
-## 8. 失败模式预判
+## 8. Failure Modes
 
-- **深度档案与 character_system 严重不一致**：检查是否传入了 character_system 的角色清单作为生成基线，UI 是否提供"刷新概览"通路；
-- **升格后角色库膨胀**：检查升格是否被默认触发（应为显式），是否有"撤销升格"路径；
-- **方向 D 预留接口被低估**：方向 C 的场景字段用文本承载，未来 D1 落地时如果没有关联字段（如 sceneEntityId 可选），数据回填代价高，PR-8 时必须留好扩展位；
-- **拆书成本暴涨**：深度档案生成是新增 LLM 调用，UI 入口必须提示估算成本，与现有拆书预设的"成本可见"原则一致；
-- **预算用尽后恢复成本过高**：预算失败不应迫使用户整单重做。详情页必须允许单独调整预算，并提供“扩容预算并续跑”路径；续跑只处理非冻结且未成功的小节，成功小节和冻结小节保持不变。
-- **章节实体导致历史数据兼容问题**：A1 落地时旧 `DocumentVersion` 无章节，需要"按需切分、不强制回填"的策略；
-- **角色图生成成本失控**：单角色多次生图、批量角色一键生图，都会显著推高图像 API 成本，UI 必须显示单次成本估算 + 当日累计；如发现用户连点生成按钮的频率高，应加最小间隔限制；
-- **升格携带图后角色库脏数据**：升格时若拆书原图被删除，BaseCharacter 端的克隆副本仍应保留（克隆 = 独立资产），不要做引用而非拷贝；
-- **图像 sceneType 扩展破坏旧逻辑**：现有 `ImageGenerationService.resolveSceneType` 抛错链路必须覆盖新枚举值，否则会在历史路径上误抛 400。
+- **Deep dossiers seriously inconsistent with character_system**: check whether character_system’s character list was passed as a generation baseline, and whether the UI provides a “Refresh overview” path;
+- **Character library inflates after promotion**: check whether promotion is default-triggered (it should be explicit), and whether there is an “undo promotion” path;
+- **Direction D reserved interface underestimated**: Direction C scene fields are carried as text; if D1 later lands without a relation field (for example optional sceneEntityId), backfill cost is high; PR-8 must leave the extension slot;
+- **Analysis cost spikes**: deep-dossier generation is a new LLM call; the UI entry must hint estimated cost, consistent with existing analysis presets’ “cost visible” principle;
+- **Recovery cost after budget exhaustion is too high**: budget failure must not force the user to redo the whole job. The detail page must allow adjusting budget alone, and provide an “expand budget and continue” path; continue only processes non-frozen unsuccessful sections; successful and frozen sections stay unchanged.
+- **Chapter entity causes historical-data compatibility issues**: when A1 lands, old `DocumentVersion` has no chapters; need an “on-demand split, no forced backfill” strategy;
+- **Character-image generation cost runs away**: multiple images per character and one-click batch generation for many characters both significantly raise image-API cost; UI must show per-call cost estimate + daily cumulative; if users click generate in rapid succession, add a minimum-interval limit;
+- **Dirty data in the character library after promotion carries images**: if the original analysis image is deleted after promotion, the cloned copy on the BaseCharacter side must still remain (clone = independent asset); do not use a reference instead of a copy;
+- **Image sceneType extension breaks old logic**: existing `ImageGenerationService.resolveSceneType` throw path must cover the new enum value, or it will wrongly throw 400 on historical paths.
 
-## 9. 相关模块
+## 9. Related Modules
 
 - `server/src/services/bookAnalysis/`
 - `server/src/services/character/`
@@ -636,14 +636,14 @@ E1 是"零工程改动 / 可能打开新场景"的旁路验证，建议作为独
 - `shared/types/bookAnalysis.ts`
 - `shared/types/image.ts`
 - `shared/imagePrompt/`
-- `shared/types/characterProfile.ts`（新增）
-- `shared/types/bookAnalysisCharacter.ts`（新增）
+- `shared/types/characterProfile.ts` (new)
+- `shared/types/bookAnalysisCharacter.ts` (new)
 - `client/src/pages/bookAnalysis/`
 - `client/src/components/image/`
 
-## 10. 来源文档
+## 10. Source Documents
 
-- [拆书工作流](../wiki/workflows/book-analysis-workflow.md)
-- [角色系统升级长期方案](./character-system-upgrade-plan.md)
-- [Prompt Registry 与结构化输出](../wiki/prompts/prompt-registry-and-structured-output.md)
-- [新手优先与整本小说完成原则](../wiki/product/beginner-first-novel-completion.md)
+- [Book analysis workflow](../wiki/workflows/book-analysis-workflow.md)
+- [Character system upgrade long-term plan](./character-system-upgrade-plan.md)
+- [Prompt Registry and structured output](../wiki/prompts/prompt-registry-and-structured-output.md)
+- [Beginner-first and full-novel completion principles](../wiki/product/beginner-first-novel-completion.md)

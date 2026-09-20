@@ -1,91 +1,91 @@
-# 紧张度曲线 React Flow + D3 重构方案
+# Tension-Curve React Flow + D3 Refactor Plan
 
-## 背景
+## Background
 
-紧张度曲线第一版为手写 SVG（固定 720×240 viewBox + 手写线性映射 + 原生指针事件），已确认四个体验问题：
+Tension-curve v1 is handwritten SVG (fixed 720×240 viewBox + handwritten linear mapping + native pointer events). Four experience problems have been confirmed:
 
-1. 60 章挤进固定宽度，点间距约 11px，标签重叠、极易误触相邻章节。
-2. `pointerdown` 按下瞬间即写值并标记用户锚定，没有拖拽缓冲，手抖即误锚定。
-3. 未设置（null）与真实 0 值都贴在基线上，视觉难区分。
-4. 只能拖动、无精确数值输入退路；无缩放、无平移。
+1. 60 chapters packed into a fixed width, point spacing about 11px; labels overlap, and it is very easy to mis-hit an adjacent chapter.
+2. `pointerdown` writes a value and marks a user anchor at the instant of press; there is no drag buffer, so a hand tremor immediately mis-anchors.
+3. Unset (null) and a true 0 both sit on the baseline; they are hard to tell apart visually.
+4. Drag only, with no precise numeric-input fallback; no zoom, no pan.
 
-可视化技术栈已定盘（见 [visualization-stack](../design/visualization-stack.md)），`@xyflow/react` 与 d3 子模块已随 commit `cf2cd07e` 一次性安装。本方案将曲线迁移到 React Flow 画布 + d3 数学的组合上。
+The visualization stack is already decided (see [visualization-stack](../design/visualization-stack.md)); `@xyflow/react` and d3 submodules were installed in one shot with commit `cf2cd07e`. This plan migrates the curve onto a combination of a React Flow canvas + d3 math.
 
-## 设计核心：把"章节点"建模为受约束的 Flow 节点
+## Design core: model “chapter points” as constrained Flow nodes
 
-- **每章一个自定义节点**，位置 `x = chapterOrder × 固定步距`（如 56px），`y = yScale(conflictLevel)`，其中 `yScale` 用 `d3-scale` 的 `scaleLinear`（值域 0–100 ↔ 画布高度）。60 章自然铺开成约 3400px 宽的画布，由 React Flow 的 **pan / zoom / MiniMap** 浏览——密度问题从根上消失，不再靠压缩点距硬塞。
-- **相邻章节点之间连自定义 edge**，edge 跟随节点拖动自动重绘——折线就是 edges 本身，不需要手工维护 polyline。
-- **拖拽约束**：节点拖动时锁定 X（章节序号不可变）、Y 夹在值域内；利用 React Flow 的 `nodeDragThreshold`（约 3px）区分"点击"与"拖拽"，根治"按下即跳变"的误触问题。拖拽结束（`onNodeDragStop`）才换算数值、写回草稿并标记用户锚定——拖拽过程只动视觉，不写状态。
-- **精确输入退路**：选中节点弹出 `NodeToolbar`——包含 0–100 数值输入框（回车确认，标记 user）与"交还 AI"按钮。这同时替代现在底部那排"第 N 章交还 AI"按钮列表（锚定点一多即不可扩展）。
-- **null 与 0 分离**：未设置章节放在坐标区下方的独立"未设置轨道"（灰点、不可拖、Toolbar 提示先细化该章），与真实 0 值在空间上分开。
-- **坐标系背景**：Y 轴刻度线（0/25/50/75/100）与 beat 分段色带经 React Flow 的 `ViewportPortal` 渲染进画布坐标系，随缩放平移同步。
-- **参考线**：模板值经 `d3-shape` 的 `line` + `curveMonotoneX` 生成平滑路径，同样走 `ViewportPortal` 只读叠加。
-- **视窗切换语义升级**：整卷 / 单 beat 切换从"过滤数据"改为"`fitView` 聚焦到该 beat 的节点范围"——上下文不丢，相邻 beat 的走势仍在画布上可见。
-- **只读模式**（卷骨架页缩略图）：`nodesDraggable=false` + 隐藏 Toolbar，同一组件复用。
+- **One custom node per chapter**, position `x = chapterOrder × fixed step` (e.g. 56px), `y = yScale(conflictLevel)`, where `yScale` uses `d3-scale` `scaleLinear` (value domain 0–100 ↔ canvas height). 60 chapters naturally spread into a canvas about 3400px wide, browsed with React Flow **pan / zoom / MiniMap** — the density problem disappears at the root, instead of hard-packing by compressing point spacing.
+- **Custom edges between adjacent chapter nodes**; edges auto-redraw as nodes drag — the polyline *is* the edges; no need to hand-maintain a polyline.
+- **Drag constraints**: while dragging a node, lock X (chapter ordinal is immutable) and clamp Y within the value domain; use React Flow `nodeDragThreshold` (about 3px) to distinguish “click” from “drag”, which roots out the “jump on press” mis-hit. Only on drag end (`onNodeDragStop`) convert to a number, write the draft, and mark a user anchor — during the drag, only visuals move; state is not written.
+- **Precise-input fallback**: selecting a node pops `NodeToolbar` — a 0–100 numeric input (Enter to confirm, mark user) and a “hand back to AI” button. This also replaces the current bottom row of “hand chapter N back to AI” buttons (which do not scale once there are many anchors).
+- **null vs 0 separated**: unset chapters go on an independent “unset track” below the coordinate area (gray dots, not draggable; Toolbar prompts to detail that chapter first), spatially separated from a true 0.
+- **Coordinate-system backdrop**: Y-axis ticks (0/25/50/75/100) and beat segment color bands render into the canvas coordinate system via React Flow `ViewportPortal`, and stay in sync with zoom/pan.
+- **Reference line**: template values generate a smooth path via `d3-shape` `line` + `curveMonotoneX`, also a read-only overlay through `ViewportPortal`.
+- **Viewport-switch semantics upgrade**: whole-volume / single-beat switching changes from “filter data” to “`fitView` onto that beat’s node range” — context is not lost; neighboring beats’ trend stays visible on the canvas.
+- **Read-only mode** (volume-skeleton page thumbnail): `nodesDraggable=false` + hide Toolbar; same component reused.
 
-对外契约不变：`onPointChange` / `onPointRelease` / series props 保持现有签名，两个消费方（节奏拆章工作台、卷骨架页）接入代码基本不动；锚定语义、持久层、prompt 链路零改动——这是纯前端组件层重构。
+External contract unchanged: `onPointChange` / `onPointRelease` / series props keep existing signatures; the two consumers (rhythm chapter-breakdown workbench, volume-skeleton page) need almost no integration-code change; anchoring semantics, persistence, and prompt chain are zero change — this is a pure frontend component-layer refactor.
 
-## 不做的事
+## Out of scope
 
-- 不改锚定/解除锚定的后端语义与接口（Part A/B 已验收的链路不动）。
-- 不做多序列同屏（revealLevel 等仍按 series 数组预留，第一期只渲染 conflictLevel 一条）。
-- 不改 `tensionCurveAnalysis.ts` 的形状体检与参考模板算法（只换消费方式）。
-- 不在本方案迁移 `WorldVisualizationBoard`（独立事项）。
+- Do not change backend semantics or APIs for anchoring / un-anchoring (Part A/B already-accepted chain stays).
+- Do not do multi-series on one screen (revealLevel etc. still reserved via the series array; phase one only renders the conflictLevel series).
+- Do not change `tensionCurveAnalysis.ts` shape health-check and reference-template algorithms (only change how they are consumed).
+- Do not migrate `WorldVisualizationBoard` in this plan (separate item).
 
-## 分步执行计划（文件层级）
+## Step-by-step execution plan (file level)
 
-### Part 1：Flow 画布组件
+### Part 1: Flow canvas components
 
-- `client/src/components/tensionCurve/TensionCurveFlow.tsx`（新）
-  React Flow 实例装配：节点/边生成（数据 → nodes/edges 的纯函数）、拖拽约束与阈值、`onNodeDragStop` 换算回调、fitView 策略、Controls + MiniMap、只读模式开关。样式 `@xyflow/react/dist/style.css` 在此组件内 import（随懒加载 chunk 走，不进首屏）。
-- `client/src/components/tensionCurve/ChapterPointNode.tsx`（新）
-  自定义节点：圆点视觉（AI 蓝 / 锚定红 / 未设置灰）、选中态、NodeToolbar（数值输入 + 交还 AI）、hover 信息（章序、标题、数值、锚定状态）。
-- `client/src/components/tensionCurve/curveCoordinates.ts`（新）
-  纯计算模块：`d3-scale` 的值域映射、步距常量、null 轨道 Y、beat 色带区间计算、参考线路径生成（`d3-shape`）。单测目标。
-- `client/src/components/tensionCurve/CurveBackdrop.tsx`（新）
-  `ViewportPortal` 背景层：Y 轴刻度、网格线、beat 色带、参考曲线路径。
-- `client/src/components/tensionCurve/TensionCurvePanel.tsx`（改）
-  保留外壳（标题、锚定计数、形状体检提示、图例、参考线开关、视窗按钮），图表区从手写 SVG 替换为 `TensionCurveFlow`；删除手写坐标换算与指针事件代码；底部"交还 AI"按钮列表移除（职责移入 NodeToolbar）。
+- `client/src/components/tensionCurve/TensionCurveFlow.tsx` (new)
+  React Flow instance assembly: node/edge generation (data → nodes/edges as a pure function), drag constraints and threshold, `onNodeDragStop` conversion callback, fitView strategy, Controls + MiniMap, read-only mode switch. Style `@xyflow/react/dist/style.css` is imported inside this component (travels with the lazy chunk; not on the first screen).
+- `client/src/components/tensionCurve/ChapterPointNode.tsx` (new)
+  Custom node: dot visuals (AI blue / anchored red / unset gray), selected state, NodeToolbar (numeric input + hand back to AI), hover info (chapter ordinal, title, value, anchor status).
+- `client/src/components/tensionCurve/curveCoordinates.ts` (new)
+  Pure-computation module: `d3-scale` domain mapping, step constants, null-track Y, beat color-band interval calculation, reference-line path generation (`d3-shape`). Unit-test target.
+- `client/src/components/tensionCurve/CurveBackdrop.tsx` (new)
+  `ViewportPortal` backdrop layer: Y-axis ticks, grid lines, beat color bands, reference-curve path.
+- `client/src/components/tensionCurve/TensionCurvePanel.tsx` (change)
+  Keep the shell (title, anchor count, shape health-check hints, legend, reference-line toggle, viewport buttons); chart area replaces handwritten SVG with `TensionCurveFlow`; delete handwritten coordinate conversion and pointer-event code; remove the bottom “hand back to AI” button list (duty moves into NodeToolbar).
 
-### Part 2：消费方接入与懒加载
+### Part 2: Consumer integration and lazy loading
 
-- `client/src/pages/novels/components/StructuredOutlineWorkspace.tsx`、`OutlineTab.tsx`（改）
-  `TensionCurvePanel` 改为 `React.lazy` + `Suspense`（骨架占位），确保 `@xyflow/react` 及 d3 模块进入独立 chunk；props 传递按既有签名微调（视窗切换回调语义从过滤改为聚焦）。
+- `client/src/pages/novels/components/StructuredOutlineWorkspace.tsx`, `OutlineTab.tsx` (change)
+  `TensionCurvePanel` becomes `React.lazy` + `Suspense` (skeleton placeholder), ensuring `@xyflow/react` and d3 modules enter a separate chunk; prop passing is a light tweak of existing signatures (viewport-switch callback semantics from filter to focus).
 
-### Part 3：细节规格与测试
+### Part 3: Detail specs and tests
 
-- 拖拽数值吸附：默认吸附到 5 的倍数，按住 Shift 精调到 1（在 `TensionCurveFlow` 拖拽换算处实现）。
-- `client/tests/`（或就近 `*.test.mjs`，按 client 现有测试约定）：`curveCoordinates` 纯函数单测——值↔坐标往返、clamp 边界、null 轨道、beat 区间。
-- 验证：client typecheck + build，确认 chunk 划分（可视化库不在首屏 chunk）；拖拽/缩放/Toolbar 的 UI 交互验收按项目规范留给用户。
+- Drag-value snap: default snap to multiples of 5; hold Shift to fine-tune to 1 (implemented at `TensionCurveFlow` drag conversion).
+- `client/tests/` (or nearby `*.test.mjs`, per existing client test convention): `curveCoordinates` pure-function unit tests — value↔coordinate round-trip, clamp bounds, null track, beat intervals.
+- Verification: client typecheck + build, confirm chunk split (visualization libraries not in the first-screen chunk); drag/zoom/Toolbar UI interaction acceptance is left to the user per project rules.
 
-## 执行顺序与门禁
+## Execution order and gates
 
-Part 1 → 2 → 3。Part 1 完成后先在节奏拆章工作台单点接入验证，再动卷骨架页。本次为用户可见变更，完成时更新 release notes 与 README 最新更新区块。
+Part 1 → 2 → 3. After Part 1, first single-point integrate and verify on the rhythm chapter-breakdown workbench, then touch the volume-skeleton page. This is a user-visible change; on completion, update release notes and the README latest-updates block.
 
-## 2026-07 首次实施验收偏差与修正项
+## 2026-07 first implementation acceptance gaps and corrections
 
-首次实施（TensionCurvePanel.tsx 单文件改写）引入了 React Flow + d3，但禁用了 pan/zoom 并保留 720×240 固定坐标系，方案核心（步距铺开 + 画布浏览）未落地；NodeToolbar、null 轨道、beat 色带、fitView 聚焦均未实现。验收不通过，修正项如下（按优先级）：
+The first implementation (single-file rewrite of TensionCurvePanel.tsx) introduced React Flow + d3, but disabled pan/zoom and kept the 720×240 fixed coordinate system, so the plan core (step spread + canvas browsing) did not land; NodeToolbar, null track, beat color bands, and fitView focus were all unimplemented. Acceptance failed; corrections follow (by priority):
 
-1. **坐标系改造（本方案原 Part 1 核心，必须做）**：`x = chapterOrder × 步距`（约 56px），删除 720 固定宽映射；开启 `panOnDrag` / `zoomOnScroll`（可限制为仅横向）；`translateExtent` 放宽到画布实际尺寸；接入 `Controls` 与 `MiniMap`；X 轴章节标签按缩放级别抽稀（整卷视图隔 5 章一标）。
-2. **批量交还 AI（新增，数据污染现状下最急）**：曲线工具条增加"整卷交还 AI"与"当前节奏段交还 AI"；消费方（StructuredOutlineWorkspace）新增批量回调，逐章走既有同值 + `conflictLevelSource: "ai"` 释放通道；底部逐章按钮列表删除。
-3. **NodeToolbar（原方案 Part 1）**：选中节点显示数值精确输入 + 单点交还 AI，替代按钮列表。
-4. **null 独立轨道（原方案 Part 1）**：未设置章节放坐标区下方专用轨道，不再与 0 值同线。
-5. **图例收敛**：五张说明卡折叠为单行紧凑图例，说明文案移入 hover。
-6. **beat 色带 + fitView 聚焦切换（原方案 Part 1/2）**：可随 1 落地或紧随其后。
-7. **结构治理**：`buildCanvasData` 与 `layout` 两处重复的 segment 构建逻辑合并；坐标纯函数抽到 `curveCoordinates.ts` 并补单测（原方案 Part 3）。
+1. **Coordinate-system rebuild (this plan’s original Part 1 core; must do)**: `x = chapterOrder × step` (about 56px); delete the 720 fixed-width mapping; enable `panOnDrag` / `zoomOnScroll` (may restrict to horizontal only); relax `translateExtent` to actual canvas size; wire `Controls` and `MiniMap`; thin X-axis chapter labels by zoom level (whole-volume view labels every 5 chapters).
+2. **Batch hand-back to AI (new; most urgent given current data pollution)**: curve toolbar adds “hand whole volume back to AI” and “hand current rhythm beat back to AI”; consumer (StructuredOutlineWorkspace) adds a batch callback that walks chapters through the existing same-value + `conflictLevelSource: "ai"` release channel; delete the bottom per-chapter button list.
+3. **NodeToolbar (original plan Part 1)**: selected node shows precise numeric input + single-point hand-back to AI, replacing the button list.
+4. **Independent null track (original plan Part 1)**: unset chapters go on a dedicated track below the coordinate area, no longer on the same line as 0.
+5. **Legend convergence**: fold five explanation cards into a single compact legend row; explanation copy moves into hover.
+6. **Beat color bands + fitView focus switching (original plan Part 1/2)**: can land with 1 or immediately after.
+7. **Structure governance**: merge duplicated segment-build logic in `buildCanvasData` and `layout`; extract coordinate pure functions into `curveCoordinates.ts` and add unit tests (original plan Part 3).
 
-### 本轮修正进展
+### This-round correction progress
 
-- 已完成坐标系核心修正：章节 X 轴改为固定步距铺开，React Flow 开启 pan / zoom，并接入 Controls 与 MiniMap；节奏段切换改为视图聚焦，不再过滤掉上下文章节。
-- 已完成批量交还 AI：曲线工具条提供“整卷交还 AI”和“当前节奏段交还 AI”，工作台逐章复用既有同值 `conflictLevelSource: "ai"` 释放通道。
-- 已完成 NodeToolbar：点选章节节点后可直接输入 0–100 精确值，用户锚定点可在节点工具条内交还 AI；底部逐章交还按钮列表已移除。
-- 已完成 null 独立轨道：暂无强度章节进入“待定”轨道，不再与真实 0 值共用基线。
-- 已完成图例收敛：五张说明卡改为单行紧凑图例，详细解释放入 hover。
-- 已完成结构治理第一步：坐标计算抽到 `curveCoordinates.ts`，节点 / 背景 / 图例抽到 `TensionCurveNodes.tsx`，Panel 回到装配层且单文件行数回落到项目阈值内。
-- 未完成项：`curveCoordinates` 纯函数单测、懒加载 chunk 验证、完整浏览器交互验收仍待后续补齐。
+- Coordinate-system core correction done: chapter X-axis changed to fixed-step spread; React Flow enabled pan / zoom and wired Controls and MiniMap; rhythm-beat switching became view focus and no longer filters away context chapters.
+- Batch hand-back to AI done: curve toolbar provides “hand whole volume back to AI” and “hand current rhythm beat back to AI”; the workbench reuses the existing same-value `conflictLevelSource: "ai"` release channel chapter by chapter.
+- NodeToolbar done: after selecting a chapter node, 0–100 precise values can be typed; user-anchored points can be handed back to AI inside the node toolbar; the bottom per-chapter hand-back button list has been removed.
+- Independent null track done: chapters with no intensity yet enter the “pending” track and no longer share a baseline with a true 0.
+- Legend convergence done: five explanation cards became a single compact legend row; detailed explanation goes into hover.
+- Structure-governance first step done: coordinate math extracted to `curveCoordinates.ts`; nodes / backdrop / legend extracted to `TensionCurveNodes.tsx`; Panel returned to an assembly layer and single-file line count fell back within the project threshold.
+- Remaining: `curveCoordinates` pure-function unit tests, lazy-chunk verification, and full browser interaction acceptance still to be completed later.
 
-## 验收维度
+## Acceptance dimensions
 
-- **符合度**：对外 props 契约与锚定语义零变化；四个已确认的体验问题（密度、误触、null/0 混淆、无精确输入）逐一有对应机制消除；懒加载纪律符合 visualization-stack 决策。
-- **完成度**：Part 1–3 全部为第一期必须项。
-- **风险性**：重点确认拖拽结束才写值（过程不产生锚定）、只读模式确实无任何写路径、beat 聚焦切换在章节数为 0 / 1 的边界不崩、`@xyflow/react` 样式引入不污染全局 CSS。
+- **Fit**: external props contract and anchoring semantics zero change; each of the four confirmed experience problems (density, mis-hit, null/0 confusion, no precise input) has a corresponding mechanism that removes it; lazy-loading discipline matches the visualization-stack decision.
+- **Completeness**: Parts 1–3 are all phase-one must-haves.
+- **Risk**: focus on confirming values are written only on drag end (process does not produce anchors), read-only mode truly has no write path, beat-focus switching does not crash at 0 / 1 chapter boundaries, and introducing `@xyflow/react` styles does not pollute global CSS.

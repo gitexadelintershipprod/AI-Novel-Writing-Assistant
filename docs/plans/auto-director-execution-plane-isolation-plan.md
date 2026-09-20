@@ -1,65 +1,65 @@
-# 自动导演执行面隔离与 API 保活计划
+# Auto-Director Execution Plane Isolation and API Keep-Alive Plan
 
-更新日期：2026-04-29
+Updated: 2026-04-29
 
-关联文档：
+Related documents:
 
-- [自动导演 Runtime 与恢复边界](../wiki/workflows/auto-director-runtime.md)
-- [导演模式模块化与状态治理改造清单](./director-mode-module-state-refactor-checklist.md)
-- [提示词工作台、上下文装配与统一步骤运行时方案](./prompt-workbench-context-and-step-runtime-plan.md)
+- [Auto-Director Runtime and Recovery Boundaries](../wiki/workflows/auto-director-runtime.md)
+- [Director Mode Modularization and State Governance Refactor Checklist](./director-mode-module-state-refactor-checklist.md)
+- [Prompt Workbench, Context Assembly, and Unified Step Runtime Plan](./prompt-workbench-context-and-step-runtime-plan.md)
 
-## 1. 背景与事故结论
+## 1. Background and Incident Conclusion
 
-2026-04-29 在测试 `摸头杀驯化全公司兽化危机` 的自动导演恢复 / 继续链路时，出现以下现象：
+On 2026-04-29, while testing the auto-director resume / continue chain for `Head-Pat Domestication: Company-Wide Beastification Crisis`, the following symptoms appeared:
 
-- 点击“继续导演”后，`POST /api/novel-workflows/:id/continue` 长时间挂起。
-- 同一时间，`/api/tasks/overview`、`/api/novel-workflows/novels/:novelId/auto-director`、`/api/novels/:novelId/volumes` 等普通查询接口也开始挂起。
-- 后端日志显示任务进入 `runDirectorStructuredOutlinePhase -> chapter_list -> generateVolumes`，并伴随高内存预约锁竞争和大体积卷工作区读写。
-- 将 continue 路由改为 `202 Accepted`、延后后台启动后，仍无法根治，因为重型自动导演执行仍在 Web API 主进程中运行。
+- After clicking "Continue Director", `POST /api/novel-workflows/:id/continue` hung for a long time.
+- At the same time, ordinary query APIs such as `/api/tasks/overview`, `/api/novel-workflows/novels/:novelId/auto-director`, and `/api/novels/:novelId/volumes` also started hanging.
+- Backend logs showed the task entering `runDirectorStructuredOutlinePhase -> chapter_list -> generateVolumes`, accompanied by high memory reservation lock contention and large-volume workspace reads and writes.
+- Changing the continue route to `202 Accepted` and deferring background startup still did not fix the root cause, because heavy auto-director execution was still running in the Web API main process.
 
-最终判断：
+Final judgment:
 
-> 这不是单个接口慢，也不是单纯前端轮询过多，而是自动导演执行面与 Web API 控制面没有隔离。重型小说生产链路运行在同一个 Node 进程内，导致事件循环、SQLite/Prisma 写锁和大对象处理共同拖住所有 API。
+> This is not a single slow endpoint, nor merely excessive frontend polling. The auto-director execution plane and the Web API control plane were not isolated. The heavy novel production chain ran in the same Node process, so the event loop, SQLite/Prisma write locks, and large-object handling together stalled all APIs.
 
-## 2. 必须禁止的架构形态
+## 2. Architecture Shapes That Must Not Be Reintroduced
 
-以下做法从本文生效后禁止重新引入：
+From the moment this document takes effect, the following practices are forbidden from being reintroduced:
 
-1. API route 直接 `await` 自动导演长任务、章节生成、卷拆章、质量修复、批量执行或任何 LLM 生产链路。
-2. Web API 主进程直接承担高成本 `structured_outline / chapter_list / chapter_detail_bundle / chapter_execution / quality_repair` 执行。
-3. 用 `setImmediate`、`void Promise`、`fire-and-forget` 在同一个 Web API 进程里伪装后台任务，作为长期方案。
-4. 前端在自动导演运行中反复轮询大体积小说资产接口，例如高频拉取 `volumes` 作为进度来源。
-5. 活动任务状态接口返回完整 `seedPayload`、完整 `directorSession`、候选批次、运行时快照或章节大对象。
-6. 用 UI 禁用按钮、减少轮询、延迟 toast 等方式掩盖后端执行面阻塞。
-7. 让任务状态、运行时投影、产物真相继续散落在 route、service、seed payload 和前端缓存之间。
+1. An API route directly `await`ing an auto-director long task, chapter generation, volume chapter splitting, quality repair, batch execution, or any LLM production chain.
+2. The Web API main process directly carrying high-cost `structured_outline / chapter_list / chapter_detail_bundle / chapter_execution / quality_repair` execution.
+3. Using `setImmediate`, `void Promise`, or `fire-and-forget` inside the same Web API process to fake background work as a long-term solution.
+4. The frontend repeatedly polling large novel-asset APIs while auto-director is running, for example frequently fetching `volumes` as a progress source.
+5. Active-task status APIs returning a full `seedPayload`, a full `directorSession`, candidate batches, runtime snapshots, or large chapter objects.
+6. Using UI disabled buttons, reduced polling, delayed toasts, and similar tactics to hide backend execution-plane blocking.
+7. Letting task status, runtime projections, and artifact truth continue to scatter across routes, services, seed payloads, and frontend caches.
 
-允许的短期过渡只能用于保护用户数据或停止事故扩散，不能作为完成标准。
+Short-term stopgaps are allowed only to protect user data or stop an incident from spreading; they are not completion criteria.
 
-## 3. 目标架构
+## 3. Target Architecture
 
-自动导演必须拆为两个面：
+Auto-director must be split into two planes:
 
 ```text
-Web API 控制面
-  - 接收命令
-  - 返回轻量任务投影
-  - 提供任务中心 / 小说页状态查询
-  - 管理用户确认、策略配置和取消请求
-  - 不执行重型生产链路
+Web API control plane
+  - Receive commands
+  - Return lightweight task projections
+  - Serve task-center / novel-page status queries
+  - Manage user confirmation, policy configuration, and cancel requests
+  - Do not execute the heavy production chain
 
-执行面 Worker
-  - 领取任务租约
-  - 执行 Step Module / NodeRunner
-  - 调用 LLM
-  - 处理大 prompt、大 JSON、结构化解析
-  - 写 Artifact Ledger / DirectorEvent / WorkflowTask 状态
-  - 按检查点幂等恢复
+Execution-plane Worker
+  - Claim a task lease
+  - Execute Step Module / NodeRunner
+  - Call the LLM
+  - Handle large prompts, large JSON, and structured parsing
+  - Write Artifact Ledger / DirectorEvent / WorkflowTask status
+  - Recover idempotently from checkpoints
 ```
 
-数据流统一为：
+Unified data flow:
 
 ```text
-前端继续 / 恢复 / 接管命令
+Frontend continue / resume / takeover command
   -> Web API command route
   -> DirectorRunCommand / WorkflowTask queued
   -> Worker lease
@@ -69,27 +69,27 @@ Web API 控制面
   -> Artifact Ledger
   -> DirectorEvent
   -> Runtime Projection
-  -> 前端轻量轮询
+  -> Frontend lightweight polling
 ```
 
-## 4. 模块边界
+## 4. Module Boundaries
 
-| 模块 | 职责 | 禁止事项 |
+| Module | Responsibility | Forbidden |
 | --- | --- | --- |
-| Web API routes | 验证输入、创建命令、返回 `202` 或轻量查询结果 | 不调用 LLM、不生成卷/章、不直接跑自动导演阶段 |
-| Director Command Service | 将用户动作转成幂等命令，绑定 task/run/lease key | 不执行具体生产步骤 |
-| Director Worker | 领取命令、续租、执行、失败落态、释放租约 | 不提供用户查询接口 |
-| DirectorRuntimeService | 运行时门面、状态快照、事件、策略、节点调度 | 不直接绕过 Worker 被 route 调用长任务 |
-| NodeRunner / Step Module | 标准执行单元、读写声明、策略判断、产物写入 | 不直接操作 UI 状态 |
-| PolicyEngine | 覆盖保护、成本 gate、范围 gate、审批 gate | 不被前端绕过 |
-| Artifact Ledger | 产物真相、版本、依赖、stale、保护状态 | 不只作为 seed payload wrapper |
-| Runtime Projection | 面向 UI 的轻量状态 | 不返回完整大体积小说资产 |
+| Web API routes | Validate input, create commands, return `202` or lightweight query results | Do not call the LLM, do not generate volumes/chapters, do not run auto-director stages directly |
+| Director Command Service | Turn user actions into idempotent commands bound to a task/run/lease key | Do not execute concrete production steps |
+| Director Worker | Claim commands, renew leases, execute, persist failure state, release leases | Do not serve user query APIs |
+| DirectorRuntimeService | Runtime facade, state snapshots, events, policy, node scheduling | Do not bypass the Worker by being invoked from a route for long tasks |
+| NodeRunner / Step Module | Standard execution unit, read/write declarations, policy judgment, artifact writes | Do not mutate UI state directly |
+| PolicyEngine | Overwrite protection, cost gates, scope gates, approval gates | Must not be bypassed by the frontend |
+| Artifact Ledger | Artifact truth, versions, dependencies, stale, protection state | Must not exist only as a seed payload wrapper |
+| Runtime Projection | Lightweight UI-facing state | Do not return full large novel assets |
 
-## 5. 数据模型与持久化计划
+## 5. Data Model and Persistence Plan
 
 ### 5.1 DirectorRunCommand
 
-用于记录所有可执行命令：
+Used to record every executable command:
 
 - `id`
 - `taskId`
@@ -104,301 +104,301 @@ Web API 控制面
 - `errorMessage`
 - `createdAt / updatedAt`
 
-要求：
+Requirements:
 
-- 同一个 `taskId + commandType + idempotencyKey` 必须幂等。
-- 重复点击继续只能复用或返回已有运行命令，不能启动第二条执行链。
-- cancel 命令不能直接杀进程，先写取消意图，由 Worker 在安全检查点响应。
+- The same `taskId + commandType + idempotencyKey` must be idempotent.
+- Repeated clicks of continue may only reuse or return an existing run command; they must not start a second execution chain.
+- A cancel command must not kill the process directly. Write a cancel intent first; the Worker responds at a safe checkpoint.
 
 ### 5.2 DirectorRun / StepRun / Event / Artifact
 
-继续推进当前已落地的 additive schema：
+Continue advancing the additive schema already landed:
 
-- `DirectorRun` 代表一次可恢复的导演运行。
-- `DirectorStepRun` 代表标准节点执行。
-- `DirectorEvent` 代表可投影进度。
-- `DirectorArtifact` / `DirectorArtifactDependency` 代表产物真相与依赖。
+- `DirectorRun` represents one recoverable director run.
+- `DirectorStepRun` represents a standard node execution.
+- `DirectorEvent` represents projectable progress.
+- `DirectorArtifact` / `DirectorArtifactDependency` represent artifact truth and dependencies.
 
-补齐要求：
+Completion requirements:
 
-- Web API 查询只读 projection，不扫描大体积 ledger。
-- Worker 写事件必须 append-only，状态更新可投影。
-- Artifact Ledger 必须支持缺失判断、stale 判断、用户内容保护和局部恢复。
+- Web API queries read projections only; they do not scan the large ledger.
+- Worker event writes must be append-only; state updates must be projectable.
+- Artifact Ledger must support missing detection, stale detection, user-content protection, and partial recovery.
 
 ### 5.3 WorkerLease
 
-如果不单独建表，可先合并进 `DirectorRunCommand`；但语义必须存在：
+If a separate table is not created, it may first be merged into `DirectorRunCommand`; the semantics must still exist:
 
-- 租约必须有过期时间。
-- Worker 启动时先回收过期租约。
-- 服务重启后，不自动静默续跑，先进入待手动恢复或可继续队列，按当前产品策略执行。
+- A lease must have an expiration time.
+- On Worker startup, expired leases are reclaimed first.
+- After a service restart, do not silently continue running automatically. First enter a pending-manual-recovery or continuable queue, and follow the current product policy.
 
-## 6. 后端实施计划
+## 6. Backend Implementation Plan
 
-### 阶段 1：命令化入口
+### Phase 1: Command-style entrypoints
 
-目标：所有继续 / 恢复 / 重试入口先变成命令写入。
+Goal: every continue / resume / retry entrypoint first becomes a command write.
 
-任务：
+Tasks:
 
-- 新增 `DirectorCommandService`。
-- `POST /api/novel-workflows/:id/continue` 只创建 command，返回 `202`。
-- `POST /api/tasks/recovery-candidates/:kind/:id/resume` 只创建 resume command，返回 `202`。
-- `retryTask(..., resume: true)` 对自动导演任务转成 retry/resume command。
-- API 返回体只包含 command id、task id、当前轻量状态，不再返回完整任务详情。
+- Add `DirectorCommandService`.
+- `POST /api/novel-workflows/:id/continue` only creates a command and returns `202`.
+- `POST /api/tasks/recovery-candidates/:kind/:id/resume` only creates a resume command and returns `202`.
+- `retryTask(..., resume: true)` for auto-director tasks becomes a retry/resume command.
+- The API response body contains only command id, task id, and current lightweight status; it no longer returns full task details.
 
-完成标准：
+Completion criteria:
 
-- route 层没有任何 `await runDirectorPipeline / continueTask / generateVolumes / repair / chapterExecution`。
-- continue 接口在本机压力下 `P95 < 500ms`。
-- 重复点击继续只产生一个 active command。
+- The route layer has no `await runDirectorPipeline / continueTask / generateVolumes / repair / chapterExecution`.
+- Under local load, the continue API has `P95 < 500ms`.
+- Repeated clicks of continue produce only one active command.
 
-### 阶段 2：Worker 执行面
+### Phase 2: Worker execution plane
 
-目标：自动导演重型执行从 Web API 主进程移出。
+Goal: move heavy auto-director execution out of the Web API main process.
 
-任务：
+Tasks:
 
-- 新增 `server/src/workers/directorWorker.ts`。
-- 新增 Worker polling loop：领取 queued command、写 lease、执行、续租、完成或失败落态。
-- root dev 脚本区分 `server api` 与 `director worker`，开发态可并行启动，但进程必须分离。
-- 桌面宿主后续也必须分别管理 API 与 Worker 生命周期。
-- Worker 内部调用现有 `NovelDirectorService / DirectorRuntimeOrchestrator` 的执行方法，但 route 不再直接调用这些执行方法。
+- Add `server/src/workers/directorWorker.ts`.
+- Add a Worker polling loop: claim queued commands, write a lease, execute, renew the lease, and persist success or failure.
+- Root dev scripts distinguish `server api` from `director worker`. They may start in parallel in development, but they must be separate processes.
+- The desktop host must later also manage API and Worker lifecycles separately.
+- Inside the Worker, call existing execution methods on `NovelDirectorService / DirectorRuntimeOrchestrator`, but routes no longer call those execution methods directly.
 
-完成标准：
+Completion criteria:
 
-- `3000` API 进程忙碌度不随结构化拆章生成显著上升。
-- Worker 进程 CPU / 内存消耗可单独观察。
-- Worker 崩溃不会让 API 进程停止响应。
+- Busy-ness of the `3000` API process does not rise significantly with structured chapter-list generation.
+- Worker process CPU / memory consumption can be observed independently.
+- A Worker crash does not stop the API process from responding.
 
-### 阶段 3：执行方法瘦身与专用 Worker API
+### Phase 3: Slim execution methods and a dedicated Worker API
 
-目标：避免 Worker 仍通过巨型 `NovelDirectorService` 门面绕回 API 语义。
+Goal: prevent the Worker from still looping back into API semantics through the giant `NovelDirectorService` facade.
 
-任务：
+Tasks:
 
-- 抽出 `DirectorExecutionService`，只供 Worker 调用。
-- `NovelDirectorService` 收敛为 API facade 与兼容入口。
-- `continueTask` 拆成：
+- Extract `DirectorExecutionService`, callable only by the Worker.
+- Converge `NovelDirectorService` into an API facade and compatibility entrypoint.
+- Split `continueTask` into:
   - `createContinueCommand`
   - `prepareResumeContext`
   - `executeContinueCommand`
-- `structured_outline` 拆为独立 step：`beat_sheet`、`chapter_list`、`chapter_detail_bundle`、`chapter_sync`。
+- Split `structured_outline` into independent steps: `beat_sheet`, `chapter_list`, `chapter_detail_bundle`, `chapter_sync`.
 
-完成标准：
+Completion criteria:
 
-- `NovelDirectorService` 不再承担 worker loop、command、route 和执行细节混合职责。
-- 新增自动导演能力必须注册 Step Module，不允许直接加到主 service 分支。
+- `NovelDirectorService` no longer mixes worker-loop, command, route, and execution-detail responsibilities.
+- New auto-director capabilities must register a Step Module; they may not be added directly as branches on the main service.
 
-### 阶段 4：轻量投影与前端降载
+### Phase 4: Lightweight projections and frontend load reduction
 
-目标：前端运行中只读轻量状态，不用高频拉大体积资产。
+Goal: while running, the frontend only reads lightweight state and does not frequently pull large assets.
 
-任务：
+Tasks:
 
-- 新增或强化 `GET /api/novels/director/runtime/:taskId/projection`。
-- 小说页运行中默认轮询 projection，周期不低于 `4000ms`。
-- `GET /api/novel-workflows/novels/:novelId/auto-director` 只能返回活动任务轻量详情；不得把完整 `seedPayload` / `directorSession` 用作轮询响应。
-- `volumes` 只在事件版本变化、用户切换到卷工作区或生成完成时刷新。
-- 自动导演进度条、任务中心和侧栏都从 projection 读状态。
-- 删除运行中对 `volumes` 的固定 2 秒 invalidate。
+- Add or strengthen `GET /api/novels/director/runtime/:taskId/projection`.
+- The novel page while running polls the projection by default, with a period of no less than `4000ms`.
+- `GET /api/novel-workflows/novels/:novelId/auto-director` may only return lightweight details of the active task; it must not use a full `seedPayload` / `directorSession` as a polling response.
+- `volumes` is refreshed only when the event version changes, the user switches to the volume workspace, or generation completes.
+- The auto-director progress bar, task center, and sidebar all read status from the projection.
+- Remove the in-run fixed 2-second invalidate of `volumes`.
 
-完成标准：
+Completion criteria:
 
-- 后台执行时，浏览器不再堆积 `volumes` 挂起请求。
-- projection 响应体保持小于 `20KB`，P95 小于 `300ms`。
-- 活动自动导演任务响应不得携带候选批次、章节正文、prompt 上下文、运行时大快照等执行面大对象。
+- During background execution, the browser no longer piles up hung `volumes` requests.
+- Projection response bodies stay under `20KB`, with P95 under `300ms`.
+- Active auto-director task responses must not carry execution-plane large objects such as candidate batches, chapter body text, prompt context, or large runtime snapshots.
 
-### 阶段 5：SQLite / Prisma 写入隔离
+### Phase 5: SQLite / Prisma write isolation
 
-目标：减少 Worker 写锁对 API 查询面的影响。
+Goal: reduce the impact of Worker write locks on the API query plane.
 
-任务：
+Tasks:
 
-- Worker 写入使用短事务，不在事务内调用 LLM 或做大 JSON 计算。
-- 大体积 workspace 文档写入前先在内存完成，事务只做最终落库。
-- 对 `volumes` / runtime projection 查询提供轻量 select，避免读取不必要大字段。
-- 长写入阶段通过 event 先写进度，避免 UI 等待完整 workspace。
+- Worker writes use short transactions; do not call the LLM or perform large JSON computation inside a transaction.
+- Large workspace documents are finished in memory before write; the transaction only performs the final persist.
+- Provide lightweight selects for `volumes` / runtime projection queries so unnecessary large fields are not read.
+- During long write phases, write progress via events first so the UI does not wait for a complete workspace.
 
-完成标准：
+Completion criteria:
 
-- 后台拆章期间 `/api/tasks/overview`、runtime projection、任务详情不被 SQLite 写锁长期阻塞。
-- Prisma query 日志不再出现同一长任务内持续阻塞普通查询的模式。
+- During background chapter splitting, `/api/tasks/overview`, runtime projection, and task details are not blocked for long by SQLite write locks.
+- Prisma query logs no longer show a pattern of ordinary queries being continuously blocked inside the same long task.
 
-### 阶段 6：恢复、取消和失败语义
+### Phase 6: Resume, cancel, and failure semantics
 
-目标：Worker 化后恢复链仍然幂等、可解释、可手动接管。
+Goal: after Workerization, the recovery chain remains idempotent, explainable, and open to manual takeover.
 
-任务：
+Tasks:
 
-- Worker 启动时扫描 stale lease，将命令标记为 `stale`，任务进入待手动恢复。
-- 用户点击恢复创建新 command，不复用已 stale 的执行现场。
-- cancel 写入取消命令和 abort intent，Worker 在 step 边界停止。
-- 失败落态必须包含：
+- On Worker startup, scan stale leases, mark commands as `stale`, and put the task into pending manual recovery.
+- When the user clicks resume, create a new command; do not reuse an already-stale execution scene.
+- Cancel writes a cancel command and abort intent; the Worker stops at a step boundary.
+- Failure persistence must include:
   - `lastHealthyStage`
   - `blockingReason`
   - `resumeAction`
   - `recoverableArtifactRefs`
 
-完成标准：
+Completion criteria:
 
-- 服务重启后不会出现假 running。
-- 取消、恢复、重试不会启动并发双链。
-- 用户能看到从哪里恢复、为什么停、下一步是什么。
+- After a service restart there is no fake running.
+- Cancel, resume, and retry do not start concurrent dual chains.
+- The user can see where to resume from, why it stopped, and what the next step is.
 
-## 7. 前端实施计划
+## 7. Frontend Implementation Plan
 
-必须完成：
+Must complete:
 
-1. 自动导演运行中，页面只轮询 runtime projection。
-2. `continue` 成功后按钮立刻退出 pending，显示“已提交继续请求 / 排队中 / 执行中”状态。
-3. 运行中不再每 2 秒强制 invalidate `volumeWorkspace`。
-4. 任务中心只读 task summary + projection，不读取大体积 workspace。
-5. “打开当前任务位置”才拉对应业务资产。
-6. 发生 Worker stale / failed 时，显示待恢复动作，不显示运行中。
+1. While auto-director is running, the page only polls the runtime projection.
+2. After `continue` succeeds, the button immediately leaves pending and shows "Continue request submitted / queued / running" status.
+3. While running, no longer force-invalidate `volumeWorkspace` every 2 seconds.
+4. The task center only reads task summary + projection; it does not read large workspaces.
+5. "Open current task location" is what pulls the corresponding business assets.
+6. On Worker stale / failed, show pending-recovery actions, not running.
 
-用户体验目标：
+UX goals:
 
-- 新手看到的是“系统正在推进第几步”，不是浏览器卡住。
-- 页面可继续点击任务中心、项目导航、查看当前进度。
-- 长任务不会把整个工作台变成不可用。
+- What a beginner sees is "the system is advancing which step", not a frozen browser.
+- The page remains clickable for the task center, project navigation, and current progress.
+- A long task does not make the entire workbench unusable.
 
-## 8. 观测与回归测试
+## 8. Observability and Regression Tests
 
-必须新增以下回归：
+The following regressions must be added:
 
 1. `continue route returns quickly`
-   - 模拟执行服务阻塞 10 秒。
-   - 断言 route `500ms` 内返回 `202`。
+   - Simulate the execution service blocking for 10 seconds.
+   - Assert the route returns `202` within `500ms`.
 
 2. `api remains responsive while director worker is running`
-   - 启动 Worker 执行长 structured outline mock。
-   - 同时请求 `/api/tasks/overview`。
-   - 断言普通接口仍在 `500ms` 内返回。
+   - Start the Worker executing a long structured outline mock.
+   - Concurrently request `/api/tasks/overview`.
+   - Assert ordinary APIs still return within `500ms`.
 
 3. `duplicate continue is idempotent`
-   - 同一 task 连点继续。
-   - 断言只有一个 active command / lease。
+   - Repeatedly click continue on the same task.
+   - Assert there is only one active command / lease.
 
 4. `worker stale lease becomes manual recovery`
-   - 模拟 Worker 中断。
-   - 断言任务不显示 running，显示待手动恢复。
+   - Simulate a Worker interruption.
+   - Assert the task does not show running and shows pending manual recovery.
 
 5. `running page does not poll heavy volumes repeatedly`
-   - 前端测试或浏览器自动化检查运行态请求。
-   - 断言高频轮询只命中 projection，不堆积 `volumes`。
+   - Frontend tests or browser automation inspect running-state requests.
+   - Assert high-frequency polling only hits the projection and does not pile up `volumes`.
 
 6. `sqlite write lock does not freeze task overview`
-   - 模拟 Worker 短事务写入。
-   - 断言 overview 查询可返回。
+   - Simulate Worker short-transaction writes.
+   - Assert overview queries can return.
 
-验收必须包含真实 Prisma 抽样：
+Acceptance must include real Prisma sampling:
 
-- 旧项目接管。
-- 服务重启后手动恢复。
-- `structured_outline` 从节奏板恢复到章节列表。
-- 章节批量执行失败后恢复。
-- 用户手动修改后影响分析和局部恢复。
+- Takeover of an old project.
+- Manual recovery after a service restart.
+- `structured_outline` recovering from beat sheet to chapter list.
+- Recovery after chapter batch-execution failure.
+- User manual edits affecting analysis and partial recovery.
 
-## 9. 性能门槛
+## 9. Performance Gates
 
-硬性门槛：
+Hard gates:
 
-- `POST /continue`：P95 `< 500ms`。
-- `/api/tasks/overview`：后台执行期间 P95 `< 500ms`。
-- runtime projection：后台执行期间 P95 `< 300ms`。
-- 自动导演运行中，前端不得持续堆积 pending XHR。
-- Worker 崩溃后，API 仍可打开任务中心和恢复弹窗。
+- `POST /continue`: P95 `< 500ms`.
+- `/api/tasks/overview`: P95 `< 500ms` during background execution.
+- runtime projection: P95 `< 300ms` during background execution.
+- While auto-director is running, the frontend must not continuously pile up pending XHR.
+- After a Worker crash, the API can still open the task center and the recovery dialog.
 
-任何不满足以上门槛的提交，不得视为自动导演恢复链完成。
+Any submission that fails the gates above must not be treated as completing the auto-director recovery chain.
 
-## 10. 防回滚规则
+## 10. Anti-Rollback Rules
 
-后续开发必须遵守：
+Later development must obey:
 
-- 新增自动导演执行能力时，先问“这是控制面还是执行面”。
-- 控制面只能写 command 或读 projection。
-- 执行面只能在 Worker 中运行。
-- route 层出现以下调用时必须退回重构：
+- When adding auto-director execution capability, first ask "is this control plane or execution plane".
+- The control plane may only write commands or read projections.
+- The execution plane may only run in the Worker.
+- If the route layer contains any of the following calls, it must be sent back for refactor:
   - LLM invoke
   - `generateVolumes`
   - `runDirectorPipeline`
   - `runDirectorStructuredOutlinePhase`
   - `runChapterExecutionNode`
-  - 大范围 repair / review
-- 前端运行态新增轮询时，必须证明它读的是轻量 projection，不是完整业务资产。
-- 如果为了赶进度临时绕过 Worker，必须在同一 PR 中标明临时范围、回滚计划和阻断验收原因；默认不得合并为完成态。
+  - large-scope repair / review
+- When adding polling in a frontend running state, it must be proven that it reads a lightweight projection, not a full business asset.
+- If the Worker is temporarily bypassed to meet a deadline, the same PR must mark the temporary scope, rollback plan, and the reason acceptance is blocked; by default it must not be merged as complete.
 
-## 11. 推荐执行顺序
+## 11. Recommended Execution Order
 
-当前优先级调整为：
+Current priority is adjusted to:
 
-1. `P0-E0` 自动导演执行面隔离：命令化入口、独立 Worker、轻量投影、API 保活回归。
-2. `P0-E1` 恢复链：在 Worker 语义下完成幂等恢复、stale lease、取消和手动恢复。
-3. `P0-E1` Artifact Ledger 真相层：为 Worker 恢复和局部重放提供可查询产物真相。
-4. `P0-E1` PolicyEngine 硬 gate：所有 Worker 写入动作继续受策略保护。
-5. `P0-A` 真实 Prisma 抽样回归：验证旧项目、重启恢复、批量执行和改文局部修复。
+1. `P0-E0` Auto-director execution-plane isolation: command-style entrypoints, independent Worker, lightweight projections, API keep-alive regressions.
+2. `P0-E1` Recovery chain: complete idempotent recovery, stale lease, cancel, and manual recovery under Worker semantics.
+3. `P0-E1` Artifact Ledger truth layer: provide queryable artifact truth for Worker recovery and partial replay.
+4. `P0-E1` PolicyEngine hard gates: all Worker write actions remain policy-protected.
+5. `P0-A` Real Prisma sampling regressions: verify old-project takeover, restart recovery, batch execution, and local repair after edits.
 
-执行面隔离没有完成前，不应继续扩大自动导演入口或新增更重的默认生成链路。
+Until execution-plane isolation is complete, auto-director entrypoints should not be expanded further, and heavier default generation chains should not be added.
 
-## 12. 2026-04-29 落地记录
+## 12. 2026-04-29 Landing Record
 
-本轮已完成第一版执行面隔离落地：
+This round completed the first version of execution-plane isolation:
 
-- 新增 `DirectorRunCommand` 持久化命令表，用于承载 `continue / resume_from_checkpoint / retry / takeover / cancel` 等自动导演控制面命令。
-- `continue`、恢复、任务中心重试、follow-up 继续动作改为写入命令队列，不再从 Web API route 直接调用自动导演重型继续链。
-- Worker 执行 `continue / resume_from_checkpoint / retry` 命令时必须强制进入真实恢复执行，不能因为任务表残留 `running` 状态而空转成功。
-- Worker stale lease 回收必须同时清理同一任务下残留的 `DirectorStepRun.running`，避免 runtime projection 和任务详情继续展示假运行。
-- 自动导演 `continue` 默认不得再执行完整 workspace / Artifact Ledger 影响分析；影响分析只能通过明确的检查入口触发，避免 SQLite 单写锁拖住控制面查询。
-- 旧项目接管入口改为先创建轻量接管任务并写入 `takeover` command，实际接管校验、工作区分析和后续执行由 Director Worker 执行。
-- 新增独立 `Director Worker` 入口，由 Worker 领取命令、续租、执行、落成功/失败/stale 状态。
-- 前端运行态刷新拆成轻量 projection 轮询和产物边界刷新，移除自动导演运行中每 2 秒强刷 `volumes` 的行为。
-- 活动自动导演任务详情中的 `pendingManualRecovery` 优先级必须高于 `queued/running` 展示；待恢复任务不得在顶部接管条、任务面板、步骤列表中显示为“运行中”。
-- 新增边界回归测试，禁止自动导演控制面 route 重新直接调用 `continueTask`，并验证 dev/desktop dev 会启动独立 Worker。
+- Added a persisted `DirectorRunCommand` command table to carry auto-director control-plane commands such as `continue / resume_from_checkpoint / retry / takeover / cancel`.
+- Continue, recovery, task-center retry, and follow-up continue actions now write a command queue instead of calling the heavy auto-director continue chain directly from a Web API route.
+- When the Worker executes `continue / resume_from_checkpoint / retry` commands it must force real recovery execution; it must not no-op succeed because the task table still has a leftover `running` status.
+- Worker stale-lease reclaim must also clear leftover `DirectorStepRun.running` for the same task, so runtime projection and task details do not keep showing fake running.
+- Auto-director `continue` must no longer run full workspace / Artifact Ledger impact analysis by default; impact analysis may only be triggered through an explicit inspection entrypoint, so a SQLite single-writer lock does not stall control-plane queries.
+- The old-project takeover entrypoint now first creates a lightweight takeover task and writes a `takeover` command; actual takeover validation, workspace analysis, and subsequent execution are performed by the Director Worker.
+- Added an independent `Director Worker` entrypoint. The Worker claims commands, renews leases, executes, and persists success/failure/stale status.
+- Frontend running-state refresh is split into lightweight projection polling and artifact-boundary refresh. The every-2-seconds force-refresh of `volumes` while auto-director is running is removed.
+- In active auto-director task details, `pendingManualRecovery` must take display priority over `queued/running`; a pending-recovery task must not show as "running" in the top takeover bar, task panel, or step list.
+- Added boundary regression tests forbidding auto-director control-plane routes from calling `continueTask` directly again, and verifying that dev/desktop dev start an independent Worker.
 
-本轮二次排查确认：只把 `continue` 改为 Worker 命令并不足以完成执行面隔离。点击继续后仍出现成批 pending XHR 的根因是三层压力叠加：
+A second investigation in this round confirmed: converting `continue` into a Worker command is not enough to complete execution-plane isolation. After clicking continue, batches of pending XHR still appeared because three layers of pressure stacked:
 
-- SQLite 仍处于默认 `DELETE` journal 模式时，Director Worker 的写事务会阻塞 Web API 读请求；即使 API 进程和 Worker 进程已分离，数据库单写锁仍会把控制面拖住。
-- `DirectorRuntimeStore` 每次运行态变化都重放并写入完整 steps/events/artifacts，同时把完整 `directorRuntime` 回写到 `NovelWorkflowTask.seedPayloadJson`，导致写锁窗口被放大。
-- 小说编辑页和工作台侧栏在自动导演运行态仍会加载或批量刷新完整 workspace、卷工作区、质量报告、角色资源、伏笔台账等大对象；Worker 写锁期间这些请求会排队，形成浏览器侧 pending 堆积。
+- While SQLite is still in the default `DELETE` journal mode, Director Worker write transactions block Web API read requests; even after API and Worker processes are separated, a single-writer database lock still stalls the control plane.
+- On every running-state change, `DirectorRuntimeStore` replays and writes complete steps/events/artifacts, and also writes the full `directorRuntime` back into `NovelWorkflowTask.seedPayloadJson`, widening the write-lock window.
+- The novel editor page and workbench sidebar still load or batch-refresh large objects such as the full workspace, volume workspace, quality reports, character assets, and payoff ledger while auto-director is running; during Worker write locks these requests queue and form a browser-side pending pile-up.
 
-追加收口要求：
+Additional closure requirements:
 
-- SQLite 启动时必须配置 `WAL + synchronous=NORMAL + busy_timeout`，除非显式设置 `SQLITE_ENABLE_WAL=false` 进行诊断；桌面版和开发态都不得默认回退到 `DELETE` journal。
-- 运行态持久化必须按 delta 写入，只处理变化的 step/event/artifact/dependency；不得在每次 mutation 中全量删除重建运行态，也不得继续把完整 runtime 塞回任务 seed payload。
-- 自动导演运行中，前端只能轮询轻量 projection；完整业务资产只能在用户进入对应工作区、事件版本变化后的非运行态、任务完成或等待确认时按当前可见 tab 刷新。
-- `waiting_approval` 是硬 gate/人工确认态，不属于需要持续轮询的 running 态；到达 gate 后应停止运行态轮询，等待用户明确继续。
-- `waiting_approval` 的“继续”必须提交明确的 `resume` 确认语义；空 `continue` 命令只能排队执行，不能被解释为用户已同意当前 gate。
-- `resume` 只能放行当前匹配的 `waiting_approval` 节点一次，不得持久化切换整条运行时策略，也不得绕过后续新的高风险 gate。
-- 边界测试必须覆盖：SQLite WAL 配置存在、运行态持久化不再全量重写、前端运行态不再批量 invalidate 全部 workspace 资源。
+- On SQLite startup, `WAL + synchronous=NORMAL + busy_timeout` must be configured unless `SQLITE_ENABLE_WAL=false` is explicitly set for diagnosis; desktop and development must not default back to `DELETE` journal.
+- Running-state persistence must write by delta, handling only changed step/event/artifact/dependency rows; it must not fully delete and rebuild running state on every mutation, and must not keep stuffing the full runtime back into the task seed payload.
+- While auto-director is running, the frontend may only poll the lightweight projection; full business assets may only refresh for the currently visible tab after the user enters the corresponding workspace, after an event-version change in a non-running state, or when the task completes or waits for confirmation.
+- `waiting_approval` is a hard gate / human-confirmation state, not a running state that needs continuous polling; after reaching the gate, running-state polling should stop and wait for an explicit user continue.
+- "Continue" for `waiting_approval` must submit explicit `resume` confirmation semantics; an empty `continue` command may only queue execution and must not be interpreted as the user having agreed to the current gate.
+- `resume` may release only the currently matching `waiting_approval` node once; it must not persist a switch of the entire runtime policy, and must not bypass later new high-risk gates.
+- Boundary tests must cover: SQLite WAL configuration exists, running-state persistence no longer fully rewrites, and frontend running state no longer batch-invalidates all workspace resources.
 
-仍需继续收口：
+Still needs further closure:
 
-- 候选确认、标题修复等入口仍包含部分同步准备或旧式后台调度，后续必须逐步迁到可序列化 command。
-- `NovelDirectorService.scheduleBackgroundRun` 仍保留兼容旧入口，不能作为新增能力的接入方式。
-- Worker 化后的真实 Prisma 抽样仍需覆盖旧项目接管、重启恢复、章节批次恢复和取消后重试。
+- Candidate confirmation, title repair, and similar entrypoints still include some synchronous preparation or old-style background scheduling; they must later be moved onto serializable commands.
+- `NovelDirectorService.scheduleBackgroundRun` is still kept for compatibility with old entrypoints and must not be used as the integration path for new capabilities.
+- After Workerization, real Prisma sampling still needs to cover old-project takeover, restart recovery, chapter-batch recovery, and retry after cancel.
 
-## 13. 2026-04-30 阶段总结
+## 13. 2026-04-30 Phase Summary
 
-当前执行面隔离已从“方案确认”推进到“第一版可运行骨架”：
+Execution-plane isolation has now moved from "plan confirmed" to "first runnable skeleton":
 
-- `DirectorRunCommand` 已承载 `continue / resume_from_checkpoint / retry / takeover` 等控制面命令。
-- 独立 Director Worker 已负责领取命令、续租、执行、成功/失败/stale 落态。
-- 安全的 `continue / resume_from_checkpoint` 命令首次租约过期时会自动重排，避免短暂 Worker 停顿直接变成手动失败；同一命令重复过期仍转入手动恢复，避免频繁重复 LLM 调用。
-- Worker stale 回收会同步清理残留 `DirectorStepRun.running`，减少 runtime projection 展示假运行。
-- 前端运行态已从批量刷新完整工作区资产转向轻量 projection 轮询。
-- 章节执行开始后会清理前序拆章确认 checkpoint，工作台侧栏可跟随真实章节执行阶段。
+- `DirectorRunCommand` already carries control-plane commands such as `continue / resume_from_checkpoint / retry / takeover`.
+- An independent Director Worker already claims commands, renews leases, executes, and persists success/failure/stale.
+- Safe `continue / resume_from_checkpoint` commands are automatically requeued on the first lease expiry, so a brief Worker pause does not immediately become a manual failure; repeated expiry of the same command still moves to manual recovery, avoiding frequent repeated LLM calls.
+- Worker stale reclaim also clears leftover `DirectorStepRun.running`, reducing fake running in runtime projection.
+- Frontend running state has moved from batch-refreshing full workspace assets to lightweight projection polling.
+- After chapter execution starts, prior chapter-split confirmation checkpoints are cleared, and the workbench sidebar can follow the real chapter-execution stage.
 
-当前进度口径：
+Current progress figures:
 
-- 执行面隔离第一版：约 `75%`。
-- 自动导演 Runtime MVP：约 `85%`。
-- 完整统一运行时：约 `70%`。
+- Execution-plane isolation first version: about `75%`.
+- Auto-director Runtime MVP: about `85%`.
+- Full unified runtime: about `70%`.
 
-下一轮优先收口：
+Next-round closure priorities:
 
-- 确认 SQLite 在开发态和桌面态默认启用 `WAL + synchronous=NORMAL + busy_timeout`，并保留显式诊断开关。
-- 确认运行态持久化按 delta 写入，不再每次 mutation 全量删除重建 steps/events/artifacts，也不继续把完整 runtime 塞回任务 seed payload。
-- 确认自动导演运行中前端只轮询轻量 projection；完整业务资产只在用户可见工作区、任务完成或等待确认时按边界刷新。
-- 把候选确认、标题修复等旧入口迁到可序列化 command，避免旧式后台调度绕过 Worker。
-- 用真实 Prisma 数据抽样验证旧项目接管、重启恢复、章节批次恢复、取消后重试和标题修复失败后的主流程状态隔离。
+- Confirm SQLite enables `WAL + synchronous=NORMAL + busy_timeout` by default in development and desktop, and keep an explicit diagnostic switch.
+- Confirm running-state persistence writes by delta, no longer fully deleting and rebuilding steps/events/artifacts on every mutation, and no longer stuffing the full runtime back into the task seed payload.
+- Confirm that while auto-director is running the frontend only polls the lightweight projection; full business assets refresh only on the user-visible workspace, task completion, or waiting-for-confirmation, by boundary.
+- Move candidate confirmation, title repair, and similar old entrypoints onto serializable commands so old-style background scheduling does not bypass the Worker.
+- Use real Prisma data sampling to verify old-project takeover, restart recovery, chapter-batch recovery, retry after cancel, and main-flow state isolation after title-repair failure.

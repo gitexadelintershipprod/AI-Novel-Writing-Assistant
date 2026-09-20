@@ -1,67 +1,67 @@
-# 短剧创作平台详细实施计划
+# Short-Drama Creation Platform Detailed Implementation Plan
 
-更新日期：2026-06-09
+Updated: 2026-06-09
 
-关联草案：
+Related drafts:
 
 - `.claude/plan/novel-to-shortdrama-adaptation.md`
 - `.claude/plan/novel-to-shortdrama-adaptation-1.md`
 
-## 1. 背景与目标
+## 1. Background and Goals
 
-短剧模块不应只是小说模块的下游改编按钮，而应成为一个以「竖屏付费短剧」为核心产物的独立创作平台。内容来源可以是本系统小说、原创灵感或任意导入文本；平台自带角色资源、节奏引擎、台本产线、质量闸与后续视听生产链。
+The short-drama module should not be only a downstream adaptation button on the novel module. It should become an independent creation platform whose core product is “vertical-screen paid short drama.” Content sources can be novels from this system, original ideas, or any imported text. The platform brings its own character assets, rhythm engine, script production line, quality gate, and later audiovisual production chain.
 
-本计划的目标是把草案中的 DramaForge 方向落成可执行蓝图：
+This plan’s goal is to land the DramaForge direction from the drafts as an executable blueprint:
 
-- 保持 `drama` 为独立 bounded context，业务层不依赖 `novel` 内部服务。
-- 以 `SourceBundle` 作为内容源防腐层，统一小说导入、原创和文本导入。
-- 优先跑通 MVP：小说导入 -> 标准内容包 -> 策略 -> 分集大纲 -> 逐集台本 -> 质量闸 -> 导出。
-- 为后续原创短剧、角色库、分镜、视频生成和独立部署保留清晰边界。
+- Keep `drama` as an independent bounded context; the business layer does not depend on `novel` internal services.
+- Use `SourceBundle` as the content-source anti-corruption layer, unifying novel import, original, and text import.
+- Prioritize running the MVP: novel import -> standard content pack -> strategy -> episode outline -> per-episode script -> quality gate -> export.
+- Keep clear boundaries for later original short drama, character library, storyboard, video generation, and independent deployment.
 
-## 2. 当前执行状态
+## 2. Current Execution Status
 
-截至 2026-06-09，本计划已推进到 Phase 6 纵向骨架：短剧项目、三类内容源、防腐层、策略、分集、台本、质量闸、修复、导出、角色库、分镜、视频提示词、mock VideoProvider 和通用 HTTP VideoProvider 已具备 API 与类型验证。前端工作台已能覆盖主路径入口、下一步引导、质量问题汇总和视频任务状态；服务级主链路契约已覆盖“台本 -> 质量可修复 -> 修复 -> 分镜 -> 视频提示词 -> provider 任务”，具体供应商深度适配与浏览器端完整验收仍未完成。
+As of 2026-06-09, this plan has advanced to the Phase 6 vertical skeleton: short-drama projects, three content sources, anti-corruption layer, strategy, episodes, scripts, quality gate, repair, export, character library, storyboard, video prompts, mock VideoProvider, and generic HTTP VideoProvider already have API and type verification. The frontend workbench already covers main-path entries, next-step guidance, quality-issue summaries, and video-task status; service-level main-chain contracts already cover “script -> quality repairable -> repair -> storyboard -> video prompt -> provider task.” Concrete vendor deep adaptation and full browser-side acceptance are still unfinished.
 
-| 范围 | 当前状态 | 证据与缺口 |
+| Scope | Current status | Evidence and gaps |
 | --- | --- | --- |
-| 独立路由 | 已有骨架 | `server/src/app.ts` 已挂载 `/api/drama`，`server/src/modules/drama/http/dramaRoutes.ts` 提供项目、内容包装配、赛道、钩子、策略、分集大纲接口。 |
-| 独立服务目录 | 已有骨架 | `server/src/services/drama/` 下已有 `contracts/`、`source/`、`engine/`、策略服务和分集大纲服务。 |
-| 防腐层 | 已有纵向骨架 | 已有 `SourceContentPort`、`SourceBundle`、`NovelSourceAdapter`、`OriginalSourceAdapter` 和 `TextImportSourceAdapter`。 |
-| 低耦合守卫 | 已有测试 | `server/tests/dramaDecoupling.test.js` 检查 `services/drama` 不 import novel 领域路径。 |
-| Prisma schema | 已补齐到视频提示词 | `schema.prisma` 与 `schema.sqlite.prisma` 中已有 `DramaProject`、`DramaSourceBundle`、`DramaCharacter`、`DramaEpisode`、`DramaFact`、`DramaCharacterLibrary`、`DramaStoryboard`、`DramaShot`、`DramaVideoPrompt`，并补齐双数据库 migrations。 |
-| 节奏引擎 | 部分完成 | 已有赛道模板、钩子库、默认付费卡点策略和情绪曲线目标。规则仍是代码常量，尚未支持可编辑规则库或种子数据管理。 |
-| 策略/分集大纲 | 已收口 Prompt 注册 | 短剧 PromptAsset 已迁入 `server/src/prompting/prompts/drama/` 并注册。 |
-| 台本产线 | 已有后端骨架 | 已新增上下文装配、逐集台本生成、单集修复和 Markdown/JSON 导出 API。 |
-| 质量闸 | 已有后端骨架 | 已新增短剧质量闸 PromptAsset 与 `qualityFlags` 写入；`repairable` 与 `blocked` 会进入 `needs_repair`，避免可修复台本直接进入分镜和视频阶段。 |
-| 多内容源 | 已有后端骨架 | `original` / `text_import` 已接入 AI 结构化 SourceBundle adapter。 |
-| 角色资源 | 已有短剧资产工作台 | 可导入 SourceBundle 角色、编辑项目角色、保存到角色库、从角色库导入；前端已按短剧生产重组为出镜功能、观众识别、固定造型、表演声音、台词规则和冲突关系。后续仍需 AI 自动补齐角色资产与一致性检查。 |
-| 前端工作台 | 主路径已可用，仍需浏览器验收 | `/drama` 与 `/drama/projects/:id` 已覆盖创建向导、小说选择、AI 赛道推荐、素材补充建议、下一步任务卡、分集台本、质量问题、角色、分镜视频和导出入口；仍缺完整浏览器端验收。 |
-| 分镜/视频/剧本保真 | 分镜与视频链路已到通用 provider adapter | 已新增分镜、镜头、视频提示词、mock VideoProvider、通用 HTTP VideoProvider 和 provider 选择/状态汇总；视频任务会投影 `resultUrl` 与 `failureReason`，并用服务级契约测试锁定修复优先于视频生产。具体供应商深度适配与剧本保真层仍未实现。 |
+| Independent routes | Skeleton exists | `server/src/app.ts` already mounts `/api/drama`; `server/src/modules/drama/http/dramaRoutes.ts` provides project, content-pack assembly, track, hook, strategy, and episode-outline APIs. |
+| Independent service directory | Skeleton exists | `server/src/services/drama/` already has `contracts/`, `source/`, `engine/`, strategy services, and episode-outline services. |
+| Anti-corruption layer | Vertical skeleton exists | Already has `SourceContentPort`, `SourceBundle`, `NovelSourceAdapter`, `OriginalSourceAdapter`, and `TextImportSourceAdapter`. |
+| Low-coupling guard | Tests exist | `server/tests/dramaDecoupling.test.js` checks that `services/drama` does not import novel-domain paths. |
+| Prisma schema | Completed through video prompts | `schema.prisma` and `schema.sqlite.prisma` already have `DramaProject`, `DramaSourceBundle`, `DramaCharacter`, `DramaEpisode`, `DramaFact`, `DramaCharacterLibrary`, `DramaStoryboard`, `DramaShot`, `DramaVideoPrompt`, plus dual-database migrations. |
+| Rhythm engine | Partially done | Already has track templates, hook library, default paywall-beat policy, and emotion-curve targets. Rules are still code constants; an editable rule library or seed-data management is not yet supported. |
+| Strategy / episode outline | Prompt registration closed | Short-drama PromptAssets have been moved into `server/src/prompting/prompts/drama/` and registered. |
+| Script production line | Backend skeleton exists | Added context assembly, per-episode script generation, single-episode repair, and Markdown/JSON export APIs. |
+| Quality gate | Backend skeleton exists | Added short-drama quality-gate PromptAsset and `qualityFlags` writes; `repairable` and `blocked` enter `needs_repair`, so a repairable script does not go directly into storyboard and video stages. |
+| Multiple content sources | Backend skeleton exists | `original` / `text_import` already connect to AI structured SourceBundle adapters. |
+| Character assets | Short-drama asset workbench exists | Can import SourceBundle characters, edit project characters, save to the character library, and import from the character library; frontend has been reorganized around short-drama production into on-screen function, audience recognition, fixed look, performance voice, dialogue rules, and conflict relations. Later still needs AI auto-complete of character assets and consistency checks. |
+| Frontend workbench | Main path usable, still needs browser acceptance | `/drama` and `/drama/projects/:id` already cover create wizard, novel selection, AI track recommendation, material-supplement suggestions, next-step task cards, episode scripts, quality issues, characters, storyboard video, and export entries; full browser-side acceptance is still missing. |
+| Storyboard / video / screenplay fidelity | Storyboard and video chain reached generic provider adapter | Added storyboard, shots, video prompts, mock VideoProvider, generic HTTP VideoProvider, and provider selection/status summary; video tasks project `resultUrl` and `failureReason`, and service-level contract tests lock repair-before-video-production. Concrete vendor deep adaptation and the screenplay-fidelity layer are still unimplemented. |
 
-## 3. 产品边界
+## 3. Product Boundaries
 
-### 3.1 用户目标
+### 3.1 User goals
 
-目标用户仍然是缺少影视剧作经验的创作新手。短剧模块必须降低认知负担，而不是要求用户理解爽点曲线、付费卡点、分镜语言或视频提示词工程。
+The target user is still a creation beginner who lacks film/TV writing experience. The short-drama module must lower cognitive load, not require the user to understand pleasure-point curves, paywall beats, storyboard language, or video-prompt engineering.
 
-核心体验应是：
+The core experience should be:
 
 ```text
-选择内容来源
-  -> 系统整理可拍短剧素材
-  -> 选择或接受推荐赛道
-  -> AI 给出短剧策略
-  -> AI 分集规划
-  -> AI 逐集写出台本
-  -> 系统检查钩子、卡点、时长和事实一致
-  -> 用户可编辑、重生成、导出
+Choose a content source
+  -> System organizes shootable short-drama material
+  -> Choose or accept a recommended track
+  -> AI gives a short-drama strategy
+  -> AI plans episodes
+  -> AI writes per-episode scripts
+  -> System checks hooks, paywall beats, duration, and fact consistency
+  -> User can edit, regenerate, export
 ```
 
-高级能力如角色库、分镜、视频生成应服务于这个主路径，不能把短剧模块扩展成泛用聊天或泛用视频工具。
+Advanced capabilities such as character library, storyboard, and video generation should serve this main path. Do not expand the short-drama module into a general chat tool or a general video tool.
 
-### 3.2 内容源
+### 3.2 Content sources
 
-短剧核心只消费标准化 `SourceBundle`，不直接消费小说、外部文本或用户灵感。
+Short-drama core only consumes a standardized `SourceBundle`. It does not directly consume novels, external text, or user ideas.
 
 ```text
 novel_import
@@ -78,11 +78,11 @@ SourceBundle
 Drama core pipeline
 ```
 
-三类来源的差异只存在于 adapter 和 Bundle 质量闸。策略、分集、台本、质量闸、导出、分镜和视频提示词都应复用同一条核心产线。
+Differences among the three sources exist only in the adapter and Bundle quality gate. Strategy, episodes, scripts, quality gate, export, storyboard, and video prompts should all reuse the same core production line.
 
-## 4. 架构边界
+## 4. Architecture Boundaries
 
-### 4.1 目录结构目标
+### 4.1 Directory-structure target
 
 ```text
 server/src/modules/drama/
@@ -119,33 +119,33 @@ server/src/services/drama/
     VideoProviderPort.ts
 ```
 
-新增文件时应优先进入上面的责任目录，避免继续在 `services/drama` 根目录堆同前缀文件。
+When adding files, prefer the responsibility directories above. Avoid continuing to stack same-prefix files at the `services/drama` root.
 
-### 4.2 依赖规则
+### 4.2 Dependency rules
 
-- `server/src/services/drama/**` 不得 import `server/src/services/novel/**`、`server/src/modules/novel/**` 或 novel 业务内部类型。
-- `NovelSourceAdapter` 是唯一允许理解小说数据形状的 drama 文件，但也只能通过 Prisma 只读读取小说表，不调用 novel service。
-- `drama` 可以复用平台基础设施：Prisma、LLM provider、`runStructuredPrompt`、任务队列、ImageAsset、文件导出工具。
-- `drama` 自己拥有事实账本、角色资源、质量闸和上下文装配，不复用小说模块业务服务。
-- 前端 `/drama` 不挂在小说详情页内部；小说页可以提供“转短剧”入口，但创建后进入独立短剧工作台。
+- `server/src/services/drama/**` must not import `server/src/services/novel/**`, `server/src/modules/novel/**`, or novel business-internal types.
+- `NovelSourceAdapter` is the only drama file allowed to understand novel data shape, and even then it may only Prisma-read novel tables; it does not call novel services.
+- `drama` may reuse platform infrastructure: Prisma, LLM provider, `runStructuredPrompt`, task queue, ImageAsset, file-export tools.
+- `drama` owns its own fact ledger, character assets, quality gate, and context assembly. It does not reuse novel-module business services.
+- Frontend `/drama` is not nested inside the novel detail page; the novel page may provide a “convert to short drama” entry, but after create it enters the independent short-drama workbench.
 
 ### 4.3 Prompt Governance
 
-短剧产品级 prompt 必须遵守项目 Prompt Governance：
+Short-drama product-level prompts must obey project Prompt Governance:
 
-- 新增或迁移到 `server/src/prompting/prompts/drama/`。
-- 在 `server/src/prompting/registry.ts` 注册，包含明确 `id`、`version`、`taskType`、`mode`、`contextPolicy` 和 `outputSchema`。
-- 服务层通过已注册 PromptAsset 调用结构化输出。
-- 不在业务服务内新增未注册的 `systemPrompt` / `userPrompt` 字符串。
-- 结构化失败应修 prompt、schema、JSON repair 或上下文装配，不得加关键词 fallback 隐藏失败。
+- Add or migrate to `server/src/prompting/prompts/drama/`.
+- Register in `server/src/prompting/registry.ts` with explicit `id`, `version`, `taskType`, `mode`, `contextPolicy`, and `outputSchema`.
+- The service layer calls structured output through registered PromptAssets.
+- Do not add unregistered `systemPrompt` / `userPrompt` strings inside business services.
+- Structured failure should fix prompt, schema, JSON repair, or context assembly. Do not add keyword fallbacks to hide failure.
 
-当前短剧 `strategy` 和 `episodeOutline` prompt 已是 PromptAsset 形态，但位置和注册方式需要收口。
+Current short-drama `strategy` and `episodeOutline` prompts are already PromptAsset-shaped, but location and registration still need closing.
 
-## 5. 数据模型计划
+## 5. Data-Model Plan
 
-### 5.1 MVP 必需模型
+### 5.1 MVP-required models
 
-MVP 需要先补齐并迁移以下模型：
+MVP must first complete and migrate these models:
 
 ```prisma
 model DramaProject
@@ -155,17 +155,17 @@ model DramaEpisode
 model DramaFact
 ```
 
-要求：
+Requirements:
 
-- SQLite 与 PostgreSQL schema 保持一致。
-- migrations 与 migrations.sqlite 都必须有对应建表 SQL。
-- `DramaProject.sourceRef` 只能是软引用，不与 `Novel` 建外键。
-- `DramaFact` 初始化自 `SourceBundle.hardFacts`，后续台本生成与质量闸也写入短剧自有事实。
-- `DramaEpisode` 需要支持 `planned -> scripting -> scripted -> reviewed -> needs_repair -> approved` 状态流。
+- SQLite and PostgreSQL schemas stay consistent.
+- Both migrations and migrations.sqlite must have corresponding create-table SQL.
+- `DramaProject.sourceRef` can only be a soft reference; do not create a foreign key to `Novel`.
+- `DramaFact` initializes from `SourceBundle.hardFacts`; later script generation and quality gate also write short-drama-owned facts.
+- `DramaEpisode` needs to support a `planned -> scripting -> scripted -> reviewed -> needs_repair -> approved` status flow.
 
-### 5.2 P4-P7 扩展模型
+### 5.2 P4-P7 extension models
 
-角色库和视听产线进入后再新增：
+Add these after the character library and audiovisual production line enter:
 
 ```prisma
 model DramaCharacterLibrary
@@ -176,15 +176,15 @@ model DramaScreenplay
 model DramaScene
 ```
 
-这些模型不得在 MVP 早期阻塞台本产线，但字段设计必须保留角色视觉锚点和源映射：
+These models must not block the script production line early in MVP, but field design must keep character visual anchors and source mapping:
 
-- `DramaShot.characterRefs` 指向 `DramaCharacter` 软引用。
-- `DramaVideoPrompt` 读取角色 `visualAnchor`，不重新推断外貌。
-- `DramaScreenplay` 和 `DramaScene` 是可选保真层，不应成为短剧 MVP 的前置依赖。
+- `DramaShot.characterRefs` points to a `DramaCharacter` soft reference.
+- `DramaVideoPrompt` reads the character `visualAnchor` and does not re-infer appearance.
+- `DramaScreenplay` and `DramaScene` are an optional fidelity layer and should not become a prerequisite of the short-drama MVP.
 
-## 6. 核心 Pipeline
+## 6. Core Pipeline
 
-### 6.1 标准流程
+### 6.1 Standard flow
 
 ```text
 CreateProject
@@ -198,42 +198,42 @@ CreateProject
   -> Export
 ```
 
-### 6.2 SourceBundle 装配
+### 6.2 SourceBundle assembly
 
-`assembleSourceBundle(projectId)` 必须完成：
+`assembleSourceBundle(projectId)` must complete:
 
-1. 读取 project source。
-2. 通过 registry resolve adapter。
-3. 产出 `SourceBundle`。
-4. 写入 `DramaSourceBundle`。
-5. 初始化或同步 `DramaCharacter`。
-6. 初始化 `DramaFact`。
-7. 写入 bundle 质量状态。
+1. Read project source.
+2. Resolve the adapter through the registry.
+3. Produce a `SourceBundle`.
+4. Write `DramaSourceBundle`.
+5. Initialize or sync `DramaCharacter`.
+6. Initialize `DramaFact`.
+7. Write bundle quality status.
 
-Bundle 质量闸至少检查：
+The Bundle quality gate at least checks:
 
-- `synopsis` 不为空。
-- `beats` 足以支撑目标集数，或明确需要 AI 扩展。
-- `characters` 包含主角和主要阻力角色。
-- `hardFacts` 不出现明显冲突。
-- `text_import` 的 raw text 不超过模型上下文预算，超长文本需要先摘要/切块。
+- `synopsis` is not empty.
+- `beats` are enough to support the target episode count, or it is explicit that AI expansion is needed.
+- `characters` include the protagonist and the main opposing character.
+- `hardFacts` have no obvious conflicts.
+- `text_import` raw text does not exceed the model context budget; over-long text needs summary/chunking first.
 
-### 6.3 策略规划
+### 6.3 Strategy planning
 
-策略输出必须包含：
+Strategy output must include:
 
-- `positioning`：这部短剧卖给谁、卖什么爽点。
-- `mainPleasureLine`：贯穿全剧的主爽点线。
-- `paywallPlan`：免费集区间、首付费点、关键付费反转集。
-- `emotionCurveTarget`：蓄势与释放分布。
-- `trackFit`：赛道匹配理由和赛道禁忌。
-- `deviationDeclaration`：相对来源故事允许的改编偏离边界。
+- `positioning`: who this short drama is sold to, and what pleasure points it sells.
+- `mainPleasureLine`: the main pleasure line through the whole drama.
+- `paywallPlan`: free-episode range, first paywall point, key paywall-reversal episodes.
+- `emotionCurveTarget`: distribution of buildup and release.
+- `trackFit`: track-fit reasons and track taboos.
+- `deviationDeclaration`: allowed adaptation-deviation boundary relative to the source story.
 
-确定性引擎负责约束付费卡点和赛道规则，LLM 负责把来源故事转成可执行策略。
+The deterministic engine owns paywall-beat and track-rule constraints. The LLM owns turning the source story into an executable strategy.
 
-### 6.4 分集大纲
+### 6.4 Episode outline
 
-每集大纲必须包含：
+Each episode outline must include:
 
 - `order`
 - `title`
@@ -246,21 +246,21 @@ Bundle 质量闸至少检查：
 - `expectedDurationSec`
 - `paywallRole`
 
-`isPaywall` 不信任 LLM 输出，由 `RhythmEngine` 根据项目付费策略确定。
+`isPaywall` does not trust LLM output. `RhythmEngine` determines it from the project paywall policy.
 
-### 6.5 逐集台本
+### 6.5 Per-episode script
 
-新增 `DramaScriptService`，按单集 JIT 生成台本。输入包括：
+Add `DramaScriptService` to JIT-generate scripts per episode. Inputs include:
 
-- 项目策略。
-- 本集大纲。
-- 角色资源与说话风格。
-- `DramaFact` 当前事实。
-- 前 1-3 集摘要。
-- 相关 `SourceBeat` 和 `sourceMap`。
-- 目标时长、竖屏场景限制和对白密度要求。
+- project strategy;
+- this episode’s outline;
+- character assets and speaking style;
+- current `DramaFact` facts;
+- summaries of the previous 1-3 episodes;
+- related `SourceBeat` and `sourceMap`;
+- target duration, vertical-screen scene limits, and dialogue-density requirements.
 
-输出至少包含：
+Output at least includes:
 
 ```ts
 {
@@ -277,26 +277,26 @@ Bundle 质量闸至少检查：
 }
 ```
 
-保存时更新 `DramaEpisode.content`、`durationSec`、`status`，并把新事实写入 `DramaFact`。
+On save, update `DramaEpisode.content`, `durationSec`, `status`, and write new facts into `DramaFact`.
 
-### 6.6 质量闸与修复
+### 6.6 Quality gate and repair
 
-新增 `DramaQualityGate`，默认每集台本生成后执行。质量闸不应自动阻断整部短剧流程，除非没有可用台本或出现数据完整性风险。
+Add `DramaQualityGate`, executed by default after each episode script is generated. The quality gate should not automatically block the whole short-drama flow unless there is no usable script or a data-integrity risk.
 
-检查维度：
+Check dimensions:
 
-| 维度 | 判断 |
+| Dimension | Judgment |
 | --- | --- |
-| 黄金 3 秒 | 开场是否存在冲突、悬念或反差。 |
-| 黄金 30 秒 | 30 秒内是否说清谁、目标、阻力。 |
-| 信息密度 | 是否存在大段环境说明、低价值铺垫或无冲突对白。 |
-| 付费卡点 | `isPaywall` 集是否有足够强的反转或未完成问题。 |
-| 情绪曲线 | 是否长期低位憋屈无释放，或过早泄掉大爽点。 |
-| 时长 | 是否落在配置时长区间。 |
-| 事实一致 | 是否与 `DramaFact` 冲突。 |
-| 角色一致 | 角色说话风格、动机和关系是否漂移。 |
+| Golden 3 seconds | Whether the opening has conflict, suspense, or contrast. |
+| Golden 30 seconds | Whether who, goal, and resistance are clear within 30 seconds. |
+| Information density | Whether there are long environment explanations, low-value setup, or conflict-free dialogue. |
+| Paywall beat | Whether an `isPaywall` episode has a strong enough reversal or unfinished question. |
+| Emotion curve | Whether it stays low and frustrated with no release for too long, or dumps a large pleasure point too early. |
+| Duration | Whether it falls in the configured duration range. |
+| Fact consistency | Whether it conflicts with `DramaFact`. |
+| Character consistency | Whether character speaking style, motivation, and relations drift. |
 
-输出：
+Output:
 
 ```ts
 {
@@ -323,289 +323,289 @@ Bundle 质量闸至少检查：
 }
 ```
 
-修复规则：
+Repair rules:
 
-- 默认最多自动修复一次。
-- 修复后仍可用但有问题时，记录 `qualityFlags`，状态可为 `reviewed` 或 `needs_repair`，不阻塞后续集。
-- 只有无可用台本、事实严重冲突无法自动处理、或用户选择严格模式时才停止。
+- Default at most one automatic repair.
+- If still usable after repair but with issues, record `qualityFlags`; status may be `reviewed` or `needs_repair`; do not block later episodes.
+- Stop only when there is no usable script, a severe fact conflict that cannot be handled automatically, or the user chooses strict mode.
 
-## 7. 前端计划
+## 7. Frontend Plan
 
-### 7.1 路由与入口
+### 7.1 Routes and entries
 
-- 新增独立 `/drama` 工作台。
-- 小说详情页只提供“创建短剧项目”入口，创建后跳转 `/drama/projects/:id`。
-- 顶层导航可加入“短剧”入口，体现这是独立模块。
+- Add an independent `/drama` workbench.
+- The novel detail page only provides a “Create short-drama project” entry; after create, jump to `/drama/projects/:id`.
+- Top-level nav may add a “Short drama” entry to show this is an independent module.
 
-### 7.2 页面结构
+### 7.2 Page structure
 
 ```text
 /drama
-  项目列表
-  新建项目
+  Project list
+  New project
 
 /drama/projects/:id
-  概览
-  来源与策略
-  分集
-  角色
-  质量问题
-  导出
-  后续：分镜 / 视频
+  Overview
+  Source and strategy
+  Episodes
+  Characters
+  Quality issues
+  Export
+  Later: storyboard / video
 ```
 
-### 7.3 新建项目向导
+### 7.3 New-project wizard
 
-新手默认流程：
+Beginner default flow:
 
-1. 选择内容来源：导入小说、原创短剧、粘贴文本。
-2. 输入标题或选择小说。
-3. 选择赛道；系统可根据来源推荐。
-4. 设置目标集数，默认 80 集。
-5. 点击“生成短剧策略”。
+1. Choose a content source: import novel, original short drama, paste text.
+2. Enter a title or select a novel.
+3. Choose a track; the system may recommend from the source.
+4. Set target episode count, default 80.
+5. Click “Generate short-drama strategy.”
 
-UI copy 必须从用户视角说明下一步能得到什么，不写实现迁移、模块拆分或“已升级”类描述。
+UI copy must explain from the user’s perspective what the next step will produce. Do not write implementation-migration, module-split, or “already upgraded” descriptions.
 
-### 7.4 工作台能力
+### 7.4 Workbench capabilities
 
-- 策略卡：定位、主爽点线、付费卡点、情绪曲线。
-- 分集列表：集号、标题、钩子、卡点、情绪净值、质量状态。
-- 单集编辑器：台本正文、重生成、质量检查、质量问题提示。
-- 源映射：显示该集对应的来源节拍或小说章节。
-- 角色页：短剧角色资产卡、出镜功能、观众识别、固定造型锚点、表演和声音锚点、台词规则、冲突关系。
-- 导出：Markdown / JSON，后续可扩展 screenplay 格式。
+- Strategy card: positioning, main pleasure line, paywall beats, emotion curve.
+- Episode list: episode number, title, hook, paywall beat, emotion net, quality status.
+- Single-episode editor: script prose, regenerate, quality check, quality-issue hints.
+- Source mapping: show this episode’s corresponding source beats or novel chapters.
+- Character page: short-drama character asset cards, on-screen function, audience recognition, fixed-look anchors, performance and voice anchors, dialogue rules, conflict relations.
+- Export: Markdown / JSON; later may extend screenplay formats.
 
-## 8. 分阶段实施
+## 8. Phased Implementation
 
-### Phase 0：文档、迁移与 P0 收口
+### Phase 0: Docs, migrations, and P0 close
 
-目标：让现有后端骨架成为可部署、可验证的 P0。
+Goal: make the existing backend skeleton a deployable, verifiable P0.
 
-任务：
+Tasks:
 
-- 将本计划作为 docs 下的正式实施蓝图。
-- 为现有 `Drama*` 模型补齐 PostgreSQL 和 SQLite migrations。
-- 确认 Prisma Client 生成后 `dramaProject`、`dramaEpisode` 等模型可用。
-- 把已有短剧 prompt 迁入 `server/src/prompting/prompts/drama/` 并注册。
-- 保留并扩展低耦合守卫测试。
-- 新增 source registry 行为测试：未注册 source 必须返回可解释错误。
+- Treat this plan as the formal implementation blueprint under docs.
+- Complete PostgreSQL and SQLite migrations for existing `Drama*` models.
+- Confirm that after Prisma Client generation, models such as `dramaProject` and `dramaEpisode` are usable.
+- Move existing short-drama prompts into `server/src/prompting/prompts/drama/` and register them.
+- Keep and extend the low-coupling guard test.
+- Add source-registry behavior tests: an unregistered source must return an explainable error.
 
-完成标准：
+Done when:
 
-- `pnpm --filter @ai-novel/server typecheck` 通过。
-- `node --test server/tests/dramaDecoupling.test.js` 通过。
-- migrations 能创建 `Drama*` 表。
-- Prompt Workbench 能列出短剧策略和分集大纲 prompt。
+- `pnpm --filter @ai-novel/server typecheck` passes.
+- `node --test server/tests/dramaDecoupling.test.js` passes.
+- Migrations can create `Drama*` tables.
+- Prompt Workbench can list short-drama strategy and episode-outline prompts.
 
-### Phase 1：MVP 后端主链路
+### Phase 1: MVP backend main chain
 
-目标：以 `novel_import` 跑通短剧台本 MVP。
+Goal: run the short-drama script MVP with `novel_import`.
 
-任务：
+Tasks:
 
-- 完成 `NovelSourceAdapter` 的内容质量补强，纳入世界设定和章节摘要边界。
-- 新增 `DramaContextAssembler`。
-- 新增 `DramaScriptService` 和台本 PromptAsset。
-- 新增 `DramaQualityGate` 和质量 PromptAsset。
-- 新增 `DramaRepairService`，支持单集 patch 或重生成。
-- 新增 `DramaExportService`，导出分集 Markdown / JSON。
-- API 增加：
+- Complete content-quality strengthening of `NovelSourceAdapter`, including world-setting and chapter-summary boundaries.
+- Add `DramaContextAssembler`.
+- Add `DramaScriptService` and a script PromptAsset.
+- Add `DramaQualityGate` and a quality PromptAsset.
+- Add `DramaRepairService`, supporting single-episode patch or regenerate.
+- Add `DramaExportService`, exporting episode Markdown / JSON.
+- API additions:
   - `POST /api/drama/projects/:id/episodes/:order/script`
   - `POST /api/drama/projects/:id/episodes/:order/review`
   - `POST /api/drama/projects/:id/episodes/:order/repair`
   - `GET /api/drama/projects/:id/export`
 
-完成标准：
+Done when:
 
-- 选择一部小说可以生成 SourceBundle。
-- 可以生成策略和 1-12 集分集大纲。
-- 任一 planned episode 可以生成台本并保存。
-- 质量闸能写入 `qualityFlags`。
-- 单集可重生成。
-- 可导出已生成分集文档。
+- Selecting a novel can generate a SourceBundle.
+- Strategy and a 1-12 episode outline can be generated.
+- Any planned episode can generate a script and save it.
+- Quality gate can write `qualityFlags`.
+- A single episode can be regenerated.
+- Generated episode documents can be exported.
 
-### Phase 2：前端 MVP 工作台
+### Phase 2: Frontend MVP workbench
 
-目标：用户不通过接口也能完成短剧 MVP 主路径。
+Goal: users can complete the short-drama MVP main path without using APIs.
 
-任务：
+Tasks:
 
-- 新增 client drama API。
-- 新增 `/drama` 项目列表和新建项目向导。
-- 新增项目工作台，覆盖策略、分集、单集编辑和导出。
-- 分集列表显示钩子、付费卡点、情绪净值和质量状态。
-- 单集页支持生成、重生成、质量检查和编辑保存。
+- Add client drama API.
+- Add `/drama` project list and new-project wizard.
+- Add project workbench covering strategy, episodes, single-episode edit, and export.
+- Episode list shows hook, paywall beat, emotion net, and quality status.
+- Single-episode page supports generate, regenerate, quality check, and edit-save.
 
-完成标准：
+Done when:
 
-- 用户能从 UI 创建小说导入短剧项目。
-- 用户能在 UI 中完成内容包装配、策略生成、分集大纲、单集台本生成和导出。
-- 页面文案符合 UI Copy Rules。
+- Users can create a novel-import short-drama project from the UI.
+- Users can complete content-pack assembly, strategy generation, episode outline, single-episode script generation, and export in the UI.
+- Page copy obeys UI Copy Rules.
 
-### Phase 3：多内容源
+### Phase 3: Multiple content sources
 
-目标：证明短剧模块不是小说附属功能。
+Goal: prove the short-drama module is not a novel add-on.
 
-任务：
+Tasks:
 
-- 新增 `OriginalSourceAdapter`，从灵感、题材、赛道生成 SourceBundle。
-- 新增 `TextImportSourceAdapter`，从粘贴文本解析 SourceBundle。
-- 新增 Bundle 质量闸，不合格时给出补充问题或自动摘要修复。
-- UI 新建项目向导支持三种来源。
+- Add `OriginalSourceAdapter`, generating a SourceBundle from idea, genre, and track.
+- Add `TextImportSourceAdapter`, parsing a SourceBundle from pasted text.
+- Add a Bundle quality gate; when unqualified, give supplement questions or auto-summary repair.
+- UI new-project wizard supports three sources.
 
-完成标准：
+Done when:
 
-- 原创输入可以生成 SourceBundle 并进入同一条短剧产线。
-- 文本导入可以生成 SourceBundle 并进入同一条短剧产线。
-- 三种 source 在策略、分集、台本阶段复用同一套服务。
+- Original input can generate a SourceBundle and enter the same short-drama production line.
+- Text import can generate a SourceBundle and enter the same short-drama production line.
+- The three sources reuse the same services at strategy, episode, and script stages.
 
-### Phase 4：角色资源与角色库
+### Phase 4: Character assets and character library
 
-目标：支撑短剧角色复用和视频一致性。
+Goal: support short-drama character reuse and video consistency.
 
-任务：
+Tasks:
 
-- 新增 `DramaCharacterLibrary` 模型和迁移。
-- 新增角色 CRUD、角色库导入、项目角色保存到库。
-- 角色字段补齐 archetype、speechStyle、visualAnchor、voiceProfile。
-- 台本生成注入角色说话风格，质量闸检查角色漂移。
+- Add `DramaCharacterLibrary` model and migrations.
+- Add character CRUD, character-library import, save project characters to the library.
+- Complete character fields for archetype, speechStyle, visualAnchor, voiceProfile.
+- Script generation injects character speaking style; quality gate checks character drift.
 
-完成标准：
+Done when:
 
-- 用户可以编辑项目角色。
-- 用户可以从角色库复用短剧人设。
-- 台本和后续分镜读取同一份角色视觉锚点。
-- 角色页以短剧拍摄和视频一致性为中心，不以小说人设长文本为中心。
+- Users can edit project characters.
+- Users can reuse short-drama character setups from the character library.
+- Scripts and later storyboards read the same character visual anchors.
+- The character page is centered on short-drama shooting and video consistency, not on long novel-character lore text.
 
-### Phase 5：分镜层
+### Phase 5: Storyboard layer
 
-目标：把台本转为可拍摄或可视频生成的镜头序列。
+Goal: turn scripts into shootable or video-generatable shot sequences.
 
-任务：
+Tasks:
 
-- 新增 `DramaStoryboard`、`DramaShot` 模型和服务。
-- 台本 -> 镜头序列 PromptAsset。
-- 每个 shot 包含景别、角色、动作、对白摘要、时长、视觉锚点引用。
-- UI 新增分镜视图。
+- Add `DramaStoryboard`, `DramaShot` models and services.
+- Script -> shot-sequence PromptAsset.
+- Each shot includes shot size, characters, action, dialogue summary, duration, visual-anchor references.
+- UI adds a storyboard view.
 
-完成标准：
+Done when:
 
-- 已生成台本的 episode 可以生成 storyboard。
-- 每个 shot 能回溯到角色视觉锚点和台本文段。
+- An episode with a generated script can generate a storyboard.
+- Each shot can trace back to character visual anchors and script passages.
 
-### Phase 6：视频提示词与 Provider
+### Phase 6: Video prompts and Provider
 
-目标：为 AI 视频生成接入做抽象，不锁死单一供应商。
+Goal: abstract AI video-generation access without locking a single vendor.
 
-任务：
+Tasks:
 
-- 新增 `DramaVideoPrompt` 模型。
-- 新增 `VideoProviderPort`。
-- 新增首个 provider adapter。
-- 镜头 -> 视频提示词 PromptAsset。
-- 任务状态接入任务中心或 drama 自有任务投影。
+- Add `DramaVideoPrompt` model.
+- Add `VideoProviderPort`.
+- Add the first provider adapter.
+- Shot -> video-prompt PromptAsset.
+- Task status connects to Task Center or drama-owned task projection.
 
-完成标准：
+Done when:
 
-- 单个 shot 可以生成视频提示词。
-- provider 任务状态可查询。
-- provider 替换不影响 drama 核心 pipeline。
+- A single shot can generate a video prompt.
+- Provider task status can be queried.
+- Replacing a provider does not affect the drama core pipeline.
 
-### Phase 7：剧本保真层
+### Phase 7: Screenplay-fidelity layer
 
-目标：支持通用剧本和更专业导出，但不阻塞 MVP。
+Goal: support generic screenplay and more professional export, without blocking MVP.
 
-任务：
+Tasks:
 
-- 新增 `DramaScreenplay`、`DramaScene`。
-- 支持台本 -> 场景化剧本转换。
-- 支持 screenplay Markdown / JSON / 后续行业格式导出。
+- Add `DramaScreenplay`, `DramaScene`.
+- Support script -> scenic screenplay conversion.
+- Support screenplay Markdown / JSON / later industry-format export.
 
-完成标准：
+Done when:
 
-- 用户可以选择分集台本导出或剧本保真导出。
-- 剧本层不会破坏现有短剧分集台本链路。
+- Users can choose episode-script export or screenplay-fidelity export.
+- The screenplay layer does not break the existing short-drama episode-script chain.
 
-## 9. 测试与验证
+## 9. Tests and Verification
 
-### 9.1 后端测试
+### 9.1 Backend tests
 
-必须覆盖：
+Must cover:
 
-- `services/drama` 低耦合守卫。
-- `台本 -> 质量闸 -> 修复 -> 分镜 -> 视频提示词 -> provider 任务` 的服务级主链路契约，特别是 `repairable` 质量结果必须先进入修复队列。
-- `SourceContentRegistry` 注册、resolve、未注册错误。
-- `NovelSourceAdapter` 能从小说数据生成 SourceBundle。
-- `RhythmEngine` 卡点计算和赛道钩子推荐。
-- 策略和分集大纲 prompt schema 验证。
-- `DramaScriptService` 保存台本并写入 facts。
-- `DramaQualityGate` 对无钩子、弱卡点、超时长、事实冲突给出结构化 flags。
-- 单集 repair 只影响目标 episode。
-- 导出包含标题、集号、台本、钩子、卡点和质量标记。
+- `services/drama` low-coupling guard.
+- Service-level main-chain contract of `script -> quality gate -> repair -> storyboard -> video prompt -> provider task`, especially that a `repairable` quality result must enter the repair queue first.
+- `SourceContentRegistry` register, resolve, unregistered error.
+- `NovelSourceAdapter` can generate a SourceBundle from novel data.
+- `RhythmEngine` beat calculation and track-hook recommendation.
+- Strategy and episode-outline prompt schema validation.
+- `DramaScriptService` saves scripts and writes facts.
+- `DramaQualityGate` produces structured flags for no hook, weak paywall beat, over duration, and fact conflict.
+- Single-episode repair only affects the target episode.
+- Export includes title, episode number, script, hook, paywall beat, and quality marks.
 
-### 9.2 前端测试
+### 9.2 Frontend tests
 
-必须覆盖：
+Must cover:
 
-- `/drama` 项目列表可加载空态和已有项目。
-- 新建项目三种 source 表单校验。
-- 项目工作台能展示策略、分集和角色。
-- 单集生成中、成功、失败、需要修复状态。
-- 导出按钮状态与错误提示。
+- `/drama` project list can load empty state and existing projects.
+- New-project three-source form validation.
+- Project workbench can show strategy, episodes, and characters.
+- Single-episode generating, success, failure, and needs-repair states.
+- Export button state and error hints.
 
-### 9.3 手工验收脚本
+### 9.3 Manual acceptance script
 
-MVP 验收至少执行一次：
+MVP acceptance at least once:
 
-1. 选择一部已有小说。
-2. 创建短剧项目。
-3. 装配 SourceBundle。
-4. 生成策略。
-5. 生成 12 集大纲。
-6. 生成第 1 集台本。
-7. 执行质量闸。
-8. 对第 1 集重生成或修复一次。
-9. 导出 Markdown。
-10. 确认 drama 数据不需要 novel 外键即可保存。
+1. Select an existing novel.
+2. Create a short-drama project.
+3. Assemble SourceBundle.
+4. Generate strategy.
+5. Generate a 12-episode outline.
+6. Generate episode 1 script.
+7. Run the quality gate.
+8. Regenerate or repair episode 1 once.
+9. Export Markdown.
+10. Confirm drama data can save without a novel foreign key.
 
-## 10. 风险与收口规则
+## 10. Risks and Close-out Rules
 
-| 风险 | 收口规则 |
+| Risk | Close-out rule |
 | --- | --- |
-| 短剧模块重新耦合小说业务 | 保留 CI 守卫；新增依赖前先判断是平台基础设施还是 novel 业务。 |
-| prompt 散落在服务里 | 所有短剧 PromptAsset 迁入 prompting registry。 |
-| 多内容源只做 API 字段不做 adapter | Phase 3 前不得把 `original` / `text_import` 宣称完成。 |
-| 质量闸阻塞整部生产 | 本地质量债默认记录并继续，只有无可用内容或数据完整性风险才停。 |
-| 前端变成专家工具 | 默认推荐赛道、默认集数、默认卡点策略；高级配置折叠。 |
-| 视频 provider 锁死 | 只通过 `VideoProviderPort` 接入，provider 字段不写进核心策略。 |
-| 规则库硬编码难迭代 | MVP 可先常量化；进入 P3/P4 后迁为可编辑规则库或种子数据。 |
+| Short-drama module recouples to novel business | Keep the CI guard; before adding a dependency, first judge whether it is platform infrastructure or novel business. |
+| Prompts scattered in services | All short-drama PromptAssets move into the prompting registry. |
+| Multiple content sources only add API fields, not adapters | Do not claim `original` / `text_import` done before Phase 3. |
+| Quality gate blocks whole production | Local quality debt is recorded by default and continues; stop only for no usable content or data-integrity risk. |
+| Frontend becomes an expert tool | Default recommended track, default episode count, default paywall-beat policy; advanced configuration collapsed. |
+| Video provider lock-in | Access only through `VideoProviderPort`; provider fields are not written into core strategy. |
+| Hard-coded rule library is hard to iterate | MVP may start as constants; after P3/P4, migrate to an editable rule library or seed data. |
 
-## 11. MVP 验收清单
+## 11. MVP Acceptance Checklist
 
-- [ ] `services/drama` 不直接 import novel 业务模块，低耦合守卫通过。
-- [ ] `Drama*` schema 和 migrations 在 SQLite / PostgreSQL 下同步存在。
-- [ ] 短剧 PromptAsset 位于 `server/src/prompting/prompts/drama/` 并注册。
-- [ ] 小说导入可以产出标准 `SourceBundle`。
-- [ ] SourceBundle 初始化 `DramaCharacter` 和 `DramaFact`。
-- [ ] 节奏引擎能按赛道和付费策略产出确定性卡点。
-- [ ] 策略生成成功写入 `DramaProject.strategy`。
-- [ ] 分集大纲成功写入 `DramaEpisode`，包含钩子、卡点、情绪净值和源映射。
-- [ ] 单集台本可 JIT 生成、保存、重生成。
-- [ ] 质量闸能识别无钩子、弱卡点、情绪曲线问题、时长问题和事实冲突。
-- [ ] 修复失败时记录质量债，不默认阻断后续集。
-- [ ] 短剧台本可导出 Markdown / JSON。
-- [ ] `/drama` 前端工作台能完成 MVP 主流程。
-- [ ] UI 文案面向用户任务，不描述实现迁移。
+- [ ] `services/drama` does not directly import novel business modules; low-coupling guard passes.
+- [ ] `Drama*` schema and migrations exist in sync under SQLite / PostgreSQL.
+- [ ] Short-drama PromptAssets live in `server/src/prompting/prompts/drama/` and are registered.
+- [ ] Novel import can produce a standard `SourceBundle`.
+- [ ] SourceBundle initializes `DramaCharacter` and `DramaFact`.
+- [ ] Rhythm engine can produce deterministic paywall beats from track and paywall policy.
+- [ ] Strategy generation successfully writes `DramaProject.strategy`.
+- [ ] Episode outline successfully writes `DramaEpisode`, including hook, paywall beat, emotion net, and source mapping.
+- [ ] Single-episode scripts can JIT-generate, save, and regenerate.
+- [ ] Quality gate can identify no hook, weak paywall beat, emotion-curve issues, duration issues, and fact conflicts.
+- [ ] On repair failure, record quality debt; do not block later episodes by default.
+- [ ] Short-drama scripts can export Markdown / JSON.
+- [ ] `/drama` frontend workbench can complete the MVP main flow.
+- [ ] UI copy faces user tasks and does not describe implementation migration.
 
-## 12. 推荐下一步
+## 12. Recommended Next Steps
 
-下一阶段优先执行顺序：
+Next-phase priority order:
 
-1. 补齐 `Drama*` migrations，确保当前 P0 schema 可部署。
-2. 迁移并注册现有短剧 prompt，消除 Prompt Governance 偏差。
-3. 把 `DramaStrategyService`、`DramaEpisodeOutlineService` 移入 `pipeline/`，减少根目录堆叠。
-4. 新增 `DramaScriptService`、台本 PromptAsset 和单集生成路由。
-5. 新增 `DramaQualityGate` 与单集质量 flags。
-6. 新增最小前端 `/drama` 工作台。
+1. Complete `Drama*` migrations so the current P0 schema is deployable.
+2. Migrate and register existing short-drama prompts, eliminating Prompt Governance drift.
+3. Move `DramaStrategyService` and `DramaEpisodeOutlineService` into `pipeline/`, reducing root-directory stacking.
+4. Add `DramaScriptService`, script PromptAsset, and single-episode generation routes.
+5. Add `DramaQualityGate` and single-episode quality flags.
+6. Add a minimal frontend `/drama` workbench.
 
-在完成第 1-5 项前，不应宣称短剧 MVP 已跑通；在完成第 6 项前，不应宣称用户可用。
+Do not claim the short-drama MVP is running before items 1-5 are done; do not claim it is user-usable before item 6 is done.

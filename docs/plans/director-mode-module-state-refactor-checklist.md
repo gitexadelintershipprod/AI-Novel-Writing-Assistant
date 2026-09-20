@@ -1,28 +1,28 @@
-# 导演模式模块化与状态治理改造清单
+# Director Mode Modularization and State Governance Refactor Checklist
 
-更新日期：2026-05-05
+Updated: 2026-05-05
 
-本文基于当前 `beta` 分支代码、最近一轮导演模式 Worker / Command / Projection 改造，以及现有自动导演重构计划整理。它不是新的愿景文档，而是下一轮开发的收口清单：把“自动导演、继续执行、恢复、接管”统一收敛到同一个 Pipeline Engine，让步骤模块真正拥有输入、输出、进度检查和恢复契约。
+This document is based on the current `beta` branch code, the latest round of director-mode Worker / Command / Projection work, and the existing auto-director refactor plans. It is not a new vision document. It is the next-round development closure checklist: converge "auto-director, continue execution, recovery, takeover" onto the same Pipeline Engine, so step modules truly own input, output, progress inspection, and recovery contracts.
 
-## 1. 当前结论
+## 1. Current Conclusion
 
-根因分类：**Incomplete closure**。
+Root-cause class: **Incomplete closure**.
 
-最近版本已经完成了第一层基础设施改造：`DirectorRunCommand`、独立 Director Worker、运行时 projection、部分 `DirectorRun / DirectorStepRun / DirectorEvent / DirectorArtifact` 记录、`WorkflowStepModule` 描述符、NodeRunner / PolicyEngine 接入。这些改造解决了一部分“Web API 被长任务拖死”和“任务假运行”的问题。
+Recent versions already completed a first layer of infrastructure: `DirectorRunCommand`, an independent Director Worker, runtime projection, some `DirectorRun / DirectorStepRun / DirectorEvent / DirectorArtifact` records, `WorkflowStepModule` descriptors, and NodeRunner / PolicyEngine integration. These changes solved some of "Web API dragged down by long tasks" and "fake-running tasks".
 
-但当前仍没有完成导演模式的核心闭环：
+But director mode's core loop is still incomplete:
 
-- 自动导演、继续执行、恢复、接管仍然带有各自流程语义，而不是统一 command 入口。
-- `WorkflowStepModule` 目前更像步骤目录和契约描述，很多步骤没有自己的 `buildInput / inspectProgress / execute / validateOutput / commit / recover`。
-- 步骤状态、任务状态、运行时命令状态、章节状态和 UI projection 仍然多源并存。
-- 章节执行进度仍偏向运行时上报和固定百分比，不是基于章节产物、审稿结果、修复票据和状态提交的可重算进度。
-- `DirectorRuntimeStore`、`NovelDirectorService`、`DirectorWorkspaceAnalyzer`、`novelDirectorAutoExecutionRuntime` 等文件仍然过长或职责偏混合，超过或接近项目架构阈值。
+- Auto-director, continue execution, recovery, and takeover still carry their own flow semantics instead of a unified command entrypoint.
+- `WorkflowStepModule` currently looks more like a step catalog and contract description; many steps do not have their own `buildInput / inspectProgress / execute / validateOutput / commit / recover`.
+- Step status, task status, runtime command status, chapter status, and UI projection still coexist from multiple sources.
+- Chapter execution progress still leans on runtime reporting and fixed percentages, not recomputable progress based on chapter artifacts, review results, repair tickets, and state commits.
+- Files such as `DirectorRuntimeStore`, `NovelDirectorService`, `DirectorWorkspaceAnalyzer`, and `novelDirectorAutoExecutionRuntime` are still too long or mixed in responsibility, at or near the project's architecture thresholds.
 
-一句话：**执行面隔离已有第一版，步骤模块化只有半套，状态治理尚未闭合。**
+In one sentence: **execution-plane isolation has a first version, step modularization is only half a set, and state governance is not yet closed.**
 
-## 2. 目标架构
+## 2. Target Architecture
 
-目标不是再增加一条“继续执行链”或“恢复链”，而是统一为：
+The goal is not to add another "continue-execution chain" or "recovery chain", but to unify as:
 
 ```text
 User Command
@@ -37,84 +37,84 @@ User Command
   -> DirectorProjection
 ```
 
-原则：
+Principles:
 
-- **Command 只是意图**：`start / continue / resume / recover / takeover / approve / pause / cancel` 都只是命令。
-- **Pipeline 只负责编排**：选择下一个模块、组装输入、执行、提交、推进，不写具体业务逻辑。
-- **StepModule 才是能力**：每个步骤声明输入、输出、产物、进度检查、恢复策略。
-- **State Machine 才是事实**：`DirectorRun + DirectorStepRun + DirectorArtifact + DirectorEvent` 是事实源。
-- **Projection 只是显示**：任务中心、小说页、创作中枢只读 projection，不自己拼状态。
+- **Command is only intent**: `start / continue / resume / recover / takeover / approve / pause / cancel` are all just commands.
+- **Pipeline only orchestrates**: choose the next module, assemble input, execute, commit, advance; it does not write concrete business logic.
+- **StepModule is the capability**: each step declares input, output, artifacts, progress inspection, and recovery strategy.
+- **State Machine is the fact**: `DirectorRun + DirectorStepRun + DirectorArtifact + DirectorEvent` is the source of truth.
+- **Projection is only display**: task center, novel page, and Creative Hub only read projections; they do not assemble state themselves.
 
-## 3. P0 改造清单
+## 3. P0 Refactor Checklist
 
-### P0 本轮实施记录（2026-05-05）
+### P0 this-round implementation record (2026-05-05)
 
-本轮已在 `codex/director-p0-pipeline-state-closure` 分支完成 P0 第一阶段收口提交：
+This round completed the P0 first-stage closure commit on branch `codex/director-p0-pipeline-state-closure`:
 
 ```text
 48d23b6 Refactor director P0 pipeline state foundation
 ```
 
-已完成或已落地骨架：
+Completed or landed as a skeleton:
 
-- [x] 从 `beta` 新建功能分支 `codex/director-p0-pipeline-state-closure`。
-- [x] 新增 `DirectorCommandInterpreter`，统一解释 `continue / resume_from_checkpoint / retry / takeover / cancel / confirm_candidate / repair_chapter_titles` 等命令意图。
-- [x] 新增 `DirectorPipelineEngine.dispatch()`，`DirectorExecutionService` 已降级为薄适配层，Worker 命令统一进入 Pipeline。
-- [x] 新增 `DirectorStateReader`，聚合 task、runtime、run、active step、latest command、章节执行矩阵，供 Pipeline 读取 canonical state。
-- [x] 新增 `DirectorStateCommitter`，先承接 pipeline dispatch 事件写入，作为后续 start / complete / fail / block / cancel 统一提交口。
-- [x] 扩展 `WorkflowStepModule` 契约，补齐 `inspect / buildInput / validateOutput / commit / inspectProgress / recover / completeCriteria`。
-- [x] 修复 `chapter_repair` 与 `quality_repair` 复用同一 step id 的问题；运行时 id 已拆为 `chapter.draft.repair` 与 `chapter.quality.repair`。
-- [x] 新增 `ChapterExecutionProgressInspector`，章节执行进度由章节产物矩阵推导，`needs_repair` 作为局部可恢复状态，不直接判定全书失败。
-- [x] runtime projection 新增 `chapterExecutionProgress` 摘要，包含当前章节、当前子阶段、待修复章节数、可恢复范围和阶段 evidence。
-- [x] 新增 `ArtifactReader / ArtifactWriter` 网关骨架，先复用现有 `DirectorArtifact` 表，不做破坏性 migration。
-- [x] 收口 `runtimeStatusForTaskStatus`：不再把旧 task status 当作 runtime completion 的直接事实。
-- [x] 收口 `ensureRuntimeInstance`：优先明确 `runId`，其次 task，不再只按 `novelId` 静默重绑其他任务 runtime。
+- [x] Created feature branch `codex/director-p0-pipeline-state-closure` from `beta`.
+- [x] Added `DirectorCommandInterpreter`, unifying interpretation of command intents such as `continue / resume_from_checkpoint / retry / takeover / cancel / confirm_candidate / repair_chapter_titles`.
+- [x] Added `DirectorPipelineEngine.dispatch()`; `DirectorExecutionService` is now a thin adapter layer; Worker commands uniformly enter the Pipeline.
+- [x] Added `DirectorStateReader`, aggregating task, runtime, run, active step, latest command, and chapter execution matrix for the Pipeline to read canonical state.
+- [x] Added `DirectorStateCommitter`, first taking pipeline dispatch event writes, as the later unified commit point for start / complete / fail / block / cancel.
+- [x] Extended the `WorkflowStepModule` contract with `inspect / buildInput / validateOutput / commit / inspectProgress / recover / completeCriteria`.
+- [x] Fixed `chapter_repair` and `quality_repair` reusing the same step id; runtime ids are now split into `chapter.draft.repair` and `chapter.quality.repair`.
+- [x] Added `ChapterExecutionProgressInspector`; chapter execution progress is derived from the chapter artifact matrix; `needs_repair` is a local recoverable state and does not directly mark the whole book as failed.
+- [x] Runtime projection added a `chapterExecutionProgress` summary, including current chapter, current sub-stage, chapters pending repair, recoverable range, and stage evidence.
+- [x] Added `ArtifactReader / ArtifactWriter` gateway skeleton, first reusing the existing `DirectorArtifact` table, with no destructive migration.
+- [x] Closed `runtimeStatusForTaskStatus`: no longer treat old task status as a direct fact of runtime completion.
+- [x] Closed `ensureRuntimeInstance`: prefer an explicit `runId`, then task; no longer silently rebind another task's runtime by `novelId` alone.
 
-本轮仍属于 P0 基础层，尚未完全闭合的部分：
+This round is still P0 foundation. Parts not yet fully closed:
 
-- [ ] Pipeline 内部仍有旧 service adapter 过渡调用，尚未把四个核心步骤全部改成只通过 `buildInput -> execute -> validateOutput -> commit` 自闭环执行。
-- [ ] `DirectorStateCommitter` 还没有覆盖全部 step lifecycle 写入，只完成 pipeline dispatch 事件入口和事实源接口骨架。
-- [ ] Artifact Ledger 已有读写网关，但 stale / protected / dependency 影响分析还没有接入 Workspace Analyzer。
-- [ ] Progress 已具备 StepModule 契约和章节矩阵，但旧 `DIRECTOR_PROGRESS` 固定百分比仍需继续降级为纯 fallback。
-- [ ] Worker 持久化 delta 写入、projection 响应体大小约束和长任务阻塞性能测试仍需在下一阶段补齐。
+- [ ] The Pipeline interior still has old service-adapter transitional calls; the four core steps have not all been changed to closed-loop execution only through `buildInput -> execute -> validateOutput -> commit`.
+- [ ] `DirectorStateCommitter` does not yet cover all step-lifecycle writes; only the pipeline dispatch event entry and source-of-truth interface skeleton are done.
+- [ ] Artifact Ledger has a read/write gateway, but stale / protected / dependency impact analysis is not yet wired into Workspace Analyzer.
+- [ ] Progress already has a StepModule contract and chapter matrix, but old `DIRECTOR_PROGRESS` fixed percentages still need to be further demoted to a pure fallback.
+- [ ] Worker persistence delta writes, projection response-body size constraints, and long-task blocking performance tests still need to be filled in the next stage.
 
-本轮验证：
+This-round verification:
 
 - `pnpm --filter @ai-novel/shared build`
 - `pnpm --filter @ai-novel/server build`
 - `pnpm --filter @ai-novel/client typecheck`
 - `node --test server/tests/directorWorkflowStepModules.test.js server/tests/directorExecutionService.test.js server/tests/directorRuntimeExecutionService.test.js server/tests/directorChapterExecutionProgress.test.js`
 
-### P0-1 统一入口语义
+### P0-1 Unify entrypoint semantics
 
-目标：自动导演、继续、恢复、接管、重试、确认 gate 全部变成 command，不再各自拥有业务流程。
+Goal: auto-director, continue, recovery, takeover, retry, and confirmation gates all become commands, no longer each owning a business flow.
 
-任务：
+Tasks:
 
-- [x] 建立 `DirectorPipelineEngine.dispatch(command)` 作为唯一执行入口。
-- [x] 将 `continue / resume_from_checkpoint / retry / takeover / approve_gate` 收敛为同一套 command 解释语义。
-- [x] 禁止新入口直接调用旧 phase service、chapter pipeline、takeover runtime 或 `scheduleBackgroundRun`。
-- [x] 候选确认、候选生成/改写/补丁/标题精修、标题修复等旧入口也进入可序列化 command，避免留下同步准备和旧式后台调度。
-- [x] API route 只能写 command 或读 projection，不执行 LLM、章节生成、拆章、修复、接管分析。
+- [x] Establish `DirectorPipelineEngine.dispatch(command)` as the sole execution entrypoint.
+- [x] Converge `continue / resume_from_checkpoint / retry / takeover / approve_gate` into the same command-interpretation semantics.
+- [x] Forbid new entrypoints from directly calling old phase services, the chapter pipeline, takeover runtime, or `scheduleBackgroundRun`.
+- [x] Old entrypoints such as candidate confirmation, candidate generate/rewrite/patch/title polish, and title repair also enter serializable commands, avoiding leftover synchronous preparation and old-style background scheduling.
+- [x] API routes may only write commands or read projections; they do not execute LLM, chapter generation, chapter splitting, repair, or takeover analysis.
 
-完成标准：
+Completion criteria:
 
-- [x] 所有重型导演动作都由 Worker lease 后执行。
-- [x] 重复点击继续、恢复、审批继续或候选生成只产生一个 active command。
-- [x] `continue` 不再根据旧任务状态空转成功。
+- [x] All heavy director actions execute after a Worker lease.
+- [x] Repeated clicks of continue, resume, approval-continue, or candidate generation produce only one active command.
+- [x] `continue` no longer no-op succeeds based on old task status.
 
-实施记录：
+Implementation record:
 
-- 已覆盖 command 类型：`generate_candidates`、`refine_candidates`、`patch_candidate`、`refine_titles`、`confirm_candidate`、`continue`、`resume_from_checkpoint`、`retry`、`takeover`、`approve_gate`、`repair_chapter_titles`、`policy_update`、`workspace_analysis`、`manual_edit_impact`、`cancel`。
-- 写入型 route 已收口为 `DirectorCommandService.enqueue*Command()`，候选弹窗改为提交 command 后读取 command result projection。
-- `DirectorRuntimeExecutionService` 保持旧 API 兼容，但 Worker 执行路径进入 `DirectorPipelineEngine.dispatch()`；Pipeline 内部 adapter 包装旧重型服务，route 层不再直调。
-- 验证命令：`pnpm --filter @ai-novel/shared build`、`pnpm --filter @ai-novel/server build`、`pnpm --filter @ai-novel/client typecheck`、`node --test server/tests/directorControlPlaneBoundary.test.js server/tests/directorRunCommandService.test.js server/tests/directorExecutionService.test.js server/tests/directorWorker.test.js`。
+- Command types already covered: `generate_candidates`, `refine_candidates`, `patch_candidate`, `refine_titles`, `confirm_candidate`, `continue`, `resume_from_checkpoint`, `retry`, `takeover`, `approve_gate`, `repair_chapter_titles`, `policy_update`, `workspace_analysis`, `manual_edit_impact`, `cancel`.
+- Write routes have been closed to `DirectorCommandService.enqueue*Command()`; the candidate dialog submits a command then reads the command result projection.
+- `DirectorRuntimeExecutionService` keeps old API compatibility, but the Worker execution path enters `DirectorPipelineEngine.dispatch()`; inside the Pipeline, adapters wrap old heavy services; the route layer no longer calls them directly.
+- Verification commands: `pnpm --filter @ai-novel/shared build`, `pnpm --filter @ai-novel/server build`, `pnpm --filter @ai-novel/client typecheck`, `node --test server/tests/directorControlPlaneBoundary.test.js server/tests/directorRunCommandService.test.js server/tests/directorExecutionService.test.js server/tests/directorWorker.test.js`.
 
-### P0-2 做实 StepModule 契约
+### P0-2 Make the StepModule contract real
 
-目标：步骤不只是 descriptor，而是拥有完整输入、检查、执行和恢复边界。
+Goal: a step is not just a descriptor; it owns complete input, inspection, execution, and recovery boundaries.
 
-标准接口建议：
+Suggested standard interface:
 
 ```ts
 interface DirectorStepModule<Input, Output> {
@@ -129,46 +129,46 @@ interface DirectorStepModule<Input, Output> {
 }
 ```
 
-任务：
+Tasks:
 
-- [ ] 把当前 `WorkflowStepModule` 从“描述符”升级为“可执行模块契约”。
-- [ ] 为每个步骤补齐 `buildInput`，禁止不同入口各自拼 prompt input。
-- [ ] 为每个步骤补齐 `inspectProgress`，允许服务重启后从产物重算进度。
-- [ ] 为每个步骤补齐 `completeCriteria`，不能只依赖 `recordStepCompleted`。
-- [ ] 修复 `chapter_repair` 和 `quality_repair` 复用同一个 step id 导致无法独立表达的设计。
-- [ ] 新增模块必须先注册 StepModule、PromptAsset、Artifact 类型和 Context Resolver，再接入 pipeline。
+- [ ] Upgrade current `WorkflowStepModule` from "descriptor" to "executable module contract".
+- [ ] Fill `buildInput` for every step; forbid different entrypoints from each assembling prompt input.
+- [ ] Fill `inspectProgress` for every step, allowing progress to be recomputed from artifacts after a service restart.
+- [ ] Fill `completeCriteria` for every step; must not rely only on `recordStepCompleted`.
+- [ ] Fix the design where `chapter_repair` and `quality_repair` reuse the same step id and cannot be expressed independently.
+- [ ] New modules must first register StepModule, PromptAsset, Artifact type, and Context Resolver, then join the pipeline.
 
-完成标准：
+Completion criteria:
 
-- `story.macro.plan`、`book.contract.create`、`chapter.task_sheet.plan`、`chapter.draft.write` 至少各有真实模块实现。
-- Pipeline 只调用模块契约，不知道具体业务表和 prompt 细节。
-- 任意步骤失败后，可以通过 `inspectProgress` 判断是未开始、部分完成、已完成、可恢复还是需要人工确认。
+- `story.macro.plan`, `book.contract.create`, `chapter.task_sheet.plan`, and `chapter.draft.write` each have at least a real module implementation.
+- The Pipeline only calls the module contract; it does not know concrete business tables or prompt details.
+- After any step fails, `inspectProgress` can tell whether it is not started, partially complete, complete, recoverable, or needs human confirmation.
 
-### P0-3 建立唯一状态事实源
+### P0-3 Establish a single state source of truth
 
-目标：结束 `NovelWorkflowTask`、`DirectorRunCommand`、runtime instance、step run、chapter state 多源互相猜测的状态混乱。
+Goal: end the state confusion of `NovelWorkflowTask`, `DirectorRunCommand`, runtime instance, step run, and chapter state guessing at each other from multiple sources.
 
-任务：
+Tasks:
 
-- [ ] 明确 `DirectorRun` 为书级导演运行的唯一根状态。
-- [ ] 明确 `DirectorStepRun` 为步骤执行记录，不承载书级完成语义。
-- [ ] `DirectorRunCommand` 只表达控制面命令和 lease，不表达业务完成。
-- [ ] `NovelWorkflowTask` 降级为兼容任务中心的外层 projection，不再承载真实业务状态。
-- [ ] 章节状态只表达章节本身，不反向决定整个导演运行是否完成。
-- [ ] 移除或收口 `runtimeStatusForTaskStatus` 这类把任务状态直接映射为 runtime 状态的逻辑。
-- [ ] `ensureRuntimeInstance` 不得仅按 `novelId` 重绑不同任务的运行实例，必须有明确 run identity。
+- [ ] Make `DirectorRun` the sole root state of a book-level director run.
+- [ ] Make `DirectorStepRun` the step execution record; it does not carry book-level completion semantics.
+- [ ] `DirectorRunCommand` only expresses control-plane commands and leases, not business completion.
+- [ ] Demote `NovelWorkflowTask` to an outer projection compatible with the task center; it no longer carries real business state.
+- [ ] Chapter state expresses only the chapter itself and does not reverse-decide whether the whole director run is complete.
+- [ ] Remove or close logic such as `runtimeStatusForTaskStatus` that maps task status directly to runtime status.
+- [ ] `ensureRuntimeInstance` must not rebind different tasks' run instances by `novelId` alone; there must be an explicit run identity.
 
-完成标准：
+Completion criteria:
 
-- 任何 UI 状态都能追溯到 `DirectorRun / StepRun / Event / Artifact`。
-- 不再需要通过多个 projection 优先级猜“到底是在运行、等待审批、失败还是已完成”。
-- 服务重启、Worker stale、任务中心重试之后不会出现假 running。
+- Any UI state can be traced to `DirectorRun / StepRun / Event / Artifact`.
+- It is no longer necessary to guess "is it running, waiting approval, failed, or complete" via multiple projection priorities.
+- After service restart, Worker stale, and task-center retry, fake running does not appear.
 
-### P0-4 章节执行进度矩阵
+### P0-4 Chapter execution progress matrix
 
-目标：章节执行不再只是 `generating_chapters / reviewing / repairing` 粗阶段，而是可检查、可恢复、可解释的章节 x 子阶段矩阵。
+Goal: chapter execution is no longer only coarse stages `generating_chapters / reviewing / repairing`, but an inspectable, recoverable, explainable chapter × sub-stage matrix.
 
-建议矩阵：
+Suggested matrix:
 
 ```text
 chapter.execution
@@ -184,103 +184,103 @@ chapter.execution
   reviewable_or_approved
 ```
 
-任务：
+Tasks:
 
-- [ ] 为每章建立 `ChapterExecutionProgress` 投影，不直接信任单个 progress 字段。
-- [ ] 从章节内容、generationState、chapterStatus、audit report、repair ticket、artifact sync、state commit 推导子阶段。
-- [ ] 把 `needs_repair` 视为可解释的局部状态，不等同于全书失败。
-- [ ] 章节批量执行总进度由章节矩阵加权推导，而不是固定百分比。
-- [ ] UI 显示当前章节、当前子阶段、已完成章节数、待修复章节数、可继续范围。
+- [ ] Build a `ChapterExecutionProgress` projection per chapter; do not directly trust a single progress field.
+- [ ] Derive sub-stages from chapter content, generationState, chapterStatus, audit report, repair ticket, artifact sync, and state commit.
+- [ ] Treat `needs_repair` as an explainable local state, not equivalent to whole-book failure.
+- [ ] Derive overall chapter-batch execution progress by weighting the chapter matrix, not from a fixed percentage.
+- [ ] UI shows current chapter, current sub-stage, completed chapter count, chapters pending repair, and continuable range.
 
-完成标准：
+Completion criteria:
 
-- 第 5 章审稿失败时，系统显示第 5 章需要修复，不冻结整本书。
-- 第 6 章继续执行时，不重复创建第 5 章 pipeline job。
-- 服务重启后能从最后成功章节和子阶段恢复，不重复覆盖正文。
+- When chapter 5 review fails, the system shows that chapter 5 needs repair and does not freeze the whole book.
+- When chapter 6 continues execution, it does not recreate chapter 5's pipeline job.
+- After a service restart, it can resume from the last successful chapter and sub-stage without overwriting body text again.
 
-### P0-5 Artifact Ledger 真相层收口
+### P0-5 Artifact Ledger truth-layer closure
 
-目标：产物成为模块之间通信的事实，而不是 seed payload、checkpoint 和业务表散落拼接。
+Goal: artifacts become the facts of communication between modules, not a scatter of seed payload, checkpoint, and business-table stitching.
 
-任务：
+Tasks:
 
-- [ ] 为书约、宏观规划、角色治理、分卷策略、章节任务单、章节正文、审稿报告、修复票据、状态提交建立统一 artifact 类型。
-- [ ] 每个 artifact 记录 source step、content hash、version、dependsOn、protectedUserContent、stale 状态。
-- [ ] StepModule 只通过 `ArtifactReader` 读取上游产物，通过 `ArtifactWriter` 写入新产物。
-- [ ] 用户手动编辑正文或核心设定时，对应 artifact 标记为 protected 或 new user version。
-- [ ] Workspace Analyzer 基于 ledger 判断 missing / stale / protected / recoverable。
+- [ ] Establish unified artifact types for book contract, macro plan, character governance, volume strategy, chapter task sheet, chapter body, review report, repair ticket, and state commit.
+- [ ] Each artifact records source step, content hash, version, dependsOn, protectedUserContent, and stale state.
+- [ ] StepModule reads upstream artifacts only through `ArtifactReader` and writes new artifacts through `ArtifactWriter`.
+- [ ] When the user manually edits body text or core settings, the corresponding artifact is marked protected or a new user version.
+- [ ] Workspace Analyzer judges missing / stale / protected / recoverable based on the ledger.
 
-完成标准：
+Completion criteria:
 
-- 手动改主角动机后，系统能指出角色治理、卷目标和后续章节任务单需要复核。
-- 手动润色正文后，系统不重做宏观规划，只建议审稿或同步连续性。
-- 删除关键伏笔后，系统能指出影响的 payoff 和章节任务。
+- After a manual change to the protagonist's motivation, the system can point out that character governance, volume goals, and later chapter task sheets need review.
+- After a manual polish of body text, the system does not redo the macro plan; it only suggests review or continuity sync.
+- After a key foreshadowing is deleted, the system can point out affected payoffs and chapter tasks.
 
-### P0-6 Progress 从上报改为自检
+### P0-6 Progress from reporting to self-inspection
 
-目标：进度不是 runtime 心跳写出来的百分比，而是步骤模块基于证据自检的结果。
+Goal: progress is not a percentage written by a runtime heartbeat; it is the result of a step module inspecting itself from evidence.
 
-任务：
+Tasks:
 
-- [ ] 保留 heartbeat 作为 UI 等待提示，但不得作为事实进度。
-- [ ] 每个 StepModule 提供 `inspectProgress(context): StepProgress`。
-- [ ] `StepProgress` 返回 `status / current / total / ratio / label / evidence / nextAction`。
-- [ ] `DIRECTOR_PROGRESS` 固定百分比只作为旧 UI 兼容，不再作为核心进度来源。
-- [ ] Projection 优先消费 `inspectProgress` 结果。
+- [ ] Keep heartbeat as a UI waiting hint, but it must not be factual progress.
+- [ ] Every StepModule provides `inspectProgress(context): StepProgress`.
+- [ ] `StepProgress` returns `status / current / total / ratio / label / evidence / nextAction`.
+- [ ] `DIRECTOR_PROGRESS` fixed percentages are only old-UI compatibility, no longer the core progress source.
+- [ ] Projection consumes `inspectProgress` results first.
 
-完成标准：
+Completion criteria:
 
-- 长 prompt 执行中，UI 能显示等待说明；服务重启后，进度能由产物重算。
-- `book_contract` 这类固定百分比倒退或不动的问题不再影响真实进度判断。
+- During a long prompt, the UI can show a waiting explanation; after a service restart, progress can be recomputed from artifacts.
+- Problems such as `book_contract` fixed percentages going backward or not moving no longer affect real progress judgment.
 
-### P0-7 Worker 与持久化二次收口
+### P0-7 Worker and persistence second closure
 
-目标：完成执行面隔离后半段，避免 Worker 写锁和全量 runtime 回写继续拖垮控制面。
+Goal: finish the second half of execution-plane isolation so Worker write locks and full runtime rewrite no longer drag down the control plane.
 
-任务：
+Tasks:
 
-- [ ] 确认 SQLite 默认启用 `WAL + synchronous=NORMAL + busy_timeout`。
-- [ ] Runtime 持久化改为 delta 写入，不在每次 mutation 全量重建 steps/events/artifacts。
-- [ ] 不再把完整 runtime snapshot 塞回 `NovelWorkflowTask.seedPayloadJson`。
-- [ ] Projection 查询保持轻量，不读取大体积 workspace、章节正文、prompt context。
-- [ ] 真实 Prisma 抽样覆盖旧项目接管、重启恢复、章节批量恢复、取消后重试。
+- [ ] Confirm SQLite enables `WAL + synchronous=NORMAL + busy_timeout` by default.
+- [ ] Change runtime persistence to delta writes; do not fully rebuild steps/events/artifacts on every mutation.
+- [ ] Stop stuffing a full runtime snapshot back into `NovelWorkflowTask.seedPayloadJson`.
+- [ ] Keep projection queries lightweight; do not read large workspaces, chapter body text, or prompt context.
+- [ ] Real Prisma sampling covers old-project takeover, restart recovery, chapter-batch recovery, and retry after cancel.
 
-完成标准：
+Completion criteria:
 
-- Worker 运行长任务时 `/api/tasks/overview` 和 runtime projection 仍能响应。
-- 前端运行态不再高频刷新完整 volumes/workspace。
-- Worker 崩溃后 API 仍可打开任务中心和恢复面板。
+- While the Worker runs a long task, `/api/tasks/overview` and runtime projection can still respond.
+- Frontend running state no longer high-frequency refreshes full volumes/workspace.
+- After a Worker crash, the API can still open the task center and recovery panel.
 
-## 4. P1 改造清单
+## 4. P1 Refactor Checklist
 
-### P1-1 Workspace Analyzer AI-first 收口
+### P1-1 Workspace Analyzer AI-first closure
 
-- [ ] 确定性 inventory 只负责列事实，不做产品级下一步判断。
-- [ ] 下一步推荐、手动编辑影响、接管策略、恢复策略必须来自 AI 结构化输出。
-- [ ] 确定性代码只做安全过滤、范围约束和结构化结果后处理。
-- [ ] 为 `manualEditImpact / affectedArtifacts / minimalRepairPath / safeToContinue / requiresApproval` 建立 schema。
+- [ ] Deterministic inventory only lists facts; it does not make product-level next-step judgments.
+- [ ] Next-step recommendation, manual-edit impact, takeover strategy, and recovery strategy must come from AI structured output.
+- [ ] Deterministic code only does safety filtering, scope constraints, and post-processing of structured results.
+- [ ] Establish a schema for `manualEditImpact / affectedArtifacts / minimalRepairPath / safeToContinue / requiresApproval`.
 
-### P1-2 PolicyEngine 硬 gate
+### P1-2 PolicyEngine hard gates
 
-- [ ] 高成本 LLM 批量调用、大范围章节执行、覆盖用户内容、下游重算都必须过 PolicyEngine。
-- [ ] `resume` 只放行当前匹配 gate 一次，不持久切换整条运行策略。
-- [ ] `waiting_approval` 不属于 running，UI 到达 gate 后停止运行态轮询。
+- [ ] High-cost LLM batch calls, large-scope chapter execution, overwriting user content, and downstream recomputation must all pass PolicyEngine.
+- [ ] `resume` releases only the currently matching gate once; it does not persist a switch of the entire run policy.
+- [ ] `waiting_approval` is not running; after the UI reaches a gate, running-state polling stops.
 
-### P1-3 质量闭环模块化
+### P1-3 Quality-loop modularization
 
-- [ ] Reader Promise、Chapter Retention、Rolling Window Review、Character Governance、World Rule 使用统一 artifact 和 step contract。
-- [ ] 审稿失败输出 affected scope、repair ticket、建议动作，不直接冻结全书。
-- [ ] 自动修复默认最多一次，失败后进入人工修复或带风险继续。
+- [ ] Reader Promise, Chapter Retention, Rolling Window Review, Character Governance, and World Rule use unified artifacts and step contracts.
+- [ ] Review failure outputs affected scope, repair ticket, and suggested action; it does not freeze the whole book directly.
+- [ ] Auto-repair defaults to at most once; after failure, enter human repair or continue-with-risk.
 
-### P1-4 创作中枢只调 Runtime API
+### P1-4 Creative Hub only calls Runtime APIs
 
-- [ ] 创作中枢工具只调用 `analyze_director_workspace / get_director_run_status / run_director_next_step / run_director_until_gate / evaluate_manual_edit_impact` 等公开 API。
-- [ ] 禁止创作中枢直接调用旧 phase service。
-- [ ] 高风险动作进入统一 approval gate。
+- [ ] Creative Hub tools only call public APIs such as `analyze_director_workspace / get_director_run_status / run_director_next_step / run_director_until_gate / evaluate_manual_edit_impact`.
+- [ ] Forbid Creative Hub from calling old phase services directly.
+- [ ] High-risk actions enter the unified approval gate.
 
-### P1-5 拆大文件和职责瘦身
+### P1-5 Split large files and slim responsibilities
 
-当前超阈值或接近阈值的重点文件包括：
+Current over-threshold or near-threshold focus files include:
 
 - `server/src/services/novel/director/novelDirectorTakeover.ts`
 - `server/src/services/novel/director/novelDirectorAutoExecutionRuntime.ts`
@@ -291,66 +291,66 @@ chapter.execution
 - `server/src/services/novel/director/DirectorCommandService.ts`
 - `server/src/services/novel/director/runtime/DirectorEventProjectionService.ts`
 
-任务：
+Tasks:
 
-- [ ] `NovelDirectorService` 收缩为 API facade，不再承载执行细节。
-- [ ] `DirectorRuntimeStore` 拆成 step store、event store、artifact store、run store。
-- [ ] `DirectorWorkspaceAnalyzer` 拆成 inventory、AI interpretation、impact analysis、recommendation。
-- [ ] `AutoExecutionRuntime` 拆成 range resolver、chapter matrix runner、quality/repair bridge、projection bridge。
-- [ ] `Takeover` 拆成 workspace analysis、attach run、downstream reset、resume plan。
+- [ ] Shrink `NovelDirectorService` to an API facade; it no longer carries execution details.
+- [ ] Split `DirectorRuntimeStore` into step store, event store, artifact store, and run store.
+- [ ] Split `DirectorWorkspaceAnalyzer` into inventory, AI interpretation, impact analysis, and recommendation.
+- [ ] Split `AutoExecutionRuntime` into range resolver, chapter matrix runner, quality/repair bridge, and projection bridge.
+- [ ] Split `Takeover` into workspace analysis, attach run, downstream reset, and resume plan.
 
-## 5. P2 改造清单
+## 5. P2 Refactor Checklist
 
-- [ ] LangGraph 只作为低风险编排壳试点，不承载业务真相。
-- [ ] 模型路由从 `planner / writer / review / repair` 粗粒度升级为步骤级路由。
-- [ ] 新手入口收敛为“推荐下一步 + 高级手动入口”，减少流程参数暴露。
-- [ ] 卷级工作台消费 Reader Promise、Payoff Ledger、Rolling Review 和 Replan 结果。
-- [ ] Prompt Workbench 继续保持只读 catalog / preview，正式 override 另立治理方案。
+- [ ] LangGraph is only a low-risk orchestration-shell pilot; it does not carry business truth.
+- [ ] Model routing upgrades from coarse `planner / writer / review / repair` to step-level routing.
+- [ ] Beginner entry converges to "recommended next step + advanced manual entry", reducing exposure of flow parameters.
+- [ ] The volume-level workbench consumes Reader Promise, Payoff Ledger, Rolling Review, and Replan results.
+- [ ] Prompt Workbench remains a read-only catalog / preview; formal override is a separate governance plan.
 
-## 6. 推荐实施顺序
+## 6. Recommended Implementation Order
 
-1. **先统一 command -> pipeline engine**：不再新增入口分支。
-2. **再做实 3-4 个核心 StepModule**：书约、宏观规划、章节任务单、章节正文执行。
-3. **同时建立章节进度矩阵**：这是最能改善用户感知和恢复语义的切口。
-4. **收口状态事实源**：把 `NovelWorkflowTask` 降级为 projection。
-5. **Artifact Ledger 真相层落地**：支撑手动编辑影响和恢复。
-6. **拆大文件**：避免继续在旧 service 上堆功能。
-7. **补真实 Prisma 回归**：用数据链路证明恢复、继续、接管、章节执行不会互相污染。
+1. **Unify command -> pipeline engine first**: do not add more entrypoint branches.
+2. **Then make 3-4 core StepModules real**: book contract, macro plan, chapter task sheet, chapter body execution.
+3. **Build the chapter progress matrix in parallel**: this is the cut that most improves user perception and recovery semantics.
+4. **Close the state source of truth**: demote `NovelWorkflowTask` to a projection.
+5. **Land the Artifact Ledger truth layer**: support manual-edit impact and recovery.
+6. **Split large files**: avoid continuing to pile features onto old services.
+7. **Add real Prisma regressions**: use data chains to prove recovery, continue, takeover, and chapter execution do not pollute each other.
 
-## 7. 验收场景
+## 7. Acceptance Scenarios
 
-必须覆盖：
+Must cover:
 
-- [ ] 一句话灵感新建小说，停在候选确认。
-- [ ] 确认候选后，进入同一个 `DirectorRun`，生成书约、宏观规划、角色、分卷、章节任务单。
-- [ ] 已有小说接管后，先分析已有产物，再推荐最小下一步。
-- [ ] 用户修改主角动机后，系统给出受影响产物和最小修复路径。
-- [ ] 用户润色第 3 章正文后，系统不重做宏观规划，只建议审稿或同步连续性。
-- [ ] 第 5 章审稿失败后生成 repair ticket，不冻结整本书。
-- [ ] 自动修复失败一次后进入人工修复或带风险继续。
-- [ ] 服务重启后先显示可恢复状态，用户确认后从最后稳定 artifact 继续。
-- [ ] 继续第 6 章时不重复创建第 5 章 pipeline job。
-- [ ] Worker 长任务运行时任务中心和小说页 projection 仍可响应。
-- [ ] 创作中枢询问“现在该做什么”时，基于 runtime snapshot 和 workspace analysis 回答。
+- [ ] Create a novel from a one-sentence inspiration and stop at candidate confirmation.
+- [ ] After confirming a candidate, enter the same `DirectorRun` and generate book contract, macro plan, characters, volumes, and chapter task sheets.
+- [ ] After taking over an existing novel, first analyze existing artifacts, then recommend the minimal next step.
+- [ ] After the user changes the protagonist's motivation, the system gives affected artifacts and a minimal repair path.
+- [ ] After the user polishes chapter 3 body text, the system does not redo the macro plan; it only suggests review or continuity sync.
+- [ ] After chapter 5 review fails, generate a repair ticket and do not freeze the whole book.
+- [ ] After auto-repair fails once, enter human repair or continue-with-risk.
+- [ ] After a service restart, first show a recoverable state; after user confirmation, continue from the last stable artifact.
+- [ ] Continuing chapter 6 does not recreate chapter 5's pipeline job.
+- [ ] While the Worker runs a long task, task-center and novel-page projections still respond.
+- [ ] When Creative Hub is asked "what should I do now", it answers from the runtime snapshot and workspace analysis.
 
-## 8. 非目标
+## 8. Non-goals
 
-- 不做数据库 reset、truncate、drop 或 destructive migration。
-- 不用关键词、正则、硬编码分支替代 AI 结构化判断。
-- 不把 LangGraph 当作一次性主链重写方案。
-- 不让 UI 直接读取内部 runtime 大对象。
-- 不为了赶进度让新功能继续接入旧 `scheduleBackgroundRun` 或旧 phase service。
+- Do not do database reset, truncate, drop, or destructive migration.
+- Do not replace AI structured judgment with keywords, regex, or hard-coded branches.
+- Do not treat LangGraph as a one-shot main-chain rewrite.
+- Do not let the UI read internal runtime large objects directly.
+- Do not, for the sake of speed, keep wiring new features into old `scheduleBackgroundRun` or old phase services.
 
-## 9. 一句话收口标准
+## 9. One-sentence closure standard
 
-导演模式的下一轮改造完成时，系统应该变成：
+When the next round of director-mode refactor is complete, the system should become:
 
 ```text
-一台统一状态机，驱动一组可检查、可恢复、可扩展的 AI Step Modules。
+One unified state machine, driving a set of inspectable, recoverable, extensible AI Step Modules.
 ```
 
-而不再是：
+And no longer:
 
 ```text
-多条入口流程，各自写状态，再由 projection 事后猜当前进度。
+Multiple entrypoint flows, each writing state, then projections guessing current progress after the fact.
 ```

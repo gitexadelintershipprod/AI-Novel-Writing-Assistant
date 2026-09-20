@@ -1,39 +1,39 @@
-# `ASSISTANT_UI_PLAN.md` 定稿：assistant-ui 深度接入与 LangGraph 创作中枢改造计划
+# Finalized `ASSISTANT_UI_PLAN.md`: Deep assistant-ui Integration and LangGraph Creative Hub Redesign Plan
 
-## 摘要
-本次改造以“直接按 LangGraph 重构、但采用并行迁移”作为固定策略，把当前自定义 `/chat + SSE + IndexedDB 会话` 的聊天工作台，升级为基于 `assistant-ui + useLangGraphRuntime` 的创作中枢。
+## Summary
+This redesign takes "refactor directly against LangGraph, but use a parallel migration" as the fixed strategy, upgrading the current custom `/chat + SSE + IndexedDB sessions` chat workbench into a Creative Hub based on `assistant-ui + useLangGraphRuntime`.
 
-目标结果：
-- `/creative-hub` 成为新的 LangGraph 创作中枢默认入口。
-- 运行信息以消息流内联展示为主，右侧面板收敛为资源绑定、全局状态、模型路由与快捷控制。
-- 会话、分支、编辑、审批、重放、失败诊断统一收口到 LangGraph 线程与 checkpoint 语义。
-- 现有 `/chat` 暂时保留为 `/chat-legacy`，稳定后再下线。
-- 本计划文档单独保存为 `ASSISTANT_UI_PLAN.md`，不并入 `TASK.md`。
+Target results:
+- `/creative-hub` becomes the new default LangGraph Creative Hub entrypoint.
+- Runtime information is shown primarily inline in the message stream; the right panel converges to resource binding, global status, model routing, and shortcut controls.
+- Sessions, branches, edits, approval, replay, and failure diagnosis all close onto LangGraph thread and checkpoint semantics.
+- Existing `/chat` is temporarily kept as `/chat-legacy` and taken down after it is stable.
+- This plan document is saved separately as `ASSISTANT_UI_PLAN.md` and is not merged into `TASK.md`.
 
-## 关键改动
+## Key changes
 
-### 1. 运行时与后端收口到 LangGraph
-- 在服务端新增 `creative-hub` LangGraph 模块，独立于现有 `routes/chat.ts`，不要继续向旧聊天路由堆逻辑。
-- 图状态固定包含：
+### 1. Runtime and backend close onto LangGraph
+- Add a `creative-hub` LangGraph module on the server, independent of existing `routes/chat.ts`. Do not keep stacking logic onto the old chat routes.
+- Graph state is fixed to include:
   - `messages`
   - `threadId`
   - `runId`
-  - `resourceBindings`（`novelId/chapterId/worldId/knowledgeDocumentIds/taskId`）
+  - `resourceBindings` (`novelId/chapterId/worldId/knowledgeDocumentIds/taskId`)
   - `approvalState`
   - `diagnostics`
   - `taskRefs`
   - `uiState`
-- 图节点固定为：
+- Graph nodes are fixed as:
   - `bind_context`
   - `coordinator_plan`
   - `tool_execute`
   - `approval_gate`
   - `answer_finalize`
   - `task_sync`
-- 高风险写操作必须通过 `approval_gate` 触发 interrupt，不再靠前端拼接审批流。
-- 现有 `AgentRuntime` 不直接删除，先作为 LangGraph 工具层/适配层被调用；等新图稳定后再逐步下沉或替换。
-- 不接入 LangGraph Cloud，不接入 assistant-cloud；采用项目内自托管线程与 checkpoint 持久化。
-- 后端新增线程与图运行接口，供前端 `useLangGraphRuntime` 和自定义 thread list 使用：
+- High-risk write operations must trigger interrupt through `approval_gate`; do not rely on the frontend stitching an approval flow.
+- Existing `AgentRuntime` is not deleted immediately; first call it as a LangGraph tool layer / adapter layer; after the new graph is stable, gradually sink or replace it.
+- Do not integrate LangGraph Cloud; do not integrate assistant-cloud; use in-project self-hosted thread and checkpoint persistence.
+- Add thread and graph-run APIs on the backend for frontend `useLangGraphRuntime` and a custom thread list:
   - `POST /api/creative-hub/threads`
   - `GET /api/creative-hub/threads`
   - `PATCH /api/creative-hub/threads/:id`
@@ -42,54 +42,54 @@
   - `GET /api/creative-hub/threads/:id/history`
   - `POST /api/creative-hub/threads/:id/runs/stream`
   - `POST /api/creative-hub/threads/:id/interrupts/:interruptId`
-- 服务端保留并扩展 `agent-catalog`，作为前端工具 UI、能力面板、建议动作和资源绑定提示的数据源。
-- 线程与 checkpoint 进入数据库持久化；`chatStore` 不再作为会话真源，只允许保留本地草稿缓存。
+- Keep and extend `agent-catalog` on the server as the data source for frontend tool UI, capability panel, suggested actions, and resource-binding hints.
+- Threads and checkpoints enter database persistence; `chatStore` is no longer the session source of truth and may only keep a local draft cache.
 
-### 2. 前端切到 `assistant-ui` 深接入模式
-- 安装并对齐：
+### 2. Frontend switches to `assistant-ui` deep-integration mode
+- Install and align:
   - `@assistant-ui/react`
   - `@assistant-ui/react-ui`
   - `@assistant-ui/react-langgraph`
   - `@langchain/langgraph-sdk`
-  - 开发环境额外接入 `@assistant-ui/react-devtools`
-- 当前超过 500 行的 [ChatPage.tsx](/D:/code/AI-Novel-Writing-Assistant-v2/client/src/pages/chat/ChatPage.tsx) 必须先拆分，再承接新功能。
-- 新的创作中枢页面改为模块化结构：
-  - 线程列表区
-  - 主消息流区
-  - 右侧资源/状态区
-  - 工具 UI 注册区
-  - LangGraph runtime 适配区
-- 创作中枢必须同时支持两种工作状态：
-  - `全局模式`：未绑定小说时，用于列出小说、创建小说、选择工作区、查看系统级状态
-  - `小说工作区模式`：绑定 `novelId` 后，围绕单本小说继续执行章节、世界观、知识文档、任务诊断
-- `/creative-hub` 使用 `useLangGraphRuntime`；`/chat` 重定向到 `/creative-hub`；旧实现移动到 `/chat-legacy`。
-- 线程列表改用 assistant-ui 的自定义 thread list 语义，线程标题、归档、删除、最近资源绑定都走服务端接口。
-- 消息流内联渲染优先接入：
+  - In development, additionally integrate `@assistant-ui/react-devtools`
+- Current [ChatPage.tsx](/D:/code/AI-Novel-Writing-Assistant-v2/client/src/pages/chat/ChatPage.tsx), which exceeds 500 lines, must be split first before taking new features.
+- The new Creative Hub page becomes a modular structure:
+  - Thread list area
+  - Main message-stream area
+  - Right resource/status area
+  - Tool UI registration area
+  - LangGraph runtime adapter area
+- Creative Hub must support two working states at once:
+  - `Global mode`: when no novel is bound, used to list novels, create novels, choose a workspace, and view system-level status
+  - `Novel workspace mode`: after binding `novelId`, continue executing chapters, worldbuilding, knowledge documents, and task diagnosis around a single novel
+- `/creative-hub` uses `useLangGraphRuntime`; `/chat` redirects to `/creative-hub`; the old implementation moves to `/chat-legacy`.
+- The thread list uses assistant-ui custom thread-list semantics; thread title, archive, delete, and recent resource bindings all go through server APIs.
+- Message-stream inline rendering first integrates:
   - `Chain of Thought`
-  - `ToolFallback` + 自定义 Tool UI
-  - 消息编辑
-  - 消息分支
+  - `ToolFallback` + custom Tool UI
+  - Message editing
+  - Message branching
   - regenerate
-- 右侧面板只保留：
-  - 当前资源绑定
-  - 当前 run / interrupt 概览
-  - 模型路由摘要
-  - 最近任务状态
-  - 快捷跳转到模块页
-- 右侧资源区必须提供显式的小说工作区切换能力：
-  - 小说下拉选择器
-  - 清空当前小说绑定，回到全局模式
-  - 未绑定小说时显示“创建新小说”快捷动作
-- 创作中枢空状态与建议动作必须覆盖：
-  - 列出当前小说列表
-  - 创建新小说
-  - 选择某本小说作为当前工作区
-- 所有审批、失败诊断、任务状态、世界观冲突、知识库索引状态都优先作为 Tool UI 卡片显示在消息流中，而不是继续堆在侧栏文本里。
-- 模块页统一补“发送到创作中枢”深链接，至少覆盖小说、拆书、知识库、世界观、写作公式、基础角色库、任务中心。
+- The right panel keeps only:
+  - Current resource bindings
+  - Current run / interrupt overview
+  - Model-routing summary
+  - Recent task status
+  - Shortcut jumps to module pages
+- The right resource area must provide explicit novel-workspace switching:
+  - Novel dropdown selector
+  - Clear the current novel binding and return to global mode
+  - When no novel is bound, show a "Create new novel" shortcut action
+- Creative Hub empty state and suggested actions must cover:
+  - List current novels
+  - Create a new novel
+  - Select a novel as the current workspace
+- All approval, failure diagnosis, task status, worldbuilding conflicts, and knowledge-base index status are shown first as Tool UI cards in the message stream, not stacked as more sidebar text.
+- Module pages uniformly add a "Send to Creative Hub" deep link, covering at least novels, book analysis, knowledge base, worldbuilding, writing formulas, base character library, and task center.
 
-### 3. Tool UI 与系统能力映射
-- 业务工具继续由后端执行，前端只注册同名 Tool UI，不在浏览器执行核心写作逻辑。
-- 首批必须落地专用卡片的工具：
+### 3. Tool UI and system-capability mapping
+- Business tools continue to execute on the backend; the frontend only registers same-named Tool UI and does not run core writing logic in the browser.
+- First batch of tools that must land dedicated cards:
   - `list_novels`
   - `create_novel`
   - `select_novel_workspace`
@@ -102,105 +102,105 @@
   - `list_book_analyses`
   - `list_writing_formulas`
   - `list_base_characters`
-  - 小说章节读取与范围总结工具
-- 审批改为 interrupt 卡片：
-  - 卡片内直接展示目标资源、差异摘要、影响范围、审批备注输入框
-  - 操作按钮直接调用 interrupt/resume 接口
-- 失败诊断改为诊断卡片：
-  - 显示失败摘要
-  - 恢复建议
-  - 相关 run / task 跳转
-  - 可继续动作
-- 小说工作区改为显式卡片与动作闭环：
-  - `list_novels` 返回小说列表卡片
-  - `create_novel` 返回创建结果卡片
-  - 创建成功后自动把新小说写回当前线程 `resourceBindings.novelId`
-  - `select_novel_workspace` 负责把指定小说绑定为当前线程工作区
-- 工具 UI 必须支持“继续追问”动作，把结构化建议回填为下一条 prompt。
-- 使用 assistant-ui Context API 管理：
-  - 当前线程绑定资源
-  - 当前运行状态
-  - 当前 interrupt
-  - 当前工具面板状态
-  - 模块页跳入创作中枢时的上下文注入
+  - Novel chapter read and range-summary tools
+- Approval becomes an interrupt card:
+  - The card directly shows the target resource, diff summary, impact scope, and an approval-notes input
+  - Action buttons call the interrupt/resume APIs directly
+- Failure diagnosis becomes a diagnosis card:
+  - Show failure summary
+  - Recovery suggestions
+  - Related run / task jumps
+  - Continuable actions
+- Novel workspace becomes an explicit card and action loop:
+  - `list_novels` returns a novel-list card
+  - `create_novel` returns a create-result card
+  - After successful create, automatically write the new novel back into the current thread `resourceBindings.novelId`
+  - `select_novel_workspace` is responsible for binding the specified novel as the current thread workspace
+- Tool UI must support a "continue asking" action that fills structured suggestions back as the next prompt.
+- Use the assistant-ui Context API to manage:
+  - Current thread bound resources
+  - Current run status
+  - Current interrupt
+  - Current tool-panel state
+  - Context injection when jumping into Creative Hub from a module page
 
-### 4. 线程、分支与兼容迁移
-- 现有本地 `chatStore` 会话模型迁移为服务端线程模型：
-  - 线程标题
-  - 归档状态
-  - 最近运行
-  - 最近绑定资源
-  - 最近更新时间
-- 前端不再依赖 `/chat/history` 空接口；历史统一从线程状态与线程历史读取。
-- 分支与编辑按 LangGraph checkpoint 语义实现：
-  - `load(thread)` 返回消息与 interrupts
-  - `getCheckpointId(threadId, parentMessages)` 从服务端线程历史中解析
-  - 无法精确匹配 checkpoint 时，禁止编辑分支，返回显式错误
-- 旧的 `useSSE`、手写消息拼装、运行事件拼接逻辑只保留给 `/chat-legacy`，不再继续扩展。
-- 旧 `RuntimeSidebar` 中与 trace/approval 强绑定的逻辑逐步下线，避免新旧双份状态长期并存。
+### 4. Threads, branches, and compatibility migration
+- Migrate the existing local `chatStore` session model to a server-side thread model:
+  - Thread title
+  - Archive status
+  - Recent run
+  - Recently bound resources
+  - Last updated time
+- The frontend no longer depends on the empty `/chat/history` API; history is read uniformly from thread state and thread history.
+- Branches and edits follow LangGraph checkpoint semantics:
+  - `load(thread)` returns messages and interrupts
+  - `getCheckpointId(threadId, parentMessages)` is parsed from server thread history
+  - When a checkpoint cannot be matched exactly, forbid editing a branch and return an explicit error
+- Old `useSSE`, handwritten message assembly, and run-event stitching logic are kept only for `/chat-legacy` and are no longer extended.
+- Logic in the old `RuntimeSidebar` that is tightly bound to trace/approval is gradually taken down, avoiding long-term coexistence of old and new dual state.
 
-## 接口与类型变更
-- 前端新增 `creative hub` 专用 API 层，替代当前零散 `chat.ts + agentRuns.ts + chatStore` 组合。
-- `shared/types/agent` 扩展或新增：
+## Interface and type changes
+- The frontend adds a `creative hub` dedicated API layer, replacing the current scattered `chat.ts + agentRuns.ts + chatStore` combination.
+- `shared/types/agent` is extended or added:
   - `CreativeHubThread`
   - `CreativeHubThreadState`
   - `CreativeHubInterrupt`
   - `CreativeHubResourceBinding`
   - `CreativeHubCheckpointRef`
-- `shared/types/api` 新增 LangGraph 风格流式事件与线程响应类型，不再只围绕旧 SSEFrame。
-- 保留现有 `agent-catalog`，但为每个工具补足：
+- `shared/types/api` adds LangGraph-style streaming events and thread response types, no longer only around the old SSEFrame.
+- Keep existing `agent-catalog`, but fill for each tool:
   - `uiKind`
   - `resourceScopes`
   - `approvalRequired`
   - `followupActions`
-- 创作中枢接口与 planner 必须显式支持全局小说管理能力：
-  - 无 `novelId` 时允许调用 `list_novels` / `create_novel`
-  - `create_novel` 成功后必须回写线程绑定并刷新右侧工作区状态
-  - `select_novel_workspace` 作为显式工作区切换动作，不依赖用户手写 URL 参数
-- 模块页深链接统一规范：
+- Creative Hub APIs and the planner must explicitly support global novel-management capability:
+  - Without `novelId`, `list_novels` / `create_novel` are allowed
+  - After `create_novel` succeeds, thread bindings must be written back and the right-side workspace status refreshed
+  - `select_novel_workspace` is an explicit workspace-switch action and does not depend on the user hand-writing URL parameters
+- Module-page deep-link convention:
   - `/creative-hub?novelId=...`
   - `/creative-hub?worldId=...`
   - `/creative-hub?taskId=...`
-  - 支持组合绑定，但同类资源一次只允许一个主绑定。
+  - Combined bindings are supported, but each resource kind allows only one primary binding at a time.
 
-## 测试与验收
-- 服务端测试：
-  - 线程创建、重命名、归档、删除
-  - `state/history` 读取
-  - run stream 正常结束
-  - interrupt 审批恢复
-  - checkpoint 匹配与分支编辑
-  - 失败诊断问题不再误触发写作任务
-- 前端测试：
-  - 创作中枢线程切换
-  - 工具卡片渲染
-  - interrupt 卡片审批
-  - 消息编辑后生成分支
-  - 资源绑定从模块页带入
-  - 全局模式下选择小说并切换为小说工作区
-  - 全局模式下创建新小说并自动绑定到当前线程
-  - `/chat-legacy` 与 `/creative-hub` 并行不冲突
-- 开发验收场景固定覆盖：
-  - “列出当前的小说列表”
-  - “创建一本小说《抗日奇侠传》”
-  - “把《抗日奇侠传》设为当前工作区”
-  - “这本书当前写到哪一章”
-  - “第三章为什么失败”
-  - “列出当前小说关联的知识库状态”
-  - “检查当前世界观和前两章是否冲突”
-  - “把基础角色模板加入这本书”
-  - “重写第三章并进入审批”
-  - “编辑上一条指令并生成新分支”
-- 质量门槛：
-  - `typecheck` 全绿
-  - 现有 server tests 全绿
-  - 新增 creative hub route/runtime tests
-  - 不允许继续向 500 行以上单文件堆逻辑
+## Testing and acceptance
+- Server tests:
+  - Thread create, rename, archive, delete
+  - `state/history` reads
+  - run stream ending normally
+  - interrupt approval resume
+  - checkpoint matching and branch editing
+  - Failure-diagnosis questions no longer mistakenly trigger writing tasks
+- Frontend tests:
+  - Creative Hub thread switching
+  - Tool-card rendering
+  - Interrupt-card approval
+  - Generating a branch after editing a message
+  - Resource bindings brought in from a module page
+  - In global mode, selecting a novel and switching to novel workspace
+  - In global mode, creating a new novel and automatically binding it to the current thread
+  - `/chat-legacy` and `/creative-hub` running in parallel without conflict
+- Development acceptance scenarios are fixed to cover:
+  - "List the current novels"
+  - "Create a novel titled Anti-Japanese Marvels"
+  - "Set Anti-Japanese Marvels as the current workspace"
+  - "Which chapter has this book reached"
+  - "Why did chapter three fail"
+  - "List knowledge-base status associated with the current novel"
+  - "Check whether the current worldbuilding conflicts with the first two chapters"
+  - "Add a base character template to this book"
+  - "Rewrite chapter three and enter approval"
+  - "Edit the previous instruction and generate a new branch"
+- Quality gates:
+  - `typecheck` all green
+  - Existing server tests all green
+  - New creative hub route/runtime tests
+  - Do not keep stacking logic into single files over 500 lines
 
-## 假设与默认值
-- 本计划即 `ASSISTANT_UI_PLAN.md` 的最终内容。
-- 路线固定为“直接按 LangGraph 设计，但采用并行迁移，不一次性替换全部旧实现”。
-- UI 表达固定为“消息流内联为主，右侧资源面板为辅”。
-- 不使用 assistant-cloud，不依赖 LangGraph Cloud，全部使用项目自托管后端。
-- 旧 `/chat` 与本地 `chatStore` 只作为过渡兼容层，不再继续加新能力。
-- 现有 `AgentRuntime`、任务中心、能力目录继续复用，但都以 LangGraph 创作中枢为新的主运行语义。
+## Assumptions and defaults
+- This plan is the final content of `ASSISTANT_UI_PLAN.md`.
+- The path is fixed as "design directly against LangGraph, but use a parallel migration; do not replace the entire old implementation in one shot".
+- UI expression is fixed as "message-stream inline first, right resource panel second".
+- Do not use assistant-cloud; do not depend on LangGraph Cloud; all use the project's self-hosted backend.
+- Old `/chat` and local `chatStore` are only a transitional compatibility layer and no longer receive new capabilities.
+- Existing `AgentRuntime`, task center, and capability catalog continue to be reused, but all take the LangGraph Creative Hub as the new primary run semantics.

@@ -1,195 +1,195 @@
-# AI 漫画产品设计方案
+# AI Comic Product Design
 
-> 状态：设计中（2026-06-12）
-> 配套工程方案：[ai-comic-adaptation-plan.md](./ai-comic-adaptation-plan.md)
-> 交互基线：drama 工作台已验证模式（创建向导 / Tab 工作台 / NextStep 引导 / 质量面板）
-
----
-
-## 1. 用户与场景
-
-### 目标用户（按优先级）
-
-1. **本项目小说作者（核心）**：已用本项目写完/正在写小说，想把 IP 变成漫画/漫剧分发变现。
-   特征：懂剧情不懂画画，需要"全自动 + 关键处把关"。
-2. **改编工作室（次级）**：批量处理多本小说，关心产能、成本、人效。
-3. **存量漫画创作者（边缘）**：有自己的画稿/角色设定，想用 AI 续作或提效。
-
-### 核心场景（Jobs to be done）
-
-- 「我这本 200 章的小说，想出 50 话条漫连载」——批量、稳定、低人工
-- 「第 3 话主角脸崩了/服装错了，我要快速修掉」——精准局部修复
-- 「我想用自己画的角色形象，剧情交给 AI」——自定义注入
-- 「这话能不能先看个大概再细修」——快速打样、渐进精修
+> Status: In design (2026-06-12)
+> Companion engineering plan: [ai-comic-adaptation-plan.md](./ai-comic-adaptation-plan.md)
+> Interaction baseline: drama workbench patterns already proven (create wizard / Tab workbench / NextStep guidance / quality panel)
 
 ---
 
-## 2. 产品原则
+## 1. Users and scenarios
 
-1. **一键可得，逐层可控（渐进披露）**：默认路径是「选小说 → 选画风 → 出第一话」，
-   全程不超过 3 次决策；每个环节的高级控制收进「展开」里，专家才看见。
-2. **审阅即工作流**：AI 产出 80 分，人把关到 95 分。审阅效率 = 产能上限，
-   所以审阅界面是本产品的第一公民，不是生成完成后的附属页。
-3. **永不推倒重来**：任何失败/不满意都只重做最小单元（一格、一个气泡），
-   断点续跑，已通过的格子永不被波及。
-4. **成本先可见再发生**：每次批量动作前显示预估（格数 × 单价 + 预期重抽率），
-   超出单话预算上限自动暂停询问。
-5. **产物即资产**：角色、画风、格子图全部可复用、可导出、可跨项目引用（共享角色库）。
+### Target users (by priority)
+
+1. **This project’s novel authors (core)**: have finished / are writing a novel in this project, and want to turn the IP into comics / motion comics for distribution and monetization.
+   Traits: understand plot, not drawing; need “full automation + human gate at key points”.
+2. **Adaptation studios (secondary)**: batch-process many novels; care about throughput, cost, and labor efficiency.
+3. **Existing comic creators (edge)**: have their own artwork / character designs; want AI for sequels or efficiency.
+
+### Core scenarios (Jobs to be done)
+
+- “This 200-chapter novel of mine, I want 50 webtoon episodes serialized” — batch, stable, low labor
+- “Episode 3, the lead’s face collapsed / costume is wrong; I need a fast fix” — precise local repair
+- “I want to use a character look I drew myself, and leave plot to AI” — custom injection
+- “Can I see a rough of this episode first, then polish” — fast prototype, progressive refinement
 
 ---
 
-## 3. 信息架构
+## 2. Product principles
+
+1. **One-click to a result, controllable layer by layer (progressive disclosure)**: default path is “pick a novel → pick an art style → produce episode 1”,
+   no more than 3 decisions end to end; advanced controls at each stage tuck into “expand”, visible only to experts.
+2. **Review is the workflow**: AI produces an 80; humans gate to 95. Review efficiency = throughput ceiling,
+   so the review UI is this product’s first-class citizen, not an afterthought page after generation finishes.
+3. **Never start over**: any failure / dissatisfaction redoes only the smallest unit (one panel, one bubble);
+   checkpoint resume; panels already passed are never affected.
+4. **Cost is visible before it happens**: before every batch action, show an estimate (panel count × unit price + expected redraw rate);
+   exceeding the per-episode budget cap auto-pauses and asks.
+5. **Outputs are assets**: characters, art styles, and panel images are all reusable, exportable, and cross-project referable (shared character library).
+
+---
+
+## 3. Information architecture
 
 ```
-漫画首页（项目列表 + 新建入口）
-└─ 创建向导（3 步，见 §4.1）
-└─ 漫画工作台（单项目，Tab 结构对齐 drama 工作台）
-   ├─ Tab 源与策略   ：内容源快照预览 / 赛道与画风 / 分话规划
-   ├─ Tab 角色资产   ：角色设计稿网格（生成/上传/编辑视觉锚点）
-   ├─ Tab 分话生产   ：话列表 → 单话格子工作区（本产品核心页，见 §4.3）
-   ├─ Tab 成稿审阅   ：长图滚动审阅 + 问题标记 + 修复队列（见 §4.4）
-   └─ Tab 导出发布   ：条漫长图 / 漫剧视频 / 历史导出记录
-   └─ 常驻右侧：NextStep 引导面板（复用 drama 模式）+ 成本仪表
+Comic home (project list + new entry)
+└─ Create wizard (3 steps; see §4.1)
+└─ Comic workbench (single project; Tab structure aligned with the drama workbench)
+   ├─ Tab Source & strategy   : content-source snapshot preview / track & art style / episode planning
+   ├─ Tab Character assets    : character design-sheet grid (generate / upload / edit visual anchors)
+   ├─ Tab Episode production  : episode list → single-episode panel workspace (this product’s core page; see §4.3)
+   ├─ Tab Finished-art review : long-strip scroll review + issue marks + repair queue (see §4.4)
+   └─ Tab Export & publish    : webtoon long strip / motion-comic video / historical export records
+   └─ Persistent right rail: NextStep guidance panel (reuse drama pattern) + cost meter
 ```
 
 ---
 
-## 4. 核心流程设计
+## 4. Core flow design
 
-### 4.1 创建向导（目标：90 秒到达"开始生成第一话"）
+### 4.1 Create wizard (goal: 90 seconds to “start generating episode 1”)
 
-**Step 1 选内容源**
-- 默认页签「我的小说」：列出本项目小说（封面/字数/章节数），单选即用
-- 次要页签「其他来源」：原创灵感输入 / 粘贴文本 / 上传漫画（资产提取）
-- 选小说后立即展示：自动识别的角色列表 + 预计可改编话数（按章节数估算）
+**Step 1 Pick a content source**
+- Default tab “My novels”: list this project’s novels (cover / word count / chapter count); single-select to use
+- Secondary tab “Other sources”: original inspiration input / paste text / upload comic (asset extraction)
+- After picking a novel, immediately show: auto-recognized character list + estimated adaptable episode count (estimated from chapter count)
 
-**Step 2 定画风与赛道**
-- 画风：预置模板卡片（彩色韩漫/黑白少年漫/水墨国风/美漫，带示例缩略图），
-  或「上传参考图」自定义；选中即锁定全项目
-- 赛道：复用 rhythmEngine 赛道模板推荐（基于小说题材自动预选，可改）
-- 高级折叠区：每话格数范围、付费卡点策略、参考图强度
+**Step 2 Set art style and track**
+- Art style: preset template cards (color Korean webtoon / B/W shonen / ink Chinese style / American comics, with example thumbnails),
+  or “upload a reference image” custom; selection locks the whole project
+- Track: reuse rhythmEngine track-template recommendation (auto-preselected from novel genre; changeable)
+- Advanced collapse: per-episode panel-count range, paywall-beat policy, reference-image strength
 
-**Step 3 确认与预估**
-- 摘要卡：源 / 画风 / 预计话数 / **首话成本预估**
-- 主按钮「生成角色设计稿并开始第一话」——一键串行执行：
-  角色设计稿（带进度）→ 分话规划 → 第一话分格 → 第一话生图
-- 副按钮「仅创建项目」（专家路径，进工作台手动逐步）
+**Step 3 Confirm and estimate**
+- Summary card: source / art style / estimated episode count / **episode-1 cost estimate**
+- Primary button “Generate character design sheets and start episode 1” — one-click serial execution:
+  character design sheets (with progress) → episode planning → episode-1 paneling → episode-1 image generation
+- Secondary button “Create project only” (expert path; enter the workbench and step manually)
 
-**设计要点**：向导内不暴露任何中间概念（SourceBundle/分格脚本），
-第一次接触这些概念应该发生在工作台里看到产物时。
+**Design point**: the wizard does not expose any intermediate concepts (SourceBundle / panel script);
+first contact with those concepts should happen in the workbench when seeing the artifacts.
 
-### 4.2 角色资产页
+### 4.2 Character assets page
 
-- 网格卡片：设计稿缩略图 + 状态徽章（生成中/就绪/失败）+ origin 标记（AI/上传）
-- 卡片操作：重新生成（保留历史 5 版可回退）/ 上传替换 / 编辑视觉锚点文本
-- 顶部警示条：有角色未就绪时阻断生图入口并说明原因（前置检查，见 §6.1）
-- 「从角色库导入」：跨项目复用已有角色（共享 CharacterLibrary）
+- Grid cards: design-sheet thumbnail + status badge (generating / ready / failed) + origin mark (AI / uploaded)
+- Card actions: regenerate (keep 5 history versions for rollback) / upload replace / edit visual-anchor text
+- Top warning bar: when any character is not ready, block the image-generation entry and explain why (preflight; see §6.1)
+- “Import from character library”: reuse existing characters across projects (shared CharacterLibrary)
 
-### 4.3 单话格子工作区（核心页）
+### 4.3 Single-episode panel workspace (core page)
 
-**布局**：左侧格子缩略图列表（竖排，模拟条漫顺序）+ 右侧选中格大图与编辑区
+**Layout**: left panel-thumbnail list (vertical, simulating webtoon order) + right selected-panel large image and editor
 
-**格子卡片状态机**（与 imageData.status 对齐）：
-`脚本就绪 → 生成中 → 待审 → 已通过 / 待修复`，颜色编码，列表顶部显示本话进度条
+**Panel-card state machine** (aligned with imageData.status):
+`script ready → generating → pending review → passed / pending repair`; color-coded; episode progress bar at the top of the list
 
-**单格编辑区**：
-- 大图预览（叠加气泡预览开关）
-- 对白编辑：双击气泡文本即改即重排（只重合成气泡层，不重新生图）
-- 操作：重新生成（可附加修正提示词）/ 上传替换 / 调整气泡（拖拽 anchor）/ 标记通过
-- 折叠区：分格脚本原文（action/panelType/visualPrompt 可编辑后重生成）
+**Single-panel editor**:
+- Large-image preview (overlay bubble-preview toggle)
+- Dialogue edit: double-click bubble text to edit and reflow immediately (re-composite bubble layer only; do not regenerate the image)
+- Actions: regenerate (optional correction prompt) / upload replace / adjust bubbles (drag anchor) / mark passed
+- Collapse: original panel-script text (action/panelType/visualPrompt editable then regenerate)
 
-**批量操作**：
-- 「生成本话全部」「重试全部失败」「从第 N 格继续」
-- 后台执行 + 可离开页面，完成后站内通知（复用 drama 批量任务模式）
+**Batch actions**:
+- “Generate all panels in this episode” “Retry all failures” “Continue from panel N”
+- Background execution + can leave the page; in-app notification on completion (reuse drama batch-job pattern)
 
-**键盘流（审阅提效核心）**：`J/K` 上下格、`A` 通过、`R` 重抽、`E` 编辑对白、`Space` 大图
+**Keyboard flow (core of review efficiency)**: `J/K` previous/next panel, `A` pass, `R` redraw, `E` edit dialogue, `Space` large image
 
-### 4.4 成稿审阅页
+### 4.4 Finished-art review page
 
-- **长图滚动预览**：按发布形态（含气泡）整话滚动，所见即发布
-- 滚动中点击任意格 → 浮层快捷操作（重抽/改对白/调气泡），改完原位刷新
-- **修复队列**：质量门标记的问题格 + 人工标记的格子聚合成队列，
-  逐个处理或批量重抽，队列清空才解锁「导出」
-- 漫剧预览：同页切换「条漫/漫剧」模式，漫剧模式逐格播放运镜 + TTS 试听
+- **Long-strip scroll preview**: whole-episode scroll in publish form (with bubbles); what you see is what publishes
+- Click any panel while scrolling → overlay quick actions (redraw / edit dialogue / tweak bubbles); refresh in place after change
+- **Repair queue**: quality-gate-marked problem panels + human-marked panels aggregated into a queue;
+  process one by one or batch-redraw; “Export” unlocks only when the queue is empty
+- Motion-comic preview: same page switches “webtoon / motion comic” modes; motion-comic mode plays camera per panel + TTS preview
 
-### 4.5 导出发布页
+### 4.5 Export & publish page
 
-- 格式卡片：条漫长图（平台切片规格下拉）/ 漫剧视频（9:16 MP4）
-- 导出历史列表（含产物下载、参数快照）
-- 导出前校验：未通过格数 > 0 时警示并列出跳转链接
+- Format cards: webtoon long strip (platform slice-spec dropdown) / motion-comic video (9:16 MP4)
+- Export history list (including artifact download, parameter snapshot)
+- Pre-export validation: warn when unpassed panel count > 0 and list jump links
 
 ---
 
-## 5. 操作便捷性清单
+## 5. Ease-of-use checklist
 
-| 痛点 | 设计应对 |
+| Pain point | Design response |
 |------|------|
-| 等待焦虑 | 所有生成显示进度 + 预计剩余时间；批量任务可离开页面，完成通知 |
-| 不知道下一步 | NextStep 引导面板常驻（复用 drama 已验证模式），永远给出一个主推动作 |
-| 改一处怕全乱 | 最小重做单元承诺：改对白只重排气泡；重抽一格不碰其他格 |
-| 重复劳动 | 角色库跨项目复用；画风模板可保存为自定义模板；修正提示词可存为项目级口癖 |
-| 误操作 | 格子通过后加锁（再次编辑需显式解锁）；导出前整话校验 |
-| 找不到历史 | 每格 5 版历史可视化对比回退；导出记录含完整参数快照 |
+| Wait anxiety | All generation shows progress + estimated remaining time; batch jobs can leave the page; completion notification |
+| Don’t know the next step | NextStep guidance panel is persistent (reuse drama’s proven pattern); always give one primary action |
+| Fear that changing one thing breaks everything | Smallest-redo-unit promise: dialogue edits only reflow bubbles; redrawing one panel does not touch others |
+| Repeated labor | Character library reused across projects; art-style templates savable as custom templates; correction prompts savable as project-level verbal tics |
+| Mis-clicks | Lock a panel after it is passed (edit again requires explicit unlock); whole-episode validation before export |
+| Can’t find history | Per-panel 5-version history visual compare/rollback; export records include a full parameter snapshot |
 
 ---
 
-## 6. 产出稳定性设计（产品层护栏）
+## 6. Output-stability design (product-layer guardrails)
 
-### 6.1 生成前置检查（阻断式）
+### 6.1 Generation preflight (blocking)
 
-批量生图前自动校验，不过不让跑（替代用户跑一半才发现问题）：
-- 角色设计稿全部就绪（缺失则列出并一键补生成）
-- 画风已锁定；Provider API Key 有效；分格脚本完整
-- 成本预估 ≤ 单话预算上限（可调，默认提醒阈值）
+Auto-validate before batch image generation; if it fails, don’t run (instead of users discovering problems halfway):
+- All character design sheets ready (if missing, list them and one-click backfill generation)
+- Art style locked; Provider API Key valid; panel scripts complete
+- Cost estimate ≤ per-episode budget cap (adjustable; default reminder threshold)
 
-### 6.2 质量门与自动修复（默认开启）
+### 6.2 Quality gate and auto-repair (on by default)
 
-- 每格生成后自动质检（角色一致性/画风/与 action 吻合度/肢体崩坏）
-- 不达标自动重试最多 2 次（附失败原因强化提示词），仍失败进修复队列人工处理
-- 产品语言上不暴露"质量门"概念，只呈现「待修复 N 格」
+- Auto QA after each panel generates (character consistency / art style / match to action / limb collapse)
+- Failures auto-retry up to 2 times (failure reason strengthens the prompt); still failing goes to the repair queue for human handling
+- Product language does not expose the “quality gate” concept; it only presents “N panels pending repair”
 
-### 6.3 断点与恢复
+### 6.3 Checkpoints and recovery
 
-- 批量任务断点续跑（进程重启/网络中断后从未完成格继续）
-- 每话生成状态实时落库，刷新页面不丢进度
-- 恢复对话框不阻塞工作台（吸取 drama recovery dialog 的修复经验）
+- Batch jobs checkpoint-resume (after process restart / network interrupt, continue from unfinished panels)
+- Each episode’s generation status lands in the DB in real time; refreshing the page does not lose progress
+- Recovery dialogs do not block the workbench (lesson from drama recovery-dialog repair)
 
-### 6.4 成本护栏
+### 6.4 Cost guardrails
 
-- 工作台右侧常驻成本仪表：本话已消耗 / 预算 / 项目累计
-- 单话超预算自动暂停，弹出「继续/调整预算/停止」
-- 重抽率异常告警：单话重抽率 > 50% 时建议检查画风/角色设定而不是继续烧钱
+- Persistent cost meter on the workbench right rail: this episode consumed / budget / project cumulative
+- Over-budget on an episode auto-pauses, with “continue / adjust budget / stop”
+- Abnormal redraw-rate alert: when an episode’s redraw rate > 50%, suggest checking art style / character design instead of continuing to burn money
 
 ---
 
-## 7. 度量指标
+## 7. Metrics
 
-**北极星**：单话「可发布」耗时（从点击生成到修复队列清空）
+**North star**: time-to-“publishable” per episode (from click generate until the repair queue is empty)
 
-| 类别 | 指标 | 目标参考 |
+| Category | Metric | Target reference |
 |------|------|------|
-| 效率 | TTFP（创建到第一话成稿） | < 30 分钟 |
-| 效率 | 人工干预格占比（重抽+手改 / 总格数） | < 20% |
-| 稳定 | 单话一次通过率（无需任何重试的格占比） | > 60% |
-| 稳定 | 批量任务断点恢复成功率 | > 99% |
-| 成本 | 单话实际成本 / 预估偏差 | ±20% 内 |
-| 留存 | 项目完成率（导出 ≥ 1 话的项目占比） | 跟踪基线 |
+| Efficiency | TTFP (create to episode-1 finished art) | < 30 minutes |
+| Efficiency | Human-intervention panel share (redraw + hand-edit / total panels) | < 20% |
+| Stability | First-pass rate per episode (share of panels needing no retry) | > 60% |
+| Stability | Batch-job checkpoint-recovery success rate | > 99% |
+| Cost | Actual per-episode cost / estimate deviation | within ±20% |
+| Retention | Project completion rate (share of projects that exported ≥ 1 episode) | track a baseline |
 
 ---
 
-## 8. 发布分期（对齐工程 P0-P5）
+## 8. Release phasing (aligned with engineering P0–P5)
 
-| 产品里程碑 | 包含 | 对应工程 |
+| Product milestone | Includes | Corresponding engineering |
 |------|------|------|
-| **MVP（内部可用）** | 向导 + 角色页 + 单话格子工作区（无气泡）+ 前置检查 | P0-P1 |
-| **V1（可发布条漫）** | 气泡编辑 + 成稿审阅 + 长图导出 + 修复队列 | P2-P3 |
-| **V2（双格式+产能）** | 批量多话 + 成本护栏 + 漫剧导出 + 角色库跨项目 | P4-P5 |
-| **V2.1** | comic_import 整本解析（续作）、自定义画风模板市场 | P5 后评估 |
+| **MVP (internally usable)** | Wizard + character page + single-episode panel workspace (no bubbles) + preflight | P0–P1 |
+| **V1 (publishable webtoon)** | Bubble editing + finished-art review + long-strip export + repair queue | P2–P3 |
+| **V2 (dual format + throughput)** | Multi-episode batch + cost guardrails + motion-comic export + character library across projects | P4–P5 |
+| **V2.1** | comic_import whole-book parse (sequels), custom art-style template marketplace | Evaluate after P5 |
 
 ---
 
-## 9. 与 drama 的产品关系
+## 9. Product relationship with drama
 
-- 入口并列：侧边栏「短剧」「漫画」平级；远期合并为「IP 改编」聚合入口（同一小说显示两条产线状态）
-- 共享资产打通：角色库互通（同一角色设计稿两边可用）；同源项目互相推荐（"这本小说已有短剧项目，是否复用其角色？"）
-- 交互一致性：Tab 结构、NextStep 引导、批量任务、质量面板四个模式保持同构，降低双产品学习成本
+- Parallel entries: sidebar “Short drama” and “Comic” at the same level; later merge into an “IP Adaptation” aggregate entry (same novel shows both production-line statuses)
+- Shared-asset plumbing: character libraries interoperable (same character design sheet usable on both sides); same-source projects recommend each other (“this novel already has a short-drama project; reuse its characters?”)
+- Interaction consistency: Tab structure, NextStep guidance, batch jobs, and quality panel stay isomorphic across the four patterns, lowering dual-product learning cost
