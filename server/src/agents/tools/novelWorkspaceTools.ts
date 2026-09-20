@@ -47,7 +47,7 @@ export const novelWorkspaceToolDefinitions: Partial<
     resourceScopes: ["global", "novel"],
     parserHints: {
       intent: "list_novels",
-      aliases: ["novel list", "book list", "novels", "小说列表", "书列表", "列出当前的小说列表", "当前有多少本小说"],
+      aliases: ["novel list", "book list", "novels"],
       phrases: ["List the current novels", "How many novels are there now", "Open the novel workspace"],
       requiresNovelContext: false,
       whenToUse: "The user is querying the global novel list, counts, or switchable workspaces.",
@@ -102,7 +102,7 @@ export const novelWorkspaceToolDefinitions: Partial<
     resourceScopes: ["global", "novel"],
     parserHints: {
       intent: "create_novel",
-      aliases: ["Create a novel", "create novel", "新建小说", "新建一本书"],
+      aliases: ["Create a novel", "create novel"],
       phrases: ["Create a novel titled xxx", "Create a new book", "Create a new novel workspace"],
       requiresNovelContext: false,
       whenToUse: "The user is only creating a new novel.",
@@ -157,12 +157,7 @@ export const novelWorkspaceToolDefinitions: Partial<
       aliases: [
         "switch novel",
         "select workspace",
-        "切换小说",
-        "选择工作区",
-        "把《xxx》设为当前工作区",
-        "切换到某本小说",
-        "打开这本小说的工作区",
-      ],
+                                              ],
       phrases: ["Set “xxx” as the current workspace", "Switch to a novel", "Open this novel's workspace"],
       requiresNovelContext: false,
       whenToUse: "The user wants to bind a novel as the current writing workspace.",

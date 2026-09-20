@@ -13,7 +13,7 @@ test("snapshot extraction schema accepts omitted ids while preserving nullable r
         holderType: "reader",
         holderRefId: null,
         holderRefName: null,
-        fact: "读者知道主角暂时掌握主动权。",
+        fact: "读者知道Protagonist暂时掌握主动权。",
         status: "known",
         summary: "信息差成立。",
       },

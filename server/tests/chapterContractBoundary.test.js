@@ -69,13 +69,13 @@ test("chapter payoff directives forbid protected reveals instead of advancing th
   const directives = buildChapterPayoffDirectives(createSnapshot([
     createPayoff({
       ledgerKey: "self-recipient",
-      title: "收件人其实是主角自己",
-      summary: "订单真相会揭示收件人其实是主角自己。",
+      title: "收件人其实YesProtagonist自己",
+      summary: "订单真相会揭示收件人其实YesProtagonist自己。",
       currentStatus: "pending_payoff",
     }),
-  ]), ["收件人其实是主角自己"]);
+  ]), ["收件人其实YesProtagonist自己"]);
 
   assert.equal(directives.length, 1);
   assert.equal(directives[0].operation, "forbid");
-  assert.equal(directives[0].forbiddenReveal, "收件人其实是主角自己");
+  assert.equal(directives[0].forbiddenReveal, "收件人其实YesProtagonist自己");
 });

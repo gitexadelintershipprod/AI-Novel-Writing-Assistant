@@ -271,7 +271,7 @@ test("chapter artifact delta prompt captures summary facts and knowledge boundar
     chapterOrder: 3,
     chapterTitle: "库房后门",
     chapterGoal: "取得潜入凭据",
-    characterRosterText: "- c1 | 程秩 | 主角",
+    characterRosterText: "- c1 | 程秩 | Protagonist",
     previousStateText: "",
     existingResourceText: "",
     existingPayoffText: "",
@@ -290,11 +290,11 @@ test("character mind snapshot prompt keeps subjective reasoning evidence-backed"
   const output = characterMindSnapshotResponseSchema.parse({
     snapshots: [{
       characterName: "程秩",
-      currentInterpretation: "他认为后门钥匙能带来一次先手，但不确定守卫是否已经换岗。",
+      currentInterpretation: "他认为后门钥匙能带来一次先手，但不确定守卫YesNo已经换岗。",
       privateIntent: "不让赵管事先发现自己的行动。",
       activePlan: "观察换岗后从后门试探进入。",
       emotionalStance: "紧张但愿意冒险。",
-      actionTendency: "优先独自试探，再决定是否求助。",
+      actionTendency: "优先独自试探，再决定YesNo求助。",
       decisionTrigger: "若守卫数量异常，就暂缓进入。",
       beliefs: ["钥匙能打开库房后门"],
       misbeliefs: ["赵管事尚未察觉钥匙失踪"],
@@ -334,10 +334,10 @@ test("character influence prompt produces evidence-backed soft guidance", () => 
   const output = characterInfluenceOptionsResponseSchema.parse({
     proposals: [{
       title: "先验证盟友",
-      directionSummary: "先用小代价试探盟友，再决定是否交出线索。",
+      directionSummary: "先用小代价试探盟友，再决定YesNo交出线索。",
       recommendationReason: "延续角色当前谨慎与信息缺口。",
       isRecommended: true,
-      behaviorGuidance: "安排一次可撤回的试探，再决定是否合作。",
+      behaviorGuidance: "安排一次可撤回的试探，再决定YesNo合作。",
       emotionalGuidance: "克制中保持戒备。",
       relationTension: "盟友需要证明自己。",
       readerPayoff: "读者看到信任在压力下逐步建立。",
@@ -373,7 +373,7 @@ test("character dialogue prompt preserves character agency and only extracts evi
   const output = characterDialogueTurnResponseSchema.parse({
     characterReply: "我不会因为你一句话就交出钥匙。先让我看看你准备拿什么来换。",
     influenceDraft: {
-      summary: "这次交谈让程秩更倾向先要求可验证的交换，再决定是否合作。",
+      summary: "这次交谈让程秩更倾向先要求可验证的交换，再决定YesNo合作。",
       behaviorGuidance: "在下一次合作前提出一个可撤回的验证条件。",
       emotionalGuidance: "保持克制和戒备。",
       relationTension: "对方必须先证明可信度。",
@@ -429,14 +429,14 @@ test("character cast prompt hardens real-name constraints and required gender ou
         group: "idea_seed",
         priority: 100,
         required: true,
-        content: "打工人刘雪婷穿越到秦朝成为太监，最后发现自己竟然就是赵高。",
+        content: "打工人刘雪婷穿越到秦朝成为太监，最后发现自己竟然就Yes赵高。",
       }),
       createContextBlock({
         id: "anchor",
         group: "protagonist_anchor",
         priority: 99,
         required: true,
-        content: "主角当前身份：秦朝内廷太监。隐藏身份：赵高。",
+        content: "Protagonist当前身份：秦朝内廷太监。隐藏身份：赵高。",
       }),
       createContextBlock({
         id: "policy",
@@ -566,14 +566,14 @@ test("workspace diagnosis prompt requires english recommendedAction enum values"
 
   const messages = asset.render({
     chapterTitle: "第一章",
-    chapterMission: "建立主角困境",
+    chapterMission: "建立Protagonist困境",
     volumePositionLabel: "卷初",
     volumePhaseLabel: "开局",
     paceDirective: "尽快把主冲突顶上来",
     previousChapterBridge: "无",
     nextChapterBridge: "为下一章系统触发做铺垫",
     activePlotThreads: ["系统伏笔", "生存压力"],
-    paragraphs: [{ index: 12, text: "主角在院中继续做杂活。" }],
+    paragraphs: [{ index: 12, text: "Protagonist在院中继续做杂活。" }],
     openIssues: [{
       severity: "medium",
       auditType: "plot",
@@ -603,7 +603,7 @@ test("character dynamics prompts harden plannedChapterOrders and confidence outp
     sellingPoint: "朝堂升级",
     firstPromise: "前30章建立权力上升线",
     outline: "大纲",
-    structuredOutline: "结构化大纲",
+    structuredOutline: "Structured outline",
     appliedCastOption: "默认方案",
     rosterText: "赵高\n李斯",
     relationText: "赵高-李斯 对立",
@@ -772,9 +772,9 @@ test("director blueprint schema accepts chapter shells without scenes", () => {
   const parsed = directorPlanBlueprintSchema.parse({
     bookPlan: {
       title: "霜轨档案",
-      objective: "让主角在第一部中确认失踪档案站背后的真相方向。",
-      hookTarget: "真相只是更大装置的入口。",
-      participants: ["主角位", "对立位"],
+      objective: "让Protagonist在第一部中确认失踪档案站背后的真相方向。",
+      hookTarget: "真相只Yes更大装置的入口。",
+      participants: ["Protagonist位", "对立位"],
       reveals: ["档案站仍在运行"],
       riskNotes: ["不要过早解释终局机制"],
     },
@@ -782,36 +782,36 @@ test("director blueprint schema accepts chapter shells without scenes", () => {
       {
         title: "第一幕",
         objective: "建立困境和追查动机",
-        summary: "主角被卷入异常信号并决定追查。",
+        summary: "Protagonist被卷入异常信号并决定追查。",
         phaseLabel: "起局",
-        hookTarget: "确认信号不是幻觉",
-        participants: ["主角位"],
+        hookTarget: "确认信号不Yes幻觉",
+        participants: ["Protagonist位"],
         reveals: ["异常信号真实存在"],
         riskNotes: ["开局不要信息过载"],
         chapters: [
           {
             title: "失真信号",
-            objective: "让主角第一次接触异常现象并做出追查决定。",
+            objective: "让Protagonist第一次接触异常现象并做出追查决定。",
             expectation: "写清异常现象、选择代价和章节结尾的新悬念。",
             planRole: "setup",
             hookTarget: "有人提前到过现场",
-            participants: ["主角位"],
+            participants: ["Protagonist位"],
             reveals: ["信号带有人工痕迹"],
             riskNotes: ["不要直接解释来源"],
-            mustAdvance: ["主角决定追查"],
+            mustAdvance: ["Protagonist决定追查"],
             mustPreserve: ["异常来源仍未知"],
             scenes: [],
           },
           {
             title: "空轨车厢",
-            objective: "让主角接近第一处关键现场。",
+            objective: "让Protagonist接近第一处关键现场。",
             expectation: "推进追查并提高危险感。",
             planRole: "progress",
             hookTarget: "车厢里残留第二个观察者痕迹",
-            participants: ["主角位", "观察位"],
+            participants: ["Protagonist位", "观察位"],
             reveals: ["现场被刻意清理过"],
             riskNotes: ["不要把对立位过早曝光"],
-            mustAdvance: ["主角拿到关键线索"],
+            mustAdvance: ["Protagonist拿到关键线索"],
             mustPreserve: ["对立位身份仍隐藏"],
             scenes: [],
           },
@@ -820,34 +820,34 @@ test("director blueprint schema accepts chapter shells without scenes", () => {
       {
         title: "第二幕",
         objective: "把调查升级为正面对抗",
-        summary: "主角开始意识到自己已被盯上。",
+        summary: "Protagonist开始意识到自己已被盯上。",
         phaseLabel: "加压",
         hookTarget: "对立位第一次反制",
-        participants: ["主角位", "对立位"],
+        participants: ["Protagonist位", "对立位"],
         reveals: ["追查对象会主动反击"],
         riskNotes: ["不要让追查失去方向"],
         chapters: [
           {
             title: "暗门回响",
-            objective: "让主角踏入更危险的封闭空间。",
+            objective: "让Protagonist踏入更危险的封闭空间。",
             expectation: "写出探索、反制和新的未知。",
             planRole: "pressure",
-            hookTarget: "主角发现自己已被标记",
-            participants: ["主角位"],
-            reveals: ["异常装置与主角有关"],
+            hookTarget: "Protagonist发现自己已被标记",
+            participants: ["Protagonist位"],
+            reveals: ["异常装置与Protagonist有关"],
             riskNotes: ["不要解释装置全貌"],
-            mustAdvance: ["主角确认自己已被卷入局内"],
+            mustAdvance: ["Protagonist确认自己已被卷入局内"],
             mustPreserve: ["终局真相仍远未揭晓"],
             scenes: [],
           },
           {
             title: "观测名单",
             objective: "抛出对立位的阶段性压力。",
-            expectation: "让主角意识到时间窗口正在缩短。",
+            expectation: "让Protagonist意识到时间窗口正在缩短。",
             planRole: "turn",
-            hookTarget: "名单上出现主角的旧身份",
-            participants: ["主角位", "对立位"],
-            reveals: ["主角过去和档案站有关"],
+            hookTarget: "名单上出现Protagonist的旧身份",
+            participants: ["Protagonist位", "对立位"],
+            reveals: ["Protagonist过去和档案站有关"],
             riskNotes: ["不要一次说穿旧身份细节"],
             mustAdvance: ["时间压力形成"],
             mustPreserve: ["旧身份细节仍保留到后续"],
@@ -859,7 +859,7 @@ test("director blueprint schema accepts chapter shells without scenes", () => {
   });
 
   assert.equal(parsed.arcs[0].chapters[0].scenes.length, 0);
-  assert.deepEqual(parsed.arcs[0].chapters[0].mustAdvance, ["主角决定追查"]);
+  assert.deepEqual(parsed.arcs[0].chapters[0].mustAdvance, ["Protagonist决定追查"]);
 });
 
 test("context selection keeps the freshest structural source while preserving required status", () => {
@@ -1056,7 +1056,7 @@ test("planner chapter prompt post validator rejects structurally unusable chapte
 
 test("genre prompt render hardens retry instructions and forced JSON mode", () => {
   const messages = genreTreePrompt.render({
-    prompt: "都市异能，主角从底层逆袭",
+    prompt: "Urban superpower，Protagonist从底层逆袭",
     retry: true,
     forceJson: true,
   }, {
@@ -1070,7 +1070,7 @@ test("genre prompt render hardens retry instructions and forced JSON mode", () =
   assert.equal(messages.length, 2);
   assert.match(String(messages[0].content), /Only one JSON object body can be returned/);
   assert.match(String(messages[0].content), /supports stable JSON output/);
-  assert.match(String(messages[1].content), /都市异能/);
+  assert.match(String(messages[1].content), /Urban superpower/);
 });
 
 test("title prompt render includes retry reason for regeneration attempts", () => {
@@ -1079,11 +1079,11 @@ test("title prompt render includes retry reason for regeneration attempts", () =
       mode: "brief",
       selectionMode: "pool",
       count: 8,
-      brief: "赛博修仙，主角靠因果算法登仙",
+      brief: "赛博修仙，Protagonist靠因果算法登仙",
       referenceTitle: "",
       novelTitle: "",
       currentTitle: "",
-      genreName: "仙侠",
+      genreName: "Xianxia",
       genreDescription: "赛博与修仙融合",
     },
     forceJson: true,
@@ -1116,7 +1116,7 @@ test("story mode child prompt render includes parent and sibling grounding", () 
       allowedConflictForms: ["经营压力", "邻里摩擦"],
       forbiddenConflictForms: ["无缘无故的极端生死战"],
       conflictCeiling: "medium",
-      resolutionStyle: "用经营成果和关系修复化解问题。",
+      resolutionStyle: "用经营成果和关系Repairing化解问题。",
       chapterUnit: "一章解决一个经营或关系小问题。",
       volumeReward: "完成一轮生活升级或产业升级。",
       mandatorySignals: ["稳定改善", "可见积累"],
@@ -1173,7 +1173,7 @@ test("story mode child prompt post validator rejects duplicate sibling names and
       allowedConflictForms: ["经营摩擦"],
       forbiddenConflictForms: ["极端大战"],
       conflictCeiling: "medium",
-      resolutionStyle: "经营修复。",
+      resolutionStyle: "经营Repairing。",
       chapterUnit: "一章一个小目标。",
       volumeReward: "一卷一次升级。",
       mandatorySignals: ["持续改善"],
@@ -1237,7 +1237,7 @@ test("story mode expansion prompt uses the library summary to find distinct addi
 test.skip("book analysis source note prompt enforces grounded Chinese extraction", { skip: "Prompt text snapshot is pending migration to prompt asset contract assertions." }, () => {
   const messages = bookAnalysisSourceNotePrompt.render({
     segmentLabel: "片段 1",
-    segmentContent: "主角在雨夜第一次见到反派组织的信使。",
+    segmentContent: "Protagonist在雨夜第一次见到Antagonist组织的信使。",
   }, {
     blocks: [],
     selectedBlockIds: [],
@@ -1255,9 +1255,9 @@ test.skip("book analysis source note prompt enforces grounded Chinese extraction
 test.skip("book analysis section prompt includes section-specific structuredData contract", { skip: "Prompt text snapshot is pending migration to prompt asset contract assertions." }, () => {
   const messages = bookAnalysisSectionPrompt.render({
     sectionKey: "overview",
-    sectionTitle: "拆书总览",
-    promptFocus: "覆盖：一句话定位、题材标签、卖点标签。",
-    notesText: "## 片段 1\n摘要：主角在底层逆袭。",
+    sectionTitle: "book analysis总览",
+    promptFocus: "覆盖：一句话定位、Genre标签、卖点标签。",
+    notesText: "## 片段 1\nSummary: Protagonist在底层逆袭。",
   }, {
     blocks: [],
     selectedBlockIds: [],
@@ -1276,7 +1276,7 @@ test.skip("book analysis section prompt includes section-specific structuredData
 test("book analysis source note prompt exposes reader and weakness signal extraction", () => {
   const messages = bookAnalysisSourceNotePrompt.render({
     segmentLabel: "片段 1",
-    segmentContent: "主角在雨夜第一次见到反派组织的信使。",
+    segmentContent: "Protagonist在雨夜第一次见到Antagonist组织的信使。",
   }, {
     blocks: [],
     selectedBlockIds: [],
@@ -1296,9 +1296,9 @@ test("book analysis source note prompt exposes reader and weakness signal extrac
 test("book analysis overview prompt encourages low-risk synthesis with direct section structure", () => {
   const messages = bookAnalysisSectionPrompt.render({
     sectionKey: "overview",
-    sectionTitle: "拆书总览",
-    promptFocus: "覆盖：一句话定位、题材标签、卖点标签、目标读者、整体优势、整体短板。",
-    notesText: "## 片段 1\n摘要：主角在底层逆袭。",
+    sectionTitle: "book analysis总览",
+    promptFocus: "覆盖：一句话定位、Genre标签、卖点标签、目标读者、整体优势、整体短板。",
+    notesText: "## 片段 1\nSummary: Protagonist在底层逆袭。",
   }, {
     blocks: [],
     selectedBlockIds: [],
@@ -1319,7 +1319,7 @@ test("book analysis overview prompt encourages low-risk synthesis with direct se
 test("world draft generation post validator requires requested dimension coverage", () => {
   assert.throws(() => worldDraftGenerationPrompt.postValidate({
     description: "世界概述",
-    background: "时代背景",
+    background: "时代Background",
     conflicts: "主要冲突",
     cultures: "社会风貌",
     politics: "",
@@ -1344,7 +1344,7 @@ test("world draft generation post validator requires requested dimension coverag
 test("world skeleton prompt keeps large world output within a recoverable one-shot budget", () => {
   const messages = worldSkeletonGenerationPrompt.render({
     idea: "灵气复苏后的都市调查故事",
-    worldType: "都市异能",
+    worldType: "Urban superpower",
     template: "现代都市",
     referenceContext: null,
     blueprint: null,
@@ -1381,7 +1381,7 @@ test("world draft refine alternatives post validator enforces exact alternative 
     worldName: "雾潮城",
     attribute: "background",
     refinementLevel: "deep",
-    currentValue: "原始背景",
+    currentValue: "原始Background",
     count: 2,
   }));
 });
@@ -1415,7 +1415,7 @@ test("runStructuredPrompt forwards repair policy and context telemetry", async (
     const result = await runStructuredPrompt({
       asset: genreTreePrompt,
       promptInput: {
-        prompt: "都市异能",
+        prompt: "Urban superpower",
         retry: false,
         forceJson: true,
       },
@@ -1428,14 +1428,14 @@ test("runStructuredPrompt forwards repair policy and context telemetry", async (
           content: [
             "核心设定：",
             "压迫。",
-            "高压都市异能成长。".repeat(20),
+            "高压Urban superpower成长。".repeat(20),
           ].join("\n"),
         }),
         createContextBlock({
           id: "overflow-1",
           group: "overflow",
           priority: 10,
-          content: "低优先级补充：".concat("次要背景。".repeat(20)),
+          content: "低优先级补充：".concat("次要Background。".repeat(20)),
         }),
       ],
     });
@@ -1498,15 +1498,15 @@ test("runStructuredPrompt retries semantically after postValidate failure", asyn
     return {
       data: {
         title: "第 3 章",
-        objective: "让主角确认敌人的第一次公开动作",
+        objective: "让Protagonist确认敌人的第一次公开动作",
         participants: ["林焰", "监察队"],
         reveals: ["敌人已经在城内布局"],
-        riskNotes: ["不要把调查写成背景复述"],
+        riskNotes: ["不要把调查写成Background复述"],
         hookTarget: "章末留下敌人反制的悬念",
         planRole: "progress",
         phaseLabel: "第一次正面推进",
         mustAdvance: ["锁定敌人动作路径"],
-        mustPreserve: ["主角仍处于弱势"],
+        mustPreserve: ["Protagonist仍处于弱势"],
         scenes: [{
           title: "夜巷追踪",
           objective: "发现异常交易",
@@ -1576,7 +1576,7 @@ test("streamTextPrompt buffers streamed output and resolves completion metadata"
     const handle = await streamTextPrompt({
       asset: styleRewritePrompt,
       promptInput: {
-        styleBlock: "叙事紧凑",
+        styleBlock: "Narrative紧凑",
         characterBlock: "动作表达情绪",
         antiAiBlock: "禁止解释性心理描写",
         content: "原文",
@@ -1645,7 +1645,7 @@ test("runTextPrompt records empty outputs without changing return behavior", asy
     const result = await runTextPrompt({
       asset: styleRewritePrompt,
       promptInput: {
-        styleBlock: "叙事紧凑",
+        styleBlock: "Narrative紧凑",
         characterBlock: "动作表达情绪",
         antiAiBlock: "禁止解释性心理描写",
         content: "原文",
@@ -1682,7 +1682,7 @@ test("prompt runner records failed executions without swallowing the original er
       () => runTextPrompt({
         asset: styleRewritePrompt,
         promptInput: {
-          styleBlock: "叙事紧凑",
+          styleBlock: "Narrative紧凑",
           characterBlock: "动作表达情绪",
           antiAiBlock: "禁止解释性心理描写",
           content: "原文",
@@ -1727,7 +1727,7 @@ test("prompt runner injects enabled custom slot blocks for supported prompts", a
           group: "custom_slot",
           priority: 899,
           required: true,
-          content: "【本书补充要求】\n保留主角冷静克制的表达。",
+          content: "【本书补充要求】\n保留Protagonist冷静克制的表达。",
         }),
       ],
       drift: [],
@@ -1763,7 +1763,7 @@ test("prompt runner injects enabled custom slot blocks for supported prompts", a
     ]);
     const rendered = capturedMessages.map((message) => String(message.content)).join("\n");
     assert.match(rendered, /禁止模板化表达/);
-    assert.match(rendered, /保留主角冷静克制的表达/);
+    assert.match(rendered, /保留Protagonist冷静克制的表达/);
   } finally {
     promptSlotOverrideService.resolveForRuntime = originalResolveForRuntime;
     setPromptRunnerLLMFactoryForTests();
@@ -1807,7 +1807,7 @@ test("prompt runner skips custom slot overlays for prompts without editable slot
     const handle = await streamTextPrompt({
       asset: styleRewritePrompt,
       promptInput: {
-        styleBlock: "叙事紧凑",
+        styleBlock: "Narrative紧凑",
         characterBlock: "动作表达情绪",
         antiAiBlock: "禁止解释性心理描写",
         content: "原文",
@@ -1902,7 +1902,7 @@ test("chapter writer context text uses reader-facing labels instead of raw machi
       { id: "cmqyvxq0w0044q8v1xsifezci", name: "陈默" },
     ],
     stateSnapshot: {
-      summary: "小说：数字猎杀",
+      summary: "Novel: 数字猎杀",
       characterStates: [
         {
           characterId: "cmqyvxq0w0044q8v1xsifezci",
@@ -1925,10 +1925,10 @@ test("writer style contract text omits debug metadata", () => {
   const rendered = buildWriterStyleContractText({
     narrative: {
       key: "narrative",
-      title: "叙事约束",
+      title: "Narrative约束",
       summary: "",
       lines: ["- 保持正在发生的场景推进。"],
-      text: "叙事约束:\n- 保持正在发生的场景推进。",
+      text: "Narrative约束:\n- 保持正在发生的场景推进。",
       hasContent: true,
     },
     character: {
@@ -1941,7 +1941,7 @@ test("writer style contract text omits debug metadata", () => {
     },
     language: {
       key: "language",
-      title: "语言",
+      title: "Language",
       summary: "",
       lines: [],
       text: "",
@@ -1986,7 +1986,7 @@ test("writer style contract text omits debug metadata", () => {
     },
   });
 
-  assert.match(rendered, /叙事约束/);
+  assert.match(rendered, /Narrative约束/);
   assert.doesNotMatch(rendered, /effective_style_profile_id=/);
   assert.doesNotMatch(rendered, /global_anti_ai_rule_ids=/);
 });
@@ -2066,7 +2066,7 @@ test("runTextPrompt uses active book-scoped advanced template for chapter writer
     assert.match(rendered, /CUSTOM HUMAN 高级模板章节/);
     assert.match(rendered, /chapter_mission 测试内容/);
     assert.match(rendered, /\[Required context fallback\]/);
-    assert.doesNotMatch(rendered, /你是中文长篇网络小说写作助手。/);
+    assert.doesNotMatch(rendered, /你Yes中文长篇网络小说写作助手。/);
   } finally {
     promptTemplateOverrideService.getActiveCustomTemplate = originalGetActiveCustomTemplate;
     setPromptRunnerLLMFactoryForTests();
@@ -2094,7 +2094,7 @@ test("streamStructuredPrompt parses streamed JSON and preserves telemetry", asyn
     const handle = await streamStructuredPrompt({
       asset: genreTreePrompt,
       promptInput: {
-        prompt: "都市异能",
+        prompt: "Urban superpower",
         retry: false,
         forceJson: true,
       },
@@ -2107,7 +2107,7 @@ test("streamStructuredPrompt parses streamed JSON and preserves telemetry", asyn
           content: [
             "核心设定：",
             "成长。",
-            "都市异能成长，底层主角持续承压。".repeat(20),
+            "Urban superpower成长，底层Protagonist持续承压。".repeat(20),
           ].join("\n"),
         }),
         createContextBlock({
@@ -2142,7 +2142,7 @@ test("streamStructuredPrompt parses top-level array outputs and ignores trailing
           content: [
             "[",
             "{\"name\":\"经营种田流\",\"description\":\"偏经营与资源积累\",\"template\":\"起步经营 -> 扩张增产\",\"profile\":{\"coreDrive\":\"通过持续经营推进连载\",\"readerReward\":\"看资源积累与生活改善\",\"progressionUnits\":[\"经营节点\"],\"allowedConflictForms\":[\"经营压力\"],\"forbiddenConflictForms\":[\"无缘无故的极端大战\"],\"conflictCeiling\":\"medium\",\"resolutionStyle\":\"靠经营成果化解问题\",\"chapterUnit\":\"每章解决一个经营小问题\",\"volumeReward\":\"完成一次产业升级\",\"mandatorySignals\":[\"稳定改善\"],\"antiSignals\":[\"长期脱离经营主线\"]},\"children\":[]},",
-            "{\"name\":\"人情种田流\",\"description\":\"偏邻里互动与关系经营\",\"template\":\"落地安家 -> 人情往来 -> 关系兑现\",\"profile\":{\"coreDrive\":\"通过人情关系与生活改善推进故事\",\"readerReward\":\"看关系升温与日常兑现\",\"progressionUnits\":[\"关系节点\"],\"allowedConflictForms\":[\"邻里摩擦\"],\"forbiddenConflictForms\":[\"无端灭门大战\"],\"conflictCeiling\":\"medium\",\"resolutionStyle\":\"靠关系修复与生活改善收束\",\"chapterUnit\":\"每章推进一个人情或生活小目标\",\"volumeReward\":\"形成稳定社群或生活圈\",\"mandatorySignals\":[\"生活感\",\"关系升温\"],\"antiSignals\":[\"长期偏离日常主线\"]},\"children\":[]}",
+            "{\"name\":\"人情种田流\",\"description\":\"偏邻里互动与关系经营\",\"template\":\"落地安家 -> 人情往来 -> 关系兑现\",\"profile\":{\"coreDrive\":\"通过人情关系与生活改善推进故事\",\"readerReward\":\"看关系升温与日常兑现\",\"progressionUnits\":[\"关系节点\"],\"allowedConflictForms\":[\"邻里摩擦\"],\"forbiddenConflictForms\":[\"无端灭门大战\"],\"conflictCeiling\":\"medium\",\"resolutionStyle\":\"靠关系Repairing与生活改善Resolution\",\"chapterUnit\":\"每章推进一个人情或生活小目标\",\"volumeReward\":\"形成稳定社群或生活圈\",\"mandatorySignals\":[\"生活感\",\"关系升温\"],\"antiSignals\":[\"长期偏离日常主线\"]},\"children\":[]}",
             "]\n以上为候选。",
           ].join(""),
         };
@@ -2166,7 +2166,7 @@ test("streamStructuredPrompt parses top-level array outputs and ignores trailing
           allowedConflictForms: ["经营摩擦"],
           forbiddenConflictForms: ["极端大战"],
           conflictCeiling: "medium",
-          resolutionStyle: "靠经营和关系修复问题。",
+          resolutionStyle: "靠经营和关系Repairing问题。",
           chapterUnit: "每章一个小改善。",
           volumeReward: "一卷完成一次阶段升级。",
           mandatorySignals: ["持续改善"],
@@ -2208,7 +2208,7 @@ test("streamStructuredPrompt can recover with semantic retry after streamed outp
     return {
       data: {
         title: "第 3 章",
-        objective: "主角确认敌方试探已经开始",
+        objective: "Protagonist确认敌方试探已经开始",
         participants: ["林焰", "敌方探子"],
         reveals: ["敌人已经渗入城防"],
         riskNotes: ["不要只写调查结果，要保留冲突推进"],
@@ -2216,7 +2216,7 @@ test("streamStructuredPrompt can recover with semantic retry after streamed outp
         planRole: "progress",
         phaseLabel: "威胁显形",
         mustAdvance: ["确认敌方布局"],
-        mustPreserve: ["主角仍然缺乏资源"],
+        mustPreserve: ["Protagonist仍然缺乏资源"],
         scenes: [{
           title: "暗巷截获",
           objective: "拿到敌方信号",

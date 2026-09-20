@@ -1,6 +1,5 @@
 /**
- * Server entry for stored protocol value dual-read.
- * Source of truth lives in shared so client validators can use the same map.
+ * Canonical English protocol values shared by client validators and the server.
  */
 export {
   BEAT_FALLBACK_LABEL,

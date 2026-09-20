@@ -46,9 +46,7 @@ if (stale.length) {
 }
 
 const invalidSemanticRequests = scan.flatMap((result) =>
-  result.path.includes("/marketRadar/")
-    ? []
-    : result.semanticViolations.map((text) => `${result.path}: ${text}`),
+  result.semanticViolations.map((text) => `${result.path}: ${text}`),
 );
 if (invalidSemanticRequests.length) {
   fail("active content instructions still request Chinese output or Chinese-character length semantics.", invalidSemanticRequests);
@@ -58,13 +56,9 @@ const assets = scan.flatMap((result) => result.promptAssets.map((asset) => ({ ..
 if (assets.length < 100) {
   fail(`only ${assets.length} PromptAssets were discovered; the metadata scan is incomplete.`);
 }
-const invalidLanguages = assets.filter((asset) =>
-  asset.path.includes("/marketRadar/")
-    ? asset.language !== "zh"
-    : asset.language !== "ka",
-);
+const invalidLanguages = assets.filter((asset) => asset.language !== "ka");
 if (invalidLanguages.length) {
-  fail("PromptAsset language metadata violates the ka/disabled-Market-Radar policy.", invalidLanguages.map((asset) => `${asset.id}: ${asset.language} (${asset.path})`));
+  fail("PromptAsset language metadata must be ka.", invalidLanguages.map((asset) => `${asset.id}: ${asset.language} (${asset.path})`));
 }
 
 const requiredSourceChecks = [

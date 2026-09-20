@@ -118,7 +118,7 @@ test("auto-director takeover bootstrap derives initial progress from runtime res
   assert.equal(initialState.stage, "structured_outline");
   assert.equal(initialState.itemKey, "beat_sheet");
   assert.equal(initialState.volumeId, "volume-1");
-  assert.notEqual(initialState.itemLabel, "等待生成候选方向");
+  assert.notEqual(initialState.itemLabel, "Waiting to generate candidate directions");
 });
 
 test("auto-director candidate bootstrap keeps candidate-stage default before a novel exists", () => {

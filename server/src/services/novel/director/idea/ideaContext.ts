@@ -26,7 +26,7 @@ function readerChannelPreferenceLabel(value: DirectorIdeaContextRequest["readerC
   }
 }
 
-export function buildDirectorIdeaContextSummary(input: DirectorIdeaContextRequest, marketBriefPrompt = ""): string {
+export function buildDirectorIdeaContextSummary(input: DirectorIdeaContextRequest): string {
   const framing = buildBookFramingSummary({
     targetAudience: input.targetAudience,
     bookSellingPoint: input.bookSellingPoint,
@@ -45,7 +45,6 @@ export function buildDirectorIdeaContextSummary(input: DirectorIdeaContextReques
     line("Secondary story mode", input.secondaryStoryModeLabel ?? input.secondaryStoryModeId),
     line("Secondary story mode guidance", input.secondaryStoryModeDescription),
     line("World", input.worldName ?? input.worldId),
-    marketBriefPrompt.trim() ? `Market brief:\n${marketBriefPrompt.trim()}` : "",
     line("Audience orientation", readerChannelPreferenceLabel(input.readerChannelPreference)),
     input.narrativePov ? `Narrative point of view: ${input.narrativePov}` : "",
     input.pacePreference ? `Pacing preference: ${input.pacePreference}` : "",

@@ -34,7 +34,7 @@ function createValidStrategyPayload() {
         sortOrder: 1,
         planningMode: "hard",
         roleLabel: "开局立钩卷",
-        coreReward: "快速建立主角困境与反击欲望。",
+        coreReward: "快速建立Protagonist困境与反击欲望。",
         escalationFocus: "压力源第一次正面压制。",
         uncertaintyLevel: "low",
       },
@@ -42,7 +42,7 @@ function createValidStrategyPayload() {
         sortOrder: 2,
         planningMode: "hard",
         roleLabel: "反压起势卷",
-        coreReward: "主角第一次拿到阶段性主动权。",
+        coreReward: "Protagonist第一次拿到阶段性主动权。",
         escalationFocus: "敌我资源与代价同步抬高。",
         uncertaintyLevel: "low",
       },
@@ -78,7 +78,7 @@ function createVolume(sortOrder) {
     primaryPressureSource: `卷${sortOrder}压力源`,
     coreSellingPoint: `卷${sortOrder}卖点`,
     escalationMode: `卷${sortOrder}升级方式`,
-    protagonistChange: `卷${sortOrder}主角变化`,
+    protagonistChange: `卷${sortOrder}Protagonist变化`,
     midVolumeRisk: `卷${sortOrder}中段风险`,
     climax: `卷${sortOrder}高潮`,
     payoffType: `卷${sortOrder}兑现类型`,
@@ -230,42 +230,42 @@ test("volume beat sheet schema normalizes alias fields and wrapped payloads", ()
       beats: [
         {
           beatKey: "open_hook",
-          beatLabel: "开卷抓手",
-          description: "先把世界危险和主角当前困境钉死。",
+          beatLabel: "Opening hook",
+          description: "先把世界危险和Protagonist当前困境钉死。",
           chapterRange: "1-2章",
-          deliverables: "压迫感，主角处境，首个异常信号",
+          deliverables: "压迫感，Protagonist处境，首个异常信号",
         },
         {
           id: "first_escalation",
           name: "第一次升级",
-          detail: "让主角第一次拿到能反制局面的抓手。",
+          detail: "让Protagonist第一次拿到能反制局面的抓手。",
           chapterWindow: "3章",
           requiredPayoffs: ["阶段优势", "局面变化"],
         },
         {
           stageKey: "midpoint_turn",
-          stageLabel: "中段转向",
+          stageLabel: "Midpoint turn",
           content: "把本卷方向从单点求生切到更大的局势判断。",
           spanHint: "4-5章",
           mustHit: ["新情报", "旧判断失效"],
         },
         {
           key: "pressure_lock",
-          label: "高潮前挤压",
-          summary: "把敌方优势和主角代价同时顶到卷内上限。",
+          label: "Pre-climax pressure",
+          summary: "把敌方优势和Protagonist代价同时顶到卷内上限。",
           chapterSpanHint: "6章",
           mustDeliver: ["压力堆高", "选择代价"],
         },
         {
           key: "climax",
-          label: "卷高潮",
+          label: "Volume climax",
           summary: "完成本卷主承诺的正面兑现。",
           chapterSpanHint: "7章",
           mustDeliver: ["正面对决", "阶段兑现"],
         },
         {
           key: "end_hook",
-          label: "卷尾钩子",
+          label: "Ending hook",
           summary: "用新威胁或新目标把下一卷打开。",
           chapterSpanHint: "8章",
           mustDeliver: ["余震", "下卷钩子"],
@@ -275,9 +275,9 @@ test("volume beat sheet schema normalizes alias fields and wrapped payloads", ()
   });
 
   assert.equal(parsed.beats.length, 6);
-  assert.equal(parsed.beats[0].summary, "先把世界危险和主角当前困境钉死。");
+  assert.equal(parsed.beats[0].summary, "先把世界危险和Protagonist当前困境钉死。");
   assert.equal(parsed.beats[0].chapterSpanHint, "1-2章");
-  assert.deepEqual(parsed.beats[0].mustDeliver, ["压迫感", "主角处境", "首个异常信号"]);
+  assert.deepEqual(parsed.beats[0].mustDeliver, ["压迫感", "Protagonist处境", "首个异常信号"]);
   assert.equal(parsed.beats[0].label, "Opening hook");
   assert.equal(parsed.beats[1].key, "first_escalation");
   assert.equal(parsed.beats[1].label, "First escalation");
@@ -290,7 +290,7 @@ test("volume beat sheet schema requires fixed slots and accepts custom titles", 
     beats: [
       {
         key: "open_hook",
-        label: "开卷抓手",
+        label: "Opening hook",
         title: "夜市夺印",
         summary: "开卷立下本卷主承诺。",
         chapterSpanHint: "1-2章",
@@ -298,7 +298,7 @@ test("volume beat sheet schema requires fixed slots and accepts custom titles", 
       },
       {
         key: "first_escalation",
-        label: "首次升级",
+        label: "First escalation",
         title: "借刀反制",
         summary: "第一次拿到反制抓手。",
         chapterSpanHint: "3章",
@@ -306,7 +306,7 @@ test("volume beat sheet schema requires fixed slots and accepts custom titles", 
       },
       {
         key: "midpoint_turn",
-        label: "中段转向",
+        label: "Midpoint turn",
         title: "旧盟破裂",
         summary: "中段换挡。",
         chapterSpanHint: "4-5章",
@@ -314,7 +314,7 @@ test("volume beat sheet schema requires fixed slots and accepts custom titles", 
       },
       {
         key: "pressure_lock",
-        label: "高潮前挤压",
+        label: "Pre-climax pressure",
         title: "围城代价",
         summary: "代价抬升。",
         chapterSpanHint: "6章",
@@ -322,7 +322,7 @@ test("volume beat sheet schema requires fixed slots and accepts custom titles", 
       },
       {
         key: "climax",
-        label: "卷高潮",
+        label: "Volume climax",
         title: "夺回令牌",
         summary: "兑现主承诺。",
         chapterSpanHint: "7章",
@@ -330,7 +330,7 @@ test("volume beat sheet schema requires fixed slots and accepts custom titles", 
       },
       {
         key: "end_hook",
-        label: "卷尾钩子",
+        label: "Ending hook",
         title: "北境来信",
         summary: "打开下一卷。",
         chapterSpanHint: "8章",
@@ -352,21 +352,21 @@ test("volume chapter beat block schema normalizes beat aliases and enforces beat
   const schema = createVolumeChapterBeatBlockSchema({
     exactChapterCount: 2,
     expectedBeatKey: "open_hook",
-    expectedBeatLabel: "开卷抓手",
+    expectedBeatLabel: "Opening hook",
   });
   const parsed = schema.parse({
     beat: "open_hook",
-    label: "开卷抓手",
+    label: "Opening hook",
     count: 2,
     items: [
       {
         chapterTitle: "第一束异常光",
-        description: "主角第一次看见危险信号，把卷内压迫落到眼前。",
+        description: "Protagonist第一次看见危险信号，把卷内压迫落到眼前。",
         beat: "open_hook",
       },
       {
         name: "封锁线内侧",
-        content: "主角被迫进入更危险的区域，让本卷生存承诺正式成立。",
+        content: "Protagonist被迫进入更危险的区域，让本卷生存承诺正式成立。",
         beat_key: "open_hook",
       },
     ],
@@ -382,16 +382,16 @@ test("volume chapter beat block schema wraps top-level chapter arrays for the cu
   const schema = createVolumeChapterBeatBlockSchema({
     exactChapterCount: 2,
     expectedBeatKey: "open_hook",
-    expectedBeatLabel: "开卷抓手",
+    expectedBeatLabel: "Opening hook",
   });
   const parsed = schema.parse([
     {
       chapterTitle: "第一束异常光",
-      description: "主角第一次看见危险信号，把卷内压迫落到眼前。",
+      description: "Protagonist第一次看见危险信号，把卷内压迫落到眼前。",
     },
     {
       name: "封锁线内侧",
-      outline: "主角被迫进入更危险的区域，让本卷生存承诺正式成立。",
+      outline: "Protagonist被迫进入更危险的区域，让本卷生存承诺正式成立。",
     },
   ]);
 
@@ -400,7 +400,7 @@ test("volume chapter beat block schema wraps top-level chapter arrays for the cu
   assert.equal(parsed.chapterCount, 2);
   assert.deepEqual(parsed.chapters.map((chapter) => chapter.beatKey), ["open_hook", "open_hook"]);
   assert.equal(parsed.chapters[0].title, "第一束异常光");
-  assert.equal(parsed.chapters[1].summary, "主角被迫进入更危险的区域，让本卷生存承诺正式成立。");
+  assert.equal(parsed.chapters[1].summary, "Protagonist被迫进入更危险的区域，让本卷生存承诺正式成立。");
 });
 
 test("chapter boundary schema normalizes structured boundary aliases", () => {
@@ -439,7 +439,7 @@ test("volume workspace document preserves chapter beat keys", () => {
             chapterOrder: 1,
             beatKey: "open_hook",
             title: "第一束异常光",
-            summary: "主角第一次看见危险信号。",
+            summary: "Protagonist第一次看见危险信号。",
             purpose: null,
             conflictLevel: null,
             revealLevel: null,
@@ -462,7 +462,7 @@ test("volume workspace document preserves chapter beat keys", () => {
         beats: [
           {
             key: "open_hook",
-            label: "开卷抓手",
+            label: "Opening hook",
             summary: "先把局势危险钉死。",
             chapterSpanHint: "1章",
             mustDeliver: ["压迫感"],
@@ -650,17 +650,17 @@ test("volume rebalance prompt render explains order-based id contract and enum d
 test("chapter task sheet schema parses taskSheet plus aliased scene cards", () => {
   const schema = createChapterTaskSheetSchema();
   const parsed = schema.parse({
-    task_sheet: "本章先让主角接住情报，再完成第一次明确反压，最后留下更大威胁。",
+    task_sheet: "本章先让Protagonist接住情报，再完成第一次明确反压，最后留下更大威胁。",
     reader_experience: {
-      readerQuestion: "主角能否把刚拿到的情报变成第一次有效反击？",
+      readerQuestion: "Protagonist能No把刚拿到的情报变成第一次有效反击？",
       promisedReward: "给出一次清晰可见的反压收益，同时抬高下一章威胁。",
       rewardLevel: "partial",
       protagonistWant: "夺回局面的第一步主动权。",
-      primaryResistance: "敌方资源优势仍然压制主角。",
+      primaryResistance: "敌方资源优势仍然压制Protagonist。",
       keyTurn: "情报从防守线索转化为可执行的反压落点。",
       emotionalShift: "由被动压抑转为短暂振奋，再感到更大压力。",
-      informationReveal: "幕后势力已经注意到主角的反击。",
-      netChange: "主角取得阶段性主动，但冲突等级继续上升。",
+      informationReveal: "幕后势力已经注意到Protagonist的反击。",
+      netChange: "Protagonist取得阶段性主动，但冲突等级继续上升。",
       inheritedHookResponsibilities: ["承接上一章断裂的情报链"],
       endingHook: "更高层级的敌人开始直接介入。",
     },
@@ -668,15 +668,15 @@ test("chapter task sheet schema parses taskSheet plus aliased scene cards", () =
       {
         sceneKey: "intel_handover",
         sceneTitle: "接住情报",
-        objective: "让女二把关键情报送到主角手里。",
-        mustAdvanceItems: "情报到手,反压起点成立",
+        objective: "让女二把关键情报送到Protagonist手里。",
+        mustAdvanceItems: "情报到手,反压Origin成立",
         mustPreserveItems: ["女二仍有保留", "压迫感不能消失"],
-        startState: "主角被压制，情报链还断着。",
-        endState: "主角确认反压切入口已经成立。",
+        startState: "Protagonist被压制，情报链还断着。",
+        endState: "Protagonist确认反压切入口已经成立。",
         forbidden: "不要提前揭露幕后黑手",
         wordCount: "900",
         obstacle: "女二担心暴露自身立场，不愿交出完整情报。",
-        turningPoint: "主角用旧线索证明自己已经掌握关键缺口。",
+        turningPoint: "Protagonist用旧线索证明自己已经掌握关键缺口。",
         emotionShift: "戒备转为有限信任。",
         readerReward: "情报链正式接通。",
       },
@@ -685,15 +685,15 @@ test("chapter task sheet schema parses taskSheet plus aliased scene cards", () =
         label: "第一次反压",
         goal: "把情报转成看得见的反压收益。",
         deliverables: ["明确收益", "敌方被迫应对"],
-        preserveItems: "资源差距仍在,主角不算完全翻盘",
-        openingState: "主角刚拿到情报，准备落子。",
-        closingState: "主角拿到阶段性主动权，但代价同步抬高。",
+        preserveItems: "资源差距仍在,Protagonist不算完全翻盘",
+        openingState: "Protagonist刚拿到情报，准备落子。",
+        closingState: "Protagonist拿到阶段性主动权，但代价同步抬高。",
         mustAvoid: ["不要洗白敌方", "不要直接大决战"],
         budget: 1200,
         resistance: "敌方提前封锁了情报对应的行动窗口。",
-        turn: "主角利用时间差迫使敌方临时改线。",
+        turn: "Protagonist利用时间差迫使敌方临时改线。",
         emotionalShift: "紧张压迫转为反击快感。",
-        readerValue: "看到主角把信息优势兑现成实际收益。",
+        readerValue: "看到Protagonist把信息优势兑现成实际收益。",
       },
       {
         key: "end_hook",
@@ -701,12 +701,12 @@ test("chapter task sheet schema parses taskSheet plus aliased scene cards", () =
         purpose: "把新的更大威胁钉到章末。",
         mustAdvance: ["新的威胁出现"],
         mustPreserve: ["本章反压收益仍然有效"],
-        entryState: "主角刚完成第一次反压。",
+        entryState: "Protagonist刚完成第一次反压。",
         exitState: "读者明确知道下一章压力会更高。",
         forbiddenExpansion: ["不要展开下章战斗"],
         targetWordCount: 800,
         resistance: "敌方损失后立刻调来更高层级力量。",
-        turn: "阶段性胜利暴露出主角的位置。",
+        turn: "阶段性胜利暴露出Protagonist的位置。",
         emotionalShift: "胜利余韵转为迫近危机。",
         readerValue: "本章收益落袋，同时获得明确追读悬念。",
       },

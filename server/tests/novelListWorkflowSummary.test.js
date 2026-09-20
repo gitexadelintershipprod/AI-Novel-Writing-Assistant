@@ -19,7 +19,7 @@ test("listNovels attaches latest visible auto director summary, skips archived t
   prisma.novel.findMany = async () => ([
     {
       id: "novel_1",
-      title: "自动导演中的小说",
+      title: "Auto-Director中的小说",
       description: "测试列表页导演摘要",
       targetAudience: null,
       bookSellingPoint: null,
@@ -118,14 +118,14 @@ test("listNovels attaches latest visible auto director summary, skips archived t
   prisma.novelWorkflowTask.findMany = async () => ([
     {
       id: "task_archived",
-      title: "自动导演中的小说",
+      title: "Auto-Director中的小说",
       novelId: "novel_1",
       lane: "auto_director",
       status: "waiting_approval",
       progress: 0.9,
       currentStage: "chapter_execution",
       currentItemKey: "chapter_execution",
-      currentItemLabel: "前 10 章可进入章节执行",
+      currentItemLabel: "前 10 章可进入Chapter execution",
       checkpointType: "chapter_batch_ready",
       checkpointSummary: "这条任务应该被归档过滤。",
       resumeTargetJson: null,
@@ -138,16 +138,16 @@ test("listNovels attaches latest visible auto director summary, skips archived t
     },
     {
       id: "task_visible",
-      title: "自动导演中的小说",
+      title: "Auto-Director中的小说",
       novelId: "novel_1",
       lane: "auto_director",
       status: "running",
       progress: 0.45,
       currentStage: "character_setup",
       currentItemKey: "character_setup",
-      currentItemLabel: "正在生成角色阵容",
+      currentItemLabel: "Generating the cast",
       checkpointType: "character_setup_required",
-      checkpointSummary: "当前正在处理角色准备。",
+      checkpointSummary: "当前正在处理Character setup。",
       resumeTargetJson: null,
       seedPayloadJson: null,
       heartbeatAt: new Date("2026-04-02T09:20:00.000Z"),
@@ -219,7 +219,7 @@ test("listNovels attaches latest visible auto director summary, skips archived t
     assert.equal(result.items.length, 2);
     assert.equal(result.items[0].latestAutoDirectorTask.id, "task_visible");
     assert.equal(result.items[0].latestAutoDirectorTask.status, "running");
-    assert.equal(result.items[0].latestAutoDirectorTask.currentItemLabel, "正在生成角色阵容");
+    assert.equal(result.items[0].latestAutoDirectorTask.currentItemLabel, "Generating the cast");
     assert.equal(result.items[0].latestAutoDirectorTask.displayStatus, "Character setup in progress");
     assert.equal(result.items[0].latestAutoDirectorTask.resumeAction, "View current progress");
     assert.equal(result.items[0].latestAutoDirectorTask.lastHealthyStage, "Character setup");

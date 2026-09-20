@@ -304,7 +304,7 @@ test("asset-first recovery treats full-book autopilot as auto execution", () => 
 
 test("asset-first recovery routes to structured outline when persisted range still lacks execution contracts", () => {
   // 卷工作区 cursor 误报已完成（chapter_sync），但执行区持久化章节仍缺细化。
-  // 此时必须回到节奏 / 拆章补齐，而不是进入 auto_execution 抛错卡死。
+  // 此时必须回到Beats / chapters补齐，而不Yes进入 auto_execution 抛错卡死。
   const recovery = resolveAssetFirstRecoveryFromSnapshot({
     runMode: "auto_to_execution",
     structuredOutlineRecoveryStep: "chapter_sync",

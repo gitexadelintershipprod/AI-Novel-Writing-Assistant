@@ -32,7 +32,7 @@ test("director event projection marks approval gates as user action", () => {
     steps: [{
       idempotencyKey: "task-1:chapter_execution_node:novel:novel-1",
       nodeKey: "chapter_execution_node",
-      label: "执行章节生成批次",
+      label: "Run the chapter generation batch",
       status: "waiting_approval",
       targetType: "novel",
       targetId: "novel-1",
@@ -51,7 +51,7 @@ test("director event projection marks approval gates as user action", () => {
       taskId: "task-1",
       novelId: "novel-1",
       nodeKey: "chapter_execution_node",
-      summary: "章节执行等待确认。",
+      summary: "Chapter execution等待确认。",
       occurredAt: "2026-04-28T00:00:02.000Z",
     }],
   }));
@@ -59,7 +59,7 @@ test("director event projection marks approval gates as user action", () => {
   assert.equal(projection.status, "waiting_approval");
   assert.equal(projection.requiresUserAction, true);
   assert.equal(projection.currentNodeKey, "chapter_execution_node");
-  assert.equal(projection.headline, "Waiting for confirmation: 执行章节生成批次");
+  assert.equal(projection.headline, "Waiting for confirmation: Run the chapter generation batch");
   assert.equal(projection.detail, "当前策略需要确认后继续。");
   assert.equal(projection.blockedReason, "当前策略需要确认后继续。");
   assert.equal(projection.blockingReason, "当前策略需要确认后继续。");
@@ -170,7 +170,7 @@ test("director event projection exposes deferred quality debt", () => {
     steps: [{
       idempotencyKey: "task-1:chapter_execution_node:novel:novel-1",
       nodeKey: "chapter_execution_node",
-      label: "继续章节生成",
+      label: "Continue chapter generation",
       status: "running",
       targetType: "novel",
       targetId: "novel-1",
@@ -182,7 +182,7 @@ test("director event projection exposes deferred quality debt", () => {
       taskId: "task-1",
       novelId: "novel-1",
       nodeKey: "planner.replan",
-      summary: "全书自动成书已暂存重复重规划问题，并继续推进后续章节。",
+      summary: "Full-book mode stored a repeated replan issue and continued later chapters.",
       affectedScope: "chapter_order:6",
       severity: "medium",
       metadata: { chapterOrder: 6 },
@@ -195,7 +195,7 @@ test("director event projection exposes deferred quality debt", () => {
   assert.deepEqual(projection.qualityDebtSummary, {
     deferredChapterCount: 1,
     deferredChapterOrders: [6],
-    latestReason: "全书自动成书已暂存重复重规划问题，并继续推进后续章节。",
+    latestReason: "Full-book mode stored a repeated replan issue and continued later chapters.",
   });
   assert.ok(projection.visibleRiskBadges.some((badge) => badge.label === "Quality debt stored"));
 });
@@ -206,7 +206,7 @@ test("director event projection exposes quality budget summary", () => {
     steps: [{
       idempotencyKey: "task-1:chapter_repair_node:chapter:chapter-6",
       nodeKey: "chapter_repair_node",
-      label: "修复第 6 章",
+      label: "Repairing第 6 章",
       status: "running",
       targetType: "chapter",
       targetId: "chapter-6",
@@ -417,7 +417,7 @@ test("director event projection keeps heartbeat as latest running progress", () 
     steps: [{
       idempotencyKey: "task-1:volume_strategy.volume_generation:volume:volume-1",
       nodeKey: "volume_strategy.volume_generation",
-      label: "正在生成卷战略（已等待 30s）",
+      label: "Generating the volume strategy（已等待 30s）",
       status: "running",
       targetType: "volume",
       targetId: "volume-1",
@@ -428,22 +428,22 @@ test("director event projection keeps heartbeat as latest running progress", () 
         eventId: "event-start",
         type: "node_started",
         nodeKey: "volume_strategy.volume_generation",
-        summary: "正在生成卷战略",
+        summary: "Generating the volume strategy",
         occurredAt: "2026-04-28T00:00:01.000Z",
       },
       {
         eventId: "event-heartbeat",
         type: "node_heartbeat",
         nodeKey: "volume_strategy.volume_generation",
-        summary: "正在生成卷战略（已等待 30s）",
+        summary: "Generating the volume strategy（已等待 30s）",
         occurredAt: "2026-04-28T00:00:31.000Z",
       },
     ],
   }));
 
   assert.equal(projection.status, "running");
-  assert.equal(projection.headline, "Advancing task: 正在生成卷战略（已等待 30s）");
-  assert.equal(projection.detail, "Recent developments: 正在生成卷战略（已等待 30s）");
+  assert.equal(projection.headline, "Advancing task: Generating the volume strategy（已等待 30s）");
+  assert.equal(projection.detail, "Recent developments: Generating the volume strategy（已等待 30s）");
   assert.equal(projection.recentEvents[0].type, "node_heartbeat");
 });
 
@@ -479,7 +479,7 @@ test("director event projection exposes governed issue records", () => {
       taskId: "task-1",
       novelId: "novel-1",
       nodeKey: "chapter_review",
-      summary: "章节质量分未达标已执行：continue_with_warning",
+      summary: "Chapter quality score is below the bar已执行：continue_with_warning",
       occurredAt: occurrence.occurredAt,
       metadata: { schemaVersion: 1, occurrence, decision },
     }],

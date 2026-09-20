@@ -10,7 +10,7 @@ Write complete English source copy or semantic i18n interpolation for dynamic co
 
 The Han allowlist records source classification, not proof that every rendered sentence is English. Remove obsolete entries only for the affected source strings; do not regenerate the entire allowlist to hide a failure. Test count-dependent labels at preview boundaries and test the native confirmation message directly.
 
-Unicode escapes such as `\u5019\u9009` also evade the Han scanner: the source file contains only ASCII, but the runtime string is Chinese. Write leftover UI copy as ordinary English text. If a dual-read alias must be quoted, keep it as UTF-8 Han and allowlist that exact line.
+Unicode escapes such as `\u5019\u9009` also evade the Han scanner: the source file contains only ASCII, but the runtime string is Chinese. Write leftover UI copy as ordinary English text. Do not quote Chinese protocol aliases.
 
 ## Related modules
 

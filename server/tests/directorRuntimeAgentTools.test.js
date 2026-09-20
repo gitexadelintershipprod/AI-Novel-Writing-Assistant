@@ -6,7 +6,7 @@ const { compileIntentToPlan } = require("../dist/agents/planner/compiler.js");
 
 function buildIntent(patch) {
   return {
-    goal: "检查自动导演状态",
+    goal: "检查Auto-Director状态",
     intent: "query_director_status",
     confidence: 0.9,
     requiresNovelContext: true,
@@ -21,7 +21,7 @@ function buildIntent(patch) {
 
 function buildPlannerInput() {
   return {
-    goal: "检查自动导演状态",
+    goal: "检查Auto-Director状态",
     messages: [],
     contextMode: "novel",
     novelId: "novel-1",
@@ -39,7 +39,7 @@ test("planner can route creative hub director status requests through runtime to
 
 test("planner maps director continuation to approval-bound runtime tools", () => {
   const plan = compileIntentToPlan(buildIntent({
-    goal: "继续自动导演到检查点",
+    goal: "Continue Auto-Director to the checkpoint",
     intent: "run_director_until_gate",
     interactionMode: "execute",
   }), buildPlannerInput());

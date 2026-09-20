@@ -342,7 +342,7 @@ test("director command service queues candidate confirmation as a serialized com
     assert.equal(payload.confirmRequest.candidate.workingTitle, "Neon Archive");
     assert.equal(harness.task.status, "queued");
     assert.equal(harness.task.currentItemKey, "candidate_confirm");
-    assert.equal(harness.task.currentItemLabel, "书级方向提交完成，等待 AI 创建小说项目");
+    assert.equal(harness.task.currentItemLabel, "Book direction submitted. Waiting for AI to create the novel project");
     assert.equal(harness.task.pendingManualRecovery, false);
   } finally {
     harness.restore();
@@ -366,7 +366,7 @@ test("director command service queues candidate generation as a serialized comma
     const payload = JSON.parse(harness.commands[0].payloadJson);
     assert.equal(payload.candidatesRequest.workflowTaskId, "task-1");
     assert.equal(payload.candidatesRequest.idea, "A college girl accidentally enters a supernatural organization.");
-    assert.equal(harness.task.currentItemLabel, "AI 正在生成书级方向候选");
+    assert.equal(harness.task.currentItemLabel, "AI is generating book-direction candidates");
   } finally {
     harness.restore();
   }
@@ -421,7 +421,7 @@ test("director command service queues policy updates without directly mutating r
     assert.equal(payload.policyUpdateRequest.mode, "run_next_step");
     assert.deepEqual(payload.policyUpdateRequest.autoApproveActions, ["chapter_execution_continue"]);
     assert.equal(harness.task.currentItemKey, "policy_update");
-    assert.equal(harness.task.currentItemLabel, "已提交运行策略调整，等待 AI 按新策略推进");
+    assert.equal(harness.task.currentItemLabel, "A run-strategy change was submitted. Waiting for AI to follow the new strategy");
   } finally {
     harness.restore();
   }
@@ -472,7 +472,7 @@ test("director command service clears manual recovery state when a stale running
   const harness = createHarness(createTask({
     status: "running",
     pendingManualRecovery: true,
-    lastError: "Director Worker 已中断，任务已暂停，等待手动恢复。",
+    lastError: "Director Worker 已中断，任务已暂停，Waiting for manual recovery。",
   }));
   try {
     const accepted = await harness.service.enqueueContinueCommand("task-1", {
@@ -519,7 +519,7 @@ test("director command service reuses active takeover command by novel", async (
 test("director command service queues chapter title repair without clearing the warning", async () => {
   const harness = createHarness(createTask({
     status: "failed",
-    lastError: "章节标题过于相似，需要修复。",
+    lastError: "章节标题过于相似，需要Repairing。",
   }));
   try {
     const accepted = await harness.service.enqueueChapterTitleRepairCommand("task-1", {
@@ -531,7 +531,7 @@ test("director command service queues chapter title repair without clearing the 
     assert.equal(harness.commands.length, 1);
     assert.equal(harness.commands[0].payloadJson, "{\"volumeId\":\"volume-1\"}");
     assert.equal(harness.task.status, "queued");
-    assert.equal(harness.task.lastError, "章节标题过于相似，需要修复。");
+    assert.equal(harness.task.lastError, "章节标题过于相似，需要Repairing。");
     assert.equal("lastError" in harness.taskUpdates[0].data, false);
   } finally {
     harness.restore();
@@ -589,19 +589,19 @@ test("director command service marks a leased command cancelled and closes runni
 
     assert.equal(harness.commands[0].status, "cancelled");
     assert.equal(harness.commands[0].leaseExpiresAt, null);
-    assert.equal(harness.commands[0].errorMessage, "自动导演任务已取消。");
+    assert.equal(harness.commands[0].errorMessage, "The Auto-Director task was cancelled.");
     assert.equal(harness.stepUpdates.length, 1);
     assert.equal(harness.stepUpdates[0].where.taskId, "task-1");
     assert.equal(harness.stepUpdates[0].where.status, "running");
     assert.equal(harness.stepUpdates[0].data.status, "failed");
-    assert.equal(harness.stepUpdates[0].data.error, "自动导演任务已取消。");
+    assert.equal(harness.stepUpdates[0].data.error, "The Auto-Director task was cancelled.");
     assert.equal(harness.jobUpdates.length, 1);
     assert.deepEqual(harness.jobUpdates[0].where.status, { in: ["queued", "running"] });
     assert.deepEqual(harness.jobUpdates[0].where.payload, { contains: "task-1" });
     assert.equal(harness.jobUpdates[0].data.status, "cancelled");
     assert.equal(harness.directorEvents.length, 1);
     assert.equal(harness.directorEvents[0].type, "run_cancelled");
-    assert.equal(harness.directorEvents[0].summary, "自动导演已停止，后台运行状态已收束。");
+    assert.equal(harness.directorEvents[0].summary, "Auto-Director stopped and the background run was closed out.");
   } finally {
     harness.restore();
   }
@@ -741,7 +741,7 @@ test("director command service clears exhausted stale command before accepting a
   const harness = createHarness(createTask({
     status: "running",
     pendingManualRecovery: true,
-    lastError: "服务重启后任务已暂停，等待手动恢复。",
+    lastError: "The task paused after a service restart and is waiting for manual recovery.",
   }));
   try {
     await harness.service.enqueueContinueCommand("task-1");
@@ -751,7 +751,7 @@ test("director command service clears exhausted stale command before accepting a
     harness.commands[0].leaseExpiresAt = new Date("2026-04-29T12:00:00.000Z");
     harness.task.status = "running";
     harness.task.pendingManualRecovery = true;
-    harness.task.lastError = "服务重启后任务已暂停，等待手动恢复。";
+    harness.task.lastError = "The task paused after a service restart and is waiting for manual recovery.";
 
     const accepted = await harness.service.enqueueContinueCommand("task-1");
 

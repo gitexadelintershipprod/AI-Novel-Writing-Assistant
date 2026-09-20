@@ -8,7 +8,6 @@ import {
   buildDirectorIdeaContextSummary,
   shouldRetryDirectorIdeaWithOriginalContext,
 } from "./idea/ideaContext";
-import { marketRadarService } from "../../../modules/marketRadar/application/MarketRadarService";
 
 const IDEA_INSPIRATION_MAX_TOKENS = 1_800;
 const IDEA_INSPIRATION_RETRY_TEMPERATURE = 0.25;
@@ -18,11 +17,10 @@ function resolveIdeaInspirationTemperature(input: DirectorIdeaInspirationRequest
 }
 
 async function runIdeaInspirationPrompt(input: DirectorIdeaInspirationRequest, temperature: number) {
-  const marketBriefPrompt = await marketRadarService.getBriefPromptBlock(input.marketBriefId);
   return runStructuredPrompt({
     asset: directorIdeaInspirationPrompt,
     promptInput: {
-      contextSummary: buildDirectorIdeaContextSummary(input, marketBriefPrompt),
+      contextSummary: buildDirectorIdeaContextSummary(input),
     },
     options: {
       provider: input.provider,

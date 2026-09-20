@@ -33,7 +33,7 @@ test("resumePendingAutoDirectorTasks requeues interrupted running tasks before c
   await runtimeService.resumePendingAutoDirectorTasks();
 
   assert.deepEqual(calls, [
-    ["requeue", "task-running", "自动导演任务因服务重启中断，正在尝试恢复。"],
+    ["requeue", "task-running", "The Auto-Director task stopped after a service restart and is trying to recover."],
     ["continue", "task-running"],
   ]);
 });
@@ -93,7 +93,7 @@ test("resumePendingAutoDirectorTasks marks failed when recovery throws", async (
   await runtimeService.resumePendingAutoDirectorTasks();
 
   assert.deepEqual(calls, [
-    ["failed", "task-queued", "服务重启后恢复失败：缺少恢复上下文"],
+    ["failed", "task-queued", "Recovery after restart failed：缺少恢复上下文"],
   ]);
 });
 
@@ -116,7 +116,7 @@ test("resumePendingAutoDirectorTasks restores checkpoint instead of failing when
     },
     {
       async continueTask() {
-        const error = new Error("当前导演产物已经完整，无需继续自动导演。");
+        const error = new Error("Current director artifacts are complete. No need to continue Auto-Director.");
         error.code = "director_recovery_not_needed";
         throw error;
       },
@@ -154,8 +154,8 @@ test("markPendingAutoDirectorTasksForManualRecovery only marks tasks without con
   await runtimeService.markPendingAutoDirectorTasksForManualRecovery();
 
   assert.deepEqual(calls, [
-    ["requeue", "task-queued", "服务重启后任务已暂停，等待手动恢复。"],
-    ["requeue", "task-running", "服务重启后任务已暂停，等待手动恢复。"],
+    ["requeue", "task-queued", "The task paused after a service restart and is waiting for manual recovery."],
+    ["requeue", "task-running", "The task paused after a service restart and is waiting for manual recovery."],
   ]);
 });
 
@@ -189,7 +189,7 @@ test("markPendingAutoDirectorTasksForManualRecovery marks stale running tasks as
 
   assert.deepEqual(calls, [
     ["failed", "task-stale", "The Auto-Director task lost its heartbeat, likely from a restart or memory pressure. Check it, then continue or retry."],
-    ["requeue", "task-fresh", "服务重启后任务已暂停，等待手动恢复。"],
+    ["requeue", "task-fresh", "The task paused after a service restart and is waiting for manual recovery."],
   ]);
 });
 
@@ -206,9 +206,9 @@ test("stale running auto director healing does not recurse through markTaskFaile
     lane: "auto_director",
     status: "running",
     progress: 0.4,
-    currentStage: "结构化大纲",
+    currentStage: "Structured outline",
     currentItemKey: "chapter_detail_bundle",
-    currentItemLabel: "生成章节细纲",
+    currentItemLabel: "Generating chapters细纲",
     checkpointType: null,
     checkpointSummary: null,
     resumeTargetJson: null,

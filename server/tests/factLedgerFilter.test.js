@@ -18,7 +18,7 @@ function filter(overrides = {}) {
   return filterAcceptedFactItems({
     chapterOrder: 7,
     mustHitNow: [
-      "主角当众拒绝婚约，明确站到家族对立面。",
+      "Protagonist当众拒绝婚约，明确站到家族对立面。",
       "拿到青铜钥匙，并发现钥匙来自失踪师父。",
     ],
     obligationCoverage: coverage(),
@@ -32,7 +32,7 @@ test("filterAcceptedFactItems allows every mustHitNow item when coverage is sati
 
   assert.deepEqual(result.excluded, []);
   assert.deepEqual(result.accepted, [{
-    text: "第7章已完成：主角当众拒绝婚约，明确站到家族对立面。",
+    text: "第7章已完成：Protagonist当众拒绝婚约，明确站到家族对立面。",
     category: "completed",
   }, {
     text: "第7章已完成：拿到青铜钥匙，并发现钥匙来自失踪师父。",
@@ -53,7 +53,7 @@ test("filterAcceptedFactItems removes exactly matched missing mustHitNow obligat
   });
 
   assert.deepEqual(result.accepted.map((item) => item.text), [
-    "第7章已完成：主角当众拒绝婚约，明确站到家族对立面。",
+    "第7章已完成：Protagonist当众拒绝婚约，明确站到家族对立面。",
   ]);
   assert.equal(result.excluded.length, 1);
   assert.equal(result.excluded[0].text, "拿到青铜钥匙，并发现钥匙来自失踪师父。");
@@ -65,7 +65,7 @@ test("filterAcceptedFactItems removes paraphrased missing mustHitNow obligations
   const result = filter({
     mustHitNow: [
       "林澈在宗门大比前公开接受三日后决战。",
-      "女主确认暗线账册藏在祠堂地砖下。",
+      "Female lead确认暗线账册藏在祠堂地砖下。",
     ],
     obligationCoverage: coverage({
       status: "partial",
@@ -78,7 +78,7 @@ test("filterAcceptedFactItems removes paraphrased missing mustHitNow obligations
   });
 
   assert.deepEqual(result.accepted.map((item) => item.text), [
-    "第7章已完成：女主确认暗线账册藏在祠堂地砖下。",
+    "第7章已完成：Female lead确认暗线账册藏在祠堂地砖下。",
   ]);
   assert.equal(result.excluded.length, 1);
   assert.equal(result.excluded[0].text, "林澈在宗门大比前公开接受三日后决战。");

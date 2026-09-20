@@ -22,7 +22,7 @@ test("localizeConsistencyIssue rewrites known english issues into chinese", () =
     targetField: "conflicts",
   });
 
-  assert.equal(issue.message, "题材信号与当前世界观约束不一致。");
-  assert.match(issue.detail ?? "", /题材预期/);
+  assert.equal(issue.message, "Genre信号与当前世界观约束不一致。");
+  assert.match(issue.detail ?? "", /Genre预期/);
   assert.equal(localizeConsistencyField("conflicts"), "核心冲突");
 });

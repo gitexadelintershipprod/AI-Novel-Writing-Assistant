@@ -300,7 +300,7 @@ test("chapter execution waits for delayed state commit facts before projection v
     ["chapter.draft.write", buildNoopModule({
       id: "chapter.draft.write",
       nodeKey: "chapter_execution_node",
-      label: "执行章节生成批次",
+      label: "Run the chapter generation batch",
       stage: "chapter_execution",
       writes: ["chapter_draft"],
       mayModifyUserContent: true,
@@ -309,14 +309,14 @@ test("chapter execution waits for delayed state commit facts before projection v
     ["chapter.quality.review", buildNoopModule({
       id: "chapter.quality.review",
       nodeKey: "chapter_quality_review_node",
-      label: "检查章节质量",
+      label: "Review chapter quality",
       writes: ["audit_report"],
       completed: true,
     })],
     ["chapter.state.commit", buildNoopModule({
       id: "chapter.state.commit",
       nodeKey: "chapter_state_commit_node",
-      label: "提交章节连续性状态",
+      label: "Commit continuity state",
       writes: ["continuity_state", "character_governance_state"],
       producedArtifacts: [continuityArtifact, characterArtifact],
       inspectCompletion: async () => {
@@ -337,7 +337,7 @@ test("chapter execution waits for delayed state commit facts before projection v
     ["payoff.ledger.sync", buildNoopModule({
       id: "payoff.ledger.sync",
       nodeKey: "payoff_ledger_sync_node",
-      label: "同步读者承诺与伏笔",
+      label: "Sync reader promises and payoffs",
       writes: ["reader_promise"],
       completed: true,
       producedArtifacts: [readerPromiseArtifact],
@@ -345,7 +345,7 @@ test("chapter execution waits for delayed state commit facts before projection v
     ["character.resource.sync", buildNoopModule({
       id: "character.resource.sync",
       nodeKey: "character_resource_sync_node",
-      label: "同步角色资源状态",
+      label: "Sync character resource state",
       writes: ["character_governance_state", "continuity_state"],
       completed: true,
       producedArtifacts: [characterArtifact, continuityArtifact],

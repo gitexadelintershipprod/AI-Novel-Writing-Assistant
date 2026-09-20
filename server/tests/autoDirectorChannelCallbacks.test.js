@@ -36,7 +36,7 @@ test("auto director channel callback route executes dingtalk low-risk actions th
       taskId: input.taskId,
       actionCode: input.actionCode,
       code: "executed",
-      message: "执行成功",
+      message: "Succeeded",
       task: {
         id: input.taskId,
         kind: "novel_workflow",
@@ -111,7 +111,7 @@ test("auto director channel callback route executes wecom low-risk actions throu
       taskId: input.taskId,
       actionCode: input.actionCode,
       code: "executed",
-      message: "执行成功",
+      message: "Succeeded",
       task: {
         id: input.taskId,
         kind: "novel_workflow",
@@ -184,7 +184,7 @@ test("auto director channel callback route executes wecom low-risk actions throu
       taskId: input.taskId,
       actionCode: input.actionCode,
       code: "executed",
-      message: "执行成功",
+      message: "Succeeded",
       task: {
         id: input.taskId,
         kind: "novel_workflow",

@@ -5,12 +5,6 @@ const path = require("node:path");
 const { ROOT, scanGeorgianContent } = require("./georgian-content-audit.cjs");
 
 function classify(relativePath) {
-  if (relativePath.includes("/prompting/prompts/marketRadar/")) {
-    return {
-      category: "disabled-market-radar-source",
-      reason: "Market Radar is disabled by both client and server flags; its source-specific Chinese assets are retained for future replacement.",
-    };
-  }
   throw new Error(`Refusing to auto-classify active Han text in ${relativePath}.`);
 }
 

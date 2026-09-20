@@ -4,6 +4,12 @@ This file is the complete user-visible update history. The root [README.md](../.
 
 ## Update history
 
+### 2026-09-21
+
+- This workspace starts empty so you can open Auto-Director from your own idea. Previous novels, tasks, worlds, and knowledge were cleared after a backup; your model settings and built-in genre, story-mode, and writing-profile libraries remain.
+- Market Radar is removed. There is no hidden radar page and Auto-Director no longer takes a market briefing.
+- The system no longer reads old Chinese protocol values. Buttons, roles, task names, and other controls stay in English. Generated chapter prose stays Georgian.
+
 ### 2026-09-20
 
 - Buttons, errors, task names, world templates, character roles, and public help pages now come from English source text, not only an on-screen translation overlay. Auto-Director, Task Center, and export headings stay readable even in native browser dialogs and notifications.

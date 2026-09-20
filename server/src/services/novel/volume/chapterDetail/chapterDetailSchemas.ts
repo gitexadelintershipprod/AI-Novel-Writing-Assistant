@@ -107,9 +107,9 @@ function normalizeSceneCardPayload(raw: unknown): unknown {
 
 function normalizeScenePlanPayload(raw: unknown): unknown {
   const normalized = normalizeObjectAlias(raw, {
-    taskSheet: ["任务单", "task_sheet", "writingTask", "执行任务单"],
+    taskSheet: ["task_sheet", "writingTask"],
     sceneCards: ["scenePlan", "scenes", "scene_cards", "sceneCardList"],
-    readerExperience: ["readerExperienceContract", "reader_experience", "读者体验合同"],
+    readerExperience: ["readerExperienceContract", "reader_experience"],
   });
   if (!normalized || typeof normalized !== "object" || Array.isArray(normalized)) {
     return normalized;
@@ -125,14 +125,14 @@ function normalizeScenePlanPayload(raw: unknown): unknown {
 
 function normalizeBoundaryPayload(raw: unknown): unknown {
   const normalized = normalizeObjectAlias(raw, {
-    exclusiveEvent: ["exclusive_event", "chapterExclusiveEvent", "独占事件", "核心独占事件"],
-    endingState: ["ending_state", "chapterEndingState", "章末状态", "本章结束状态"],
-    nextChapterEntryState: ["next_chapter_entry_state", "nextEntryState", "下章起始状态", "下章入口状态"],
-    conflictLevel: ["冲突等级", "conflict_level", "conflict"],
-    revealLevel: ["揭露等级", "reveal_level", "reveal"],
-    targetWordCount: ["目标字数", "target_word_count", "wordCount", "字数"],
-    mustAvoid: ["禁止事项", "避免事项", "must_avoid"],
-    payoffRefs: ["兑现关联", "payoff_refs", "payoffs", "关联兑现"],
+    exclusiveEvent: ["exclusive_event", "chapterExclusiveEvent"],
+    endingState: ["ending_state", "chapterEndingState"],
+    nextChapterEntryState: ["next_chapter_entry_state", "nextEntryState"],
+    conflictLevel: ["conflict_level", "conflict"],
+    revealLevel: ["reveal_level", "reveal"],
+    targetWordCount: ["target_word_count", "wordCount"],
+    mustAvoid: ["must_avoid"],
+    payoffRefs: ["payoff_refs", "payoffs"],
   });
   if (!normalized || typeof normalized !== "object" || Array.isArray(normalized)) {
     return normalized;
@@ -153,7 +153,7 @@ function normalizeBoundaryPayload(raw: unknown): unknown {
 export function createChapterPurposeSchema() {
   return z.preprocess(
     (raw) => normalizeObjectAlias(raw, {
-      purpose: ["章节目标", "chapterGoal", "goal", "objective"],
+      purpose: ["chapterGoal", "goal", "objective"],
     }),
     z.object({
       purpose: conciseRequiredText,
@@ -185,7 +185,7 @@ export function createChapterTaskSheetSchema() {
 export function createChapterExecutionContractSchema() {
   return z.preprocess(
     (raw) => normalizeScenePlanPayload(normalizeBoundaryPayload(normalizeObjectAlias(raw, {
-      purpose: ["章节目标", "chapterGoal", "goal", "objective"],
+      purpose: ["chapterGoal", "goal", "objective"],
     }))),
     z.object({
       purpose: conciseRequiredText,

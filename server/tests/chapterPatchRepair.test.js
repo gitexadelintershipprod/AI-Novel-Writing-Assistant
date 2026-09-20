@@ -18,7 +18,7 @@ test("applyChapterPatchRepairPlan applies exact single-location patches", () => 
       id: "patch-1",
       targetExcerpt: "第一段承接断裂。",
       replacement: "第一段补上前因后果，承接自然。",
-      reason: "修复承接问题。",
+      reason: "Repairing承接问题。",
       issueIds: ["issue-1"],
     }],
     requiresFullRewrite: false,
@@ -55,7 +55,7 @@ test("applyChapterPatchRepairPlan allows deleting unique target excerpts", () =>
 test("applyChapterPatchRepairPlan rejects ambiguous target excerpts", () => {
   const result = applyChapterPatchRepairPlan("重复承接片段。重复承接片段。", {
     strategy: "patch_first",
-    summary: "尝试修复重复。",
+    summary: "尝试Repairing重复。",
     patches: [{
       id: "patch-dup",
       targetExcerpt: "重复承接片段。",
@@ -76,7 +76,7 @@ test("applyChapterPatchRepairPlan rejects ambiguous target excerpts", () => {
 test("applyChapterPatchRepairPlan applies unique whitespace-normalized patches", () => {
   const result = applyChapterPatchRepairPlan("殿下？\n\n苏哲猛地抬头，目光扫过屋内陈设。", {
     strategy: "patch_first",
-    summary: "修复跨段补丁。",
+    summary: "Repairing跨段补丁。",
     patches: [{
       id: "patch-space",
       targetExcerpt: "殿下？苏哲猛地抬头，目光扫过屋内陈设。",
@@ -97,7 +97,7 @@ test("applyChapterPatchRepairPlan applies unique whitespace-normalized patches",
 test("applyChapterPatchRepairPlan rejects ambiguous whitespace-normalized matches", () => {
   const result = applyChapterPatchRepairPlan("殿下？\n\n苏哲醒来。殿下？ 苏哲醒来。", {
     strategy: "patch_first",
-    summary: "尝试修复重复跨段。",
+    summary: "尝试Repairing重复跨段。",
     patches: [{
       id: "patch-space-dup",
       targetExcerpt: "殿下？苏哲醒来。",
@@ -185,7 +185,7 @@ test("ChapterPatchRepairService reports structured patch schema failures as reco
       () => new ChapterPatchRepairService().repair({
         novelTitle: "测试小说",
         chapterTitle: "第一章",
-        content: "已有正文足够执行修复。",
+        content: "已有正文足够执行Repairing。",
         issues: [],
         repairMode: "light_repair",
       }),
@@ -224,7 +224,7 @@ test("ChapterPatchRepairService converts unsafe apply-stage patch validation int
       () => new ChapterPatchRepairService().repair({
         novelTitle: "测试小说",
         chapterTitle: "第一章",
-        content: "已有正文足够执行修复。",
+        content: "已有正文足够执行Repairing。",
         issues: [{
           severity: "medium",
           category: "coherence",

@@ -24,7 +24,7 @@ function withRagConfig(patch, run) {
 
 test("buildSearchText prepends context prefix without changing original chunk text", () => {
   assert.equal(buildSearchText("原始正文", ""), "原始正文");
-  assert.equal(buildSearchText("原始正文", "角色定位"), "角色定位\n\n原始正文");
+  assert.equal(buildSearchText("原始正文", "Role"), "Role\n\n原始正文");
 });
 
 test("RagContextualChunkService keeps original text when contextual retrieval is disabled", () => withRagConfig({
@@ -37,12 +37,12 @@ test("RagContextualChunkService keeps original text when contextual retrieval is
   const output = await service.buildContextPrefix({
     document: { ownerType: "novel", ownerId: "novel-1", title: "测试小说" },
     chunkOrder: 0,
-    chunkText: "主角拿到铜钥匙。",
+    chunkText: "Protagonist拿到铜钥匙。",
   });
 
   assert.equal(output.contextPrefix, undefined);
   assert.equal(output.contextVersion, 3);
-  assert.equal(output.searchText, "主角拿到铜钥匙。");
+  assert.equal(output.searchText, "Protagonist拿到铜钥匙。");
   assert.equal(output.contextSourceHash.length, 24);
 }));
 
@@ -53,7 +53,7 @@ test("RagContextualChunkService stores context metadata and searchText on candid
 }, async () => {
   const service = new RagContextualChunkService(async ({ promptInput }) => ({
     output: {
-      contextPrefix: `《${promptInput.title}》角色事实：主角持有后门铜钥匙。`,
+      contextPrefix: `《${promptInput.title}》角色事实：Protagonist持有后门铜钥匙。`,
     },
     meta: {},
     context: {},

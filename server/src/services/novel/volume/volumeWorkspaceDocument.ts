@@ -80,7 +80,7 @@ function resolveVolumeReference(volumes: VolumePlan[], value: unknown): string |
     return directMatch.id;
   }
 
-  const orderMatch = normalized.match(/(?:volume|卷|第)?\s*(\d+)(?:\s*卷)?$/i);
+  const orderMatch = normalized.match(/(?:volume)?\s*(\d+)$/i);
   if (!orderMatch) {
     return null;
   }

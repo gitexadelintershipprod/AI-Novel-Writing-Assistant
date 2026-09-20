@@ -16,13 +16,13 @@ test("healHistoricalAutoDirectorRecoveryFailure restores legacy restart failures
     lane: "auto_director",
     status: "failed",
     progress: 0.93,
-    currentStage: "章节执行",
+    currentStage: "Chapter execution",
     currentItemKey: "chapter_execution",
     currentItemLabel: "正在自动执行第 1-10 章",
     checkpointType: "chapter_batch_ready",
     checkpointSummary: "《示例》已生成第 1 卷节奏板，并准备好第 1-10 章细化。",
     resumeTargetJson: null,
-    lastError: "服务重启后恢复失败：当前导演产物已经完整，无需继续自动导演。",
+    lastError: "Recovery after restart failed：Current director artifacts are complete. No need to continue Auto-Director.",
     finishedAt: new Date("2026-04-03T11:55:37.000Z"),
     heartbeatAt: new Date("2026-04-03T11:55:37.000Z"),
     cancelRequestedAt: null,
@@ -76,9 +76,9 @@ test("healAutoDirectorTaskState completes chapter batch checkpoints when every c
     lane: "auto_director",
     status: "failed",
     progress: 0.98,
-    currentStage: "质量修复",
+    currentStage: "Quality repair",
     currentItemKey: "quality_repair",
-    currentItemLabel: "第 1-3 章自动执行已暂停",
+    currentItemLabel: "第 1-3 章Auto-run is paused",
     checkpointType: "chapter_batch_ready",
     checkpointSummary: "旧摘要",
     resumeTargetJson: null,
@@ -157,9 +157,9 @@ test("healRuntimeGateApprovalState mirrors blocked runtime gates into waiting ap
     lane: "auto_director",
     status: "running",
     progress: 0.978,
-    currentStage: "章节执行",
+    currentStage: "Chapter execution",
     currentItemKey: "chapter_execution",
-    currentItemLabel: "等待确认章节执行",
+    currentItemLabel: "等待确认Chapter execution",
     checkpointType: null,
     checkpointSummary: null,
     resumeTargetJson: "{\"stage\":\"chapter\"}",
@@ -174,7 +174,7 @@ test("healRuntimeGateApprovalState mirrors blocked runtime gates into waiting ap
   prisma.directorRunCommand.findFirst = async () => null;
   prisma.directorStepRun.findFirst = async () => ({
     status: "blocked_scope",
-    label: "执行章节生成批次",
+    label: "Run the chapter generation batch",
     policyDecisionJson: JSON.stringify({
       reason: "该动作可能覆盖用户手写内容，需要确认后继续。",
     }),
@@ -200,7 +200,7 @@ test("healRuntimeGateApprovalState mirrors blocked runtime gates into waiting ap
     const healed = await service.healRuntimeGateApprovalState("task_runtime_gate", currentRow);
     assert.equal(healed, true);
     assert.equal(currentRow.status, "waiting_approval");
-    assert.equal(currentRow.currentItemLabel, "等待确认章节执行");
+    assert.equal(currentRow.currentItemLabel, "等待确认Chapter execution");
     assert.equal(currentRow.checkpointSummary, "该动作可能覆盖用户手写内容，需要确认后继续。");
   } finally {
     prisma.directorRunCommand.findFirst = originals.commandFindFirst;
@@ -222,9 +222,9 @@ test("healRuntimeFailedState mirrors failed runtime steps out of false running t
     lane: "auto_director",
     status: "running",
     progress: 0.78,
-    currentStage: "节奏 / 拆章",
+    currentStage: "Beats / chapters",
     currentItemKey: "chapter_list",
-    currentItemLabel: "正在生成第 1 卷节奏段：开卷抓手",
+    currentItemLabel: "正在生成第 1 卷Beat：Opening hook",
     checkpointType: null,
     checkpointSummary: null,
     resumeTargetJson: "{\"stage\":\"structured\"}",
@@ -239,7 +239,7 @@ test("healRuntimeFailedState mirrors failed runtime steps out of false running t
   prisma.directorRunCommand.findFirst = async () => null;
   prisma.directorStepRun.findFirst = async () => ({
     status: "failed",
-    label: "生成章节任务单",
+    label: "Generate chapter task sheets",
     error: "[STRUCTURED_OUTPUT:transport_error] Connection error.",
     finishedAt: new Date("2026-04-29T06:30:16.000Z"),
   });
@@ -262,7 +262,7 @@ test("healRuntimeFailedState mirrors failed runtime steps out of false running t
     const healed = await service.healRuntimeFailedState("task_runtime_failed", currentRow);
     assert.equal(healed, true);
     assert.equal(currentRow.status, "failed");
-    assert.equal(currentRow.currentItemLabel, "正在生成第 1 卷节奏段：开卷抓手");
+    assert.equal(currentRow.currentItemLabel, "正在生成第 1 卷Beat：Opening hook");
     assert.equal(currentRow.lastError, "[STRUCTURED_OUTPUT:transport_error] Connection error.");
     assert.equal(currentRow.checkpointSummary, "[STRUCTURED_OUTPUT:transport_error] Connection error.");
   } finally {
@@ -286,7 +286,7 @@ test("healAutoDirectorTaskState revives chapter_range auto execution tasks that 
     lane: "auto_director",
     status: "failed",
     progress: 0.9763,
-    currentStage: "章节执行",
+    currentStage: "Chapter execution",
     currentItemKey: "chapter_execution",
     currentItemLabel: "正在自动执行第 1-10 章 · 第 2/10 章 · 示例章节",
     checkpointType: "chapter_batch_ready",
@@ -312,7 +312,7 @@ test("healAutoDirectorTaskState revives chapter_range auto execution tasks that 
         pipelineStatus: "running",
       },
     }),
-    lastError: "服务重启后恢复失败：当前检查点不支持继续自动导演。",
+    lastError: "Recovery after restart failed：This checkpoint cannot continue Auto-Director。",
     finishedAt: new Date("2026-04-05T12:33:35.000Z"),
     heartbeatAt: new Date("2026-04-05T12:33:35.000Z"),
     cancelRequestedAt: null,
@@ -393,9 +393,9 @@ test("healRuntimeFailedState ignores old failed runtime steps while auto executi
     lane: "auto_director",
     status: "running",
     progress: 0.982,
-    currentStage: "质量修复",
+    currentStage: "Quality repair",
     currentItemKey: "quality_repair",
-    currentItemLabel: "正在自动修复第 3-10 章 · 第9章 · 示例章节",
+    currentItemLabel: "正在自动Repairing第 3-10 章 · 第9章 · 示例章节",
     checkpointType: null,
     checkpointSummary: null,
     resumeTargetJson: "{\"stage\":\"pipeline\"}",
@@ -438,7 +438,7 @@ test("healRuntimeFailedState ignores old failed runtime steps while auto executi
     stepLookupCount += 1;
     return {
       status: "failed",
-      label: "执行章节生成批次",
+      label: "Run the chapter generation batch",
       error: "chapter.draft.write did not satisfy its completion criteria.",
       finishedAt: new Date("2026-05-14T05:15:53.000Z"),
     };
@@ -475,7 +475,7 @@ test("healAutoDirectorTaskState promotes advanced queued auto director tasks bac
     lane: "auto_director",
     status: "queued",
     progress: 0.8458,
-    currentStage: "节奏 / 拆章",
+    currentStage: "Beats / chapters",
     currentItemKey: "chapter_list",
     currentItemLabel: "正在生成第 1 卷章节列表",
     checkpointType: "candidate_selection_required",
@@ -550,9 +550,9 @@ test("healAutoDirectorTaskState repairs broken candidate seed payloads and resto
     lane: "auto_director",
     status: "failed",
     progress: 0.15,
-    currentStage: "AI 自动导演",
+    currentStage: "Auto-Director",
     currentItemKey: "auto_director",
-    currentItemLabel: "等待确认书级方向",
+    currentItemLabel: "Waiting to confirm the book direction",
     checkpointType: "candidate_selection_required",
     checkpointSummary: "第 1 轮已生成 2 套书级方向，并完成每套书名组。",
     resumeTargetJson: null,
@@ -612,7 +612,7 @@ test("healAutoDirectorTaskState repairs broken candidate seed payloads and resto
         createdAt: "2026-04-14T00:00:00.000Z",
       }],
     }),
-    lastError: "目标方案不存在。",
+    lastError: "The target plan does not exist.",
     finishedAt: new Date("2026-04-14T00:12:09.000Z"),
     heartbeatAt: new Date("2026-04-14T00:12:09.000Z"),
     cancelRequestedAt: null,
@@ -687,7 +687,7 @@ test.skip("healAutoDirectorTaskState degrades chapter title diversity failures i
     lane: "auto_director",
     status: "failed",
     progress: 0.84,
-    currentStage: "节奏 / 拆章",
+    currentStage: "Beats / chapters",
     currentItemKey: "chapter_list",
     currentItemLabel: "正在生成第 1 卷章节列表",
     checkpointType: null,
@@ -756,7 +756,7 @@ test.skip("healAutoDirectorTaskState degrades chapter title diversity failures i
     assert.equal(currentRow.lastError, null);
     const seedPayload = JSON.parse(currentRow.seedPayloadJson);
     assert.equal(seedPayload.taskNotice.code, "CHAPTER_TITLE_DIVERSITY");
-    assert.equal(seedPayload.taskNotice.action.label, "快速修复章节标题");
+    assert.equal(seedPayload.taskNotice.action.label, "快速Repairing章节标题");
     assert.equal(seedPayload.taskNotice.action.volumeId, "volume-1");
   } finally {
     prisma.novelWorkflowTask.findUnique = originals.findUnique;

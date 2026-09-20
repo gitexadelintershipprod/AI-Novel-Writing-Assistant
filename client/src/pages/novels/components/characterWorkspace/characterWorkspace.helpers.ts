@@ -23,15 +23,15 @@ export function getSecretStatus(selectedCharacter?: Character): string {
     return "There is a clear secret";
   }
   const runtimeSignal = `${selectedCharacter.currentState ?? ""} ${selectedCharacter.currentGoal ?? ""}`;
-  return /秘密|隐瞒|卧底|伪装|secret|hidden|undercover|disguise/i.test(runtimeSignal) ? "Key information has been hidden" : "No explicit secret yet";
+  return /secret|hidden|undercover|disguise/i.test(runtimeSignal) ? "Key information has been hidden" : "No explicit secret yet";
 }
 
 export function getEmotionSignal(selectedCharacter?: Character): string {
   const runtimeSignal = `${selectedCharacter?.currentState ?? ""} ${selectedCharacter?.currentGoal ?? ""}`;
-  if (/愤|怒|焦虑|崩溃|绝望|anger|angry|anxious|despair|rage/i.test(runtimeSignal)) {
+  if (/anger|angry|anxious|despair|rage/i.test(runtimeSignal)) {
     return "high pressure";
   }
-  if (/平静|稳|冷静|从容|calm|steady|composed/i.test(runtimeSignal)) {
+  if (/calm|steady|composed/i.test(runtimeSignal)) {
     return "Smooth";
   }
   return "To be seen";
@@ -52,7 +52,7 @@ export function getResourceDisplayMode(character?: Character): {
       shouldShowResource: () => true,
     };
   }
-  if (/临时|路人|客串|一次性|temporary|cameo|one-off|extra/i.test(roleText)) {
+  if (/temporary|cameo|one-off|extra/i.test(roleText)) {
     return {
       label: "Temporary role resources",
       helper: "Temporary characters only display resources that will be reused across chapters, affect conflicts, bind foreshadowing, or be taken away by the protagonist.",

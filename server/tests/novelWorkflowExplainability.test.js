@@ -51,7 +51,7 @@ test("workflow explainability uses the actual chapter range scope", () => {
 test("workflow explainability treats restart recovery as recovery-in-progress", () => {
   const result = buildWorkflowExplainability({
     status: "running",
-    currentStage: "节奏 / 拆章",
+    currentStage: "Beats / chapters",
     currentItemKey: "beat_sheet",
     checkpointType: null,
     lastError: "service restarted and recovery is in progress",

@@ -43,7 +43,7 @@ test("toNovelCoverPromptContext normalizes missing fields and parses world summa
   const context = toNovelCoverPromptContext({
     id: "novel-cover-1",
     title: "雾港审判局",
-    description: "  当黑雾侵城，主角被迫成为审判者。  ",
+    description: "  当黑雾侵城，Protagonist被迫成为审判者。  ",
     targetAudience: " 喜欢强冲突都市奇诡的读者 ",
     bookSellingPoint: null,
     competingFeel: " 冷峻、压迫、持续追更 ",
@@ -54,19 +54,19 @@ test("toNovelCoverPromptContext normalizes missing fields and parses world summa
     pacePreference: "fast",
     emotionIntensity: "high",
     storyWorldSliceJson: buildWorldSliceJson("高压雾港里，审判机构与地下交易同时运作。"),
-    genre: { name: "都市异能" },
-    primaryStoryMode: { name: "审判升级流" },
-    secondaryStoryMode: { name: "悬案追凶流" },
+    genre: { name: "Urban superpower" },
+    primaryStoryMode: { name: "Judgment-escalation flow" },
+    secondaryStoryMode: { name: "Cold-case pursuit flow" },
     world: { name: "雾港" },
   });
 
   assert.equal(context.title, "雾港审判局");
-  assert.equal(context.description, "当黑雾侵城，主角被迫成为审判者。");
+  assert.equal(context.description, "当黑雾侵城，Protagonist被迫成为审判者。");
   assert.equal(context.bookSellingPoint, null);
   assert.deepEqual(context.commercialTags, ["强冲突", "都市奇诡"]);
-  assert.equal(context.genreLabel, "都市异能");
-  assert.equal(context.primaryStoryModeLabel, "审判升级流");
-  assert.equal(context.secondaryStoryModeLabel, "悬案追凶流");
+  assert.equal(context.genreLabel, "Urban superpower");
+  assert.equal(context.primaryStoryModeLabel, "Judgment-escalation flow");
+  assert.equal(context.secondaryStoryModeLabel, "Cold-case pursuit flow");
   assert.equal(context.worldSummary, "高压雾港里，审判机构与地下交易同时运作。");
   assert.equal(context.narrativePovLabel, "第三人称");
   assert.equal(context.pacePreferenceLabel, "快节奏");
@@ -116,7 +116,7 @@ test("createNovelCoverTask applies novel-cover defaults without coupling to nove
   prisma.novel.findUnique = async () => ({
     id: "novel-cover-1",
     title: "雾港审判局",
-    description: "当黑雾侵城，主角被迫成为审判者。",
+    description: "当黑雾侵城，Protagonist被迫成为审判者。",
     targetAudience: "都市悬疑爽文读者",
     bookSellingPoint: "审判升级感与都市迷雾并行",
     competingFeel: "冷峻压迫",
@@ -127,9 +127,9 @@ test("createNovelCoverTask applies novel-cover defaults without coupling to nove
     pacePreference: "fast",
     emotionIntensity: "high",
     storyWorldSliceJson: buildWorldSliceJson("高压雾港里，审判机构与地下交易同时运作。"),
-    genre: { name: "都市异能" },
-    primaryStoryMode: { name: "审判升级流" },
-    secondaryStoryMode: { name: "悬案追凶流" },
+    genre: { name: "Urban superpower" },
+    primaryStoryMode: { name: "Judgment-escalation flow" },
+    secondaryStoryMode: { name: "Cold-case pursuit flow" },
     world: { name: "雾港" },
   });
   prisma.imageGenerationTask.create = async ({ data }) => {

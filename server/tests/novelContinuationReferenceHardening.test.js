@@ -22,7 +22,7 @@ test("continuation chapter pack prefers bound structured book analysis sections"
     });
     prisma.bookAnalysis.findFirst = async () => ({
       id: "analysis-1",
-      title: "参考作品完整拆书",
+      title: "参考作品完整book analysis",
       document: { title: "参考作品" },
       documentVersion: { versionNumber: 3 },
       sections: [
@@ -31,7 +31,7 @@ test("continuation chapter pack prefers bound structured book analysis sections"
           title: "人物系统",
           structuredDataJson: JSON.stringify({
             protagonistPositioning: "终局时仍背负旧伤的破局者",
-            relationshipNetwork: ["女二掌握证据但仍未完全信任主角"],
+            relationshipNetwork: ["女二掌握证据但仍未完全信任Protagonist"],
           }),
           aiContent: "不应读取这段粗文本",
           editedContent: null,
@@ -40,7 +40,7 @@ test("continuation chapter pack prefers bound structured book analysis sections"
           sectionKey: "timeline",
           title: "故事时间线",
           structuredDataJson: JSON.stringify({
-            timeNodes: [{ label: "主角拿到维修通道钥匙", phase: "终局", timeHint: "最后一夜" }],
+            timeNodes: [{ label: "Protagonist拿到维修通道钥匙", phase: "终局", timeHint: "最后一夜" }],
             stateChangeNodes: ["敌方进入被迫应对状态"],
           }),
           aiContent: null,
@@ -68,9 +68,9 @@ test("continuation chapter pack prefers bound structured book analysis sections"
     assert.equal(pack.sourceType, "knowledge_document");
     assert.equal(pack.sourceId, "doc-1");
     assert.equal(pack.sourceTitle, "参考作品");
-    assert.match(pack.humanBlock, /Book analysis: 参考作品完整拆书/);
+    assert.match(pack.humanBlock, /Book analysis: 参考作品完整book analysis/);
     assert.match(pack.humanBlock, /人物系统\/Protagonist positioning: 终局时仍背负旧伤的破局者/);
-    assert.match(pack.humanBlock, /故事时间线\/Key timeline nodes: 主角拿到维修通道钥匙/);
+    assert.match(pack.humanBlock, /故事时间线\/Key timeline nodes: Protagonist拿到维修通道钥匙/);
     assert.match(pack.humanBlock, /剧情结构\/Main plot summary: 压迫链在终局转成第一次反压入口/);
     assert.doesNotMatch(pack.humanBlock, /不应读取这段粗文本/);
     assert.ok(pack.antiCopyCorpus.some((item) => item.includes("先压迫再给局部反手")));

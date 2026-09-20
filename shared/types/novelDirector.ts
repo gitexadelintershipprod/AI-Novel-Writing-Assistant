@@ -601,9 +601,6 @@ export interface DirectorTakeoverResponse {
 }
 
 export interface DirectorProjectContextInput {
-  marketBriefId?: string;
-  /** Resolved by the server from marketBriefId. Direct client injection is not accepted. */
-  marketBriefPrompt?: string;
   title?: string;
   description?: string;
   targetAudience?: string;

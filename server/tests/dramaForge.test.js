@@ -37,7 +37,7 @@ test("drama paywall plan schema is machine readable", () => {
       freeEpisodes: 10,
       paywallCadence: 1,
       cliffhangerStrengthThreshold: 86,
-      buildupBeforePaywall: "第 11 集让主角被误解到低谷，第 12 集用董事长跪迎反转。",
+      buildupBeforePaywall: "第 11 集让Protagonist被误解到低谷，第 12 集用董事长跪迎反转。",
       intensityCurve: [{
         fromEpisode: 1,
         toEpisode: 12,

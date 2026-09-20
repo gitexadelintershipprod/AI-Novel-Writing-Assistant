@@ -32,7 +32,7 @@ test("RagRetrievalTracer writes sampled trace summaries without chunk text", asy
 
   try {
     const tracer = new RagRetrievalTracer({
-      query: "这是一个很长的召回查询".repeat(20),
+      query: "这Yes一个很长的召回查询".repeat(20),
       tenantId: "tenant-1",
       novelId: "novel-1",
       options: {
@@ -54,7 +54,7 @@ test("RagRetrievalTracer writes sampled trace summaries without chunk text", asy
         ownerId: "doc-1",
         score: 0.123456789,
         title: "标题",
-        chunkText: "这里是不能写入 trace 的正文",
+        chunkText: "这里Yes不能写入 trace 的正文",
         chunkOrder: 1,
         source: "vector",
       }],

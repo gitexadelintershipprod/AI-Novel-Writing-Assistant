@@ -546,7 +546,7 @@ test("loadDirectorTakeoverState treats full-book autopilot outline seeds as JIT 
             volumeId: "volume_1",
             chapterOrder: 1,
             title: "拾起异虫",
-            summary: "主角救下濒死毛毛虫。",
+            summary: "Protagonist救下濒死毛毛虫。",
             purpose: null,
             exclusiveEvent: null,
             endingState: null,
@@ -564,7 +564,7 @@ test("loadDirectorTakeoverState treats full-book autopilot outline seeds as JIT 
             volumeId: "volume_1",
             chapterOrder: 2,
             title: "街头护虫",
-            summary: "主角当众护住毛毛虫。",
+            summary: "Protagonist当众护住毛毛虫。",
             purpose: null,
             exclusiveEvent: null,
             endingState: null,
@@ -638,7 +638,7 @@ test("loadDirectorTakeoverState treats full-book autopilot outline seeds as JIT 
     {
       id: "chapter_1",
       order: 1,
-      expectation: "主角救下濒死毛毛虫，承受全城嘲笑。",
+      expectation: "Protagonist救下濒死毛毛虫，承受全城嘲笑。",
       generationState: "planned",
       chapterStatus: "unplanned",
       content: "",
@@ -652,7 +652,7 @@ test("loadDirectorTakeoverState treats full-book autopilot outline seeds as JIT 
     {
       id: "chapter_2",
       order: 2,
-      expectation: "反派羞辱主角，毛毛虫出现异常蜕变征兆。",
+      expectation: "Antagonist羞辱Protagonist，毛毛虫出现异常蜕变征兆。",
       generationState: "planned",
       chapterStatus: "unplanned",
       content: "",
@@ -1102,7 +1102,7 @@ test("loadDirectorTakeoverState advances stale no-chapters cursor to the next pe
         checkpointType: null,
         checkpointSummary: "Too small: expected string to have >=6 characters",
         resumeTargetJson: JSON.stringify({ volumeId: "volume_1", chapterId: "chapter_2" }),
-        lastError: "指定区间内没有可生成的章节。当前可用章节范围为第 1 章到第 55 章。",
+        lastError: "There are no chapters to generate in the selected range.当前可用章节范围为第 1 章到第 55 章。",
         seedPayloadJson: JSON.stringify({
           autoExecutionPlan: { mode: "chapter_range", startOrder: 1, endOrder: 3 },
           autoExecution: {

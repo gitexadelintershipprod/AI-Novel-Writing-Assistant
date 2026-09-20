@@ -38,7 +38,7 @@ test("director runtime store records repeated running updates as heartbeat event
     taskId: "task-1",
     novelId: "novel-1",
     nodeKey: "volume_strategy.volume_generation",
-    label: "正在生成卷战略",
+    label: "Generating the volume strategy",
     targetType: "volume",
     targetId: "volume-1",
   });
@@ -48,14 +48,14 @@ test("director runtime store records repeated running updates as heartbeat event
     taskId: "task-1",
     novelId: "novel-1",
     nodeKey: "volume_strategy.volume_generation",
-    label: "正在生成卷战略（已等待 30s）",
+    label: "Generating the volume strategy（已等待 30s）",
     targetType: "volume",
     targetId: "volume-1",
   });
 
   assert.equal(snapshot.steps.length, 1);
   assert.equal(snapshot.steps[0].startedAt, startedAt);
-  assert.equal(snapshot.steps[0].label, "正在生成卷战略（已等待 30s）");
+  assert.equal(snapshot.steps[0].label, "Generating the volume strategy（已等待 30s）");
   assert.deepEqual(snapshot.events.map((event) => event.type), ["node_started", "node_heartbeat"]);
   assert.equal(snapshot.events[1].affectedScope, "volume:volume-1");
 });
@@ -143,7 +143,7 @@ test("director runtime store dual-writes runtime snapshot into persistent ledger
       steps: [{
         idempotencyKey: "task-1:chapter_quality_review_node:chapter:chapter-1",
         nodeKey: "chapter_quality_review_node",
-        label: "检查章节质量",
+        label: "Review chapter quality",
         status: "succeeded",
         targetType: "chapter",
         targetId: "chapter-1",
@@ -156,7 +156,7 @@ test("director runtime store dual-writes runtime snapshot into persistent ledger
         taskId: "task-1",
         novelId: "novel-1",
         nodeKey: "chapter_quality_review_node",
-        summary: "审校完成。",
+        summary: "Reviewing完成。",
         occurredAt: "2026-04-28T00:00:02.000Z",
       }],
       artifacts: [

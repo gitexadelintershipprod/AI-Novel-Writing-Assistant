@@ -31,7 +31,6 @@ import creationStudioRouter from "./modules/novel/creation-studio/http/creationS
 import { shortStoryProductionService } from "./modules/novel/short-story/application/ShortStoryProductionService";
 import dramaRouter from "./modules/drama/http/dramaRoutes";
 import comicRouter from "./modules/comic/http/comicRoutes";
-import marketRadarRouter from "./modules/marketRadar/http/marketRadarRoutes";
 import novelDirectorRouter from "./services/novel/director/http/novelDirector";
 import novelExportRouter from "./modules/export/http/novelExport";
 import novelWorkflowsRouter from "./services/novel/director/http/novelWorkflows";
@@ -57,18 +56,12 @@ import {
   ensureSystemResourceStarterData,
   hasSystemResourceBootstrapChanges,
 } from "./services/bootstrap/SystemResourceBootstrapService";
-import {
-  hasProtocolValueMigrationChanges,
-  migratePersistedProtocolValues,
-} from "./i18n/protocolValueMigration";
 import { initializeRagSettingsCompatibility } from "./services/settings/RagCompatibilityBootstrapService";
 import onboardingRoutes from "./modules/setup/onboarding/http/onboardingRoutes";
 import { qualityDebtSettingsService } from "./services/settings/QualityDebtSettingsService";
-import { marketRadarService } from "./modules/marketRadar/application/MarketRadarService";
 import { DirectorWorker } from "./workers/directorWorker";
 import { cleanupLogDirectory, resolveLogRetentionConfig } from "./platform/logging/logRetention";
 import { resolveLogsRoot } from "./runtime/appPaths";
-import { featureFlags } from "./config/featureFlags";
 
 getSharedNovelServices();
 registerNovelEventHandlers(novelEventBus);
@@ -149,7 +142,6 @@ export function createApp() {
   app.use("/api/novels", novelExportRouter);
   app.use("/api/drama", dramaRouter);
   app.use("/api/comic", comicRouter);
-  app.use("/api/market-radar", marketRadarRouter);
   app.use("/api/worlds", worldRouter);
   app.use("/api/rag", ragRouter);
   app.use("/api/base-characters", characterRouter);
@@ -265,11 +257,6 @@ function scheduleLogRetentionCleanup(): void {
 }
 
 function initializeBackgroundServices(): BackgroundServicesHandle {
-  if (featureFlags.marketRadarEnabled) {
-    void marketRadarService.recoverInterruptedRuns().catch((error) => {
-      console.warn("[market-radar] failed to mark interrupted scans.", error);
-    });
-  }
   ragServices.ragWorker.start();
   ragServices.ragRetrievalTraceRetention.start();
   novelSideEffectWorker.start();
@@ -294,16 +281,6 @@ function initializeBackgroundServices(): BackgroundServicesHandle {
     })
     .catch((error) => {
       console.warn("Failed to bootstrap built-in creative resources.", error);
-    });
-
-  void migratePersistedProtocolValues()
-    .then((protocolReport) => {
-      if (hasProtocolValueMigrationChanges(protocolReport)) {
-        console.log("[server] persisted protocol values migrated to English.", protocolReport);
-      }
-    })
-    .catch((error) => {
-      console.warn("Failed to migrate persisted protocol values.", error);
     });
 
   void recoveryInitialization

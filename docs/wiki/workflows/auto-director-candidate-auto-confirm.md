@@ -26,7 +26,7 @@ When `job.status === "succeeded"` and `autoExecution.remainingChapterCount > 0` 
 
 ### Auto-confirm policy
 
-- Use the candidate’s own fields: `proposedName` → character name, `proposedRole` → role type (default `"New character"`; English is canonical on write; Chinese `"新角色"` is a dual-read alias for old rows only), `summary` → background
+- Use the candidate’s own fields: `proposedName` → character name, `proposedRole` → role type (default `"New character"`), `summary` → background
 - Leave `castRole` unset (`null`) — a conservative default; do not force lead/support rank
 - After creating characters from several candidates, call `rebuildDynamics` once, not N times
 

@@ -82,7 +82,7 @@ test("payoff sync triggers when chapter payoff refs change", () => {
   const after = [createVolume({
     chapters: [{
       ...createVolume().chapters[0],
-      payoffRefs: ["主角真实身份"],
+      payoffRefs: ["Protagonist真实身份"],
     }],
   })];
 
@@ -96,14 +96,14 @@ test("payoff sync tracks chapter-order shifts for chapters with payoff refs", ()
     chapters: [{
       ...baseChapter,
       chapterOrder: 3,
-      payoffRefs: ["主角真实身份"],
+      payoffRefs: ["Protagonist真实身份"],
     }],
   })];
   const after = [createVolume({
     chapters: [{
       ...baseChapter,
       chapterOrder: 5,
-      payoffRefs: ["主角真实身份"],
+      payoffRefs: ["Protagonist真实身份"],
     }],
   })];
 

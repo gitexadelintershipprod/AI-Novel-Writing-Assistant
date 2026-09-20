@@ -11,7 +11,7 @@ function buildNovel(overrides = {}) {
     novelWorld: overrides.novelWorld ?? null,
     bible: { mainPromise: "读者承诺", coreSetting: "核心设定" },
     characters: [{ id: "character-1" }, { id: "character-2" }, { id: "character-3" }],
-    outline: "发展走向",
+    outline: "Story direction",
     structuredOutline: "",
     chapters: Array.from({ length: chapterCount }, (_, index) => ({
       id: `chapter-${index + 1}`,
@@ -169,13 +169,13 @@ test("NovelProductionStatusService treats NovelWorld as the production world ass
   assert.equal(worldStage?.label, "This book's world");
   assert.equal(worldStage?.status, "completed");
   assert.equal(worldStage?.detail, "本书雾港");
-  assert.notEqual(status.currentStage, "等待生成世界观");
+  assert.notEqual(status.currentStage, "Waiting to generate the world");
   assert.doesNotMatch(status.recoveryHint ?? "", /世界观/);
 });
 
 test("NovelProductionStatusService keeps fact progress when the latest job failed", async () => {
   const novel = buildNovel({
-    job: { id: "job-2", status: "failed", error: "模型调用失败" },
+    job: { id: "job-2", status: "failed", error: "The model call failed" },
   });
   const factSummary = buildFactSummary({ draftedChapterCount: 8, reviewedChapterCount: 8, committedChapterCount: 6 });
   const chapterProgress = buildChapterProgress({ draftedChapterCount: 8, reviewedChapterCount: 8, committedChapterCount: 6 });
@@ -187,7 +187,7 @@ test("NovelProductionStatusService keeps fact progress when the latest job faile
   assert.equal(status.factProgress.reviewedChapterCount, 8);
   assert.equal(status.factProgress.committedChapterCount, 6);
   assert.equal(status.runtimeStatus.state, "failed");
-  assert.equal(status.failureSummary, "模型调用失败");
+  assert.equal(status.failureSummary, "The model call failed");
   assert.match(status.summary, /chapter text 8\/20 chapters/);
 });
 

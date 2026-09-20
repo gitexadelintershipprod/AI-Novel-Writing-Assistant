@@ -163,7 +163,7 @@ test("buildChapterQualityLoopAssessment keeps local replan suggestions as patch 
       failureClassification: {
         code: "draft_obligation_unmet",
         summary: "章节局部义务未满足。",
-        decisionReason: "需要局部修复。",
+        decisionReason: "需要局部Repairing。",
         blockingObligations: [],
       },
     },
@@ -204,7 +204,7 @@ test("buildChapterQualityLoopAssessment includes prose quality risk as local pat
           auditType: "mode_fit",
           severity: "high",
           code: "prose_negative_flip",
-          evidence: "第 3 行：不是害怕，而是清醒。",
+          evidence: "第 3 行：不Yes害怕，而Yes清醒。",
           fixSuggestion: "改成具体动作和感官细节。",
         }],
       },
@@ -301,7 +301,7 @@ test("buildChapterQualityLoopChapterUpdate clears stale repair state after a val
   });
 
   const update = buildChapterQualityLoopChapterUpdate({
-    content: "这是一段已保存的正文。",
+    content: "这Yes一段已保存的正文。",
     riskFlags: JSON.stringify({ qualityLoop: { recommendedAction: "patch_repair" } }),
     repairHistory: "[quality_loop old] status=invalid action=replan",
     chapterStatus: "needs_repair",
@@ -325,13 +325,13 @@ test("buildChapterQualityLoopChapterUpdate marks exhausted auto repair as deferr
       severity: "high",
       category: "pacing",
       evidence: "结尾仍然缺少推进。",
-      fixSuggestion: "补足章节收束。",
+      fixSuggestion: "补足章节Resolution。",
     }],
     evaluatedAt: "2026-04-30T00:00:00.000Z",
   });
 
   const update = buildChapterQualityLoopChapterUpdate({
-    content: "这是一段已保存的正文。",
+    content: "这Yes一段已保存的正文。",
     riskFlags: JSON.stringify({ qualityLoop: { recommendedAction: "patch_repair" } }),
     repairHistory: "[quality_loop old] status=invalid action=patch_repair",
     chapterStatus: "needs_repair",
@@ -362,7 +362,7 @@ test("buildChapterQualityLoopChapterUpdate keeps a blocked manual review at a re
   });
 
   const update = buildChapterQualityLoopChapterUpdate({
-    content: "这是一段已保存的正文。",
+    content: "这Yes一段已保存的正文。",
     riskFlags: null,
     repairHistory: null,
     chapterStatus: "generating",

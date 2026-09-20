@@ -79,8 +79,8 @@ test("payoff ledger schema normalizes legacy source kind aliases and numeric con
   const parsed = payoffLedgerSyncOutputSchema.parse({
     items: [{
       ledgerKey: "hero-secret",
-      title: "主角秘密身份",
-      summary: "第 33 章正式揭露主角的真实身份。",
+      title: "Protagonist秘密身份",
+      summary: "第 33 章正式揭露Protagonist的真实身份。",
       scopeType: "chapter",
       currentStatus: "paid_off",
       payoffChapterOrder: 33,
@@ -108,8 +108,8 @@ test("payoff ledger schema still rejects unknown scope types", () => {
   assert.throws(() => payoffLedgerSyncOutputSchema.parse({
     items: [{
       ledgerKey: "hero-secret",
-      title: "主角秘密身份",
-      summary: "第 33 章正式揭露主角的真实身份。",
+      title: "Protagonist秘密身份",
+      summary: "第 33 章正式揭露Protagonist的真实身份。",
       scopeType: "global",
       currentStatus: "paid_off",
       payoffChapterOrder: 33,
@@ -231,8 +231,8 @@ test("chapter dynamics extraction schema normalizes supported confidence formats
     }, {
       proposedName: "赵管事",
       proposedRole: "管事",
-      summary: "直接施压主角。",
-      evidence: ["赵管事当面敲打主角。"],
+      summary: "直接施压Protagonist。",
+      evidence: ["赵管事当面敲打Protagonist。"],
       matchedCharacterName: "赵管事",
       confidence: "0.8",
     }, {

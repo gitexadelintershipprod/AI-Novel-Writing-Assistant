@@ -48,7 +48,7 @@ test("buildDirectorQualityRepairRisk keeps replan notices blocking", () => {
 
 test("buildDirectorQualityRepairRisk keeps unclassified heavy repair notices manual", () => {
   const risk = buildDirectorQualityRepairRisk({
-    noticeSummary: "大范围修复需要确认",
+    noticeSummary: "大范围Repairing需要确认",
     payload: JSON.stringify({ repairMode: "heavy_repair" }),
     remainingChapterCount: 3,
     totalChapterCount: 10,

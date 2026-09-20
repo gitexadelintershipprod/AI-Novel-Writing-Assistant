@@ -69,7 +69,7 @@ This repository is a fork of [ExplosiveCoderflome/AI-Novel-Writing-Assistant](ht
 | Generated novel text | Georgian (`ka-GE`) |
 | Internal developer wiki | English |
 
-Market Radar stays off until a Georgian or international source exists. The live deployment of this fork is a Docker stack, not a hosted SaaS.
+The live deployment of this fork is a Docker stack, not a hosted SaaS.
 
 ## Run it
 
@@ -175,11 +175,11 @@ The priority is helping a beginner finish a book, not stacking extra side tools.
 
 ## Latest updates
 
-### 2026-09-20
+### 2026-09-21
 
-- Buttons, errors, task names, world templates, character roles, and public help pages now come from English source text, not only an on-screen translation overlay. Auto-Director, Task Center, and export headings stay readable even in native browser dialogs and notifications.
-- Remaining system messages, Creative Hub summaries, Auto-Director progress titles, and image-generation prompts now use English control text. Generated fiction stays Georgian. Older saved Chinese protocol values are still understood.
-- Older books keep working: saved role names, world types, and beat labels are still understood, while new saves use English protocol values. Your novel text, knowledge files, and Georgian chapter output are unchanged.
+- This workspace starts empty so you can open Auto-Director from your own idea. Previous novels, tasks, worlds, and knowledge were cleared after a backup; your model settings and built-in genre, story-mode, and writing-profile libraries remain.
+- Market Radar is removed. There is no hidden radar page and Auto-Director no longer takes a market briefing.
+- The system no longer reads old Chinese protocol values. Buttons, roles, task names, and other controls stay in English. Generated chapter prose stays Georgian.
 
 Full history: [docs/releases/release-notes.md](./docs/releases/release-notes.md).
 

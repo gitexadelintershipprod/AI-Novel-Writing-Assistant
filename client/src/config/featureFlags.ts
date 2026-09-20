@@ -12,5 +12,4 @@ export const featureFlags = {
   creationStudioEnabled: isEnabled(clientEnv?.VITE_CREATION_STUDIO_ENABLED, true),
   worldWizardEnabled: isEnabled(clientEnv?.VITE_WORLD_WIZARD_ENABLED, true),
   worldVisEnabled: isEnabled(clientEnv?.VITE_WORLD_VIS_ENABLED, true),
-  marketRadarEnabled: isEnabled(clientEnv?.VITE_MARKET_RADAR_ENABLED, false),
 };

@@ -49,8 +49,7 @@ const WORKFLOW_RECIPES = [
       "Create a 20-chapter novel titled Anti-Japanese Hero Legend and start full-book generation",
       "Continue generating this novel",
       "Finish this novel",
-      "把这本书写完",
-    ],
+          ],
   },
   {
     intent: "query_novel_production_status",
@@ -68,9 +67,7 @@ const WORKFLOW_RECIPES = [
       "Where is Auto-Director now",
       "Is the current director task stuck",
       "What is the status of this Auto-Director task",
-      "Auto-Director现在到哪一步了",
-      "当前导演任务是不是卡住了",
-    ],
+                ],
   },
   {
     intent: "explain_director_next_action",
@@ -79,8 +76,7 @@ const WORKFLOW_RECIPES = [
       "What this book should do now",
       "What to do next",
       "What does Auto-Director suggest next",
-      "Auto-Director建议我接下来做什么",
-    ],
+          ],
   },
   {
     intent: "evaluate_manual_edit_impact",
@@ -89,9 +85,7 @@ const WORKFLOW_RECIPES = [
       "I changed chapter 3; what does that affect",
       "I changed the protagonist motive; does later work need a recompute",
       "I deleted a payoff; which chapters does that affect",
-      "我改了第三章，看看影响什么",
-      "我改了主角动机，后续要不要重算",
-    ],
+                ],
   },
   {
     intent: "run_director_next_step",
@@ -124,8 +118,7 @@ const WORKFLOW_RECIPES = [
     examples: [
       "Give me chapter 1",
       "What was written in the first two chapters?",
-      "返回给我第1章的内容",
-    ],
+          ],
   },
   {
     intent: "inspect_failure_reason",
@@ -141,8 +134,7 @@ const WORKFLOW_RECIPES = [
     examples: [
       "Write chapter 3",
       "Continue writing chapter 5",
-      "写第三章",
-    ],
+          ],
   },
   {
     intent: "rewrite_chapter",
@@ -150,8 +142,7 @@ const WORKFLOW_RECIPES = [
     examples: [
       "Rewrite chapter 3",
       "Rewrite chapter 6 as a new version",
-      "重写第三章",
-    ],
+          ],
   },
   {
     intent: "query_progress",
@@ -159,9 +150,7 @@ const WORKFLOW_RECIPES = [
     examples: [
       "How many chapters are written",
       "Where is progress now",
-      "当前写完了几章",
-      "现在进度到哪了",
-    ],
+                ],
   },
 ];
 

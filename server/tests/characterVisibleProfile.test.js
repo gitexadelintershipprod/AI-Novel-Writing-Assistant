@@ -25,7 +25,7 @@ test("visible profile field selection preserves existing clear profile", () => {
   });
 
   assert.equal(result.fields.appearance, undefined);
-  assert.equal(result.skippedFields.appearance, "已有明确资料");
+  assert.equal(result.skippedFields.appearance, "Clear materials already exist");
   assert.equal(result.fields.physique, "肩背薄而挺，走路时习惯把重心压得很低。");
 });
 
@@ -35,12 +35,12 @@ test("visible profile field selection can overwrite clear profile after explicit
       physique: "身形纤细单薄，长期在医疗队工作让她动作克制。",
     },
     suggested: {
-      physique: "体态丰满匀称，行动时仍保持医疗队训练出的克制和稳。",
+      physique: "Physique丰满匀称，行动时仍保持医疗队训练出的克制和稳。",
     },
     overwriteExisting: true,
   });
 
-  assert.equal(result.fields.physique, "体态丰满匀称，行动时仍保持医疗队训练出的克制和稳。");
+  assert.equal(result.fields.physique, "Physique丰满匀称，行动时仍保持医疗队训练出的克制和稳。");
   assert.equal(result.skippedFields.physique, undefined);
 });
 
@@ -53,7 +53,7 @@ test("visible profile validator treats generic prose as vague", () => {
 test("chapter character context includes compact visible profile summary", () => {
   const text = buildVisibleProfileSummary({
     name: "林照",
-    role: "主角",
+    role: "Protagonist",
     personality: "谨慎但不退让",
     appearance: "眼尾狭长，额前总有被火燎卷的碎发",
     physique: "少年感偏瘦，肩背却很稳",

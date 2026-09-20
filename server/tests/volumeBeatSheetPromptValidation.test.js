@@ -43,12 +43,12 @@ function createPromptInput(targetChapterCount) {
       sortOrder: 2,
       title: "第二卷",
       summary: "第二卷摘要",
-      openingHook: "开卷抓手",
+      openingHook: "Opening hook",
       mainPromise: "主承诺",
       primaryPressureSource: "压力源",
       coreSellingPoint: "核心卖点",
       escalationMode: "升级方式",
-      protagonistChange: "主角变化",
+      protagonistChange: "Protagonist变化",
       midVolumeRisk: "中段风险",
       climax: "高潮",
       payoffType: "兑现",
@@ -84,12 +84,12 @@ function createCoveringBeats(targetChapterCount) {
   spans[spans.length - 1][1] = targetChapterCount;
 
   const slots = [
-    ["open_hook", "开卷抓手", "夜市夺印"],
-    ["first_escalation", "首次升级", "借刀反制"],
-    ["midpoint_turn", "中段转向", "旧盟破裂"],
-    ["pressure_lock", "高潮前挤压", "围城代价"],
-    ["climax", "卷高潮", "夺回令牌"],
-    ["end_hook", "卷尾钩子", "北境来信"],
+    ["open_hook", "Opening hook", "夜市夺印"],
+    ["first_escalation", "First escalation", "借刀反制"],
+    ["midpoint_turn", "Midpoint turn", "旧盟破裂"],
+    ["pressure_lock", "Pre-climax pressure", "围城代价"],
+    ["climax", "Volume climax", "夺回令牌"],
+    ["end_hook", "Ending hook", "北境来信"],
   ];
 
   return slots.map(([key, label, title], index) => ({
@@ -108,12 +108,12 @@ test("volumeBeatSheetPrompt postValidate rejects target 54 output that only cove
   assert.throws(
     () => volumeBeatSheetPrompt.postValidate({
       beats: [
-        { key: "open_hook", label: "开卷抓手", title: "开局", summary: "开局", chapterSpanHint: "1章", mustDeliver: ["开局"] },
-        { key: "first_escalation", label: "首次升级", title: "升级", summary: "推进", chapterSpanHint: "2章", mustDeliver: ["推进"] },
-        { key: "midpoint_turn", label: "中段转向", title: "转向", summary: "转向", chapterSpanHint: "3-4章", mustDeliver: ["转向"] },
-        { key: "pressure_lock", label: "高潮前挤压", title: "挤压", summary: "挤压", chapterSpanHint: "5章", mustDeliver: ["挤压"] },
-        { key: "climax", label: "卷高潮", title: "高潮", summary: "高潮", chapterSpanHint: "6章", mustDeliver: ["高潮"] },
-        { key: "end_hook", label: "卷尾钩子", title: "尾钩", summary: "尾钩", chapterSpanHint: "7章", mustDeliver: ["尾钩"] },
+        { key: "open_hook", label: "Opening hook", title: "开局", summary: "开局", chapterSpanHint: "1章", mustDeliver: ["开局"] },
+        { key: "first_escalation", label: "First escalation", title: "升级", summary: "推进", chapterSpanHint: "2章", mustDeliver: ["推进"] },
+        { key: "midpoint_turn", label: "Midpoint turn", title: "转向", summary: "转向", chapterSpanHint: "3-4章", mustDeliver: ["转向"] },
+        { key: "pressure_lock", label: "Pre-climax pressure", title: "挤压", summary: "挤压", chapterSpanHint: "5章", mustDeliver: ["挤压"] },
+        { key: "climax", label: "Volume climax", title: "高潮", summary: "高潮", chapterSpanHint: "6章", mustDeliver: ["高潮"] },
+        { key: "end_hook", label: "Ending hook", title: "尾钩", summary: "尾钩", chapterSpanHint: "7章", mustDeliver: ["尾钩"] },
       ],
     }, createPromptInput(54), { blocks: [], selectedBlockIds: [], droppedBlockIds: [], summarizedBlockIds: [], estimatedInputTokens: 0 }),
     /54/,

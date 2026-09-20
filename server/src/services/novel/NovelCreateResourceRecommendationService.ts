@@ -17,7 +17,6 @@ import { buildStoryModePromptBlock } from "../storyMode/storyModeProfile";
 import { buildBookFramingSummary } from "./bookFraming";
 
 interface RecommendNovelCreateResourcesInput {
-  marketBriefPrompt?: string;
   title?: string;
   description?: string;
   targetAudience?: string;
@@ -167,7 +166,6 @@ function buildUserIntentSummary(
 
   return [
     input.title?.trim() ? `Title: ${input.title.trim()}` : "",
-    input.marketBriefPrompt?.trim() ? `Market brief: \n${input.marketBriefPrompt.trim()}` : "",
     input.description?.trim() ? `Logline: ${truncateText(input.description, 260)}` : "",
     input.writingMode ? `Writing mode: ${input.writingMode}` : "",
     input.projectMode ? `Project mode: ${input.projectMode}` : "",

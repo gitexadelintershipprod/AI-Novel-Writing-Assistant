@@ -23,7 +23,7 @@ test("buildWorldBlueprintPromptBlock includes reference context and selected cho
           detail: "只允许在租住网络背后增加隐性规则。",
           choiceId: "hidden-rule",
           choiceLabel: "现实外壳下加入隐性规则",
-          choiceSummary: "表面仍是现实都市，但行业与租住网络背后存在不公开的秩序。",
+          choiceSummary: "表面仍Yes现实都市，但行业与租住网络背后存在不公开的秩序。",
           source: "ai",
         },
       ],

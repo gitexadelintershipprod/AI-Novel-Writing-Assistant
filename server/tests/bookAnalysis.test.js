@@ -148,7 +148,7 @@ test("selectNotesForBookAnalysisSection keeps section prompts focused on relevan
       summary: "人物冲突",
       plotPoints: [],
       timelineEvents: [],
-      characters: ["主角被迫站队"],
+      characters: ["Protagonist被迫站队"],
       worldbuilding: [],
       themes: [],
       styleTechniques: [],
@@ -205,10 +205,10 @@ test("selectNotesForBookAnalysisSection keeps section prompts focused on relevan
 test("renderNotesForPrompt only renders fields needed by the target section", () => {
   const notes = [{
     sourceLabel: "片段 1",
-    summary: "主角在禁区边境暴露身份",
-    plotPoints: ["主角身份被试探"],
+    summary: "Protagonist在禁区边境暴露身份",
+    plotPoints: ["Protagonist身份被试探"],
     timelineEvents: ["入夜后发生追逃"],
-    characters: ["主角被迫暴露底牌"],
+    characters: ["Protagonist被迫暴露底牌"],
     worldbuilding: ["禁区边境由宗门封锁"],
     themes: ["信任裂痕"],
     styleTechniques: ["短句推进压迫感"],
@@ -219,16 +219,16 @@ test("renderNotesForPrompt only renders fields needed by the target section", ()
   }];
 
   const characterPromptNotes = renderNotesForPrompt(notes, "character_system");
-  assert.match(characterPromptNotes, /人物信息：主角被迫暴露底牌/);
-  assert.match(characterPromptNotes, /剧情要点：主角身份被试探/);
-  assert.doesNotMatch(characterPromptNotes, /设定信息：/);
-  assert.doesNotMatch(characterPromptNotes, /商业卖点：/);
-  assert.doesNotMatch(characterPromptNotes, /文风技法：/);
+  assert.match(characterPromptNotes, /Character information：Protagonist被迫暴露底牌/);
+  assert.match(characterPromptNotes, /Plot points：Protagonist身份被试探/);
+  assert.doesNotMatch(characterPromptNotes, /Setting information：/);
+  assert.doesNotMatch(characterPromptNotes, /Commercial hook：/);
+  assert.doesNotMatch(characterPromptNotes, /Voice and technique：/);
 
   const overviewPromptNotes = renderNotesForPrompt(notes, "overview");
-  assert.match(overviewPromptNotes, /设定信息：禁区边境由宗门封锁/);
-  assert.match(overviewPromptNotes, /商业卖点：身份反转/);
-  assert.match(overviewPromptNotes, /文风技法：短句推进压迫感/);
+  assert.match(overviewPromptNotes, /Setting information：禁区边境由宗门封锁/);
+  assert.match(overviewPromptNotes, /Commercial hook：身份反转/);
+  assert.match(overviewPromptNotes, /Voice and technique：短句推进压迫感/);
 });
 
 test("BookAnalysisCharacterService supports manual character CRUD without touching generation flow", async () => {
@@ -299,7 +299,7 @@ test("BookAnalysisCharacterService supports manual character CRUD without touchi
   try {
     const created = await service.createCharacter("analysis-1", {
       name: " 林秋 ",
-      role: "主角",
+      role: "Protagonist",
       profile: { personality: "谨慎但敢赌", aliases: ["秋哥"] },
       selectedDimensions: ["basic", "personality"],
     });
@@ -312,10 +312,10 @@ test("BookAnalysisCharacterService supports manual character CRUD without touchi
     assert.equal(listed[0].profile.aliases[0], "秋哥");
 
     const updated = await service.updateCharacter("analysis-1", "char-1", {
-      role: "男主角",
+      role: "男Protagonist",
       profile: { outerGoal: "查清旧案" },
     });
-    assert.equal(updated.role, "男主角");
+    assert.equal(updated.role, "男Protagonist");
     assert.equal(updated.profile.outerGoal, "查清旧案");
 
     await service.deleteCharacter("analysis-1", "char-1");
@@ -357,7 +357,7 @@ test("BookAnalysisCharacterService persists generated profile arcs and scenes on
     maxTokens: 4096,
     sections: [{
       sectionKey: "character_system",
-      aiContent: "林秋：主角，谨慎但敢赌。",
+      aiContent: "林秋：Protagonist，谨慎但敢赌。",
       editedContent: null,
     }],
   });
@@ -479,7 +479,7 @@ test("BookAnalysisCharacterService persists generated profile arcs and scenes on
       output: {
         character: {
           name: "林秋",
-          role: "主角",
+          role: "Protagonist",
           profile: {
             personality: "谨慎但敢赌",
             outerGoal: "查清旧案",
@@ -512,7 +512,7 @@ test("BookAnalysisCharacterService persists generated profile arcs and scenes on
 
     assert.equal(promptInputs.length, 1);
     assert.equal(promptInputs[0].character.name, "林秋");
-    assert.match(promptInputs[0].characterSystemContext, /林秋：主角/);
+    assert.match(promptInputs[0].characterSystemContext, /林秋：Protagonist/);
     assert.equal(characterCreates.length, 1);
     assert.equal(arcCreates.length, 1);
     assert.equal(sceneCreates.length, 1);
@@ -539,11 +539,11 @@ test("BookAnalysisCharacterMediaService queues book-analysis character image tas
     id: "bac-1",
     analysisId: "analysis-1",
     name: "林秋",
-    role: "主角",
+    role: "Protagonist",
     status: "generated",
     profileJson: JSON.stringify({
       name: "林秋",
-      role: "主角",
+      role: "Protagonist",
       appearance: "黑衣，眉眼冷静",
       personality: "谨慎但敢赌",
       outerGoal: "查清旧案",
@@ -626,11 +626,11 @@ test("BookAnalysisCharacterMediaService queues appearance snapshot image tasks w
         id: "bac-1",
         analysisId: "analysis-1",
         name: "林秋",
-        role: "主角",
+        role: "Protagonist",
         status: "generated",
         profileJson: JSON.stringify({
           name: "林秋",
-          role: "主角",
+          role: "Protagonist",
           personality: "谨慎但敢赌",
         }),
       }
@@ -652,11 +652,11 @@ test("BookAnalysisCharacterMediaService queues appearance snapshot image tasks w
           id: "bac-1",
           analysisId: "analysis-1",
           name: "林秋",
-          role: "主角",
+          role: "Protagonist",
           status: "generated",
           profileJson: JSON.stringify({
             name: "林秋",
-            role: "主角",
+            role: "Protagonist",
             personality: "谨慎但敢赌",
           }),
         },
@@ -843,17 +843,17 @@ test("BookAnalysisCharacterAppearanceService persists pending candidate terms fr
     id: "bac-1",
     analysisId: "analysis-1",
     name: "林秋",
-    role: "主角",
+    role: "Protagonist",
     status: "generated",
-    profileJson: JSON.stringify({ name: "林秋", role: "主角" }),
+    profileJson: JSON.stringify({ name: "林秋", role: "Protagonist" }),
   });
   prisma.bookAnalysisCharacter.findUnique = async () => ({
     id: "bac-1",
     analysisId: "analysis-1",
     name: "林秋",
-    role: "主角",
+    role: "Protagonist",
     status: "generated",
-    profileJson: JSON.stringify({ name: "林秋", role: "主角" }),
+    profileJson: JSON.stringify({ name: "林秋", role: "Protagonist" }),
   });
   prisma.bookAnalysisCharacter.count = async () => 1;
   prisma.bookAnalysisCharacterAppearance.upsert = async () => ({
@@ -965,7 +965,7 @@ test("appearance RAG query avoids dialogue and psychology pollution", () => {
     occurringChapters: ["第 3 章 雨夜追踪"],
   }, "appearance");
 
-  assert.match(query, /外貌/);
+  assert.match(query, /Appearance/);
   assert.match(query, /服装/);
   assert.match(query, /伤痕/);
   assert.match(query, /第 3 章 雨夜追踪/);
@@ -988,7 +988,7 @@ test("BookAnalysisCharacterAppearanceTermService merges selected terms into prof
     transaction: prisma.$transaction,
   };
   const now = new Date("2026-06-28T11:00:00.000Z");
-  let profileJson = JSON.stringify({ name: "林秋", role: "主角", appearance: "黑衣青年" });
+  let profileJson = JSON.stringify({ name: "林秋", role: "Protagonist", appearance: "黑衣青年" });
   let consolidatedAppearanceJson = JSON.stringify({ attire: "黑衣" });
   const updatedStatuses = [];
   const termRows = [{
@@ -1021,7 +1021,7 @@ test("BookAnalysisCharacterAppearanceTermService merges selected terms into prof
     id: "bac-1",
     analysisId: "analysis-1",
     name: "林秋",
-    role: "主角",
+    role: "Protagonist",
     profileJson,
     appearance: { consolidatedAppearanceJson },
   });
@@ -1033,7 +1033,7 @@ test("BookAnalysisCharacterAppearanceTermService merges selected terms into prof
     id: "bac-1",
     analysisId: "analysis-1",
     name: "林秋",
-    role: "主角",
+    role: "Protagonist",
     status: "generated",
     briefDescription: null,
     importance: null,
@@ -1144,11 +1144,11 @@ test("BookAnalysisCharacterMediaService promotes a profile to BaseCharacter with
     id: "bac-1",
     analysisId: "analysis-1",
     name: "林秋",
-    role: "主角",
+    role: "Protagonist",
     status: "generated",
     profileJson: JSON.stringify({
       name: "林秋",
-      role: "主角",
+      role: "Protagonist",
       appearance: "黑衣，眉眼冷静",
       personality: "谨慎但敢赌",
       outerGoal: "查清旧案",
@@ -1203,7 +1203,7 @@ test("NovelExportService exports generated chapters as a knowledge document for 
       narrativeForm: "long_novel",
       shortStorySegments: [],
       chapters: [
-        { order: 1, title: "雨夜来客", content: "主角在雨夜接到旧案线索。" },
+        { order: 1, title: "雨夜来客", content: "Protagonist在雨夜接到旧案线索。" },
         { order: 2, title: "反向试探", content: "同伴隐瞒关键证词，矛盾升级。" },
       ],
     };
@@ -1265,7 +1265,7 @@ test("normalizeBookAnalysisStructuredData keeps fixed section fields and drops a
 test("normalizeBookAnalysisStructuredDataWithWarnings reports truncated array fields", () => {
   const fifteenItems = Array.from({ length: 15 }, (_, index) => `卖点 ${index + 1}`);
   const normalized = normalizeBookAnalysisStructuredDataWithWarnings("overview", {
-    genreTags: Array.from({ length: 8 }, (_, index) => `题材 ${index + 1}`),
+    genreTags: Array.from({ length: 8 }, (_, index) => `Genre ${index + 1}`),
     sellingPointTags: fifteenItems,
   });
 
@@ -1289,7 +1289,7 @@ test("normalizeBookAnalysisStructuredData supports timeline nodes and legacy str
     timeNodes: [
       "旧文本节点",
       {
-        label: "主角入夜潜入山寨",
+        label: "Protagonist入夜潜入山寨",
         timeHint: "第一夜",
         phase: "潜入",
         sourceRefs: ["片段 1", "", "片段 2"],
@@ -1303,7 +1303,7 @@ test("normalizeBookAnalysisStructuredData supports timeline nodes and legacy str
   assert.deepEqual(normalized.structuredData.timeNodes, [
     { label: "旧文本节点" },
     {
-      label: "主角入夜潜入山寨",
+      label: "Protagonist入夜潜入山寨",
       timeHint: "第一夜",
       phase: "潜入",
       sourceRefs: ["片段 1", "片段 2"],
@@ -1318,7 +1318,7 @@ test("serializeSectionRow defaults missing normalization warnings to an empty li
     id: "section-legacy",
     analysisId: "analysis-legacy",
     sectionKey: "overview",
-    title: "拆书总览",
+    title: "book analysis总览",
     status: "succeeded",
     aiContent: "",
     editedContent: null,
@@ -1338,7 +1338,7 @@ test("normalizeBookAnalysisEvidence keeps valid field bindings and preserves leg
   const normalized = normalizeBookAnalysisEvidence("plot_structure", [
     {
       label: "冲突升级",
-      excerpt: "反派身份反转导致局势失控",
+      excerpt: "Antagonist身份反转导致局势失控",
       sourceLabel: "片段 2",
       fieldKey: "escalationDesigns",
       fieldIndex: 1,
@@ -1362,7 +1362,7 @@ test("normalizeBookAnalysisEvidence keeps valid field bindings and preserves leg
   assert.deepEqual(normalized, [
     {
       label: "冲突升级",
-      excerpt: "反派身份反转导致局势失控",
+      excerpt: "Antagonist身份反转导致局势失控",
       sourceLabel: "片段 2",
       fieldKey: "escalationDesigns",
       fieldIndex: 1,
@@ -1415,13 +1415,13 @@ test("normalizeBookAnalysisEvidence keeps valid field bindings and preserves leg
 test("bindEvidenceToDocumentChapters attaches chapter index and source offsets", () => {
   const content = [
     "第一章 雪夜摸排",
-    "主角在雪夜摸排山寨。",
+    "Protagonist在雪夜摸排山寨。",
     "",
     "第二章 卧底试探",
-    "反派身份反转导致局势失控。",
+    "Antagonist身份反转导致局势失控。",
   ].join("\n");
   const chapterStart = content.indexOf("第二章");
-  const excerpt = "反派身份反转导致局势失控";
+  const excerpt = "Antagonist身份反转导致局势失控";
   const excerptStart = content.indexOf(excerpt);
   const bound = bindEvidenceToDocumentChapters(
     [{
@@ -1576,7 +1576,7 @@ test("BookAnalysisQueryService listAnalyses filters by selected document", async
       id: "analysis-1",
       documentId: "document-1",
       documentVersionId: "version-1",
-      title: "测试拆书",
+      title: "测试book analysis",
       status: "succeeded",
       summary: "摘要",
       provider: "deepseek",
@@ -1686,7 +1686,7 @@ test("BookAnalysisSourceCacheService persists notes and reuses cache hits", asyn
 
   const baseInput = {
     documentVersionId: "version-1",
-    content: "这是一本很长的小说正文。".repeat(80),
+    content: "这Yes一本很长的小说正文。".repeat(80),
     provider: "deepseek",
     model: "deepseek-chat",
     temperature: 0.3,
@@ -1810,7 +1810,7 @@ test("BookAnalysisGenerationService runFullAnalysis generates overview before de
         maxTokens: 4800,
         userFocusInstruction: "重点观察权谋爽点",
         sections: [
-          { analysisId: "analysis-full", sectionKey: "overview", title: "拆书总览", frozen: false, focusInstruction: "总览先抓定位" },
+          { analysisId: "analysis-full", sectionKey: "overview", title: "book analysis总览", frozen: false, focusInstruction: "总览先抓定位" },
           { analysisId: "analysis-full", sectionKey: "plot_structure", title: "剧情结构", frozen: false, focusInstruction: "剧情重点看反转" },
           { analysisId: "analysis-full", sectionKey: "character_system", title: "人物系统", frozen: false, focusInstruction: null },
         ],
@@ -1836,7 +1836,7 @@ test("BookAnalysisGenerationService runFullAnalysis generates overview before de
           summary: "缓存摘要",
           plotPoints: ["主线推进"],
           timelineEvents: [],
-          characters: ["主角定位"],
+          characters: ["Protagonist定位"],
           worldbuilding: [],
           themes: [],
           styleTechniques: [],
@@ -1855,7 +1855,7 @@ test("BookAnalysisGenerationService runFullAnalysis generates overview before de
         const sectionKey = args[0];
         if (sectionKey === "overview") {
           return {
-            markdown: "# 拆书总览\n\n整本书偏强冲突权谋。",
+            markdown: "# book analysis总览\n\n整本书偏强冲突权谋。",
             structuredData: {
               oneLinePositioning: "强冲突权谋开局",
               genreTags: ["权谋"],
@@ -2018,7 +2018,7 @@ test("BookAnalysisGenerationService runFullAnalysis continues after overview fai
         maxTokens: 4800,
         userFocusInstruction: null,
         sections: [
-          { analysisId: "analysis-overview-fail", sectionKey: "overview", title: "拆书总览", frozen: false, focusInstruction: null },
+          { analysisId: "analysis-overview-fail", sectionKey: "overview", title: "book analysis总览", frozen: false, focusInstruction: null },
           { analysisId: "analysis-overview-fail", sectionKey: "plot_structure", title: "剧情结构", frozen: false, focusInstruction: null },
         ],
       };
@@ -2106,7 +2106,7 @@ test("BookAnalysisGenerationService runFullAnalysis stops after overview when ca
         maxTokens: 4800,
         userFocusInstruction: null,
         sections: [
-          { analysisId: "analysis-cancel-after-overview", sectionKey: "overview", title: "拆书总览", frozen: false, focusInstruction: null },
+          { analysisId: "analysis-cancel-after-overview", sectionKey: "overview", title: "book analysis总览", frozen: false, focusInstruction: null },
           { analysisId: "analysis-cancel-after-overview", sectionKey: "plot_structure", title: "剧情结构", frozen: false, focusInstruction: null },
         ],
       };
@@ -2136,7 +2136,7 @@ test("BookAnalysisGenerationService runFullAnalysis stops after overview when ca
       generateSection: async (...args) => {
         sectionCalls.push(args);
         return {
-          markdown: "# 拆书总览",
+          markdown: "# book analysis总览",
           structuredData: {},
           normalizationWarnings: [],
           evidence: [],
@@ -2182,7 +2182,7 @@ test("BookAnalysisGenerationService runSingleSection fetches reusable source not
         cancelRequestedAt: null,
         documentVersionId: "version-1",
         documentVersion: {
-          content: "这是用于拆书的正文。".repeat(80),
+          content: "这Yes用于book analysis的正文。".repeat(80),
         },
         provider: "deepseek",
         model: "deepseek-chat",
@@ -2191,7 +2191,7 @@ test("BookAnalysisGenerationService runSingleSection fetches reusable source not
         sections: [{
           analysisId: "analysis-1",
           sectionKey: "overview",
-          title: "拆书总览",
+          title: "book analysis总览",
           frozen: false,
         }],
       };
@@ -2217,7 +2217,7 @@ test("BookAnalysisGenerationService runSingleSection fetches reusable source not
     status: "succeeded",
     frozen: false,
     editedContent: null,
-    aiContent: "# 拆书总览\n\n新的摘要内容",
+    aiContent: "# book analysis总览\n\n新的摘要内容",
   }]);
 
   const service = new BookAnalysisGenerationService(
@@ -2246,7 +2246,7 @@ test("BookAnalysisGenerationService runSingleSection fetches reusable source not
       generateSection: async (...args) => {
         sectionCalls.push(args);
         return {
-          markdown: "# 拆书总览\n\n新的摘要内容",
+          markdown: "# book analysis总览\n\n新的摘要内容",
           structuredData: { ok: true },
           evidence: [],
         };
@@ -2296,7 +2296,7 @@ test("BookAnalysisGenerationService runSingleSection injects persisted overview 
         cancelRequestedAt: null,
         documentVersionId: "version-1",
         documentVersion: {
-          content: "这是用于拆书的正文。".repeat(80),
+          content: "这Yes用于book analysis的正文。".repeat(80),
         },
         provider: "deepseek",
         model: "deepseek-chat",
@@ -2307,9 +2307,9 @@ test("BookAnalysisGenerationService runSingleSection injects persisted overview 
           {
             analysisId: "analysis-single-dependent",
             sectionKey: "overview",
-            title: "拆书总览",
+            title: "book analysis总览",
             frozen: false,
-            aiContent: "# 拆书总览\n\n这是一部身份反转驱动的权谋文。",
+            aiContent: "# book analysis总览\n\n这Yes一部身份反转驱动的权谋文。",
             editedContent: null,
             structuredDataJson: JSON.stringify({
               oneLinePositioning: "身份反转驱动的权谋文",
@@ -2465,7 +2465,7 @@ test("BookAnalysisCommandService createAnalysis freezes sections outside enabled
 test("buildPublishMarkdown includes structured key conclusions as publishable content", () => {
   const published = buildPublishMarkdown({
     id: "analysis-structured",
-    title: "测试拆书",
+    title: "测试book analysis",
     status: "succeeded",
     documentTitle: "测试文档",
     documentFileName: "test.txt",
@@ -2475,7 +2475,7 @@ test("buildPublishMarkdown includes structured key conclusions as publishable co
       id: "section-1",
       analysisId: "analysis-structured",
       sectionKey: "overview",
-      title: "拆书总览",
+      title: "book analysis总览",
       status: "succeeded",
       aiContent: "",
       editedContent: "",
@@ -2492,7 +2492,7 @@ test("buildPublishMarkdown includes structured key conclusions as publishable co
   }, "2026-06-03T00:00:00.000Z");
 
   assert.equal(published.hasPublishableContent, true);
-  assert.match(published.content, /### 关键结论/);
+  assert.match(published.content, /### Key conclusions/);
   assert.match(published.content, /One-line positioning：一个以身份反转推动主线的权谋故事/);
   assert.match(published.content, /Appeal tags：身份悬念；权谋博弈/);
 });
@@ -2500,7 +2500,7 @@ test("buildPublishMarkdown includes structured key conclusions as publishable co
 test("buildBookAnalysisRagPreChunks turns structured fields into facet chunks", () => {
   const chunks = buildBookAnalysisRagPreChunks({
     id: "analysis-facets",
-    title: "测试拆书",
+    title: "测试book analysis",
     status: "succeeded",
     documentId: "document-1",
     documentVersionId: "version-1",
@@ -2512,7 +2512,7 @@ test("buildBookAnalysisRagPreChunks turns structured fields into facet chunks", 
       id: "section-1",
       analysisId: "analysis-facets",
       sectionKey: "overview",
-      title: "拆书总览",
+      title: "book analysis总览",
       status: "succeeded",
       aiContent: "",
       editedContent: "",
@@ -2559,7 +2559,7 @@ test("HybridRetrievalService retrieveByFacet applies facet filters", async () =>
       id: "chunk-1",
       ownerType: "knowledge_document",
       ownerId: "doc-1",
-      title: "拆书发布",
+      title: "book analysis发布",
       chunkText: "爽点来自身份反转",
       chunkOrder: 1,
       novelId: null,
@@ -2607,7 +2607,7 @@ test("publishAnalysisToNovel replaces only bindings from the same source analysi
   const operations = [];
   const detail = {
     id: "analysis-publish",
-    title: "测试拆书",
+    title: "测试book analysis",
     status: "succeeded",
     documentTitle: "测试文档",
     documentFileName: "test.txt",
@@ -2617,7 +2617,7 @@ test("publishAnalysisToNovel replaces only bindings from the same source analysi
       id: "section-1",
       analysisId: "analysis-publish",
       sectionKey: "overview",
-      title: "拆书总览",
+      title: "book analysis总览",
       status: "succeeded",
       aiContent: "可发布正文",
       editedContent: null,
@@ -2627,7 +2627,7 @@ test("publishAnalysisToNovel replaces only bindings from the same source analysi
       },
       evidence: [{
         label: "反转",
-        excerpt: "主角公开真实身份。",
+        excerpt: "Protagonist公开真实身份。",
         sourceLabel: "片段 1",
         fieldKey: "sellingPointTags",
         fieldIndex: 0,
@@ -2670,7 +2670,7 @@ test("publishAnalysisToNovel replaces only bindings from the same source analysi
       knowledgePublishService: {
         publishAnalysisDocument: async (input) => {
           assert.equal(input.sourceAnalysisId, "analysis-publish");
-          assert.equal(input.buildTitle(3), "《目标小说》拆书 v3");
+          assert.equal(input.buildTitle(3), "《目标小说》book analysis v3");
           assert.ok(input.indexPayload.preChunks.length > 0);
           return {
           id: "published-document-3",
@@ -2744,7 +2744,7 @@ test("KnowledgePublishService reuses published analysis document by sourceAnalys
   try {
     await service.publishAnalysisDocument({
       sourceAnalysisId: "analysis-1",
-      buildTitle: (version) => `《目标小说》拆书 v${version}`,
+      buildTitle: (version) => `《目标小说》book analysis v${version}`,
       fileName: "analysis.md",
       content: "发布内容",
       indexPayload: { preChunks: [{ chunkText: "结构化分块" }] },
@@ -2752,7 +2752,7 @@ test("KnowledgePublishService reuses published analysis document by sourceAnalys
     assert.equal(calls[0].where.sourceAnalysisId, "analysis-1");
     assert.equal(calls[1].input.kind, "analysis_published");
     assert.equal(calls[1].input.sourceAnalysisId, "analysis-1");
-    assert.equal(calls[1].input.title, "《目标小说》拆书 v1");
+    assert.equal(calls[1].input.title, "《目标小说》book analysis v1");
     assert.deepEqual(calls[1].input.indexPayload, { preChunks: [{ chunkText: "结构化分块" }] });
 
     existingDocument = {
@@ -2761,13 +2761,13 @@ test("KnowledgePublishService reuses published analysis document by sourceAnalys
     };
     await service.publishAnalysisDocument({
       sourceAnalysisId: "analysis-1",
-      buildTitle: (version) => `《目标小说》拆书 v${version}`,
+      buildTitle: (version) => `《目标小说》book analysis v${version}`,
       fileName: "analysis.md",
       content: "新版内容",
       indexPayload: { preChunks: [{ chunkText: "新版结构化分块" }] },
     });
     assert.equal(calls[3].documentId, "published-document-1");
-    assert.equal(calls[3].input.title, "《目标小说》拆书 v3");
+    assert.equal(calls[3].input.title, "《目标小说》book analysis v3");
     assert.equal(calls[3].input.content, "新版内容");
     assert.deepEqual(calls[3].input.indexPayload, { preChunks: [{ chunkText: "新版结构化分块" }] });
   } finally {
@@ -2793,7 +2793,7 @@ test("NovelReferenceService formats structured timeline nodes by phase", async (
   };
   prisma.bookAnalysis.findMany = async () => ([{
     id: "analysis-1",
-    title: "测试拆书",
+    title: "测试book analysis",
     document: { title: "参考书" },
     documentVersion: { versionNumber: 1 },
     sections: [{
@@ -2801,8 +2801,8 @@ test("NovelReferenceService formats structured timeline nodes by phase", async (
       title: "故事时间线",
       structuredDataJson: JSON.stringify({
         timeNodes: [
-          { label: "主角入夜潜入山寨", timeHint: "第一夜", phase: "潜入", sourceRefs: ["片段 1"] },
-          { label: "反派身份暴露", timeHint: "第三幕", phase: "反转", sourceRefs: ["片段 8"] },
+          { label: "Protagonist入夜潜入山寨", timeHint: "第一夜", phase: "潜入", sourceRefs: ["片段 1"] },
+          { label: "Antagonist身份暴露", timeHint: "第三幕", phase: "反转", sourceRefs: ["片段 8"] },
         ],
       }),
       aiContent: null,
@@ -2814,9 +2814,9 @@ test("NovelReferenceService formats structured timeline nodes by phase", async (
     const service = new NovelReferenceService();
     const reference = await service.buildReferenceForStage("novel-1", "outline");
 
-    assert.match(reference, /\[analysis\.reference\] 测试拆书/);
+    assert.match(reference, /\[analysis\.reference\] 测试book analysis/);
     assert.match(reference, /### 潜入/);
-    assert.match(reference, /主角入夜潜入山寨 \(time=第一夜; sources=片段 1\)/);
+    assert.match(reference, /Protagonist入夜潜入山寨 \(time=第一夜; sources=片段 1\)/);
     assert.match(reference, /### 反转/);
   } finally {
     prisma.knowledgeBinding.findMany = original.knowledgeBindingFindMany;
@@ -2960,7 +2960,7 @@ test("BookAnalysisGenerationService optimizeSectionPreview reuses cached source 
       status: "queued",
       documentVersionId: "version-1",
       documentVersion: {
-        content: "这是用于优化草稿的正文。".repeat(80),
+        content: "这Yes用于优化草稿的正文。".repeat(80),
       },
       provider: "deepseek",
       model: "deepseek-chat",

@@ -23,7 +23,7 @@ test("legacy structured outline migration upgrades old volume payloads into norm
     arcPlans: [{
       externalRef: "1",
       title: "卷一起势",
-      objective: "主角第一次完成反压",
+      objective: "Protagonist第一次完成反压",
       phaseLabel: "起势",
       hookTarget: "更强敌人即将入场",
       rawPlanJson: JSON.stringify({
@@ -36,7 +36,7 @@ test("legacy structured outline migration upgrades old volume payloads into norm
   assert.equal(volumes.length, 1);
   assert.equal(volumes[0].novelId, "novel-1");
   assert.equal(volumes[0].title, "旧第一卷");
-  assert.equal(volumes[0].mainPromise, "主角第一次完成反压");
+  assert.equal(volumes[0].mainPromise, "Protagonist第一次完成反压");
   assert.equal(volumes[0].escalationMode, "起势");
   assert.equal(volumes[0].climax, "卷末反压成立");
   assert.deepEqual(volumes[0].openPayoffs, ["伏笔A"]);
@@ -51,7 +51,7 @@ test("legacy chapter-only projects fall back to synthesized volume skeletons ins
       {
         order: 1,
         title: "第1章",
-        expectation: "主角开局被压制",
+        expectation: "Protagonist开局被压制",
         targetWordCount: 3000,
         conflictLevel: 75,
         revealLevel: 10,
@@ -61,7 +61,7 @@ test("legacy chapter-only projects fall back to synthesized volume skeletons ins
       {
         order: 2,
         title: "第2章",
-        expectation: "主角第一次试探反击",
+        expectation: "Protagonist第一次试探反击",
         targetWordCount: 3200,
         conflictLevel: 80,
         revealLevel: 20,
@@ -73,9 +73,9 @@ test("legacy chapter-only projects fall back to synthesized volume skeletons ins
 
   assert.equal(volumes.length, 1);
   assert.equal(volumes[0].title, "第1卷");
-  assert.equal(volumes[0].mainPromise, "主角开局被压制");
+  assert.equal(volumes[0].mainPromise, "Protagonist开局被压制");
   assert.equal(volumes[0].chapters.length, 2);
-  assert.equal(volumes[0].chapters[0].summary, "主角开局被压制");
+  assert.equal(volumes[0].chapters[0].summary, "Protagonist开局被压制");
   assert.equal(volumes[0].chapters[1].taskSheet, "试探反压");
 });
 

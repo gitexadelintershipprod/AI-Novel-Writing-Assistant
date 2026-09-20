@@ -105,7 +105,7 @@ test("recoverStalePipelineJobs preserves a manual recovery checkpoint when resum
   await runtimeService.recoverStalePipelineJobs(new Date("2026-04-03T00:00:00+08:00"), 60_000);
 
   assert.deepEqual(calls, [
-    ["pending", "job-stale", "章节流水线任务心跳超时，正在尝试恢复。 恢复失败：缺少章节上下文"],
+    ["pending", "job-stale", "The chapter pipeline task heartbeat timed out and is trying to recover. Recovery failed：缺少章节上下文"],
   ]);
 });
 
@@ -142,7 +142,7 @@ test("markPendingPipelineJobsForManualRecovery settles cancellations and marks r
 
   assert.deepEqual(calls, [
     ["cancelled", "job-cancelling"],
-    ["pending", "job-queued", "服务重启后任务已暂停，等待手动恢复。"],
-    ["pending", "job-running", "服务重启后任务已暂停，等待手动恢复。"],
+    ["pending", "job-queued", "The task paused after a service restart and is waiting for manual recovery."],
+    ["pending", "job-running", "The task paused after a service restart and is waiting for manual recovery."],
   ]);
 });

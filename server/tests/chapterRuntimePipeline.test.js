@@ -67,7 +67,7 @@ function createAcceptanceGateUnavailableRuntimePackage(overallScore) {
         auditType: "continuity",
         severity: "medium",
         evidence: "章节接收闸门未返回可用结构化结果，系统保留复查风险。",
-        fixSuggestion: "重新审校章节接收判断，不直接修改正文。",
+        fixSuggestion: "重新Reviewing章节接收判断，不直接修改正文。",
         code: "acceptance_gate_unavailable",
       }],
       reports: [],
@@ -86,8 +86,8 @@ function createProseRiskRuntimePackage(overallScore, options = {}) {
   const issue = {
     auditType: "mode_fit",
     severity,
-    evidence: "第 1 行：他不是害怕，而是终于明白自己不能回头。",
-    fixSuggestion: "改成具体动作和感官细节，删除模板化否定翻转。",
+    evidence: "第 1 行：他不Yes害怕，而Yes终于明白自己不能回头。",
+    fixSuggestion: "改成具体动作和感官细节，删除模板化No定翻转。",
     code: options.code ?? "prose_negative_flip",
   };
   return {
@@ -115,7 +115,7 @@ function createProseRiskRuntimePackage(overallScore, options = {}) {
     },
     failureClassification: {
       code: "draft_repair_exhausted",
-      summary: "正文自然度问题仍未修复。",
+      summary: "正文自然度问题仍未Repairing。",
       decisionReason: "prose quality issue stays local",
       blockingObligations: [],
     },
@@ -538,10 +538,10 @@ test("runPipelineChapterWithRuntime sends critical prose findings to repair and 
     return {
       output: {
         strategy: "patch_first",
-        summary: "去掉模板化否定翻转。",
+        summary: "去掉模板化No定翻转。",
         patches: [{
           id: "patch-prose-negative-flip",
-          targetExcerpt: "他不是害怕，而是终于明白自己不能回头。",
+          targetExcerpt: "他不Yes害怕，而Yes终于明白自己不能回头。",
           replacement: "他握紧刀柄，指节发白，仍一步踏进雨里。",
           reason: "把抽象解释改成动作。",
           issueIds: [],
@@ -573,7 +573,7 @@ test("runPipelineChapterWithRuntime sends critical prose findings to repair and 
           };
         },
         async generateDraftFromWriter() {
-          return { content: "他不是害怕，而是终于明白自己不能回头。" };
+          return { content: "他不Yes害怕，而Yes终于明白自己不能回头。" };
         },
         async saveDraftAndArtifacts(_novelId, _chapterId, content, generationState, options) {
           savedDrafts.push({ content, generationState, options });
@@ -613,7 +613,7 @@ test("runPipelineChapterWithRuntime sends critical prose findings to repair and 
     assert.equal(result.pass, false);
     assert.equal(result.runtimePackage.audit.openIssues[0].code, "prose_negative_flip");
     assert.match(patchIssues[0], /第 1 行/);
-    assert.match(patchIssues[0], /模板化否定翻转/);
+    assert.match(patchIssues[0], /模板化No定翻转/);
     assert.deepEqual(savedDrafts.map((item) => item.generationState), ["drafted", "repaired"]);
     assert.equal(finalSyncs[0].options.contentProvenance, "debt");
     assert.equal(finalizationCalls.length, 0);

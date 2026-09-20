@@ -18,9 +18,9 @@ test("DirectorStateReader suppresses stale active step while task is waiting at 
     novelId: "novel-1",
     lane: "auto_director",
     status: "waiting_approval",
-    currentStage: "质量修复",
+    currentStage: "Quality repair",
     currentItemKey: "quality_repair",
-    currentItemLabel: "等待处理重规划建议",
+    currentItemLabel: "等待Handle replan建议",
     progress: 0.98,
     checkpointType: "replan_required",
     checkpointSummary: "第 3 章需要重规划。",
@@ -42,7 +42,7 @@ test("DirectorStateReader suppresses stale active step while task is waiting at 
   prisma.directorStepRun.findFirst = async () => ({
     idempotencyKey: "task-1:chapter_execution_node",
     nodeKey: "chapter_execution_node",
-    label: "章节执行",
+    label: "Chapter execution",
     status: "running",
   });
 

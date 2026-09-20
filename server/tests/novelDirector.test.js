@@ -87,7 +87,7 @@ test("director task routes accept task creation, command append and snapshot rea
           id: taskId,
           novelId: "novel-created",
           status: "running",
-          currentStage: "AI 自动导演",
+          currentStage: "Auto-Director",
           currentItemKey: "chapter_execution",
           currentItemLabel: "AI 正在推进正文生成",
           progress: 0.72,

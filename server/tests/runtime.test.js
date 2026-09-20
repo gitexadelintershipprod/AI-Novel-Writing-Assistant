@@ -158,7 +158,7 @@ test("composeAssistantMessage returns a light greeting for social openings", asy
 
 test("composeAssistantMessage summarizes produce_novel before queue approval", async () => {
   const text = await composeAssistantMessage(
-    "创建一本20章小说《抗日奇侠传》，并开始整本生成",
+    "Create a 20-chapter novel titled Anti-Japanese Hero Legend and start full-book generation",
     "执行摘要",
     [
       {
@@ -183,7 +183,7 @@ test("composeAssistantMessage summarizes produce_novel before queue approval", a
       {
         tool: "generate_novel_characters",
         success: true,
-        summary: "已生成核心角色。",
+        summary: "已Generate core characters。",
         output: {
           novelId: "novel-1",
           characterCount: 5,
@@ -192,7 +192,7 @@ test("composeAssistantMessage summarizes produce_novel before queue approval", a
       {
         tool: "generate_story_bible",
         success: true,
-        summary: "已生成小说圣经。",
+        summary: "The novel bible was generated.",
         output: {
           novelId: "novel-1",
         },
@@ -200,7 +200,7 @@ test("composeAssistantMessage summarizes produce_novel before queue approval", a
       {
         tool: "generate_novel_outline",
         success: true,
-        summary: "已生成发展走向。",
+        summary: "Story direction generated。",
         output: {
           novelId: "novel-1",
         },
@@ -208,7 +208,7 @@ test("composeAssistantMessage summarizes produce_novel before queue approval", a
       {
         tool: "generate_structured_outline",
         success: true,
-        summary: "已生成结构化大纲。",
+        summary: "A structured outline was generated。",
         output: {
           novelId: "novel-1",
           targetChapterCount: 20,
@@ -237,7 +237,7 @@ test("composeAssistantMessage summarizes produce_novel before queue approval", a
     true,
     { contextMode: "novel", novelId: "novel-1" },
     {
-      goal: "创建一本20章小说《抗日奇侠传》，并开始整本生成",
+      goal: "Create a 20-chapter novel titled Anti-Japanese Hero Legend and start full-book generation",
       intent: "produce_novel",
       confidence: 0.95,
       requiresNovelContext: false,
@@ -258,7 +258,7 @@ test("composeAssistantMessage summarizes production status query", async () => {
       {
         tool: "get_novel_production_status",
         success: true,
-        summary: "已读取整本生产状态。",
+        summary: "已Read full-book production status。",
         output: {
           novelId: "novel-1",
           title: "抗日奇侠传",
@@ -308,16 +308,16 @@ test("composeAssistantMessage summarizes generic progress from production status
       {
         tool: "get_novel_production_status",
         success: true,
-        summary: "已读取整本生产状态。",
+        summary: "已Read full-book production status。",
         output: {
           novelId: "novel-1",
           title: "抗日奇侠传",
-          currentStage: "质量修复待处理",
+          currentStage: "Quality repair待处理",
           chapterCount: 20,
           targetChapterCount: 20,
           pipelineStatus: "failed",
-          failureSummary: "模型调用失败",
-          recoveryHint: "优先处理 2 章质量修复，再继续后续章节。",
+          failureSummary: "The model call failed",
+          recoveryHint: "优先处理 2 章Quality repair，再继续后续章节。",
           progressBasis: "facts",
           factProgress: {
             planningCompleted: 6,
@@ -329,7 +329,7 @@ test("composeAssistantMessage summarizes generic progress from production status
           },
           runtimeStatus: {
             state: "failed",
-            label: "后台任务失败",
+            label: "Background task failed",
           },
         },
       },
@@ -344,10 +344,10 @@ test("composeAssistantMessage summarizes generic progress from production status
       chapterSelectors: {},
     },
   );
-  assert.match(text, /fact progress: 质量修复待处理/);
+  assert.match(text, /fact progress: Quality repair待处理/);
   assert.match(text, /Chapter text: 8\/20 chapters/);
   assert.match(text, /2 chapters waiting for repair/);
-  assert.match(text, /Background: 后台任务失败/);
+  assert.match(text, /Background: Background task failed/);
   assert.match(text, /Facts already produced can still be used/);
 });
 
@@ -359,7 +359,7 @@ test("composeAssistantMessage does not turn novel overview queries into collabor
       {
         tool: "get_novel_production_status",
         success: true,
-        summary: "已读取整本生产状态。",
+        summary: "已Read full-book production status。",
         output: {
           novelId: "novel-1",
           title: "妻子的秘密交易",
@@ -368,7 +368,7 @@ test("composeAssistantMessage does not turn novel overview queries into collabor
           targetChapterCount: 20,
           pipelineStatus: null,
           failureSummary: null,
-          recoveryHint: "先补齐核心设定，再决定是否启动整本生产。",
+          recoveryHint: "先补齐核心设定，再决定YesNo启动整本生产。",
         },
       },
     ],
@@ -430,7 +430,7 @@ test("composeAssistantMessage asks a warm kickoff question when create_novel lac
     invoke: async (messages) => {
       captured.push(messages);
       return {
-        content: "当然可以。你想先给这本书起个暂定名字，还是先告诉我你更想写什么类型、谁来当主角？",
+        content: "当然可以。你想先给这本书起个暂定名字，还Yes先告诉我你更想写什么类型、谁来当Protagonist？",
       };
     },
   }));
@@ -449,7 +449,7 @@ test("composeAssistantMessage asks a warm kickoff question when create_novel lac
         chapterSelectors: {},
       },
     );
-    assert.equal(text, "当然可以。你想先给这本书起个暂定名字，还是先告诉我你更想写什么类型、谁来当主角？");
+    assert.equal(text, "当然可以。你想先给这本书起个暂定名字，还Yes先告诉我你更想写什么类型、谁来当Protagonist？");
     assert.match(captured[0].at(-1).content, /No novel has been created yet/);
     assert.match(captured[0].at(-1).content, /has not given a clear title/);
   } finally {
@@ -463,7 +463,7 @@ test("composeAssistantMessage guides setup after create_novel", async () => {
     invoke: async (messages) => {
       captured.push(messages);
       return {
-        content: "《风雪断桥》已经开好了，我们先把故事抓手定稳一点。你更想先聊主角是谁、他卡在什么冲突里，还是我先给你几种题材方向做选择？",
+        content: "《风雪断桥》已经开好了，我们先把故事抓手定稳一点。你更想先聊ProtagonistYes谁、他卡在什么冲突里，还Yes我先给你几种Genre方向做选择？",
       };
     },
   }));
@@ -489,9 +489,9 @@ test("composeAssistantMessage guides setup after create_novel", async () => {
               completionRatio: 17,
               completedCount: 1,
               totalCount: 6,
-              missingItems: ["题材与风格", "叙事配置", "世界观基础"],
+              missingItems: ["Genre与风格", "Narrative配置", "世界观基础"],
               nextQuestion: "这本书想讲谁、遇到什么冲突、最后要把故事推向哪里？",
-              recommendedAction: "先帮我补这本书的一句话设定，明确主角、核心冲突和故事承诺。",
+              recommendedAction: "先帮我补这本书的一句话设定，明确Protagonist、核心冲突和故事承诺。",
               checklist: [],
             },
           },
@@ -508,8 +508,8 @@ test("composeAssistantMessage guides setup after create_novel", async () => {
         chapterSelectors: {},
       },
     );
-    assert.equal(text, "《风雪断桥》已经开好了，我们先把故事抓手定稳一点。你更想先聊主角是谁、他卡在什么冲突里，还是我先给你几种题材方向做选择？");
-    assert.match(captured[0].at(-1).content, /题材与风格, 叙事配置, 世界观基础/);
+    assert.equal(text, "《风雪断桥》已经开好了，我们先把故事抓手定稳一点。你更想先聊ProtagonistYes谁、他卡在什么冲突里，还Yes我先给你几种Genre方向做选择？");
+    assert.match(captured[0].at(-1).content, /Genre与风格, Narrative配置, 世界观基础/);
     assert.match(captured[0].at(-1).content, /Recommended question: 这本书想讲谁、遇到什么冲突、最后要把故事推向哪里？/);
   } finally {
     setNovelSetupGuidanceLLMFactoryForTests();
@@ -523,9 +523,9 @@ test("composeAssistantMessage generates setup options from grounded novel facts"
       captured.push(messages);
       return {
         content: [
-          "1. 方案一：主角是没落豪门赘婿，被迫卷入妻子背后的地下交易网，故事走压抑黑色都市线。",
-          "2. 方案二：主角是调查记者丈夫，顺着妻子的异常消费挖出更大的阶层献祭秘密，故事偏悬疑反转。",
-          "3. 方案三：主角是被家庭伦理绑住的普通人，在守住婚姻与自我尊严之间被不断逼迫，故事更偏情绪撕裂。",
+          "1. 方案一：ProtagonistYes没落豪门赘婿，被迫卷入妻子背后的地下交易网，故事走压抑黑色都市线。",
+          "2. 方案二：ProtagonistYes调查记者丈夫，顺着妻子的异常消费挖出更大的阶层献祭秘密，故事偏悬疑反转。",
+          "3. 方案三：ProtagonistYes被家庭伦理绑住的普通人，在守住婚姻与自我尊严之间被不断逼迫，故事更偏情绪撕裂。",
           "你可以先挑最接近的一版，我再继续把它细化成一句话设定。",
         ].join("\n"),
       };
@@ -533,17 +533,17 @@ test("composeAssistantMessage generates setup options from grounded novel facts"
   }));
   try {
     const text = await composeAssistantMessage(
-      "基于当前标题和已有信息，为这本小说提供 3 套核心设定备选。每套都要包含主角、核心冲突、目标和题材气质。",
+      "Using the current title and known information, offer 3 core-setting options for this novel. Each must include the protagonist, core conflict, goal, and genre tone.",
       "执行摘要",
       [
         {
           tool: "get_novel_context",
           success: true,
-          summary: "已读取小说总览。",
+          summary: "The novel overview was read.",
           output: {
             novelId: "novel-1",
             title: "妻子的秘密交易",
-            description: "都市婚姻危机题材，围绕妻子隐秘交易展开。",
+            description: "都市婚姻危机Genre，围绕妻子隐秘交易展开。",
             genre: "都市情感",
             styleTone: "压抑黑暗",
             narrativePov: "third_person",
@@ -565,7 +565,7 @@ test("composeAssistantMessage generates setup options from grounded novel facts"
         {
           tool: "get_story_bible",
           success: true,
-          summary: "已读取小说圣经设定。",
+          summary: "Novel-bible settings were read.",
           output: {
             novelId: "novel-1",
             exists: true,
@@ -596,7 +596,7 @@ test("composeAssistantMessage generates setup options from grounded novel facts"
       false,
       { contextMode: "novel", novelId: "novel-1" },
       {
-        goal: "基于当前标题和已有信息，为这本小说提供 3 套核心设定备选。每套都要包含主角、核心冲突、目标和题材气质。",
+        goal: "Using the current title and known information, offer 3 core-setting options for this novel. Each must include the protagonist, core conflict, goal, and genre tone.",
         intent: "ideate_novel_setup",
         confidence: 0.93,
         requiresNovelContext: true,
@@ -606,7 +606,7 @@ test("composeAssistantMessage generates setup options from grounded novel facts"
     assert.match(text, /方案一/);
     assert.match(text, /挑最接近的一版/);
     assert.match(captured[0].at(-1).content, /妻子的秘密交易/);
-    assert.match(captured[0].at(-1).content, /都市婚姻危机题材/);
+    assert.match(captured[0].at(-1).content, /都市婚姻危机Genre/);
     assert.match(captured[0].at(-1).content, /婚姻与忠诚不断被利益侵蚀/);
   } finally {
     setNovelSetupIdeationLLMFactoryForTests();

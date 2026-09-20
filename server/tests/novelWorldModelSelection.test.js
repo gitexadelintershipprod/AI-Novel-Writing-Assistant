@@ -58,7 +58,7 @@ test("novel theme world prompt stays within a one-shot JSON budget", () => {
     description: "都市调查故事",
     targetAudience: "成年读者",
     bookSellingPoint: "高压反转",
-    first30ChapterPromise: "主角进入事件核心",
+    first30ChapterPromise: "Protagonist进入事件核心",
     commercialTags: ["都市", "悬疑"],
     genreName: "都市",
     primaryStoryModeName: "悬疑",

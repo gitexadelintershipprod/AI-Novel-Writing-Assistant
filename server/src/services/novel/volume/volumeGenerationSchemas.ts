@@ -83,7 +83,7 @@ function normalizeVolumeReference(value: unknown): unknown {
   if (!normalized) {
     return value;
   }
-  const volumeMatch = normalized.match(/(?:volume|卷|第)?\s*(\d+)(?:\s*卷)?$/i);
+  const volumeMatch = normalized.match(/(?:volume)?\s*(\d+)$/i);
   return volumeMatch?.[1] ?? normalized;
 }
 
@@ -156,9 +156,9 @@ function normalizeRebalanceDirection(value: unknown, actions?: unknown): unknown
 function normalizeBeatPayload(raw: unknown): unknown {
   const normalized = normalizeObjectAlias(raw, {
     key: ["beatKey", "stageKey", "id", "slot", "slotKey", "roleKey"],
-    label: ["beatLabel", "stageLabel", "roleLabel", "职能", "节奏职能"],
-    title: ["shortTitle", "customTitle", "displayTitle", "name", "短标题", "本卷标题"],
-    summary: ["beatSummary", "description", "detail", "content", "摘要", "概要", "说明"],
+    label: ["beatLabel", "stageLabel", "roleLabel"],
+    title: ["shortTitle", "customTitle", "displayTitle", "name"],
+    summary: ["beatSummary", "description", "detail", "content"],
     chapterSpanHint: [
       "chapterSpan",
       "chapterRange",
@@ -166,9 +166,7 @@ function normalizeBeatPayload(raw: unknown): unknown {
       "chapterHint",
       "spanHint",
       "chapter_span_hint",
-      "章节范围",
-      "章数范围",
-    ],
+                ],
     mustDeliver: [
       "deliverables",
       "mustHit",
@@ -178,9 +176,7 @@ function normalizeBeatPayload(raw: unknown): unknown {
       "payoffs",
       "deliver",
       "must_deliver",
-      "关键兑现",
-      "必要兑现",
-    ],
+                ],
   });
 
   if (!normalized || typeof normalized !== "object" || Array.isArray(normalized)) {

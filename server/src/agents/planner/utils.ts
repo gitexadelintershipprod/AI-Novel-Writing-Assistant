@@ -101,8 +101,8 @@ function cleanupNovelTitle(raw: string): string | null {
     .trim()
     .replace(/^[《“"'`]+/, "")
     .replace(/[》”"'`]+$/, "")
-    .replace(/^(小说|书名|标题|novel|book(?:\s*title)?|title)[:：\s]*/iu, "")
-    .replace(/[。！？!?,，；;]+$/u, "")
+    .replace(/^(novel|book(?:\s*title)?|title)[:：\s]*/iu, "")
+    .replace(/[!?,.;]+$/u, "")
     .trim();
   return normalized.length > 0 ? normalized.slice(0, 80) : null;
 }
@@ -116,85 +116,34 @@ export function parseChapterNumber(raw: string): number | null {
     const value = Number(normalized);
     return Number.isFinite(value) && value > 0 ? value : null;
   }
-
-  const chars = normalized.replace(/第|章/g, "");
-  if (!/^[零一二两三四五六七八九十百]+$/.test(chars)) {
-    return null;
-  }
-  const digitMap: Record<string, number> = {
-    零: 0,
-    一: 1,
-    二: 2,
-    两: 2,
-    三: 3,
-    四: 4,
-    五: 5,
-    六: 6,
-    七: 7,
-    八: 8,
-    九: 9,
-  };
-  if (chars === "十") {
-    return 10;
-  }
-  if (chars.includes("百")) {
-    const [hundredsRaw, tailRaw] = chars.split("百");
-    const hundreds = hundredsRaw ? (digitMap[hundredsRaw] ?? 0) : 1;
-    const tail = tailRaw ? parseChapterNumber(tailRaw) ?? 0 : 0;
-    return hundreds * 100 + tail;
-  }
-  if (chars.includes("十")) {
-    const [tensRaw, onesRaw] = chars.split("十");
-    const tens = tensRaw ? (digitMap[tensRaw] ?? 0) : 1;
-    const ones = onesRaw ? (digitMap[onesRaw] ?? 0) : 0;
-    const value = tens * 10 + ones;
-    return value > 0 ? value : null;
-  }
-  return digitMap[chars] ?? null;
-}
-
-export function extractChapterId(goal: string): string | null {
-  const patterns = [
-    /chapter(?:\s*id)?[:：\s]+([a-zA-Z0-9_-]{6,})/i,
-    /章节(?:ID|id)?[:：\s]+([a-zA-Z0-9_-]{6,})/i,
-  ];
-  for (const pattern of patterns) {
-    const match = goal.match(pattern);
-    if (match?.[1]) {
-      return sanitizeId(match[1]);
-    }
-  }
   return null;
 }
 
+export function extractChapterId(goal: string): string | null {
+  const match = goal.match(/chapter(?:\s*id)?[:：\s]+([a-zA-Z0-9_-]{6,})/i);
+  return match?.[1] ? sanitizeId(match[1]) : null;
+}
+
 export function extractRange(goal: string): { startOrder: number; endOrder: number } | null {
-  const patterns = [
-    /([零一二两三四五六七八九十百\d]+)\s*(?:[-~到]|to)\s*([零一二两三四五六七八九十百\d]+)/i,
-    /第\s*([零一二两三四五六七八九十百\d]+)\s*章.*?第\s*([零一二两三四五六七八九十百\d]+)\s*章/,
-    /chapter\s*(\d+)\s*(?:[-~]|to)\s*(?:chapter\s*)?(\d+)/i,
-  ];
-  for (const pattern of patterns) {
-    const match = goal.match(pattern);
-    if (!match?.[1] || !match[2]) {
-      continue;
-    }
-    const first = parseChapterNumber(match[1]);
-    const second = parseChapterNumber(match[2]);
-    if (typeof first === "number" && typeof second === "number" && first > 0 && second > 0) {
-      return {
-        startOrder: Math.min(first, second),
-        endOrder: Math.max(first, second),
-      };
-    }
+  const match = goal.match(/chapter\s*(\d+)\s*(?:[-~]|to)\s*(?:chapter\s*)?(\d+)/i);
+  if (!match?.[1] || !match[2]) {
+    return null;
+  }
+  const first = parseChapterNumber(match[1]);
+  const second = parseChapterNumber(match[2]);
+  if (typeof first === "number" && typeof second === "number" && first > 0 && second > 0) {
+    return {
+      startOrder: Math.min(first, second),
+      endOrder: Math.max(first, second),
+    };
   }
   return null;
 }
 
 export function extractExplicitChapterOrders(goal: string): number[] {
-  const regex = /(?:第\s*([零一二两三四五六七八九十百\d]+)\s*章|chapter\s+(\d+))/gi;
   const found: number[] = [];
-  for (const match of goal.matchAll(regex)) {
-    const value = parseChapterNumber(match[1] ?? match[2] ?? "");
+  for (const match of goal.matchAll(/chapter\s+(\d+)/gi)) {
+    const value = parseChapterNumber(match[1] ?? "");
     if (value && !found.includes(value)) {
       found.push(value);
     }
@@ -203,35 +152,22 @@ export function extractExplicitChapterOrders(goal: string): number[] {
 }
 
 export function extractFirstNChapters(goal: string): number | null {
-  const match = goal.match(/前\s*([零一二两三四五六七八九十百\d]+)\s*章|前([零一二两三四五六七八九十百\d]+)章|first\s+(\d+)\s+chapters?/i);
-  const raw = match?.[1] ?? match?.[2] ?? match?.[3];
-  if (!raw) {
-    return null;
-  }
-  const n = parseChapterNumber(raw);
+  const match = goal.match(/first\s+(\d+)\s+chapters?/i);
+  const n = match?.[1] ? parseChapterNumber(match[1]) : null;
   return typeof n === "number" && n >= 1 ? n : null;
 }
 
 export function extractSingleChapterOrder(goal: string): number | null {
-  const patterns = [
-    /第\s*([零一二两三四五六七八九十百\d]+)\s*章/,
-    /chapter\s*([0-9]+)/i,
-  ];
-  for (const pattern of patterns) {
-    const match = goal.match(pattern);
-    if (!match?.[1]) {
-      continue;
-    }
-    const value = parseChapterNumber(match[1]);
-    if (typeof value === "number" && value >= 1) {
-      return value;
-    }
+  const match = goal.match(/chapter\s*([0-9]+)/i);
+  if (!match?.[1]) {
+    return null;
   }
-  return null;
+  const value = parseChapterNumber(match[1]);
+  return typeof value === "number" && value >= 1 ? value : null;
 }
 
 export function extractContent(goal: string): string | null {
-  const match = goal.match(/(?:内容|正文|替换为|content|body|replace(?:d)? with)[:：]\s*([\s\S]+)$/i);
+  const match = goal.match(/(?:content|body|replace(?:d)? with)[:：]\s*([\s\S]+)$/i);
   if (!match?.[1]) {
     return null;
   }
@@ -254,17 +190,14 @@ export function extractNovelTitle(goal: string): string | null {
   }
 
   const patterns = [
-    /(?:创建|新建|建立)(?:一?本)?(?:小说|书)(?:作品)?(?:叫|名为|标题为)?[:：\s]*([^\n]+)$/u,
     /(?:create|new)\s+(?:a\s+)?(?:novel|book)(?:\s+(?:called|named|titled))?[:：\s]*([^\n]+)$/iu,
-    /(?:把|将)\s*(.+?)\s*(?:设为|切换到|绑定为|作为).*(?:当前工作区|current novel|工作区)/u,
     /(?:set|switch(?:\s+to)?|bind|use)\s+(.+?)\s+(?:as|to).*(?:current workspace|current novel|workspace)/iu,
-    /(?:选择|切换到|打开|进入)(?:小说|工作区)?[:：\s]*([^\n]+)$/u,
     /(?:select|switch to|open|enter)(?:\s+(?:the\s+)?(?:novel|workspace))?[:：\s]*([^\n]+)$/iu,
   ];
   for (const pattern of patterns) {
     const match = goal.match(pattern);
     const candidate = cleanupNovelTitle(match?.[1] ?? "");
-    if (candidate && !/^(当前工作区|当前小说|工作区|current workspace|current novel|workspace)$/iu.test(candidate)) {
+    if (candidate && !/^(current workspace|current novel|workspace)$/iu.test(candidate)) {
       return candidate;
     }
   }
@@ -283,16 +216,12 @@ function looksLikeCurrentNovelOverviewQuery(goal: string, input: PlannerInput): 
   if (input.contextMode !== "novel" || !input.novelId) {
     return false;
   }
-  const compacted = goal.replace(/\s+/g, "");
   const lower = goal.toLowerCase();
-  if (!compacted) {
+  if (!lower.trim()) {
     return false;
   }
 
-  return /(?:查看|看下|看一下|看看|检查一下|检查下|瞧瞧|瞅瞅).*(?:这本小说|当前小说|这本书|这部小说|这书)/u.test(compacted)
-    || /(?:这本小说|当前小说|这本书|这部小说).*(?:怎么样|什么情况|啥情况|状态|进度)/u.test(compacted)
-    || /(?:小说|这本书|当前小说).*(?:总览|概况|整体情况)/u.test(compacted)
-    || /(?:view|check|look at|inspect).*(?:this novel|current novel|this book)/i.test(lower)
+  return /(?:view|check|look at|inspect).*(?:this novel|current novel|this book)/i.test(lower)
     || /(?:this novel|current novel|this book).*(?:status|progress|how(?:'s| is) it going)/i.test(lower)
     || /(?:novel|this book|current novel).*(?:overview|summary)/i.test(lower);
 }
@@ -364,7 +293,7 @@ export function normalizeIntentPayload(raw: unknown, input: PlannerInput): Recor
       ? "first_person"
       : povValue === "third person"
         ? "third_person"
-        : povValue === "混合"
+        : povValue === "mixed"
           ? "mixed"
           : povValue;
   } else {
@@ -386,7 +315,7 @@ export function normalizeIntentPayload(raw: unknown, input: PlannerInput): Recor
     const freedomValue = payload.aiFreedom.trim();
     normalized.aiFreedom = freedomValue === "low" || freedomValue === "Low AI freedom"
       ? "low"
-      : freedomValue === "in" || freedomValue === "Medium AI freedom" || freedomValue === "中等 AI degrees of freedom"
+      : freedomValue === "in" || freedomValue === "Medium AI freedom"
         ? "medium"
         : freedomValue === "high" || freedomValue === "High AI freedom"
           ? "high"

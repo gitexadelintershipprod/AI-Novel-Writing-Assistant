@@ -3,8 +3,7 @@ import type { DirectorAutoExecutionRange } from "./novelDirectorAutoExecution";
 
 export function isNoChaptersToGenerateError(error: unknown): boolean {
   const message = error instanceof Error ? error.message : "";
-  return message.includes("There are no chapters to generate in the selected range")
-    || message.includes("指定区间内没有可生成的章节");
+  return message.includes("There are no chapters to generate in the selected range");
 }
 
 export function shouldClearAutoExecutionCheckpoint(

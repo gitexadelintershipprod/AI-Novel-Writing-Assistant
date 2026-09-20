@@ -24,12 +24,12 @@ function createWorkspace({
         sortOrder: 1,
         title: "第一卷",
         summary: "卷摘要",
-        openingHook: "开卷抓手",
+        openingHook: "Opening hook",
         mainPromise: "主承诺",
         primaryPressureSource: "压力源",
         coreSellingPoint: "核心卖点",
         escalationMode: "升级方式",
-        protagonistChange: "主角变化",
+        protagonistChange: "Protagonist变化",
         midVolumeRisk: "中段风险",
         climax: "高潮",
         payoffType: "兑现类型",
@@ -59,12 +59,12 @@ function createVolume(id, sortOrder, title, chapters) {
     sortOrder,
     title,
     summary: `${title}摘要`,
-    openingHook: `${title}开卷抓手`,
+    openingHook: `${title}Opening hook`,
     mainPromise: `${title}主承诺`,
     primaryPressureSource: `${title}压力源`,
     coreSellingPoint: `${title}核心卖点`,
     escalationMode: `${title}升级方式`,
-    protagonistChange: `${title}主角变化`,
+    protagonistChange: `${title}Protagonist变化`,
     midVolumeRisk: `${title}中段风险`,
     climax: `${title}高潮`,
     payoffType: `${title}兑现类型`,
@@ -165,7 +165,7 @@ function createSceneCards(chapterOrder) {
       {
         key: `chapter-${chapterOrder}-scene-3`,
         title: `第${chapterOrder}章场景3`,
-        purpose: "完成章末转折",
+        purpose: "完成章末Turn",
         mustAdvance: ["章末钩子"],
         mustPreserve: ["后续入口"],
         entryState: "代价显形",
@@ -233,14 +233,14 @@ function createBeatSheet() {
       beats: [
         {
           key: "open_hook",
-          label: "开卷抓手",
+          label: "Opening hook",
           summary: "先把局势钉死。",
           chapterSpanHint: "1-1章",
           mustDeliver: ["开局压力"],
         },
         {
           key: "midpoint_turn",
-          label: "中段转向",
+          label: "Midpoint turn",
           summary: "让局势转向。",
           chapterSpanHint: "2-2章",
           mustDeliver: ["方向变化"],
@@ -278,7 +278,7 @@ test("resolveStructuredOutlineRecoveryCursor returns chapter_list for the first 
   assert.equal(cursor.step, "chapter_list");
   assert.equal(cursor.volumeId, "volume-1");
   assert.equal(cursor.beatKey, "midpoint_turn");
-  assert.equal(cursor.beatLabel, "中段转向");
+  assert.equal(cursor.beatLabel, "Midpoint turn");
   assert.equal(cursor.beatChapterListReady, false);
   assert.equal(cursor.volumeChapterListComplete, false);
 });
@@ -378,7 +378,7 @@ test("healStaleAutoDirectorStructuredOutlineProgress advances stale chapter list
     lane: "auto_director",
     status: "running",
     progress: 0.78,
-    currentStage: "节奏 / 拆章",
+    currentStage: "Beats / chapters",
     currentItemKey: "chapter_list",
     currentItemLabel: "正在生成第 1 卷章节列表（已等待 5m15s）",
     checkpointType: null,
@@ -410,8 +410,8 @@ test("healStaleAutoDirectorStructuredOutlineProgress advances stale chapter list
         status: "generated",
         beats: Array.from({ length: 10 }, (_, index) => ({
           key: `beat_${index + 1}`,
-          label: `节奏段${index + 1}`,
-          summary: `节奏段${index + 1}摘要`,
+          label: `Beat${index + 1}`,
+          summary: `Beat${index + 1}摘要`,
           chapterSpanHint: `${index + 1}-${index + 1}章`,
           mustDeliver: [`交付${index + 1}`],
         })),

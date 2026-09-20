@@ -11,9 +11,9 @@ function buildWorkflowRow(overrides = {}) {
     id: "task_default",
     novelId: "novel_default",
     lane: "auto_director",
-    title: "AI 自动导演",
+    title: "Auto-Director",
     status: "waiting_approval",
-    currentStage: "章节执行",
+    currentStage: "Chapter execution",
     currentItemKey: "chapter_execution",
     currentItemLabel: "等待继续自动执行",
     checkpointType: "chapter_batch_ready",
@@ -51,17 +51,17 @@ function buildTaskDetail(taskId, overrides = {}) {
   return {
     id: taskId,
     kind: "novel_workflow",
-    title: "AI 自动导演",
+    title: "Auto-Director",
     status: "running",
     progress: 0.93,
-    currentStage: "章节执行",
+    currentStage: "Chapter execution",
     currentItemKey: "chapter_execution",
-    currentItemLabel: "正在恢复当前章节批次",
+    currentItemLabel: "Resuming the current chapter batch",
     executionScopeLabel: "前 10 章",
-    displayStatus: "正在恢复当前章节批次",
+    displayStatus: "Resuming the current chapter batch",
     blockingReason: null,
     resumeAction: "继续自动执行前 10 章",
-    lastHealthyStage: "章节执行",
+    lastHealthyStage: "Chapter execution",
     attemptCount: 1,
     maxAttempts: 3,
     lastError: null,
@@ -182,7 +182,7 @@ test("auto director follow-up action executor sends skip_quality_repair for qual
   executor.workflowService.healAutoDirectorTaskState = async () => false;
   executor.workflowService.getTaskByIdWithoutHealing = async () => buildWorkflowRow({
     id: "task_quality_repair_continue",
-    currentStage: "质量修复",
+    currentStage: "Quality repair",
     currentItemKey: "quality_repair",
     checkpointType: "chapter_batch_ready",
     currentItemLabel: "等待跳过本次建议后继续自动执行",
@@ -192,7 +192,7 @@ test("auto director follow-up action executor sends skip_quality_repair for qual
   };
   executor.workflowTaskAdapter.detail = async (taskId) => buildTaskDetail(taskId, {
     checkpointType: "chapter_batch_ready",
-    currentStage: "质量修复",
+    currentStage: "Quality repair",
     currentItemKey: "quality_repair",
   });
 
@@ -244,7 +244,7 @@ test("auto director follow-up action executor retries with the route model and r
     id: "task_retry_route",
     status: "failed",
     checkpointType: "chapter_batch_ready",
-    lastError: "模型调用失败",
+    lastError: "The model call failed",
   });
   executor.resolveRouteModelOverride = async () => ({
     provider: "openai",
@@ -303,9 +303,9 @@ test("novel workflow retry forces auto director resume after retry state healing
     id: "task_cancelled_structured",
     status: "cancelled",
     checkpointType: null,
-    currentStage: "节奏 / 拆章",
+    currentStage: "Beats / chapters",
     currentItemKey: "chapter_list",
-    currentItemLabel: "正在生成第 1 卷节奏段：开卷抓手",
+    currentItemLabel: "正在生成第 1 卷Beat：Opening hook",
   });
   adapter.workflowService.retryTask = async (taskId) => {
     retryCalls.push(taskId);
@@ -315,9 +315,9 @@ test("novel workflow retry forces auto director resume after retry state healing
   };
   adapter.detail = async (taskId) => buildTaskDetail(taskId, {
     status: "running",
-    currentStage: "节奏 / 拆章",
+    currentStage: "Beats / chapters",
     currentItemKey: "chapter_list",
-    currentItemLabel: "正在生成第 1 卷节奏段：开卷抓手",
+    currentItemLabel: "正在生成第 1 卷Beat：Opening hook",
   });
 
   const result = await adapter.retry({
@@ -352,15 +352,15 @@ test("auto director follow-up action executor returns forbidden when the action 
   executor.workflowService.getTaskByIdWithoutHealing = async () => buildWorkflowRow({
     id: "task_candidate",
     checkpointType: "candidate_selection_required",
-    currentStage: "AI 自动导演",
+    currentStage: "Auto-Director",
     currentItemKey: "auto_director",
-    currentItemLabel: "等待确认书级方向",
+    currentItemLabel: "Waiting to confirm the book direction",
   });
   executor.workflowTaskAdapter.detail = async (taskId) => buildTaskDetail(taskId, {
     status: "waiting_approval",
-    currentStage: "AI 自动导演",
+    currentStage: "Auto-Director",
     currentItemKey: "auto_director",
-    currentItemLabel: "等待确认书级方向",
+    currentItemLabel: "Waiting to confirm the book direction",
     checkpointType: "candidate_selection_required",
     checkpointSummary: "请先确认书级方向。",
   });
@@ -641,7 +641,7 @@ test("auto director follow-up action executor restricts batch actions to matchin
         id: taskId,
         status: "failed",
         checkpointType: "chapter_batch_ready",
-        lastError: "模型调用失败",
+        lastError: "The model call failed",
       });
     }
     return buildWorkflowRow({
@@ -732,7 +732,7 @@ test("auto director follow-up action executor blocks validation-required tasks f
         warnings: [],
         requiredActions: [{
           code: "revalidate_assets",
-          label: "重新读取任务状态",
+          label: "Reread the task status",
           riskLevel: "low",
           safeToAutoFix: true,
         }],
@@ -805,11 +805,11 @@ test("auto director follow-up action executor clears validation and resumes stru
     seedPayloadJson: JSON.stringify({
       autoDirectorValidationResult: {
         allowed: false,
-        blockingReasons: ["目标范围缺少节奏拆章，需要先完成或重新校验拆章结果。"],
+        blockingReasons: ["The target range lacks beat/chapter split. Finish it or recheck the split result first."],
         warnings: [],
         requiredActions: [{
           code: "auto_backfill_structured_outline",
-          label: "让 AI 补齐章节拆分后继续",
+          label: "Let AI finish the chapter split, then continue",
           riskLevel: "low",
           safeToAutoFix: true,
         }],
@@ -902,7 +902,7 @@ test("auto director follow-up safe fix repairs only validator-marked safe action
       autoDirectorValidationResult: {
         allowed: false,
         blockingReasons: ["任务状态与章节资产不一致，需要先安全对账。"],
-        warnings: ["只会修复状态、检查点、进度和通知审计信息。"],
+        warnings: ["只会Repairing状态、检查点、Progress和通知审计信息。"],
         requiredActions: [{
           code: "revalidate_assets",
           label: "重新读取任务和章节资产",
@@ -910,7 +910,7 @@ test("auto director follow-up safe fix repairs only validator-marked safe action
           safeToAutoFix: true,
         }, {
           code: "clear_checkpoint",
-          label: "清除已处理检查点",
+          label: "Clear handled checkpoints",
           riskLevel: "low",
           safeToAutoFix: true,
         }],
@@ -984,7 +984,7 @@ test("auto director follow-up safe fix blocks unsafe validation repairs", async 
         warnings: ["该操作会影响正文和规划资产。"],
         requiredActions: [{
           code: "create_rewrite_snapshot",
-          label: "创建重写前快照",
+          label: "Create a pre-rewrite snapshot",
           riskLevel: "high",
           safeToAutoFix: false,
         }, {

@@ -257,7 +257,7 @@ export function getVisibleEdgeLabelIds(
 
 export function getRiskTone(risk?: string): string {
   if (!risk) return "#0ea5e9";
-  if (/高|危险|封锁|暗杀|战争|失控|禁区|崩溃/.test(risk)) return "#dc2626";
-  if (/中|紧张|巡防|冲突|代价|压力/.test(risk)) return "#f59e0b";
+  if (/high|danger|blockade|assassination|war|uncontrolled|forbidden|collapse/i.test(risk)) return "#dc2626";
+  if (/medium|tense|patrol|conflict|cost|pressure/i.test(risk)) return "#f59e0b";
   return "#0ea5e9";
 }

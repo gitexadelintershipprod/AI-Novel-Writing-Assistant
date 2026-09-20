@@ -15,14 +15,14 @@ const {
 function createHarness(overrides = {}) {
   const latestTask = {
     id: "task-1",
-    title: "AI 自动导演",
+    title: "Auto-Director",
     status: "running",
     progress: 40,
     currentStage: "structured_outline",
     currentItemKey: "chapter_list",
-    currentItemLabel: "生成章节任务单",
+    currentItemLabel: "Generate chapter task sheets",
     checkpointType: "chapter_batch_ready",
-    checkpointSummary: "章节任务单准备中。",
+    checkpointSummary: "Chapter task sheet准备中。",
     pendingManualRecovery: false,
     lastError: null,
     seedPayloadJson: JSON.stringify({
@@ -64,7 +64,7 @@ function createHarness(overrides = {}) {
       type: "node_heartbeat",
       nodeKey: "structured_outline.chapter_list",
       artifactType: null,
-      summary: "正在生成章节任务单。",
+      summary: "正在Generate chapter task sheets。",
       affectedScope: "novel:novel-1",
       severity: "low",
       occurredAt: new Date("2026-04-30T09:00:03.000Z"),
@@ -77,7 +77,7 @@ function createHarness(overrides = {}) {
       taskId: "task-1",
       novelId: "novel-1",
       nodeKey: "structured_outline.chapter_list",
-      label: "生成章节任务单",
+      label: "Generate chapter task sheets",
       status: "running",
       error: null,
       startedAt: new Date("2026-04-30T08:59:00.000Z"),
@@ -89,9 +89,9 @@ function createHarness(overrides = {}) {
     {
       id: "approval-1",
       taskId: "task-1",
-      approvalPointLabel: "章节执行继续",
-      checkpointSummary: "AI 自动继续章节生成。",
-      summary: "AI 自动确认章节执行继续。",
+      approvalPointLabel: "Chapter execution继续",
+      checkpointSummary: "AI 自动Continue chapter generation。",
+      summary: "AI 自动确认Chapter execution继续。",
       stage: "chapter_execution",
       scopeLabel: "全书",
       createdAt: new Date("2026-04-30T08:58:00.000Z"),
@@ -175,13 +175,13 @@ function createHarness(overrides = {}) {
       novelId: "novel-1",
       status: "running",
       currentNodeKey: "structured_outline.chapter_list",
-      currentLabel: "生成章节任务单",
-      headline: "推进任务：生成章节任务单",
-      detail: "最近进展：正在生成章节任务单。",
-      lastEventSummary: "正在生成章节任务单。",
+      currentLabel: "Generate chapter task sheets",
+      headline: "推进任务：Generate chapter task sheets",
+      detail: "最近进展：正在Generate chapter task sheets。",
+      lastEventSummary: "正在Generate chapter task sheets。",
       requiresUserAction: false,
       blockedReason: null,
-      nextActionLabel: "继续章节生成",
+      nextActionLabel: "Continue chapter generation",
       progressSummary: "进展：3/8 个步骤完成，5 个产物记录。",
       policyMode: "auto_safe_scope",
       updatedAt: "2026-04-30T09:00:03.000Z",
@@ -210,7 +210,7 @@ test("book automation projection aggregates task, command, event, approval and a
     assert.equal(projection.novelId, "novel-1");
     assert.equal(projection.focusNovel.title, "测试小说");
     assert.equal(projection.displayState, "processing");
-    assert.equal(projection.userHeadline, "AI is processing: 生成章节任务单");
+    assert.equal(projection.userHeadline, "AI is processing: Generate chapter task sheets");
     assert.equal(projection.latestTask.id, "task-1");
     assert.equal(projection.latestRunId, "run-1");
     assert.equal(projection.status, "running");
@@ -218,7 +218,7 @@ test("book automation projection aggregates task, command, event, approval and a
     assert.equal(projection.dashboardView.progressSource, "task_live");
     assert.equal(projection.runMode, "full_book_autopilot");
     assert.equal(projection.policyMode, "auto_safe_scope");
-    assert.equal(projection.headline, "推进任务：生成章节任务单");
+    assert.equal(projection.headline, "推进任务：Generate chapter task sheets");
     assert.equal(projection.activeCommandCount, 1);
     assert.equal(projection.pendingCommandCount, 0);
     assert.equal(projection.workerHealth.derivedState, "running_step");
@@ -248,7 +248,7 @@ test("book automation projection exposes production experience handoff as the pr
       progress: 90,
       currentStage: "chapter_execution",
       currentItemKey: "production_experience_required",
-      currentItemLabel: "项目已可开写，等待选择生产方式",
+      currentItemLabel: "The project is ready to write. Waiting for you to choose a production mode",
       checkpointType: "production_experience_required",
       checkpointSummary: "前期准备完成，请选择正文生产方式。",
       seedPayloadJson: JSON.stringify({ runMode: "auto_to_ready" }),
@@ -300,21 +300,21 @@ test("book automation projection prefers runtime chapter label over generic task
     latestTask: {
       currentStage: "chapter_execution",
       currentItemKey: "chapter_execution",
-      currentItemLabel: "执行章节生成批次",
+      currentItemLabel: "Run the chapter generation batch",
     },
     runtimeProjection: {
       runId: "run-1",
       novelId: "novel-1",
       status: "running",
       currentNodeKey: "chapter_execution",
-      currentLabel: "正在自动审校第 1-10 章 · 第8章 · 牵笼回声 · 批次 1/1",
-      headline: "推进任务：章节执行",
-      detail: "后台正在审校章节。",
-      lastEventSummary: "正在自动审校第 8 章。",
+      currentLabel: "正在自动Reviewing第 1-10 章 · 第8章 · 牵笼回声 · 批次 1/1",
+      headline: "推进任务：Chapter execution",
+      detail: "后台正在Reviewing章节。",
+      lastEventSummary: "正在自动Reviewing第 8 章。",
       requiresUserAction: false,
       blockedReason: null,
-      nextActionLabel: "继续章节执行",
-      progressSummary: "章节执行中。",
+      nextActionLabel: "继续Chapter execution",
+      progressSummary: "Chapter execution中。",
       policyMode: "auto_safe_scope",
       updatedAt: "2026-04-30T09:00:03.000Z",
       recentEvents: [],
@@ -323,8 +323,8 @@ test("book automation projection prefers runtime chapter label over generic task
   try {
     const projection = await harness.service.getProjection("novel-1");
 
-    assert.equal(projection.currentLabel, "正在自动审校第 1-10 章 · 第8章 · 牵笼回声 · 批次 1/1");
-    assert.notEqual(projection.currentLabel, "执行章节生成批次");
+    assert.equal(projection.currentLabel, "正在自动Reviewing第 1-10 章 · 第8章 · 牵笼回声 · 批次 1/1");
+    assert.notEqual(projection.currentLabel, "Run the chapter generation batch");
   } finally {
     harness.restore();
   }
@@ -386,8 +386,8 @@ test("book automation projection treats manual recovery as a book-level user act
       runId: "run-1",
       novelId: "novel-1",
       status: "running",
-      headline: "推进任务：生成章节任务单",
-      detail: "最近进展：正在生成章节任务单。",
+      headline: "推进任务：Generate chapter task sheets",
+      detail: "最近进展：正在Generate chapter task sheets。",
       requiresUserAction: false,
       blockedReason: null,
       policyMode: "auto_safe_scope",
@@ -466,9 +466,9 @@ test("book automation projection keeps a running workflow ahead of a completed r
     commands: [],
     latestTask: {
       status: "running",
-      currentStage: "质量修复",
+      currentStage: "Quality repair",
       currentItemKey: "quality_repair",
-      currentItemLabel: "正在自动修复第 1-10 章",
+      currentItemLabel: "正在自动Repairing第 1-10 章",
       checkpointType: null,
       checkpointSummary: null,
     },
@@ -476,11 +476,11 @@ test("book automation projection keeps a running workflow ahead of a completed r
       runId: "run-1",
       novelId: "novel-1",
       status: "completed",
-      headline: "步骤完成：生成卷拆章列表",
+      headline: "步骤完成：Generate the chapter list",
       detail: "Book contract artifact already exists and can be reused.",
       requiresUserAction: false,
       blockedReason: null,
-      nextActionLabel: "继续章节生成",
+      nextActionLabel: "Continue chapter generation",
       policyMode: "run_until_gate",
       updatedAt: "2026-04-30T09:00:03.000Z",
       recentEvents: [],
@@ -504,7 +504,7 @@ test("book automation projection keeps queued retry workflow ahead of old failed
     commands: [],
     latestTask: {
       status: "queued",
-      currentStage: "章节执行",
+      currentStage: "Chapter execution",
       currentItemKey: "chapter_execution",
       currentItemLabel: "正在自动执行第 3-10 章",
       checkpointType: null,
@@ -515,11 +515,11 @@ test("book automation projection keeps queued retry workflow ahead of old failed
       runId: "run-1",
       novelId: "novel-1",
       status: "failed",
-      headline: "处理失败：执行章节生成批次",
+      headline: "处理失败：Run the chapter generation batch",
       detail: "chapter.draft.write did not satisfy its completion criteria.",
       requiresUserAction: true,
       blockedReason: "chapter.draft.write did not satisfy its completion criteria.",
-      nextActionLabel: "继续章节生成",
+      nextActionLabel: "Continue chapter generation",
       policyMode: "run_until_gate",
       updatedAt: "2026-04-30T09:00:03.000Z",
       recentEvents: [],
@@ -592,11 +592,11 @@ test("book automation projection keeps waiting approval ahead of a stale failed 
       runId: "run-1",
       novelId: "novel-1",
       status: "failed",
-      headline: "处理失败：执行章节生成批次",
+      headline: "处理失败：Run the chapter generation batch",
       detail: "stale runtime failure",
       requiresUserAction: true,
       blockedReason: "stale runtime failure",
-      nextActionLabel: "继续章节生成",
+      nextActionLabel: "Continue chapter generation",
       policyMode: "run_until_gate",
       updatedAt: "2026-04-30T09:00:03.000Z",
       recentEvents: [],
@@ -622,17 +622,17 @@ test("book automation projection prefers the latest task error over stale checkp
       status: "failed",
       checkpointType: "chapter_batch_ready",
       checkpointSummary: "[{\"origin\":\"string\",\"code\":\"too_small\"}]",
-      lastError: "指定区间内没有可生成的章节。当前可用章节范围为第 1 章到第 55 章。",
+      lastError: "There are no chapters to generate in the selected range.当前可用章节范围为第 1 章到第 55 章。",
     },
     runtimeProjection: {
       runId: "run-1",
       novelId: "novel-1",
       status: "failed",
-      headline: "处理失败：执行章节生成批次",
+      headline: "处理失败：Run the chapter generation batch",
       detail: null,
       requiresUserAction: true,
       blockedReason: "stale runtime failure",
-      nextActionLabel: "继续章节生成",
+      nextActionLabel: "Continue chapter generation",
       policyMode: "run_until_gate",
       updatedAt: "2026-04-30T09:00:03.000Z",
       recentEvents: [],
@@ -643,10 +643,10 @@ test("book automation projection prefers the latest task error over stale checkp
     const taskTimeline = projection.timeline.find((item) => item.id === "task:task-1");
 
     assert.equal(projection.status, "failed");
-    assert.equal(projection.blockedReason, "指定区间内没有可生成的章节。当前可用章节范围为第 1 章到第 55 章。");
-    assert.equal(projection.detail, "指定区间内没有可生成的章节。当前可用章节范围为第 1 章到第 55 章。");
-    assert.equal(projection.userReason, "指定区间内没有可生成的章节。当前可用章节范围为第 1 章到第 55 章。");
-    assert.equal(taskTimeline?.detail, "指定区间内没有可生成的章节。当前可用章节范围为第 1 章到第 55 章。");
+    assert.equal(projection.blockedReason, "There are no chapters to generate in the selected range.当前可用章节范围为第 1 章到第 55 章。");
+    assert.equal(projection.detail, "There are no chapters to generate in the selected range.当前可用章节范围为第 1 章到第 55 章。");
+    assert.equal(projection.userReason, "There are no chapters to generate in the selected range.当前可用章节范围为第 1 章到第 55 章。");
+    assert.equal(taskTimeline?.detail, "There are no chapters to generate in the selected range.当前可用章节范围为第 1 章到第 55 章。");
   } finally {
     harness.restore();
   }
@@ -658,18 +658,18 @@ test("book automation projection keeps a failed workflow ahead of a stale waitin
     latestTask: {
       status: "failed",
       checkpointType: null,
-      checkpointSummary: "该动作会自动推进较大范围的章节生成，需要确认后才能继续。",
-      lastError: "指定区间内没有可生成的章节。当前可用章节范围为第 1 章到第 55 章。",
-      currentItemLabel: "正在自动执行第 2-10 章",
+      checkpointSummary: "This action will auto-advance a large chapter range and needs confirmation first.",
+      lastError: "There are no chapters to generate in the selected range.当前可用章节范围为第 1 章到第 55 章。",
+      currentItemLabel: "Auto-running chapters 2-10",
     },
     runtimeProjection: {
       runId: "run-1",
       novelId: "novel-1",
       status: "waiting_approval",
-      headline: "等待确认：执行章节生成批次",
-      detail: "该动作会自动推进较大范围的章节生成，需要确认后才能继续。",
+      headline: "等待确认：Run the chapter generation batch",
+      detail: "This action will auto-advance a large chapter range and needs confirmation first.",
       requiresUserAction: true,
-      blockedReason: "该动作会自动推进较大范围的章节生成，需要确认后才能继续。",
+      blockedReason: "This action will auto-advance a large chapter range and needs confirmation first.",
       nextActionLabel: "确认后继续",
       policyMode: "run_until_gate",
       updatedAt: "2026-04-30T09:00:03.000Z",
@@ -681,7 +681,7 @@ test("book automation projection keeps a failed workflow ahead of a stale waitin
 
     assert.equal(projection.status, "failed");
     assert.equal(projection.displayState, "needs_attention");
-    assert.equal(projection.detail, "指定区间内没有可生成的章节。当前可用章节范围为第 1 章到第 55 章。");
+    assert.equal(projection.detail, "There are no chapters to generate in the selected range.当前可用章节范围为第 1 章到第 55 章。");
     assert.equal(projection.primaryAction.label, "Check the failure reason");
   } finally {
     harness.restore();

@@ -49,7 +49,7 @@ test("buildNovelWorldHandbook projects structured world into narrative handbook"
       name: "北境星核司",
       summary: "执行配额审查的边境机构。",
       pressure: "以配额和身份审查施压",
-      narrativeRole: "主角资源压力来源",
+      narrativeRole: "Protagonist资源压力来源",
     }, {
       id: "force-rebels",
       name: "裂星盟",

@@ -11,7 +11,6 @@ const navigation = {
   items: {
     home: "Home",
     guide: "Creation Guide",
-    marketRadar: "Trending Genre Radar",
     novels: "Novels",
     drama: "Drama Studio",
     comic: "Comic Studio",

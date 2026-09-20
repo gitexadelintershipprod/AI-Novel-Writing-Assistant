@@ -29,7 +29,7 @@ export const taskToolDefinitions: Partial<
     resourceScopes: ["task", "agent_run", "generation_job"],
     parserHints: {
       intent: "query_task_status",
-      aliases: ["task list", "system tasks", "tasks", "任务列表", "系统任务", "系统现在有哪些任务"],
+      aliases: ["task list", "system tasks", "tasks"],
       phrases: ["List current system task status", "What tasks does the system have now", "View task center status"],
       requiresNovelContext: false,
       whenToUse: "The user is querying the task center, system task status, or the task list.",

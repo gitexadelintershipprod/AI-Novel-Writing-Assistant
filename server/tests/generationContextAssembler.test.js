@@ -32,13 +32,13 @@ test("chapter resource character ids are resolved from plan participant names", 
   const now = new Date();
   const ids = resolveChapterResourceCharacterIds({
     plan: {
-      participantsJson: JSON.stringify(["女二", "主角"]),
+      participantsJson: JSON.stringify(["女二", "Protagonist"]),
       scenes: [],
       createdAt: now,
       updatedAt: now,
     },
     characters: [
-      { id: "char-1", name: "主角" },
+      { id: "char-1", name: "Protagonist" },
       { id: "char-2", name: "女二" },
       { id: "char-3", name: "路人" },
     ],
@@ -217,7 +217,7 @@ test("assembler refreshes chapter execution fields after chapter plan regenerati
       id: "plan-1",
       chapterId: "chapter-1",
       planRole: "pressure",
-      phaseLabel: "起点",
+      phaseLabel: "Origin",
       title: "计划",
       objective: "新目标",
       participantsJson: "[]",

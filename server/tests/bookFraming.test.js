@@ -12,7 +12,7 @@ function buildStructuredWorld() {
       identity: "现实都市",
       tone: "冷峻压迫",
       themes: ["逆袭", "资源争夺"],
-      coreConflict: "主角在现实压力里夺回主动权。",
+      coreConflict: "Protagonist在现实压力里夺回主动权。",
     },
     rules: {
       summary: "所有冲突必须落回现实社会机制。",
@@ -35,7 +35,7 @@ function buildStructuredWorld() {
       factionId: null,
       summary: "控制关键资源的公司。",
       baseOfPower: "资本和渠道",
-      currentObjective: "继续压缩主角的空间",
+      currentObjective: "继续压缩Protagonist的空间",
       pressure: "卡资源和卡岗位",
       leader: "林总",
       narrativeRole: "外部压力源",
@@ -85,11 +85,11 @@ test("book framing summary flows into story macro context and world slice prompt
   const novel = {
     id: "novel-1",
     title: "楼上灯火",
-    description: "主角在现实职场和关系链条里抢回主动权。",
+    description: "Protagonist在现实职场和关系链条里抢回主动权。",
     targetAudience: "爱看都市高压逆袭和关系拉扯的读者",
     bookSellingPoint: "每一次现实困局都会撬动更大的人情和利益链。",
     competingFeel: "现实职场压迫感里带冷幽默和持续反压。",
-    first30ChapterPromise: "前 30 章必须让主角站稳第一阶段立场，并让核心对手浮出水面。",
+    first30ChapterPromise: "前 30 章必须让Protagonist站稳第一阶段立场，并让核心对手浮出水面。",
     commercialTagsJson: JSON.stringify(["逆袭", "强冲突", "职场博弈"]),
     styleTone: "冷峻、克制",
     narrativePov: "third_person",
@@ -114,7 +114,7 @@ test("book framing summary flows into story macro context and world slice prompt
     novel,
     structure,
     bindingSupport: buildWorldBindingSupport(structure),
-    storyInput: "主角要在被压制的职场环境里完成第一次正面反击。",
+    storyInput: "Protagonist要在被压制的职场环境里完成第一次正面反击。",
     overrides: {
       primaryLocationId: "location-office",
       requiredForceIds: ["force-company"],
@@ -131,5 +131,5 @@ test("book framing summary flows into story macro context and world slice prompt
 
   assert.match(prompt.user, /Book-level framing/);
   assert.match(prompt.user, /Target audience: 爱看都市高压逆袭和关系拉扯的读者/);
-  assert.match(prompt.user, /First 30 chapters promise: 前 30 章必须让主角站稳第一阶段立场/);
+  assert.match(prompt.user, /First 30 chapters promise: 前 30 章必须让Protagonist站稳第一阶段立场/);
 });

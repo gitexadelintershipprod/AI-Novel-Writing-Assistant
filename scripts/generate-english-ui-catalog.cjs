@@ -13,7 +13,6 @@ const SOURCE_PATHS = [
   path.join(ROOT, "server/src/db/storyModeSeeds.ts"),
   path.join(ROOT, "server/src/llm/factory.ts"),
   path.join(ROOT, "server/src/modules/setup/onboarding"),
-  path.join(ROOT, "server/src/modules/marketRadar/infrastructure/marketRadarSources.ts"),
   path.join(ROOT, "server/src/prompting/addendums/PromptAddendumService.ts"),
   path.join(ROOT, "server/src/prompting/prompts"),
   path.join(ROOT, "server/src/services/bootstrap/SystemResourceBootstrapService.ts"),

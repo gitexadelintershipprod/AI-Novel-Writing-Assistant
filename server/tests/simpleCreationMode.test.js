@@ -24,10 +24,10 @@ function candidate(title) {
   return {
     workingTitle: title,
     titleOptions: [],
-    logline: "主角必须解决一个足以推动长篇故事的危机。",
+    logline: "Protagonist必须解决一个足以推动长篇故事的危机。",
     positioning: "清晰的长篇类型定位",
     sellingPoint: "稳定兑现读者期待",
-    coreConflict: "主角与长期阻力持续对抗",
+    coreConflict: "Protagonist与长期阻力持续对抗",
     protagonistPath: "从被动求生走向主动承担",
     endingDirection: "完成核心承诺",
     hookStrategy: "用迫近危险和连续兑现推动追读",

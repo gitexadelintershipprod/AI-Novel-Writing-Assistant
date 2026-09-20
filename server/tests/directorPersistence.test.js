@@ -52,7 +52,7 @@ test("persistDirectorBlueprint uses an explicit timeout for bulk story plan writ
       bookPlan: {
         title: "全书计划",
         objective: "完成整本故事",
-        participants: ["主角"],
+        participants: ["Protagonist"],
         reveals: [],
         riskNotes: [],
         hookTarget: null,
@@ -60,8 +60,8 @@ test("persistDirectorBlueprint uses an explicit timeout for bulk story plan writ
       arcs: [{
         title: "第一幕",
         summary: "建立主线",
-        objective: "让主角进入冲突",
-        participants: ["主角"],
+        objective: "让Protagonist进入冲突",
+        participants: ["Protagonist"],
         reveals: [],
         riskNotes: [],
         hookTarget: null,
@@ -70,7 +70,7 @@ test("persistDirectorBlueprint uses an explicit timeout for bulk story plan writ
           title: "第一章",
           expectation: "进入事件",
           objective: "启动冲突",
-          participants: ["主角"],
+          participants: ["Protagonist"],
           reveals: [],
           riskNotes: [],
           mustAdvance: ["启动冲突"],

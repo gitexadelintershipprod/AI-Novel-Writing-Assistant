@@ -22,12 +22,12 @@ function createVolume() {
     sortOrder: 1,
     title: "第一卷",
     summary: "卷摘要",
-    openingHook: "开卷抓手",
+    openingHook: "Opening hook",
     mainPromise: "卷主承诺",
     primaryPressureSource: "压迫源",
     coreSellingPoint: "卷卖点",
     escalationMode: "逐步升级",
-    protagonistChange: "主角被迫上桌",
+    protagonistChange: "Protagonist被迫上桌",
     midVolumeRisk: "中段塌陷风险",
     climax: "卷末高潮",
     payoffType: "阶段兑现",
@@ -91,8 +91,8 @@ function createWorkspace(novelId) {
       status: "generated",
       beats: [{
         key: "opening_hook",
-        label: "开卷抓手",
-        summary: "主角第一次被压制。",
+        label: "Opening hook",
+        summary: "Protagonist第一次被压制。",
         chapterSpanHint: "1-2章",
         mustDeliver: ["压迫感", "处境"],
       }],
@@ -396,7 +396,7 @@ test("volume routes cover workspace, versions, impact analysis, sync and legacy 
 test("volume generate route returns user-correctable 409 for duplicate high-memory work", async () => {
   const originalGenerateVolumes = DefaultNovelApplicationServices.prototype.generateVolumes;
   DefaultNovelApplicationServices.prototype.generateVolumes = async () => {
-    throw new AppError("当前小说已有高内存卷规划生成正在处理同一范围，请稍后再试。", 409);
+    throw new AppError("A high-memory volume-planning job is already running for this range. Try again later.", 409);
   };
 
   const app = createApp();

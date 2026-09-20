@@ -98,7 +98,7 @@ test("restart_current_step prepares reset before recording the production handof
     },
     createRewriteSnapshot: async () => ({
       snapshotId: "snapshot_before_rewrite",
-      label: "自动导演重写前备份",
+      label: "Auto-Director重写前备份",
       createdAt: "2026-04-25T00:00:00.000Z",
       restoreEntry: "version_history",
     }),
@@ -534,7 +534,7 @@ test("restart_current_step records downstream reset metadata for workspace navig
     runDirectorPipeline: async () => {},
     createRewriteSnapshot: async () => ({
       snapshotId: "snapshot_before_rewrite",
-      label: "自动导演重写前备份",
+      label: "Auto-Director重写前备份",
       restoreEntry: "version_history",
     }),
     prepareRestartStep: async () => {},
@@ -587,15 +587,15 @@ test("takeover startup failure after bootstrap marks the replacement task failed
         calls.push("cancel_replaced_runs");
       },
       assertHighMemoryStartAllowed: async () => {
-        throw new Error("已有自动导演任务正在处理同一范围");
+        throw new Error("已有Auto-Director任务正在处理同一范围");
       },
     }),
-    /已有自动导演任务正在处理同一范围/,
+    /已有Auto-Director任务正在处理同一范围/,
   );
 
   assert.deepEqual(calls, [
     ["bootstrap", "structured_outline", "beat_sheet"],
     "cancel_replaced_runs",
-    ["mark_failed", "workflow_takeover_demo", "已有自动导演任务正在处理同一范围"],
+    ["mark_failed", "workflow_takeover_demo", "已有Auto-Director任务正在处理同一范围"],
   ]);
 });

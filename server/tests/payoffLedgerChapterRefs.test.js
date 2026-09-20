@@ -75,8 +75,8 @@ test("payoffLedgerSyncPrompt postValidate accepts paid_off items with payoffChap
   assert.doesNotThrow(() => payoffLedgerSyncPrompt.postValidate({
     items: [{
       ledgerKey: "hero-secret",
-      title: "主角秘密身份",
-      summary: "第33章正式揭露主角的真实身份。",
+      title: "Protagonist秘密身份",
+      summary: "第33章正式揭露Protagonist的真实身份。",
       scopeType: "chapter",
       currentStatus: "paid_off",
       payoffChapterOrder: 33,
@@ -91,8 +91,8 @@ test("payoffLedgerSyncPrompt postValidate still rejects paid_off items without c
   assert.throws(() => payoffLedgerSyncPrompt.postValidate({
     items: [{
       ledgerKey: "hero-secret",
-      title: "主角秘密身份",
-      summary: "第33章正式揭露主角的真实身份。",
+      title: "Protagonist秘密身份",
+      summary: "第33章正式揭露Protagonist的真实身份。",
       scopeType: "chapter",
       currentStatus: "paid_off",
       sourceRefs: [],
@@ -107,7 +107,7 @@ test("payoffLedgerSyncPrompt requires every book contract payoff source and its 
     bookContractPayoffs: [{
       refId: "book_contract.chapter3Payoff",
       refLabel: "Book Contract 第 3 章阶段回报",
-      payoff: "主角获得第一次明确优势",
+      payoff: "Protagonist获得第一次明确优势",
       targetStartChapterOrder: 1,
       targetEndChapterOrder: 3,
     }],
@@ -115,7 +115,7 @@ test("payoffLedgerSyncPrompt requires every book contract payoff source and its 
   const validItem = {
     ledgerKey: "first-visible-reward",
     title: "第一次明确优势",
-    summary: "主角在前三章拿到读者可见的第一次优势。",
+    summary: "Protagonist在前三章拿到读者可见的第一次优势。",
     scopeType: "book",
     currentStatus: "setup",
     targetStartChapterOrder: 1,

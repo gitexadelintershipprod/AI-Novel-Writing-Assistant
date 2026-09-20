@@ -115,7 +115,7 @@ test("buildSyntheticPayoffIssues surfaces overdue missing progress and payoff ri
       currentStatus: "overdue",
       targetStartChapterOrder: 3,
       targetEndChapterOrder: 4,
-      statusReason: "目标窗口已经过去，但主角还没真正查到账本问题。",
+      statusReason: "目标窗口已经过去，但Protagonist还没真正查到账本问题。",
     }),
     createLedgerItem({
       ledgerKey: "missing-progress",
@@ -277,8 +277,8 @@ test("sanitizePayoffLedgerSyncItem downgrades overdue without explicit payoff wi
 
 test("book contract payoff sources keep stable refs and deterministic chapter windows", () => {
   const sources = buildBookContractPayoffSources({
-    chapter3Payoff: "  主角获得第一次明确优势  ",
-    chapter10Payoff: "主角完成第一轮反压",
+    chapter3Payoff: "  Protagonist获得第一次明确优势  ",
+    chapter10Payoff: "Protagonist完成第一轮反压",
     chapter30Payoff: "揭开长期谜团的第一层答案",
   });
 
@@ -289,12 +289,12 @@ test("book contract payoff sources keep stable refs and deterministic chapter wi
   })), [
     {
       refId: "book_contract.chapter3Payoff",
-      payoff: "主角获得第一次明确优势",
+      payoff: "Protagonist获得第一次明确优势",
       window: [1, 3],
     },
     {
       refId: "book_contract.chapter10Payoff",
-      payoff: "主角完成第一轮反压",
+      payoff: "Protagonist完成第一轮反压",
       window: [4, 10],
     },
     {
@@ -307,18 +307,18 @@ test("book contract payoff sources keep stable refs and deterministic chapter wi
 
 test("book contract payoff change detection ignores formatting-only edits", () => {
   const previous = {
-    chapter3Payoff: "主角获得第一次明确优势",
-    chapter10Payoff: "主角完成第一轮反压",
+    chapter3Payoff: "Protagonist获得第一次明确优势",
+    chapter10Payoff: "Protagonist完成第一轮反压",
     chapter30Payoff: "揭开长期谜团",
   };
 
   assert.equal(hasBookContractPayoffChanges(previous, {
     ...previous,
-    chapter3Payoff: " 主角获得第一次明确优势 ",
+    chapter3Payoff: " Protagonist获得第一次明确优势 ",
   }), false);
   assert.equal(hasBookContractPayoffChanges(previous, {
     ...previous,
-    chapter10Payoff: "主角完成第一轮反压并获得关键证据",
+    chapter10Payoff: "Protagonist完成第一轮反压并获得关键证据",
   }), true);
   assert.equal(hasBookContractPayoffChanges(null, {
     chapter3Payoff: "",

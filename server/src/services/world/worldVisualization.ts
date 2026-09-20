@@ -157,43 +157,19 @@ const FACTION_TYPE_ALIASES: Record<string, FactionNodeType> = {
   republic: "state",
   federation: "state",
   government: "state",
-  国家: "state",
-  政权: "state",
-  政府: "state",
   faction: "faction",
   force: "faction",
   camp: "faction",
-  势力: "faction",
-  阵营: "faction",
   race: "race",
   tribe: "race",
   species: "race",
-  种族: "race",
-  族群: "race",
-  民族: "race",
   organization: "organization",
   org: "organization",
   army: "organization",
   party: "organization",
   group: "organization",
   guild: "organization",
-  组织: "organization",
-  公司: "organization",
-  企业: "organization",
-  部门: "organization",
-  机构: "organization",
-  社群: "organization",
-  圈层: "organization",
-  家庭共同体: "organization",
-  社区组织: "organization",
-  中介机构: "organization",
-  机关: "organization",
-  军队: "organization",
-  部队: "organization",
-  军团: "organization",
-  地下组织: "organization",
   other: "other",
-  其他: "other",
 };
 
 const EDGE_RELATION_LABELS = [
@@ -274,9 +250,6 @@ function inferFactionNodeType(label: string): FactionNodeType {
   const alias = FACTION_TYPE_ALIASES[normalized];
   if (alias) {
     return alias;
-  }
-  if (/(国家|政府|政权|王朝|王国|帝国|联邦|共和国|朝廷|官府|军阀)/.test(label)) {
-    return "state";
   }
   if (/(company|group|enterprise|department|institution|agency|property management|school|hospital|government office|family alliance|community|social group|circle|social circle|military|army|troops|legion|brigade|regiment|headquarters|underground party|organization|association|society|alliance|gang|faction|club|cult)/.test(label)) {
     return "organization";
@@ -385,44 +358,21 @@ function normalizeDirection(raw: unknown): WorldGeographyDirection | undefined {
   const normalized = normalizeAliasKey(raw);
   const aliases: Record<string, WorldGeographyDirection> = {
     north: "north",
-    北: "north",
-    北方: "north",
-    北部: "north",
     south: "south",
-    南: "south",
-    南方: "south",
-    南部: "south",
     east: "east",
-    东: "east",
-    东方: "east",
-    东部: "east",
     west: "west",
-    西: "west",
-    西方: "west",
-    西部: "west",
     center: "center",
     central: "center",
-    中: "center",
-    中央: "center",
-    中部: "center",
-    核心: "center",
     northeast: "northeast",
-    东北: "northeast",
     northwest: "northwest",
-    西北: "northwest",
     southeast: "southeast",
-    东南: "southeast",
     southwest: "southwest",
-    西南: "southwest",
   };
   const alias = aliases[normalized];
   return alias && GEO_DIRECTIONS.has(alias) ? alias : undefined;
 }
 
 function inferDirectionFromText(text: string, index: number): WorldGeographyDirection {
-  if (/东北|北东/.test(text)) {
-    return "northeast";
-  }
   if (/northwest|north west/.test(text)) {
     return "northwest";
   }
@@ -477,7 +427,7 @@ function offsetCoordinate(base: { x: number; y: number }, index: number): { x: n
 }
 
 function inferRegionType(text: string): WorldGeographyRegionType {
-  if (/大陆|洲|陆/.test(text)) {
+  if (/continent|landmass|mainland/.test(text)) {
     return "continent";
   }
   if (/country|dynasty|kingdom|empire|federation|republic|territory/.test(text)) {
@@ -688,22 +638,6 @@ function normalizeGeographyEdges(
   return (result.length > 0 ? result : fallbackEdges).slice(0, MAX_FACTION_EDGES);
 }
 
-function extractNamedEntities(
-  source: string,
-  matcher: RegExp,
-  exclusions: Set<string>,
-): string[] {
-  const results: string[] = [];
-  for (const match of source.matchAll(matcher)) {
-    const value = match[0]?.trim();
-    if (!value || exclusions.has(value)) {
-      continue;
-    }
-    results.push(value);
-  }
-  return results;
-}
-
 function buildFactionLabels(world: VisualizationSource): string[] {
   const combined = [
     world.factions ?? "",
@@ -711,22 +645,8 @@ function buildFactionLabels(world: VisualizationSource): string[] {
     world.races ?? "",
     world.conflicts ?? "",
   ].filter(Boolean).join("\n");
-  const exclusions = new Set([
-    "core conflict",
-    "main forces",
-    "power relations",
-    "political structure",
-    "organizational power",
-    "Faction relations",
-    "Social structure",
-  ]);
   const fromLists = parseListFromText(combined, []);
-  const namedEntities = extractNamedEntities(
-    combined,
-    /[\u4E00-\u9FFF]{2,16}(?:政府|政权|王朝|王国|帝国|联邦|共和国|军|军队|部队|军团|旅|团|会|盟|帮|派|组织|教团|族|族群|民族)/g,
-    exclusions,
-  );
-  return uniqueStrings([...fromLists, ...namedEntities]).slice(0, MAX_FACTION_NODES);
+  return uniqueStrings(fromLists).slice(0, MAX_FACTION_NODES);
 }
 
 function buildFactionEdges(
@@ -986,15 +906,15 @@ function buildVisualizationPrompt(world: VisualizationSource): string {
   return [
     `World name:${world.name}`,
     `World type:${world.worldType ?? "custom"}`,
-    `概述：${world.description ?? "无"}`,
-    `背景：${world.background ?? "无"}`,
-    `势力：${world.factions ?? "无"}`,
-    `政治：${world.politics ?? "无"}`,
-    `种族：${world.races ?? "无"}`,
-    `地理：${world.geography ?? "无"}`,
-    `历史：${world.history ?? "无"}`,
-    `冲突：${world.conflicts ?? "无"}`,
-    `Power/Technology:${[world.magicSystem, world.technology].filter(Boolean).join("\n") || "无"}`,
+    `Overview: ${world.description ?? "none"}`,
+    `Background: ${world.background ?? "none"}`,
+    `Factions: ${world.factions ?? "none"}`,
+    `Politics: ${world.politics ?? "none"}`,
+    `Races: ${world.races ?? "none"}`,
+    `Geography: ${world.geography ?? "none"}`,
+    `History: ${world.history ?? "none"}`,
+    `Conflict: ${world.conflicts ?? "none"}`,
+    `Power/Technology:${[world.magicSystem, world.technology].filter(Boolean).join("\n") || "none"}`,
   ].join("\n\n");
 }
 

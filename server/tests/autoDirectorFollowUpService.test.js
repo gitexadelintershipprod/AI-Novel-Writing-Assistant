@@ -13,10 +13,10 @@ function buildWorkflowRow(overrides = {}) {
     id: "task_default",
     novelId: "novel_default",
     lane: "auto_director",
-    title: "AI 自动导演",
+    title: "Auto-Director",
     status: "waiting_approval",
     progress: 0.92,
-    currentStage: "章节执行",
+    currentStage: "Chapter execution",
     currentItemKey: "chapter_execution",
     currentItemLabel: "第 11-20 章已准备完成",
     checkpointType: "chapter_batch_ready",
@@ -81,7 +81,7 @@ test("auto director follow-up service overview counts actionable rows by reason"
   prisma.novelWorkflowTask.findMany = async () => ([
     buildWorkflowRow({ id: "task_manual", pendingManualRecovery: true, status: "running", checkpointType: null, seedPayloadJson: null }),
     buildWorkflowRow({ id: "task_failed", status: "failed", checkpointType: "chapter_batch_ready", seedPayloadJson: JSON.stringify({ provider: "openai", model: "gpt-5.4" }) }),
-    buildWorkflowRow({ id: "task_candidate", checkpointType: "candidate_selection_required", currentStage: "AI 自动导演", currentItemKey: "auto_director", currentItemLabel: "等待确认书级方向", seedPayloadJson: null }),
+    buildWorkflowRow({ id: "task_candidate", checkpointType: "candidate_selection_required", currentStage: "Auto-Director", currentItemKey: "auto_director", currentItemLabel: "Waiting to confirm the book direction", seedPayloadJson: null }),
     buildWorkflowRow({ id: "task_excluded", checkpointType: "book_contract_ready", currentItemLabel: "Book Contract 已就绪", seedPayloadJson: null }),
   ]);
   prisma.autoDirectorAutoApprovalRecord.findMany = async () => [];
@@ -160,10 +160,10 @@ test("auto director follow-up service lists recent auto-approved records in auto
         taskId: "task_running",
         novelId: "novel_a",
         approvalPointCode: "character_setup_ready",
-        approvalPointLabel: "角色准备通过后继续",
+        approvalPointLabel: "Continue after character setup passes",
         checkpointType: "character_setup_required",
-        checkpointSummary: "角色准备已生成并应用。",
-        summary: "AI 已自动通过角色准备，并继续推进。",
+        checkpointSummary: "Character setup已生成并应用。",
+        summary: "AI 已自动通过Character setup，并继续推进。",
         stage: "character_setup",
         scopeLabel: "全书",
         eventId: "task_running:auto_director.auto_approved:2026-04-21T09:30:00.000Z",
@@ -206,7 +206,7 @@ test("auto director follow-up service lists recent auto-approved records in auto
     assert.equal(record.reason, "auto_approval_completed");
     assert.equal(record.section, "auto_progress");
     assert.equal(record.reasonLabel, "Recently passed automatically");
-    assert.equal(record.followUpSummary, "AI 已自动通过角色准备，并继续推进。");
+    assert.equal(record.followUpSummary, "AI 已自动通过Character setup，并继续推进。");
     assert.deepEqual(record.availableActions.map((action) => action.code), ["open_detail"]);
     assert.deepEqual(record.batchActionCodes, []);
     assert.equal(record.supportsBatch, false);
@@ -245,9 +245,9 @@ test("auto director follow-up service lists actionable items with filters, count
         id: "task_replan",
         novelId: "novel_b",
         checkpointType: "replan_required",
-        currentStage: "质量修复",
+        currentStage: "Quality repair",
         currentItemKey: "quality_repair",
-        currentItemLabel: "等待处理重规划",
+        currentItemLabel: "等待Handle replan",
         checkpointSummary: "第 12 章审计要求调整后续节奏。",
         resumeTargetJson: JSON.stringify({
           route: "/novels/:id/edit",
@@ -351,7 +351,7 @@ test("auto director follow-up service returns section-first counts and filters s
       id: "task_exception",
       status: "failed",
       checkpointType: "chapter_batch_ready",
-      lastError: "模型调用失败",
+      lastError: "The model call failed",
       updatedAt: new Date("2026-04-21T10:00:00.000Z"),
     }),
     buildWorkflowRow({
@@ -359,7 +359,7 @@ test("auto director follow-up service returns section-first counts and filters s
       status: "cancelled",
       checkpointType: "chapter_batch_ready",
       currentItemLabel: "任务已由新导演任务接管",
-      lastError: "已由自动导演任务 task_new 替代。",
+      lastError: "已由Auto-Director任务 task_new 替代。",
       seedPayloadJson: JSON.stringify({
         replacementTaskId: "task_new",
         replacementReason: "Replaced by this task",
@@ -400,7 +400,7 @@ test("auto director follow-up service returns section-first counts and filters s
           warnings: ["继续前请确认章节范围。"],
           requiredActions: [{
             code: "revalidate_assets",
-            label: "重新读取任务状态",
+            label: "Reread the task status",
             riskLevel: "low",
             safeToAutoFix: true,
           }],
@@ -499,9 +499,9 @@ test("auto director follow-up service detail reuses workflow detail and adds fol
       id: "task_detail",
       novelId: "novel_detail",
       checkpointType: "candidate_selection_required",
-      currentStage: "AI 自动导演",
+      currentStage: "Auto-Director",
       currentItemKey: "auto_director",
-      currentItemLabel: "等待确认书级方向",
+      currentItemLabel: "Waiting to confirm the book direction",
       checkpointSummary: "请先确认书级方向。",
       resumeTargetJson: JSON.stringify({
         route: "/novels/create",
@@ -540,17 +540,17 @@ test("auto director follow-up service detail reuses workflow detail and adds fol
     return {
       id: taskId,
       kind: "novel_workflow",
-      title: "AI 自动导演",
+      title: "Auto-Director",
       status: "waiting_approval",
       progress: 0.3,
-      currentStage: "AI 自动导演",
+      currentStage: "Auto-Director",
       currentItemKey: "auto_director",
-      currentItemLabel: "等待确认书级方向",
+      currentItemLabel: "Waiting to confirm the book direction",
       executionScopeLabel: null,
-      displayStatus: "等待确认书级方向",
-      blockingReason: "需要先确认书级方向，自动导演才能继续推进后续主链。",
+      displayStatus: "Waiting to confirm the book direction",
+      blockingReason: "Confirm the book direction before Auto-Director can continue the later main chain.",
       resumeAction: "继续确认书级方向",
-      lastHealthyStage: "AI 自动导演",
+      lastHealthyStage: "Auto-Director",
       attemptCount: 1,
       maxAttempts: 3,
       lastError: null,
@@ -628,7 +628,7 @@ test("auto director follow-up service detail reuses workflow detail and adds fol
     assert.deepEqual(detail.availableActions.map((item) => item.code), ["go_candidate_selection", "open_detail"]);
     assert.deepEqual(detail.milestones, [
       {
-        label: "等待确认书级方向",
+        label: "Waiting to confirm the book direction",
         at: "2026-04-21T08:30:00.000Z",
         status: "waiting_approval",
         summary: "请先确认书级方向。",
@@ -682,7 +682,7 @@ test("auto director follow-up service detail only marks replaced when replacemen
     return {
       id: taskId,
       kind: "novel_workflow",
-      title: "AI 自动导演",
+      title: "Auto-Director",
       status: "succeeded",
       progress: 1,
       currentStage: "完成",

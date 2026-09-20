@@ -46,12 +46,12 @@ function createDocument() {
         sortOrder: 1,
         title: "第一卷",
         summary: "卷摘要",
-        openingHook: "开卷抓手",
+        openingHook: "Opening hook",
         mainPromise: "主承诺",
         primaryPressureSource: "压力源",
         coreSellingPoint: "核心卖点",
         escalationMode: "升级方式",
-        protagonistChange: "主角变化",
+        protagonistChange: "Protagonist变化",
         midVolumeRisk: "中段风险",
         climax: "高潮",
         payoffType: "兑现类型",
@@ -106,14 +106,14 @@ function createDocument() {
         beats: [
           {
             key: "open_hook",
-            label: "开卷抓手",
+            label: "Opening hook",
             summary: "先把局势危险钉死。",
             chapterSpanHint: "1-2章",
             mustDeliver: ["压迫感"],
           },
           {
             key: "midpoint_turn",
-            label: "中段转向",
+            label: "Midpoint turn",
             summary: "让局势方向发生变化。",
             chapterSpanHint: "3-4章",
             mustDeliver: ["转向"],
@@ -133,7 +133,7 @@ test("mergeChapterList writes explicit beat keys for full-volume beat blocks", (
     [
       {
         beatKey: "open_hook",
-        beatLabel: "开卷抓手",
+        beatLabel: "Opening hook",
         chapterCount: 2,
         chapters: [
           { beatKey: "open_hook", title: "新的开卷一", summary: "新的开卷摘要一" },
@@ -142,7 +142,7 @@ test("mergeChapterList writes explicit beat keys for full-volume beat blocks", (
       },
       {
         beatKey: "midpoint_turn",
-        beatLabel: "中段转向",
+        beatLabel: "Midpoint turn",
         chapterCount: 2,
         chapters: [
           { beatKey: "midpoint_turn", title: "新的转向一", summary: "新的转向摘要一" },
@@ -168,7 +168,7 @@ test("mergeChapterList single-beat mode only replaces the targeted beat block", 
     [
       {
         beatKey: "midpoint_turn",
-        beatLabel: "中段转向",
+        beatLabel: "Midpoint turn",
         chapterCount: 2,
         chapters: [
           { beatKey: "midpoint_turn", title: "重写转向一", summary: "重写转向摘要一" },
@@ -200,7 +200,7 @@ test("mergeChapterList full-volume resume preserves completed prefix beats", () 
     [
       {
         beatKey: "midpoint_turn",
-        beatLabel: "中段转向",
+        beatLabel: "Midpoint turn",
         chapterCount: 2,
         chapters: [
           { beatKey: "midpoint_turn", title: "续跑转向一", summary: "续跑转向摘要一" },
@@ -233,11 +233,11 @@ test("single-beat generation does not repeat completed beat titles in locked con
     return {
       output: {
         beatKey: "midpoint_turn",
-        beatLabel: "中段转向",
+        beatLabel: "Midpoint turn",
         chapterCount: 2,
         chapters: [
-          { beatKey: "midpoint_turn", title: "转折逼近", summary: "主角面对新局面，必须改变原有判断。" },
-          { beatKey: "midpoint_turn", title: "退路封死", summary: "新的压力落地，迫使主角进入下一阶段。" },
+          { beatKey: "midpoint_turn", title: "Turn逼近", summary: "Protagonist面对新局面，必须改变原有判断。" },
+          { beatKey: "midpoint_turn", title: "退路封死", summary: "新的压力落地，迫使Protagonist进入下一阶段。" },
         ],
       },
     };
@@ -272,11 +272,11 @@ test("single-beat generation rejects a title copied from a completed beat before
   promptRunner.runStructuredPrompt = async () => ({
     output: {
       beatKey: "midpoint_turn",
-      beatLabel: "中段转向",
+      beatLabel: "Midpoint turn",
       chapterCount: 2,
       chapters: [
         { beatKey: "midpoint_turn", title: "旧开卷一", summary: "错误地复述了已有章节标题。" },
-        { beatKey: "midpoint_turn", title: "退路封死", summary: "新的压力落地，迫使主角进入下一阶段。" },
+        { beatKey: "midpoint_turn", title: "退路封死", summary: "新的压力落地，迫使Protagonist进入下一阶段。" },
       ],
     },
   });
@@ -596,11 +596,11 @@ test("generateBeatChunkedChapterList resumes after the last persisted complete b
     assert.equal(intermediateEvents[0].targetBeatKey, "midpoint_turn");
     assert.deepEqual(
       intermediateEvents[0].document.volumes[0].chapters.map((chapter) => chapter.title),
-      ["旧开卷一", "旧开卷二", "中段转向-续跑1", "中段转向-续跑2"],
+      ["旧开卷一", "旧开卷二", "Midpoint turn-续跑1", "Midpoint turn-续跑2"],
     );
     assert.deepEqual(
       result.mergedDocument.volumes[0].chapters.map((chapter) => chapter.title),
-      ["旧开卷一", "旧开卷二", "中段转向-续跑1", "中段转向-续跑2"],
+      ["旧开卷一", "旧开卷二", "Midpoint turn-续跑1", "Midpoint turn-续跑2"],
     );
   } finally {
     promptRunner.runStructuredPrompt = originalRunStructuredPrompt;
@@ -750,7 +750,7 @@ test("generateBeatChunkedChapterList emits a single-beat intermediate document w
     assert.equal(intermediateEvents[0].targetBeatKey, "midpoint_turn");
     assert.deepEqual(
       intermediateEvents[0].document.volumes[0].chapters.map((chapter) => chapter.title),
-      ["旧开卷一", "旧开卷二", "中段转向-单段1", "中段转向-单段2"],
+      ["旧开卷一", "旧开卷二", "Midpoint turn-单段1", "Midpoint turn-单段2"],
     );
     assert.deepEqual(intermediateEvents[0].document.volumes[0].chapters, result.mergedDocument.volumes[0].chapters);
   } finally {
@@ -935,13 +935,13 @@ test("generateBeatChunkedChapterList emits a resumable intermediate document aft
     assert.equal(intermediateEvents[0].targetBeatKey, "open_hook");
     assert.deepEqual(
       intermediateEvents[0].document.volumes[0].chapters.map((chapter) => chapter.title),
-      ["开卷抓手-1", "开卷抓手-2"],
+      ["Opening hook-1", "Opening hook-2"],
     );
     assert.equal(intermediateEvents[1].isFinal, false);
     assert.equal(intermediateEvents[1].targetBeatKey, "midpoint_turn");
     assert.deepEqual(
       intermediateEvents[1].document.volumes[0].chapters.map((chapter) => chapter.title),
-      ["开卷抓手-1", "开卷抓手-2", "中段转向-1", "中段转向-2"],
+      ["Opening hook-1", "Opening hook-2", "Midpoint turn-1", "Midpoint turn-2"],
     );
     assert.equal(intermediateEvents[2].isFinal, true);
     assert.equal(intermediateEvents[2].targetBeatKey, "midpoint_turn");

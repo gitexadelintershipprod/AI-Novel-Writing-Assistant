@@ -1,5 +1,3 @@
-import { featureFlags } from "../../../config/featureFlags.ts";
-
 export type MobilePrimaryNavKey = "home" | "novels" | "creation" | "tasks" | "more";
 
 export interface MobileNavItem {
@@ -33,7 +31,6 @@ export const MOBILE_ROUTE_PATTERNS: MobileRoutePattern[] = [
   { key: "creative-hub", pattern: /^\/creative-hub\/?$/, title: "creative center", group: "creation" },
   { key: "chat-legacy", pattern: /^\/chat-legacy\/?$/, title: "Old version of chat", group: "creation" },
   { key: "book-analysis", pattern: /^\/book-analysis\/?$/, title: "Open the book", group: "creation" },
-  { key: "market-radar", pattern: /^\/market-radar\/?$/, title: "Hot Topic Radar", group: "creation" },
   { key: "tasks", pattern: /^\/tasks\/?$/, title: "Task", group: "tasks" },
   { key: "auto-director-follow-ups", pattern: /^\/auto-director\/follow-ups\/?$/, title: "Director follow up", group: "tasks" },
   { key: "knowledge", pattern: /^\/knowledge\/?$/, title: "Knowledge Base", group: "more" },
@@ -68,9 +65,6 @@ const moreNavGroups: MobileNavGroup[] = [
     items: [
       { key: "help", label: "Creation Wizard", to: "/help", group: "more" },
       { key: "book-analysis", label: "Open the book", to: "/book-analysis", group: "creation" },
-      ...(featureFlags.marketRadarEnabled
-        ? [{ key: "market-radar", label: "Hot Topic Radar", to: "/market-radar", group: "creation" as const }]
-        : []),
       { key: "chat-legacy", label: "Old version of chat", to: "/chat-legacy", group: "creation" },
     ],
   },

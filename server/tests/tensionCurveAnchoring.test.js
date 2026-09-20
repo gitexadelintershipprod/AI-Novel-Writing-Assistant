@@ -105,7 +105,7 @@ const beatSheet = {
   beats: [{
     key: "beat-1",
     label: "开局",
-    summary: "开局节奏段",
+    summary: "开局Beat",
     chapterSpanHint: "3章",
     mustDeliver: ["建立目标"],
   }],

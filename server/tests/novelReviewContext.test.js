@@ -27,7 +27,7 @@ function createAssembledContextPackage() {
       phaseLabel: "起势",
       title: "第1章计划",
       objective: "推进冲突",
-      participants: ["主角"],
+      participants: ["Protagonist"],
       reveals: [],
       riskNotes: [],
       mustAdvance: ["推进冲突"],
@@ -45,8 +45,8 @@ function createAssembledContextPackage() {
     storyWorldSlice: null,
     characterRoster: [{
       id: "char-1",
-      name: "主角",
-      role: "主角",
+      name: "Protagonist",
+      role: "Protagonist",
       personality: "倔强",
       currentState: "受压",
       currentGoal: "翻盘",
@@ -83,8 +83,8 @@ function createAssembledContextPackage() {
       pendingCandidateCount: 0,
       characters: [{
         characterId: "char-1",
-        name: "主角",
-        role: "主角",
+        name: "Protagonist",
+        role: "Protagonist",
         castRole: "lead",
         currentState: "受压",
         currentGoal: "翻盘",
@@ -96,7 +96,7 @@ function createAssembledContextPackage() {
         lastAppearanceChapterOrder: 1,
         absenceSpan: 0,
         absenceRisk: "none",
-        factionLabel: "主角方",
+        factionLabel: "Protagonist方",
         stanceLabel: "反扑",
       }],
       relations: [],
@@ -182,22 +182,22 @@ function createAssembledContextPackage() {
       scenePlan: null,
       participants: [{
         id: "char-1",
-        name: "主角",
-        role: "主角",
+        name: "Protagonist",
+        role: "Protagonist",
         personality: "倔强",
         currentState: "受压",
         currentGoal: "翻盘",
       }],
       characterBehaviorGuides: [{
         characterId: "char-1",
-        name: "主角",
-        role: "主角",
+        name: "Protagonist",
+        role: "Protagonist",
         castRole: "lead",
         volumeRoleLabel: "破局者",
         volumeResponsibility: "撑住第一轮压迫并开始反击",
         currentGoal: "翻盘",
         currentState: "受压",
-        factionLabel: "主角方",
+        factionLabel: "Protagonist方",
         stanceLabel: "反扑",
         relationStageLabels: [],
         relationRiskNotes: [],
@@ -213,7 +213,7 @@ function createAssembledContextPackage() {
       ledgerUrgentItems: [],
       ledgerOverdueItems: [],
       ledgerSummary: null,
-      localStateSummary: "主角刚被压住。",
+      localStateSummary: "Protagonist刚被压住。",
       openConflictSummaries: ["第一次反压尚未开始。"],
       recentChapterSummaries: [],
       openingAntiRepeatHint: "Recent openings: none.",
@@ -338,10 +338,10 @@ test("repair stream builds prompt blocks from the assembled repair context packa
     return {
       stream: {
         async *[Symbol.asyncIterator]() {
-          yield { content: "修复片段" };
+          yield { content: "Repairing片段" };
         },
       },
-      complete: Promise.resolve({ output: "修复片段" }),
+      complete: Promise.resolve({ output: "Repairing片段" }),
     };
   };
 
@@ -352,7 +352,7 @@ test("repair stream builds prompt blocks from the assembled repair context packa
         severity: "high",
         category: "pacing",
         evidence: "第一次反压没有实际落地。",
-        fixSuggestion: "让主角在本章拿到明确反压结果。",
+        fixSuggestion: "让Protagonist在本章拿到明确反压结果。",
       }],
       repairMode: "heavy_repair",
     });
@@ -451,10 +451,10 @@ test("repair stream fails loudly when chapter context assembly breaks", async ()
           severity: "high",
           category: "pacing",
           evidence: "第一次反压没有实际落地。",
-          fixSuggestion: "让主角在本章拿到明确反压结果。",
+          fixSuggestion: "让Protagonist在本章拿到明确反压结果。",
         }],
       }),
-      /章节上下文装配失败，无法继续章节修复/,
+      /章节上下文装配失败，无法继续章节Repairing/,
     );
     assert.equal(loggedFailures.length, 1);
     assert.equal(loggedFailures[0]?.meta?.operation, "repair");

@@ -46,15 +46,15 @@ function createAssembledChapter() {
         title: "第1章",
         targetWordCount: 3000,
         sceneCards: null,
-        expectation: "主角完成第一次行动选择。",
+        expectation: "Protagonist完成第一次行动选择。",
       },
-      characterRoster: [{ id: "character-1", name: "主角", role: "protagonist" }],
+      characterRoster: [{ id: "character-1", name: "Protagonist", role: "protagonist" }],
       nextAction: "write_chapter",
       pendingReviewProposalCount: 0,
       openAuditIssues: [],
       chapterWriteContext: {
         chapterMission: {
-          objective: "主角完成第一次行动选择。",
+          objective: "Protagonist完成第一次行动选择。",
           targetWordCount: 3000,
         },
       },
@@ -74,7 +74,7 @@ function createRepairAssembledChapter() {
       id: "chapter-1",
       title: "第1章",
       order: 1,
-      content: "旧正文里有一段需要修复的内容。",
+      content: "旧正文里有一段需要Repairing的内容。",
       expectation: "推进第一次反压。",
     },
     contextPackage: {
@@ -82,7 +82,7 @@ function createRepairAssembledChapter() {
         id: "chapter-1",
         title: "第1章",
         order: 1,
-        content: "旧正文里有一段需要修复的内容。",
+        content: "旧正文里有一段需要Repairing的内容。",
         expectation: "推进第一次反压。",
         supportingContextText: "",
       },
@@ -93,7 +93,7 @@ function createRepairAssembledChapter() {
         phaseLabel: "起势",
         title: "第1章计划",
         objective: "推进第一次反压。",
-        participants: ["主角"],
+        participants: ["Protagonist"],
         reveals: [],
         riskNotes: [],
         mustAdvance: ["推进反压结果"],
@@ -111,8 +111,8 @@ function createRepairAssembledChapter() {
       storyWorldSlice: null,
       characterRoster: [{
         id: "char-1",
-        name: "主角",
-        role: "主角",
+        name: "Protagonist",
+        role: "Protagonist",
       }],
       creativeDecisions: [],
       openAuditIssues: [],
@@ -219,8 +219,8 @@ function createRepairAssembledChapter() {
         scenePlan: null,
         participants: [{
           id: "char-1",
-          name: "主角",
-          role: "主角",
+          name: "Protagonist",
+          role: "Protagonist",
         }],
         characterBehaviorGuides: [],
         activeRelationStages: [],
@@ -229,7 +229,7 @@ function createRepairAssembledChapter() {
         ledgerUrgentItems: [],
         ledgerOverdueItems: [],
         ledgerSummary: null,
-        localStateSummary: "主角正在准备第一次反压。",
+        localStateSummary: "Protagonist正在准备第一次反压。",
         openConflictSummaries: ["第一次反压尚未真正落地。"],
         recentChapterSummaries: [],
         openingAntiRepeatHint: "Recent openings: none.",
@@ -624,7 +624,7 @@ test("finalizeChapterContent writes only acceptance-covered mustHitNow facts bef
   const contextPackage = JSON.parse(JSON.stringify(assembled.contextPackage));
   contextPackage.chapterWriteContext.obligationContract = {
     mustHitNow: [
-      "主角当众拒绝婚约，明确站到家族对立面。",
+      "Protagonist当众拒绝婚约，明确站到家族对立面。",
       "拿到青铜钥匙，并发现钥匙来自失踪师父。",
     ],
     mustPreserve: [],
@@ -719,7 +719,7 @@ test("finalizeChapterContent writes only acceptance-covered mustHitNow facts bef
       chapterId: "chapter-1",
       request: {},
       contextPackage,
-      content: "正文写出了主角当众拒绝婚约，但没有拿到钥匙。",
+      content: "正文写出了Protagonist当众拒绝婚约，但没有拿到钥匙。",
       runId: null,
       startMs: null,
       deferArtifactBackgroundSync: true,
@@ -730,7 +730,7 @@ test("finalizeChapterContent writes only acceptance-covered mustHitNow facts bef
     assert.equal(syncCalls[0][3].awaitArtifactDelta, true);
     assert.equal(syncCalls[0][3].skipLegacySummaryAndFacts, true);
     assert.deepEqual(createdFacts.map((item) => item.text), [
-      "第1章已完成：主角当众拒绝婚约，明确站到家族对立面。",
+      "第1章已完成：Protagonist当众拒绝婚约，明确站到家族对立面。",
     ]);
     assert.deepEqual(createdFacts.map((item) => item.category), ["completed"]);
     assert.equal(createdFacts.some((item) => item.text.includes("已完全揭示")), false);
@@ -760,17 +760,17 @@ test("createRepairStream discovers fallback issues through read-only audit", asy
   prisma.chapter.findFirst = async () => ({
     id: "chapter-1",
     title: "第1章",
-    content: "旧正文里有一段需要修复的内容。",
+    content: "旧正文里有一段需要Repairing的内容。",
   });
   prisma.novelBible.findUnique = async () => ({ rawContent: "作品圣经" });
   promptRunner.runStructuredPrompt = async () => ({
     output: {
       strategy: "patch_first",
-      summary: "修复承接问题。",
+      summary: "Repairing承接问题。",
       patches: [{
         id: "patch-1",
-        targetExcerpt: "一段需要修复的内容",
-        replacement: "一段完成修复并顺利承接的内容",
+        targetExcerpt: "一段需要Repairing的内容",
+        replacement: "一段完成Repairing并顺利承接的内容",
         reason: "补足承接。",
         issueIds: [],
       }],
@@ -824,9 +824,9 @@ test("createRepairStream discovers fallback issues through read-only audit", asy
 
     assert.equal(auditCalls.length, 1);
     assert.deepEqual(auditCalls[0].slice(0, 3), ["novel-1", "chapter-1", "full"]);
-    assert.equal(auditCalls[0][3].content, "旧正文里有一段需要修复的内容。");
+    assert.equal(auditCalls[0][3].content, "旧正文里有一段需要Repairing的内容。");
     assert.deepEqual(auditCalls[0][3].contextPackage, contextPackage);
-    assert.equal(streamedContent, "旧正文里有一段完成修复并顺利承接的内容。");
+    assert.equal(streamedContent, "旧正文里有一段完成Repairing并顺利承接的内容。");
   } finally {
     prisma.novel.findUnique = originalNovelFindUnique;
     prisma.chapter.findFirst = originalChapterFindFirst;
@@ -855,7 +855,7 @@ test("createRepairStream escalates patch schema failures to a single heavy repai
   prisma.chapter.findFirst = async () => ({
     id: "chapter-1",
     title: "第1章",
-    content: "旧正文里有一段需要修复的内容。",
+    content: "旧正文里有一段需要Repairing的内容。",
   });
   prisma.novelBible.findUnique = async () => ({ rawContent: "作品圣经" });
   prisma.chapter.update = async ({ data }) => {
@@ -871,10 +871,10 @@ test("createRepairStream escalates patch schema failures to a single heavy repai
     return {
       stream: {
         async *[Symbol.asyncIterator]() {
-          yield { content: "全文修复片段" };
+          yield { content: "full textRepairing片段" };
         },
       },
-      complete: Promise.resolve({ output: "全文修复后的正文" }),
+      complete: Promise.resolve({ output: "full textRepairing后的正文" }),
     };
   };
 
@@ -907,7 +907,7 @@ test("createRepairStream escalates patch schema failures to a single heavy repai
               repairDirectives: [],
               missingObligations: [],
               repairability: "none",
-              decisionReason: "修复稿通过统一接收检查。",
+              decisionReason: "Repairing稿通过统一接收检查。",
               riskTags: [],
               assetSyncRecommendation: {
                 priority: "normal",
@@ -936,7 +936,7 @@ test("createRepairStream escalates patch schema failures to a single heavy repai
         severity: "high",
         category: "pacing",
         evidence: "第一次反压没有真正落地。",
-        fixSuggestion: "让主角在本章拿到明确反压结果。",
+        fixSuggestion: "让Protagonist在本章拿到明确反压结果。",
       }],
     });
 
@@ -950,10 +950,10 @@ test("createRepairStream escalates patch schema failures to a single heavy repai
       },
     });
 
-    assert.equal(streamedContent, "全文修复片段");
-    assert.deepEqual(acceptanceCalls, ["全文修复后的正文"]);
+    assert.equal(streamedContent, "full textRepairing片段");
+    assert.deepEqual(acceptanceCalls, ["full textRepairing后的正文"]);
     assert.equal(syncCalls.length, 1);
-    assert.equal(syncCalls[0][2], "全文修复后的正文");
+    assert.equal(syncCalls[0][2], "full textRepairing后的正文");
     assert.equal(syncCalls[0][3].awaitArtifactDelta, true);
     assert.equal(syncCalls[0][3].skipLegacySummaryAndFacts, true);
     assert.equal(syncCalls[0][3].contentProvenance, "confirmed");

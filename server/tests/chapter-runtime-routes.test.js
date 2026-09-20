@@ -42,7 +42,7 @@ function buildRuntimePackage(novelId, chapterId) {
         chapterId,
         title: "章节规划",
         objective: "推进主线",
-        participants: ["主角"],
+        participants: ["Protagonist"],
         reveals: ["新线索"],
         riskNotes: ["避免重复"],
         hookTarget: "留下悬念",
@@ -62,7 +62,7 @@ function buildRuntimePackage(novelId, chapterId) {
         conflictType: "plot",
         conflictKey: "conflict:key",
         title: "未解决冲突",
-        summary: "主角还没解决上一章留下的风险。",
+        summary: "Protagonist还没解决上一章留下的风险。",
         severity: "medium",
         status: "open",
         evidence: ["上一章结尾留下追兵。"],
@@ -146,7 +146,7 @@ function buildRuntimePackage(novelId, chapterId) {
       },
       macroConstraints: {
         sellingPoint: "高压开局与持续反压",
-        coreConflict: "主角在压迫中夺回主动权",
+        coreConflict: "Protagonist在压迫中夺回主动权",
         mainHook: "更大幕后势力逐步浮现",
         progressionLoop: "每次反压都会引来更强反扑",
         growthPath: "从被动求生到主动设局",
@@ -304,7 +304,7 @@ test("repair route keeps the existing SSE contract", async () => {
   DefaultNovelApplicationServices.prototype.createRepairStream = async (_novelId, _chapterId, options) => {
     capturedOptions = options;
     return {
-      stream: buildStream(["修复片段"]),
+      stream: buildStream(["Repairing片段"]),
       onDone: async (_fullContent, helpers) => {
         helpers.writeFrame({
           type: "run_status",
@@ -332,14 +332,14 @@ test("repair route keeps the existing SSE contract", async () => {
           severity: "high",
           category: "pacing",
           evidence: "目标片段过短导致 patch 失败。",
-          fixSuggestion: "自动升级为全文修复一次。",
+          fixSuggestion: "自动升级为full textRepairing一次。",
         }],
       }),
     });
     assert.equal(response.status, 200);
     const text = await response.text();
     assert.ok(text.includes("\"type\":\"chunk\""));
-    assert.ok(text.includes("修复片段"));
+    assert.ok(text.includes("Repairing片段"));
     assert.ok(text.includes("\"type\":\"run_status\""));
     assert.ok(text.includes("\"type\":\"done\""));
     assert.equal(Array.isArray(capturedOptions?.reviewIssues), true);

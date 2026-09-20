@@ -15,7 +15,7 @@ test("answerDeepeningQuestions normalizes legacy targetField aliases before worl
     worldType: "history",
     templateKey: "custom",
     axioms: null,
-    background: "既有背景",
+    background: "既有Background",
     geography: null,
     cultures: null,
     magicSystem: null,
@@ -43,9 +43,9 @@ test("answerDeepeningQuestions normalizes legacy targetField aliases before worl
       id: "q1",
       worldId: "world-1",
       priority: "required",
-      question: "您希望扮演的角色身份是什么？",
+      question: "您希望扮演的角色身份Yes什么？",
       targetLayer: "foundation",
-      targetField: "角色定位",
+      targetField: "Role",
       answer: null,
       integratedSummary: null,
       status: "pending",
@@ -128,8 +128,8 @@ test("answerDeepeningQuestions normalizes legacy targetField aliases before worl
       where: { id: "world-1" },
       data: {
         background: [
-          "既有背景",
-          "Q: 您希望扮演的角色身份是什么？\nA: 沦陷区地下抗日者",
+          "既有Background",
+          "Q: 您希望扮演的角色身份Yes什么？\nA: 沦陷区地下抗日者",
           "Q: 当前故事起始地点与时间？\nA: 1937年卢沟桥附近",
         ].join("\n\n"),
         conflicts: [

@@ -165,7 +165,7 @@ test("validateAutoDirectorTakeoverRequest blocks later nodes when book contract 
   });
 
   assert.equal(result.allowed, false);
-  assert.match(result.blockingReasons.join("\n"), /Book Contract|故事宏观规划/);
+  assert.match(result.blockingReasons.join("\n"), /Book Contract|Story planning/);
 });
 
 test("validateAutoDirectorTakeoverRequest treats takeover without execution plan as full-book scope", () => {
@@ -227,7 +227,7 @@ test("validateAutoDirectorTakeoverRequest blocks chapter ranges not covered by r
   });
 
   assert.equal(result.allowed, false);
-  assert.match(result.blockingReasons.join("\n"), /卷战略|目标范围/);
+  assert.match(result.blockingReasons.join("\n"), /Volume strategy|目标范围/);
 });
 
 test("validateAutoDirectorTakeoverRequest uses planning assets instead of synced chapter rows as chapter limit", () => {
@@ -383,7 +383,7 @@ test("validateAutoDirectorTakeoverRequest blocks volume scope before outline ent
   });
 
   assert.equal(result.allowed, false);
-  assert.ok(result.blockingReasons.some((reason) => reason.includes("卷范围") && reason.includes("卷战略")));
+  assert.ok(result.blockingReasons.some((reason) => reason.includes("卷范围") && reason.includes("Volume strategy")));
 });
 
 test("validateAutoDirectorTakeoverRequest accepts full-book scope from any entry", () => {

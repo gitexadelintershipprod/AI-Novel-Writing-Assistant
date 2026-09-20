@@ -32,7 +32,7 @@ test("director circuit breaker opens after repeated patch failures on the same c
     previous: state,
     chapterId: "chapter-1",
     chapterOrder: 1,
-    message: "同一章节连续修复失败。",
+    message: "同一章节连续Repairing失败。",
   });
   assert.equal(isDirectorCircuitBreakerOpen(state), true);
   assert.equal(state.reason, "auto_repair_exhausted");

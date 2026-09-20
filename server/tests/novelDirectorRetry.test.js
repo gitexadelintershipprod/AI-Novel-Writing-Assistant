@@ -151,12 +151,12 @@ function createStructuredOutlineWorkspace() {
         sortOrder: 1,
         title: "第一卷",
         summary: "第一卷摘要",
-        openingHook: "开卷抓手",
+        openingHook: "Opening hook",
         mainPromise: "主承诺",
         primaryPressureSource: "压力源",
         coreSellingPoint: "核心卖点",
         escalationMode: "升级方式",
-        protagonistChange: "主角变化",
+        protagonistChange: "Protagonist变化",
         midVolumeRisk: "中段风险",
         climax: "高潮",
         payoffType: "兑现类型",
@@ -192,14 +192,14 @@ function createStructuredOutlineWorkspace() {
         sortOrder: 2,
         title: "第二卷",
         summary: "第二卷摘要",
-        openingHook: "第二卷开卷抓手",
+        openingHook: "第二卷Opening hook",
         mainPromise: "第二卷主承诺",
         primaryPressureSource: "第二卷压力源",
         coreSellingPoint: "第二卷核心卖点",
         escalationMode: "第二卷升级方式",
-        protagonistChange: "第二卷主角变化",
+        protagonistChange: "第二卷Protagonist变化",
         midVolumeRisk: "第二卷中段风险",
-        climax: "第二卷高潮",
+        climax: "第二Volume climax",
         payoffType: "第二卷兑现类型",
         nextVolumeHook: "第二卷下卷钩子",
         resetPoint: null,
@@ -1026,13 +1026,13 @@ test("continueTask replans the affected window before continuing from a replan c
     pendingManualRecovery: false,
     novelId: "novel_quality_repair_skip_normalized",
     checkpointType: "replan_required",
-    currentStage: "质量修复",
+    currentStage: "Quality repair",
     currentItemKey: "quality_repair",
     resumeTargetJson: JSON.stringify({
       stage: "pipeline",
       chapterId: "chapter_6",
     }),
-    lastError: "当前章需要先处理质量修复建议。",
+    lastError: "当前章需要先处理Quality repair建议。",
     seedPayloadJson: JSON.stringify({
       directorInput: buildDirectorInput({
         workflowTaskId: "task_quality_repair_skip_normalized",
@@ -1133,7 +1133,7 @@ test("continueTask keeps the replan checkpoint when window replanning fails", as
     pendingManualRecovery: false,
     novelId: "novel_replan_failure",
     checkpointType: "replan_required",
-    currentStage: "质量修复",
+    currentStage: "Quality repair",
     currentItemKey: "quality_repair",
     resumeTargetJson: JSON.stringify({ stage: "pipeline", chapterId: "chapter_14" }),
     lastError: "相邻章节计划需要调整。",
@@ -1160,13 +1160,13 @@ test("continueTask keeps the replan checkpoint when window replanning fails", as
   };
   service.scheduleBackgroundRun = (_taskId, runner) => scheduledRuns.push(runner);
   service.novelService.replanNovel = async () => {
-    throw new Error("重规划模型调用失败");
+    throw new Error("重规划The model call failed");
   };
   service.autoExecutionRuntime.runFromReady = async (input) => runtimeCalls.push(input);
 
   try {
     await service.continueTask("task_replan_failure", { continuationMode: "auto_execute_range" });
-    await assert.rejects(scheduledRuns[0](), /重规划模型调用失败/);
+    await assert.rejects(scheduledRuns[0](), /重规划The model call failed/);
     assert.equal(runtimeCalls.length, 0);
   } finally {
     service.continueCandidateStageTask = originalContinueCandidateStageTask;
@@ -1335,7 +1335,7 @@ test("runDirectorStructuredOutlinePhase resumes from the first incomplete beat a
             revealLevel: chapter.revealLevel ?? 2,
             targetWordCount: chapter.targetWordCount ?? 2600,
             mustAvoid: chapter.mustAvoid ?? "不要提前透底",
-            taskSheet: "第二卷章节任务单",
+            taskSheet: "第二卷Chapter task sheet",
             sceneCards: createSceneCards({
               ...chapter,
               targetWordCount: chapter.targetWordCount ?? 2600,
@@ -1402,7 +1402,7 @@ test("runDirectorStructuredOutlinePhase resumes from the first incomplete beat a
               revealLevel: 2,
               targetWordCount: 2600,
               mustAvoid: "不要提前透底",
-              taskSheet: "第二卷章节任务单",
+              taskSheet: "第二卷Chapter task sheet",
               sceneCards: createSceneCards({
                 id: "volume-2-chapter-1",
                 targetWordCount: 2600,
@@ -1508,7 +1508,7 @@ test("runDirectorTrackedStep aborts the run helper signal when heartbeat observe
       taskId: "task_cancel_signal",
       stage: "structured_outline",
       itemKey: "beat_sheet",
-      itemLabel: "正在生成节奏板",
+      itemLabel: "Generating the beat sheet",
       progress: 0.72,
       heartbeatMs: 5000,
       callbacks: {

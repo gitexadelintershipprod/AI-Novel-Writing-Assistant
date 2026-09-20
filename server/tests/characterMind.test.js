@@ -11,7 +11,7 @@ function createSnapshot(overrides = {}) {
     privateIntent: "在赵管事察觉前先验证后门。",
     activePlan: "观察换岗后从后门试探进入。",
     emotionalStance: "紧张但愿意冒险。",
-    actionTendency: "先独自试探，再决定是否求助。",
+    actionTendency: "先独自试探，再决定YesNo求助。",
     decisionTrigger: "守卫异常增多时暂缓进入。",
     beliefs: ["钥匙能打开库房后门"],
     misbeliefs: ["赵管事尚未察觉钥匙失踪"],

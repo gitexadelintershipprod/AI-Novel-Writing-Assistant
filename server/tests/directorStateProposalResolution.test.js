@@ -16,7 +16,7 @@ function proposal(overrides = {}) {
     proposalType: "information_disclosure",
     riskLevel: "medium",
     status: "pending_review",
-    summary: "主角知道了新情报",
+    summary: "Protagonist知道了新情报",
     payload: {},
     evidence: [],
     validationNotes: [],

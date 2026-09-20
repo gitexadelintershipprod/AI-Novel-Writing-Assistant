@@ -59,10 +59,10 @@ test("auto director follow-up routes expose overview, list, detail, and action e
         taskId: "task_1",
         novelId: "novel_1",
         novelTitle: "《雾港巡夜人》",
-        taskTitle: "AI 自动导演",
+        taskTitle: "Auto-Director",
         lane: "auto_director",
         status: "waiting_approval",
-        currentStage: "章节执行",
+        currentStage: "Chapter execution",
         checkpointType: "chapter_batch_ready",
         reason: "chapter_batch_execution_pending",
         section: "pending",
@@ -140,7 +140,7 @@ test("auto director follow-up routes expose overview, list, detail, and action e
       task: {
         id: taskId,
         kind: "novel_workflow",
-        title: "AI 自动导演",
+        title: "Auto-Director",
         status: "waiting_approval",
       },
     };
@@ -152,7 +152,7 @@ test("auto director follow-up routes expose overview, list, detail, and action e
       taskId: input.taskId,
       actionCode: input.actionCode,
       code: "executed",
-      message: "执行成功",
+      message: "Succeeded",
       task: {
         id: input.taskId,
         kind: "novel_workflow",
@@ -172,13 +172,13 @@ test("auto director follow-up routes expose overview, list, detail, and action e
         taskId: "task_1",
         actionCode: input.actionCode,
         code: "executed",
-        message: "执行成功",
+        message: "Succeeded",
       }, {
         directorTaskId: "task_2",
         taskId: "task_2",
         actionCode: input.actionCode,
         code: "state_changed",
-        message: "状态已变化",
+        message: "The state has changed",
       }],
     };
   };

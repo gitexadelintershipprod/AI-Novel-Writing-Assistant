@@ -386,7 +386,7 @@ test("TimelineChecker blocks forbidden event from continuity requirements", () =
       openHooks: [],
       continuityRequirements: ["禁止提前发生：幕后主使现身"],
     }),
-    chapterContent: "幕后主使现身，承认城内动乱是他安排。",
+    chapterContent: "幕后主使现身，承认城内动乱Yes他安排。",
     extractedEvents: [{
       title: "幕后主使现身",
       summary: "正文确认幕后主使已经公开出现。",

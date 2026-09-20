@@ -12,13 +12,13 @@ test("task detail exposes candidate-stage bound model before directorInput exist
 
   prisma.novelWorkflowTask.findUnique = async () => ({
     id: "task_candidate_binding",
-    title: "AI 自动导演",
+    title: "Auto-Director",
     lane: "auto_director",
     status: "running",
     progress: 0.1,
-    currentStage: "AI 自动导演",
+    currentStage: "Auto-Director",
     currentItemKey: "candidate_direction_batch",
-    currentItemLabel: "正在生成第一批书级方案",
+    currentItemLabel: "Generating the first book-level options",
     checkpointType: null,
     checkpointSummary: null,
     resumeTargetJson: null,
@@ -77,13 +77,13 @@ test("task detail compact mode strips heavyweight auto-director seed payload fro
 
   prisma.novelWorkflowTask.findUnique = async () => ({
     id: "task_compact_auto_director",
-    title: "AI 自动导演",
+    title: "Auto-Director",
     lane: "auto_director",
     status: "running",
     progress: 0.76,
-    currentStage: "章节执行",
+    currentStage: "Chapter execution",
     currentItemKey: "chapter_execution_node",
-    currentItemLabel: "等待确认章节执行",
+    currentItemLabel: "等待确认Chapter execution",
     checkpointType: "chapter_batch_ready",
     checkpointSummary: "该动作可能覆盖用户手写内容，需要确认后继续。",
     resumeTargetJson: JSON.stringify({
@@ -228,11 +228,11 @@ test("task center list only queries auto director workflow rows", async () => {
   const rows = [
     {
       id: "task_auto_director",
-      title: "AI 自动导演",
+      title: "Auto-Director",
       lane: "auto_director",
       status: "running",
       progress: 0.58,
-      currentStage: "节奏 / 拆章",
+      currentStage: "Beats / chapters",
       currentItemKey: "beat_sheet",
       currentItemLabel: "正在生成第 1 卷节奏板",
       checkpointType: null,
@@ -260,9 +260,9 @@ test("task center list only queries auto director workflow rows", async () => {
       lane: "manual_create",
       status: "waiting_approval",
       progress: 0.26,
-      currentStage: "项目设定",
+      currentStage: "Project setup",
       currentItemKey: "project_setup",
-      currentItemLabel: "项目设定已打开",
+      currentItemLabel: "Project setup已打开",
       checkpointType: null,
       checkpointSummary: null,
       resumeTargetJson: null,
@@ -319,11 +319,11 @@ test("task center list treats restart recovery note as running recovery instead 
   prisma.novelWorkflowTask.findMany = async () => ([
     {
       id: "task_recovering",
-      title: "AI 自动导演",
+      title: "Auto-Director",
       lane: "auto_director",
       status: "running",
       progress: 0.85,
-      currentStage: "节奏 / 拆章",
+      currentStage: "Beats / chapters",
       currentItemKey: "beat_sheet",
       currentItemLabel: "正在生成第 1 卷节奏板",
       checkpointType: null,
@@ -331,7 +331,7 @@ test("task center list treats restart recovery note as running recovery instead 
       resumeTargetJson: null,
       attemptCount: 1,
       maxAttempts: 3,
-      lastError: "自动导演任务因服务重启中断，正在尝试恢复。",
+      lastError: "The Auto-Director task stopped after a service restart and is trying to recover.",
       createdAt: new Date("2026-04-09T18:00:00.000Z"),
       updatedAt: new Date("2026-04-09T18:08:53.000Z"),
       heartbeatAt: new Date("2026-04-09T18:08:53.000Z"),
@@ -359,7 +359,7 @@ test("task center list treats restart recovery note as running recovery instead 
     assert.equal(list.length, 1);
     assert.equal(list[0].status, "running");
     assert.equal(list[0].displayStatus, "Beats / chapters recovering");
-    assert.equal(list[0].blockingReason, "自动导演任务因服务重启中断，正在尝试恢复。");
+    assert.equal(list[0].blockingReason, "The Auto-Director task stopped after a service restart and is trying to recover.");
     assert.equal(list[0].lastError, null);
     assert.equal(list[0].failureSummary, null);
   } finally {
@@ -376,20 +376,20 @@ test("task center list keeps manual recovery tasks out of running display state"
   prisma.novelWorkflowTask.findMany = async () => ([
     {
       id: "task_manual_recovery",
-      title: "AI 自动导演",
+      title: "Auto-Director",
       lane: "auto_director",
       status: "running",
       pendingManualRecovery: true,
       progress: 0.78,
-      currentStage: "节奏 / 拆章",
+      currentStage: "Beats / chapters",
       currentItemKey: "chapter_list",
-      currentItemLabel: "正在生成第 1 卷节奏段：开卷抓手",
+      currentItemLabel: "正在生成第 1 卷Beat：Opening hook",
       checkpointType: null,
       checkpointSummary: null,
       resumeTargetJson: null,
       attemptCount: 2,
       maxAttempts: 3,
-      lastError: "服务重启后任务已暂停，等待手动恢复。",
+      lastError: "The task paused after a service restart and is waiting for manual recovery.",
       createdAt: new Date("2026-04-29T03:19:37.000Z"),
       updatedAt: new Date("2026-04-29T05:38:33.000Z"),
       heartbeatAt: new Date("2026-04-29T05:38:33.000Z"),
@@ -418,9 +418,9 @@ test("task center list keeps manual recovery tasks out of running display state"
     assert.equal(list[0].status, "queued");
     assert.equal(list[0].pendingManualRecovery, true);
     assert.equal(list[0].displayStatus, "Waiting for manual recovery");
-    assert.equal(list[0].blockingReason, "服务重启后任务已暂停，等待手动恢复。");
+    assert.equal(list[0].blockingReason, "The task paused after a service restart and is waiting for manual recovery.");
     assert.equal(list[0].resumeAction, "Resume from the latest checkpoint");
-    assert.equal(list[0].recoveryHint, "服务重启后任务已暂停，等待手动恢复。");
+    assert.equal(list[0].recoveryHint, "The task paused after a service restart and is waiting for manual recovery.");
   } finally {
     prisma.novelWorkflowTask.findMany = originals.findMany;
     adapter.workflowService.healAutoDirectorTaskState = originalHeal;
@@ -435,11 +435,11 @@ test("task center list surfaces actual auto execution range in explainability fi
   prisma.novelWorkflowTask.findMany = async () => ([
     {
       id: "task_range_ready",
-      title: "AI 自动导演",
+      title: "Auto-Director",
       lane: "auto_director",
       status: "waiting_approval",
       progress: 0.92,
-      currentStage: "章节执行",
+      currentStage: "Chapter execution",
       currentItemKey: "chapter_execution",
       currentItemLabel: "第 11-20 章已准备完成",
       checkpointType: "chapter_batch_ready",
@@ -499,13 +499,13 @@ test("task detail treats review-blocked auto execution as skippable continuation
 
   prisma.novelWorkflowTask.findUnique = async () => ({
     id: "task_review_blocked",
-    title: "AI 自动导演",
+    title: "Auto-Director",
     lane: "auto_director",
     status: "failed",
     progress: 0.98,
-    currentStage: "质量修复",
+    currentStage: "Quality repair",
     currentItemKey: "quality_repair",
-    currentItemLabel: "前 10 章自动执行已暂停",
+    currentItemLabel: "前 10 章Auto-run is paused",
     checkpointType: "chapter_batch_ready",
     checkpointSummary: "前 10 章已进入自动执行，但当前批量任务未完全完成：Chapter generation is blocked until review is resolved.",
     resumeTargetJson: null,

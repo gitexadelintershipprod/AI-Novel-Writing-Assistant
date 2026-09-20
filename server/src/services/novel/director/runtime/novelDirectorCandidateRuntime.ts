@@ -204,7 +204,6 @@ export class NovelDirectorCandidateRuntime {
     return {
       workflowTaskId: taskId,
       idea,
-      marketBriefId: readText(seedPayload.marketBriefId),
       title: readText(seedPayload.title),
       description: readText(seedPayload.description),
       targetAudience: readText(seedPayload.targetAudience),

@@ -29,12 +29,12 @@ function buildRequest(overrides = {}) {
       logline: "一个普通人误入更大的秘密链条。",
       positioning: "都市悬疑成长",
       sellingPoint: "强钩子与高压追更感",
-      coreConflict: "主角必须在真相与自保之间抉择",
+      coreConflict: "Protagonist必须在真相与自保之间抉择",
       protagonistPath: "从被动卷入到主动破局",
-      endingDirection: "主角以代价换来新秩序",
+      endingDirection: "Protagonist以代价换来新秩序",
       hookStrategy: "用反常事件做开局钩子",
       progressionLoop: "调查推进、反噬升级、关系重组",
-      whyItFits: "适合自动导演快速启动",
+      whyItFits: "适合Auto-Director快速启动",
       toneKeywords: ["悬疑", "压迫感"],
       targetChapterCount: 80,
     },
@@ -121,7 +121,7 @@ test("circuit-breaker governance continues, pauses, or fails the real workflow s
     circuitBreaker: {
       status: "open",
       reason: "auto_repair_exhausted",
-      message: "局部修复已耗尽。",
+      message: "局部Repairing已耗尽。",
       chapterId: "chapter-1",
       chapterOrder: 1,
       patchFailureCount: 3,
@@ -619,7 +619,7 @@ test("runFromReady keeps a pending manual-recovery pipeline job paused", async (
           pendingManualRecovery: true,
           currentStage: "queued",
           currentItemLabel: null,
-          error: "章节需要人工确认，后续生成已暂停。",
+          error: "The chapter needs manual confirmation. Later generation is paused.",
         };
       },
       async cancelPipelineJob() {
@@ -824,10 +824,10 @@ test("runFromReady notifies and continues low-risk quality repair in AI-driver e
           currentItemLabel: null,
           payload: JSON.stringify({
             repairMode: "light_repair",
-            qualityAlertDetails: ["第 1 章局部修复完成"],
+            qualityAlertDetails: ["第 1 章局部Repairing完成"],
           }),
           noticeCode: "PIPELINE_QUALITY_REVIEW",
-          noticeSummary: "Some chapters finished below the configured quality threshold: 第 1 章局部修复完成",
+          noticeSummary: "Some chapters finished below the configured quality threshold: 第 1 章局部Repairing完成",
           error: null,
         };
       },
@@ -920,10 +920,10 @@ test("runFromReady notifies final low-risk quality repair without pausing AI-dri
           currentItemLabel: null,
           payload: JSON.stringify({
             repairMode: "light_repair",
-            qualityAlertDetails: ["第 1 章自动修复后仍低于质量阈值"],
+            qualityAlertDetails: ["第 1 章自动Repairing后仍低于质量阈值"],
           }),
           noticeCode: "PIPELINE_QUALITY_REVIEW",
-          noticeSummary: "Some chapters finished below the configured quality threshold: 第 1 章自动修复后仍低于质量阈值",
+          noticeSummary: "Some chapters finished below the configured quality threshold: 第 1 章自动Repairing后仍低于质量阈值",
           error: null,
         };
       },
@@ -1024,10 +1024,10 @@ test("runFromReady honors approval selection for low-risk quality repair outside
             currentItemLabel: null,
             payload: JSON.stringify({
               repairMode: "light_repair",
-              qualityAlertDetails: ["第 1 章局部修复完成"],
+              qualityAlertDetails: ["第 1 章局部Repairing完成"],
             }),
             noticeCode: "PIPELINE_QUALITY_REVIEW",
-            noticeSummary: "Some chapters finished below the configured quality threshold: 第 1 章局部修复完成",
+            noticeSummary: "Some chapters finished below the configured quality threshold: 第 1 章局部Repairing完成",
             error: null,
           };
         }
@@ -2494,7 +2494,7 @@ test("prepareRequestedAutoExecution allows full-book autopilot JIT chapters with
             id: "chapter-1",
             order: 1,
             title: "拾起异虫",
-            expectation: "主角在垃圾堆救下濒死毛毛虫，建立第一层情感连接。",
+            expectation: "Protagonist在垃圾堆救下濒死毛毛虫，建立第一层情感连接。",
             generationState: "planned",
             content: "",
             targetWordCount: null,
@@ -2508,7 +2508,7 @@ test("prepareRequestedAutoExecution allows full-book autopilot JIT chapters with
             id: "chapter-2",
             order: 2,
             title: "街头护虫",
-            expectation: "反派随从当众羞辱主角，主角护住毛毛虫并埋下蜕变伏笔。",
+            expectation: "Antagonist随从当众羞辱Protagonist，Protagonist护住毛毛虫并埋下蜕变伏笔。",
             generationState: "planned",
             content: "",
             targetWordCount: null,

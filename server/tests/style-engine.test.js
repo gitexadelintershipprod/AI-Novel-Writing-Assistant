@@ -230,10 +230,10 @@ test("AntiAiRuleService defaults new custom rules outside global baseline", asyn
   try {
     const created = await new AntiAiRuleService().createRule({
       key: "custom-rule",
-      name: "自定义规则",
+      name: "Custom规则",
       type: "forbidden",
       severity: "medium",
-      description: "自定义禁用表达。",
+      description: "Custom禁用表达。",
     });
     assert.equal(capturedData.globalBaselineEnabled, false);
     assert.equal(created.globalBaselineEnabled, false);
@@ -457,7 +457,7 @@ test("AntiAiRuleService generates safe AI drafts for new rules", async () => {
           promptInstruction: "避免用段尾总结解释场景意义。",
           rewriteSuggestion: "改成动作、对白或具体反应推动信息。",
         },
-        rationale: "把用户需求收束为表达层风险规则。",
+        rationale: "把用户需求Resolution为表达层风险规则。",
         safetyNotes: ["适合先作为写法专属规则试用。"],
       },
       repairUsed: false,
@@ -682,7 +682,7 @@ test("style rewrite prompt avoids suggestion copying and factual hook injection"
     promptInput: {
       styleContractText: "none",
       content: "原文",
-      issuesBlock: "1. 模板化开头\n片段：明堂灯火通明\n修正建议：改为主角局部感知，例如：丝竹声传来，我跟着几位宗室伯爵走进明堂。",
+      issuesBlock: "1. 模板化开头\n片段：明堂灯火通明\n修正建议：改为Protagonist局部感知，例如：丝竹声传来，我跟着几位宗室伯爵走进明堂。",
     },
   });
   const promptText = rendered.messages.map((message) => String(message.content)).join("\n");
@@ -771,7 +771,7 @@ test("style engine routes return mocked payloads", async () => {
       id: "feature-1",
       group: "language",
       label: "口语化短句",
-      description: "语言更偏口语和短句推进。",
+      description: "Language更偏口语和短句推进。",
       evidence: "他抬手骂了一句，后半句没说完。",
       importance: 0.8,
       imitationValue: 0.9,
@@ -790,7 +790,7 @@ test("style engine routes return mocked payloads", async () => {
     }],
     presets: [{
       key: "balanced",
-      label: "平衡保留",
+      label: "Balanced keep",
       summary: "默认平衡方案",
       decisions: [{ featureId: "feature-1", decision: "keep" }],
     }],
@@ -994,7 +994,7 @@ test("style engine routes return mocked payloads", async () => {
     const fromAnalysisResponse = await fetch(`http://127.0.0.1:${port}/api/style-profiles/from-book-analysis`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ bookAnalysisId: "analysis-1", name: "拆书写法" }),
+      body: JSON.stringify({ bookAnalysisId: "analysis-1", name: "book analysis写法" }),
     });
     assert.equal(fromAnalysisResponse.status, 201);
     assert.equal((await fromAnalysisResponse.json()).data.name, fakeProfile.name);

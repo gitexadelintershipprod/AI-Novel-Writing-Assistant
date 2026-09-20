@@ -75,10 +75,10 @@ test("task recovery routes expose overview, recovery candidates, and resume acti
     items: [{
       id: "workflow-1",
       kind: "novel_workflow",
-      title: "《风雪断桥》自动导演",
+      title: "《风雪断桥》Auto-Director",
       ownerLabel: "风雪断桥",
       status: "queued",
-      currentStage: "故事宏观规划",
+      currentStage: "Story planning",
       currentItemLabel: "等待恢复候选方向",
       resumeAction: "继续导演",
       sourceRoute: "/novels/auto-director?taskId=workflow-1",

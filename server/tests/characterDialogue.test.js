@@ -15,7 +15,7 @@ function influenceRow(data = {}) {
     characterId: "character-1",
     sourceMindSnapshotId: "mind-1",
     summary: "他愿意先用一件小事验证对方。",
-    behaviorGuidance: "先提出一个可撤回的小交换，再决定是否交出线索。",
+    behaviorGuidance: "先提出一个可撤回的小交换，再决定YesNo交出线索。",
     emotionalGuidance: "谨慎里带一点松动。",
     relationTension: "信任仍需被证明。",
     evidenceJson: JSON.stringify(["他仍在隐瞒钥匙的用途。"]),
@@ -105,7 +105,7 @@ test("a dialogue turn stores both voices and only the structured result becomes 
     }),
   };
   prisma.character = { findFirst: async () => ({
-    id: "character-1", name: "程秩", role: "主角", storyFunction: null, personality: "谨慎", background: null, development: null,
+    id: "character-1", name: "程秩", role: "Protagonist", storyFunction: null, personality: "谨慎", background: null, development: null,
     currentState: null, currentGoal: "查清真相", identityLabel: null, factionLabel: null, stanceLabel: null,
     outerGoal: null, innerNeed: null, fear: null, wound: null, misbelief: null, secret: null, moralLine: null,
   }) };

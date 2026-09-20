@@ -1,6 +1,6 @@
 # English UI maintenance
 
-This fork ships English product copy on `main`. Developer wiki, plans, and other internal docs are also English. The overlay is a shrinking safety net until remaining dual-read aliases and comments are gone.
+This fork ships English product copy on `main`. Developer wiki, plans, and other internal docs are also English. The overlay catalog is empty: source copy is English and leftover Han is a leak-guard, not a translation dictionary.
 
 ## Baseline and remotes
 
@@ -13,9 +13,9 @@ This fork ships English product copy on `main`. Developer wiki, plans, and other
 
 Product **source copy is English**. New UI, API errors, workflow catalogs, stored protocol values, wiki pages, and other developer docs must be written in English. Do not add Chinese JSX, HTTP messages, or enum literals. Server control strings assembled into LLM context should be English; creative PromptAsset bodies stay Georgian (`language: "ka"`).
 
-The client still initializes i18next as English-only. `EnglishUiBoundary` plus `legacy-ui.json` remain a shrinking safety net for any leftover Han in source. Native `confirm` / `alert` / `Notification` and interpolated templates are not covered by the overlay, so those strings must be English in source.
+The client still initializes i18next as English-only. `EnglishUiBoundary` remains only as a last-resort Han detector; `legacy-ui.json` is empty. Native `confirm` / `alert` / `Notification` and interpolated templates are not covered by the overlay, so those strings must be English in source.
 
-Stored protocol values (character story function, world type, beat `roleLabel`, Creative Hub thread title, snapshotted task labels) are English on write. A one-time dual-read map in `shared/types/legacyProtocolValues.ts` still accepts legacy Chinese rows. User-authored novel prose, knowledge bodies, and Market Radar scrape titles are not rewritten.
+Stored protocol values (character story function, world type, beat `roleLabel`, Creative Hub thread title, snapshotted task labels) are English-only. There is no dual-read of old Chinese protocol rows. User-authored novel prose and knowledge bodies are not rewritten.
 
 Shared navigation and brand copy use semantic keys in feature-scoped English namespaces. Prefer semantic i18n keys for new UI. Add a dynamic pattern only when source still assembles a bounded legacy sentence at runtime.
 
@@ -27,16 +27,9 @@ Electron startup, splash, updater, failure-dialog, and log-bundle copy comes fro
 
 ## Retained Chinese source values
 
-Chinese source text remains only when changing it would alter generation, break dual-read, or describe user/fixture content. Wiki and other developer docs must not keep Chinese prose; quoted dual-read aliases belong in `config/english-docs-allowlist.json`. Client/desktop leftover Han lines have an exact path, text, and reason in `config/english-ui-allowlist.json`. The main classifications are:
+Chinese source text remains only for CJK leak guards (honorific sanitizer tokens, prose-quality detectors, encoding/mojibake checks, comic speaker-prefix strip). Wiki and other developer docs must not keep Chinese prose. Client/desktop leftover Han lines have an exact path, text, and reason in `config/english-ui-allowlist.json`. Dual-read protocol aliases and overlay catalog keys are not allowed.
 
-- dual-read aliases and legacy protocol map keys;
-- AI prompts, templates, and authored content;
-- fixtures and contract-test text;
-- developer comments;
-- leftover source labels still covered by the shrinking presentation overlay;
-- Chinese source phrases used as exact keys in the English presentation catalog.
-
-`pnpm check:english-ui` fails when a Han-containing line is added, removed, or changed without updating its classification. It also rejects Chinese values in the English catalog and verifies the fixed English i18n configuration.
+`pnpm check:english-ui` fails when a Han-containing line is added, removed, or changed without updating its classification. It also verifies the empty English catalog and the fixed English i18n configuration.
 
 After intentionally classifying an upstream change, review it and run:
 

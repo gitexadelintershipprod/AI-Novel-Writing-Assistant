@@ -317,7 +317,6 @@ function buildCandidateTitleBrief(
     context.request.readerChannelPreference === "female_oriented" ? "Audience orientation: relationship-oriented" : "",
     context.request.readerChannelPreference === "general" ? "Audience orientation: broad audience" : "",
     context.request.targetAudience?.trim() ? `Target audience: ${context.request.targetAudience.trim()}` : "",
-    context.request.marketBriefPrompt?.trim() ? `Market brief: \n${context.request.marketBriefPrompt.trim()}` : "",
     candidate.toneKeywords.length > 0 ? `Tone keywords: ${candidate.toneKeywords.join(", ")}` : "",
     context.request.title?.trim() ? `User's draft title: ${context.request.title.trim()}` : "",
     `Current candidate's original title: ${candidate.workingTitle}`,

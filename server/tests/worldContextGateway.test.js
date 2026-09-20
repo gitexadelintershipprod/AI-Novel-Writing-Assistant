@@ -20,7 +20,7 @@ function buildSlice() {
       id: "force-court",
       name: "星皇朝廷",
       summary: "控制星核分配的旧秩序中心。",
-      roleInStory: "主角身份与资源压力的来源。",
+      roleInStory: "Protagonist身份与资源压力的来源。",
       pressure: "通过配额、身份审查和边境调令持续施压。",
     }],
     activeLocations: [{

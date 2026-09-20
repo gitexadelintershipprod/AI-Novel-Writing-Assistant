@@ -26,7 +26,7 @@ function buildRun() {
     steps: [{
       idempotencyKey: "task-1:candidate_generation:global:global",
       nodeKey: "candidate_generation",
-      label: "生成书级候选",
+      label: "Generate book-level candidates",
       status: "succeeded",
       targetType: "global",
       targetId: "global",
@@ -43,7 +43,7 @@ function buildRun() {
       nodeKey: "candidate_generation",
       artifactId: null,
       artifactType: null,
-      summary: "生成书级候选完成。",
+      summary: "Generate book-level candidates完成。",
       affectedScope: null,
       severity: null,
       occurredAt: new Date("2026-05-02T15:18:33.000Z"),
@@ -289,7 +289,7 @@ test("runtime projection marks expired leased commands as recovering", async () 
     currentStep: "resume_from_checkpoint",
     checkpointVersion: 2,
     workerMessage: null,
-    lastErrorMessage: "后台执行中断，系统会从最近进度继续。",
+    lastErrorMessage: "后台执行中断，系统会从最近Progress继续。",
     lastHeartbeatAt: new Date("2026-05-03T00:00:00.000Z"),
     updatedAt: new Date("2026-05-03T00:00:00.000Z"),
     executions: [],
@@ -300,7 +300,7 @@ test("runtime projection marks expired leased commands as recovering", async () 
       status: "leased",
       leaseOwner: "dead-worker:slot-1",
       leaseExpiresAt: new Date("2026-05-03T00:00:00.000Z"),
-      errorMessage: "后台执行中断，系统会从最近进度继续。",
+      errorMessage: "后台执行中断，系统会从最近Progress继续。",
       runAfter: new Date("2026-05-03T00:00:00.000Z"),
       startedAt: null,
       finishedAt: null,
@@ -324,7 +324,7 @@ test("runtime projection marks expired leased commands as recovering", async () 
     assert.equal(projection.workerHealth.currentWorkerId, "dead-worker");
     assert.equal(projection.workerHealth.currentSlotId, "slot-1");
     assert.equal(projection.workerHealth.nextAction, "recover_stale_command");
-    assert.equal(projection.workerHealth.blockedReason, "后台执行中断，系统会从最近进度继续。");
+    assert.equal(projection.workerHealth.blockedReason, "后台执行中断，系统会从最近Progress继续。");
   } finally {
     prisma.directorRun.findUnique = originals.runFindUnique;
     prisma.directorRunCommand.findFirst = originals.commandFindFirst;

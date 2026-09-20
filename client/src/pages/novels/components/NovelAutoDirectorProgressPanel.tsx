@@ -375,7 +375,7 @@ export default function NovelAutoDirectorProgressPanel({
     || task?.checkpointSummary?.trim()
     || fallbackError?.trim()
     || "Director task execution failed, but no clear error was logged.";
-  const isHighMemoryConflict = /高内存卷规划生成正在处理同一范围|高内存.*同一范围|已有自动导演任务正在处理同一范围|high[- ]memory.*same range|another auto-director task is already handling the same range/i.test(failureMessage);
+  const isHighMemoryConflict = /high[- ]memory.*same range|another auto-director task is already handling the same range/i.test(failureMessage);
   const tokenUsage = task?.tokenUsage ?? null;
   const styleSeed = resolveDirectorStyleSeed(task);
   const containerMode: AITakeoverMode = visualMode === "execution_failed"

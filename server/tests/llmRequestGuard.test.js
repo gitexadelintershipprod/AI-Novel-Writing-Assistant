@@ -42,7 +42,7 @@ test("LLM request guard rejects blank entries inside batch calls", () => {
 
 test("LLM request guard accepts non-empty messages", () => {
   assert.doesNotThrow(() => assertNonEmptyLLMInput("stream", [
-    new SystemMessage("你是小说规划助手。"),
+    new SystemMessage("你Yes小说规划助手。"),
     new HumanMessage([{ type: "text", text: "规划第 1 卷。" }]),
   ], meta));
 });

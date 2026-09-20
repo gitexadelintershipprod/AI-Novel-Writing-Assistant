@@ -33,6 +33,6 @@ test("candidate title refinement keeps its runtime node identity", () => {
   const adapter = getDirectorCandidateNodeAdapter("candidate_title_refine");
 
   assert.equal(adapter.nodeKey, "candidate_title_refine");
-  assert.equal(adapter.label, "优化候选书名");
+  assert.equal(adapter.label, "Refine candidate titles");
   assert.equal(adapter.waitingState.itemKey, "candidate_title_refine");
 });

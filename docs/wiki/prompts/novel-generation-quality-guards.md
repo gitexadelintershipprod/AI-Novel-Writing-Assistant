@@ -111,7 +111,7 @@ keyMilestoneGuards: z.array(volumeKeyMilestoneGuardSchema).default([])
 
 The Georgian writing fork has no legacy Chinese projects or Chinese import workflow. Structured creative outputs use canonical English enum values, while prose and analysis content use Georgian. Timeline normalization, chapter-editor diagnostics, continuation-context extraction, chapter-title anchors, and information-boundary replacement must not accept Chinese aliases or labels.
 
-This is a deliberate fail-closed boundary: an unexpected translated enum or legacy label should fail schema validation instead of being silently normalized. The Georgian-content audit permits Han literals only inside the disabled Market Radar source assets; parser compatibility is not an allowlist category.
+This is a deliberate fail-closed boundary: an unexpected translated enum or legacy label should fail schema validation instead of being silently normalized. Parser compatibility is not an allowlist category.
 
 ## Source Documents
 

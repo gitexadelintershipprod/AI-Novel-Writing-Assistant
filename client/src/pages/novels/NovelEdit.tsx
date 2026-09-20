@@ -660,7 +660,7 @@ export default function NovelEdit() {
     [normalizedVolumeDraft, outlineSyncChapters, volumeSyncOptions],
   );
   const coreCharacterCount = useMemo(
-    () => characters.filter((item) => /主角|反派|protagonist|antagonist/i.test(item.role)).length,
+    () => characters.filter((item) => /protagonist|antagonist/i.test(item.role)).length,
     [characters],
   );
   const bible = novelDetailQuery.data?.data?.bible;

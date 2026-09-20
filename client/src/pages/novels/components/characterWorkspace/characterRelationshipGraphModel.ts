@@ -145,7 +145,7 @@ export function buildRelationshipGraphModel(input: {
           label: compactText(character.relationToProtagonist) || "relationship with protagonist",
           dynamicStages: [],
           isDynamic: false,
-          isHighTension: /敌|压|冲突|背叛|利用|怀疑|监视|威胁|秘密|隐瞒|enemy|rival|conflict|betray|exploit|suspect|surveil|threat|secret|hidden/i.test(character.relationToProtagonist ?? ""),
+          isHighTension: /enemy|rival|conflict|betray|exploit|suspect|surveil|threat|secret|hidden/i.test(character.relationToProtagonist ?? ""),
           weight: 1.1,
         });
       }
@@ -473,13 +473,13 @@ function isStaticRelationHighTension(relation: CharacterRelation): boolean {
     relation.dynamicLabel,
     relation.nextTurnPoint,
   ].filter(Boolean).join(" ");
-  return /敌|压|冲突|背叛|利用|怀疑|监视|威胁|秘密|隐瞒|对立|反转|代价|enemy|rival|conflict|betray|exploit|suspect|surveil|threat|secret|hidden|opposition|reversal|cost/i.test(text)
+  return /enemy|rival|conflict|betray|exploit|suspect|surveil|threat|secret|hidden|opposition|reversal|cost/i.test(text)
     || (relation.conflictScore ?? 0) >= 0.55;
 }
 
 function isDynamicStageHighTension(stage: CharacterRelationStage): boolean {
   const text = [stage.stageLabel, stage.stageSummary, stage.nextTurnPoint].filter(Boolean).join(" ");
-  return /敌|压|冲突|背叛|利用|怀疑|监视|威胁|秘密|隐瞒|对立|反转|代价|升级|enemy|rival|conflict|betray|exploit|suspect|surveil|threat|secret|hidden|opposition|reversal|cost|escalate/i.test(text);
+  return /enemy|rival|conflict|betray|exploit|suspect|surveil|threat|secret|hidden|opposition|reversal|cost|escalate/i.test(text);
 }
 
 function clamp(value: number, min: number, max: number): number {

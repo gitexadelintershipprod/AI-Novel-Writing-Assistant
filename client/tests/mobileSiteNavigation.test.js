@@ -21,7 +21,6 @@ const routedPaths = [
   "/drama",
   "/chat-legacy",
   "/book-analysis",
-  "/market-radar",
   "/tasks",
   "/auto-director/follow-ups",
   "/knowledge",
@@ -56,11 +55,11 @@ test("mobile primary nav keeps core beginner actions visible", () => {
   assert.deepEqual(
     getMobilePrimaryNavItems().map((item) => [item.key, item.to, item.label]),
     [
-      ["home", "/", "首页"],
-      ["novels", "/novels", "小说"],
-      ["creation", "/creative-hub", "创作"],
-      ["tasks", "/tasks", "任务"],
-      ["more", "", "更多"],
+      ["home", "/", "Home page"],
+      ["novels", "/novels", "Novel"],
+      ["creation", "/creative-hub", "create"],
+      ["tasks", "/tasks", "Task"],
+      ["more", "", "More"],
     ],
   );
 });

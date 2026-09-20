@@ -16,12 +16,9 @@ test("English-only i18n configuration ignores saved language preferences", () =>
   assert.doesNotMatch(source, /localStorage/);
 });
 
-test("English UI catalog has English values and core domain labels", () => {
+test("English UI catalog is empty because source copy is English", () => {
   const catalog = JSON.parse(fs.readFileSync(path.join(clientRoot, "src/locales/en/legacy-ui.json"), "utf8"));
-  assert.equal(catalog["主角"], "Protagonist");
-  assert.equal(catalog["已完成"], "Completed");
-  assert.ok(Object.keys(catalog).length > 8_000);
-  assert.deepEqual(Object.values(catalog).filter((value) => han.test(value)), []);
+  assert.deepEqual(catalog, {});
 });
 
 test("desktop startup, updater, and dialog sources contain no Chinese UI text", () => {

@@ -312,9 +312,7 @@ export const novelReadToolDefinitions: Partial<
         "novel character",
         "character status",
         "current novel characters",
-        "当前小说有几个角色",
-        "列出当前小说角色情况",
-      ],
+                      ],
       phrases: [
         "How many characters this book has already planned",
         "How many characters does the current novel have",
@@ -450,15 +448,7 @@ export const novelReadToolDefinitions: Partial<
       aliases: [
         "Knowledge base search",
         "knowledge search",
-        "搜索知识",
-        "设定参考检索",
-        "世界观参考检索",
-        "搜索知识库",
-        "查一下相关资料",
-        "从知识库里找信息",
-        "找类似的设定",
-        "从拆书或世界观里找参考",
-      ],
+                                                                      ],
       phrases: [
         "Search the knowledge base",
         "Look up related material",

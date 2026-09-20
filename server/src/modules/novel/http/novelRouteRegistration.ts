@@ -70,7 +70,7 @@ function forwardBusinessError(error: unknown, next: (err?: unknown) => void): bo
   if (!(error instanceof Error)) {
     return false;
   }
-  const isBusiness = /请先在本小说中至少添加|Add at least .+ characters to this novel|The base character does not exist|Generate the novel's story direction first|There are no chapters to generate in the selected range|指定区间内没有可生成的章节|current novel还没有章节|This novel has no chapters/.test(error.message);
+  const isBusiness = /Add at least .+ characters to this novel|The base character does not exist|Generate the novel's story direction first|There are no chapters to generate in the selected range|This novel has no chapters/.test(error.message);
   if (!isBusiness) {
     return false;
   }

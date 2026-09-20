@@ -67,12 +67,12 @@ function createPromptInput(targetChapterCount = 4) {
       sortOrder: 1,
       title: "第一卷",
       summary: "卷摘要",
-      openingHook: "开卷抓手",
+      openingHook: "Opening hook",
       mainPromise: "主承诺",
       primaryPressureSource: "压力源",
       coreSellingPoint: "核心卖点",
       escalationMode: "升级方式",
-      protagonistChange: "主角变化",
+      protagonistChange: "Protagonist变化",
       midVolumeRisk: "中段风险",
       climax: "高潮",
       payoffType: "兑现类型",
@@ -92,8 +92,8 @@ function createPromptInput(targetChapterCount = 4) {
       beats: [
         {
           key: "open_hook",
-          label: "开卷抓手",
-          summary: "先把世界危险和主角困境钉死。",
+          label: "Opening hook",
+          summary: "先把世界危险和Protagonist困境钉死。",
           chapterSpanHint: `1-${targetChapterCount}章`,
           mustDeliver: ["压迫感", "困境"],
         },
@@ -101,8 +101,8 @@ function createPromptInput(targetChapterCount = 4) {
     },
     targetBeat: {
       key: "open_hook",
-      label: "开卷抓手",
-      summary: "先把世界危险和主角困境钉死。",
+      label: "Opening hook",
+      summary: "先把世界危险和Protagonist困境钉死。",
       chapterSpanHint: `1-${targetChapterCount}章`,
       mustDeliver: ["压迫感", "困境"],
     },
@@ -179,14 +179,14 @@ test("volume chapter list prompt render hardens title diversity rules", () => {
   const messages = createVolumeChapterListPrompt({
     targetChapterCount: 6,
     targetBeatKey: "open_hook",
-    targetBeatLabel: "开卷抓手",
+    targetBeatLabel: "Opening hook",
   }).render({
     ...createPromptInput(6),
     retryReason: "章名结构过于集中",
   }, EMPTY_CONTEXT);
 
   assert.equal(messages.length, 2);
-  assert.match(String(messages[0].content), /Generate exactly 6 chapters for the "开卷抓手" beat/);
+  assert.match(String(messages[0].content), /Generate exactly 6 chapters for the "Opening hook" beat/);
   assert.match(String(messages[0].content), /beatKey must be strictly equal to open_hook/);
   assert.match(String(messages[0].content), /chapterCount and chapters\.length must be strictly equal to 6/);
   const rendered = String(messages[0].content);
@@ -207,13 +207,13 @@ test.skip("volume chapter list prompt retries semantically when titles are struc
       return {
         data: {
           beatKey: "open_hook",
-          beatLabel: "开卷抓手",
+          beatLabel: "Opening hook",
           chapterCount: 4,
           chapters: [
-            { beatKey: "open_hook", title: "签下合同，甜蜜同居", summary: "主角暂时稳住住处问题，同时把关系线推进到新阶段。" },
-            { beatKey: "open_hook", title: "房租超支，紧急筹钱", summary: "现实压力突然压上来，逼着主角立刻行动。" },
-            { beatKey: "open_hook", title: "林晓求职，首战告败", summary: "主角第一次外出求职受挫，确认局面没有想象中轻松。" },
-            { beatKey: "open_hook", title: "苏雨追梦，画室坚守", summary: "配角线同步抬升，让现实理想冲突进一步显形。" },
+            { beatKey: "open_hook", title: "签下合同，甜蜜同居", summary: "Protagonist暂时稳住住处问题，同时把关系线推进到新阶段。" },
+            { beatKey: "open_hook", title: "房租超支，紧急筹钱", summary: "现实压力突然压上来，逼着Protagonist立刻行动。" },
+            { beatKey: "open_hook", title: "林晓求职，首战告败", summary: "Protagonist第一次外出求职Setback，确认局面没有想象中轻松。" },
+            { beatKey: "open_hook", title: "苏雨追梦，画室坚守", summary: "Supporting线同步抬升，让现实理想冲突进一步显形。" },
           ],
         },
         repairUsed: false,
@@ -224,13 +224,13 @@ test.skip("volume chapter list prompt retries semantically when titles are struc
     return {
       data: {
         beatKey: "open_hook",
-        beatLabel: "开卷抓手",
+        beatLabel: "Opening hook",
         chapterCount: 4,
         chapters: [
-          { beatKey: "open_hook", title: "夜探旧温室", summary: "主角夜探温室，确认异常来源并推动探索线正式启动。" },
+          { beatKey: "open_hook", title: "夜探旧温室", summary: "Protagonist夜探温室，确认异常来源并推动探索线正式启动。" },
           { beatKey: "open_hook", title: "掠夺者逼近", summary: "外部威胁压到眼前，当前卷的生存压力第一次真正落地。" },
-          { beatKey: "open_hook", title: "谁在回收种子？", summary: "主角发现有人暗中回收灵种，把悬疑线抬到台前。" },
-          { beatKey: "open_hook", title: "防线第一次成形", summary: "主角完成阶段性布防，让当前卷第一次出现可见成果。" },
+          { beatKey: "open_hook", title: "谁在回收种子？", summary: "Protagonist发现有人暗中回收灵种，把悬疑线抬到台前。" },
+          { beatKey: "open_hook", title: "防线第一次成形", summary: "Protagonist完成阶段性布防，让当前卷第一次出现可见成果。" },
         ],
       },
       repairUsed: false,
@@ -243,7 +243,7 @@ test.skip("volume chapter list prompt retries semantically when titles are struc
       asset: createVolumeChapterListPrompt({
         targetChapterCount: 4,
         targetBeatKey: "open_hook",
-        targetBeatLabel: "开卷抓手",
+        targetBeatLabel: "Opening hook",
       }),
       promptInput: createPromptInput(4),
     });
@@ -267,13 +267,13 @@ test("volume chapter list prompt degrades title diversity failure after semantic
     return {
       data: {
         beatKey: "open_hook",
-        beatLabel: "开卷抓手",
+        beatLabel: "Opening hook",
         chapterCount: 4,
         chapters: [
-          { beatKey: "open_hook", title: "签下合同，甜蜜同居", summary: "主角暂时稳住住处问题，同时把关系线推进到新阶段。" },
-          { beatKey: "open_hook", title: "房租超支，紧急筹钱", summary: "现实压力突然压上来，逼着主角立刻行动。" },
-          { beatKey: "open_hook", title: "林晓求职，首战告败", summary: "主角第一次外出求职受挫，确认局面没有想象中轻松。" },
-          { beatKey: "open_hook", title: "苏雨追梦，画室坚守", summary: "配角线同步抬升，让现实理想冲突进一步显形。" },
+          { beatKey: "open_hook", title: "签下合同，甜蜜同居", summary: "Protagonist暂时稳住住处问题，同时把关系线推进到新阶段。" },
+          { beatKey: "open_hook", title: "房租超支，紧急筹钱", summary: "现实压力突然压上来，逼着Protagonist立刻行动。" },
+          { beatKey: "open_hook", title: "林晓求职，首战告败", summary: "Protagonist第一次外出求职Setback，确认局面没有想象中轻松。" },
+          { beatKey: "open_hook", title: "苏雨追梦，画室坚守", summary: "Supporting线同步抬升，让现实理想冲突进一步显形。" },
         ],
       },
       repairUsed: false,
@@ -286,7 +286,7 @@ test("volume chapter list prompt degrades title diversity failure after semantic
       asset: createVolumeChapterListPrompt({
         targetChapterCount: 4,
         targetBeatKey: "open_hook",
-        targetBeatLabel: "开卷抓手",
+        targetBeatLabel: "Opening hook",
       }),
       promptInput: createPromptInput(4),
     });
@@ -315,11 +315,11 @@ test("volume chapter list prompt keeps first-person title failures blocking afte
     return {
       data: {
         beatKey: "open_hook",
-        beatLabel: "开卷抓手",
+        beatLabel: "Opening hook",
         chapterCount: 3,
         chapters: [
           { beatKey: "open_hook", title: "მე გავწყვიტე საბედისწერო სიტყვა", summary: "მთავარი გმირი საფრთხეს გაურბის და ვითარებას ცვლის." },
-          { beatKey: "open_hook", title: "断魂钉现", summary: "新的危险落到台前，迫使主角调整计划。" },
+          { beatKey: "open_hook", title: "断魂钉现", summary: "新的危险落到台前，迫使Protagonist调整计划。" },
           { beatKey: "open_hook", title: "阵眼裂缝", summary: "本段危机出现阶段性转向，并留下后续牵引。" },
         ],
       },
@@ -333,7 +333,7 @@ test("volume chapter list prompt keeps first-person title failures blocking afte
       asset: createVolumeChapterListPrompt({
         targetChapterCount: 3,
         targetBeatKey: "open_hook",
-        targetBeatLabel: "开卷抓手",
+        targetBeatLabel: "Opening hook",
       }),
       promptInput: createPromptInput(3),
     }), /first-person/);
@@ -352,13 +352,13 @@ test("volume chapter list prompt keeps hard contract failures blocking after sem
     return {
       data: {
         beatKey: "wrong_beat",
-        beatLabel: "开卷抓手",
+        beatLabel: "Opening hook",
         chapterCount: 4,
         chapters: [
-          { beatKey: "wrong_beat", title: "夜探旧温室", summary: "主角夜探温室，确认异常来源并推动探索线正式启动。" },
+          { beatKey: "wrong_beat", title: "夜探旧温室", summary: "Protagonist夜探温室，确认异常来源并推动探索线正式启动。" },
           { beatKey: "wrong_beat", title: "掠夺者逼近", summary: "外部威胁压到眼前，当前卷的生存压力第一次真正落地。" },
-          { beatKey: "wrong_beat", title: "谁在回收种子？", summary: "主角发现有人暗中回收灵种，把悬疑线抬到台前。" },
-          { beatKey: "wrong_beat", title: "防线第一次成形", summary: "主角完成阶段性布防，让当前卷第一次出现可见成果。" },
+          { beatKey: "wrong_beat", title: "谁在回收种子？", summary: "Protagonist发现有人暗中回收灵种，把悬疑线抬到台前。" },
+          { beatKey: "wrong_beat", title: "防线第一次成形", summary: "Protagonist完成阶段性布防，让当前卷第一次出现可见成果。" },
         ],
       },
       repairUsed: false,
@@ -371,7 +371,7 @@ test("volume chapter list prompt keeps hard contract failures blocking after sem
       asset: createVolumeChapterListPrompt({
         targetChapterCount: 4,
         targetBeatKey: "open_hook",
-        targetBeatLabel: "开卷抓手",
+        targetBeatLabel: "Opening hook",
       }),
       promptInput: createPromptInput(4),
     }), /beatKey must be strictly equal to open_hook/);
@@ -390,12 +390,12 @@ test("volume chapter list prompt blocks copied titles from earlier beats after s
     return {
       data: {
         beatKey: "open_hook",
-        beatLabel: "开卷抓手",
+        beatLabel: "Opening hook",
         chapterCount: 3,
         chapters: [
-          { beatKey: "open_hook", title: "夜探旧温室", summary: "主角夜探温室，确认异常来源并推动探索线正式启动。" },
+          { beatKey: "open_hook", title: "夜探旧温室", summary: "Protagonist夜探温室，确认异常来源并推动探索线正式启动。" },
           { beatKey: "open_hook", title: "掠夺者逼近", summary: "外部威胁压到眼前，当前卷的生存压力第一次真正落地。" },
-          { beatKey: "open_hook", title: "防线成形", summary: "主角完成阶段性布防，让当前卷第一次出现可见成果。" },
+          { beatKey: "open_hook", title: "防线成形", summary: "Protagonist完成阶段性布防，让当前卷第一次出现可见成果。" },
         ],
       },
       repairUsed: false,
@@ -408,7 +408,7 @@ test("volume chapter list prompt blocks copied titles from earlier beats after s
       asset: createVolumeChapterListPrompt({
         targetChapterCount: 3,
         targetBeatKey: "open_hook",
-        targetBeatLabel: "开卷抓手",
+        targetBeatLabel: "Opening hook",
         reservedChapterTitles: ["夜探旧温室"],
       }),
       promptInput: createPromptInput(3),

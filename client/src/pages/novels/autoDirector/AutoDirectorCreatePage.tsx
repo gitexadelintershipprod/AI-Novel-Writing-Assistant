@@ -9,10 +9,8 @@ import { bootstrapNovelWorkflow } from "@/api/novelWorkflow";
 import { setNovelCreationExperience } from "@/api/novel";
 import { queryKeys } from "@/api/queryKeys";
 import { getWorldList } from "@/api/world";
-import { getMarketCreativeBrief } from "@/api/marketRadar";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
-import { featureFlags } from "@/config/featureFlags";
 import {
   createDefaultNovelBasicFormState,
   patchNovelBasicForm,
@@ -24,7 +22,6 @@ import StageIdea from "./StageIdea";
 import StageModelRun from "./StageModelRun";
 import StageSummaryCard from "./StageSummaryCard";
 import StageWorldStyle from "./StageWorldStyle";
-import { fillMissingCreationFoundation } from "./creationFoundationPickerState";
 import {
   AUTO_DIRECTOR_CREATE_STAGES,
   type AutoDirectorCreateStageKey,
@@ -37,13 +34,12 @@ import { useAutoDirectorCreateController } from "./useAutoDirectorCreateControll
 
 const STAGE_ORDER: AutoDirectorCreateStageKey[] = ["idea", "basic", "world_style", "model_run", "candidates"];
 
-function buildAutoDirectorCreateLink(taskId?: string, marketBriefId?: string): string {
-  if (!taskId && !marketBriefId) {
+function buildAutoDirectorCreateLink(taskId?: string): string {
+  if (!taskId) {
     return "/novels/auto-director";
   }
   const searchParams = new URLSearchParams();
-  if (taskId) searchParams.set("taskId", taskId);
-  if (marketBriefId) searchParams.set("marketBriefId", marketBriefId);
+  searchParams.set("taskId", taskId);
   return `/novels/auto-director?${searchParams.toString()}`;
 }
 
@@ -59,14 +55,12 @@ export default function AutoDirectorCreatePage() {
   const taskIdFromQuery = searchParams.get("taskId")?.trim() ?? "";
   const legacyTaskIdFromQuery = searchParams.get("workflowTaskId")?.trim() ?? "";
   const normalizedTaskId = taskIdFromQuery || legacyTaskIdFromQuery;
-  const marketBriefId = searchParams.get("marketBriefId")?.trim() ?? "";
   const hasLegacyParams = Boolean(legacyTaskIdFromQuery || searchParams.get("mode"));
   const [basicForm, setBasicForm] = useState(() => createDefaultNovelBasicFormState());
   const [restoredWorkflowTask, setRestoredWorkflowTask] = useState<UnifiedTaskDetail | null>(null);
   const [activeStage, setActiveStage] = useState<AutoDirectorCreateStageKey>("idea");
   const [completedStages, setCompletedStages] = useState<Set<AutoDirectorCreateStageKey>>(() => new Set());
   const restoreHandledRef = useRef<string | null>(null);
-  const marketFoundationAppliedRef = useRef<string | null>(null);
 
   const worldListQuery = useQuery({
     queryKey: queryKeys.worlds.all,
@@ -80,11 +74,6 @@ export default function AutoDirectorCreatePage() {
     queryKey: queryKeys.storyModes.all,
     queryFn: getStoryModeTree,
   });
-  const marketBriefQuery = useQuery({
-    queryKey: queryKeys.marketRadar.brief(marketBriefId || "none"),
-    queryFn: () => getMarketCreativeBrief(marketBriefId),
-    enabled: featureFlags.marketRadarEnabled && Boolean(marketBriefId),
-  });
   const genreTree = genreTreeQuery.data?.data ?? [];
   const storyModeTree = storyModeTreeQuery.data?.data ?? [];
   const genreOptions = flattenGenreTreeOptions(genreTree);
@@ -92,27 +81,14 @@ export default function AutoDirectorCreatePage() {
   const worldOptions = worldListQuery.data?.data ?? [];
 
   useEffect(() => {
-    const foundation = marketBriefQuery.data?.data?.productionFoundation;
-    if (!marketBriefId || !foundation || marketFoundationAppliedRef.current === marketBriefId) {
-      return;
-    }
-    marketFoundationAppliedRef.current = marketBriefId;
-    setBasicForm((current) => patchNovelBasicForm(current, fillMissingCreationFoundation(current, {
-      genreId: foundation.genre.id,
-      primaryStoryModeId: foundation.primaryStoryMode.id,
-      secondaryStoryModeId: foundation.secondaryStoryMode?.id,
-    })));
-  }, [marketBriefId, marketBriefQuery.data?.data?.productionFoundation]);
-
-  useEffect(() => {
     if (!hasLegacyParams) {
       return;
     }
-    navigate(buildAutoDirectorCreateLink(normalizedTaskId, marketBriefId), { replace: true });
-  }, [hasLegacyParams, marketBriefId, navigate, normalizedTaskId]);
+    navigate(buildAutoDirectorCreateLink(normalizedTaskId), { replace: true });
+  }, [hasLegacyParams, navigate, normalizedTaskId]);
 
   const replaceTaskId = (taskId: string) => {
-    navigate(buildAutoDirectorCreateLink(taskId, marketBriefId), { replace: true });
+    navigate(buildAutoDirectorCreateLink(taskId), { replace: true });
   };
 
   const restoreWorkflowMutation = useMutation({
@@ -155,7 +131,6 @@ export default function AutoDirectorCreatePage() {
   }, [hasLegacyParams, normalizedTaskId]);
 
   const controller = useAutoDirectorCreateController({
-    marketBriefId,
     basicForm,
     genreOptions,
     storyModeOptions,
@@ -185,7 +160,6 @@ export default function AutoDirectorCreatePage() {
   }, [controller.batches.length, controller.hasActiveDirectorTask]);
 
   const latestProductionFoundation = controller.batches.at(-1)?.candidates[0]?.productionFoundation ?? null;
-  const marketProductionFoundation = marketBriefQuery.data?.data?.productionFoundation ?? null;
   const selectedGenre = genreOptions.find((option) => option.id === controller.directorBasicForm.genreId) ?? null;
   const selectedStoryMode = storyModeOptions.find(
     (option) => option.id === controller.directorBasicForm.primaryStoryModeId,
@@ -194,13 +168,9 @@ export default function AutoDirectorCreatePage() {
   const latestPrimaryStoryModeFoundation = latestProductionFoundation?.primaryStoryMode;
   const selectedGenreSource = latestGenreFoundation?.id === selectedGenre?.id
     ? latestGenreFoundation?.source
-    : marketProductionFoundation?.genre.id === selectedGenre?.id
-      ? marketProductionFoundation?.genre.source
     : selectedGenre ? "user_selected" as const : undefined;
   const selectedStoryModeSource = latestPrimaryStoryModeFoundation?.id === selectedStoryMode?.id
     ? latestPrimaryStoryModeFoundation?.source
-    : marketProductionFoundation?.primaryStoryMode.id === selectedStoryMode?.id
-      ? marketProductionFoundation?.primaryStoryMode.source
     : selectedStoryMode ? "user_selected" as const : undefined;
 
   const summaries = useMemo(() => ({
@@ -426,32 +396,6 @@ export default function AutoDirectorCreatePage() {
       {restoreWorkflowMutation.isPending && normalizedTaskId ? (
         <div className="rounded-lg bg-muted/20 px-4 py-3 text-sm text-muted-foreground">
           Resuming automatic director scene.
-        </div>
-      ) : null}
-
-      {featureFlags.marketRadarEnabled && marketBriefId ? (
-        <div className="flex flex-col gap-3 rounded-xl border border-primary/25 bg-primary/5 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <div className="text-sm font-medium text-foreground">Radar recommended direction</div>
-            <div className="mt-1 text-xs leading-5 text-muted-foreground">
-              {marketBriefQuery.data?.data?.summary || (marketBriefQuery.isPending ? "Reading market creation briefing." : "The market briefing cannot be read temporarily, but you can still continue to open the book according to your ideas.")}
-            </div>
-            {marketProductionFoundation ? (
-              <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-foreground">
-                <span>Theme base:{marketProductionFoundation.genre.path}</span>
-                <span>Main promotion:{marketProductionFoundation.primaryStoryMode.path}</span>
-                {marketProductionFoundation.secondaryStoryMode ? (
-                  <span>Auxiliary advancement:{marketProductionFoundation.secondaryStoryMode.path}</span>
-                ) : null}
-              </div>
-            ) : null}
-          </div>
-          <Button type="button" variant="outline" size="sm" asChild><Link to="/market-radar">Return to adjustment</Link></Button>
-        </div>
-      ) : featureFlags.marketRadarEnabled && activeStage === "idea" ? (
-        <div className="flex items-center justify-between gap-3 rounded-xl border border-dashed px-4 py-3 text-sm">
-          <span className="text-muted-foreground">Want to refer to recent popular themes, cheats and opening modes first?</span>
-          <Button type="button" variant="outline" size="sm" asChild><Link to="/market-radar">Let’s take a look at the hot topic radar first</Link></Button>
         </div>
       ) : null}
 

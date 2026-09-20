@@ -24,7 +24,7 @@ test("chapter layered context keeps full book promise and volume reader rewards"
     chapter10Payoff: "夺下第一个稳定据点。",
     chapter30Payoff: "击穿第一层幕后势力。",
     escalationLadder: "个人反制 -> 团队破局 -> 势力对抗",
-    relationshipMainline: "主角与女二从互相利用走向互信。",
+    relationshipMainline: "Protagonist与女二从互相利用走向互信。",
     activeMilestonePayoffs: ["第 10 章：夺下第一个稳定据点。"],
   });
   const volume = buildVolumeWindowContext({
@@ -34,14 +34,14 @@ test("chapter layered context keeps full book promise and volume reader rewards"
       title: "第一卷",
       mainPromise: "完成第一次反压",
       readerRewardLadder: "小反制 -> 稳定收益 -> 卷末翻盘",
-      coreReward: "让主角从被动求生转为掌握反击入口。",
+      coreReward: "让Protagonist从被动求生转为掌握反击入口。",
     },
   });
 
   assert.equal(book.readingPromise, "每轮受压都换来更强反击。");
   assert.equal(book.activeMilestonePayoffs[0], "第 10 章：夺下第一个稳定据点。");
   assert.equal(volume.readerRewardLadder, "小反制 -> 稳定收益 -> 卷末翻盘");
-  assert.equal(volume.coreReward, "让主角从被动求生转为掌握反击入口。");
+  assert.equal(volume.coreReward, "让Protagonist从被动求生转为掌握反击入口。");
 });
 
 function createContextPackage() {
@@ -67,15 +67,15 @@ function createContextPackage() {
           hardMaxWordCount: 3750,
         },
         readerExperience: {
-          readerQuestion: "主角能否把维修通道钥匙转成第一次反压？",
-          promisedReward: "主角利用情报和钥匙拿到第一次可见主动权。",
+          readerQuestion: "Protagonist能No把维修通道钥匙转成第一次反压？",
+          promisedReward: "Protagonist利用情报和钥匙拿到第一次可见主动权。",
           rewardLevel: "partial",
           protagonistWant: "抢回主动权并迫使敌方应对。",
           primaryResistance: "敌方封锁维修通道，女二又无法直接现身。",
-          keyTurn: "主角把女二情报与维修记录交叉验证，反向锁定敌方漏洞。",
+          keyTurn: "Protagonist把女二情报与维修记录交叉验证，反向锁定敌方漏洞。",
           emotionalShift: "从持续受压转为看见并抓住反击机会。",
           informationReveal: "维修通道封锁并非完整无缺。",
-          netChange: "主角获得实际反压支点，敌方被迫调整封锁。",
+          netChange: "Protagonist获得实际反压支点，敌方被迫调整封锁。",
           inheritedHookResponsibilities: ["回应第四章尾段的维修通道钥匙和女二暗号"],
           endingHook: "幕后势力察觉漏洞暴露并启动反扑。",
         },
@@ -86,8 +86,8 @@ function createContextPackage() {
             purpose: "让女二带来的情报成为反压支点。",
             mustAdvance: ["情报到手"],
             mustPreserve: ["压迫感"],
-            entryState: "主角暂时被压制。",
-            exitState: "主角确认反压入口。",
+            entryState: "Protagonist暂时被压制。",
+            exitState: "Protagonist确认反压入口。",
             forbiddenExpansion: ["不要提前揭露幕后黑手"],
             targetWordCount: 900,
           },
@@ -97,7 +97,7 @@ function createContextPackage() {
             purpose: "把情报转成可见收益。",
             mustAdvance: ["第一次反压兑现"],
             mustPreserve: ["资源差距还在"],
-            entryState: "主角拿到情报准备落子。",
+            entryState: "Protagonist拿到情报准备落子。",
             exitState: "敌方被迫应对。",
             forbiddenExpansion: ["不要直接大决战"],
             targetWordCount: 1200,
@@ -108,7 +108,7 @@ function createContextPackage() {
             purpose: "抛出更大威胁，拉向下一章。",
             mustAdvance: ["新的威胁出现"],
             mustPreserve: ["本章反压收益有效"],
-            entryState: "主角刚拿到阶段性主动权。",
+            entryState: "Protagonist刚拿到阶段性主动权。",
             exitState: "读者知道下一章压力更高。",
             forbiddenExpansion: ["不要展开下章战斗"],
             targetWordCount: 900,
@@ -124,7 +124,7 @@ function createContextPackage() {
       phaseLabel: "反压前夜",
       title: "第5章计划",
       objective: "完成第一次明确反压",
-      participants: ["主角"],
+      participants: ["Protagonist"],
       reveals: ["女二手里还有半份情报"],
       riskNotes: ["不要抢跑幕后黑手"],
       mustAdvance: ["完成第一次明确反压"],
@@ -160,7 +160,7 @@ function createContextPackage() {
       id: "snapshot-4",
       novelId: "novel-1",
       sourceChapterId: "chapter-4",
-      summary: "主角暂时被压制，女二失联但仍掌握关键线索。",
+      summary: "Protagonist暂时被压制，女二失联但仍掌握关键线索。",
       rawStateJson: null,
       characterStates: [],
       relationStates: [],
@@ -179,7 +179,7 @@ function createContextPackage() {
       conflictType: "plot",
       conflictKey: "first-counterattack",
       title: "第一次反压仍未落地",
-      summary: "主角还没有把反击落成实际收益，压迫感正在透支。",
+      summary: "Protagonist还没有把反击落成实际收益，压迫感正在透支。",
       severity: "high",
       status: "open",
       evidence: ["上一章只拿到半份情报。"],
@@ -193,11 +193,11 @@ function createContextPackage() {
     characterRoster: [
       {
         id: "char-1",
-        name: "主角",
-        role: "主角",
+        name: "Protagonist",
+        role: "Protagonist",
         personality: "谨慎但不服输",
         identityLabel: "被压制的调查者",
-        factionLabel: "主角方",
+        factionLabel: "Protagonist方",
         powerLevel: "普通人",
         currentState: "被压制",
         currentGoal: "抢回主动权",
@@ -211,20 +211,20 @@ function createContextPackage() {
         role: "盟友",
         personality: "冷静克制",
         identityLabel: "暗线持钥者",
-        factionLabel: "主角方",
+        factionLabel: "Protagonist方",
         stanceLabel: "隐线支援",
         currentState: "暂时失联",
-        currentGoal: "把关键情报送到主角手里",
+        currentGoal: "把关键情报送到Protagonist手里",
         prohibitions: ["未现身前不得直接交出暗账副本"],
       },
     ],
     characterHardFacts: [
       {
         characterId: "char-1",
-        name: "主角",
-        role: "主角",
+        name: "Protagonist",
+        role: "Protagonist",
         identityLabel: "被压制的调查者",
-        factionLabel: "主角方",
+        factionLabel: "Protagonist方",
         stanceLabel: null,
         powerLevel: "普通人",
         realm: null,
@@ -239,14 +239,14 @@ function createContextPackage() {
         name: "女二",
         role: "盟友",
         identityLabel: "暗线持钥者",
-        factionLabel: "主角方",
+        factionLabel: "Protagonist方",
         stanceLabel: "隐线支援",
         powerLevel: null,
         realm: null,
         currentLocation: "未知",
         availability: "本章只能通过情报影响局势",
         currentState: "暂时失联",
-        currentGoal: "把关键情报送到主角手里",
+        currentGoal: "把关键情报送到Protagonist手里",
         prohibitions: ["未现身前不得直接交出暗账副本"],
       },
     ],
@@ -265,9 +265,9 @@ function createContextPackage() {
       updatedAt: now,
     }],
     previousChaptersSummary: [
-      "上一章：主角踩进陷阱，但确认女二仍掌握关键情报。",
+      "上一章：Protagonist踩进陷阱，但确认女二仍掌握关键情报。",
     ],
-    previousChapterTail: "第四章尾段：主角攥紧维修通道钥匙，听见女二留下的暗号，决定立刻从外城维修区反打。",
+    previousChapterTail: "第四章尾段：Protagonist攥紧维修通道钥匙，听见女二留下的暗号，决定立刻从外城维修区反打。",
     openingHint: "Recent openings: none.",
     continuation: {
       enabled: false,
@@ -294,8 +294,8 @@ function createContextPackage() {
       characters: [
         {
           characterId: "char-1",
-          name: "主角",
-          role: "主角",
+          name: "Protagonist",
+          role: "Protagonist",
           castRole: "lead",
           currentState: "被压制",
           currentGoal: "抢回主动权",
@@ -307,7 +307,7 @@ function createContextPackage() {
           lastAppearanceChapterOrder: 4,
           absenceSpan: 0,
           absenceRisk: "none",
-          factionLabel: "主角方",
+          factionLabel: "Protagonist方",
           stanceLabel: "主动反扑",
         },
         {
@@ -316,7 +316,7 @@ function createContextPackage() {
           role: "盟友",
           castRole: "support",
           currentState: "暂时失联",
-          currentGoal: "把关键情报送到主角手里",
+          currentGoal: "把关键情报送到Protagonist手里",
           volumeRoleLabel: "暗线持钥者",
           volumeResponsibility: "补足情报链并触发反压机会",
           isCoreInVolume: true,
@@ -325,7 +325,7 @@ function createContextPackage() {
           lastAppearanceChapterOrder: 2,
           absenceSpan: 3,
           absenceRisk: "high",
-          factionLabel: "主角方",
+          factionLabel: "Protagonist方",
           stanceLabel: "隐线支援",
         },
       ],
@@ -335,7 +335,7 @@ function createContextPackage() {
         relationId: "pair-1",
         sourceCharacterId: "char-1",
         targetCharacterId: "char-2",
-        sourceCharacterName: "主角",
+        sourceCharacterName: "Protagonist",
         targetCharacterName: "女二",
         volumeId: "volume-1",
         volumeTitle: "第一卷",
@@ -382,7 +382,7 @@ function createContextPackage() {
     },
     macroConstraints: {
       sellingPoint: "高压开局与持续反压",
-      coreConflict: "主角在压迫中夺回主动权",
+      coreConflict: "Protagonist在压迫中夺回主动权",
       mainHook: "更大的幕后势力正在浮现",
       progressionLoop: "每次反压都会引来更强反扑",
       growthPath: "从被动求生到主动设局",
@@ -432,7 +432,7 @@ function createContextPackage() {
       novelId: "novel-1",
       ledgerKey: "black-market-account",
       title: "黑市账户异常",
-      summary: "黑市账户的异常波动必须在本章被主角明确触碰。",
+      summary: "黑市账户的异常波动必须在本章被Protagonist明确触碰。",
       scopeType: "chapter",
       currentStatus: "setup",
       targetStartChapterOrder: 5,
@@ -507,15 +507,15 @@ function createContextPackage() {
         novelId: "novel-1",
         resourceKey: "service-key:char-1",
         name: "维修通道钥匙",
-        summary: "主角持有能打开维修通道的钥匙。",
+        summary: "Protagonist持有能打开维修通道的钥匙。",
         resourceType: "credential",
         narrativeFunction: "key",
         ownerType: "character",
         ownerId: "char-1",
-        ownerName: "主角",
+        ownerName: "Protagonist",
         ownerCharacterId: "char-1",
         holderCharacterId: "char-1",
-        holderCharacterName: "主角",
+        holderCharacterName: "Protagonist",
         status: "available",
         readerKnows: true,
         holderKnows: true,
@@ -529,7 +529,7 @@ function createContextPackage() {
         constraints: ["只能打开维修通道"],
         riskSignals: [],
         sourceRefs: [],
-        evidence: [{ summary: "主角收起维修通道钥匙。", chapterId: "chapter-4", chapterOrder: 4 }],
+        evidence: [{ summary: "Protagonist收起维修通道钥匙。", chapterId: "chapter-4", chapterOrder: 4 }],
         confidence: 0.9,
         createdAt: now,
         updatedAt: now,
@@ -539,7 +539,7 @@ function createContextPackage() {
         novelId: "novel-1",
         resourceKey: "hidden-ledger:char-2",
         name: "女二暗账副本",
-        summary: "女二掌握的暗账副本还没有公开给主角。",
+        summary: "女二掌握的暗账副本还没有公开给Protagonist。",
         resourceType: "clue",
         narrativeFunction: "proof",
         ownerType: "character",
@@ -558,10 +558,10 @@ function createContextPackage() {
         lastTouchedChapterOrder: 4,
         expectedUseStartChapterOrder: 5,
         expectedUseEndChapterOrder: 7,
-        constraints: ["主角不能提前知道副本内容"],
+        constraints: ["Protagonist不能提前知道副本内容"],
         riskSignals: [],
         sourceRefs: [],
-        evidence: [{ summary: "女二没有把暗账副本交给主角。", chapterId: "chapter-4", chapterOrder: 4 }],
+        evidence: [{ summary: "女二没有把暗账副本交给Protagonist。", chapterId: "chapter-4", chapterOrder: 4 }],
         confidence: 0.82,
         createdAt: now,
         updatedAt: now,
@@ -576,10 +576,10 @@ function createContextPackage() {
         narrativeFunction: "key",
         ownerType: "character",
         ownerId: "char-1",
-        ownerName: "主角",
+        ownerName: "Protagonist",
         ownerCharacterId: "char-1",
         holderCharacterId: "char-1",
-        holderCharacterName: "主角",
+        holderCharacterName: "Protagonist",
         status: "destroyed",
         readerKnows: true,
         holderKnows: true,
@@ -612,7 +612,7 @@ function createContextPackage() {
         proposalType: "character_resource_update",
         riskLevel: "medium",
         status: "pending_review",
-        summary: "女二暗账副本可能已经交给主角",
+        summary: "女二暗账副本可能已经交给Protagonist",
         payload: {},
         evidence: ["女二把副本推到桌上。"],
         validationNotes: ["medium risk resource update"],
@@ -647,7 +647,7 @@ function createStyleContext() {
     effectiveStyleProfileId: "style-1",
     taskStyleProfileId: null,
     activeSourceTargets: ["novel"],
-    activeSourceLabels: ["拆书写法"],
+    activeSourceLabels: ["book analysis写法"],
     maturity: "structured",
     usesGlobalAntiAiBaseline: false,
     globalAntiAiRuleIds: [],
@@ -667,9 +667,9 @@ function createStyleContext() {
       },
       appliedRuleIds: [],
       contract: {
-        narrative: makeSection("narrative", "叙事", "保持高压反压的叙事手感。"),
+        narrative: makeSection("narrative", "Narrative", "保持高压反压的Narrative手感。"),
         character: makeSection("character", "角色", "角色动作必须贴合当前状态。"),
-        language: makeSection("language", "语言", "句式短促，避免空泛抒情。"),
+        language: makeSection("language", "Language", "句式短促，避免空泛抒情。"),
         rhythm: makeSection("rhythm", "节奏", "每个场景都要有推进。"),
         antiAi: makeSection("antiAi", "反AI味", "避免模板化总结句。"),
         selfCheck: makeSection("selfCheck", "自检", "检查承接、节奏和角色动机。"),
@@ -677,7 +677,7 @@ function createStyleContext() {
           effectiveStyleProfileId: "style-1",
           taskStyleProfileId: null,
           activeSourceTargets: ["novel"],
-          activeSourceLabels: ["拆书写法"],
+          activeSourceLabels: ["book analysis写法"],
           writerIncludedSections: ["narrative", "character", "language", "rhythm", "antiAi", "selfCheck"],
           plannerIncludedSections: ["narrative", "character", "language", "antiAi"],
           droppedSections: [],
@@ -750,7 +750,7 @@ test("chapter layered contexts carry volume mission, character duties and repair
   assert.ok(reviewContext.structureObligations.some((item) => item.includes("overdue payoff: 第一次反压收益")));
   assert.ok(reviewContext.structureObligations.some((item) => item.includes("resource setup needed: 女二暗账副本")));
   assert.ok(reviewContext.structureObligations.some((item) => item.includes("resource unavailable: 旧通行证")));
-  assert.ok(reviewContext.structureObligations.some((item) => item.includes("unconfirmed resource proposal: 女二暗账副本可能已经交给主角")));
+  assert.ok(reviewContext.structureObligations.some((item) => item.includes("unconfirmed resource proposal: 女二暗账副本可能已经交给Protagonist")));
   assert.ok(!reviewContext.structureObligations.some((item) => item.includes("resource needs confirmation")));
   assert.ok(repairContext.allowedEditBoundaries.some((item) => item.includes("Pending character candidates remain read-only")));
   assert.ok(repairContext.allowedEditBoundaries.some((item) => item.includes("女二")));
@@ -817,7 +817,7 @@ test("chapter layered contexts carry volume mission, character duties and repair
     && /维修通道钥匙/.test(block.content)
     && /旧通行证/.test(block.content)
     && /Pending resource proposals \(not committed\)/.test(block.content)
-    && /女二暗账副本可能已经交给主角/.test(block.content)
+    && /女二暗账副本可能已经交给Protagonist/.test(block.content)
   )));
   assert.ok(reviewBlocks.some((block) => (
     block.id === "character_dynamics"
@@ -914,7 +914,7 @@ Unfinished clues from the previous work:
 
   const styleBlock = assertNonEmptyBlock(writerBlocks, "style_contract");
   assert.equal(styleBlock.required, true);
-  assert.match(styleBlock.content, /保持高压反压的叙事手感/);
+  assert.match(styleBlock.content, /保持高压反压的Narrative手感/);
 
   const continuationBlock = assertNonEmptyBlock(writerBlocks, "continuation_constraints");
   assert.equal(continuationBlock.required, true);
@@ -935,8 +935,8 @@ Unfinished clues from the previous work:
 
 test("chapter prose receives the resolved genre and progression foundation as a required contract", () => {
   const contextPackage = createContextPackage();
-  const productionFoundationPrompt = `创作底座：东方玄幻 × 升级成长
-题材承诺：能力规则必须可理解并持续兑现。
+  const productionFoundationPrompt = `创作底座：Oriental fantasy × 升级成长
+Genre承诺：能力规则必须可理解并持续兑现。
 推进循环：受压 -> 破局 -> 收益 -> 升级。`;
   const writeContext = buildChapterWriteContext({
     bookContract: contextPackage.bookContract,
@@ -952,7 +952,7 @@ test("chapter prose receives the resolved genre and progression foundation as a 
   );
   assert.equal(foundationBlock.required, true);
   assert.equal(foundationBlock.allowSummary, false);
-  assert.match(foundationBlock.content, /东方玄幻 × 升级成长/);
+  assert.match(foundationBlock.content, /Oriental fantasy × 升级成长/);
   assert.match(foundationBlock.content, /受压 -> 破局 -> 收益 -> 升级/);
 });
 
@@ -985,12 +985,12 @@ test("chapter context only supplies mind and active dialogue guidance to actual 
   contextPackage.characterMindStates = [
     {
       characterId: "char-1",
-      currentInterpretation: "主角相信反压机会已经出现。",
+      currentInterpretation: "Protagonist相信反压机会已经出现。",
       activePlan: "利用维修通道钥匙反打。",
       actionTendency: "受压时会先确认代价再行动。",
       beliefs: ["女二仍掌握关键情报"],
       misbeliefs: ["幕后黑手还未察觉反压准备"],
-      evidence: ["主角攥紧维修通道钥匙。"],
+      evidence: ["Protagonist攥紧维修通道钥匙。"],
       confidence: 0.84,
       sourceChapterId: "chapter-4",
     },
@@ -1010,7 +1010,7 @@ test("chapter context only supplies mind and active dialogue guidance to actual 
     {
       influenceId: "dialogue-1",
       characterId: "char-1",
-      summary: "主角认可先确认代价再反打的方向。",
+      summary: "Protagonist认可先确认代价再反打的方向。",
       behaviorGuidance: "先利用维修通道确认退路，再把情报转成反压。",
       emotionalGuidance: "保持克制，不让胜算变成冲动。",
       relationTension: null,
@@ -1039,7 +1039,7 @@ test("chapter context only supplies mind and active dialogue guidance to actual 
   const observerGuide = writeContext.characterBehaviorGuides.find((guide) => guide.characterId === "char-3");
   const guidanceBlock = buildChapterWriterContextBlocks(writeContext).find((block) => block.id === "character_dynamics");
 
-  assert.match(protagonistGuide.mindGuidance, /主角相信反压机会已经出现/);
+  assert.match(protagonistGuide.mindGuidance, /Protagonist相信反压机会已经出现/);
   assert.equal(observerGuide.mindGuidance, null);
   assert.match(protagonistGuide.authorInfluenceGuidance, /先利用维修通道确认退路/);
   assert.equal(observerGuide.authorInfluenceGuidance, null);

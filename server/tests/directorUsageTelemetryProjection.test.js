@@ -65,7 +65,7 @@ test("director usage telemetry projection summarizes task and step records", asy
     const result = await service.getTaskUsage("task-1", [{
       idempotencyKey: "task-1:node-a:global:global",
       nodeKey: "node-a",
-      label: "生成章节任务单",
+      label: "Generate chapter task sheets",
       status: "succeeded",
       startedAt: "2026-04-30T05:00:00.000Z",
       finishedAt: "2026-04-30T05:02:00.000Z",
@@ -79,7 +79,7 @@ test("director usage telemetry projection summarizes task and step records", asy
     assert.equal(result.summary.durationMs, 3000);
     assert.equal(result.recentUsage[0].id, "usage-later");
     assert.equal(result.stepUsage.length, 1);
-    assert.equal(result.stepUsage[0].label, "生成章节任务单");
+    assert.equal(result.stepUsage[0].label, "Generate chapter task sheets");
     assert.equal(result.stepUsage[0].llmCallCount, 2);
     assert.equal(result.promptUsage.length, 1);
     assert.equal(result.promptUsage[0].promptAssetKey, "asset-a");
@@ -92,7 +92,7 @@ test("director usage telemetry projection summarizes task and step records", asy
 test("director usage labels distinguish chapter workflow from draft writing", () => {
   assert.equal(
     getDirectorNodeDisplayLabel({ nodeKey: "chapter_execution_node" }),
-    "章节执行流程",
+    "Chapter execution flow",
   );
   assert.equal(
     getDirectorNodeDisplayLabel({ label: "novel.chapter.writer", nodeKey: "chapter_execution_node" }),

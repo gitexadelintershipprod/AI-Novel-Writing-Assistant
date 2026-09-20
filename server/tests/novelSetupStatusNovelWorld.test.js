@@ -24,7 +24,7 @@ function buildNovel(overrides = {}) {
     bible: {
       coreSetting: null,
       forbiddenRules: null,
-      mainPromise: "主角要揭开星核枯竭真相，并夺回边境生存权。",
+      mainPromise: "Protagonist要揭开星核枯竭真相，并夺回边境生存权。",
       characterArcs: null,
       worldRules: null,
     },
@@ -79,7 +79,7 @@ test("setup status treats Bible world rules as notes instead of ready NovelWorld
     bible: {
       coreSetting: "边境帝国依赖星核矿脉维持秩序。",
       forbiddenRules: "不能无代价复活。",
-      mainPromise: "主角要揭开星核枯竭真相，并夺回边境生存权。",
+      mainPromise: "Protagonist要揭开星核枯竭真相，并夺回边境生存权。",
       characterArcs: null,
       worldRules: "星核力量会透支寿命。",
     },

@@ -28,7 +28,7 @@ Fixed windows are a deterministic projection of Book Contract structured fields.
 - Sync tasks use the existing `NovelSideEffectJob` idempotency, lease, retry, and dead states. The save request does not wait for the LLM.
 - On sync failure, keep the last successful ledger and a stale risk signal. Do not delete existing content.
 - After AI reconciliation, Book Contract fixed-source lifecycle close-out must run. Old items that are not yet terminal, were not reused by this round’s output, and whose sources all belong to `book_contract.*` leave current prose duty when the source is removed or taken over by a new item.
-- Old items leaving duty reuse the `failed` status — English `failed` is canonical on write; Chinese `已失效` is a dual-read alias for old rows only — and record `source_superseded` as the risk reason. Original title, source references, and delivery evidence must be kept. `paid_off` never retires. Items mixed with other valid sources are kept conservatively.
+- Old items leaving duty reuse the `failed` status and record `source_superseded` as the risk reason. Original title, source references, and delivery evidence must be kept. `paid_off` never retires. Items mixed with other valid sources are kept conservatively.
 - `source_superseded` items skip the `sync_stale` mark, and later repeated sync must not keep changing their terminal state. They do not enter pending, urgent, or overdue classification, and they do not generate open Payoff conflicts.
 
 ## Replan Gate

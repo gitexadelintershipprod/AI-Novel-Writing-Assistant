@@ -75,9 +75,9 @@ In-balloon text rendering is core to the comic experience. The hard constraint: 
 
 Three defenses keep the rule:
 
-1. **Storyboard prompt prevention**: `comicPanelScriptOutputSchema.panels[].dialogues[]` splits into `{ speaker, text, bubbleType, anchorHint }`. Render rule 2b tells the LLM that `text` may contain spoken line text only — no speaker name, colon, quotes, narration prefix, or speaker-prefix patterns such as `XX说` / `XX道`.
+1. **Storyboard prompt prevention**: `comicPanelScriptOutputSchema.panels[].dialogues[]` splits into `{ speaker, text, bubbleType, anchorHint }`. Render rule 2b tells the LLM that `text` may contain spoken line text only — no speaker name, colon, quotes, narration prefix, or leaked speaker-prefix tokens.
 2. **Generate-prompt rewrite**: `buildDialoguePrompt` turns `speaker` into tail-direction information ("balloon tail points at XX") and locks in-balloon text to "balloon text is only `{text}`", with the balloon rendering rule forced at the top of the prompt.
-3. **Defensive strip**: `stripSpeakerPrefix` removes speaker prefixes already present in `text` before generate, including quoted dual-read / historical dirty patterns such as `XX说：` and `XX：`, plus wrapping quotes, to tolerate old dirty data and occasional LLM violations.
+3. **Defensive strip**: `stripSpeakerPrefix` removes speaker prefixes already present in `text` before generate, including leaked Han speaker-verb prefixes and wrapping quotes, to tolerate occasional LLM violations.
 
 `speaker` stays in the schema because it decides balloon-tail direction (which on-panel character it points at). It must never enter rendered balloon text.
 

@@ -12,7 +12,6 @@ import {
   Images,
   LayoutDashboard,
   ListTodo,
-  Radar,
   ScanSearch,
   Settings2,
   ShieldCheck,
@@ -33,7 +32,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { VisualAssetLibraryDialog } from "@/components/visualAssets";
 import { cn } from "@/lib/utils";
-import { featureFlags } from "@/config/featureFlags";
 
 interface NavItem {
   to: string;
@@ -54,9 +52,6 @@ const navGroups: NavGroup[] = [
     items: [
       { to: "/", labelKey: "items.home", icon: House },
       { to: "/help", labelKey: "items.guide", icon: CircleHelp },
-      ...(featureFlags.marketRadarEnabled
-        ? [{ to: "/market-radar", labelKey: "items.marketRadar", icon: Radar }]
-        : []),
       { to: "/novels", labelKey: "items.novels", icon: BookOpenText },
       { to: "/creative-hub", labelKey: "items.creativeHub", icon: LayoutDashboard },
       { to: "/book-analysis", labelKey: "items.bookAnalysis", icon: ScanSearch },

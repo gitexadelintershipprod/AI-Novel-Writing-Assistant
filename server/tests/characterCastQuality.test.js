@@ -15,7 +15,7 @@ test("core character cast schema preserves full profile and hard facts", () => {
       {
         title: "封神逆转阵容",
         summary: "申公豹重生后重组关键人物关系。",
-        whyItWorks: "主角身份和阵营约束可直接进入正文。",
+        whyItWorks: "Protagonist身份和阵营约束可直接进入正文。",
         recommendedReason: "能避免阵营和境界写错。",
         members: [
           {
@@ -23,7 +23,7 @@ test("core character cast schema preserves full profile and hard facts", () => {
             role: "玉虚宫门下 / 逆向布局者",
             gender: "male",
             castRole: "protagonist",
-            relationToProtagonist: "主角本人",
+            relationToProtagonist: "Protagonist本人",
             storyFunction: "策反封神关键人物，逆转天命",
             shortDescription: "带着前世记忆重开封神局的人",
             personality: "隐忍、善辩，遇到关键人物会先试探再押注",
@@ -99,8 +99,8 @@ test("core character cast schema preserves full profile and hard facts", () => {
         title: "备选阵容一",
         summary: "备选。",
         members: [
-          { name: "甲", role: "主角", gender: "unknown", castRole: "protagonist", storyFunction: "推进主线" },
-          { name: "乙", role: "盟友", gender: "unknown", castRole: "ally", storyFunction: "支援主角" },
+          { name: "甲", role: "Protagonist", gender: "unknown", castRole: "protagonist", storyFunction: "推进主线" },
+          { name: "乙", role: "盟友", gender: "unknown", castRole: "ally", storyFunction: "支援Protagonist" },
           { name: "丙", role: "对手", gender: "unknown", castRole: "antagonist", storyFunction: "制造压力" },
         ],
         relations: [
@@ -112,8 +112,8 @@ test("core character cast schema preserves full profile and hard facts", () => {
         title: "备选阵容二",
         summary: "备选。",
         members: [
-          { name: "丁", role: "主角", gender: "unknown", castRole: "protagonist", storyFunction: "推进主线" },
-          { name: "戊", role: "盟友", gender: "unknown", castRole: "ally", storyFunction: "支援主角" },
+          { name: "丁", role: "Protagonist", gender: "unknown", castRole: "protagonist", storyFunction: "推进主线" },
+          { name: "戊", role: "盟友", gender: "unknown", castRole: "ally", storyFunction: "支援Protagonist" },
           { name: "己", role: "对手", gender: "unknown", castRole: "antagonist", storyFunction: "制造压力" },
         ],
         relations: [
@@ -133,12 +133,12 @@ test("core character cast schema preserves full profile and hard facts", () => {
 });
 
 test("character cast quality gate blocks missing required structural fields only", () => {
-  const storyInput = "打工人刘雪婷穿越到秦朝成为太监，最后发现自己竟然就是赵高。";
+  const storyInput = "打工人刘雪婷穿越到秦朝成为太监，最后发现自己竟然就Yes赵高。";
   const assessment = assessCharacterCastBatch([
     {
       id: "option_bad",
       title: "结构缺失版",
-      summary: "缺少稳定主角和必要字段。",
+      summary: "缺少稳定Protagonist和必要字段。",
       whyItWorks: "有冲突。",
       recommendedReason: "快。",
       members: [
@@ -146,7 +146,7 @@ test("character cast quality gate blocks missing required structural fields only
           name: "谜团催化剂",
           role: "线索角色",
           castRole: "ally",
-          relationToProtagonist: "主角本人",
+          relationToProtagonist: "Protagonist本人",
           storyFunction: "推动身份谜团揭示",
           shortDescription: "现代人误入宫廷",
           outerGoal: "活下来",
@@ -159,8 +159,8 @@ test("character cast quality gate blocks missing required structural fields only
           firstImpression: "惶恐又嘴硬",
         },
         {
-          name: "知识导师位",
-          role: "导师",
+          name: "知识Mentor位",
+          role: "Mentor",
           gender: "male",
           castRole: "mentor",
           relationToProtagonist: "引路人",
@@ -196,13 +196,13 @@ test("character cast quality gate blocks missing required structural fields only
       relations: [
         {
           sourceName: "谜团催化剂",
-          targetName: "知识导师位",
+          targetName: "知识Mentor位",
           surfaceRelation: "试探合作",
           hiddenTension: "互不信任",
           conflictSource: "都想先自保",
           secretAsymmetry: "",
           dynamicLabel: "试探",
-          nextTurnPoint: "导师准备弃子",
+          nextTurnPoint: "Mentor准备弃子",
         },
         {
           sourceName: "谜团催化剂",
@@ -226,7 +226,7 @@ test("character cast quality gate blocks missing required structural fields only
 });
 
 test("character cast quality gate accepts cast that satisfies the structural contract", () => {
-  const storyInput = "打工人刘雪婷穿越到秦朝成为太监，最后发现自己竟然就是赵高。";
+  const storyInput = "打工人刘雪婷穿越到秦朝成为太监，最后发现自己竟然就Yes赵高。";
   const assessment = assessCharacterCastBatch([
     {
       id: "option_good",
@@ -240,7 +240,7 @@ test("character cast quality gate accepts cast that satisfies the structural con
           role: "现代穿越者 / 内廷太监",
           gender: "female",
           castRole: "protagonist",
-          relationToProtagonist: "主角本人",
+          relationToProtagonist: "Protagonist本人",
           storyFunction: "在求生与权谋里逐步逼近赵高真相",
           shortDescription: "披着太监身份在秦朝内廷求生的现代打工人",
           outerGoal: "先在秦宫活下去",
@@ -258,7 +258,7 @@ test("character cast quality gate accepts cast that satisfies the structural con
           gender: "male",
           castRole: "mentor",
           relationToProtagonist: "半引路半试探",
-          storyFunction: "带主角看见内廷生存规则与权力链",
+          storyFunction: "带Protagonist看见内廷生存规则与权力链",
           shortDescription: "熟悉秦宫内廷暗规的老资格宦者",
           outerGoal: "守住自己在内廷的位置",
           innerNeed: "找到能延续布局的人",
@@ -296,7 +296,7 @@ test("character cast quality gate accepts cast that satisfies the structural con
           conflictSource: "谁先交出底牌",
           secretAsymmetry: "赵成知道更多赵高旧事",
           dynamicLabel: "试探结盟",
-          nextTurnPoint: "赵成决定是否押注刘雪婷",
+          nextTurnPoint: "赵成决定YesNo押注刘雪婷",
         },
         {
           sourceName: "刘雪婷",
@@ -318,7 +318,7 @@ test("character cast quality gate accepts cast that satisfies the structural con
 
 test("character cast quality gate does not hard-code identity anchors from marketing wording", () => {
   const storyInput = [
-    "作品定位：以‘成为原著主角’为卖点的高代入感穿书文，主打身份冲突与权谋反转。",
+    "作品定位：以‘成为原著Protagonist’为卖点的高代入感穿书文，主打身份冲突与权谋反转。",
     "核心卖点：直接成为徐凤年本人，拥有其武功底子、父亲徐骁的支持以及原著中他没有的预知能力。",
   ].join("\n");
   const assessment = assessCharacterCastBatch([
@@ -326,15 +326,15 @@ test("character cast quality gate does not hard-code identity anchors from marke
       id: "snow_blade_cast",
       title: "北凉世子逆命局",
       summary: "穿越成徐凤年，身负原著记忆与武道根基，从被动模仿到主动破局。",
-      whyItWorks: "徐凤年本人、北凉世子身份和穿越预知都由主角线直接承接。",
+      whyItWorks: "徐凤年本人、北凉世子身份和穿越预知都由Protagonist线直接承接。",
       recommendedReason: "适合长篇穿书同人推进。",
       members: [
         {
           name: "徐凤年",
-          role: "主角",
+          role: "Protagonist",
           gender: "male",
           castRole: "protagonist",
-          relationToProtagonist: "主角本人",
+          relationToProtagonist: "Protagonist本人",
           storyFunction: "以北凉世子身份利用原著记忆改变雪中命运",
           shortDescription: "穿越成北凉世子的现代读者，必须在原著轨迹与自主选择之间破局",
           outerGoal: "保住北凉并改写关键人物悲剧",
@@ -352,7 +352,7 @@ test("character cast quality gate does not hard-code identity anchors from marke
           gender: "male",
           castRole: "pressure_source",
           relationToProtagonist: "父亲",
-          storyFunction: "以北凉利益和父子试探持续压迫主角成长",
+          storyFunction: "以北凉利益和父子试探持续压迫Protagonist成长",
           shortDescription: "北凉王，既保护徐凤年也考验徐凤年",
           outerGoal: "确保北凉后继有人",
           innerNeed: "确认儿子能承担北凉",
@@ -381,13 +381,13 @@ test("character cast quality gate does not hard-code identity anchors from marke
 });
 
 test("character cast quality gate does not block concrete cast on malformed abstract current-identity fragment", () => {
-  const storyInput = "身份重塑：她成为了一个活在阴影中的人，最后发现自己竟然就是赵高。";
+  const storyInput = "身份重塑：她成为了一个活在阴影中的人，最后发现自己竟然就Yes赵高。";
   const assessment = assessCharacterCastBatch([
     {
       id: "option_identity_fragment",
       title: "身份重塑",
       summary: "刘雪婷以秦宫太监身份求生，逐步逼近赵高真相。",
-      whyItWorks: "主角身份、制度压迫和隐藏真相都有人物承接。",
+      whyItWorks: "Protagonist身份、制度压迫和隐藏真相都有人物承接。",
       recommendedReason: "既能开篇求生，也能撑起长线身份反转。",
       members: [
         {
@@ -395,7 +395,7 @@ test("character cast quality gate does not block concrete cast on malformed abst
           role: "现代打工人 / 秦宫太监",
           gender: "female",
           castRole: "protagonist",
-          relationToProtagonist: "主角本人",
+          relationToProtagonist: "Protagonist本人",
           storyFunction: "在求生与权谋夹击中逼近赵高真相",
           shortDescription: "被迫披着太监身份在秦宫内廷求生的现代女性",
           outerGoal: "先活下来并站稳脚跟",
@@ -413,7 +413,7 @@ test("character cast quality gate does not block concrete cast on malformed abst
           gender: "male",
           castRole: "mentor",
           relationToProtagonist: "引路兼试探者",
-          storyFunction: "让主角看见秦宫的生存规则与权力链条",
+          storyFunction: "让Protagonist看见秦宫的生存规则与权力链条",
           shortDescription: "熟悉内廷暗规的老资格宦者",
           outerGoal: "稳住自己在宫中的位置",
           innerNeed: "找到可押注的活棋",
@@ -451,7 +451,7 @@ test("character cast quality gate does not block concrete cast on malformed abst
           conflictSource: "谁先交出底牌",
           secretAsymmetry: "赵成知道更多赵高旧事",
           dynamicLabel: "试探结盟",
-          nextTurnPoint: "赵成决定是否押注刘雪婷",
+          nextTurnPoint: "赵成决定YesNo押注刘雪婷",
         },
         {
           sourceName: "刘雪婷",

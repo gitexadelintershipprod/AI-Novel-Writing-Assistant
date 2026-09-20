@@ -111,7 +111,7 @@ test("buildReplanDecision pushes blocking audit issues into a forward repair win
         code: "missing_payoff",
         description: "第一次反压没有真正兑现。",
         evidence: "整章停在铺垫，没有结果。",
-        fixSuggestion: "让主角拿到明确收益。",
+        fixSuggestion: "让Protagonist拿到明确收益。",
         status: "open",
         createdAt: "2026-04-16T00:00:00.000Z",
         updatedAt: "2026-04-16T00:00:00.000Z",

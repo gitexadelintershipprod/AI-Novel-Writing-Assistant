@@ -176,7 +176,7 @@ test("AI classification runs only for unclassified runtime issues", async () => 
       output: {
         issueCode: "runtime.service_unavailable",
         riskScore: 4,
-        summary: "创作服务暂时不可用。",
+        summary: "The writing service is temporarily unavailable。",
         evidence: "连接请求失败。",
         suggestedAction: "auto_retry",
         canPause: false,
@@ -224,7 +224,7 @@ test("issue action is recorded only after a real action handler completes", asyn
     novelId: "novel-action-boundary",
     issueCode: "quality.replan_required",
     stage: "quality_repair",
-    summary: "后续章节必须重规划。",
+    summary: "Later chapters must be replanned。",
     fingerprint: "replan:chapter-2",
     policy: DEFAULT_DIRECTOR_ISSUE_POLICY,
   };

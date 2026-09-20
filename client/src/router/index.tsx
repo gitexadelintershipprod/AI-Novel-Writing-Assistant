@@ -22,8 +22,6 @@ const ComicProjectPage = lazy(() => import("@/pages/comic/ComicProjectPage"));
 const CreativeHubPage = lazy(() => import("@/pages/creativeHub/CreativeHubPage"));
 const ChatPage = lazy(() => import("@/pages/chat/ChatPage"));
 const BookAnalysisPage = lazy(() => import("@/pages/bookAnalysis/BookAnalysisPage"));
-const MarketRadarPage = lazy(() => import("@/pages/marketRadar/MarketRadarPage"));
-const MarketRadarUnavailablePage = lazy(() => import("@/pages/marketRadar/MarketRadarUnavailablePage"));
 const TaskCenterPage = lazy(() => import("@/pages/tasks/TaskCenterPage"));
 const AutoDirectorFollowUpCenterPage = lazy(() => import("@/pages/autoDirectorFollowUps/AutoDirectorFollowUpCenterPage"));
 const KnowledgePage = lazy(() => import("@/pages/knowledge/KnowledgePage"));
@@ -69,10 +67,6 @@ const routes: RouteObject[] = [
       { path: "chat-legacy", element: <ChatPage /> },
       { path: "chat", element: <Navigate to="/creative-hub" replace /> },
       { path: "book-analysis", element: <BookAnalysisPage /> },
-      {
-        path: "market-radar",
-        element: featureFlags.marketRadarEnabled ? <MarketRadarPage /> : <MarketRadarUnavailablePage />,
-      },
       { path: "tasks", element: <TaskCenterPage /> },
       { path: "auto-director/follow-ups", element: <AutoDirectorFollowUpCenterPage /> },
       { path: "auto-director/follow-up-center", element: <Navigate to="/auto-director/follow-ups" replace /> },

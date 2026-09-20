@@ -2,29 +2,11 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { translateDynamicUiText } from "./dynamicUiPatterns.ts";
 
-test("translates dynamic onboarding and settings UI without changing domain values", () => {
+test("dynamic UI overlay is a no-op because source copy is English", () => {
   assert.equal(
-    translateDynamicUiText("11 more creative-task types still have no model route."),
+    translateDynamicUiText("There are 11 authoring task types with no available model route."),
     "There are 11 authoring task types with no available model route.",
   );
-  assert.equal(translateDynamicUiText("第 1 步 / 共 5 步"), "Step 1 of 5");
-  assert.equal(translateDynamicUiText("未配置 DeepSeek 的 API Key。"), "DeepSeek API Key is not configured.");
-  assert.equal(
-    translateDynamicUiText("Ollama · llama3.2 · 0 条任务路由"),
-    "Ollama · llama3.2 · 0 task routes",
-  );
-  assert.equal(
-    translateDynamicUiText("This trigger will still pause and wait for handling."),
-    "The task will still pause for review when triggered.",
-  );
-});
-
-test("translates dynamic market and prompt counters", () => {
-  assert.equal(
-    translateDynamicUiText("45 works are selected. Use the top-right of each ranking to select all or adjust one by one."),
-    "45 works selected. Use each ranking's top-right control to select all or adjust individually.",
-  );
-  assert.equal(translateDynamicUiText("开始 AI 分析（45 本）"), "Start AI analysis (45 works)");
-  assert.equal(translateDynamicUiText("162 个提示词"), "162 prompts");
-  assert.equal(translateDynamicUiText("7 个槽位"), "7 slots");
+  assert.equal(translateDynamicUiText("Step 1 of 5"), "Step 1 of 5");
+  assert.equal(translateDynamicUiText("DeepSeek API Key is not configured."), "DeepSeek API Key is not configured.");
 });

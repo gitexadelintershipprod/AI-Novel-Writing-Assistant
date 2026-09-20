@@ -10,7 +10,7 @@ test("mergeProjectionAssignments merges duplicate character-volume assignments d
     {
       characterName: "赵高",
       volumeSortOrder: 2,
-      roleLabel: "主角",
+      roleLabel: "Protagonist",
       responsibility: "在朝局中站稳脚跟。",
       appearanceExpectation: "",
       plannedChapterOrders: [4, 6],
@@ -46,7 +46,7 @@ test("mergeProjectionAssignments merges duplicate character-volume assignments d
 
   const zhaoGao = merged.find((item) => item.characterName.trim() === "赵高");
   assert.ok(zhaoGao);
-  assert.equal(zhaoGao.roleLabel, "主角");
+  assert.equal(zhaoGao.roleLabel, "Protagonist");
   assert.equal(zhaoGao.responsibility, "在朝局中站稳脚跟，并主动布局下一轮反压。");
   assert.equal(zhaoGao.appearanceExpectation, "中高频持续出场");
   assert.deepEqual(zhaoGao.plannedChapterOrders, [4, 6, 8]);

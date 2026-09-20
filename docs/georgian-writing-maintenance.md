@@ -16,7 +16,7 @@ The policy requires natural Georgian syntax, correct case and agreement, appropr
 
 Active creative parsers accept the current English schema values and Georgian content only. Do not add Chinese aliases for timeline event types, state targets, hook priorities, editor actions, continuation-section labels, chapter-title anchors, or information-boundary markers. This fork has no legacy Chinese projects or Chinese import path to preserve.
 
-The Georgian-content allowlist must therefore contain no `legacy-compatibility-alias` or `legacy-compatibility-parser` entries. While Market Radar remains disabled, its source-specific entries are the only permitted Han-containing production literals.
+The Georgian-content allowlist must therefore contain no `legacy-compatibility-alias` or `legacy-compatibility-parser` entries. Han-containing production literals are leak guards only (honorific sanitizer tokens, prose-quality detectors, encoding/mojibake checks), not compatibility maps.
 
 ## Preserved systems
 
@@ -30,10 +30,6 @@ Genres, Story Modes, Writing Profiles, Style Engine, Anti-AI, Title Studio, Auto
 | `zhihu_story` | Georgian Short Story |
 
 Built-in creative seeds use the marker `system.creative_seed_profile=ka-GE@1`. Seed synchronization updates only known built-in IDs; it does not remove or rewrite custom rows.
-
-## Market Radar boundary
-
-Market Radar is the only paused creative feature. Both `VITE_MARKET_RADAR_ENABLED` and `MARKET_RADAR_ENABLED` default to `false`. Source parsers, source-specific prompts, tables, and compatibility code remain in place for a future Georgian or suitable international data source. Their Chinese source terms are intentionally classified in the Georgian-content allowlist.
 
 ## Text metrics
 
@@ -73,4 +69,4 @@ pnpm check:english-ui
 pnpm check:georgian-content
 ```
 
-Likely conflict areas are the prompt registry, prompt assets, built-in profile and seed definitions, shared text metrics, client writing defaults, `pnpm-lock.yaml`, and Market Radar entry points.
+Likely conflict areas are the prompt registry, prompt assets, built-in profile and seed definitions, shared text metrics, client writing defaults, and `pnpm-lock.yaml`.

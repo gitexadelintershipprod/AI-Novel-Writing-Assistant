@@ -11,7 +11,7 @@ function option(overrides = {}) {
     directionSummary: "保留怀疑，先用小代价验证对方。",
     recommendationReason: "能延续他当前的谨慎与信息缺口。",
     isRecommended: true,
-    behaviorGuidance: "先安排一次可撤回的试探，再决定是否交出线索。",
+    behaviorGuidance: "先安排一次可撤回的试探，再决定YesNo交出线索。",
     emotionalGuidance: "克制中带有戒备。",
     relationTension: "盟友需要证明自己。",
     readerPayoff: "读者会看到信任在压力下逐步建立。",

@@ -247,7 +247,7 @@ test("PendingReviewAutoPromotionService apply supersedes older proposals and com
   assert.deepEqual(result.promotable.map((item) => item.proposalId), ["relation-latest"]);
   assert.deepEqual(result.superseded.map((item) => item.proposalId), ["relation-old"]);
   assert.equal(rows[0].status, "rejected");
-  assert.match(rows[0].validationNotesJson, /已被更新提案覆盖/);
+  assert.match(rows[0].validationNotesJson, /Overwritten by an updated proposal/);
   assert.deepEqual(calls.commit.proposalIds, ["relation-latest"]);
   assert.equal(ledgerEvents.length, 1);
   assert.equal(ledgerEvents[0].type, "pending_review_auto_promotion");

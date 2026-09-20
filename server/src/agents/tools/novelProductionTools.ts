@@ -223,7 +223,7 @@ export const novelProductionToolDefinitions: Partial<
     resourceScopes: ["novel", "chapter", "generation_job"],
     parserHints: {
       intent: "query_novel_production_status",
-      aliases: ["full-book progress", "production status", "整本进度", "生产状态"],
+      aliases: ["full-book progress", "production status"],
       phrases: ["At what stage has the entire book been generated?", "Why does the entire build not start?", "Are the current assets ready"],
       requiresNovelContext: true,
       whenToUse: "The user is asking about a novel's full production status, blockers, or asset readiness.",

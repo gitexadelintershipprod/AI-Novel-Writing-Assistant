@@ -72,8 +72,8 @@ build order: `shared → server → client` (`package.json:33`).
   - მარშრუტების მიმაგრება `:129-165`; 404 JSON `:167-173`; `errorHandler` ბოლოს `:175`.
   - პორტი `PORT ?? 3000`, host `HOST ?? (ALLOW_LAN ? 0.0.0.0 : localhost)` — `app.ts:228-229`.
   - `startServer()` `:318` — log retention → `ensureRuntimeDatabaseReady()` → RAG legacy settings import → background services `:340`.
-- **API დომენები** (≈36 mount point): `/api/health`, `/api/novels` (+ ქვე-რაუტერები: chapters, review, production, planning/volume/storyline/storyMacro, characters ×9, framing, world-slice, short-story, writing-platform), `/api/novels/director`, `/api/auto-director/*`, `/api/creative-hub`, `/api/agent-runs`, `/api/agent-catalog`, `/api/book-analysis`, `/api/knowledge`, `/api/rag`, `/api/worlds`, `/api/base-characters`, `/api/character-conversations`, `/api/writing-formula`, `/api/genres`, `/api/story-modes`, `/api/title-library`, `/api/prompt-workbench`, `/api/comic`, `/api/drama`, `/api/market-radar`, `/api/images`, `/api/visual-assets`, `/api/tasks`, `/api/llm`, `/api/llm-live`, `/api/chat`, `/api/settings`, `/api/astrology`.
-- **სტრუქტურა**: `routes/` (legacy) თანდათან გადადის `modules/<domain>/http/`-ში (20 `http/` საქაღალდე; მოდულები: novel, setup, bookAnalysis, characterConversation, comic, drama, export, marketRadar, timeline, visualAssets). `services/` — 23 დომენი. `llm/`, `prompting/`, `agents/`, `graphs/`, `chains/`, `creativeHub/`, `workers/`, `events/`, `db/`, `prisma/`, `config/`, `middleware/`, `platform/`, `runtime/`.
+- **API დომენები** (≈35 mount point): `/api/health`, `/api/novels` (+ ქვე-რაუტერები: chapters, review, production, planning/volume/storyline, characters, framing, world-slice, short-story, writing-platform), `/api/novels/director`, `/api/auto-director/*`, `/api/creative-hub`, `/api/agent-runs`, `/api/agent-catalog`, `/api/book-analysis`, `/api/knowledge`, `/api/rag`, `/api/worlds`, `/api/base-characters`, `/api/character-conversations`, `/api/writing-formula`, `/api/genres`, `/api/story-modes`, `/api/title-library`, `/api/prompt-workbench`, `/api/comic`, `/api/drama`, `/api/images`, `/api/visual-assets`, `/api/tasks`, `/api/llm`, `/api/llm-live`, `/api/chat`, `/api/settings`, `/api/astrology`.
+- **სტრუქტურა**: `routes/` (legacy) თანდათან გადადის `modules/<domain>/http/`-ში (მოდულები: novel, setup, bookAnalysis, characterConversation, comic, drama, export, timeline, visualAssets). `services/` — 23 დომენი. `llm/`, `prompting/`, `agents/`, `graphs/`, `chains/`, `creativeHub/`, `workers/`, `events/`, `db/`, `prisma/`, `config/`, `middleware/`, `platform/`, `runtime/`.
 - **ფონური სერვისები** — `initializeBackgroundServices()` (`app.ts:263-316`): `DirectorWorker` (+ `DirectorTaskQueue` lease/renew, ResourceGate concurrency), `RagWorker`, retrieval-trace retention, `NovelSideEffectWorker`, watchdog-ები (book analysis, novel pipeline), pending recovery-ების ინიციალიზაცია.
 
 ### 3.3 Frontend — `client/`
@@ -81,11 +81,11 @@ build order: `shared → server → client` (`package.json:33`).
 - React **19.2**, Vite **7.3**, TypeScript 5.9, react-router-dom **7.13**, TanStack Query 5.90 + axios, zustand 5 (4 store), Tailwind 3.4 + პროექტის საკუთარი UI primitives (Radix-ზე).
 - რედაქტორი: **PlateJS 52**. აგენტის UI: `@assistant-ui/react` + `@langchain/langgraph-sdk`. ვიზუალიზაცია: `@xyflow/react`, recharts, d3, dagre.
 - როუტერი: `client/src/router/index.tsx` — ბრტყელი `RouteObject[]` ერთი `AppLayout`-ის ქვეშ, ყველა გვერდი `React.lazy`, **≈45 route** (redirect-ებით და `*` catch-all-ით). Web-ზე `BrowserRouter`, desktop-ზე `HashRouter` (`main.tsx:25`).
-  - დომენები: novels workspace (`/novels`, `/novels/:id/{simple,story,preview,edit}`, `/novels/:id/chapters/:chapterId`), auto-director (`/novels/auto-director`, `/auto-director/follow-ups`, `/tasks`), `/creative-hub`, `/book-analysis`, `/knowledge(+/imports)`, `/worlds(+/generator, /:id/workspace)`, `/base-characters`, `/style-engine`, `/anti-ai-rules`, `/genres`, `/story-modes`, `/titles`, `/prompt-workbench`, `/comic`, `/drama`, `/market-radar`, `/settings/{models,director,knowledge,maintenance,appearance}`.
+  - დომენები: novels workspace (`/novels`, `/novels/:id/{simple,story,preview,edit}`, `/novels/:id/chapters/:chapterId`), auto-director (`/novels/auto-director`, `/auto-director/follow-ups`, `/tasks`), `/creative-hub`, `/book-analysis`, `/knowledge(+/imports)`, `/worlds(+/generator, /:id/workspace)`, `/base-characters`, `/style-engine`, `/anti-ai-rules`, `/genres`, `/story-modes`, `/titles`, `/prompt-workbench`, `/comic`, `/drama`, `/settings/{models,director,knowledge,maintenance,appearance}`.
 - `client/src/pages` — **448 ფაილი**, 25 დომენი (მხოლოდ `novels/` — 197).
 - **API base URL** `client/src/lib/constants.ts:61-112`: web dev/prod → `/api` (Vite proxy → `http://HOST:3000`); desktop → `http://localhost:3000/api`; LAN-ზე loopback ავტომატურად იცვლება გვერდის host-ით. timeout — 10 წუთი.
 - **Streaming**: `useSSE.ts` — POST + `fetch` ReadableStream, `data:` frame-ების ხელით დაშლა; frame ტიპები `ping|chunk|reasoning|done|tool_call|tool_result|approval_required|approval_resolved|run_status|runtime_package`. მეორე არხი — `useLlmLiveFeed.ts`. WebSocket არ გამოიყენება.
-- **Feature flags** (`src/config/featureFlags.ts`): `creationStudioEnabled` ✅, `worldWizardEnabled` ✅, `worldVisEnabled` ✅, `marketRadarEnabled` ❌ (default off).
+- **Feature flags** (`src/config/featureFlags.ts`): `creationStudioEnabled` ✅, `worldWizardEnabled` ✅, `worldVisEnabled` ✅.
 
 ### 3.4 `shared/`
 
@@ -205,8 +205,8 @@ React 19 + Vite 7, **როუტერის ბიბლიოთეკის 
 | `zhihu_story` | Georgian Short Story |
 
 - ჩაშენებული creative seed-ების მარკერი: `system.creative_seed_profile=ka-GE@1`.
-- **Market Radar არის ერთადერთი შეჩერებული შემოქმედებითი ფუნქცია** (`MARKET_RADAR_ENABLED` და `VITE_MARKET_RADAR_ENABLED` = `false`); მისი parser-ები და ცხრილები დარჩენილია მომავალი ქართული/საერთაშორისო წყაროსთვის, ჩინური source-ტერმინები განზრახ არის allowlist-ში.
-- Georgian-content allowlist-ში **არ დაიშვება** `legacy-compatibility-alias` / `legacy-compatibility-parser` ჩანაწერი — ამ fork-ს ჩინური იმპორტის გზა და legacy პროექტები არ აქვს.
+- Market Radar წაშლილია: Auto-Director იწყება მხოლოდ ავტორის საკუთარი იდეიდან.
+- Georgian-content allowlist-ში **არ დაიშვება** `legacy-compatibility-alias` / `legacy-compatibility-parser` ჩანაწერი — ამ fork-ს ჩინური იმპორტის გზა და dual-read პროტოკოლი არ აქვს.
 
 ---
 
@@ -256,7 +256,7 @@ project name `ai-novel-writing-assistant`, ცალკე bridge ქსელ�
 ### 8.4 Dockerfile-ები
 
 - `Dockerfile.api` — multi-stage (base → deps → build → prod-deps → runtime), `node:20-bookworm-slim`, აშენებს shared + prisma generate + server; runtime არა-root (`node`), `EXPOSE 3000`, `CMD node ./server/dist/app.js`, storage საქაღალდეები generated-images-ისთვის.
-- `Dockerfile.web` — აშენებს client-ს (`VITE_API_BASE_URL`, `VITE_MARKET_RADAR_ENABLED` build args), აწყობილს გადასცემს `nginxinc/nginx-unprivileged:1.27-alpine`-ს (UID 101, `EXPOSE 8080`).
+- `Dockerfile.web` — აშენებს client-ს (`VITE_API_BASE_URL` build arg), აწყობილს გადასცემს `nginxinc/nginx-unprivileged:1.27-alpine`-ს (UID 101, `EXPOSE 8080`).
 
 ### 8.5 CI (GitHub Actions)
 
@@ -271,8 +271,8 @@ project name `ai-novel-writing-assistant`, ცალკე bridge ქსელ�
 - **Provider-ები**: `OPENAI_*`, `DEEPSEEK_*`, `SILICONFLOW_*`, `ANTHROPIC_*`, `GEMINI_*`, `GLM_*`, `KIMI_*`, `QWEN_*`, `XAI_*` (თითოეული `_API_KEY` / `_BASE_URL` / `_MODEL`)
 - **Embedding**: `EMBEDDING_PROVIDER/MODEL/VERSION/BATCH_SIZE`, `OPENAI_EMBEDDING_MODEL`, `SILICONFLOW_EMBEDDING_MODEL`
 - **Qdrant/RAG**: `QDRANT_URL/API_KEY/COLLECTION/TIMEOUT_MS/UPSERT_MAX_BYTES`, `RAG_ENABLED`, `RAG_CHUNK_SIZE/OVERLAP`, `RAG_VECTOR_CANDIDATES`, `RAG_KEYWORD_CANDIDATES`, `RAG_FINAL_TOP_K`, `RAG_WORKER_*`, `RAG_EMBEDDING_*`, `RAG_DEFAULT_TENANT`, `RAG_VERBOSE_LOG`
-- **სერვერი**: `HOST`, `PORT`, `ALLOW_LAN`, `CORS_ORIGIN`, `API_JSON_LIMIT`, `NOVEL_SNAPSHOT_RETENTION_COUNT`, `BOOK_ANALYSIS_LLM_TIMEOUT_MS`, `MARKET_RADAR_ENABLED`
-- **კლიენტი**: `VITE_API_BASE_URL`, `VITE_CREATION_STUDIO_ENABLED`, `VITE_MARKET_RADAR_ENABLED`
+- **სერვერი**: `HOST`, `PORT`, `ALLOW_LAN`, `CORS_ORIGIN`, `API_JSON_LIMIT`, `NOVEL_SNAPSHOT_RETENTION_COUNT`, `BOOK_ANALYSIS_LLM_TIMEOUT_MS`
+- **კლიენტი**: `VITE_API_BASE_URL`, `VITE_CREATION_STUDIO_ENABLED`
 
 > `*_MODEL` env-ცვლადები არის მხოლოდ **საწყისი default / fallback** — რეალური კონფიგურაცია ინახება DB-ში და იმართება UI-დან (`/settings`, `/settings/models`, `/knowledge?tab=settings`).
 
@@ -354,7 +354,7 @@ db051631 chore(deploy): add remote compose stack configuration
 | 2 | `TASK.md` ამბობს `当前集成分支：beta`, ხოლო `AGENTS.md` აცხადებს `main`-ს ერთადერთ ბრენჩად. | `TASK.md` ამ ნაწილში მოძველებულია; `AGENTS.md` არის ავტორიტეტული. |
 | 3 | ლოკალურად არსებობს ბრენჩი `feature/english-ui`, თუმცა single-branch წესი ძალაშია. | სავარაუდოდ ნარჩენი; გადამოწმება ღირს წაშლამდე. |
 | 4 | Desktop შეფუთვა **მხოლოდ Windows x64**. | macOS/Linux target-ები `electron-builder.config.cjs`-ში არ არსებობს. |
-| 5 | Market Radar გამორთულია ორივე მხარეს. | განზრახ — ჩინური წყაროებია ჩაშენებული; ელოდება ქართულ/საერთაშორისო data source-ს. |
+| 5 | Market Radar მოდული წაშლილია. | Auto-Director იწყება ავტორის იდეიდან; ჩინური ranking წყაროები აღარ არის. |
 | 6 | `README.md`, `TASK.md` და `docs/`-ის დიდი ნაწილი ჩინურადაა. | fork-ის პოლიტიკა ეხება **UI-ს და გენერირებულ კონტენტს**, არა შიდა დოკუმენტაციას. |
 | 7 | რეპოში არის ნულოვანი ზომის ნარჩენი ფაილი `server/p.$disconnect())`. | უვნებელი, მაგრამ წასაშლელი. |
 | 8 | `migration/` (ლოკალური data dump-ები) და `.env` განზრახ Git-ის გარეთაა. | უნდა დარჩეს ასე — `deploy-remote.sh` აქტიურად კრძალავს მათ publish-ს. |

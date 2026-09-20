@@ -10,10 +10,10 @@ function buildAutoDirectorTask(overrides = {}) {
     id: "task_workflow_notify",
     novelId: "novel_notify",
     lane: "auto_director",
-    title: "AI 自动导演",
+    title: "Auto-Director",
     status: "running",
     progress: 0.68,
-    currentStage: "章节执行",
+    currentStage: "Chapter execution",
     currentItemKey: "pipeline_execution",
     currentItemLabel: "正在执行前 10 章",
     checkpointType: null,
@@ -121,7 +121,7 @@ test("markTaskWaitingApproval delivers WeCom notification for auto director appr
     assert.equal(fetchCalls[0].url, "https://relay.example.test/wecom");
     assert.equal(fetchCalls[0].method, "POST");
     assert.equal(fetchCalls[0].body.msgtype, "markdown");
-    assert.match(fetchCalls[0].body.markdown.content, /自动导演跟进提醒/);
+    assert.match(fetchCalls[0].body.markdown.content, /Auto-Director follow-up/);
     assert.match(fetchCalls[0].body.markdown.content, /前 10 章已准备完成。/);
 
     assert.equal(notifications.length, 1);

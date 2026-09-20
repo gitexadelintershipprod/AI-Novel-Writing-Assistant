@@ -37,12 +37,12 @@ function createVolume(overrides = {}) {
     sortOrder: 1,
     title: "第一卷",
     summary: "卷摘要",
-    openingHook: "开卷抓手",
+    openingHook: "Opening hook",
     mainPromise: "主承诺",
     primaryPressureSource: "压力源",
     coreSellingPoint: "核心卖点",
     escalationMode: "升级方式",
-    protagonistChange: "主角变化",
+    protagonistChange: "Protagonist变化",
     midVolumeRisk: "中段风险",
     climax: "高潮",
     payoffType: "兑现类型",
@@ -72,7 +72,7 @@ function createBeatSheets() {
       beats: [
         {
           key: "open_hook",
-          label: "开卷抓手",
+          label: "Opening hook",
           title: "夜市夺印",
           summary: "建立开局危机。",
           chapterSpanHint: "1-2章",
@@ -80,7 +80,7 @@ function createBeatSheets() {
         },
         {
           key: "midpoint_turn",
-          label: "中段转向",
+          label: "Midpoint turn",
           title: "旧盟破裂",
           summary: "关系和目标转向。",
           chapterSpanHint: "3-4章",
@@ -89,7 +89,7 @@ function createBeatSheets() {
         {
           key: "final_hook",
           label: "卷末钩子",
-          title: "暗门开启",
+          title: "暗门on",
           summary: "留下下一段牵引。",
           chapterSpanHint: "5-6章",
           mustDeliver: ["尾钩"],
@@ -131,7 +131,7 @@ test("volume impact projection locks beats with draft content and limits stale w
   );
   assert.equal(result.staleBeatCount, 2);
   assert.equal(result.lockedBeatCount, 1);
-  assert.equal(result.defaultImpactAction, "接入后续未写段");
+  assert.equal(result.defaultImpactAction, "Connect the unwritten stretch ahead");
 });
 
 test("forward beat impact for character injection skips already passed beats", () => {

@@ -8,7 +8,7 @@ function createSourceCache() {
     getOrBuildSourceNotes: async () => ({
       notes: [{
         summary: "人物系统信号",
-        characters: ["主角：许大茂", "配角：娄晓娥"],
+        characters: ["Protagonist：许大茂", "Supporting：娄晓娥"],
         evidence: [],
       }],
     }),
@@ -30,7 +30,7 @@ function createAnalysis(status = "succeeded") {
     },
     sections: [{
       sectionKey: "character_system",
-      aiContent: "许大茂是主角，娄晓娥是关键配角。",
+      aiContent: "许大茂YesProtagonist，娄晓娥Yes关键Supporting。",
       editedContent: null,
     }],
   };
@@ -216,13 +216,13 @@ test("identifyCharacterCandidates dedupes candidates and keeps generated rows in
   const store = createMemoryStore([{
     id: "char-1",
     name: "许大茂",
-    role: "主角",
+    role: "Protagonist",
     status: "generated",
-    profileJson: JSON.stringify({ name: "许大茂", role: "主角", personality: "精明" }),
+    profileJson: JSON.stringify({ name: "许大茂", role: "Protagonist", personality: "精明" }),
   }, {
     id: "char-2",
     name: "娄晓娥",
-    role: "配角",
+    role: "Supporting",
     status: "candidate",
     briefDescription: "旧描述",
   }]);
@@ -234,7 +234,7 @@ test("identifyCharacterCandidates dedupes candidates and keeps generated rows in
       {
         candidates: [
           { name: "许大茂", roleHint: "不应覆盖", importance: "high", briefDescription: "不应覆盖", occurringChapters: [] },
-          { name: "娄晓娥", roleHint: "关键配角", importance: "medium", briefDescription: "更新描述", occurringChapters: ["第 2 章"] },
+          { name: "娄晓娥", roleHint: "关键Supporting", importance: "medium", briefDescription: "更新描述", occurringChapters: ["第 2 章"] },
           { name: "傻柱", roleHint: "对照角色", importance: "medium", briefDescription: "构成关系张力", occurringChapters: [] },
         ],
       },
@@ -247,7 +247,7 @@ test("identifyCharacterCandidates dedupes candidates and keeps generated rows in
     const rows = await service.identifyCharacterCandidates("analysis-1");
     assert.equal(promptCalls, 1);
     assert.equal(rows.length, 3);
-    assert.equal(rows.find((item) => item.name === "许大茂").role, "主角");
+    assert.equal(rows.find((item) => item.name === "许大茂").role, "Protagonist");
     assert.equal(rows.find((item) => item.name === "娄晓娥").briefDescription, "更新描述");
     assert.equal(rows.find((item) => item.name === "傻柱").status, "candidate");
     assert.equal(store.usedTokens, 15);
@@ -255,15 +255,15 @@ test("identifyCharacterCandidates dedupes candidates and keeps generated rows in
 });
 
 test("generateCharacterProfile transitions candidate to generated with arcs and scenes", async () => {
-  const store = createMemoryStore([{ id: "char-1", name: "许大茂", role: "主角", status: "candidate" }]);
+  const store = createMemoryStore([{ id: "char-1", name: "许大茂", role: "Protagonist", status: "candidate" }]);
   const promptRunner = async ({ asset }) => {
     assert.equal(asset.id, "bookAnalysis.character.profile");
     return promptResult(
       {
         character: {
           name: "许大茂",
-          role: "主角",
-          profile: { name: "许大茂", role: "主角", personality: "精明外放" },
+          role: "Protagonist",
+          profile: { name: "许大茂", role: "Protagonist", personality: "精明外放" },
           evidence: [{ label: "人物", excerpt: "许大茂登场", sourceLabel: "notes" }],
           arcs: [{ stageLabel: "登场建立目标", stateSnapshot: { goal: "争取机会" } }],
           scenes: [{ sceneLabel: "登场场景", sceneType: "亮相", performance: { technique: "对比" } }],
@@ -288,7 +288,7 @@ test("generateCharacterProfile transitions candidate to generated with arcs and 
 });
 
 test("generateCharacterProfile marks failed status when prompt fails", async () => {
-  const store = createMemoryStore([{ id: "char-1", name: "许大茂", role: "主角", status: "candidate" }]);
+  const store = createMemoryStore([{ id: "char-1", name: "许大茂", role: "Protagonist", status: "candidate" }]);
   const promptRunner = async () => {
     throw new Error("model failed");
   };
@@ -362,7 +362,7 @@ test("legacy generateCharacters identifies then generates profiles", async () =>
     if (asset.id === "bookAnalysis.character.identify") {
       return promptResult(
         {
-          candidates: [{ name: "许大茂", roleHint: "主角", importance: "high", briefDescription: "核心人物", occurringChapters: [] }],
+          candidates: [{ name: "许大茂", roleHint: "Protagonist", importance: "high", briefDescription: "核心人物", occurringChapters: [] }],
         },
         { promptTokens: 3, completionTokens: 2, totalTokens: 5 },
       );

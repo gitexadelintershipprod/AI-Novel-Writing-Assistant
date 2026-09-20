@@ -67,22 +67,6 @@ test("GET /api/llm/model-routes returns success payload", async () => {
   }
 });
 
-test("Market Radar API is unavailable by default", async () => {
-  const app = createApp();
-  const server = http.createServer(app);
-  const port = await listen(server);
-  try {
-    const response = await fetch(`http://127.0.0.1:${port}/api/market-radar/sources`);
-    assert.equal(response.status, 503);
-    assert.deepEqual(await response.json(), {
-      success: false,
-      error: "Market Radar is temporarily unavailable.",
-    });
-  } finally {
-    await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
-  }
-});
-
 test("GET /api/settings/rag/models/openai returns embedding-only models", async () => {
   const originalFetch = global.fetch;
   const originalOpenAIKey = process.env.OPENAI_API_KEY;
@@ -1200,7 +1184,7 @@ test("novel routes preserve book framing fields through create-get-update cycle"
       },
       body: JSON.stringify({
         targetAudience: "爱看现实强冲突和关系拉扯的读者",
-        first30ChapterPromise: "前 30 章必须让主角完成第一次强反压。",
+        first30ChapterPromise: "前 30 章必须让Protagonist完成第一次强反压。",
         competingFeel: null,
         commercialTags: ["关系拉扯", "现实高压", "持续钩子"],
       }),
@@ -1214,7 +1198,7 @@ test("novel routes preserve book framing fields through create-get-update cycle"
     const detailAfterUpdateResponse = await fetch(`http://127.0.0.1:${port}/api/novels/${novelId}`);
     assert.equal(detailAfterUpdateResponse.status, 200);
     const detailAfterUpdatePayload = await detailAfterUpdateResponse.json();
-    assert.equal(detailAfterUpdatePayload.data.first30ChapterPromise, "前 30 章必须让主角完成第一次强反压。");
+    assert.equal(detailAfterUpdatePayload.data.first30ChapterPromise, "前 30 章必须让Protagonist完成第一次强反压。");
     assert.deepEqual(detailAfterUpdatePayload.data.commercialTags, ["关系拉扯", "现实高压", "持续钩子"]);
   } finally {
     novelCreateResourceRecommendationService.resolveRequired = originalResolveRequired;
@@ -1229,7 +1213,7 @@ test("POST /api/novels/framing/suggest returns book framing suggestion", async (
     targetAudience: "爱看高压逆袭和关系拉扯的读者",
     commercialTags: ["逆袭", "强冲突", "持续钩子"],
     competingFeel: "现实压力下的高密度反压阅读感",
-    bookSellingPoint: "主角每次解决困局都会撬动更大的利益链。",
+    bookSellingPoint: "Protagonist每次解决困局都会撬动更大的利益链。",
     first30ChapterPromise: "前 30 章必须让核心对手浮出水面并完成第一次强反压。",
   });
 
@@ -1274,7 +1258,7 @@ test("creative hub stream route emits turn summary frames", async () => {
     intentSummary: "围绕当前章节继续推进正文。",
     actionSummary: "读取上下文并生成了新的章节回复。",
     impactSummary: "线程状态已更新，下一步可以继续扩写或复盘。",
-    nextSuggestion: "继续扩写当前章节，并检查角色动机是否一致。",
+    nextSuggestion: "继续扩写当前章节，并检查角色动机YesNo一致。",
   };
 
   creativeHubLangGraph.runThread = async (_input, emitFrame) => {
@@ -1368,10 +1352,10 @@ test("creative hub state route exposes latest turn summary metadata", async () =
     checkpointId: "cp_state_summary",
     status: "failed",
     currentStage: "世界观校验",
-    intentSummary: "检查当前世界观设定是否冲突。",
+    intentSummary: "检查当前世界观设定YesNo冲突。",
     actionSummary: "读取设定文档并发现了一处角色冲突。",
-    impactSummary: "本轮未继续推进正文，需要先修复设定问题。",
-    nextSuggestion: "先修复角色设定冲突，再继续章节写作。",
+    impactSummary: "本轮未继续推进正文，需要先Repairing设定问题。",
+    nextSuggestion: "先Repairing角色设定冲突，再继续章节写作。",
   };
 
   try {
@@ -1383,7 +1367,7 @@ test("creative hub state route exposes latest turn summary metadata", async () =
       messages: [{
         id: "human_1",
         type: "human",
-        content: "检查世界观是否冲突",
+        content: "检查世界观YesNo冲突",
       }],
       interrupts: [],
       resourceBindings: {},
@@ -1433,7 +1417,7 @@ test("creative hub interrupt route resumes via langgraph and updates thread stat
       approvalType: "high_impact_write",
       targetType: "novel",
       targetId: "novel_demo",
-      diffSummary: "请确认是否继续。",
+      diffSummary: "请确认YesNo继续。",
       payloadJson: JSON.stringify({
         goal: "审批恢复测试",
         context: {
@@ -1573,7 +1557,7 @@ test("novel state and planning routes return success payloads", async () => {
     level: "chapter",
     title: "第3章规划",
     objective: "推进角色冲突",
-    participantsJson: JSON.stringify(["主角", "对手"]),
+    participantsJson: JSON.stringify(["Protagonist", "对手"]),
     revealsJson: JSON.stringify(["揭露新线索"]),
     riskNotesJson: JSON.stringify(["避免重复设定"]),
     hookTarget: "留下交易反转悬念",
@@ -1722,7 +1706,7 @@ test("novel world slice routes return success payloads", async () => {
       pressureSources: ["乐圣公司的资源卡位"],
       mysterySources: [],
       suggestedStoryAxes: ["现实情感"],
-      recommendedEntryPoints: ["从主角入职后的第一次重大受挫切入"],
+      recommendedEntryPoints: ["从Protagonist入职后的第一次重大Setback切入"],
       forbiddenCombinations: ["不要直接引入超自然力量"],
       storyScopeBoundary: "保留现实都市基底。",
       metadata: {

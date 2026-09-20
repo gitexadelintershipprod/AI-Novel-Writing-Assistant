@@ -30,7 +30,7 @@ The intro site’s primary readers are people seeing the project for the first t
 Keep the public surface and the internal maintenance surface in English, with one creative-language exception:
 
 - GitHub README, GitHub About, the intro-site home, navigation, SEO, and the docs chrome (index titles, search, breadcrumbs, pagination) use English.
-- `docs/wiki/` internal principles, workflow boundaries, and architecture rules use English. Quoted Chinese protocol aliases are allowed only when documenting dual-read of old stored values. English is canonical on write.
+- `docs/wiki/` internal principles, workflow boundaries, and architecture rules use English. Stored protocol values are English-only.
 - This fork's product UI is English; generated novel prose is Georgian (`ka-GE`).
 - `docs/public/` user-facing pages are English except the Georgian usage guide.
 - The Georgian usage guide lives at `docs/public/georgian-user-guide.md` and must stay registered in the public docs manifest.

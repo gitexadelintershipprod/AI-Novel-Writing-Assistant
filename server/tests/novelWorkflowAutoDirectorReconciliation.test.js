@@ -31,7 +31,7 @@ test("syncAutoDirectorChapterBatchCheckpoint refreshes resume target to the firs
         novelId: "novel-1",
         status: "failed",
         checkpointType: "chapter_batch_ready",
-        currentItemLabel: "第 1-3 章自动执行已暂停",
+        currentItemLabel: "第 1-3 章Auto-run is paused",
         checkpointSummary: "旧摘要",
         resumeTargetJson: null,
         seedPayloadJson: JSON.stringify({
@@ -93,7 +93,7 @@ test("syncAutoDirectorChapterBatchCheckpoint marks workflow completed once all r
         novelId: "novel-1",
         status: "failed",
         checkpointType: "chapter_batch_ready",
-        currentItemLabel: "第 1-2 章自动执行已暂停",
+        currentItemLabel: "第 1-2 章Auto-run is paused",
         checkpointSummary: "旧摘要",
         resumeTargetJson: null,
         seedPayloadJson: JSON.stringify({
@@ -154,7 +154,7 @@ test("syncAutoDirectorChapterBatchCheckpoint keeps partial beat completion as a 
         novelId: "novel-1",
         status: "failed",
         checkpointType: "chapter_batch_ready",
-        currentItemLabel: "第 1-2 章自动执行已暂停",
+        currentItemLabel: "第 1-2 章Auto-run is paused",
         checkpointSummary: "旧摘要",
         resumeTargetJson: null,
         seedPayloadJson: JSON.stringify({
@@ -217,7 +217,7 @@ test("syncAutoDirectorChapterBatchCheckpoint keeps repaired chapters without con
         novelId: "novel-1",
         status: "failed",
         checkpointType: "chapter_batch_ready",
-        currentItemLabel: "第 1-2 章自动执行已暂停",
+        currentItemLabel: "第 1-2 章Auto-run is paused",
         checkpointSummary: "旧摘要",
         resumeTargetJson: null,
         seedPayloadJson: JSON.stringify({

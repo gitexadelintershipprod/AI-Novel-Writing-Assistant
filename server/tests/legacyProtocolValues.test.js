@@ -9,14 +9,13 @@ const {
   rewriteExactProtocolString,
 } = require("../../shared/dist/types/legacyProtocolValues.js");
 
-test("legacy protocol map dual-reads Chinese and writes English", () => {
-  assert.equal(canonicalizeStoryFunction("主角"), "protagonist");
+test("protocol values accept English stored values only", () => {
   assert.equal(canonicalizeStoryFunction("protagonist"), "protagonist");
-  assert.equal(canonicalizeGrowthStage("起点"), "origin");
-  assert.equal(canonicalizeWorldType("东方玄幻"), "Oriental fantasy");
-  assert.equal(canonicalizeBeatRoleLabel("开卷抓手"), "Opening hook");
-  assert.equal(isPlaceholderThreadTitle("新对话"), true);
+  assert.equal(canonicalizeGrowthStage("origin"), "origin");
+  assert.equal(canonicalizeWorldType("Oriental fantasy"), "Oriental fantasy");
+  assert.equal(canonicalizeBeatRoleLabel("Opening hook"), "Opening hook");
   assert.equal(isPlaceholderThreadTitle("New thread"), true);
-  assert.equal(rewriteExactProtocolString("第3卷定位"), "Volume 3 role");
-  assert.equal(rewriteExactProtocolString("第2卷"), "Volume 2");
+  assert.equal(isPlaceholderThreadTitle("new conversation"), true);
+  assert.equal(rewriteExactProtocolString("Opening hook"), "Opening hook");
+  assert.equal(rewriteExactProtocolString("Volume 3 role"), "Volume 3 role");
 });

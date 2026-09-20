@@ -61,10 +61,7 @@ function hasPersistedChapterContent(chapter: Pick<TakeoverChapterRow, "content">
 
 function isNoChaptersToGenerateFailure(message: string | null | undefined): boolean {
   return typeof message === "string"
-    && (
-      message.includes("There are no chapters to generate in the selected range")
-      || message.includes("指定区间内没有可生成的章节")
-    );
+    && message.includes("There are no chapters to generate in the selected range");
 }
 
 function isPendingAutoExecutionChapter(chapter: TakeoverChapterRow): boolean {

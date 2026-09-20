@@ -10,10 +10,10 @@ function buildWorkflowRow(overrides = {}) {
     id: "task_chapter_range",
     novelId: "novel_1",
     lane: "auto_director",
-    title: "AI 自动导演",
+    title: "Auto-Director",
     status: "waiting_approval",
     progress: 0.7,
-    currentStage: "章节执行",
+    currentStage: "Chapter execution",
     currentItemKey: "chapter_execution",
     currentItemLabel: "等待继续自动执行",
     checkpointType: "chapter_batch_ready",
@@ -387,7 +387,7 @@ test("auto director follow-up notification service skips progress_changed by def
   });
   const after = buildWorkflowRow({
     status: "waiting_approval",
-    currentStage: "章节执行",
+    currentStage: "Chapter execution",
     progress: 0.74,
     checkpointType: "chapter_batch_ready",
     checkpointSummary: "前 10 章已准备完成。",
@@ -598,11 +598,11 @@ test("auto director follow-up notification service delivers auto-approved events
       novelId: "novel_1",
       novelTitle: "《雾港巡夜人》",
       checkpointType: "character_setup_required",
-      checkpointSummary: "角色准备已生成并应用。",
+      checkpointSummary: "Character setup已生成并应用。",
       approvalPointCode: "character_setup_ready",
-      approvalPointLabel: "角色准备通过后继续",
+      approvalPointLabel: "Continue after character setup passes",
       stage: "character_setup",
-      summary: "AI 已自动通过角色准备，并继续推进。",
+      summary: "AI 已自动通过Character setup，并继续推进。",
       occurredAt: new Date("2026-04-22T10:30:00.000Z"),
     });
 
@@ -622,7 +622,7 @@ test("auto director follow-up notification service delivers auto-approved events
     assert.equal(fetchCalls[1].url, "https://relay.example.test/wecom");
     assert.equal(fetchCalls[1].body.msgtype, "markdown");
     assert.match(fetchCalls[1].body.markdown.content, /AI auto-approved and continued/);
-    assert.match(fetchCalls[1].body.markdown.content, /AI 已自动通过角色准备，并继续推进。/);
+    assert.match(fetchCalls[1].body.markdown.content, /AI 已自动通过Character setup，并继续推进。/);
     assert.match(fetchCalls[1].body.markdown.content, /Reason: Recently passed automatically/);
     assert.doesNotMatch(fetchCalls[1].body.markdown.content, /actionCode=continue_auto_execution/);
     assert.doesNotMatch(fetchCalls[1].body.markdown.content, /callbackId=/);
@@ -705,9 +705,9 @@ test("auto director follow-up notification service labels replan reminders witho
       checkpointType: "replan_required",
       checkpointSummary: "第 2 章出现重规划建议。",
       approvalPointCode: "replan_continue",
-      approvalPointLabel: "重规划处理后继续",
+      approvalPointLabel: "Continue after replan handling",
       stage: "quality_repair",
-      summary: "AI 已记录重规划提醒，并继续推进。第 2 章出现重规划建议。",
+      summary: "AI recorded a replan reminder and continued.第 2 章出现重规划建议。",
       occurredAt: new Date("2026-04-22T10:40:00.000Z"),
     });
 
@@ -715,7 +715,7 @@ test("auto director follow-up notification service labels replan reminders witho
     assert.equal(fetchCalls[0].body.card.title, "AI recorded a replan reminder and continued");
     assert.equal(fetchCalls[0].body.card.reasonLabel, "The replan reminder was recorded");
     assert.match(fetchCalls[1].body.markdown.content, /AI recorded a replan reminder and continued/);
-    assert.match(fetchCalls[1].body.markdown.content, /AI 已记录重规划提醒，并继续推进。/);
+    assert.match(fetchCalls[1].body.markdown.content, /AI recorded a replan reminder and continued./);
     assert.doesNotMatch(fetchCalls[1].body.markdown.content, /AI auto-approved and continued/);
     assert.equal(notifications.length, 2);
   } finally {

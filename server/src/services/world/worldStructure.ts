@@ -158,7 +158,7 @@ function buildRuleFromText(text: string, index: number): WorldRule {
   const [name, summary] = normalized.split(/[：:]/, 2);
   return {
     id: makeId("rule", index, name || normalized),
-    name: (summary ? name : `规则 ${index + 1}`).trim(),
+    name: (summary ? name : `Rule ${index + 1}`).trim(),
     summary: (summary ?? normalized).trim(),
     cost: "",
     boundary: "",
@@ -259,7 +259,7 @@ function normalizeRules(raw: unknown, fallback: WorldRules): WorldRules {
       }
       return {
         id,
-        name: name || `规则 ${index + 1}`,
+        name: name || `Rule ${index + 1}`,
         summary: summary || name,
         cost: normalizeText(row.cost),
         boundary: normalizeText(row.boundary ?? row.limit),
@@ -420,28 +420,14 @@ function normalizeGeographyDirection(raw: unknown): WorldLocation["directionHint
   const normalized = raw.trim().toLowerCase();
   const aliases: Record<string, WorldLocation["directionHint"]> = {
     north: "north",
-    北: "north",
-    北方: "north",
     south: "south",
-    南: "south",
-    南方: "south",
     east: "east",
-    东: "east",
-    东方: "east",
     west: "west",
-    西: "west",
-    西方: "west",
     center: "center",
-    中: "center",
-    中央: "center",
     northeast: "northeast",
-    东北: "northeast",
     northwest: "northwest",
-    西北: "northwest",
     southeast: "southeast",
-    东南: "southeast",
     southwest: "southwest",
-    西南: "southwest",
   };
   return aliases[normalized];
 }
@@ -719,22 +705,9 @@ function buildLegacyFactionSeeds(raw: string | null | undefined): { factions: Wo
 
 function inferLegacyLocationName(text: string): string {
   const normalized = text.replace(/^[-*]\s*/, "").trim();
-  const afterColon = normalized.includes("：") ? normalized.split("：").slice(1).join("：").trim() : normalized;
-  const patterns: Array<[RegExp, string]> = [
-    [/太平洋.*禁航区|太平洋.*异界入口|深海.*异界入口/, "Pacific Deep-Sea No-Sail Zone"],
-    [/北极冰盖|北极.*基地/, "Arctic Ice Sheet Secret Base"],
-    [/昆仑山|昆仑.*通道/, "Kunlun Mountains Mythic Passage"],
-    [/阿尔卑斯.*古堡|欧洲.*古堡/, "Alpine Castle Command Center"],
-    [/城市.*地下|地下.*设施/, "Global Urban Underground Facilities"],
-    [/南极冰盖|极夜风暴/, "Antarctic Ancient Seal Zone"],
-  ];
-  for (const [pattern, name] of patterns) {
-    if (pattern.test(afterColon)) {
-      return name;
-    }
-  }
+  const afterColon = normalized.includes(":") ? normalized.split(":").slice(1).join(":").trim() : normalized;
   const candidate = afterColon
-    .split(/[，。,.]|被|隐藏|实为|用于|传言|内有|是/)
+    .split(/[,.]/)
     .map((item) => item.trim())
     .find((item) => item.length >= 2);
   return candidate ? candidate.slice(0, 24) : normalized.slice(0, 24);
@@ -745,14 +718,14 @@ function splitLegacyGeographyClauses(raw: string | null | undefined): string[] {
   if (!normalized) {
     return [];
   }
-  const content = normalized.includes("：")
-    ? normalized.split("：").slice(1).join("：").trim()
+  const content = normalized.includes(":")
+    ? normalized.split(":").slice(1).join(":").trim()
     : normalized;
   return Array.from(
     new Set(
       content
-        .split(/[\n;；]+/)
-        .map((item) => item.replace(/^此外[，,]\s*/, "").trim())
+        .split(/[\n;]+/)
+        .map((item) => item.trim())
         .filter((item) => item.length >= 4),
     ),
   );
@@ -824,7 +797,7 @@ export function buildWorldStructureFromLegacySource(source: WorldStructureSource
     {
       profile: {
         summary: source.description ?? source.overviewSummary ?? "",
-        identity: source.worldType ? `${source.worldType} 世界` : "",
+        identity: source.worldType ? `${source.worldType} world` : "",
         tone: "",
         themes: parseListText(source.cultures).slice(0, 6),
         coreConflict: source.conflicts ?? "",
@@ -975,7 +948,7 @@ export function parseWorldStructurePayload(
 }
 
 function formatRuleText(rule: WorldRule): string {
-  const parts = [rule.summary, rule.cost && `代价：${rule.cost}`, rule.boundary && `边界：${rule.boundary}`, rule.enforcement && `约束：${rule.enforcement}`]
+  const parts = [rule.summary, rule.cost && `Cost: ${rule.cost}`, rule.boundary && `Boundary: ${rule.boundary}`, rule.enforcement && `Enforcement: ${rule.enforcement}`]
     .filter(Boolean);
   return `${rule.name}${parts.length > 0 ? `：${parts.join("；")}` : ""}`;
 }
@@ -986,10 +959,10 @@ function buildFactionLegacyText(structure: WorldStructuredData): string | null {
     ...structure.factions.map((item) =>
       [
         item.name,
-        item.position && `立场：${item.position}`,
-        item.doctrine && `主张：${item.doctrine}`,
-        item.goals.length > 0 && `目标：${item.goals.join("、")}`,
-        item.methods.length > 0 && `手段：${item.methods.join("、")}`,
+        item.position && `Position: ${item.position}`,
+        item.doctrine && `Doctrine: ${item.doctrine}`,
+        item.goals.length > 0 && `Goals: ${item.goals.join("、")}`,
+        item.methods.length > 0 && `Methods: ${item.methods.join("、")}`,
         item.representativeForceIds.length > 0
           && `Representative forces:${item.representativeForceIds.map((id) => forceNameById.get(id) ?? id).join("、")}`,
       ]
@@ -999,8 +972,8 @@ function buildFactionLegacyText(structure: WorldStructuredData): string | null {
     ...structure.forces.map((item) =>
       [
         item.name,
-        item.type && `类型：${item.type}`,
-        item.summary && `概述：${item.summary}`,
+        item.type && `Type: ${item.type}`,
+        item.summary && `Summary: ${item.summary}`,
         item.leader && `Key figure:${item.leader}`,
       ]
         .filter(Boolean)
@@ -1028,14 +1001,14 @@ function buildPowerLegacyText(structure: WorldStructuredData): string | null {
       [
         item.name,
         item.summary,
-        item.cost && `代价：${item.cost}`,
-        item.boundary && `边界：${item.boundary}`,
+        item.cost && `Cost: ${item.cost}`,
+        item.boundary && `Boundary: ${item.boundary}`,
       ].filter(Boolean).join(" | "),
     ),
   ].filter(Boolean);
   const resourceLines = structure.forces
     .filter((item) => item.resources && item.resources.length > 0)
-    .map((item) => `${item.name} 掌握：${(item.resources ?? []).join("、")}`);
+    .map((item) => `${item.name} controls: ${(item.resources ?? []).join("、")}`);
   const lines = [...ruleLines, ...resourceLines].filter(Boolean);
   return lines.length > 0 ? lines.join("\n") : null;
 }
@@ -1044,7 +1017,7 @@ function buildCultureLegacyText(structure: WorldStructuredData): string | null {
   const lines = [
     structure.profile.tone && `Overall feel:${structure.profile.tone}`,
     structure.profile.themes.length > 0 && `Thematic pressure:${structure.profile.themes.join("、")}`,
-    ...structure.rules.taboo.map((item) => `禁忌：${item}`),
+    ...structure.rules.taboo.map((item) => `Taboo: ${item}`),
     ...structure.rules.sharedConsequences.map((item) => `Shared consequence:${item}`),
     ...structure.factions.map((item) =>
       [
@@ -1075,9 +1048,9 @@ function buildEconomyLegacyText(structure: WorldStructuredData): string | null {
     .map((item) =>
       [
         item.name,
-        item.resources && item.resources.length > 0 && `资源：${item.resources.join("、")}`,
+        item.resources && item.resources.length > 0 && `Resources: ${item.resources.join("、")}`,
         item.baseOfPower && `Base of power:${item.baseOfPower}`,
-        item.pressure && `压力：${item.pressure}`,
+        item.pressure && `Pressure: ${item.pressure}`,
       ].filter(Boolean).join(" | "),
     );
   return lines.length > 0 ? lines.join("\n") : null;
@@ -1089,9 +1062,9 @@ function buildPoliticsLegacyText(structure: WorldStructuredData): string | null 
     ...structure.factions.map((item) =>
       [
         item.name,
-        item.position && `立场：${item.position}`,
-        item.goals.length > 0 && `目标：${item.goals.join("、")}`,
-        item.methods.length > 0 && `手段：${item.methods.join("、")}`,
+        item.position && `Position: ${item.position}`,
+        item.goals.length > 0 && `Goals: ${item.goals.join("、")}`,
+        item.methods.length > 0 && `Methods: ${item.methods.join("、")}`,
       ]
         .filter(Boolean)
         .join(" | "),
@@ -1125,10 +1098,10 @@ function buildGeographyLegacyText(structure: WorldStructuredData): string | null
     .map((item) =>
       [
         item.name,
-        item.terrain && `地形：${item.terrain}`,
-        item.summary && `概述：${item.summary}`,
+        item.terrain && `Terrain: ${item.terrain}`,
+        item.summary && `Summary: ${item.summary}`,
         item.narrativeFunction && `Narrative function:${item.narrativeFunction}`,
-        item.risk && `风险：${item.risk}`,
+        item.risk && `Risk: ${item.risk}`,
       ]
         .filter(Boolean)
         .join(" | "),
@@ -1260,9 +1233,9 @@ export function buildWorldStructureOverview(structure: WorldStructuredData, bind
         content: [
           structure.profile.identity && `World identity:${structure.profile.identity}`,
           structure.profile.tone && `Overall tonality:${structure.profile.tone}`,
-          structure.profile.summary && `摘要：${structure.profile.summary}`,
+          structure.profile.summary && `Summary: ${structure.profile.summary}`,
           structure.profile.coreConflict && `Core conflict:${structure.profile.coreConflict}`,
-          structure.profile.themes.length > 0 && `主题：${structure.profile.themes.join("、")}`,
+          structure.profile.themes.length > 0 && `Themes: ${structure.profile.themes.join("、")}`,
         ]
           .filter(Boolean)
           .join("\n"),
@@ -1273,7 +1246,7 @@ export function buildWorldStructureOverview(structure: WorldStructuredData, bind
         content: [
           structure.rules.summary,
           ...structure.rules.axioms.map(formatRuleText),
-          ...structure.rules.taboo.map((item) => `禁忌：${item}`),
+          ...structure.rules.taboo.map((item) => `Taboo: ${item}`),
           ...structure.rules.sharedConsequences.map((item) => `Shared consequence:${item}`),
         ]
           .filter(Boolean)

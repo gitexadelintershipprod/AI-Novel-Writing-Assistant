@@ -21,7 +21,7 @@ function createAppearanceOnlyCharacter() {
         chapterIndex: 76,
         chapterTitle: "第七十七章",
         evidence: [{
-          label: "外貌与姿态",
+          label: "Appearance与姿态",
           excerpt: "田静抬起头，露出甜美的笑容。",
           sourceLabel: "第77章正文",
           chapterIndex: 76,

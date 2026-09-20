@@ -461,7 +461,7 @@ test("executePipeline records local patch recommendations as quality debt and co
     assert.equal(finalUpdate.data.status, "succeeded");
     const payload = JSON.parse(finalUpdate.data.payload);
     assert.equal(payload.replanAlertDetails, undefined);
-    assert.match(payload.recoverableRepairDetails[0], /后续章节调整失败/);
+    assert.match(payload.recoverableRepairDetails[0], /Follow-up chapter adjustment failed/);
     assert.equal(payload.replanAlertDetails, undefined);
   } finally {
     prisma.generationJob.findUnique = original.generationFindUnique;

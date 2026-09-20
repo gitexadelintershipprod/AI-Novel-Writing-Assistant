@@ -41,7 +41,7 @@ function parseCharInput(input: string): number | null {
   if (!normalized) {
     return null;
   }
-  const match = normalized.match(/^(\d+(?:\.\d+)?)(k|万)?$/);
+  const match = normalized.match(/^(\d+(?:\.\d+)?)(k)?$/);
   if (!match) {
     return null;
   }
@@ -49,11 +49,7 @@ function parseCharInput(input: string): number | null {
   if (!Number.isFinite(value)) {
     return null;
   }
-  const unit = match[2];
-  if (unit === "million") {
-    return Math.round(value * 10_000);
-  }
-  if (unit === "k") {
+  if (match[2] === "k") {
     return Math.round(value * 1_000);
   }
   return Math.round(value);

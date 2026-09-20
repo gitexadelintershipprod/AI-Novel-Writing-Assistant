@@ -25,11 +25,7 @@ export const characterToolDefinitions: Partial<
         "base character library",
         "character template library",
         "base characters",
-        "角色模板库",
-        "列出基础角色库中的角色",
-        "查看基础角色库",
-        "角色库里有什么角色",
-      ],
+                                      ],
       phrases: [
         "List characters in the base character library",
         "View the base character library",

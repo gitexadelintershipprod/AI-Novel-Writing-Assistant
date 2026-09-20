@@ -11,7 +11,7 @@ test("display state maps chapter draft execution into chapter stage and uses fac
       status: "running",
       currentStage: "chapter_execution",
       currentItemKey: "chapter.draft.write",
-      currentItemLabel: "执行章节生成批次",
+      currentItemLabel: "Run the chapter generation batch",
       progress: 0.1,
       checkpointType: "chapter_batch_ready",
       checkpointSummary: null,
@@ -29,11 +29,11 @@ test("display state maps chapter draft execution into chapter stage and uses fac
     },
     activeStepNodeKey: "chapter_execution_node",
     currentFactStepId: "chapter.draft.write",
-    currentFactStepLabel: "执行章节生成批次",
+    currentFactStepLabel: "Run the chapter generation batch",
     factStep: {
       module: {
         id: "chapter.draft.write",
-        label: "执行章节生成批次",
+        label: "Run the chapter generation batch",
       },
       facts: {
         nextAction: "continue_chapter_execution",
@@ -122,7 +122,7 @@ test("display state keeps running mode when task is running despite stale approv
   const displayState = buildDirectorDisplayState({
     task: {
       status: "running",
-      currentStage: "节奏 / 拆章",
+      currentStage: "Beats / chapters",
       currentItemKey: "chapter_detail_bundle",
       currentItemLabel: "正在细化第 7/10 章 · 任务单",
       progress: 0.88,

@@ -12,7 +12,7 @@ const {
 function render(policy) {
   return characterConversationTurnPrompt.render({ interactionPolicy: policy }, {
     blocks: buildCharacterConversationContextBlocks({
-      subject: "角色：顾闻（拆书角色档案）",
+      subject: "角色：顾闻（book analysis角色档案）",
       boundaries: "只允许使用截至第 12 章的原文证据。",
       authorMessage: "你为什么不信任陆沉？",
       evidence: "第 8 章｜顾闻拒绝交出账册。",
@@ -57,13 +57,13 @@ test("novel conversation can retain one evidenced soft influence", () => {
     uncertainty: null,
     influenceDraft: {
       summary: "顾闻更倾向先以小事验证对方。",
-      behaviorGuidance: "先提出可撤回的小交换，再决定是否合作。",
+      behaviorGuidance: "先提出可撤回的小交换，再决定YesNo合作。",
       emotionalGuidance: "保持戒备。",
       relationTension: "信任仍需被证明。",
       evidence: ["他拒绝交出账册，只接受可验证的试探。"],
       confidence: 0.8,
     },
   });
-  assert.equal(parsed.influenceDraft.behaviorGuidance, "先提出可撤回的小交换，再决定是否合作。");
+  assert.equal(parsed.influenceDraft.behaviorGuidance, "先提出可撤回的小交换，再决定YesNo合作。");
   assert.match(String(render("novel_influence")[0].content), /non-canonical soft guide to be confirmed by the author/);
 });

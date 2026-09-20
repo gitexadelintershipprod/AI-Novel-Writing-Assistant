@@ -17,7 +17,7 @@ test("director persisted candidates preserve the AI-resolved production foundati
   const parsed = directorPersistedCandidateSchema.parse({
     id: "candidate-1",
     workingTitle: "底座贯穿测试",
-    logline: "主角在失控秩序中逐步夺回主动权。",
+    logline: "Protagonist在失控秩序中逐步夺回主动权。",
     positioning: "男频成长型网文",
     sellingPoint: "每轮危机都带来可见成长",
     coreConflict: "个人成长与旧秩序压制",
@@ -29,12 +29,12 @@ test("director persisted candidates preserve the AI-resolved production foundati
     toneKeywords: ["紧凑", "成长"],
     targetChapterCount: 120,
     productionFoundation: {
-      summary: "玄幻升级题材，以阶段任务持续推进。",
+      summary: "玄幻升级Genre，以阶段任务持续推进。",
       genre: {
         id: "genre-1",
-        name: "东方玄幻",
-        path: "玄幻/东方玄幻",
-        reason: "世界规则和能力成长是主要吸引力。",
+        name: "Oriental fantasy",
+        path: "玄幻/Oriental fantasy",
+        reason: "世界规则和能力成长Yes主要吸引力。",
       },
       primaryStoryMode: {
         id: "mode-1",
@@ -176,7 +176,7 @@ test("director helper normalization keeps explicit long-form chapter counts", ()
 
 test("director candidate title selection promotes a distinct alternative across one batch", () => {
   const candidate = normalizeCandidate({
-    workingTitle: "退婚宴上我觉醒了凤魂",
+    workingTitle: "退婚宴上我Awakening了凤魂",
     titleOptions: [],
     logline: "logline",
     positioning: "pos",
@@ -191,11 +191,11 @@ test("director candidate title selection promotes a distinct alternative across 
     targetChapterCount: 80,
   }, 1);
   candidate.titleOptions = [
-    { title: "退婚宴上我觉醒了凤魂", clickRate: 92, style: "high_concept" },
+    { title: "退婚宴上我Awakening了凤魂", clickRate: 92, style: "high_concept" },
     { title: "被弃庶女，我以凤魂镇九州", clickRate: 90, style: "conflict" },
   ];
 
-  const resolved = selectDistinctCandidateTitle(candidate, ["退婚宴上我觉醒了凤魂"]);
+  const resolved = selectDistinctCandidateTitle(candidate, ["退婚宴上我Awakening了凤魂"]);
 
   assert.equal(resolved?.workingTitle, "被弃庶女，我以凤魂镇九州");
   assert.equal(resolved?.titleOptions[0]?.title, "被弃庶女，我以凤魂镇九州");
@@ -203,7 +203,7 @@ test("director candidate title selection promotes a distinct alternative across 
 
 test("director candidate title selection rejects a group with no distinct title", () => {
   const candidate = normalizeCandidate({
-    workingTitle: "退婚宴上我觉醒了凤魂",
+    workingTitle: "退婚宴上我Awakening了凤魂",
     titleOptions: [],
     logline: "logline",
     positioning: "pos",
@@ -218,16 +218,16 @@ test("director candidate title selection rejects a group with no distinct title"
     targetChapterCount: 80,
   }, 1);
   candidate.titleOptions = [
-    { title: "《退婚宴上我觉醒了凤魂》", clickRate: 92, style: "high_concept" },
+    { title: "《退婚宴上我Awakening了凤魂》", clickRate: 92, style: "high_concept" },
   ];
 
-  assert.equal(selectDistinctCandidateTitle(candidate, ["退婚宴上我觉醒了凤魂"]), null);
+  assert.equal(selectDistinctCandidateTitle(candidate, ["退婚宴上我Awakening了凤魂"]), null);
 });
 
 test("directorBookContractSchema tolerates overflow red lines and normalization trims them to six", () => {
   const parsed = directorBookContractSchema.parse({
     readingPromise: "持续提供追读满足感",
-    protagonistFantasy: "主角掌握独家优势",
+    protagonistFantasy: "Protagonist掌握独家优势",
     coreSellingPoint: "垃圾堆侦探美学",
     chapter3Payoff: "前三章完成机械遗骸发现",
     chapter10Payoff: "第十章完成首次反制",

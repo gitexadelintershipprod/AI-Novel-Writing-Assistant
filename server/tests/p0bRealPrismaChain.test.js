@@ -112,7 +112,7 @@ async function main() {
         description: "P0-B 真实链路回归测试",
         targetAudience: "新手读者",
         bookSellingPoint: "身份反差 + 朝堂压迫",
-        first30ChapterPromise: "尽快建立主角困局与第一轮反压",
+        first30ChapterPromise: "尽快建立Protagonist困局与第一轮反压",
         narrativePov: "third_person",
         pacePreference: "fast",
         emotionIntensity: "high",
@@ -146,9 +146,9 @@ async function main() {
           novelId: novel.id,
           sortOrder: 1,
           title: "第一卷",
-          summary: "主角被卷入宫廷压迫链，开始辨认赵高阴影。",
+          summary: "Protagonist被卷入宫廷压迫链，开始辨认赵高阴影。",
           mainPromise: "建立宫廷压迫与身份反差，完成第一次求生反压。",
-          climax: "主角第一次意识到自己可能与赵高有更深关联。",
+          climax: "Protagonist第一次意识到自己可能与赵高有更深关联。",
           openPayoffsJson: JSON.stringify(["赵高线索", "宫廷身份伏笔"]),
         },
       });
@@ -226,7 +226,7 @@ async function main() {
       data: {
         novelId: novel.id,
         name: "刘雪婷",
-        role: "主角",
+        role: "Protagonist",
         gender: "female",
         currentState: "刚进宫，极度被动",
         currentGoal: "先活下来，再搞清自己为何会变成太监",
@@ -248,15 +248,15 @@ async function main() {
     await prisma.storyMacroPlan.create({
       data: {
         novelId: novel.id,
-        storyInput: "打工人刘雪婷穿越到秦朝成为太监，最后发现自己竟然就是赵高。",
+        storyInput: "打工人刘雪婷穿越到秦朝成为太监，最后发现自己竟然就Yes赵高。",
         expansionJson: JSON.stringify({
           expanded_premise: "现代打工人刘雪婷穿越成秦宫太监，在求生中逐步接近赵高真相。",
-          protagonist_core: "现代价值观与宫廷生存法则冲突。",
+          protagonist_core: "现代Values与宫廷生存法则冲突。",
         }),
         decompositionJson: JSON.stringify({
           selling_point: "身份反差与历史阴影叠加的高压成长线",
-          core_conflict: "主角必须在宫廷压迫中活下来并靠近赵高真相",
-          main_hook: "她最终发现自己就是赵高",
+          core_conflict: "Protagonist必须在宫廷压迫中活下来并靠近赵高真相",
+          main_hook: "她最终发现自己就Yes赵高",
           progression_loop: "受压 -> 求生 -> 试探反压 -> 更深陷宫廷",
           growth_path: "从被动求生到主动设局",
           major_payoffs: ["第一次反压", "赵高线索浮现"],
@@ -278,14 +278,14 @@ async function main() {
     await prisma.bookContract.create({
       data: {
         novelId: novel.id,
-        readingPromise: "看主角如何在宫廷压迫中一步步活成权力怪物。",
+        readingPromise: "看Protagonist如何在宫廷压迫中一步步活成权力怪物。",
         protagonistFantasy: "从最底层反向吞掉宫廷秩序。",
-        coreSellingPoint: "现代打工人穿越成太监，最终发现自己竟是赵高。",
-        chapter3Payoff: "主角初步摸清宫廷生存规则。",
-        chapter10Payoff: "主角完成第一轮求生反压并拿到赵高线索。",
-        chapter30Payoff: "主角逼近身份真相。",
+        coreSellingPoint: "现代打工人穿越成太监，最终发现自己竟Yes赵高。",
+        chapter3Payoff: "Protagonist初步摸清宫廷生存规则。",
+        chapter10Payoff: "Protagonist完成第一轮求生反压并拿到赵高线索。",
+        chapter30Payoff: "Protagonist逼近身份真相。",
         escalationLadder: "宫廷压迫 -> 势力试探 -> 身份真相逼近",
-        relationshipMainline: "主角与宫廷权力人物的互相利用",
+        relationshipMainline: "Protagonist与宫廷权力人物的互相利用",
         absoluteRedLinesJson: JSON.stringify(["不能写成轻松穿越喜剧"]),
       },
     });
@@ -310,8 +310,8 @@ async function main() {
           create: [{
             sortOrder: 1,
             title: "入宫受压",
-            objective: "建立压迫与主角困境",
-            conflict: "宫廷秩序对主角的第一轮碾压",
+            objective: "建立压迫与Protagonist困境",
+            conflict: "宫廷秩序对Protagonist的第一轮碾压",
             reveal: "赵高阴影被暗示",
             emotionBeat: "惊惧与强撑",
           }],
@@ -545,7 +545,7 @@ test("persisted volume strategy resumes auto director into structured outline on
   assert.equal(result.pipelineScope, `volume:${result.resumeTargetVolumeId}`);
   assert.equal(result.pipelineVolumeId, result.resumeTargetVolumeId);
   assert.equal(result.taskStatus, "running");
-  assert.match(result.taskStage ?? "", /节奏|结构化大纲/);
+  assert.match(result.taskStage ?? "", /节奏|Structured outline/);
   assert.equal(result.taskItemKey, "beat_sheet");
   assert.equal(result.resumeTargetStage, "structured");
 });

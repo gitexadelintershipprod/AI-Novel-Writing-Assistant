@@ -66,7 +66,7 @@ test("character routes accept and return gender fields", async () => {
       id: "char_1",
       novelId: "novel_gender",
       name: body.name ?? "刘雪婷",
-      role: body.role ?? "主角",
+      role: body.role ?? "Protagonist",
       gender: body.gender ?? "unknown",
       castRole: body.castRole ?? null,
       storyFunction: body.storyFunction ?? null,
@@ -142,7 +142,7 @@ test("character routes accept and return gender fields", async () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: "刘雪婷",
-        role: "主角",
+        role: "Protagonist",
         gender: "female",
       }),
     });
@@ -172,7 +172,7 @@ test("character routes accept and return gender fields", async () => {
         gender: "male",
         castRole: "mentor",
         summary: "熟悉内廷规矩的前辈宦者。",
-        storyFunction: "带主角看见秦宫规矩和赵高旧事。",
+        storyFunction: "带Protagonist看见秦宫规矩和赵高旧事。",
         relationToProtagonist: "半引路半试探",
         relations: [],
       }),

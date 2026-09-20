@@ -20,7 +20,7 @@ test("parseStructuredLlmRawContentDetailed recovers when repair output is trunca
 
   try {
     const result = await structuredInvoke.parseStructuredLlmRawContentDetailed({
-      rawContent: "这不是合法 JSON。",
+      rawContent: "这不Yes合法 JSON。",
       schema: z.object({
         value: z.string(),
       }),
@@ -68,12 +68,12 @@ test("parseStructuredLlmRawContentDetailed preserves planner goal aliases after 
       goal: "接到鬼宅委托并决定前往现场",
       participants: ["林渊", "委托人"],
       reveals: ["城南旧宅出现异常阴气"],
-      riskNotes: ["不要把委托写成背景复述"],
+      riskNotes: ["不要把委托写成Background复述"],
       hookTarget: "章末留下进宅前的危险预感",
       planRole: "progress",
       phaseLabel: "委托启动",
       mustAdvance: ["确认鬼宅地址"],
-      mustPreserve: ["主角仍在摸索事务所运营"],
+      mustPreserve: ["Protagonist仍在摸索事务所运营"],
       scenes: [{
         title: "陌生来电",
         sceneGoal: "让委托人说出鬼宅地址",

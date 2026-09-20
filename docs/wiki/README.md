@@ -4,7 +4,7 @@ This directory holds durable project knowledge. It helps future developers and A
 
 The wiki is not a record of what changed in a single commit, and it does not replace release notes. It records architecture rules, workflow boundaries, runtime contracts, debugging lessons, and product design rationale that remain useful across phases.
 
-Write wiki pages in English. Quoted Chinese protocol aliases such as `主角` are allowed only when documenting dual-read of old stored values. English is canonical on write.
+Write wiki pages in English. Stored protocol values are English-only. Do not quote Chinese aliases as accepted stored values.
 
 ## How to use it
 
@@ -38,6 +38,7 @@ Write wiki pages in English. Quoted Chinese protocol aliases such as `主角` ar
 - [Auto-Director stage checklist](./workflows/auto-director-stage-checklist.md)
 - [Auto-Director world setup](./workflows/auto-director-world-setup.md)
 - [Auto-Director idea constellation](./workflows/auto-director-idea-constellation.md)
+- [Stretch cutover](./workflows/stretch-cutover.md)
 - [Auto-Director candidate auto-confirm](./workflows/auto-director-candidate-auto-confirm.md)
 - [Chapter production chain](./workflows/chapter-production-chain.md)
 - [Lazy chapter planning](./workflows/lazy-chapter-planning.md)
@@ -57,7 +58,6 @@ Write wiki pages in English. Quoted Chinese protocol aliases such as `主角` ar
 - [LLM live execution](./workflows/llm-live-execution.md)
 - [Image generation confirmation runtime](./workflows/image-generation-confirmation-runtime.md)
 - [Novel cover image generation](./workflows/novel-cover-image-generation.md)
-- [Market Radar to Auto-Director](./workflows/market-radar-to-auto-director.md)
 - [Creation Studio short story](./workflows/creation-studio-short-story.md)
 - [Pending-review auto-promotion](./workflows/pending-review-auto-promotion.md)
 - [Novel snapshot retention](./workflows/novel-snapshot-retention.md)

@@ -287,12 +287,12 @@ test("applyStructuredWorldToLegacyFields syncs structured world into legacy text
 test("buildWorldStructureFromLegacySource projects generated json legacy fields into handbook structure", () => {
   const structure = buildWorldStructureFromLegacySource(createSource({
     name: "旧日",
-    worldType: "克苏鲁神话 / 科幻克苏鲁",
+    worldType: "克苏鲁神话 / Science fiction克苏鲁",
     description: "现代世界表面正常，旧日入侵和神话势力在暗处维持脆弱平衡。",
     axioms: JSON.stringify([
       "规则 1：直接接触旧日存在会造成不可逆理智侵蚀。",
     ]),
-    geography: "全球地理格局基本与现实一致，但存在若干关键异常区域：太平洋深处某处被列为国际禁航区，传言是克苏鲁异界入口；北极冰盖下隐藏着一个多国联合的秘密研究基地，用于监控和抑制冰封的旧日支配者；中国西南的昆仑山脉深处有上古结界，内有通往神话领域的通道；欧洲阿尔卑斯山区的某座古堡实为秘密组织的指挥中心。",
+    geography: "全球地理格局基本与现实一致，但存在若干关键异常区域：太平洋深处某处被列为国际禁航区，传言Yes克苏鲁异界入口；北极冰盖下隐藏着一个多国联合的秘密研究基地，用于监控和抑制冰封的旧日支配者；中国西南的昆仑山脉深处有上古结界，内有通往神话领域的通道；欧洲阿尔卑斯山区的某座古堡实为秘密组织的指挥中心。",
     politics: JSON.stringify({
       governance: "最高协调机构为三方联合委员会，设于北极基地。",
     }),

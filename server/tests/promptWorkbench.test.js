@@ -27,9 +27,9 @@ function buildAuditWorkbenchSampleContextBlocks() {
       priority: 100,
       content: [
         "Chapter mission: 示例章节",
-        "Objective: 让主角发现旧仓库暗号，并确认有人正在逼近。",
+        "Objective: 让Protagonist发现旧仓库暗号，并确认有人正在逼近。",
         "Must advance",
-        "- 主角发现墙上暗号并判断它指向旧城档案站。",
+        "- Protagonist发现墙上暗号并判断它指向旧城档案站。",
       ].join("\n"),
     },
     {
@@ -39,8 +39,8 @@ function buildAuditWorkbenchSampleContextBlocks() {
       required: true,
       content: [
         "Chapter boundary:",
-        "Entry state: 主角独自进入旧仓库，尚未确认暗号含义。",
-        "Ending state: 主角确认暗号指向旧城档案站，同时意识到追踪者已经到门外。",
+        "Entry state: Protagonist独自进入旧仓库，尚未确认暗号含义。",
+        "Ending state: Protagonist确认暗号指向旧城档案站，同时意识到追踪者已经到门外。",
         "Do not cross",
         "- 不得在本章直接揭开旧城组织的真实首领。",
       ].join("\n"),
@@ -52,8 +52,8 @@ function buildAuditWorkbenchSampleContextBlocks() {
       required: true,
       content: [
         "Structure obligations",
-        "- 必须检查本章是否完成线索发现、压力逼近和章末选择点。",
-        "- 必须检查结尾是否形成新的悬念或追踪压力。",
+        "- 必须检查本章YesNo完成线索发现、压力逼近和章末选择点。",
+        "- 必须检查结尾YesNo形成新的悬念或追踪压力。",
       ].join("\n"),
     },
   ];
@@ -175,14 +175,14 @@ test("prompt preview reports missing required context for manager diagnosis", as
     promptKey: "novel.chapter_editor.workspace_diagnosis@v2",
     promptInput: {
       chapterTitle: "第 3 章",
-      chapterMission: "让主角发现关键线索。",
+      chapterMission: "让Protagonist发现关键线索。",
       volumePositionLabel: "第一卷中段",
       volumePhaseLabel: "冲突展开",
       paceDirective: "加快推进",
       previousChapterBridge: "上一章留下追踪线索。",
       nextChapterBridge: "下一章进入正面对抗。",
       activePlotThreads: ["追踪档案站"],
-      paragraphs: [{ index: 1, text: "主角走进旧仓库。" }],
+      paragraphs: [{ index: 1, text: "Protagonist走进旧仓库。" }],
       openIssues: [],
     },
     executionContext: {
@@ -209,7 +209,7 @@ test("prompt preview renders audit prompts with complete workbench sample input"
       chapterTitle: "示例章节",
       requestedTypes: ["plot", "character", "continuity"],
       storyModeContext: "本书偏连载网文节奏，章节需要持续推进冲突并保留章末钩子。",
-      content: "主角走进旧仓库，发现墙上残留着上一任调查员留下的暗号。",
+      content: "Protagonist走进旧仓库，发现墙上残留着上一任调查员留下的暗号。",
       ragContext: "无额外检索补充。",
     },
     executionContext: {
@@ -249,17 +249,17 @@ test("prompt preview prefers selected novel chapter context over audit sample co
         title: "异常提交",
         order: 3,
         content: "林序看见测试分支上的提交信息变成了死亡预告，而监控里的受害者正走向同一间机房。",
-        expectation: "让主角确认提交记录与现实命案存在因果联系。",
+        expectation: "让Protagonist确认提交记录与现实命案存在因果联系。",
         targetWordCount: 3000,
         mustAvoid: "不得直接揭露幕后真凶。",
-        taskSheet: "本章需要让主角发现异常提交，并在结尾形成新的追查压力。",
+        taskSheet: "本章需要让Protagonist发现异常提交，并在结尾形成新的追查压力。",
         sceneCards: JSON.stringify({
           scenes: [
             {
-              entryState: "主角正在审查测试书籍的异常日志。",
-              exitState: "主角确认提交记录会同步现实风险。",
+              entryState: "Protagonist正在审查测试书籍的异常日志。",
+              exitState: "Protagonist确认提交记录会同步现实风险。",
               mustAdvance: ["确认代码提交与命案有关"],
-              mustPreserve: ["主角仍不知道幕后真凶"],
+              mustPreserve: ["Protagonist仍不知道幕后真凶"],
               forbiddenExpansion: ["不得让系统直接解释全部规则"],
             },
           ],
@@ -293,7 +293,7 @@ test("prompt preview prefers selected novel chapter context over audit sample co
   assert.ok(preview.context.selectedBlockIds.includes("structure_obligations"));
   assert.ok(preview.context.blocks.some((block) => (
     block.id === "chapter_boundary"
-    && block.content.includes("主角正在审查测试书籍的异常日志")
+    && block.content.includes("Protagonist正在审查测试书籍的异常日志")
   )));
   assert.ok(preview.context.blocks.some((block) => (
     block.id === "world_rules"
@@ -322,7 +322,7 @@ test("prompt preview assembles selected novel chapter write context for chapter 
           {
             id: "char-linxu",
             name: "林序",
-            role: "主角",
+            role: "Protagonist",
             personality: "谨慎但愿意冒险",
             background: "安全工程师",
             development: "从旁观者转为主动追查者",
@@ -352,21 +352,21 @@ test("prompt preview assembles selected novel chapter write context for chapter 
         title: "异常提交",
         order: 3,
         content: "",
-        expectation: "让主角确认提交记录与现实命案存在因果联系。",
+        expectation: "让Protagonist确认提交记录与现实命案存在因果联系。",
         targetWordCount: 3000,
         conflictLevel: 4,
         revealLevel: 2,
         mustAvoid: "不得直接揭露幕后真凶。",
-        taskSheet: "本章需要让主角发现异常提交，并在结尾形成新的追查压力。",
+        taskSheet: "本章需要让Protagonist发现异常提交，并在结尾形成新的追查压力。",
         sceneCards: JSON.stringify({
           scenes: [
             {
               title: "机房外的异常日志",
-              purpose: "让主角把提交记录和现实监控对上。",
-              entryState: "主角正在审查测试书籍的异常日志。",
-              exitState: "主角确认提交记录会同步现实风险。",
+              purpose: "让Protagonist把提交记录和现实监控对上。",
+              entryState: "Protagonist正在审查测试书籍的异常日志。",
+              exitState: "Protagonist确认提交记录会同步现实风险。",
               mustAdvance: ["确认代码提交与命案有关"],
-              mustPreserve: ["主角仍不知道幕后真凶"],
+              mustPreserve: ["Protagonist仍不知道幕后真凶"],
               forbiddenExpansion: ["不得让系统直接解释全部规则"],
             },
           ],
@@ -451,7 +451,7 @@ test("prompt preview renders unsaved advanced template draft without reading act
         characters: [{
           id: "char-1",
           name: "林序",
-          role: "主角",
+          role: "Protagonist",
           personality: "谨慎",
           background: "工程师",
           development: "主动追查",
@@ -480,7 +480,7 @@ test("prompt preview renders unsaved advanced template draft without reading act
         title: "异常日志",
         order: 2,
         content: "",
-        expectation: "让主角确认日志和现实风险有关。",
+        expectation: "让Protagonist确认日志和现实风险有关。",
         targetWordCount: 3000,
         conflictLevel: 4,
         revealLevel: 2,
@@ -491,7 +491,7 @@ test("prompt preview renders unsaved advanced template draft without reading act
             title: "机房外",
             purpose: "确认异常日志。",
             mustAdvance: ["确认日志与现实风险有关"],
-            mustPreserve: ["主角不知道幕后真凶"],
+            mustPreserve: ["Protagonist不知道幕后真凶"],
           }],
         }),
         hook: "下一章从监控被篡改开始。",

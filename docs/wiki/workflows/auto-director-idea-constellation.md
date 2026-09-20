@@ -15,7 +15,7 @@ The constellation boundary is “AI generates concrete material from the current
 - The dynamic candidate contract always returns 35 items, five per dimension, all shown at once. Each item has a stable category, a 2–48 character concrete label, an explanation, and a match score. IDs and labels must be unique. Generate and combine APIs must use the same label-length contract so a candidate can be shown and then confirmed.
 - The desktop constellation may wrap concrete labels. Collision size must match the actual rendered width. Prefer random scatter; remaining items are placed by a deterministic empty-slot scan. Do not use an unchecked fallback coordinate when a random position cannot be found.
 - Candidates must fit the current genre base, primary progression mode, secondary progression mode, and existing idea. Missing context may be filled, but each option must still land on a person, scene, ability, event, goal, opponent, or relationship. It must not collapse into a theme sentence that fits most stories, such as “fate, truth, sacrifice, everyone is lying”.
-- When a user brings a market brief from Market Radar, first fill unselected fixed creation foundations from the brief’s unified genre base and progression modes, then make the constellation also obey the market-influence band. Market signals only supply reader demand and differentiation. They must not copy proprietary material or titles from ranked works.
+- Auto-Director starts from the writer’s own idea. Do not inject an external market brief, ranked-work titles, or a hidden radar hop into constellation generation.
 - Golden finger / core advantage should say what the protagonist can do, and the explanation should give a trigger, a boundary, a growth direction, or a cost. Realistic genres may use professional skill, information gap, identity resource, or a scarce relationship. Do not force a supernatural system.
 - The first-chapter hook must be able to happen in chapter one. The early goal should point at a result payable in the first 10–30 chapters. Core resistance should have a clear capacity to act. The key relationship should name both sides and how they are bound.
 - The final combination contract takes the user’s real selections and the fixed opening context and outputs a single 45–220 character starting idea. AI must arrange the elements as cause and effect, not mechanically concatenate labels.
@@ -49,4 +49,3 @@ The constellation boundary is “AI generates concrete material from the current
 
 - [Prompt Registry and structured output](../prompts/prompt-registry-and-structured-output.md)
 - [Auto-Director new-stage checklist](./auto-director-stage-checklist.md)
-- [Market Radar and Auto-Director market brief](./market-radar-to-auto-director.md)

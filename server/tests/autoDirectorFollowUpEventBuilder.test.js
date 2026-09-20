@@ -31,7 +31,7 @@ test("auto director event builder marks progress_changed when follow-up stage ch
       reason: "chapter_batch_execution_pending",
       reasonLabel: "自动执行待继续",
       availableMutationActions: ["continue_auto_execution"],
-      stage: "章节执行",
+      stage: "Chapter execution",
       checkpointType: "chapter_batch_ready",
       checkpointSummary: "前 10 章已准备完成。",
       progressBucket: 8,
@@ -53,7 +53,7 @@ test("auto director event builder marks progress_changed when progress crosses a
       reason: "chapter_batch_execution_pending",
       reasonLabel: "自动执行待继续",
       availableMutationActions: ["continue_auto_execution"],
-      stage: "章节执行",
+      stage: "Chapter execution",
       checkpointType: "chapter_batch_ready",
       checkpointSummary: "前 10 章已准备完成。",
       progressBucket: 6,
@@ -67,7 +67,7 @@ test("auto director event builder marks progress_changed when progress crosses a
       reason: "chapter_batch_execution_pending",
       reasonLabel: "自动执行待继续",
       availableMutationActions: ["continue_auto_execution"],
-      stage: "章节执行",
+      stage: "Chapter execution",
       checkpointType: "chapter_batch_ready",
       checkpointSummary: "前 10 章已准备完成。",
       progressBucket: 7,
@@ -89,7 +89,7 @@ test("auto director event builder emits approval when auto progress reaches a us
       reason: "auto_progress_running",
       reasonLabel: "自动推进中",
       availableMutationActions: [],
-      stage: "章节执行",
+      stage: "Chapter execution",
       checkpointType: null,
       checkpointSummary: null,
       progressBucket: 8,
@@ -103,7 +103,7 @@ test("auto director event builder emits approval when auto progress reaches a us
       reason: "chapter_batch_execution_pending",
       reasonLabel: "自动执行待继续",
       availableMutationActions: ["continue_auto_execution"],
-      stage: "章节执行",
+      stage: "Chapter execution",
       checkpointType: "chapter_batch_ready",
       checkpointSummary: "前 10 章已准备完成。",
       progressBucket: 9,
@@ -122,13 +122,13 @@ test("auto director event builder builds auto-approved audit events", () => {
       taskId: "task_auto_approved",
       novelId: "novel_auto_approved",
       novelTitle: "《雾港巡夜人》",
-      summary: "AI 已自动通过角色准备，并继续推进。",
+      summary: "AI 已自动通过Character setup，并继续推进。",
       reason: "auto_approval_completed",
       reasonLabel: "最近自动通过",
       availableMutationActions: [],
       stage: "character_setup",
       checkpointType: "character_setup_required",
-      checkpointSummary: "角色准备已生成并应用。",
+      checkpointSummary: "Character setup已生成并应用。",
       progressBucket: null,
       executionScopeLabel: "全书",
     },
@@ -138,7 +138,7 @@ test("auto director event builder builds auto-approved audit events", () => {
   assert.equal(event.eventType, "auto_director.auto_approved");
   assert.equal(event.reason, "auto_approval_completed");
   assert.deepEqual(event.actionCandidates, []);
-  assert.equal(event.summary, "AI 已自动通过角色准备，并继续推进。");
+  assert.equal(event.summary, "AI 已自动通过Character setup，并继续推进。");
 });
 
 test("auto director event builder exposes validation-required state without mutation actions", () => {
@@ -147,7 +147,7 @@ test("auto director event builder exposes validation-required state without muta
     novelId: "novel_1",
     status: "waiting_approval",
     progress: 0.8,
-    currentStage: "章节执行",
+    currentStage: "Chapter execution",
     checkpointType: "chapter_batch_ready",
     checkpointSummary: "第 1-10 章等待继续。",
     currentItemLabel: "等待继续自动执行",

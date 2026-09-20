@@ -10,7 +10,7 @@ function createRequest() {
     model: "deepseek-chat",
     temperature: 0.7,
     candidate: {
-      workingTitle: "都市神医：我的病人都是大佬",
+      workingTitle: "都市神医：我的病人都Yes大佬",
     },
   };
 }
@@ -67,7 +67,7 @@ test("repairDirectorChapterTitles clears warning notice after titles are diversi
       status: "generated",
       beats: [{
         key: "open_hook",
-        label: "开卷抓手",
+        label: "Opening hook",
         summary: "建立开篇危机。",
         chapterSpanHint: "1-4章",
         mustDeliver: ["开篇压力"],

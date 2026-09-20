@@ -115,7 +115,7 @@ Do not add wiki entries for:
 
 ### Wiki Writing Rules
 
-- Use English by default. The Georgian user guide stays Georgian. Dual-read Chinese protocol aliases in code stay until stored rows no longer need them.
+- Use English by default. The Georgian user guide stays Georgian. Stored protocol values are English-only.
 - Write for future developers and future AI agents.
 - Explain the reason behind a decision, not just the decision itself.
 - Prefer sections such as `Background / Decision / Current Rule / Examples / Failure Modes / Related Modules / Source Documents`.

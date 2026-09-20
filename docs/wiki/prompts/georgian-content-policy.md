@@ -9,6 +9,6 @@ All active creative prompt assets declare `language: "ka"`. The central prompt r
 
 English control instructions are intentional. They tell the model to return Georgian prose while preserving machine contracts such as JSON keys, enum values, IDs, and schemas. Image-provider visual prompts are also intentionally English when that improves provider compatibility; textual creative results are not exempt.
 
-Market Radar is disabled and its Chinese-source prompt family is the only source-specific exception. Technical JSON repair, connectivity checks, protocol aliases, and compatibility parsers may also retain non-Georgian values when changing them would break an interface.
+Technical JSON repair, connectivity checks, and CJK leak guards may retain non-Georgian tokens when they exist to stop leaked Chinese honorifics, engineering terms, or mojibake. Do not keep dual-read protocol aliases or a Market Radar source family.
 
-The regression boundary is enforced by `pnpm check:georgian-content`. A new active prompt with Han text, a Chinese-output instruction, Chinese-character length semantics, or a non-`ka` language declaration fails the check unless it has an exact documented compatibility exception.
+The regression boundary is enforced by `pnpm check:georgian-content`. A new active prompt with Han text, a Chinese-output instruction, Chinese-character length semantics, or a non-`ka` language declaration fails the check unless it has an exact documented leak-guard exception.

@@ -97,7 +97,7 @@ Hard volumes lock early promises, selling points, progression order, and pacing 
 The beat sheet uses **fixed duty slots + this-volume dynamic short titles**:
 
 - `key` must use system slots: `open_hook`, `first_escalation`, `midpoint_turn`, `pressure_lock`, `climax`, `end_hook`; optional extras are `early_complication`, `late_complication`.
-- `label` is the stable duty name, for example `Opening hook` / `First escalation`, used for validation, recovery, and UI grouping. Free invention is not allowed. English is canonical on write; Chinese aliases such as `开卷抓手` and `首次升级` are dual-read only for old rows.
+- `label` is the stable duty name, for example `Opening hook` / `First escalation`, used for validation, recovery, and UI grouping. Free invention is not allowed. English is the only stored value.
 - `title` is this volume’s custom short title, for example “Seizing the seal at the night market”, generated dynamically by AI from the volume skeleton.
 - UI display prefers `duty · short title`. Old data without `title` falls back to the duty name.
 - Beat segmentation itself remains in-volume AI dynamic planning. Hard/soft only decide volume-level planning depth; they do not directly decide beat cuts.
