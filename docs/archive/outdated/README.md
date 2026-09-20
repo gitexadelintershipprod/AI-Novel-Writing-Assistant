@@ -1,21 +1,21 @@
-# 过时文档归档索引
+# Outdated Document Archive Index
 
-本目录保留已经不适合作为当前开发依据但仍有历史参考价值的文档。归档原因通常是：
+This directory keeps documents that are no longer suitable as current development authority but still have historical reference value. Typical archive reasons:
 
-- 文档描述的是早期计划，已经被后续 release notes、Wiki 或新的执行计划取代。
-- 文档仍有历史参考价值，但继续放在 `docs/plans` 或 `docs/checkpoints` 会误导未来开发者和 AI Agent。
-- 文档仍可读，但当前只适合作为历史迁移背景。
+- The document describes an early plan that has been replaced by later release notes, wiki, or a new execution plan.
+- The document still has historical reference value, but leaving it in `docs/plans` or `docs/checkpoints` would mislead future developers and AI agents.
+- The document is still readable, but currently only suitable as historical migration background.
 
-归档文档不应作为当前实现依据。需要当前规则时，优先阅读 `docs/wiki/`、`docs/releases/release-notes.md`、仍留在 `docs/plans/` 的活跃计划，以及模块 README。
+Archived documents must not be used as current implementation authority. For current rules, prefer `docs/wiki/`, `docs/releases/release-notes.md`, active plans still in `docs/plans/`, and module READMEs.
 
-## 自动导演相关
+## Auto-Director Related
 
-- [Auto Director MVP Migration Plan 2026-04-28](./auto-director-mvp-migration-plan-2026-04-28.md)：早期 MVP 切片，已被 5 月的后台命令、恢复、投影和章节执行发布事实取代；仅保留为历史迁移背景。
+- [Auto Director MVP Migration Plan 2026-04-28](./auto-director-mvp-migration-plan-2026-04-28.md): early MVP slice, replaced by May facts around background commands, recovery, projection, and chapter execution; kept only as historical migration background.
 
-三份乱码的自动导演历史文档已直接删除，不再保留正文副本。自动导演当前规则以 2026-05-08 至 2026-05-14 的 release notes、[自动导演 Runtime 与恢复边界](../../wiki/workflows/auto-director-runtime.md)、[自动导演执行面隔离与 API 保活计划](../../plans/auto-director-execution-plane-isolation-plan.md) 和 [导演模式模块化与状态治理改造清单](../../plans/director-mode-module-state-refactor-checklist.md) 为准。
+Three garbled auto-director history documents were deleted outright and no body copies are retained. Current auto-director rules follow the 2026-05-08 to 2026-05-14 release notes, [Auto-Director Runtime and Recovery Boundary](../../wiki/workflows/auto-director-runtime.md), [Auto-Director Execution-Plane Isolation and API Keep-Alive Plan](../../plans/auto-director-execution-plane-isolation-plan.md), and [Director-Mode Modularization and State-Governance Checklist](../../plans/director-mode-module-state-refactor-checklist.md).
 
-## 已被当前实现取代的早期计划
+## Early Plans Replaced by Current Implementation
 
-- [Desktop Plan 2026-04-17](./desktop-plan-2026-04-17.md)：文档仍停留在“未进入可分发打包”阶段；当前桌面发布已推进到 2026-05-14 release notes 中的 Windows 客户端包。
-- [Knowledge Module Plan](./knowledge-module-plan-implemented-reference.md)：知识库文档、绑定、索引和检索能力已进入当前产品；长期规则已沉淀到 [知识库与上下文组装](../../wiki/rag/knowledge-and-context-assembly.md)。
-- [Progress Audit](./progress-audit-superseded.md)：早期 TASK 对照审计，里面的许多“未实现”判断已被后续实现和 release notes 取代。
+- [Desktop Plan 2026-04-17](./desktop-plan-2026-04-17.md): the document is still at the “not yet in distributable packaging” stage; current desktop release has advanced to the Windows client package in the 2026-05-14 release notes.
+- [Knowledge Module Plan](./knowledge-module-plan-implemented-reference.md): knowledge-document, binding, indexing, and retrieval capabilities are already in the current product; long-term rules have settled in [Knowledge Base and Context Assembly](../../wiki/rag/knowledge-and-context-assembly.md).
+- [Progress Audit](./progress-audit-superseded.md): early TASK comparison audit; many of its “not implemented” judgments have been replaced by later implementation and release notes.

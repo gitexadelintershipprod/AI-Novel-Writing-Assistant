@@ -1,52 +1,51 @@
-# GitHub Pages 介绍网站
+# GitHub Pages intro site
 
-这个目录是项目的公开介绍站，使用 React + Vite 构建为静态文件，可由 GitHub Pages 托管。
+This directory is the project’s public intro site. It builds with React + Vite into static files that GitHub Pages can host.
 
-## 本地预览
+## Local preview
 
 ```bash
 pnpm --filter @ai-novel/site dev
 ```
 
-默认监听 `http://localhost:4173`（与主项目 client 的 3000 端口隔开，避免和其它 vite 项目默认的 5173 端口冲突）。
+It listens on `http://localhost:4173` by default (kept off the main client’s port 3000, and off other Vite projects’ default 5173).
 
-## 构建
+## Build
 
 ```bash
 pnpm --filter @ai-novel/site build
 ```
 
-构建产物输出到 `site/dist`。
+Output goes to `site/dist`.
 
-## 文档登记校验
+## Docs-manifest check
 
-公开文档入口由 `src/docsManifest.ts` 维护。新增公开文档后运行：
+The public docs entry is maintained in `src/docsManifest.ts`. After adding a public doc, run:
 
 ```bash
 pnpm check:docs-manifest
 ```
 
-校验会扫描 `docs/public/**/*.md` 和 `docs/releases/release-notes.md`，确认每个公开文档都已登记到 manifest，且没有登记不存在的文件。
+The check scans `docs/public/**/*.md` and `docs/releases/release-notes.md`, confirms every public doc is registered in the manifest, and rejects registrations that point at missing files.
 
-校验也会读取 `server/src/services/novel/director/projections/novelDirectorProgress.ts` 中的 `DirectorProgressItemKey`，并确认 `docs/public/flow/auto-director-pipeline.md` 顶部的 `DIRECTOR_PROGRESS_ITEM_KEYS` 覆盖所有自动导演进度阶段。
+It also reads `DirectorProgressItemKey` from `server/src/services/novel/director/projections/novelDirectorProgress.ts` and confirms that `DIRECTOR_PROGRESS_ITEM_KEYS` at the top of `docs/public/flow/auto-director-pipeline.md` covers every Auto-Director progress stage.
 
 ## GitHub Pages
 
-`.github/workflows/site-pages.yml` 会在推送到 `main` 或手动触发时构建 `@ai-novel/site`，并把 `site/dist` 发布到 GitHub Pages。
+`.github/workflows/site-pages.yml` builds `@ai-novel/site` on push to `main` or on a manual trigger, then publishes `site/dist` to GitHub Pages.
 
-## 文档入口
+## Docs entry
 
-站点内置 `#/docs` 文档入口。公开文档通过 `src/docsManifest.ts` 白名单维护，来源限定为 `docs/public/` 下的用户向文档、`docs/public/modules/` 下的侧栏模块介绍，以及 `docs/releases/release-notes.md`。
+The site includes a `#/docs` docs entry. Public docs are a whitelist in `src/docsManifest.ts`, limited to user-facing docs under `docs/public/`, sidebar module intros under `docs/public/modules/`, and `docs/releases/release-notes.md`.
 
-不要把整个 `docs/` 目录自动挂到公开站点，内部 wiki、`archive`、`checkpoints`、`plans` 和未整理的执行计划默认不展示。
+Do not mount the whole `docs/` tree on the public site. Internal wiki, `archive`, `checkpoints`, `plans`, and unorganized execution plans stay hidden by default.
 
-新增模块文档的推荐流程：
+Recommended flow for a new module doc:
 
-1. 在 `docs/public/` 或 `docs/public/modules/` 下新增 Markdown 文件。
-2. 在 `site/src/docsManifest.ts` 里登记 `id`、标题、描述和 `sourcePath`。
-3. 需要在首页强化入口时，再更新 `site/src/App.tsx` 的文案或 teaser。
-4. 运行 `pnpm check:docs-manifest`。
-5. 运行 `pnpm --filter @ai-novel/site build`。
+1. Add a Markdown file under `docs/public/` or `docs/public/modules/`.
+2. Register `id`, title, description, and `sourcePath` in `site/src/docsManifest.ts`.
+3. If the home page should emphasize the entry, update copy or teasers in `site/src/App.tsx`.
+4. Run `pnpm check:docs-manifest`.
+5. Run `pnpm --filter @ai-novel/site build`.
 
-文档内容由 `src/docsContent.ts` 使用 Vite glob 自动加载，不需要为每篇 Markdown 手写 import。
-
+`src/docsContent.ts` loads the Markdown with a Vite glob. Do not hand-write an import for each file.

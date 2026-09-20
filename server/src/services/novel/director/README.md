@@ -1,31 +1,31 @@
-# Novel Director 子系统
+# Novel Director Subsystem
 
-## 架构概览
+## Architecture Overview
 
-长篇小说自动导演的后台执行分为三层：
+Backend execution for long-novel auto-director is split into three layers:
 
-### 1. 任务分发层（TaskDispatcher + DirectorTaskQueue）
+### 1. Task Dispatch Layer (`TaskDispatcher` + `DirectorTaskQueue`)
 
-- **`TaskDispatcher`** — 进程内事件总线。当新命令入队时发出信号，worker 立即唤醒。
-  取代旧架构中 1.5 秒固定轮询，同时保留轮询作为跨进程和 crash recovery 兜底（5 秒间隔）。
-- **`DirectorTaskQueue`** — 单活动队列抽象。当前只 lease / renew / complete / fail `DirectorRunCommand`，
-  对外暴露 `leaseNext` / `completeTask` / `failTask` 语义。资源限流（ResourceGate）也由此层管理。
+- **`TaskDispatcher`** — in-process event bus. When a new command is enqueued it emits a signal so the worker wakes immediately.
+  It replaces the old architecture's 1.5-second fixed polling, while still keeping polling as a cross-process and crash-recovery fallback (5-second interval).
+- **`DirectorTaskQueue`** — single active-queue abstraction. Currently it only lease / renew / complete / fail `DirectorRunCommand`,
+  and exposes `leaseNext` / `completeTask` / `failTask` semantics. Resource throttling (`ResourceGate`) is also managed at this layer.
 
-### 2. Worker 消费层（DirectorWorker）
+### 2. Worker Consumption Layer (`DirectorWorker`)
 
-Worker 是纯消费者，核心循环：
+The worker is a pure consumer. Core loop:
 ```
 waitForWork() → leaseNext() → acquireResourceGate() → markRunning() → executeCommand() → completeTask()
 ```
-不直接操作任何数据库模型。通过构造函数注入 `DirectorTaskQueue` 和 `DirectorCommandExecutor`，可在测试中替换为 mock。
+It does not operate any database model directly. `DirectorTaskQueue` and `DirectorCommandExecutor` are injected through the constructor so tests can replace them with mocks.
 
-### 3. 持久化与调度层（Services）
+### 3. Persistence and Scheduling Layer (Services)
 
-- **`DirectorCommandService`** — HTTP 入口，创建 `DirectorRunCommand`，并发出 `taskDispatcher.notify()` 唤醒信号。
-- **`DirectorCommandExecutor`** — 将命令解释为自动导演管线动作，并调用 `NovelDirectorService` 推进候选、接管、恢复、审批和修复流程。
-- **`DirectorRuntimeStore` / `DirectorRuntimeService`** — 维护自动导演步骤、事件、artifact 和策略快照；不参与后台命令 lease。
+- **`DirectorCommandService`** — HTTP entrypoint: creates `DirectorRunCommand` and emits `taskDispatcher.notify()` to wake the worker.
+- **`DirectorCommandExecutor`** — interprets a command as auto-director pipeline actions and calls `NovelDirectorService` to advance candidate, takeover, recovery, approval, and repair flows.
+- **`DirectorRuntimeStore` / `DirectorRuntimeService`** — maintain auto-director steps, events, artifacts, and policy snapshots; they do not participate in background command lease.
 
-## 门面入口
+## Facade Entry
 
 ```typescript
 import {
@@ -36,32 +36,32 @@ import {
 } from "./runtime/directorSubsystem";
 ```
 
-## 目录边界
+## Directory Boundaries
 
-`director/` 根目录只保留稳定门面和兼容桥接。新增自动导演能力必须进入明确职责目录：
+The `director/` root keeps only stable facades and compatibility bridges. New auto-director capabilities must enter an explicit-responsibility directory:
 
-- `commands/`：后台命令创建、解释和执行。
-- `commands/leases/`：命令租约领取、续约、终态收束和 Worker 失联治理；外部仍通过 `DirectorCommandService` 门面调用。
-- `state/`：导演任务状态读取、写入和提交。
-- `projections/`：运行时投影、任务快照、进度和展示状态。
-- `recovery/`：恢复、回填、下游重置和结构化大纲恢复游标。
-- `phases/`：自动导演阶段、阶段节点适配和阶段级质量策略。
-- `runtime/`：接管、确认、候选、继续执行、运行时编排和内存/校验策略。
-- `issues/`：问题目录、策略事实源、任务策略快照读取与 detected / decided / applied 事件合同。
-- `http/`：Express 路由映射。
+- `commands/`: background command creation, interpretation, and execution.
+- `commands/leases/`: command-lease claim, renew, terminal-state closeout, and worker-disconnect governance; external callers still go through the `DirectorCommandService` facade.
+- `state/`: director-task state read, write, and commit.
+- `projections/`: runtime projections, task snapshots, progress, and display state.
+- `recovery/`: recovery, backfill, downstream reset, and structured-outline recovery cursors.
+- `phases/`: auto-director phases, phase-node adapters, and phase-level quality policy.
+- `runtime/`: takeover, confirmation, candidates, continue-execution, runtime orchestration, and memory/validation policy.
+- `issues/`: issue catalog, policy fact sources, task-policy snapshot reads, and detected / decided / applied event contracts.
+- `http/`: Express route mapping.
 
-外部模块优先依赖这些目录的门面或稳定入口，不应向 `director/` 根目录继续添加同前缀业务文件。
+External modules should prefer these directories' facades or stable entrypoints and should not keep adding same-prefix business files to the `director/` root.
 
-## 数据模型
+## Data Models
 
-系统当前只有一套活动后台命令队列：
+The system currently has one active background command queue:
 
-| 层级 | 模型 | 用途 |
+| Layer | Model | Purpose |
 |------|------|------|
-| Active Queue | `DirectorRunCommand` | 唯一活动命令队列，与 `NovelWorkflowTask` 直接关联 |
-| Runtime Snapshot | `DirectorRun` → `DirectorStepRun` / `DirectorEvent` / `DirectorArtifact` | 自动导演步骤、事件和产物历史 |
-| Legacy Runtime Queue | `DirectorRuntimeInstance` → `DirectorRuntimeCommand` → `DirectorRuntimeExecution` | 仅保留历史投影兼容，不再作为新的后台命令队列写入 |
+| Active Queue | `DirectorRunCommand` | The only active command queue; associated directly with `NovelWorkflowTask` |
+| Runtime Snapshot | `DirectorRun` → `DirectorStepRun` / `DirectorEvent` / `DirectorArtifact` | Auto-director step, event, and artifact history |
+| Legacy Runtime Queue | `DirectorRuntimeInstance` → `DirectorRuntimeCommand` → `DirectorRuntimeExecution` | Kept only for historical projection compatibility; no longer written as a new background command queue |
 
-新代码不应新增 `DirectorRuntimeCommand` / `DirectorRuntimeExecution` 写入路径。需要展示旧任务历史时，可以通过 runtime projection 读取这些历史行；需要排队执行时，必须通过 `DirectorCommandService` 创建 `DirectorRunCommand`。
+New code must not add write paths for `DirectorRuntimeCommand` / `DirectorRuntimeExecution`. When showing old task history, those historical rows can be read through a runtime projection; when queuing execution, a `DirectorRunCommand` must be created through `DirectorCommandService`.
 
-问题治理动作必须由真实执行边界确认后再登记 `issue_action_applied`。命令租约恢复负责重新排队、人工恢复或失败终态，流水线和熔断器分别负责自己的控制流；这些模块不能只记录策略决定后继续使用旧分支。
+Issue-governance actions may be recorded as `issue_action_applied` only after a real execution boundary confirms them. Command-lease recovery owns re-queue, human recovery, or failure terminal state; the pipeline and circuit breaker each own their own control flow. These modules must not merely record a policy decision and then keep using the old branch.

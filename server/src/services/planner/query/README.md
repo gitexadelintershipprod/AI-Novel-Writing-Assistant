@@ -1,3 +1,3 @@
-# 规划读取边界
+# Planning Query Boundary
 
-本目录只负责读取并格式化现有 book / arc / chapter 规划，不生成规划、不修改状态、不判断是否重规划。外部继续通过 `PlannerService` 门面调用，避免查询层被写入编排职责。
+This directory only reads and formats existing book / arc / chapter plans. It does not generate plans, mutate state, or decide whether to replan. External callers continue to go through the `PlannerService` facade so the query layer is not given write-orchestration duties.

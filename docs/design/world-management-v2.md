@@ -1,174 +1,174 @@
-下面是我重新整理后的版本。
+Below is the reorganized version.
 
-这次不把“世界管理”当成一个单纯的设定页，而是把它定义成：
+This time, do not treat “world management” as a mere settings page. Define it as:
 
-> **小说系统中的“世界级约束与资源中心”**
+> **The world-level constraint and resource center of the novel system**
 
-它的职责不是帮用户一次性写完所有世界观，而是为后续的“故事宏观规划、角色设定、剧情生成、章节写作”提供一个**可裁剪、可继承、可约束、可引用**的世界底座。
-
----
-
-# 一、先定边界：世界管理到底负责什么
-
-很多小说工具一做世界管理，就容易做成“设定百科”或者“wiki 页面”。
-这种做法看起来内容很多，但对后续生成帮助其实有限，因为它缺少两个东西：
-
-1. **约束性**
-2. **可调用性**
-
-所以你这个模块的职责，应该明确成四件事：
-
-### 1. 定义世界级规则
-
-也就是这个世界“允许什么，不允许什么”。
-
-比如：
-
-* 超自然是否公开存在
-* 力量体系是否有上限
-* 死亡能否逆转
-* 真相能否被完整理解
-* 阵营斗争是否公开化
-
-这部分是上层约束。
+Its job is not to help the user write an entire world bible in one pass. It is to provide a **sliceable, inheritable, constraining, and citable** world foundation for later story-macro planning, character setup, plot generation, and chapter writing.
 
 ---
 
-### 2. 存储世界级资源
+# 1. Set the Boundary First: What World Management Actually Owns
 
-也就是这个世界里有哪些：
+Many novel tools turn world management into an “encyclopedia of lore” or a wiki page.
+That looks content-rich, but it barely helps later generation, because it is missing two things:
 
-* 阵营
-* 势力
-* 地点
-* 特殊要素
-* 规则性对象
+1. **Constraint**
+2. **Callability**
 
-但这里存的是“可供调用的资源”，不是“必须全部启用的内容”。
+So this module’s responsibility should be exactly four things:
 
----
+### 1. Define world-level rules
 
-### 3. 维护世界内部关系
+In other words: what this world allows, and what it forbids.
 
-也就是这些元素之间如何彼此成立。
+For example:
 
-比如：
+* Whether the supernatural exists in public
+* Whether the power system has a ceiling
+* Whether death can be reversed
+* Whether the truth can be fully understood
+* Whether faction conflict is public
 
-* 哪个势力隶属于哪个阵营
-* 哪个地点被哪个势力控制
-* 哪种特殊要素掌握在谁手中
-* 哪些关系天然对立
-
-没有这一层，世界元素只是散装零件。
+This layer is the upper-level constraint.
 
 ---
 
-### 4. 为单本小说提供“可绑定切片”
+### 2. Store world-level resources
 
-这是最关键的。
+In other words, what exists in this world:
 
-世界管理不是终点，它必须能给某一本小说输出：
+* Factions
+* Forces
+* Locations
+* Special elements
+* Rule-like objects
 
-* 本书激活哪些势力
-* 本书主要舞台是哪些地点
-* 本书可调用哪些异常要素
-* 本书受哪些世界规则影响
-
-这一步，才是世界管理真正产生价值的地方。
-
----
-
-# 二、世界管理的正确定位
-
-我建议你把世界管理定义成：
-
-> **世界资源层，而不是故事层**
-
-它和“小说内规划”的关系应该是：
-
-* 世界管理：提供全局资源与规则
-* 小说规划：从世界中裁剪出当前故事所需部分
-* 写作生成：只使用当前小说已激活的切片
-
-也就是说，它不是直接负责“讲故事”，而是负责：
-
-> **让故事生成时有边界、有依据、有复用能力**
+What is stored here is “resources available to call,” not “content that must all be turned on.”
 
 ---
 
-# 三、推荐的模块结构
+### 3. Maintain internal world relationships
 
-我建议把世界管理拆成 5 个子模块，而不是一个混合大表单。
+In other words, how these elements hold together.
+
+For example:
+
+* Which force belongs to which faction
+* Which location is controlled by which force
+* Which special elements are held by whom
+* Which relationships are inherently opposed
+
+Without this layer, world elements are just loose parts.
 
 ---
 
-## 模块 1：世界概要 World Profile
+### 4. Provide a bindable slice for a single novel
 
-这是世界的总入口，用来定义世界的身份。
+This is the most important piece.
 
-建议字段：
+World management is not the end. It must be able to output, for a given novel:
+
+* Which forces this book activates
+* Which locations are this book’s main stages
+* Which anomalous elements this book may call
+* Which world rules this book is subject to
+
+This step is where world management actually creates value.
+
+---
+
+# 2. The Correct Position of World Management
+
+I recommend defining world management as:
+
+> **A world resource layer, not a story layer**
+
+Its relationship to “in-novel planning” should be:
+
+* World management: provides global resources and rules
+* Novel planning: slices from the world whatever the current story needs
+* Writing generation: uses only the slice already activated for the current novel
+
+That is, it is not directly responsible for “telling the story.” It is responsible for:
+
+> **Giving story generation a boundary, a basis, and reuse**
+
+---
+
+# 3. Recommended Module Structure
+
+I recommend splitting world management into 5 submodules, not one mixed mega-form.
+
+---
+
+## Module 1: World Profile
+
+This is the world’s main entry point, used to define the world’s identity.
+
+Suggested fields:
 
 ```json
 {
   "world_profile": {
-    "name": "世界名称",
-    "genre_base": "题材基底",
-    "era_background": "时代背景",
-    "core_theme": "核心主题",
-    "tone_tags": ["压抑", "阴谋", "浪漫", "黑色幽默"],
-    "summary": "对这个世界的总体概括"
+    "name": "World name",
+    "genre_base": "Genre foundation",
+    "era_background": "Era / historical background",
+    "core_theme": "Core theme",
+    "tone_tags": ["oppressive", "conspiracy", "romantic", "dark humor"],
+    "summary": "Overall summary of this world"
   }
 }
 ```
 
-这一层的作用不是详细，而是定调。
+This layer is not for detail. It is for tone-setting.
 
-它回答的是：
+It answers:
 
-* 这是什么类型的世界
-* 它大概是什么气质
-* 它适合承载什么类型的故事
+* What kind of world this is
+* What its general atmosphere is
+* What kinds of stories it is suited to carry
 
 ---
 
-## 模块 2：世界规则 World Rules
+## Module 2: World Rules
 
-这一层非常重要，它决定整个系统后续是否容易跑偏。
+This layer is critical. It decides whether the rest of the system later drifts off course.
 
-建议拆成几类规则：
+Suggested split into several rule kinds:
 
-### 2.1 现实规则
+### 2.1 Reality rules
 
-* 世界稳定还是脆弱
-* 现实会不会扭曲
-* 常识是否可靠
+* Whether the world is stable or fragile
+* Whether reality can distort
+* Whether common sense is reliable
 
-### 2.2 超常规则
+### 2.2 Supernatural rules
 
-* 异能/神秘/怪异是否存在
-* 它是否公开
-* 普通人是否能理解
-* 使用是否有代价
+* Whether abilities / mystery / the uncanny exist
+* Whether they are public
+* Whether ordinary people can understand them
+* Whether using them has a cost
 
-### 2.3 生死规则
+### 2.3 Life-and-death rules
 
-* 死亡是否不可逆
-* 复活是否允许
-* 代价是什么
+* Whether death is irreversible
+* Whether resurrection is allowed
+* What the cost is
 
-### 2.4 信息规则
+### 2.4 Information rules
 
-* 真相能否被完整获知
-* 知识是否危险
-* 有无认知污染
+* Whether the truth can be fully learned
+* Whether knowledge is dangerous
+* Whether cognitive contamination exists
 
-### 2.5 叙事规则
+### 2.5 Narrative rules
 
-* 不允许的剧情方向
-* 不建议出现的设定组合
-* 这个世界更适合哪些冲突类型
+* Plot directions that are not allowed
+* Setting combinations that should not appear
+* Which conflict types this world is better suited to
 
-示例结构：
+Example structure:
 
 ```json
 {
@@ -185,195 +185,195 @@
 }
 ```
 
-这一层是整个世界管理最该先做好的部分，因为它会直接约束：
+This is the part of world management that should be done first, because it directly constrains:
 
-* 角色能力
-* 剧情推进方式
-* 冲突合理性
-* 结局可达范围
-
----
-
-## 模块 3：世界资源库 World Assets
-
-这是世界管理最直观的一层，但我建议你不要只做“列表”，而要做成**标准化资源对象**。
-
-这里建议拆成四类。
+* Character capabilities
+* How plot can advance
+* Whether conflict is reasonable
+* The reachable range of endings
 
 ---
 
-### 3.1 阵营 Factions
+## Module 3: World Assets
 
-阵营不是具体组织，而是更抽象的立场、路线、意识形态或者世界站队。
+This is the most intuitive layer of world management, but I recommend not making it merely a “list.” Make it **standardized resource objects**.
 
-比如：
+Split it into four types here.
 
-* 守秘派
-* 扩张派
-* 清洗派
-* 顺应崩坏派
+---
 
-建议字段：
+### 3.1 Factions
+
+A faction is not a concrete organization. It is a more abstract stance, line, ideology, or world-side.
+
+For example:
+
+* The secrecy school
+* The expansion school
+* The purge school
+* The embrace-collapse school
+
+Suggested fields:
 
 ```json
 {
   "id": "faction_xxx",
-  "name": "阵营名",
-  "belief": "核心立场",
-  "goal": "长期目标",
-  "fear": "最大恐惧",
-  "methods": ["常用手段"],
-  "style": "整体行事风格",
-  "narrative_value": "适合承载什么类型冲突"
+  "name": "Faction name",
+  "belief": "Core stance",
+  "goal": "Long-term goal",
+  "fear": "Greatest fear",
+  "methods": ["Common methods"],
+  "style": "Overall operating style",
+  "narrative_value": "What kinds of conflict it is suited to carry"
 }
 ```
 
-阵营更多是“思想立场”。
+Factions are more “ideological stances.”
 
 ---
 
-### 3.2 势力 Forces
+### 3.2 Forces
 
-势力才是可以直接参与剧情的具体组织。
+A force is the concrete organization that can participate in plot directly.
 
-比如：
+For example:
 
-* 医院管理层
-* 地方调查局
-* 地下教团
-* 某财团
-* 某宗门
+* Hospital administration
+* Local investigation bureau
+* Underground cult
+* A conglomerate
+* A sect / clan
 
-建议字段：
+Suggested fields:
 
 ```json
 {
   "id": "force_xxx",
-  "name": "势力名",
+  "name": "Force name",
   "belongs_to_faction": "faction_xxx",
-  "nature": "机构/组织/家族/教团/集团",
+  "nature": "institution / organization / family / cult / conglomerate",
   "scope": "local | regional | national | hidden",
-  "public_identity": "表面身份",
-  "hidden_agenda": "隐藏目标",
+  "public_identity": "Surface identity",
+  "hidden_agenda": "Hidden goal",
   "resources": [],
   "methods": [],
-  "pressure_style": "它如何压迫人物",
-  "story_value": "它在故事中最适合承担什么作用"
+  "pressure_style": "How it pressures characters",
+  "story_value": "What role it is best suited to play in the story"
 }
 ```
 
-这里一定要有一个关键字段：
+There must be one key field here:
 
 > `pressure_style`
 
-因为势力不能只是背景介绍，它必须能参与施压、阻碍、诱导、操控、掩盖、猎杀、收编之类的行为。
+A force cannot be only background copy. It must be able to participate in pressing, obstructing, inducing, manipulating, covering up, hunting, absorbing, and similar acts.
 
 ---
 
-### 3.3 地点 Locations
+### 3.3 Locations
 
-地点绝不能只是“世界地图上的点”，而应该是“能触发事件和限制行动的叙事场”。
+A location must never be only “a point on the world map.” It should be “a narrative field that can trigger events and constrain action.”
 
-建议字段：
+Suggested fields:
 
 ```json
 {
   "id": "location_xxx",
-  "name": "地点名",
-  "type": "医院/城镇/遗迹/学院/街区/禁区",
+  "name": "Location name",
+  "type": "hospital / town / ruin / academy / district / forbidden zone",
   "level": "world | region | city | core_scene",
   "parent_location": null,
-  "public_image": "表面印象",
-  "hidden_truth": "隐藏真相",
-  "function": "叙事功能",
+  "public_image": "Surface impression",
+  "hidden_truth": "Hidden truth",
+  "function": "Narrative function",
   "risks": [],
-  "access_rule": "进入限制",
-  "exit_cost": "离开代价",
+  "access_rule": "Entry restriction",
+  "exit_cost": "Cost of leaving",
   "linked_forces": [],
   "scene_tags": []
 }
 ```
 
-地点至少要回答几个问题：
+A location must at least answer:
 
-* 这个地方表面看是什么
-* 它暗地里是什么
-* 它为什么重要
-* 在这里容易发生什么
-* 人为什么不能随便离开
+* What this place looks like on the surface
+* What it is in the dark
+* Why it matters
+* What tends to happen here
+* Why people cannot simply leave
 
-没有“限制性”的地点，基本就是摆设。
+A location with no “restrictiveness” is basically set dressing.
 
 ---
 
-### 3.4 特殊要素 Special Elements
+### 3.4 Special Elements
 
-这部分很容易被忽视，但其实特别重要。
+This part is easy to overlook, but it is especially important.
 
-它包含：
+It includes:
 
-* 特殊物品
-* 异常现象
-* 禁忌知识
-* 仪式
-* 法则片段
-* 病毒、咒、传承、契约、案例机制等
+* Special items
+* Anomalous phenomena
+* Forbidden knowledge
+* Rituals
+* Fragments of laws
+* Viruses, curses, lineages, contracts, case mechanisms, and similar
 
-建议字段：
+Suggested fields:
 
 ```json
 {
   "id": "element_xxx",
-  "name": "要素名",
+  "name": "Element name",
   "category": "item | phenomenon | ritual | knowledge | rule",
-  "effect": "作用",
-  "cost": "使用代价",
-  "risk": "潜在风险",
-  "rarity": "稀有度",
+  "effect": "Effect",
+  "cost": "Cost of use",
+  "risk": "Potential risk",
+  "rarity": "Rarity",
   "controlled_by": [],
   "known_by": [],
-  "story_value": "适合在哪类剧情中使用"
+  "story_value": "What kinds of plot it is suited for"
 }
 ```
 
-这类要素在后续写作时非常有价值，因为它们常常是：
+These elements are highly valuable in later writing, because they are often:
 
-* 推动情节的机关
-* 升级冲突的媒介
-* 埋伏笔与回收的关键件
-
----
-
-# 四、世界关系层必须独立出来
-
-这是你这次改造里最值得做的一层。
-
-很多系统做到资源库就停了，结果 AI 后续调用时只能“抽卡式组合”。
-你要更进一步，把关系结构做出来。
+* Mechanisms that drive plot
+* Media that escalate conflict
+* Key pieces for planting and paying off foreshadowing
 
 ---
 
-## 4.1 势力关系
+# 4. The World Relationship Layer Must Stand Alone
+
+This is the layer most worth doing in this redesign.
+
+Many systems stop at the asset library, so later AI calls can only “draw cards and combine.”
+Go one step further and actually build the relationship structure.
+
+---
+
+## 4.1 Force relations
 
 ```json
 {
   "from_force": "force_a",
   "to_force": "force_b",
   "relation": "hostile | allied | exploitative | infiltrated | neutral",
-  "reason": "关系原因",
+  "reason": "Reason for the relationship",
   "stability": "stable | unstable | temporary"
 }
 ```
 
-这层的价值在于：
+The value of this layer:
 
-* 让冲突天然存在
-* 让剧情不需要每次重新搭关系
-* 让角色进入某势力时自动带入关系网
+* Conflict exists naturally
+* Plot does not have to rebuild relationships from scratch every time
+* When a character enters a force, they automatically inherit a relationship net
 
 ---
 
-## 4.2 地点控制关系
+## 4.2 Location control relations
 
 ```json
 {
@@ -383,15 +383,15 @@
 }
 ```
 
-这样你后续一旦选了地点，系统就能自然知道：
+Then, once a location is selected later, the system can naturally know:
 
-* 谁会出现在这里
-* 谁可以阻止主角
-* 谁在暗处监视
+* Who will appear here
+* Who can stop the protagonist
+* Who is watching from the dark
 
 ---
 
-## 4.3 要素归属关系
+## 4.3 Element ownership relations
 
 ```json
 {
@@ -402,38 +402,38 @@
 }
 ```
 
-这会极大提升剧情生成时的合理性。
+This greatly improves reasonableness during plot generation.
 
 ---
 
-# 五、最关键的一层：世界绑定接口
+# 5. The Most Critical Layer: The World Binding Interface
 
-这一层是你之前几个问题里真正的核心。
+This layer is the real core of the earlier questions.
 
-你问过“阵营、势力、地点应该放世界管理还是小说里”，真正答案其实是：
+You asked whether factions, forces, and locations should live in world management or in the novel. The real answer is:
 
-> **世界里存全量，小说里激活部分**
+> **Store the full set in the world; activate a subset in the novel**
 
-所以世界管理必须具备“对小说输出切片”的能力。
+So world management must be able to “output a slice to a novel.”
 
-我建议专门设计一个绑定接口层。
-
----
-
-## 5.1 绑定目标
-
-世界管理不应该直接把所有资源推给小说。
-它应该输出：
-
-* 本书建议激活的势力
-* 本书建议启用的地点簇
-* 本书适配的冲突类型
-* 本书应避免调用的设定
-* 本书可能成立的风格方向
+I recommend designing a dedicated binding-interface layer.
 
 ---
 
-## 5.2 建议结构
+## 5.1 Binding targets
+
+World management should not push every resource into the novel.
+It should output:
+
+* Forces this book is recommended to activate
+* Location clusters this book is recommended to enable
+* Conflict types this book fits
+* Settings this book should avoid calling
+* Style directions this book could reasonably take
+
+---
+
+## 5.2 Suggested structure
 
 ```json
 {
@@ -448,266 +448,266 @@
 }
 ```
 
-这层相当于给“故事宏观规划模块”喂初始燃料。
+This layer is initial fuel for the “story macro planning” module.
 
-它的本质是：
+Its essence is:
 
-> **从世界资源中，筛出最适合这本小说的局部舞台**
-
----
-
-# 六、页面结构怎么改
-
-如果从产品页面设计来看，我建议世界管理不要是一个长滚动大表单，而是拆成 5 页或 5 个一级标签。
+> **From world resources, filter the local stage that best fits this novel**
 
 ---
 
-## 1. 总览页
+# 6. How the Page Structure Should Change
 
-内容：
-
-* 世界名称
-* 题材
-* 时代
-* 基调
-* 世界一句话概括
-* 当前资源数量统计
-* 当前可用于小说绑定的成熟度
-
-这一页偏仪表盘。
+From a product-page design view, I recommend that world management not be one long scrolling mega-form, but be split into 5 pages or 5 top-level tabs.
 
 ---
 
-## 2. 规则中心
+## 1. Overview page
 
-内容：
+Contents:
 
-* 现实规则
-* 超常规则
-* 生死规则
-* 信息规则
-* 叙事限制
+* World name
+* Genre
+* Era
+* Tone
+* One-sentence world summary
+* Current resource-count stats
+* Current maturity for novel binding
 
-这一页必须做得清晰，因为这里是后续所有生成的上位限制。
-
----
-
-## 3. 资源库
-
-分四个 tab：
-
-* 阵营
-* 势力
-* 地点
-* 特殊要素
-
-每个资源不要只有长文本描述，最好结构化卡片化，方便筛选、绑定和引用。
+This page is more of a dashboard.
 
 ---
 
-## 4. 关系网络
+## 2. Rules center
 
-可先做简版，不一定非要复杂图谱。
+Contents:
 
-只要能清楚展示：
+* Reality rules
+* Supernatural rules
+* Life-and-death rules
+* Information rules
+* Narrative constraints
 
-* 势力对立
-* 地点归属
-* 要素掌控
-* 高冲突节点
-
-这页的价值非常高，因为它能让作者一眼看出“这个世界是不是活的”。
-
----
-
-## 5. 小说绑定页
-
-这里是世界管理真正与小说模块接上的地方。
-
-这一页可以做：
-
-* 选择当前小说
-* 从世界中选择激活势力
-* 选择核心舞台地点
-* 绑定允许调用的特殊要素
-* 输出给故事宏观规划模块
-
-这一页会成为你整个系统很有辨识度的能力点。
+This page must be clear, because it is the upper-level limit on all later generation.
 
 ---
 
-# 七、和后续模块的接口关系
+## 3. Asset library
 
-你现在做世界管理，不能只考虑自己这一页，要反推它后面给谁用。
+Four tabs:
 
----
+* Factions
+* Forces
+* Locations
+* Special elements
 
-## 1. 给故事宏观规划模块
-
-输出：
-
-* 世界规则摘要
-* 推荐激活势力
-* 推荐舞台地点
-* 推荐冲突类型
-* 不能碰的叙事边界
-
-故事宏观规划模块据此生成“故事引擎”。
+Each resource should not be only a long prose description. Prefer structured, card-like presentation, so filtering, binding, and citation are easy.
 
 ---
 
-## 2. 给角色设定模块
+## 4. Relationship network
 
-输出：
+A simple version is fine first. A complex graph is not required.
 
-* 角色可归属的阵营/势力
-* 角色常驻地点
-* 世界允许的身份类型
-* 与世界规则相符的人物能力边界
+It only needs to clearly show:
 
-这样角色不会脱离世界漂浮。
+* Force opposition
+* Location ownership
+* Element control
+* High-conflict nodes
 
----
-
-## 3. 给剧情规划模块
-
-输出：
-
-* 哪些势力可参与冲突
-* 哪些地点可承载关键事件
-* 哪些特殊要素可用作推进机关
-* 哪些关系可用于反转
+This page is high-value, because it lets the author see at a glance whether “this world is alive.”
 
 ---
 
-## 4. 给章节生成模块
+## 5. Novel binding page
 
-输出：
+This is where world management actually connects to the novel module.
+
+This page can:
+
+* Select the current novel
+* Choose activated forces from the world
+* Choose core stage locations
+* Bind special elements that are allowed to be called
+* Output to the story macro planning module
+
+This page will become a highly distinctive capability of the whole system.
+
+---
+
+# 7. Interface Relationships with Downstream Modules
+
+When building world management now, do not only think about this page. Reverse-engineer who will consume it later.
+
+---
+
+## 1. To the story macro planning module
+
+Output:
+
+* World-rules summary
+* Recommended activated forces
+* Recommended stage locations
+* Recommended conflict types
+* Narrative boundaries that must not be touched
+
+The story macro planning module uses this to generate the “story engine.”
+
+---
+
+## 2. To the character setup module
+
+Output:
+
+* Factions / forces a character can belong to
+* A character’s usual location
+* Identity types the world allows
+* Character-capability bounds that match world rules
+
+Then characters will not float free of the world.
+
+---
+
+## 3. To the plot planning module
+
+Output:
+
+* Which forces can participate in conflict
+* Which locations can carry key events
+* Which special elements can be used as driving mechanisms
+* Which relationships can be used for reversals
+
+---
+
+## 4. To the chapter generation module
+
+Output:
 
 * active world slice
-* 当前章节相关地点状态
-* 当前可见势力活动范围
-* 当前不可违背规则
+* Location state relevant to the current chapter
+* Visible activity range of current forces
+* Rules that currently must not be broken
 
-这样生成会稳很多。
-
----
-
-# 八、这次改造最重要的几个原则
+Generation will be much more stable this way.
 
 ---
 
-## 原则 1：世界管理存“全量可能性”，小说只取“有效切片”
-
-这是整个架构的核心原则。
-
-世界里可以有很多东西，但单本小说只能启用少量有效元素。
-
-否则故事就会被世界噪音淹没。
+# 8. The Most Important Principles of This Redesign
 
 ---
 
-## 原则 2：所有世界元素都必须有叙事用途
+## Principle 1: World management stores “full possibility”; the novel takes only an “effective slice”
 
-不要允许只填“背景介绍”。
+This is the core principle of the whole architecture.
 
-每个对象至少要有一个：
+The world may contain many things, but a single novel may enable only a small number of effective elements.
+
+Otherwise the story is drowned by world noise.
+
+---
+
+## Principle 2: Every world element must have a narrative use
+
+Do not allow filling in “background copy” only.
+
+Each object should have at least one of:
 
 * `story_value`
 * `pressure_value`
 * `conflict_value`
 * `scene_value`
 
-否则它只会是展示型设定。
+Otherwise it is only display-type lore.
 
 ---
 
-## 原则 3：地点必须具备限制性
+## Principle 3: Locations must be restrictive
 
-地点不是旅游目录。
+Locations are not a tourist catalog.
 
-没有“进入限制、离开代价、常见风险”的地点，对剧情生成帮助极弱。
-
----
-
-## 原则 4：势力必须有具体手段
-
-势力不仅要有目标，更要有“怎么做事”。
-
-比如：
-
-* 行政压制
-* 舆论操控
-* 暗中渗透
-* 经济挤压
-* 诱导交易
-* 异常污染
-* 猎杀清洗
-
-这些会直接影响剧情手感。
+A location with no “entry restriction, exit cost, common risks” is extremely weak help for plot generation.
 
 ---
 
-## 原则 5：允许不完整
+## Principle 4: Forces must have concrete methods
 
-世界管理一定不能强迫用户一次性补完所有东西。
+A force needs not only a goal, but also “how it gets things done.”
 
-必须允许：
+For example:
 
-* 只有世界规则，没有完整势力
-* 只有一个核心地点，没有地图系统
-* 只有两三个势力，没有完整阵营
+* Administrative suppression
+* Public-opinion manipulation
+* Covert infiltration
+* Economic squeeze
+* Induced deals
+* Anomalous contamination
+* Hunt-and-purge
 
-因为很多作者一开始只有一团模糊雾气，不是一张全息地图。
-
----
-
-# 九、我建议你的 MVP 先做什么
-
-别一上来做全图谱。先把最值钱的部分做起来。
+These directly affect the feel of the plot.
 
 ---
 
-## 第一阶段：先做结构骨架
+## Principle 5: Incompleteness is allowed
 
-先实现：
+World management must not force the user to complete everything in one pass.
 
-* 世界概要
-* 世界规则
-* 势力
-* 地点
-* 基础关系
-* 小说绑定入口
+It must allow:
 
-这是最有产出的第一步。
+* World rules only, with no complete set of forces
+* A single core location, with no map system
+* Two or three forces, with no complete faction set
 
----
-
-## 第二阶段：再做 AI 辅助
-
-支持：
-
-* 根据一句话世界观生成规则草稿
-* 根据题材补全势力雏形
-* 根据主舞台补全地点草稿
-* 自动识别潜在冲突点
+Many authors start with a blur of fog, not a holographic map.
 
 ---
 
-## 第三阶段：最后做深联动
+# 9. What I Recommend for the MVP First
 
-支持：
-
-* 角色创建时自动读取世界切片
-* 剧情规划时只调用 active world slice
-* 写作时做一致性校验
-* 随剧情推进更新世界状态
+Do not start with a full graph. Build the highest-value parts first.
 
 ---
 
-# 十、推荐的最终数据骨架
+## Phase 1: Build the structural skeleton first
 
-给你一个适合继续扩展的总结构：
+Implement first:
+
+* World Profile
+* World Rules
+* Forces
+* Locations
+* Basic relations
+* Novel-binding entry
+
+This is the highest-yield first step.
+
+---
+
+## Phase 2: Then add AI assistance
+
+Support:
+
+* Generating a rules draft from a one-sentence worldview
+* Filling force sketches from genre
+* Filling location drafts from the main stage
+* Automatically identifying potential conflict points
+
+---
+
+## Phase 3: Finally, deep linkage
+
+Support:
+
+* Auto-reading the world slice when creating a character
+* Calling only the active world slice during plot planning
+* Consistency checks at writing time
+* Updating world state as the plot advances
+
+---
+
+# 10. Recommended Final Data Skeleton
+
+A total structure suited to later extension:
 
 ```json
 {
@@ -755,23 +755,20 @@
 
 ---
 
-# 十一、最后给你的产品判断标准
+# 11. A Product Success Test at the End
 
-你做完这个模块后，可以用一句话检验它是否成功：
+After this module is done, you can test success with one sentence:
 
-> **如果不写任何长段说明，只看结构化数据，系统能不能为一部小说自动挑出“可用舞台、可用冲突、可用压迫源”？**
+> **If you write no long prose at all, and look only at structured data, can the system automatically pick a “usable stage, usable conflict, and usable pressure source” for a novel?**
 
-如果可以，说明这个世界管理模块是真正可用的。
-如果不行，那它还是一个“设定展示仓库”。
+If yes, this world-management module is genuinely usable.
+If not, it is still a “lore display warehouse.”
 
 ---
 
-我建议下一步直接继续做两件事里的一个：
+I recommend the next step be exactly one of these two:
 
-1. **《世界管理模块重构文档 V1》**，按正式开发文档格式写
-2. **世界管理 → 故事宏观规划 的接口设计**，把上下游直接打通
+1. **World Management Module Refactor Document V1**, written as a formal development spec
+2. **World management → story macro planning interface design**, connecting upstream and downstream directly
 
-我更推荐先做第 2 个，因为那会让你立刻看见这个模块的真实价值。
-
-
-
+I more strongly recommend doing #2 first, because that lets you see this module’s real value immediately.

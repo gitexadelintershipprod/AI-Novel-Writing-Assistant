@@ -2,39 +2,39 @@
 
 ## 2026-04-10
 
-### 交付范围
+### Delivery scope
 
-- 完成 `Chapter Editor V2` 的 `Phase 1 + Phase 2 MVP`。
-- 范围聚焦在“正文中心的局部 AI 精修编辑器”，不包含问题修复闭环、光标续写和语义 diff。
+- Finished `Chapter Editor V2` `Phase 1 + Phase 2 MVP`.
+- Scope is a body-centered local AI polish editor. It does not include the issue-repair loop, cursor continuation, or semantic diff.
 
-### 完成项
+### Done
 
-- 共享章节编辑器壳层：新增 `ChapterEditorShell`，统一顶部轻控制条、左侧轻上下文、中央正文编辑区、右侧按需 diff 面板，实际落在独立 `NovelChapterEdit` 页面。
-- 入口关系已纠正：`ChapterManagementTab` 继续作为工作台入口，独立 `NovelChapterEdit` 作为正文中心编辑页承载本轮章节精修能力。
-- Plate 正文编辑：正文编辑从旧 `textarea` 切到 Plate，具备正文编辑、选区监听、保存状态、字数统计。
-- 选区 AI 改写：支持 `优化表达 / 扩写 / 精简 / 强化情绪 / 强化冲突 / 自定义指令` 六类操作。
-- 候选 diff：后端固定返回 `2-3` 个候选版本；前端支持 inline diff、候选切换、拒绝、再生成、接受。
-- 安全快照：接受候选前先创建 `novel snapshot`，label 采用 `chapter-editor:{chapterOrder}:{operation}:{timestamp}`，之后再更新章节正文。
-- Prompt 治理：新增 `novel.chapter_editor.rewrite_candidates@v1`，通过 Prompt Registry 接入，不在 service 内内联业务 prompt。
-- 后端 contract：新增 `POST /novels/:id/chapters/:chapterId/editor/rewrite-preview`，shared types 已同步请求/响应结构。
+- Shared chapter-editor shell: added `ChapterEditorShell` with a light top bar, light left context, central body editor, and an on-demand right-hand diff panel, hosted on the standalone `NovelChapterEdit` page.
+- Entry relationship corrected: `ChapterManagementTab` stays the workspace entry; standalone `NovelChapterEdit` hosts this round’s chapter polish.
+- Plate body editing: the old `textarea` moved to Plate, with body editing, selection listening, save state, and word count.
+- Selection AI rewrite: six operations — polish wording / expand / tighten / strengthen emotion / strengthen conflict / custom instruction.
+- Candidate diff: backend always returns `2-3` candidate versions; frontend supports inline diff, candidate switching, reject, regenerate, and accept.
+- Safety snapshot: create a `novel snapshot` before accepting a candidate, label `chapter-editor:{chapterOrder}:{operation}:{timestamp}`, then update chapter body.
+- Prompt governance: added `novel.chapter_editor.rewrite_candidates@v1` through Prompt Registry. Do not inline a business prompt in the service.
+- Backend contract: added `POST /novels/:id/chapters/:chapterId/editor/rewrite-preview`; shared types already match the request/response shape.
 
-### 验收结果
+### Acceptance
 
-- 已通过 `pnpm typecheck`。
-- 已通过 `pnpm --filter @ai-novel/client build`。
-- 已通过 `node --test tests/chapterEditorPreview.test.js`。
-- 已通过 `node --test tests/prompting-governance.test.js`。
-- 当前可完成主闭环：`选中正文 -> 发起 AI 改写 -> 查看 2-3 个候选 diff -> 接受或拒绝`，且接受前有快照保护。
+- Passed `pnpm typecheck`.
+- Passed `pnpm --filter @ai-novel/client build`.
+- Passed `node --test tests/chapterEditorPreview.test.js`.
+- Passed `node --test tests/prompting-governance.test.js`.
+- The main loop works: `select body -> request AI rewrite -> inspect 2-3 candidate diffs -> accept or reject`, with a snapshot before accept.
 
-### 遗留项
+### Leftover
 
-- 问题修复仍停留在入口和占位阶段，尚未形成“定位 -> 建议 -> diff -> 接受 -> 关闭”闭环。
-- 版本入口当前仍复用现有历史页跳转，尚未做成章节编辑器内版本抽屉。
-- 光标续写、块级 diff、语义 diff、局部接受仍未进入本轮实现。
-- 前端当前没有独立测试 runner，本轮未补交互自动化测试。
+- Issue repair is still an entry and placeholder. It is not yet a “locate -> suggest -> diff -> accept -> close” loop.
+- Version entry still jumps to the existing history page. It is not yet an in-editor version drawer.
+- Cursor continuation, block-level diff, semantic diff, and partial accept are out of this round.
+- The frontend has no independent test runner. This round did not add interaction automation.
 
-### 下一阶段入口
+### Next-phase entry
 
-- `Phase 3`：问题定位修复闭环、章节内版本抽屉、问题关闭联动。
-- `Phase 4`：光标续写、块级 diff / 语义 diff、局部接受、更细粒度回滚。
-- 后续每轮章节编辑器开发继续在本文件追加 checkpoint，不重开新文档。
+- `Phase 3`: issue locate-and-repair loop, in-chapter version drawer, and issue-close linkage.
+- `Phase 4`: cursor continuation, block-level / semantic diff, partial accept, finer rollback.
+- Later chapter-editor rounds keep appending checkpoints to this file. Do not open a new document.

@@ -1,5 +1,5 @@
-# 重规划编排边界
+# Replan Orchestration Boundary
 
-本目录负责把显式重规划请求解析为章节窗口、逐章调用规划生成并记录重规划运行。是否停止全书的确定性判断仍由 `replanDecision.ts` 负责；本编排层不得把 payoff 逾期或局部质量债自行升级为全局停止。
+This directory parses an explicit replan request into a chapter window, calls plan generation chapter by chapter, and records the replan run. Deterministic judgment of whether to stop the whole book remains owned by `replanDecision.ts`. This orchestration layer must not escalate payoff overdue or local quality debt into a global stop on its own.
 
-`PlannerService` 保留公共门面，并以最小适配接口向本模块提供规划读取和生成能力。调用方不得绕过门面直接拼装重规划持久化流程。
+`PlannerService` keeps the public facade and supplies plan read and generation capability to this module through a minimal adapter interface. Callers must not bypass the facade and assemble the replan persistence flow themselves.

@@ -1,333 +1,331 @@
-# 写法引擎模块详细开发文档 V1
+# Style Engine Module Detailed Development Document V1
 
-## 1. 模块概述
+## 1. Module Overview
 
-### 1.1 模块名称
+### 1.1 Module Name
 
-**写法引擎**
+**Style Engine**
 
-### 1.2 模块定位
+### 1.2 Module Positioning
 
-写法引擎是小说创作系统中的**写法资产中枢**。
-它负责将拆书分析、范文提取、手动定义、作品反推得到的写法规律，转化为可编辑、可复用、可绑定、可执行的写法资产，并在生成阶段通过规则注入与反AI约束，控制模型输出风格与叙事方式。
+The Style Engine is the **writing-style asset hub** in the novel-creation system.
+It turns writing patterns discovered from book analysis, sample-text extraction, manual definition, and reverse inference from the current work into editable, reusable, bindable, executable style assets. During generation it controls model output style and narrative method through rule injection and anti-AI constraints.
 
-### 1.3 解决的问题
+### 1.3 Problems It Solves
 
-当前系统存在以下问题：
+The current system has these problems:
 
-1. 拆书模块中的“文风与技法”偏描述性，只能看，不能直接驱动生成。
-2. 生成模块缺少稳定的风格控制层，AI容易回到通用写法，出现八股感。
-3. 缺少可复用的写法模板，用户每次都要重新描述想要的风格。
-4. 缺少反AI特征约束，模型容易出现总结句、升华句、解释性心理描写等常见问题。
-5. 风格规则无法针对整本书、卷、章节、角色视角等不同层级进行绑定。
+1. “Voice and technique” in the book-analysis module is descriptive: it can be read, but it cannot drive generation directly.
+2. The generation module lacks a stable style-control layer, so the AI easily falls back to generic writing and formulaic texture.
+3. There are no reusable writing-style templates, so users have to re-describe the style they want every time.
+4. There are no anti-AI-feature constraints, so the model easily produces summary sentences, elevation sentences, explanatory psychological description, and similar common problems.
+5. Style rules cannot be bound at different layers such as whole book, volume, chapter, and character POV.
 
-### 1.4 核心目标
+### 1.4 Core Goals
 
-写法引擎需要完成以下目标：
+The Style Engine needs to complete these goals:
 
-* 将“写法分析”升级为“写法控制”
-* 将“拆书结果”升级为“可执行资产”
-* 将“风格描述”升级为“结构化规则”
-* 将“AI生成”纳入可检测、可修正的写法约束链路
+* Upgrade “style analysis” into “style control”
+* Upgrade “book-analysis results” into “executable assets”
+* Upgrade “style description” into “structured rules”
+* Bring “AI generation” into a detectable, correctable writing-constraint chain
 
 ---
 
-## 2. 模块在系统中的位置
+## 2. Position in the System
 
-### 2.1 所属系统位置
+### 2.1 System Location
 
-写法引擎属于创作系统核心中台模块，位于：
+The Style Engine is a core mid-platform module of the creation system, located at:
 
 ```text
-拆书 / 范文 / 当前作品
+Book analysis / sample text / current work
         ↓
-     写法引擎
+     Style Engine
         ↓
-   生成模块 / 润色模块 / 续写模块
+   Generation module / polish module / continuation module
         ↓
-   输出检测 / 自动修正
+   Output detection / automatic correction
 ```
 
-### 2.2 与其他模块关系
+### 2.2 Relationship with Other Modules
 
-#### 与拆书模块关系
+#### Relationship with the Book-Analysis Module
 
-拆书模块负责**发现写法**，写法引擎负责**沉淀并执行写法**。
+The book-analysis module is responsible for **discovering writing style**. The Style Engine is responsible for **settling writing style into durable assets and executing it**.
 
-拆书输出内容包括：
+Book-analysis output includes:
 
-* 文风与技法
-* 叙事方式
-* 节奏特征
-* 对话风格
-* 角色表达方式
+* Voice and technique
+* Narrative method
+* Rhythm features
+* Dialogue style
+* Character expression method
 
-这些内容可作为写法引擎的来源输入，通过“从拆书生成写法”功能转换为结构化写法资产。
+These can be source input for the Style Engine and are converted into structured style assets through the “generate style from book analysis” capability.
 
-#### 与世界观模块关系
+#### Relationship with the Worldbuilding Module
 
-世界观模块控制“写什么”，写法引擎控制“怎么写”。
+The worldbuilding module controls “what to write.” The Style Engine controls “how to write.”
 
-#### 与角色模块关系
+#### Relationship with the Character Module
 
-角色模块提供人物设定与状态，写法引擎控制角色在文本中的表现方式，例如：
+The character module provides character setting and state. The Style Engine controls how characters appear in the text, for example:
 
-* 是否嘴硬
-* 是否自省
-* 是否直接说情绪
-* 是否偏口语或偏冷静
+* Whether they are verbally stubborn
+* Whether they self-reflect
+* Whether they state emotion directly
+* Whether they lean colloquial or calm
 
-#### 与章节生成模块关系
+#### Relationship with the Chapter-Generation Module
 
-写法引擎在章节生成前提供规则注入，在生成后提供AI味检测与偏差修正。
+The Style Engine injects rules before chapter generation, and after generation it provides AI-flavor detection and deviation correction.
 
-#### 与润色模块关系
+#### Relationship with the Polish Module
 
-润色模块不再只负责“更通顺”，而要负责“更符合当前写法资产”。
-
----
-
-## 3. 核心设计原则
-
-### 3.1 描述层与执行层分离
-
-写法引擎必须将：
-
-* 给用户看的自然语言分析
-* 给系统执行的结构化规则
-
-分开存储与展示。
-
-### 3.2 来源统一，应用统一
-
-无论写法来自：
-
-* 拆书
-* 粘贴文本
-* 手动创建
-* 当前作品反推
-
-最终都要统一进入同一套写法资产结构。
-
-### 3.3 写法可绑定、可组合、可分层
-
-写法不应只是“整本书属性”，而应支持：
-
-* 全书级
-* 卷级
-* 章节级
-* 角色视角级
-* 单次任务级
-
-### 3.4 模板与规则分离
-
-内置写法模板是预设资产，反AI特征库是约束库。
-模板定义方向，规则库负责刹车和纠偏。
-
-### 3.5 检测与修正闭环
-
-写法引擎不能只在生成前生效，还必须在生成后进行偏差检测与重写修正。
+The polish module is no longer responsible only for “smoother.” It is responsible for “more consistent with the current style asset.”
 
 ---
 
-## 4. 功能范围
+## 3. Core Design Principles
 
-### 4.1 本期包含
+### 3.1 Separate Description Layer from Execution Layer
 
-1. 从拆书生成写法
-2. 从文本提取写法
-3. 手动创建写法
-4. 内置写法模板
-5. 写法规则编辑
-6. 反AI特征库管理
-7. 写法应用绑定
-8. 试写测试
-9. AI味检测
-10. 自动修正预览
+The Style Engine must store and display separately:
 
-### 4.2 本期不包含
+* Natural-language analysis shown to the user
+* Structured rules executed by the system
 
-1. 多人协作编辑写法资产
-2. 复杂版本分支合并
-3. 基于训练数据的自动学习型风格演化
-4. 跨项目共享资产市场
-5. 模型层面微调训练
+### 3.2 Unified Source, Unified Application
 
----
+Whether the style comes from:
 
-## 5. 用户目标与使用场景
+* Book analysis
+* Pasted text
+* Manual creation
+* Reverse inference from the current work
 
-### 5.1 典型用户
+it must finally enter the same style-asset structure.
 
-* 网文作者
-* 剧情策划型作者
-* 依赖AI辅助创作的用户
-* 希望控制文风一致性的长篇作者
+### 3.3 Style Is Bindable, Composable, and Layered
 
-### 5.2 典型使用场景
+Style should not be only a “whole-book property.” It should support:
 
-#### 场景一：从拆书结果沉淀写法
+* Whole-book level
+* Volume level
+* Chapter level
+* Character-POV level
+* Single-task level
 
-用户在拆书模块完成分析后，点击“从拆书生成写法”，把文风与技法转换为可执行写法资产。
+### 3.4 Separate Templates from Rules
 
-#### 场景二：从一段范文提取写法
+Built-in style templates are preset assets. The anti-AI feature library is a constraint library.
+Templates define direction. The rule library is the brake and correction.
 
-用户粘贴喜欢的文本片段，提取其中的叙事规律、人物表达与语言风格。
+### 3.5 Detection and Correction Closed Loop
 
-#### 场景三：套用内置模板快速生成
-
-用户选择“底层循环现实流”“悬疑压迫递增流”等模板，作为当前创作任务的写法基础。
-
-#### 场景四：为当前小说绑定写法
-
-用户将某套写法应用到整本书，或绑定到某卷、某章节、某角色视角。
-
-#### 场景五：检测AI味并重写
-
-章节生成后，系统自动检测是否存在过强AI特征，若存在则触发自动修正。
+The Style Engine cannot take effect only before generation. It must also run deviation detection and rewrite correction after generation.
 
 ---
 
-## 6. 页面结构设计
+## 4. Feature Scope
 
-## 6.1 模块首页结构
+### 4.1 Included in This Phase
 
-### 页面名称
+1. Generate style from book analysis
+2. Extract style from text
+3. Create style manually
+4. Built-in style templates
+5. Style-rule editing
+6. Anti-AI feature-library management
+7. Style application binding
+8. Trial-write testing
+9. AI-flavor detection
+10. Automatic-correction preview
 
-**写法引擎**
+### 4.2 Not Included in This Phase
 
-### 首页分区
-
-1. 新建写法
-2. 内置模板
-3. 我的写法资产
-4. 反AI特征库
-5. 应用与测试
-
----
-
-## 6.2 新建写法区
-
-### 创建入口
-
-* 从拆书生成
-* 从文本提取
-* 手动创建
-* 从当前作品提炼
-
-### 字段设计
-
-* 写法名称
-* 简介
-* 分类
-* 标签
-* 适用题材
-* 来源说明
+1. Multi-person collaborative editing of style assets
+2. Complex version-branch merging
+3. Automatically learned style evolution based on training data
+4. Cross-project shared asset marketplace
+5. Model-level fine-tuning training
 
 ---
 
-## 6.3 内置模板区
+## 5. User Goals and Use Cases
 
-### 展示内容
+### 5.1 Typical Users
 
-* 模板分类
-* 模板卡片
-* 模板简介
-* 适用场景
-* 默认绑定的反AI规则
-* 一键应用按钮
-* 基于模板新建按钮
+* Web-novel authors
+* Plot-planning authors
+* Users who rely on AI-assisted creation
+* Long-form authors who want to control voice consistency
 
-### 初期内置模板建议
+### 5.2 Typical Use Cases
 
-1. 底层循环现实流
-2. 爽文递进推进流
-3. 悬疑压迫递增流
-4. 情绪拉扯流
-5. 群像交织流
-6. 日常浸没流
-7. 冷峻专业流
-8. 荒诞黑色幽默流
+#### Case 1: Settle style from book-analysis results
 
----
+After finishing analysis in the book-analysis module, the user clicks “Generate style from book analysis” and converts voice and technique into an executable style asset.
 
-## 6.4 写法编辑页
+#### Case 2: Extract style from a sample passage
 
-### 页面区域划分
+The user pastes a liked text fragment and extracts its narrative patterns, character expression, and language style.
 
-1. 基础信息
-2. 叙事规则
-3. 人物表达规则
-4. 语言风格规则
-5. 节奏规则
-6. 反AI规则绑定
-7. AI草稿与人工编辑区
-8. 应用范围配置
-9. 试写测试区
+#### Case 3: Quickly generate by applying a built-in template
 
-### 主要交互控件
+The user selects templates such as “underclass looping realist flow” or “mystery-pressure increasing flow” as the writing-style base for the current creation task.
 
-* 输入框
-* 文本区域
-* 单选/多选
-* 滑条
-* 开关
-* 标签选择器
-* 规则绑定器
-* 实时预览区
+#### Case 4: Bind a style to the current novel
+
+The user applies a style set to the whole book, or binds it to a volume, a chapter, or a character POV.
+
+#### Case 5: Detect AI flavor and rewrite
+
+After chapter generation, the system automatically detects whether overly strong AI features exist, and if they do, it triggers automatic correction.
 
 ---
 
-## 6.5 反AI特征库页面
+## 6. Page Structure Design
 
-### 页面内容
+## 6.1 Module Home Structure
 
-* 规则分类筛选
-* 规则列表
-* 启用状态
-* 严重级别
-* 检测说明
-* 触发示例
-* 修正建议
-* 是否自动重写
+### Page Name
 
-### 支持动作
+**Style Engine**
 
-* 启用/禁用
-* 强度调节
-* 复制规则
-* 自定义新增
-* 绑定到写法
-* 从写法解除绑定
+### Home Sections
+
+1. New style
+2. Built-in templates
+3. My style assets
+4. Anti-AI feature library
+5. Apply and test
 
 ---
 
-## 6.6 应用与测试页
+## 6.2 New-Style Area
 
-### 页面功能
+### Creation Entry
 
-* 选择写法资产
-* 选择应用目标
-* 输入主题或片段
-* 执行试写
-* 显示结果
-* AI味检测
-* 修正预览
-* 一键应用到目标范围
+* Generate from book analysis
+* Extract from text
+* Create manually
+* Distill from the current work
+
+### Field Design
+
+* Style name
+* Summary
+* Category
+* Tags
+* Applicable genre
+* Source notes
 
 ---
 
-## 7. 数据结构设计
+## 6.3 Built-in Template Area
 
-## 7.1 写法资产主表
+### Display Content
+
+* Template category
+* Template card
+* Template summary
+* Applicable scenes
+* Default-bound anti-AI rules
+* One-click apply button
+* Create-from-template button
+
+### Early Built-in Template Suggestions
+
+1. Underclass looping realist flow
+2. Power-fantasy progressive-push flow
+3. Mystery-pressure increasing flow
+4. Emotional-pull flow
+5. Ensemble-interweave flow
+6. Daily-immersion flow
+7. Cold professional flow
+8. Absurd black-humor flow
+
+---
+
+## 6.4 Style Edit Page
+
+### Page Regions
+
+1. Basic information
+2. Narrative rules
+3. Character-expression rules
+4. Language-style rules
+5. Rhythm rules
+6. Anti-AI rule binding
+7. AI draft and human-edit area
+8. Application-scope configuration
+9. Trial-write test area
+
+### Main Interaction Controls
+
+* Input
+* Text area
+* Single/multi select
+* Slider
+* Switch
+* Tag selector
+* Rule binder
+* Live preview area
+
+---
+
+## 6.5 Anti-AI Feature Library Page
+
+### Page Content
+
+* Rule-category filter
+* Rule list
+* Enabled status
+* Severity
+* Detection notes
+* Trigger examples
+* Correction suggestions
+* Whether to auto-rewrite
+
+### Supported Actions
+
+* Enable/disable
+* Strength adjustment
+* Copy rule
+* Custom add
+* Bind to a style
+* Unbind from a style
+
+---
+
+## 6.6 Apply and Test Page
+
+### Page Functions
+
+* Select a style asset
+* Select an application target
+* Enter a theme or fragment
+* Run a trial write
+* Show results
+* AI-flavor detection
+* Correction preview
+* One-click apply to the target scope
+
+---
+
+## 7. Data Structure Design
+
+## 7.1 Style Asset Main Table
 
 ```json
 {
   "id": "style_001",
-  "name": "底层循环现实流",
-  "description": "通过碎片化生活与反复落空表现人物困境",
-  "category": "现实流",
-  "tags": ["第一人称", "口语化", "碎片叙事"],
+  "name": "Underclass looping realist flow",
+  "description": "Show character predicament through fragmented life and repeated letdown",
+  "category": "realist flow",
+  "tags": ["first person", "colloquial", "fragmented narrative"],
   "source_type": "from_book_analysis",
   "source_ref_id": "book_analysis_123",
   "status": "active",
@@ -339,14 +337,14 @@
 
 ---
 
-## 7.2 写法规则表
+## 7.2 Style Rules Table
 
 ```json
 {
   "style_id": "style_001",
   "narrative_rules": {
     "progression_mode": "time_sequence",
-    "scene_unit_pattern": ["行为", "落差", "自我合理化"],
+    "scene_unit_pattern": ["action", "letdown", "self-rationalization"],
     "multi_pov": false,
     "looping": true,
     "ending_style": "unresolved"
@@ -354,7 +352,7 @@
   "character_rules": {
     "allow_self_reflection": false,
     "emotion_expression": "behavior_only",
-    "defense_mechanisms": ["嘴硬", "转移", "自我合理化"],
+    "defense_mechanisms": ["verbal stubbornness", "deflection", "self-rationalization"],
     "face_priority": true
   },
   "language_rules": {
@@ -376,7 +374,7 @@
 
 ---
 
-## 7.3 反AI绑定表
+## 7.3 Anti-AI Binding Table
 
 ```json
 {
@@ -392,7 +390,7 @@
 
 ---
 
-## 7.4 应用绑定表
+## 7.4 Application Binding Table
 
 ```json
 {
@@ -408,17 +406,17 @@
 
 ---
 
-## 7.5 反AI规则表
+## 7.5 Anti-AI Rules Table
 
 ```json
 {
   "id": "anti_001",
-  "name": "禁止解释型心理描写",
+  "name": "Forbid explanatory psychological description",
   "type": "forbidden",
   "severity": "high",
-  "description": "禁止直接使用“他感到”“他意识到”等句式解释人物心理",
-  "detect_pattern": ["他感到", "他意识到", "他明白了"],
-  "rewrite_suggestion": "将心理解释转为行为、动作、对话或环境反应",
+  "description": "Do not directly use sentence patterns such as “he felt” or “he realized” to explain character psychology",
+  "detect_pattern": ["he felt", "he realized", "he understood"],
+  "rewrite_suggestion": "Turn psychological explanation into behavior, action, dialogue, or environmental reaction",
   "auto_rewrite": true,
   "enabled": true
 }
@@ -426,278 +424,278 @@
 
 ---
 
-## 8. 内置写法模板设计
+## 8. Built-in Style Template Design
 
-## 8.1 模板标准字段
+## 8.1 Template Standard Fields
 
-每个内置模板必须包含：
+Every built-in template must include:
 
-1. 模板名称
-2. 模板简介
-3. 适用类型
-4. 叙事规则
-5. 人物表达规则
-6. 语言风格规则
-7. 节奏控制规则
-8. 默认反AI规则绑定
-
----
-
-## 8.2 模板示例：底层循环现实流
-
-### 模板说明
-
-通过碎片化时间流与持续落空的小目标，构建人物被现实吞咽又靠嘴硬自保的叙事氛围。
-
-### 叙事规则
-
-* 以时间推进为主
-* 每段包含行为与落差
-* 收尾不解决问题
-* 允许大量生活碎音
-
-### 人物规则
-
-* 禁止深度自省
-* 必须嘴硬或自我合理化
-* 情绪通过动作表达
-
-### 语言规则
-
-* 口语化强
-* 可粗粝
-* 允许脏话
-* 允许半句与断裂表达
-
-### 默认反AI规则
-
-* 禁止主题升华
-* 禁止解释型心理描写
-* 鼓励无意义生活细节
-* 鼓励现实落差
-* 鼓励嘴硬补偿
+1. Template name
+2. Template summary
+3. Applicable types
+4. Narrative rules
+5. Character-expression rules
+6. Language-style rules
+7. Rhythm-control rules
+8. Default anti-AI rule binding
 
 ---
 
-## 8.3 模板示例：冷峻专业流
+## 8.2 Template Example: Underclass Looping Realist Flow
 
-### 模板说明
+### Template Notes
 
-以专业事实与行业细节压住情绪，形成克制但有压力感的叙事方式。
+Use fragmented time-flow and continuously missed small goals to build a narrative atmosphere in which the character is swallowed by reality and self-protects through verbal stubbornness.
 
-### 核心规则
+### Narrative Rules
 
-* 行业细节优先
-* 情绪不直说
-* 事实压情绪
-* 对话偏信息性
-* 避免廉价金句
+* Time progression is primary
+* Each passage contains action and letdown
+* The ending does not solve the problem
+* A large amount of fragmentary everyday noise is allowed
 
----
+### Character Rules
 
-## 9. 反AI特征库设计
+* Deep self-reflection is forbidden
+* Verbal stubbornness or self-rationalization is required
+* Emotion is expressed through action
 
-## 9.1 规则分类
+### Language Rules
 
-### 禁止型规则
+* Strongly colloquial
+* May be rough
+* Swearing is allowed
+* Half-sentences and broken expression are allowed
 
-触发即判违规，需提示或自动重写。
+### Default Anti-AI Rules
 
-示例：
-
-* 禁止解释型心理描写
-* 禁止主题总结
-* 禁止段尾升华
-* 禁止标准化转折句
-* 禁止过度工整排比
-* 禁止直接说教
-
-### 风险型规则
-
-提示高AI味风险，但不一定自动重写。
-
-示例：
-
-* 段落长度过于整齐
-* 句式重复率过高
-* 对话过于功能化
-* 三段连续解释无动作
-* 情绪表达过显
-
-### 鼓励型规则
-
-用于增强真实感、人味与杂质感。
-
-示例：
-
-* 鼓励加入无意义小动作
-* 鼓励加入现实落差
-* 鼓励加入生活噪音
-* 鼓励人物嘴硬补偿
-* 鼓励信息杂质存在
+* Forbid theme elevation
+* Forbid explanatory psychological description
+* Encourage meaningless life details
+* Encourage real-world letdown
+* Encourage verbal-stubbornness compensation
 
 ---
 
-## 9.2 第一阶段建议内置规则
+## 8.3 Template Example: Cold Professional Flow
 
-### 禁止型
+### Template Notes
 
-1. 禁止“他感到……”
-2. 禁止“这让他意识到……”
-3. 禁止“命运似乎……”
-4. 禁止“生活就是……”
-5. 禁止段尾升华
-6. 禁止总结主题
+Press emotion down with professional facts and industry detail, forming a restrained but pressurized narrative method.
 
-### 风险型
+### Core Rules
 
-7. 段落长度过于整齐
-8. 连续三段解释性叙事
-9. 对话纯功能推进
-
-### 鼓励型
-
-10. 至少加入一个无意义动作
-11. 至少加入一处现实落差
-12. 至少加入一句嘴硬补偿
+* Industry detail first
+* Emotion is not stated directly
+* Facts press emotion
+* Dialogue leans informational
+* Avoid cheap quotable lines
 
 ---
 
-## 10. 核心业务流程设计
+## 9. Anti-AI Feature Library Design
 
-## 10.1 从拆书生成写法流程
+## 9.1 Rule Categories
+
+### Forbidden Rules
+
+Triggering them is a violation and needs a prompt or automatic rewrite.
+
+Examples:
+
+* Forbid explanatory psychological description
+* Forbid theme summary
+* Forbid end-of-paragraph elevation
+* Forbid standardized turning sentences
+* Forbid overly neat parallelism
+* Forbid direct preaching
+
+### Risk Rules
+
+They flag high AI-flavor risk, but do not necessarily auto-rewrite.
+
+Examples:
+
+* Paragraph lengths too even
+* Sentence-pattern repetition too high
+* Dialogue too functional
+* Three consecutive paragraphs of explanation with no action
+* Emotion expression too explicit
+
+### Encouraged Rules
+
+Used to increase realism, human texture, and impurity.
+
+Examples:
+
+* Encourage adding meaningless small actions
+* Encourage adding real-world letdown
+* Encourage adding life noise
+* Encourage character verbal-stubbornness compensation
+* Encourage informational impurity
+
+---
+
+## 9.2 Suggested Built-in Rules for Phase One
+
+### Forbidden
+
+1. Forbid “he felt…”
+2. Forbid “this made him realize…”
+3. Forbid “fate seemed to…”
+4. Forbid “life is just…”
+5. Forbid end-of-paragraph elevation
+6. Forbid summarizing the theme
+
+### Risk
+
+7. Paragraph lengths too even
+8. Three consecutive paragraphs of explanatory narration
+9. Dialogue that only functionally advances plot
+
+### Encouraged
+
+10. Add at least one meaningless action
+11. Add at least one real-world letdown
+12. Add at least one verbal-stubbornness compensation line
+
+---
+
+## 10. Core Business-Flow Design
+
+## 10.1 Generate Style from Book Analysis
 
 ```text
-用户进入拆书模块
+User enters book-analysis module
     ↓
-查看文风与技法分析
+Views voice and technique analysis
     ↓
-点击“从拆书生成写法”
+Clicks “Generate style from book analysis”
     ↓
-系统提取拆书结果中的风格信息
+System extracts style information from book-analysis results
     ↓
-生成自然语言总结 + 结构化写法规则
+Generates natural-language summary + structured style rules
     ↓
-进入写法编辑页
+Enters style edit page
     ↓
-用户调整后保存
+User adjusts and saves
     ↓
-形成写法资产
+A style asset is formed
 ```
 
-### 转换规则说明
+### Conversion Rule Notes
 
-拆书中的描述性内容需要转换为执行性规则。
+Descriptive content in book analysis needs to be converted into executable rules.
 
-例如：
+For example:
 
-* “多视角切换灵活”
+* “Flexible multi-POV switching”
   → `multi_pov = true`
   → `pov_switch_style = flexible`
 
-* “语言兼具哲理与口语”
+* “Language mixes philosophy and colloquial speech”
   → `register = mixed`
   → `allow_philosophy = true`
   → `philosophy_embedding = dialogue_or_action_only`
 
 ---
 
-## 10.2 从文本提取写法流程
+## 10.2 Extract Style from Text
 
 ```text
-输入文本
+Input text
    ↓
-执行写法提取
+Run style extraction
    ↓
-输出分析总结
+Output analysis summary
    ↓
-输出结构化规则
+Output structured rules
    ↓
-用户编辑
+User edits
    ↓
-保存为写法资产
+Save as a style asset
 ```
 
 ---
 
-## 10.3 写法应用流程
+## 10.3 Style Application Flow
 
 ```text
-选择写法
+Select a style
    ↓
-选择应用范围
+Select application scope
    ↓
-设置优先级与强度
+Set priority and strength
    ↓
-保存绑定
+Save the binding
    ↓
-生成模块读取绑定关系
+Generation module reads the binding
    ↓
-注入写法约束
+Inject style constraints
 ```
 
 ---
 
-## 10.4 生成后检测修正流程
+## 10.4 Post-Generation Detection and Correction Flow
 
 ```text
-模型输出正文
+Model outputs prose
    ↓
-进入AI味检测器
+Enter AI-flavor detector
    ↓
-检查反AI规则
+Check anti-AI rules
    ↓
-标记违规内容
+Mark violating content
    ↓
-输出检测报告
+Output detection report
    ↓
-执行自动修正或用户确认修正
+Run automatic correction or user-confirmed correction
 ```
 
 ---
 
-## 11. Prompt 分层设计
+## 11. Prompt Layering Design
 
-## 11.1 原则
+## 11.1 Principle
 
-写法引擎不应把整份 JSON 原样塞给模型，而应通过约束编译器转为更适合模型执行的 Prompt 规则块。
-
----
-
-## 11.2 Prompt 组成层级
-
-### 第一层：全局创作上下文
-
-* 世界观
-* 人物设定
-* 当前任务目标
-
-### 第二层：写法约束块
-
-* 叙事规则
-* 人物表达规则
-* 语言规则
-* 节奏规则
-
-### 第三层：反AI约束块
-
-* 禁止项
-* 风险提醒
-* 鼓励项
-
-### 第四层：任务目标
-
-* 生成章节
-* 润色
-* 改写
-* 续写
-* 试写
+The Style Engine should not dump the whole JSON into the model as-is. It should convert it through a constraint compiler into Prompt rule blocks that are easier for the model to execute.
 
 ---
 
-## 11.3 编译示例
+## 11.2 Prompt Composition Layers
 
-### 输入结构化规则
+### Layer 1: Global Creation Context
+
+* Worldbuilding
+* Character setting
+* Current task goal
+
+### Layer 2: Style Constraint Block
+
+* Narrative rules
+* Character-expression rules
+* Language rules
+* Rhythm rules
+
+### Layer 3: Anti-AI Constraint Block
+
+* Forbidden items
+* Risk reminders
+* Encouraged items
+
+### Layer 4: Task Goal
+
+* Generate a chapter
+* Polish
+* Rewrite
+* Continue
+* Trial write
+
+---
+
+## 11.3 Compilation Example
+
+### Input Structured Rules
 
 ```json
 {
@@ -707,119 +705,119 @@
 }
 ```
 
-### 编译后 Prompt 片段
+### Compiled Prompt Fragment
 
 ```text
-写作时禁止直接解释人物心理，不得使用“他感到”“他意识到”等表达。
-人物情绪只能通过行为、动作、对话或环境反应体现。
-允许保留生活性杂音与不推动剧情的琐碎细节，以增强真实感。
+When writing, do not explain character psychology directly. Do not use expressions such as “he felt” or “he realized.”
+Character emotion may only be shown through behavior, action, dialogue, or environmental reaction.
+Life noise and trivial details that do not push the plot are allowed, to increase realism.
 ```
 
 ---
 
-## 12. 输出检测器设计
+## 12. Output Detector Design
 
-## 12.1 检测目标
+## 12.1 Detection Goals
 
-1. 是否偏离当前写法
-2. 是否出现AI常见病
-3. 是否缺失应有写法特征
-
----
-
-## 12.2 检测维度
-
-* 心理描写方式
-* 总结句比例
-* 升华句比例
-* 工整度
-* 对话功能化程度
-* 行为细节密度
-* 杂质信息存在度
-* 现实落差存在度
-* 嘴硬/补偿存在度
+1. Whether it has drifted from the current style
+2. Whether common AI ailments appear
+3. Whether expected style features are missing
 
 ---
 
-## 12.3 检测结果输出
+## 12.2 Detection Dimensions
 
-检测结果应包括：
-
-* 总体风险评分
-* 违规规则清单
-* 触发位置
-* 修正建议
-* 是否可自动重写
-
----
-
-## 12.4 自动修正策略
-
-### 轻度问题
-
-局部重写违规段
-
-### 中度问题
-
-重写若干连续段落
-
-### 重度问题
-
-整段重写或整章重写
+* Psychological-description method
+* Summary-sentence ratio
+* Elevation-sentence ratio
+* Neatness
+* How functional dialogue is
+* Action-detail density
+* Presence of impurity information
+* Presence of real-world letdown
+* Presence of verbal stubbornness / compensation
 
 ---
 
-## 13. 接口设计建议
+## 12.3 Detection Result Output
 
-## 13.1 创建写法资产
+Detection results should include:
+
+* Overall risk score
+* Violated-rule list
+* Trigger locations
+* Correction suggestions
+* Whether it can be auto-rewritten
+
+---
+
+## 12.4 Automatic Correction Strategy
+
+### Mild Problems
+
+Locally rewrite the violating passage
+
+### Moderate Problems
+
+Rewrite several consecutive paragraphs
+
+### Severe Problems
+
+Rewrite the whole passage or the whole chapter
+
+---
+
+## 13. Suggested API Design
+
+## 13.1 Create a Style Asset
 
 `POST /api/style-profiles`
 
-### 请求体
+### Request Body
 
 ```json
 {
-  "name": "底层循环现实流",
+  "name": "Underclass looping realist flow",
   "source_type": "from_text",
-  "content": "原文内容",
-  "category": "现实流"
+  "content": "original text content",
+  "category": "realist flow"
 }
 ```
 
 ---
 
-## 13.2 从拆书生成写法
+## 13.2 Generate Style from Book Analysis
 
 `POST /api/style-profiles/from-book-analysis`
 
-### 请求体
+### Request Body
 
 ```json
 {
   "book_analysis_id": "analysis_001",
-  "name": "从《某作品》提炼的现实流写法"
+  "name": "Realist-flow style distilled from Some Work"
 }
 ```
 
 ---
 
-## 13.3 获取写法详情
+## 13.3 Get Style Details
 
 `GET /api/style-profiles/:id`
 
 ---
 
-## 13.4 更新写法规则
+## 13.4 Update Style Rules
 
 `PUT /api/style-profiles/:id/rules`
 
 ---
 
-## 13.5 绑定写法到目标
+## 13.5 Bind Style to a Target
 
 `POST /api/style-bindings`
 
-### 请求体
+### Request Body
 
 ```json
 {
@@ -833,169 +831,168 @@
 
 ---
 
-## 13.6 获取反AI规则列表
+## 13.6 Get Anti-AI Rule List
 
 `GET /api/anti-ai-rules`
 
 ---
 
-## 13.7 检测AI味
+## 13.7 Detect AI Flavor
 
 `POST /api/style-detection/check`
 
-### 请求体
+### Request Body
 
 ```json
 {
   "style_id": "style_001",
-  "content": "生成内容"
+  "content": "generated content"
 }
 ```
 
 ---
 
-## 13.8 自动修正
+## 13.8 Automatic Correction
 
 `POST /api/style-detection/rewrite`
 
 ---
 
-## 14. 前端交互细节建议
+## 14. Frontend Interaction Detail Suggestions
 
-## 14.1 新建写法
+## 14.1 New Style
 
-点击来源卡片后进入不同向导。
+Clicking a source card enters a different wizard.
 
-### 从拆书生成
+### Generate from Book Analysis
 
-* 选择拆书记录
-* 预览可提取内容
-* 选择要纳入的维度
-* 生成草稿
+* Select a book-analysis record
+* Preview extractable content
+* Choose dimensions to include
+* Generate a draft
 
-### 从文本提取
+### Extract from Text
 
-* 输入名称
-* 粘贴文本
-* 选择提取深度
-* 生成草稿
-
----
-
-## 14.2 AI草稿与手工编辑并行
-
-编辑页保留：
-
-* AI草稿区
-* 手工结构化规则区
-
-用户可以在 AI 草稿基础上编辑结构化字段，而不是只改一段长文。
+* Enter a name
+* Paste text
+* Choose extraction depth
+* Generate a draft
 
 ---
 
-## 14.3 冻结机制
+## 14.2 AI Draft and Manual Edit in Parallel
 
-建议保留“冻结此小节”能力，用于防止重新生成覆盖人工修改。
+The edit page keeps:
 
----
+* AI draft area
+* Manual structured-rules area
 
-## 14.4 测试入口
-
-编辑页直接提供“试写一段”，方便验证写法效果，不必跳出模块。
-
----
-
-## 15. MVP 开发范围建议
-
-## 15.1 第一阶段必须完成
-
-1. 写法资产主模型
-2. 从拆书生成写法
-3. 从文本提取写法
-4. 手动创建写法
-5. 4 套内置模板
-6. 12 条反AI规则
-7. 写法绑定到整本书 / 当前章节 / 本次生成
-8. AI味检测
-9. 一键重写
+The user can edit structured fields on top of the AI draft instead of only editing one long passage.
 
 ---
 
-## 15.2 第二阶段再做
+## 14.3 Freeze Mechanism
 
-1. 角色视角级绑定
-2. 卷级绑定
-3. 写法组合
-4. 自定义反AI规则
-5. 历史版本对比
-6. 写法继承与覆盖
+It is recommended to keep a “freeze this section” capability so regeneration does not overwrite human edits.
 
 ---
 
-## 16. 推荐开发顺序
+## 14.4 Test Entry
 
-### 第一步：数据结构与数据库表
-
-先把写法资产、规则、绑定、反AI规则表建立起来。
-
-### 第二步：从文本提取写法
-
-这是最独立、最容易先跑通的入口。
-
-### 第三步：内置模板
-
-有了模板，整个模块立刻有基本可用性。
-
-### 第四步：从拆书生成写法
-
-打通拆书模块与写法引擎。
-
-### 第五步：生成前注入
-
-让写法开始真实影响生成。
-
-### 第六步：输出检测与重写
-
-形成闭环。
+The edit page directly provides “trial-write a passage,” so style effect can be verified without leaving the module.
 
 ---
 
-## 17. 风险与注意事项
+## 15. Suggested MVP Development Scope
 
-### 17.1 不要只存大段自然语言分析
+## 15.1 Must Complete in Phase One
 
-否则后续仍然无法可靠执行。
-
-### 17.2 不要把反AI规则全塞进单个 Prompt
-
-要做规则化组织，否则维护困难。
-
-### 17.3 不要让“模板”和“实际写法资产”混为一体
-
-模板是起点，资产是用户可编辑、可绑定的实体。
-
-### 17.4 不要只支持整本书级绑定
-
-否则无法适应多卷、多角色、多阶段写法变化。
-
-### 17.5 检测器不要只查关键词
-
-应结合段落结构、句式密度、行为细节比例等维度逐步升级。
+1. Style-asset main model
+2. Generate style from book analysis
+3. Extract style from text
+4. Create style manually
+5. 4 built-in templates
+6. 12 anti-AI rules
+7. Bind style to whole book / current chapter / this generation
+8. AI-flavor detection
+9. One-click rewrite
 
 ---
 
-## 18. 成功标准
+## 15.2 Do Later in Phase Two
 
-写法引擎做成功的标准不是“分析得好看”，而是下面四条：
-
-1. 用户能从拆书结果快速生成一套可用写法
-2. 写法能真实改变生成结果
-3. 系统能检测并压制常见AI写作特征
-4. 写法资产能复用、组合、分层绑定
+1. Character-POV-level binding
+2. Volume-level binding
+3. Style composition
+4. Custom anti-AI rules
+5. Historical version comparison
+6. Style inheritance and override
 
 ---
 
-## 19. 模块一句话定义
+## 16. Recommended Development Order
 
-> 写法引擎是将写法规律转化为可执行创作约束的核心模块，它负责发现写法、沉淀写法、应用写法，并纠正AI偏离写法的输出。
+### Step 1: Data Structure and Database Tables
 
+First establish style-asset, rule, binding, and anti-AI rule tables.
+
+### Step 2: Extract Style from Text
+
+This is the most independent entry and the easiest to run through first.
+
+### Step 3: Built-in Templates
+
+With templates, the whole module immediately has basic usability.
+
+### Step 4: Generate Style from Book Analysis
+
+Connect the book-analysis module with the Style Engine.
+
+### Step 5: Pre-Generation Injection
+
+Let style start actually affecting generation.
+
+### Step 6: Output Detection and Rewrite
+
+Form the closed loop.
+
+---
+
+## 17. Risks and Cautions
+
+### 17.1 Do Not Store Only Long Natural-Language Analysis
+
+Otherwise later execution still cannot be reliable.
+
+### 17.2 Do Not Stuff All Anti-AI Rules into a Single Prompt
+
+Organize them as rules, or maintenance becomes hard.
+
+### 17.3 Do Not Mix “Template” and “Actual Style Asset” into One Thing
+
+A template is a starting point. An asset is a user-editable, bindable entity.
+
+### 17.4 Do Not Support Only Whole-Book Binding
+
+Otherwise it cannot adapt to multi-volume, multi-character, multi-stage style change.
+
+### 17.5 The Detector Must Not Only Check Keywords
+
+It should gradually upgrade by combining paragraph structure, sentence-pattern density, action-detail ratio, and similar dimensions.
+
+---
+
+## 18. Success Criteria
+
+The success standard of the Style Engine is not “the analysis looks good.” It is these four:
+
+1. The user can quickly generate a usable style from book-analysis results
+2. The style can actually change generation results
+3. The system can detect and suppress common AI writing features
+4. Style assets can be reused, composed, and bound in layers
+
+---
+
+## 19. One-Sentence Module Definition
+
+> The Style Engine is the core module that turns writing patterns into executable creation constraints. It discovers style, settles style, applies style, and corrects AI output that has drifted from the style.

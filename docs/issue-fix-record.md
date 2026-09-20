@@ -1,18 +1,18 @@
-# Issue 修复记录
+# Issue fix record
 
-本记录覆盖 2026-08-12 合入 `beta` 的问题修复。Issue 关闭后仍应以对应回归测试和后续用户反馈为准。
+This record covers issue fixes merged to `beta` on 2026-08-12. After an issue is closed, the matching regression tests and later user feedback remain the source of truth.
 
-| Issue | 提交 | 验证 |
+| Issue | Commit | Verification |
 | --- | --- | --- |
-| #128 / #123 创建或生成章节失败 | `960ecc09` | 旧 SQLite 作品库升级回归 |
-| #116 重规划检查点循环暂停 | `4a812c25` | 导演继续运行时回归 |
-| #125 知识库长期排队 | `98b3d9ab` | 知识库状态服务回归 |
-| #117 / #64 世界生成 JSON 不完整或卡住 | `6bd58e87` | 世界骨架 Prompt 契约回归 |
-| #66 本书世界忽略所选模型 | `3e098ae7` | Ollama 模型路由回归 |
-| #69 角色阵容偏离主题 | 无新增代码 | 本轮复核既有 `storyInput` 与本书上下文传递链 |
+| #128 / #123 create or generate chapter failed | `960ecc09` | Old SQLite library upgrade regression |
+| #116 replan checkpoint pause loop | `4a812c25` | Director continue-runtime regression |
+| #125 knowledge base queued for a long time | `98b3d9ab` | Knowledge-base status-service regression |
+| #117 / #64 world-generation JSON incomplete or stuck | `6bd58e87` | World-skeleton prompt-contract regression |
+| #66 book world ignored the selected model | `3e098ae7` | Ollama model-routing regression |
+| #69 cast drifted from the theme | no new code | This round rechecked the existing `storyInput` and book-context passing chain |
 
-## 维护规则
+## Maintenance
 
-- 不以关闭 Issue 替代回归验证；相同现象再次出现时，先核对对应提交与测试，再检查任务、模型和作品数据。
-- `#116` 的继续语义以服务端任务 checkpoint 为事实来源，前端入口不得改变重规划恢复路径。
-- `#123/#128` 涉及历史 SQLite 作品库时，只能通过运行时迁移补齐缺失表；不得通过重置或删除用户数据库解决问题。
+- Closing an issue does not replace regression verification. If the same symptom returns, check the matching commit and tests first, then task, model, and work data.
+- `#116` continue semantics use the server task checkpoint as the source of truth. Frontend entries must not change the replan recovery path.
+- `#123/#128` on historical SQLite libraries can only add missing tables through runtime migration. Do not reset or delete the user database to “fix” it.

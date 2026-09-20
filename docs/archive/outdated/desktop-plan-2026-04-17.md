@@ -1,67 +1,67 @@
 # Desktop Plan
 
-> 归档说明：本文件记录的是 2026-04-17 桌面化早期计划，已不再作为当前开发依据。当前桌面发布状态以 release notes、`desktop/package.json` 和桌面打包/安装验证脚本为准。
+> Archive note: This file records the 2026-04-17 early desktop plan and is no longer current development authority. Current desktop release status follows the release notes, `desktop/package.json`, and desktop packaging/install verification scripts.
 
-## 0. 当前进度同步（2026-04-17）
+## 0. Current Progress Sync (2026-04-17)
 
-当前桌面化进度已从“纯方案设计”进入“开发态壳层跑通”，但还没有进入“可分发打包”。
+Desktop work has moved from “pure design” into “dev-mode shell running,” but it has not yet entered “distributable packaging.”
 
-已完成：
+Done:
 
-- `desktop/` 宿主骨架已经落地，当前包含 `desktop/src/main.ts`、`desktop/src/preload.ts`、`desktop/src/runtime/paths.ts`、`desktop/src/runtime/server.ts`。
-- 前端运行时已经能区分 `web | desktop`，桌面模式下由宿主注入本地 API 基址，浏览器路径保持兼容。
-- 服务端核心目录已开始按应用目录抽象，数据库、日志、生成图片等不再只依赖 repo 相对路径。
-- `pnpm dev:desktop` 已可在开发环境中一键拉起 shared、server、client 与 Electron 宿主，并已确认桌面窗口可正常显示。
-- 开发期原生模块缺失问题已完成第一轮收口：`better-sqlite3` 缺少绑定时会在开发准备阶段自动补齐，`electron` 已纳入允许执行构建脚本的依赖白名单。
+- The `desktop/` host skeleton is in place. It currently includes `desktop/src/main.ts`, `desktop/src/preload.ts`, `desktop/src/runtime/paths.ts`, and `desktop/src/runtime/server.ts`.
+- Frontend runtime can already distinguish `web | desktop`. In desktop mode the host injects the local API base URL; the browser path stays compatible.
+- Server core directories have started to abstract by application directory. Database, logs, generated images, and similar no longer depend only on repo-relative paths.
+- `pnpm dev:desktop` can already start shared, server, client, and the Electron host in one command in the development environment, and the desktop window has been confirmed to display correctly.
+- Native-module missing issues in development have completed a first-round closeout: when `better-sqlite3` is missing a binding, it is auto-filled during development prepare; `electron` is on the allow-list of dependencies that may run build scripts.
 
-当前仍未完成：
+Still not done:
 
-- 还没有正式的 Electron 打包器配置，因此当前仓库不能直接产出 Windows 安装包或绿色发布包。
-- 打包态的前端静态资源组织、服务端入口、随包分发目录与失败诊断仍未收口。
-- 首启向导、桌面端模型配置持久化、默认资源补齐 UI 仍未开始实现。
+- There is still no formal Electron packager configuration, so the current repo cannot directly produce a Windows installer or a portable release package.
+- Packaged-mode frontend static-asset organization, server entry, bundled distribution directories, and failure diagnosis are still not closed out.
+- First-run wizard, desktop model-config persistence, and default-resource fill UI have not started implementation.
 
-当前结论：
+Current conclusion:
 
-- `Phase 0: desktop-ready core` 已基本完成。
-- `Phase 1: desktop shell dev` 已完成首轮开发态验收。
-- `Phase 2: first package MVP` 尚未开始实施。
+- `Phase 0: desktop-ready core` is basically complete.
+- `Phase 1: desktop shell dev` has completed the first round of development-mode acceptance.
+- `Phase 2: first package MVP` has not started implementation.
 
-## 1. 目标与定位
+## 1. Goal and Positioning
 
-这次桌面化不是重写产品，也不是把当前 Web 主体迁移成 Electron-only 应用。
+This desktopization is not a product rewrite, and it is not migrating the current Web body into an Electron-only app.
 
-目标只有一个：
+There is only one goal:
 
-- 为不会安装 Node、pnpm、Prisma、数据库和前后端环境的新手用户，新增一个“安装即可开书”的桌面分发入口。
+- Add a desktop distribution entry of “install and start writing” for beginner users who will not install Node, pnpm, Prisma, a database, and frontend/backend environments.
 
-桌面化后的产品形态保持为：
+After desktopization, product form stays:
 
-- 浏览器端仍然是主体，继续承担日常开发、验证、演示和未来在线化能力。
-- `desktop/` 只是新增宿主层，负责打包、启动、默认配置、本地目录、安装与更新。
-- `client / server / shared` 继续作为核心业务主体。
+- The browser side remains the main body and continues to carry daily development, verification, demos, and future online capabilities.
+- `desktop/` is only a new host layer, responsible for packaging, startup, default configuration, local directories, install, and updates.
+- `client / server / shared` continue as the core business body.
 
-## 2. 成功标准
+## 2. Success Criteria
 
-一期完成后，必须满足：
+After phase one, these must be true:
 
-- 用户无需手动安装 Node、pnpm、Prisma。
-- 用户安装后可直接启动桌面版。
-- 用户首次打开后，可在 `3-5` 分钟内完成模型提供商选择、API Key 配置和基础模型选择。
-- 用户无需手动复制 `.env`、执行 Prisma 命令或理解 workspace 启动顺序。
-- 用户可直接跑通 `安装 -> 首启向导 -> 默认资源补齐 -> AI 自动导演开书`。
-- 浏览器端和源码开发路径继续可用，桌面化不能反向破坏 Web 主体。
+- The user does not need to install Node, pnpm, or Prisma by hand.
+- After install, the user can start the desktop app directly.
+- After first open, the user can finish provider selection, API Key configuration, and basic model selection within `3-5` minutes.
+- The user does not need to copy `.env` by hand, run Prisma commands, or understand workspace start order.
+- The user can run through `install -> first-run wizard -> default resource fill -> AI auto-director start writing`.
+- The browser path and source-development path stay available. Desktopization must not reverse-break the Web body.
 
-## 3. 架构边界
+## 3. Architecture Boundary
 
-### 3.1 核心原则
+### 3.1 Core Principles
 
-- 桌面版优先采用 `Electron`。
-- 桌面版通过新增 `desktop/` 包接入，不重写 `client / server / shared` 主结构。
-- 业务层继续走现有 HTTP API，不把现有 REST 接口整体改成 Electron IPC。
-- React 页面默认不直接依赖 `electron`、`ipcRenderer`、`window.require`。
-- 桌面专属能力通过薄适配层暴露，Web 下保留空实现或兼容实现。
+- Desktop prefers `Electron`.
+- Desktop is attached by adding a `desktop/` package. Do not rewrite the `client / server / shared` main structure.
+- The business layer continues on the existing HTTP API. Do not convert existing REST endpoints wholesale into Electron IPC.
+- React pages by default do not depend directly on `electron`, `ipcRenderer`, or `window.require`.
+- Desktop-only capabilities are exposed through a thin adapter layer. Web keeps an empty or compatible implementation.
 
-### 3.2 推荐目录
+### 3.2 Recommended Directories
 
 ```text
 client/
@@ -79,289 +79,289 @@ desktop/
   build/
 ```
 
-### 3.3 运行模式
+### 3.3 Runtime Modes
 
-浏览器模式：
+Browser mode:
 
 - `client -> http api -> server`
 
-桌面模式：
+Desktop mode:
 
-- `Electron -> 启动本地 server -> 加载前端 -> 前端继续通过 http api 调 server`
+- `Electron -> start local server -> load frontend -> frontend still calls server through http api`
 
-不建议一期把核心业务迁成：
+Do not migrate core business in phase one into:
 
-- `React -> IPC -> Electron main -> 业务逻辑`
+- `React -> IPC -> Electron main -> business logic`
 
-因为这会直接破坏 Web 与 desktop 共线。
+Because that would immediately break Web and desktop staying on the same line.
 
-## 4. 一期范围
+## 4. Phase-One Scope
 
-一期只解决“安装即可开书”，不提前追求全量桌面特性。
+Phase one only solves “install and start writing.” Do not chase full desktop features early.
 
-### 4.1 必做
+### 4.1 Must Do
 
-- 新增 `desktop/` 宿主工程。
-- Electron 可自动启动本地 server。
-- Electron 可加载前端构建产物或本地页面入口。
-- 本地 SQLite、日志、生成图片、备份目录迁移到用户应用目录。
-- 首启向导提供图形化模型配置。
-- 默认补齐系统内置资源。
-- 桌面版默认关闭 `RAG / Qdrant` 依赖链。
-- 提供启动失败时的清晰错误提示。
+- Add a `desktop/` host project.
+- Electron can start the local server automatically.
+- Electron can load the frontend build output or a local page entry.
+- Local SQLite, logs, generated images, and backup directories migrate to the user application directory.
+- First-run wizard provides graphical model configuration.
+- Default-fill system built-in resources.
+- Desktop defaults to turning off the `RAG / Qdrant` dependency chain.
+- Provide clear error prompts when startup fails.
 
-### 4.2 明确不做
+### 4.2 Explicitly Not Doing
 
-- 不为桌面版重写核心业务逻辑。
-- 不把现有 API 改造成 Electron-only IPC。
-- 不把 Qdrant、Embedding、知识库索引变成桌面版首发硬依赖。
-- 不把桌面化理解成“打包当前开发脚本后继续要求用户自己配环境”。
+- Do not rewrite core business logic for desktop.
+- Do not turn existing APIs into Electron-only IPC.
+- Do not make Qdrant, Embedding, and knowledge-base indexing a desktop first-release hard dependency.
+- Do not treat desktopization as “package the current development scripts and still require the user to configure the environment.”
 
-## 5. 前置改造清单
+## 5. Prerequisite Refactor Checklist
 
-桌面壳接入前，先做以下抽象，否则后续会持续返工。
+Before attaching the desktop shell, do the following abstractions first, or later work will keep being redone.
 
-### 5.1 运行时配置抽象
+### 5.1 Runtime Config Abstraction
 
-目标：
+Goal:
 
-- 让 Web 与 desktop 都能用同一套前端业务代码，但从不同运行时来源拿配置。
+- Let Web and desktop use the same frontend business code, but take configuration from different runtime sources.
 
-实施项：
+Implementation items:
 
-- 新增统一运行时标识：`web | desktop`。
-- 抽象前端 API 基址来源，不再只依赖开发环境推断。
-- 保持 Web 默认行为不变。
-- desktop 运行时由宿主注入本地 API 地址。
+- Add a unified runtime identifier: `web | desktop`.
+- Abstract the frontend API base-URL source; stop depending only on development-environment inference.
+- Keep Web default behavior unchanged.
+- Desktop runtime has the host inject the local API address.
 
-重点文件：
+Key files:
 
 - `client/src/lib/constants.ts`
-- 前端 API 初始化入口
+- Frontend API initialization entry
 - `desktop/src/runtime/config.ts`
 
-### 5.2 数据目录抽象
+### 5.2 Data Directory Abstraction
 
-目标：
+Goal:
 
-- 避免数据库、日志、图片、备份继续写入 repo 或工作目录。
+- Avoid continuing to write database, logs, images, and backups into the repo or working directory.
 
-实施项：
+Implementation items:
 
-- 抽象统一应用目录：
+- Abstract a unified application directory:
   - `appData/data`
   - `appData/logs`
   - `appData/storage/generated-images`
   - `appData/backups`
-- Web/源码模式保留现有相对路径开发体验。
-- desktop 模式切换到用户应用目录。
+- Web/source mode keeps the existing relative-path development experience.
+- Desktop mode switches to the user application directory.
 
-重点文件：
+Key files:
 
 - `server/src/db/prisma.ts`
 - `server/src/services/image/imageAssetStorage.ts`
 - `server/src/llm/sessionLogFile.ts`
 
-### 5.3 Server 生命周期抽象
+### 5.3 Server Lifecycle Abstraction
 
-目标：
+Goal:
 
-- 让 Electron 能稳定拉起、探活、停止本地 server。
+- Let Electron stably start, probe, and stop the local server.
 
-实施项：
+Implementation items:
 
-- 将 server 启动逻辑整理为可被桌面宿主调用的启动入口。
-- 支持端口探测、健康检查、超时、失败回报。
-- 避免只适配 `pnpm dev` 的开发脚本形态。
+- Organize server startup logic into a start entry the desktop host can call.
+- Support port probing, health checks, timeout, and failure reporting.
+- Avoid adapting only the `pnpm dev` development-script shape.
 
-重点文件：
+Key files:
 
 - `server/src/app.ts`
 - `desktop/src/runtime/server.ts`
 
-## 6. 分阶段实施清单
+## 6. Phased Implementation Checklist
 
 ## Phase 0: desktop-ready core
 
-目标：
+Goal:
 
-- 不引入 Electron UI，先把核心运行时抽象做好。
+- Do not introduce Electron UI yet. Finish core runtime abstraction first.
 
-交付：
+Deliver:
 
-- 统一运行时配置来源。
-- 统一应用数据目录抽象。
-- 数据库、日志、图片、备份路径可按运行时切换。
-- Web 开发路径不回归。
+- Unified runtime config source.
+- Unified application data-directory abstraction.
+- Database, log, image, and backup paths can switch by runtime.
+- Web development path does not regress.
 
-验收：
+Acceptance:
 
-- `pnpm typecheck` 通过。
-- 浏览器端主流程不受影响。
-- 本地桌面模拟运行时可以把数据写入目标用户目录。
+- `pnpm typecheck` passes.
+- Browser main flow is unaffected.
+- A local desktop-simulated runtime can write data into the target user directory.
 
-当前状态：
+Current status:
 
-- 已基本完成。
-- 后续仅补打包态路径校验与更多目录覆盖，不再把本阶段当成主阻塞项。
+- Basically complete.
+- Later only fill packaged-mode path validation and more directory coverage. This phase is no longer treated as the main blocker.
 
 ## Phase 1: desktop shell dev
 
-目标：
+Goal:
 
-- 新增 `desktop/` 骨架并在开发环境跑通。
+- Add the `desktop/` skeleton and run it in the development environment.
 
-交付：
+Deliver:
 
-- Electron `main/preload` 框架。
-- 本地 server 拉起逻辑。
-- 桌面开发命令，例如 `pnpm dev:desktop`。
-- Electron 中成功打开前端并调通本地 API。
+- Electron `main/preload` framework.
+- Local server start logic.
+- Desktop development command, for example `pnpm dev:desktop`.
+- Successfully open the frontend in Electron and call the local API.
 
-验收：
+Acceptance:
 
-- 启动一个命令即可同时拉起桌面壳、server、前端。
-- Web 模式继续可独立启动。
-- 浏览器端接口不需要为桌面版另开平行实现。
+- One command starts the desktop shell, server, and frontend together.
+- Web mode can still start independently.
+- Browser endpoints do not need a parallel implementation for desktop.
 
-当前状态：
+Current status:
 
-- 已完成首轮开发态验收。
-- 当前已确认 `pnpm dev:desktop` 能跑通 shared、server、client、Electron 宿主，并已在本机成功显示桌面窗口。
-- 本阶段剩余工作主要是围绕打包态启动差异做后续收口，不再是“能否启动桌面壳”的问题。
+- First-round development-mode acceptance is complete.
+- It is already confirmed that `pnpm dev:desktop` can run shared, server, client, and the Electron host, and a desktop window has displayed successfully on this machine.
+- Remaining work in this phase is mainly later closeout around packaged-mode start differences. It is no longer a “can the desktop shell start” question.
 
 ## Phase 2: first package MVP
 
-目标：
+Goal:
 
-- 交付第一个“普通用户可安装”的 Windows 包。
+- Deliver the first “ordinary user can install” Windows package.
 
-交付：
+Deliver:
 
-- Windows 安装包。
-- 用户目录写入。
-- 首启向导。
-- 基础模型配置持久化。
-- 默认资源补齐。
-- 启动失败提示和诊断入口。
+- Windows installer.
+- User-directory writes.
+- First-run wizard.
+- Basic model-config persistence.
+- Default resource fill.
+- Startup-failure prompts and diagnosis entry.
 
-验收：
+Acceptance:
 
-- 新机器上无需安装 Node 即可启动。
-- 用户可完成首启并直接开第一本书。
-- 默认关闭 RAG 时，主创作链能稳定跑通。
+- A new machine can start without installing Node.
+- The user can finish first-run and start the first book directly.
+- With RAG off by default, the main creation chain can run stably.
 
-当前状态：
+Current status:
 
-- 尚未开始。
-- 当前缺少正式打包器配置、随包资源组织、打包态 server 入口和首启向导，因此还不具备“直接打包发布”的条件。
+- Not started.
+- Currently missing formal packager configuration, bundled resource organization, packaged-mode server entry, and first-run wizard, so it is not yet in a “package and publish directly” condition.
 
 ## Phase 3: hardening
 
-目标：
+Goal:
 
-- 从可安装升级到可维护、可发布。
+- Upgrade from installable to maintainable and releasable.
 
-交付：
+Deliver:
 
-- 自动更新。
-- 崩溃恢复与日志收集。
-- 备份与恢复入口。
-- 数据目录查看与打开。
-- 版本检查与升级提示。
+- Auto update.
+- Crash recovery and log collection.
+- Backup and restore entry.
+- Data-directory view and open.
+- Version check and upgrade prompt.
 
-验收：
+Acceptance:
 
-- 常见启动失败、端口冲突、配置缺失都能给出明确修复指引。
-- 用户可完成备份并看到备份文件位置。
+- Common startup failures, port conflicts, and missing configuration all give clear repair guidance.
+- The user can finish a backup and see the backup file location.
 
-## 7. 当前 backlog 拆分
+## 7. Current Backlog Split
 
-### A. 宿主层
+### A. Host Layer
 
-- 新建 `desktop/` 包与构建脚本。
-- 设计 `main.ts / preload.ts / runtime/server.ts / runtime/paths.ts`。
-- 统一窗口生命周期、单实例和退出逻辑。
+- Create the `desktop/` package and build scripts.
+- Design `main.ts / preload.ts / runtime/server.ts / runtime/paths.ts`.
+- Unify window lifecycle, single instance, and exit logic.
 
-### B. 配置与路径
+### B. Config and Paths
 
-- 抽象前端运行时配置注入。
-- 抽象 server 数据目录解析。
-- 抽象日志目录与图片目录。
-- 预留备份目录和数据库副本能力。
+- Abstract frontend runtime-config injection.
+- Abstract server data-directory resolution.
+- Abstract log directory and image directory.
+- Reserve backup directory and database-copy capability.
 
-### C. 首启体验
+### C. First-Run Experience
 
-- 首启欢迎页。
-- 模型提供商选择。
-- API Key 输入和校验。
-- 基础模型选择。
-- 资源补齐进度与完成页。
+- First-run welcome page.
+- Model provider selection.
+- API Key input and validation.
+- Basic model selection.
+- Resource-fill progress and completion page.
 
-### D. 发布与安装
+### D. Release and Install
 
-- Windows 打包脚本。
-- 安装器配置。
-- 应用版本信息与图标资源。
-- 发布产物校验。
+- Windows packaging script.
+- Installer configuration.
+- App version information and icon resources.
+- Release-artifact validation.
 
-### E. 风险控制
+### E. Risk Control
 
-- 保证 Web 与 desktop 共线。
-- 保证桌面版不引入 Electron 侵入式前端依赖。
-- 保证 P0 主链开发不被桌面化重构打断。
+- Keep Web and desktop on the same line.
+- Ensure desktop does not introduce Electron-invasive frontend dependencies.
+- Ensure P0 main-chain development is not interrupted by a desktopization rewrite.
 
-## 8. 风险与约束
+## 8. Risks and Constraints
 
-当前最主要风险不是“Electron 接不上”，而是“现有代码和运行时假设太偏源码开发环境”。
+The main current risk is not “Electron cannot be attached.” It is “existing code and runtime assumptions are too biased toward a source-development environment.”
 
-已知风险：
+Known risks:
 
-- 多个大文件已超过项目约定的理想体量，后续桌面化若直接叠加逻辑会继续放大维护成本。
-- 数据库、日志、生成图片等路径目前仍带有开发期相对路径假设。
-- 浏览器端继续作为主体，桌面化不能把前端逻辑绑死到宿主 API。
-- 桌面化不应挤占当前 `P0` 主链稳定性验收节奏。
+- Several large files already exceed the project’s preferred size. If later desktopization stacks logic directly, maintenance cost will keep growing.
+- Paths for database, logs, and generated images still carry development-time relative-path assumptions.
+- The browser side remains the main body. Desktopization must not bind frontend logic to host APIs.
+- Desktopization should not crowd out the current `P0` main-chain stability-acceptance cadence.
 
-对应策略：
+Matching strategy:
 
-- 先做运行时和路径抽象，再加桌面壳。
-- 宿主只做宿主职责，不承载核心业务。
-- 将桌面化放在 `P2-A`，按独立分支推进，不打断主链验证。
+- Do runtime and path abstraction first, then add the desktop shell.
+- The host only does host duties and does not carry core business.
+- Put desktopization at `P2-A`, advance it on an independent track, and do not interrupt main-chain verification.
 
-## 9. 质量门槛
+## 9. Quality Gate
 
-每个阶段结束前至少检查：
+Before each phase ends, at least check:
 
 - `pnpm typecheck`
-- Web 主体主流程回归
-- 桌面模式启动回归
-- 数据目录是否正确落到用户目录
-- 首启向导是否能在最少步骤内进入开书
+- Web-body main-flow regression
+- Desktop-mode start regression
+- Whether data directories correctly land in the user directory
+- Whether the first-run wizard can enter start-writing in the fewest steps
 
-## 10. 里程碑定义
+## 10. Milestone Definitions
 
 ### M1: desktop-ready core
 
-- 路径抽象完成。
-- 运行时配置抽象完成。
-- Web 不回归。
+- Path abstraction complete.
+- Runtime-config abstraction complete.
+- Web does not regress.
 
 ### M2: desktop dev shell
 
-- `desktop/` 可本地开发启动。
-- 前端与本地 server 在 Electron 中跑通。
+- `desktop/` can start for local development.
+- Frontend and local server run through in Electron.
 
 ### M3: first installable build
 
-- Windows 安装包可安装、可启动、可开书。
+- Windows installer can install, start, and start writing.
 
 ### M4: hardening
 
-- 具备更新、备份、恢复、诊断能力。
+- Has update, backup, restore, and diagnosis capability.
 
-## 本次产出
+## This Deliverable
 
-- 明确了“浏览器主体 + desktop 宿主层”的桌面化边界。
-- 把桌面化拆成前置抽象、开发壳、首个安装包、稳定化四个阶段。
-- 补齐了当前 backlog、里程碑、验收标准和风险控制点。
-- 明确一期只解决“安装即可开书”，不提前把 RAG 和复杂部署抬成首发阻塞项。
+- Made the desktopization boundary of “browser body + desktop host layer” explicit.
+- Split desktopization into four phases: prerequisite abstraction, development shell, first installer, and hardening.
+- Filled in the current backlog, milestones, acceptance criteria, and risk-control points.
+- Made it explicit that phase one only solves “install and start writing,” and does not raise RAG and complex deployment into first-release blockers early.

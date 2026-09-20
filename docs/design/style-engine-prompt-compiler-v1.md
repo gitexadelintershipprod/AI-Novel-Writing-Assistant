@@ -1,315 +1,315 @@
-# 写法引擎 Prompt 与规则编译设计 V1
+# Style Engine Prompt and Rule Compilation Design V1
 
-## 1. 文档目标
+## 1. Document Purpose
 
-本文档用于定义 **写法引擎如何把“写法资产”转换成真正可执行的模型约束**。
+This document defines **how the Style Engine turns “style assets” into constraints the model can actually execute**.
 
-核心目标不是“再写一段提示词”，而是建立一条稳定链路：
+The core goal is not “write another prompt.” It is to establish a stable chain:
 
-> **写法资产 → 规则编译 → Prompt 注入 → 输出检测 → 修正重写**
+> **style assets → rule compilation → Prompt injection → output detection → rewrite correction**
 
-它解决的问题是：
+It addresses these problems:
 
-* 写法资产有了，但模型不一定听
-* 规则很多，但直接塞给模型会变成一锅粥
-* 不同任务需要不同粒度的写法约束
-* 反AI规则不能只靠一句“请不要AI味”
-
----
-
-## 2. 设计原则
-
-### 2.1 不直接把 JSON 原样丢给模型
-
-结构化数据适合存储，不适合直接执行。
-必须经过“规则编译器”转成模型易理解、易遵守的文本约束块。
-
-### 2.2 不同任务使用不同 Prompt 结构
-
-大纲生成、正文生成、续写、润色、改写，对写法约束的依赖强度不同。
-不能一套 Prompt 打天下。
-
-### 2.3 写法约束必须分层
-
-至少拆成：
-
-* 世界/角色/任务基础层
-* 写法规则层
-* 反AI约束层
-* 当前目标层
-
-### 2.4 规则要分硬约束和软约束
-
-不是所有规则都该用“必须”“禁止”。
-有些规则更适合“优先”“倾向”“鼓励”。
-
-### 2.5 输出后检测是 Prompt 体系的一部分
-
-Prompt 不是一次性发射，应该形成闭环：
-
-> 生成前限制
-> 生成后检查
-> 违规后修正
+* Style assets exist, but the model does not necessarily follow them
+* There are many rules, but dumping them all into the model turns them into a jumble
+* Different tasks need style constraints at different granularity
+* Anti-AI rules cannot rely on a single line such as “please do not sound like AI”
 
 ---
 
-## 3. 核心链路总览
+## 2. Design Principles
+
+### 2.1 Do not dump JSON to the model as-is
+
+Structured data is good for storage, not for direct execution.
+It must pass through a “rule compiler” and become text constraint blocks the model can understand and follow.
+
+### 2.2 Different tasks use different Prompt structures
+
+Outline generation, prose generation, continuation, polish, and rewrite depend on style constraints at different strengths.
+One Prompt cannot serve every task.
+
+### 2.3 Style constraints must be layered
+
+At least split into:
+
+* World / character / task foundation layer
+* Style-rule layer
+* Anti-AI constraint layer
+* Current-goal layer
+
+### 2.4 Rules must distinguish hard constraints from soft constraints
+
+Not every rule should use “must” or “forbidden.”
+Some rules are better as “prefer,” “lean toward,” or “encourage.”
+
+### 2.5 Post-output detection is part of the Prompt system
+
+A Prompt is not a one-shot launch. It should form a closed loop:
+
+> constrain before generation
+> check after generation
+> correct after a violation
+
+---
+
+## 3. Core Chain Overview
 
 ```text
-写法资产
+style assets
 ↓
-规则标准化
+rule normalization
 ↓
-规则编译器
+rule compiler
 ↓
-任务级 Prompt 组装
+task-level Prompt assembly
 ↓
-模型生成
+model generation
 ↓
-输出检测器
+output detector
 ↓
-重写编译器
+rewrite compiler
 ↓
-修正结果
+corrected result
 ```
 
 ---
 
-## 4. 输入来源定义
+## 4. Input Source Definition
 
-Prompt 编译器的输入不是只有“写法资产”，而是 5 类上下文共同组成。
+The Prompt compiler’s input is not “style assets” alone. It is composed of five kinds of context together.
 
-### 4.1 基础创作上下文
+### 4.1 Base creation context
 
-包括：
+Includes:
 
-* 小说基础设定
-* 世界观摘要
-* 当前卷目标
-* 当前章节目标
-* 关键人物状态
+* Novel base setting
+* Worldbuilding summary
+* Current volume goal
+* Current chapter goal
+* Key character states
 
-### 4.2 写法资产
+### 4.2 Style assets
 
-包括：
+Includes:
 
-* 叙事规则
-* 人物表达规则
-* 语言风格规则
-* 节奏规则
-* 默认模板说明
+* Narrative rules
+* Character-expression rules
+* Language-style rules
+* Rhythm rules
+* Default-template notes
 
-### 4.3 反AI规则
+### 4.3 Anti-AI rules
 
-包括：
+Includes:
 
-* 禁止型规则
-* 风险型规则
-* 鼓励型规则
+* Forbidden-type rules
+* Risk-type rules
+* Encouraged-type rules
 
-### 4.4 应用绑定信息
+### 4.4 Application-binding information
 
-包括：
+Includes:
 
-* 绑定范围
-* 优先级
-* 强度权重
-* 继承关系
+* Binding scope
+* Priority
+* Strength weight
+* Inheritance relationships
 
-### 4.5 当前任务信息
+### 4.5 Current task information
 
-包括：
+Includes:
 
-* 任务类型
-* 输入文本
-* 目标长度
-* 输出形式
-* 是否允许重写
-
----
-
-## 5. Prompt 编译体系分层
-
-建议把 Prompt 编译拆成 6 层。
+* Task type
+* Input text
+* Target length
+* Output form
+* Whether rewrite is allowed
 
 ---
 
-## 5.1 世界与任务基础层
+## 5. Prompt Compilation Layering
 
-这层解决“写什么”。
+The Prompt compilation should be split into 6 layers.
 
-内容包括：
+---
 
-* 本书背景
-* 本段任务
-* 当前人物状态
-* 当前情节位置
+## 5.1 World and task foundation layer
 
-示例：
+This layer answers “what to write.”
+
+Content includes:
+
+* This book’s background
+* This segment’s task
+* Current character states
+* Current plot position
+
+Example:
 
 ```text
-当前任务是生成第12章正文。
-本章目标：主角在夜场蹲守失败后，与大军发生一次带有嘴硬和互损感的短对话，并在结尾形成新的现实落差。
-人物状态：主角囊中羞涩但不愿示弱，大军对外嘴损，对主角实际有一定照应。
+The current task is to generate Chapter 12 prose.
+Chapter goal: After the protagonist fails a night-venue stakeout, he has a short conversation with Dajun that carries verbal stubbornness and mutual roasting, and the ending forms a new real-world letdown.
+Character state: The protagonist is short of money but unwilling to show weakness. Dajun is sharp-tongued outwardly, but actually looks after the protagonist to some degree.
 ```
 
 ---
 
-## 5.2 写法主规则层
+## 5.2 Main style-rule layer
 
-这层解决“怎么写”。
+This layer answers “how to write.”
 
-来源于写法资产中的四大块：
+It comes from the four blocks in the style asset:
 
-* 叙事规则
-* 人物表达
-* 语言风格
-* 节奏控制
+* Narrative rules
+* Character expression
+* Language style
+* Rhythm control
 
-这层是主体，建议统一编译成“规则块”。
+This layer is the main body. It should be compiled uniformly into “rule blocks.”
 
-示例：
+Example:
 
 ```text
-写法要求：
-1. 使用碎片化现实流叙事，以时间推进为主，不做大段回顾总结。
-2. 每个段落优先呈现人物行为，再显出落差，不要先解释心理。
-3. 人物情绪通过动作、语气、对话、环境反应体现，不直接说明“他难过”“他愤怒”。
-4. 语言保持口语化和粗粝感，允许不完整句和生活杂音。
-5. 收尾不要解决问题，应保留未消化的失败感或现实压迫感。
+Style requirements:
+1. Use fragmented realist-flow narrative. Advance mainly by time. Do not write long retrospective summaries.
+2. Each paragraph should present character behavior first, then reveal the letdown. Do not explain psychology first.
+3. Character emotion is shown through action, tone, dialogue, and environmental reaction. Do not state “he was sad” or “he was angry” directly.
+4. Keep language colloquial and rough. Incomplete sentences and life noise are allowed.
+5. Do not solve the problem at the ending. Keep undigested failure or real-world pressure.
 ```
 
 ---
 
-## 5.3 角色表达校正层
+## 5.3 Character-expression correction layer
 
-这层专门处理角色口吻、视角和行为方式。
+This layer is dedicated to character voice, POV, and manner of behavior.
 
-因为很多 AI 输出最大的问题不是文风错，而是**角色说话像同一个人**。
+The biggest problem in a lot of AI output is not that the prose style is wrong, but that **the characters all talk like the same person**.
 
-内容包括：
+Content includes:
 
-* 视角规则
-* 人物嘴硬程度
-* 是否允许自省
-* 对话风格
-* 角色偏见和误读方式
+* POV rules
+* How verbally stubborn a character is
+* Whether self-reflection is allowed
+* Dialogue style
+* Character bias and ways of misreading
 
-示例：
+Example:
 
 ```text
-角色表达要求：
-- 主角说话要嘴硬，遇到尴尬先找补，不直接承认自己吃瘪。
-- 大军说话更短，更损，但不做长篇分析。
-- 当前视角禁止上帝视角评判，只允许跟随主角感知范围。
+Character-expression requirements:
+- The protagonist should speak with verbal stubbornness. When embarrassed, he covers first; he does not directly admit he was shown up.
+- Dajun speaks shorter and more cutting, but does not deliver long analysis.
+- The current POV forbids god’s-eye judgment. Only follow what the protagonist can perceive.
 ```
 
 ---
 
-## 5.4 反AI约束层
+## 5.4 Anti-AI constraint layer
 
-这层不是“风格建议”，而是专门拦截模型坏毛病。
+This layer is not “style advice.” It exists to intercept the model’s bad habits.
 
-建议分三段：
+It should be split into three segments:
 
-### A. 禁止项
+### A. Forbidden items
 
 ```text
-禁止出现以下问题：
-- 直接解释心理，如“他感到”“他意识到”
-- 段尾总结主题
-- 抒情式升华
-- 工整排比式表达
+The following problems are forbidden:
+- Directly explaining psychology, such as “he felt” or “he realized”
+- Summarizing the theme at the end of a paragraph
+- Lyrical elevation
+- Neat parallel constructions
 ```
 
-### B. 风险提醒
+### B. Risk reminders
 
 ```text
-注意避免以下倾向：
-- 连续几段只有解释没有动作
-- 对话只推进剧情，没有生活噪音
-- 每段都过于完整、工整、像标准作文
+Watch out for these tendencies:
+- Several consecutive paragraphs that only explain and have no action
+- Dialogue that only advances plot, with no life noise
+- Every paragraph too complete, too neat, like a standard essay
 ```
 
-### C. 鼓励项
+### C. Encouraged items
 
 ```text
-优先加入以下特征：
-- 无意义但真实的小动作
-- 现实落差
-- 嘴硬补偿
-- 与主线无强关系但有生活感的杂质信息
+Prefer adding these features:
+- Small actions that are meaningless but real
+- Real-world letdown
+- Verbal-stubbornness compensation
+- Impurity information that has no strong relation to the main plot but has a lived-in feel
 ```
 
 ---
 
-## 5.5 输出格式层
+## 5.5 Output-format layer
 
-这层解决“生成成什么样”。
+This layer answers “what the generation should look like.”
 
-例如：
+For example:
 
-* 生成章节正文
-* 生成同风格片段
-* 生成改写结果
-* 生成检测报告
+* Generate chapter prose
+* Generate a same-style fragment
+* Generate a rewrite result
+* Generate a detection report
 
-正文任务示例：
+Prose-task example:
 
 ```text
-输出要求：
-- 直接输出正文，不解释写法
-- 不分条，不加标题
-- 保持小说叙事文本格式
-- 长度控制在800到1200字
+Output requirements:
+- Output the prose directly. Do not explain the writing method
+- Do not use bullet points. Do not add headings
+- Keep novel-narrative text format
+- Keep length between 800 and 1200 words
 ```
 
 ---
 
-## 5.6 自检指令层
+## 5.6 Self-check instruction layer
 
-这层非常重要。
-在 Prompt 末尾加一个极短的自检约束，能显著提高稳定性。
+This layer is very important.
+Adding a very short self-check constraint at the end of the Prompt can significantly improve stability.
 
-示例：
+Example:
 
 ```text
-写完后自行检查：
-- 是否出现了直接心理解释
-- 是否有段尾升华
-- 是否每段都有动作或对话支撑
-若存在，先修正再输出最终正文。
+After writing, check yourself:
+- Whether direct psychological explanation appeared
+- Whether there is paragraph-end elevation
+- Whether every paragraph is supported by action or dialogue
+If any of these exist, correct first, then output the final prose.
 ```
 
 ---
 
-## 6. 规则标准化设计
+## 6. Rule Normalization Design
 
-在编译之前，所有写法规则要先被标准化，不然来源不同会很乱。
-
----
-
-## 6.1 原始来源例子
-
-拆书可能写成：
-
-* “语言偏市井口语”
-* “有诗句点缀”
-* “人物内心通过对比显出”
-
-用户手动写的可能是：
-
-* “别太文青”
-* “多点脏话”
-* “别老解释”
-
-这些都不能直接编译。
+Before compilation, every style rule must be normalized first. Otherwise mixed sources become messy.
 
 ---
 
-## 6.2 标准化后格式
+## 6.1 Raw-source examples
 
-统一转成内部规则字段，例如：
+Book analysis may write:
+
+* “Language leans street colloquial”
+* “Decorated with lines of verse”
+* “Inner life is revealed through contrast”
+
+What a user writes by hand may be:
+
+* “Don’t be too literary-youth”
+* “More swearing”
+* “Stop explaining all the time”
+
+None of these can be compiled directly.
+
+---
+
+## 6.2 Format after normalization
+
+Convert uniformly into internal rule fields, for example:
 
 ```json
 {
@@ -323,27 +323,27 @@ Prompt 编译器的输入不是只有“写法资产”，而是 5 类上下文�
 
 ---
 
-## 6.3 标准化阶段职责
+## 6.3 Responsibilities of the normalization stage
 
-标准化器负责：
+The normalizer is responsible for:
 
-* 统一词汇
-* 去歧义
-* 归类到固定字段
-* 给出默认值
-* 补全缺失项
-
----
-
-## 7. 规则编译器设计
-
-规则编译器的职责是：
-
-> 把结构化规则翻译成“模型最容易执行”的自然语言规则块。
+* Unifying vocabulary
+* Removing ambiguity
+* Classifying into fixed fields
+* Supplying default values
+* Filling missing items
 
 ---
 
-## 7.1 编译器输入
+## 7. Rule Compiler Design
+
+The rule compiler’s job is:
+
+> Translate structured rules into natural-language rule blocks that are “easiest for the model to execute.”
+
+---
+
+## 7.1 Compiler input
 
 ```json
 {
@@ -357,9 +357,9 @@ Prompt 编译器的输入不是只有“写法资产”，而是 5 类上下文�
 
 ---
 
-## 7.2 编译器输出
+## 7.2 Compiler output
 
-输出不是单一字符串，而建议拆成：
+The output is not a single string. It should be split into:
 
 ```json
 {
@@ -371,409 +371,409 @@ Prompt 编译器的输入不是只有“写法资产”，而是 5 类上下文�
 }
 ```
 
-前端或调用层再按模板拼装。
+The frontend or calling layer then assembles them by template.
 
 ---
 
-## 7.3 编译策略
+## 7.3 Compilation strategy
 
-### 硬规则
+### Hard rules
 
-使用这些词：
+Use these words:
 
-* 必须
-* 不得
-* 禁止
-* 只能
+* must
+* must not
+* forbidden
+* only
 
-适合：
+Suitable for:
 
-* 禁止心理直说
-* 禁止主题升华
-* 必须行为化表达
+* Forbidding stating psychology directly
+* Forbidding thematic elevation
+* Requiring behavior-based expression
 
-### 软规则
+### Soft rules
 
-使用这些词：
+Use these words:
 
-* 优先
-* 倾向
-* 尽量
-* 可适当
+* prefer
+* lean toward
+* try to
+* may moderately
 
-适合：
+Suitable for:
 
-* 生活杂音
-* 句式断裂
-* 无效细节
-* 环境噪音
+* Life noise
+* Fractured sentence patterns
+* Useless details
+* Environmental noise
 
-### 风险规则
+### Risk rules
 
-使用这些词：
+Use these words:
 
-* 注意避免
-* 不要连续出现
-* 警惕
+* watch out to avoid
+* do not let this appear in succession
+* be wary of
 
-适合：
+Suitable for:
 
-* 对话过度功能化
-* 句式过整齐
-* 段落太平衡
-
----
-
-## 8. 不同任务的 Prompt 模板
+* Dialogue that is overly functionalized
+* Sentence patterns that are too neat
+* Paragraphs that are too balanced
 
 ---
 
-## 8.1 章节正文生成
+## 8. Prompt Templates for Different Tasks
 
-适用于从章节目标生成全新正文。
+---
 
-### 编译重点
+## 8.1 Chapter prose generation
 
-* 写法规则最强
-* 反AI规则强
-* 输出格式要求明确
-* 自检开启
+Applies when generating brand-new prose from a chapter goal.
 
-### 推荐结构
+### Compilation emphasis
+
+* Style rules at strongest
+* Anti-AI rules strong
+* Output-format requirements explicit
+* Self-check on
+
+### Recommended structure
 
 ```text
-[任务上下文]
-[当前人物与情节位置]
-[写法规则]
-[角色表达规则]
-[反AI规则]
-[输出要求]
-[自检要求]
+[task context]
+[current character and plot position]
+[style rules]
+[character-expression rules]
+[anti-AI rules]
+[output requirements]
+[self-check requirements]
 ```
 
 ---
 
-## 8.2 续写任务
+## 8.2 Continuation tasks
 
-适用于已有正文后继续往下写。
+Applies when continuing from existing prose.
 
-### 编译重点
+### Compilation emphasis
 
-* 保持前文语气一致
-* 限制模型突然升华
-* 更强依赖“承接现有节奏”
+* Keep tone consistent with the preceding text
+* Limit the model from suddenly elevating
+* Depend more strongly on “continue the existing rhythm”
 
-附加规则建议：
+Suggested extra rules:
 
 ```text
-必须延续现有段落气质，不要突然把语言写得更整齐、更完整、更像总结。
-不得擅自抬高主题表达，不得把原本碎片化的生活流改写成有明确中心思想的段落。
+You must continue the temperament of the existing paragraphs. Do not suddenly make the language neater, more complete, or more like a summary.
+You must not raise the thematic expression on your own. You must not rewrite originally fragmented life-flow into paragraphs with a clear central idea.
 ```
 
 ---
 
-## 8.3 润色任务
+## 8.3 Polish tasks
 
-适用于已有文本优化。
+Applies when optimizing existing text.
 
-### 编译重点
+### Compilation emphasis
 
-* 不是单纯变通顺
-* 是“更像当前写法”
-* 保留原剧情信息
+* Not merely making it smoother
+* Making it “more like the current style”
+* Preserve original plot information
 
-附加规则建议：
+Suggested extra rules:
 
 ```text
-润色时不得新增核心剧情信息，不改变人物关系，不改变事件结果。
-只调整表达方式，使文本更符合当前写法资产。
+When polishing, you must not add core plot information, must not change character relationships, and must not change event outcomes.
+Only adjust the way of expression so the text better matches the current style asset.
 ```
 
 ---
 
-## 8.4 改写任务
+## 8.4 Rewrite tasks
 
-适用于把普通文本改成某种写法。
+Applies when rewriting ordinary text into a given style.
 
-### 编译重点
+### Compilation emphasis
 
-* 明确“保留什么，替换什么”
-* 规则比正文生成更强
-* 检测后通常还要二次修正
+* Be explicit about “what to keep, what to replace”
+* Rules are stronger than for prose generation
+* After detection, a second correction is usually still needed
 
-附加规则建议：
+Suggested extra rules:
 
 ```text
-请在不改变事件顺序与事实信息的前提下，将文本改写为指定写法。
-重点改写叙述方式、语言表面、情绪表达方式和段落节奏。
+Without changing event order or factual information, rewrite the text into the specified style.
+Focus the rewrite on narration method, language surface, emotion-expression method, and paragraph rhythm.
 ```
 
 ---
 
-## 8.5 AI味修正任务
+## 8.5 AI-flavor correction tasks
 
-适用于检测后自动重写。
+Applies to automatic rewrite after detection.
 
-### 编译重点
+### Compilation emphasis
 
-* 只修违规点
-* 尽量少伤原文信息
-* 必须带违规报告输入
+* Fix only the violating points
+* Damage original-text information as little as possible
+* Must take a violation report as input
 
-推荐输入结构：
+Recommended input structure:
 
 ```text
-原文：
+Original text:
 ...
 
-检测到的问题：
-1. 出现“他感到”
-2. 第三段存在段尾升华
-3. 对话过于功能化
+Detected problems:
+1. “He felt” appeared
+2. The third paragraph has paragraph-end elevation
+3. Dialogue is overly functionalized
 
-修正要求：
-- 保留剧情事实不变
-- 仅修改违规表达
-- 修正后重新输出全文
+Correction requirements:
+- Keep plot facts unchanged
+- Modify only violating expressions
+- After correction, re-output the full text
 ```
 
 ---
 
-## 9. 写法强度与绑定权重
+## 9. Style Strength and Binding Weight
 
-不是所有写法绑定都要一刀切。
-建议引入“强度”概念。
-
----
-
-## 9.1 强度定义
-
-### 低强度 0.3 ~ 0.5
-
-* 主要提供倾向
-* 适合大纲阶段
-* 不强压语言细节
-
-### 中强度 0.6 ~ 0.8
-
-* 兼顾规则与灵活性
-* 适合正文生成
-
-### 高强度 0.8 ~ 1.0
-
-* 强制约束明显
-* 适合改写、试写、风格实验
+Not every style binding should be treated the same.
+A “strength” concept should be introduced.
 
 ---
 
-## 9.2 编译中的体现
+## 9.1 Strength definition
 
-同一条规则，在不同强度下措辞不同。
+### Low strength 0.3 ~ 0.5
 
-例如“禁止解释心理”：
+* Mainly supplies tendency
+* Suitable for the outline stage
+* Does not hard-press language details
 
-### 中强度
+### Medium strength 0.6 ~ 0.8
+
+* Balances rules and flexibility
+* Suitable for prose generation
+
+### High strength 0.8 ~ 1.0
+
+* Forced constraints are obvious
+* Suitable for rewrite, trial write, and style experiments
+
+---
+
+## 9.2 How it shows up in compilation
+
+The same rule is worded differently at different strengths.
+
+For example, “forbid explaining psychology”:
+
+### Medium strength
 
 ```text
-尽量不要直接解释人物心理，优先通过动作和对话体现情绪。
+Try not to explain character psychology directly. Prefer showing emotion through action and dialogue.
 ```
 
-### 高强度
+### High strength
 
 ```text
-禁止直接解释人物心理，不得使用“他感到”“他意识到”等表达。
+Directly explaining character psychology is forbidden. Expressions such as “he felt” or “he realized” must not be used.
 ```
 
 ---
 
-## 10. 多层绑定时的合并策略
+## 10. Merge Strategy for Multi-Layer Binding
 
-写法可能同时绑定在：
+Style may be bound at the same time on:
 
-* 全书
-* 卷
-* 章节
-* 角色视角
-* 本次任务
+* Whole book
+* Volume
+* Chapter
+* Character POV
+* This task
 
-必须有合并规则。
+There must be merge rules.
 
 ---
 
-## 10.1 推荐优先级
+## 10.1 Recommended priority
 
 ```text
-本次任务 > 角色视角 > 章节 > 卷 > 全书模板
+this task > character POV > chapter > volume > whole-book template
 ```
 
 ---
 
-## 10.2 合并原则
+## 10.2 Merge principles
 
-### 相同类型规则冲突时
+### When same-type rules conflict
 
-高优先级覆盖低优先级。
+Higher priority overrides lower priority.
 
-### 不冲突规则
+### Non-conflicting rules
 
-进行累加。
+Accumulate.
 
-### 反AI规则
+### Anti-AI rules
 
-通常只增不减，除非明确关闭。
-
----
-
-## 10.3 示例
-
-全书绑定：
-
-* 口语化
-* 禁止主题升华
-
-章节绑定：
-
-* 当前章节偏压抑
-* 节奏放慢
-
-角色绑定：
-
-* 主角嘴硬
-* 不做深度自省
-
-最终编译结果：
-
-* 保留全书口语化和禁止升华
-* 叠加章节压抑和慢节奏
-* 叠加角色嘴硬和低自省
+Usually only add, never subtract, unless explicitly turned off.
 
 ---
 
-## 11. 反AI规则编译设计
+## 10.3 Example
 
-反AI规则不能只是“列清单”，要按类型生成不同文案。
+Whole-book binding:
+
+* Colloquial
+* Forbid thematic elevation
+
+Chapter binding:
+
+* Current chapter leans oppressive
+* Rhythm slows down
+
+Character binding:
+
+* Protagonist is verbally stubborn
+* No deep self-reflection
+
+Final compiled result:
+
+* Keep whole-book colloquialism and forbid elevation
+* Stack chapter oppression and slow rhythm
+* Stack character verbal stubbornness and low self-reflection
 
 ---
 
-## 11.1 禁止型规则编译模板
+## 11. Anti-AI Rule Compilation Design
 
-输入：
+Anti-AI rules cannot merely “list items.” Different copy must be generated by type.
+
+---
+
+## 11.1 Forbidden-type rule compilation template
+
+Input:
 
 ```json
 {
-  "name": "禁止解释型心理描写",
+  "name": "Forbid explanatory psychological description",
   "type": "forbidden",
-  "detect_pattern": ["他感到", "他意识到"]
+  "detect_pattern": ["he felt", "he realized"]
 }
 ```
 
-编译输出：
+Compiled output:
 
 ```text
-禁止直接解释人物心理，不得使用“他感到”“他意识到”等句式。人物状态必须通过动作、对话、环境或行为结果体现。
+Directly explaining character psychology is forbidden. Sentence patterns such as “he felt” or “he realized” must not be used. Character state must be shown through action, dialogue, environment, or behavioral outcome.
 ```
 
 ---
 
-## 11.2 风险型规则编译模板
+## 11.2 Risk-type rule compilation template
 
-输入：
+Input:
 
 ```json
 {
-  "name": "对话纯功能推进",
+  "name": "Dialogue is purely functional plot advance",
   "type": "risk"
 }
 ```
 
-编译输出：
+Compiled output:
 
 ```text
-注意避免对话只承担剧情推进功能。对话中应保留人物语气、停顿、绕弯、嘴硬或无效信息，使其更像真实交流。
+Watch out to avoid dialogue that only carries plot-advancing function. Dialogue should keep character tone, pauses, roundabout talk, verbal stubbornness, or useless information, so it feels more like real conversation.
 ```
 
 ---
 
-## 11.3 鼓励型规则编译模板
+## 11.3 Encouraged-type rule compilation template
 
-输入：
+Input:
 
 ```json
 {
-  "name": "鼓励现实落差",
+  "name": "Encourage real-world letdown",
   "type": "encourage"
 }
 ```
 
-编译输出：
+Compiled output:
 
 ```text
-优先在段落中加入现实落差，让人物的预期与实际结果之间出现轻微或明显偏差，以增强真实感和人物困境。
+Prefer adding real-world letdown in paragraphs, so a slight or obvious gap appears between the character’s expectation and the actual result, to strengthen realism and character predicament.
 ```
 
 ---
 
-## 12. 自检与二次生成机制
+## 12. Self-Check and Second-Generation Mechanism
 
-建议把生成分成两种模式。
+Generation should be split into two modes.
 
 ---
 
-## 12.1 单轮模式
+## 12.1 Single-pass mode
 
-适合轻量任务。
+Suitable for lightweight tasks.
 
 ```text
-生成 → 自检 → 输出
+generate → self-check → output
 ```
 
-### 优点
+### Advantages
 
-* 快
-* 成本低
+* Fast
+* Low cost
 
-### 缺点
+### Disadvantages
 
-* 稳定性一般
+* Stability is only average
 
 ---
 
-## 12.2 双轮模式
+## 12.2 Two-pass mode
 
-适合关键章节、风格敏感任务。
+Suitable for key chapters and style-sensitive tasks.
 
 ```text
-第一轮生成
+first-pass generation
 ↓
-检测器检查
+detector check
 ↓
-生成修正指令
+generate correction instructions
 ↓
-第二轮重写
+second-pass rewrite
 ↓
-输出最终结果
+output the final result
 ```
 
-### 优点
+### Advantages
 
-* 稳定
-* 风格更准
+* Stable
+* Style is more accurate
 
-### 缺点
+### Disadvantages
 
-* 成本高
+* High cost
 
-建议正文生成默认单轮，AI味修正和重要章节支持双轮。
-
----
-
-## 13. 检测报告到重写 Prompt 的转换
-
-这是闭环核心。
+Prose generation should default to single-pass. AI-flavor correction and important chapters should support two-pass.
 
 ---
 
-## 13.1 检测报告格式建议
+## 13. Converting a Detection Report into a Rewrite Prompt
+
+This is the core of the closed loop.
+
+---
+
+## 13.1 Suggested detection-report format
 
 ```json
 {
@@ -781,15 +781,15 @@ Prompt 编译器的输入不是只有“写法资产”，而是 5 类上下文�
   "violations": [
     {
       "rule_id": "anti_001",
-      "rule_name": "禁止解释型心理描写",
-      "text_span": "他感到一阵烦躁",
-      "suggestion": "改为动作或语气表现"
+      "rule_name": "Forbid explanatory psychological description",
+      "text_span": "He felt a wave of irritation",
+      "suggestion": "Change to action or tone"
     },
     {
       "rule_id": "anti_005",
-      "rule_name": "禁止段尾升华",
-      "text_span": "生活终究教会了他……",
-      "suggestion": "删除总结，落回具体情境"
+      "rule_name": "Forbid paragraph-end elevation",
+      "text_span": "Life, in the end, taught him…",
+      "suggestion": "Delete the summary and land back in a concrete situation"
     }
   ]
 }
@@ -797,172 +797,172 @@ Prompt 编译器的输入不是只有“写法资产”，而是 5 类上下文�
 
 ---
 
-## 13.2 重写 Prompt 模板
+## 13.2 Rewrite Prompt template
 
 ```text
-请根据以下违规信息修正原文。
+Please correct the original text according to the following violation information.
 
-修正原则：
-1. 不改变事件事实
-2. 不新增核心剧情
-3. 仅修正违规表达
-4. 修正后保持原有写法气质
+Correction principles:
+1. Do not change event facts
+2. Do not add core plot
+3. Correct only violating expressions
+4. After correction, keep the original style temperament
 
-违规问题：
-1. “他感到一阵烦躁”属于直接解释心理，请改为行为化表达
-2. “生活终究教会了他……”属于段尾升华，请删除总结感，落回现场感
+Violation problems:
+1. “He felt a wave of irritation” is direct psychological explanation. Please change it to behavior-based expression
+2. “Life, in the end, taught him…” is paragraph-end elevation. Please remove the summarizing feel and land back in the scene
 
-原文如下：
+Original text:
 ...
 ```
 
 ---
 
-## 14. 失败保护与降级策略
+## 14. Failure Protection and Degradation Strategy
 
-有时模型会不听话，需要兜底。
-
----
-
-## 14.1 规则过多时
-
-编译器应做裁剪，优先保留：
-
-1. 当前任务关键写法
-2. 高优先级禁止项
-3. 当前角色规则
-4. 重要鼓励项
-
-不要把二三十条规则全塞进去。
+Sometimes the model will not obey. A fallback is needed.
 
 ---
 
-## 14.2 任务过短时
+## 14.1 When there are too many rules
 
-例如只生成一句对话，不要注入完整大套写法规则。
-应自动切成精简版 Prompt。
+The compiler should trim, keeping in priority:
 
----
+1. Style critical to the current task
+2. High-priority forbidden items
+3. Current character rules
+4. Important encouraged items
 
-## 14.3 模型能力较弱时
-
-采用“短规则 + 强约束 + 少抽象词”的编译方式。
-少说“叙事气质”“氛围控制”，多说：
-
-* 用短句
-* 不解释
-* 保持口语
-* 不要总结
+Do not stuff twenty or thirty rules in all at once.
 
 ---
 
-## 15. Prompt 模板示例
+## 14.2 When the task is too short
+
+For example, generating only one line of dialogue: do not inject a full large set of style rules.
+Automatically switch to a compact Prompt.
 
 ---
 
-## 15.1 底层循环现实流章节生成模板
+## 14.3 When model capability is weaker
+
+Use a compilation style of “short rules + strong constraints + few abstract words.”
+Say less “narrative texture” and “atmosphere control.” Say more:
+
+* Use short sentences
+* Do not explain
+* Stay colloquial
+* Do not summarize
+
+---
+
+## 15. Prompt Template Examples
+
+---
+
+## 15.1 Bottom-loop realist-flow chapter generation template
 
 ```text
-你正在创作一段小说正文。
+You are writing a passage of novel prose.
 
-当前任务：
-主角在夜里和朋友蹲场失败，表面嘴硬，实际狼狈。请写出他们撤场后的短暂相处，重点表现人物关系、现实困窘和生活碎音。
+Current task:
+At night the protagonist and a friend fail a venue stakeout. On the surface he is verbally stubborn; in reality he is in a sorry state. Write their brief time together after they leave. Focus on character relationship, real-world predicament, and fragments of daily noise.
 
-写法要求：
-1. 采用现实流碎片叙事，以当前时段的行为推进，不做概括式回顾。
-2. 每段优先写动作、对话或环境，再显出人物处境，不直接解释心理。
-3. 人物的情绪只能通过行为、语气、停顿、反应体现。
-4. 语言保持口语化、粗粝感和生活杂音，允许不完整句。
-5. 收尾不要解决问题，保留一点狼狈、别扭或落空。
+Style requirements:
+1. Use realist-flow fragmented narrative. Advance by behavior in the current time window. Do not write summarizing retrospectives.
+2. Each paragraph should preferentially write action, dialogue, or environment, then reveal the character’s situation. Do not explain psychology directly.
+3. Character emotion may only be shown through behavior, tone, pauses, and reaction.
+4. Keep language colloquial, rough, and full of life noise. Incomplete sentences are allowed.
+5. Do not solve the problem at the ending. Keep a little embarrassment, awkwardness, or coming-up-empty.
 
-角色表达要求：
-- 主角嘴硬，不愿承认吃瘪
-- 朋友说话短，损，但不是完全无情
-- 当前视角只跟随主角能看到和听到的内容
+Character-expression requirements:
+- The protagonist is verbally stubborn and unwilling to admit he was shown up
+- The friend speaks short and cutting, but is not completely cold
+- The current POV only follows what the protagonist can see and hear
 
-禁止项：
-- 禁止“他感到”“他意识到”等直接心理解释
-- 禁止段尾升华
-- 禁止把场景写成抒情散文
-- 禁止工整排比
+Forbidden items:
+- Direct psychological explanation such as “he felt” or “he realized” is forbidden
+- Paragraph-end elevation is forbidden
+- Turning the scene into lyrical prose is forbidden
+- Neat parallel constructions are forbidden
 
-优先项：
-- 加入无意义但真实的小动作
-- 加入现实落差
-- 加入一句嘴硬找补
-- 加入一点不推动主线的生活性杂音
+Preferred items:
+- Add small actions that are meaningless but real
+- Add real-world letdown
+- Add one line of verbal-stubbornness cover
+- Add a little lived-in noise that does not push the main plot
 
-输出要求：
-直接输出正文，不加标题，不解释写法，控制在900字左右。
+Output requirements:
+Output the prose directly. Do not add a heading. Do not explain the writing method. Keep it around 900 words.
 
-写完后自行检查：
-是否有直接心理解释、段尾升华、过于完整的作文感。若有，先修正再输出。
+After writing, check yourself:
+Whether there is direct psychological explanation, paragraph-end elevation, or an overly complete essay feel. If so, correct first, then output.
 ```
 
 ---
 
-## 15.2 AI味修正模板
+## 15.2 AI-flavor correction template
 
 ```text
-请修正下面这段小说文本中的AI味问题。
+Please correct the AI-flavor problems in the novel text below.
 
-修正目标：
-- 保留原有剧情事实
-- 不改变事件顺序
-- 不新增重要情节
-- 只修正表达方式，使其更符合“底层循环现实流”写法
+Correction goals:
+- Keep the original plot facts
+- Do not change event order
+- Do not add important plot
+- Only correct the way of expression so it better matches “bottom-loop realist flow” style
 
-当前写法要求：
-- 情绪必须行为化
-- 语言口语化
-- 允许生活噪音
-- 收尾不升华
+Current style requirements:
+- Emotion must be behavior-based
+- Language is colloquial
+- Life noise is allowed
+- The ending does not elevate
 
-检测到的问题：
-1. 出现直接心理解释
-2. 存在段尾总结
-3. 对话过于功能化
+Detected problems:
+1. Direct psychological explanation appeared
+2. There is a paragraph-end summary
+3. Dialogue is overly functionalized
 
-原文如下：
+Original text:
 ...
 ```
 
 ---
 
-## 16. 工程实现建议
+## 16. Engineering Implementation Suggestions
 
 ---
 
-## 16.1 编译器模块拆分
+## 16.1 Compiler module split
 
-建议拆成以下几个服务：
+Split into the following services:
 
 ### `styleNormalizer`
 
-负责把拆书文本、手工描述、模板信息标准化为统一字段。
+Responsible for normalizing book-analysis text, hand-written descriptions, and template information into unified fields.
 
 ### `styleMerger`
 
-负责多层绑定合并。
+Responsible for multi-layer binding merge.
 
 ### `styleCompiler`
 
-负责把统一字段编译为 Prompt 规则块。
+Responsible for compiling unified fields into Prompt rule blocks.
 
 ### `antiAiCompiler`
 
-负责把反AI规则编译成禁止/风险/鼓励块。
+Responsible for compiling anti-AI rules into forbidden / risk / encourage blocks.
 
 ### `rewriteCompiler`
 
-负责把检测报告编译成修正 Prompt。
+Responsible for compiling a detection report into a correction Prompt.
 
 ---
 
-## 16.2 输出结构建议
+## 16.2 Suggested output structure
 
-后端不要直接只返回一整段 Prompt。
-应返回结构化结果，方便前端调试和后续维护。
+The backend should not return only one long Prompt.
+It should return a structured result, so the frontend can debug and later maintenance is easier.
 
 ```json
 {
@@ -981,41 +981,40 @@ Prompt 编译器的输入不是只有“写法资产”，而是 5 类上下文�
 
 ---
 
-## 17. MVP 范围建议
+## 17. Suggested MVP Scope
 
-第一阶段只做最重要的 5 件事：
+Phase one only does the five most important things:
 
-### 1. 单任务 Prompt 编译
+### 1. Single-task Prompt compilation
 
-支持章节生成。
+Support chapter generation.
 
-### 2. 基础规则编译
+### 2. Basic rule compilation
 
-支持叙事、语言、角色、反AI四类。
+Support narrative, language, character, and anti-AI four types.
 
-### 3. 4 套模板
+### 3. 4 templates
 
-底层现实流、爽文推进流、悬疑压迫流、情绪拉扯流。
+Bottom-loop realist flow, power-fantasy progressive-push flow, mystery-pressure increasing flow, emotional-pull flow.
 
-### 4. 检测报告转重写 Prompt
+### 4. Detection report to rewrite Prompt
 
-支持一键修正。
+Support one-click correction.
 
-### 5. 多层绑定先支持三级
+### 5. Multi-layer binding first supports three levels
 
-全书、章节、本次任务。
-
----
-
-## 18. 成功标准
-
-这套 Prompt 与规则编译设计做成功，不是看 Prompt 写得多花，而是看下面几点：
-
-1. 同一套写法资产能稳定改变不同任务输出
-2. 模型出现八股时能被检测并修正
-3. 不同层级绑定不会互相打架
-4. 模板、拆书、手工写法都能走进同一套编译链路
-5. Prompt 结构清晰，可维护，可扩展
+Whole book, chapter, this task.
 
 ---
 
+## 18. Success Criteria
+
+This Prompt and rule-compilation design is successful not when the Prompt is ornate, but when the following hold:
+
+1. The same style asset can stably change output across different tasks
+2. When the model produces formulaic writing, it can be detected and corrected
+3. Bindings at different layers do not fight each other
+4. Templates, book analysis, and hand-written style can all enter the same compilation chain
+5. Prompt structure is clear, maintainable, and extensible
+
+---

@@ -1,519 +1,519 @@
-# 写法引擎模块边界与 PRD 设计 V2
+# Style Engine Module Boundary and PRD Design V2
 
-## 0. 文档定位
+## 0. Document Purpose
 
-本文档用于收口写法引擎的 **产品职责、模块边界、字段治理、信息架构与自动导演接入方式**。
+This document settles the Style Engine’s **product responsibilities, module boundaries, field governance, information architecture, and auto-director integration**.
 
-它解决的不是“怎么再加几个写法字段”，而是下面四个问题：
+It is not about “how to add a few more style fields.” It answers four questions:
 
-1. 在扩展写法引擎时，如何 **不弱化** 最初的两个核心能力：
-   - 模仿某一种写法
-   - 去 AI 味
-2. 如何避免写法引擎与现有 `BookFraming / StoryMode / StoryMacro / Character / World` 模块重复建设。
-3. 如何把写法引擎从“一个可选侧边栏工具”收口成“创作主链里的表达执行层”。
-4. 如何让它接入自动导演，而不接管自动导演已经存在的结构职责。
+1. When expanding the Style Engine, how to **avoid weakening** the original two core capabilities:
+   - Imitate a writing style
+   - Remove AI flavor
+2. How to avoid rebuilding work that already belongs to `BookFraming / StoryMode / StoryMacro / Character / World`.
+3. How to move the Style Engine from “an optional sidebar tool” to “the expression execution layer on the main creation chain.”
+4. How to plug it into auto-director without taking over structural duties auto-director already owns.
 
-本文档与既有文档关系如下：
+Relationship to existing documents:
 
-- [Style Engine v1](./style-engine-v1.md)：保留其对写法资产、规则注入、检测修复的基础设计。
-- [Style Engine Prompt Compiler v1](./style-engine-prompt-compiler-v1.md)：保留其对编译器和 prompt 执行链的设计。
-- 本文档：在上述基础上新增 **产品收口、职责边界、字段分级、自动导演接入规范**。
+- [Style Engine v1](./style-engine-v1.md): keep its foundation for style assets, rule injection, detection, and repair.
+- [Style Engine Prompt Compiler v1](./style-engine-prompt-compiler-v1.md): keep its compiler and prompt execution-chain design.
+- This document: on top of those, adds **product settlement, responsibility boundaries, field grading, and auto-director integration rules**.
 
-## 1. 核心产品判断
+## 1. Core Product Judgment
 
-### 1.1 最终定位
+### 1.1 Final Positioning
 
-写法引擎不是“文风配置器”，也不是“纯仿写工具”。
+The Style Engine is not a “prose-style configurator,” and it is not a “pure imitation tool.”
 
-它的最终定位应是：
+Its final positioning should be:
 
-> **小说创作系统中的表达执行层。**
+> **The expression execution layer in the novel-creation system.**
 
-它负责把用户想要的“读感、文字手感、角色表达方式、反 AI 要求”，转成可执行、可绑定、可检测、可修复的表达合同，并贯穿规划、生成、审校、修复链路。
+It turns the user’s desired “reading feel, prose texture, character expression, and anti-AI requirements” into an executable, bindable, detectable, repairable expression contract, and carries that contract through planning, generation, review, and repair.
 
-### 1.2 必须保留的两个一级能力
+### 1.2 Two First-Class Capabilities That Must Stay
 
-写法引擎扩展后，下面两个能力仍然必须保留为一级入口，而不是被“更大更全的新定位”吞掉：
+After the Style Engine expands, these two capabilities must remain first-class entry points. A “bigger, more complete” new positioning must not swallow them:
 
-1. `模仿某一种写法`
-   - 价值：把参考文本、拆书结论、已知作品手感转成可迁移的表达资产。
-   - 用户认知：这是最直接、最有感知的写法能力。
+1. `Imitate a writing style`
+   - Value: turn reference text, book-analysis conclusions, and the texture of a known work into transferable expression assets.
+   - User perception: this is the most direct, most tangible style capability.
 
-2. `去 AI 味`
-   - 价值：把模板句、总结腔、均匀句式、解释过量、情绪空转等问题压下去。
-   - 用户认知：这是最容易理解、最容易证明价值的质量能力。
+2. `Remove AI flavor`
+   - Value: suppress template sentences, summary tone, uniform sentence patterns, over-explanation, and empty emotional spinning.
+   - User perception: this is the easiest quality capability to understand and to prove.
 
-结论：
+Conclusion:
 
-- 写法引擎可以变大。
-- 但它必须以“保住这两个核心功能”为前提。
-- 新增能力应是 **扩层**，不是 **换核**。
+- The Style Engine can grow.
+- Growth is allowed only if these two core functions stay intact.
+- New capabilities should **add layers**, not **replace the core**.
 
-### 1.3 新的三层理解
+### 1.3 New Three-Layer Understanding
 
-对内可采用三层模型理解写法引擎：
+Internally, the Style Engine can be understood as three layers:
 
 1. `StyleIntent`
-   - 用户表达层
-   - 面向“我想要什么感觉”
-   - 例如：冷一点、现实一点、对话更狠、不要说教
+   - User expression layer
+   - Oriented to “what feeling I want”
+   - Examples: colder, more realistic, sharper dialogue, no preaching
 
 2. `StyleContract`
-   - 系统执行层
-   - 面向“模型应该怎样表达”
-   - 对应结构化规则、绑定关系、编译后的 prompt blocks
+   - System execution layer
+   - Oriented to “how the model should express”
+   - Corresponds to structured rules, bindings, and compiled prompt blocks
 
 3. `StylePatch`
-   - 运行时修正层
-   - 面向“这本书在哪些表达维度上反复跑偏，后续怎么自动拉回”
+   - Runtime correction layer
+   - Oriented to “which expression dimensions this book keeps drifting on, and how to pull them back automatically later”
 
-注意：
+Notes:
 
-- `StyleIntent / StyleContract / StylePatch` 是写法引擎内部的分层，不是要再拆出三个独立产品模块。
-- 产品层仍然应该保持简单入口，而不是暴露内部建模。
+- `StyleIntent / StyleContract / StylePatch` are internal layers of the Style Engine, not three separate product modules.
+- The product surface should stay simple and must not expose this internal model.
 
-## 2. 模块边界文档
+## 2. Module Boundary Document
 
-### 2.1 一句话边界
+### 2.1 One-Sentence Boundaries
 
-- `BookFraming` 管：这本书卖给谁，卖点是什么，前 30 章承诺什么。
-- `StoryMode` 管：这本书靠什么推进，读者奖励来自哪里，冲突形式和推进单元是什么。
-- `StoryMacro` 管：这本书的故事骨架、冲突轴、揭示梯度、payoff 与硬约束是什么。
-- `Character / World / Canonical State` 管：事实、设定、身份、关系、世界规则、状态变化。
-- `StyleEngine` 管：这些内容最终 **怎么被写出来**，读起来是什么感觉，怎样压制 AI 味。
+- `BookFraming` owns: who this book is sold to, what the selling points are, and what the first 30 chapters promise.
+- `StoryMode` owns: what drives this book forward, where reader rewards come from, and what the conflict form and progression unit are.
+- `StoryMacro` owns: the story skeleton, conflict axis, reveal gradient, payoff, and hard constraints.
+- `Character / World / Canonical State` owns: facts, setting, identity, relationships, world rules, and state changes.
+- `StyleEngine` owns: how that content is **finally written**, how it reads, and how AI flavor is suppressed.
 
-### 2.2 职责边界表
+### 2.2 Responsibility Boundary Table
 
-| 模块 | 核心问题 | 应该拥有 | 不应该拥有 |
+| Module | Core question | Should own | Should not own |
 | --- | --- | --- | --- |
-| BookFraming | 这本书卖什么 | 目标读者、商业标签、卖点、竞品读感、前 30 章承诺 | 文字表达规则、具体句式约束、反 AI 检测 |
-| StoryMode | 这本书怎么推进 | 推进单元、冲突形式、读者奖励、模式红线 | 文本粗粝度、对白攻击性、句式变化 |
-| StoryMacro | 故事怎么成立 | premise、主冲突、mystery box、progression loop、payoff、ending constraints | 局部语言风格、去 AI 规则 |
-| Character / World | 事实是什么 | 人物身份、关系、设定、世界规则、状态演变 | 文字层表达手感 |
-| StyleEngine | 怎么写出来 | 叙事距离、语言手感、对白风格、情绪外显、反 AI 约束、表达检测与修复 | 结构推进主导权、剧情合同、书级市场定位 |
+| BookFraming | What does this book sell? | Target readers, commercial tags, selling points, competitor reading feel, first-30-chapter promise | Prose expression rules, specific sentence-pattern constraints, anti-AI detection |
+| StoryMode | How does this book progress? | Progression units, conflict form, reader rewards, mode red lines | Text roughness, dialogue aggression, sentence variation |
+| StoryMacro | How does the story hold together? | premise, main conflict, mystery box, progression loop, payoff, ending constraints | Local language style, anti-AI rules |
+| Character / World | What are the facts? | Character identity, relationships, setting, world rules, state evolution | Text-layer expression texture |
+| StyleEngine | How is it written? | Narrative distance, language texture, dialogue style, emotion display, anti-AI constraints, expression detection and repair | Structural-progression authority, plot contracts, book-level market positioning |
 
-### 2.3 写法引擎允许读取什么
+### 2.3 What the Style Engine May Read
 
-写法引擎可以读取以下模块的结果，用于生成表达合同：
+The Style Engine may read results from the following modules in order to generate an expression contract:
 
 1. `BookFraming`
-   - 读取“目标读者、卖点、前 30 章承诺”
-   - 目的：决定语言可读性、解释密度、商业读感强弱
+   - Read “target readers, selling points, first-30-chapter promise”
+   - Purpose: decide language readability, explanation density, and commercial reading-feel intensity
 
 2. `StoryMode`
-   - 读取“推进节奏、冲突形式、章节奖励”
-   - 目的：让表达配合推进方式，而不是改变推进方式
+   - Read “progression rhythm, conflict form, chapter rewards”
+   - Purpose: make expression cooperate with the progression method, not change the progression method
 
 3. `StoryMacro`
-   - 读取“故事骨架、悬念、约束、payoff”
-   - 目的：避免表达层与结构目标脱节
+   - Read “story skeleton, mystery, constraints, payoff”
+   - Purpose: keep the expression layer from drifting away from structural goals
 
 4. `Character / Canonical State`
-   - 读取“角色身份、状态、关系变化、禁止泄露信息”
-   - 目的：约束角色说话方式、情绪外显方式、视角距离
+   - Read “character identity, state, relationship changes, information that must not leak”
+   - Purpose: constrain how characters speak, how emotion is shown, and POV distance
 
-### 2.4 写法引擎不允许接管什么
+### 2.4 What the Style Engine Must Not Take Over
 
-以下内容即使存在于写法资产里，也不应由写法引擎拥有最终决定权：
+Even if the following appear inside a style asset, the Style Engine must not have final authority over them:
 
-1. 主推进循环
-2. 核心冲突设计
-3. 章节结构骨架
-4. POV 主策略
-5. 结局硬约束
-6. 角色事实设定
-7. 世界事实设定
-8. 书级商业定位
+1. Main progression loop
+2. Core conflict design
+3. Chapter structure skeleton
+4. Primary POV strategy
+5. Ending hard constraints
+6. Character fact setting
+7. World fact setting
+8. Book-level commercial positioning
 
-### 2.5 冲突时的优先级
+### 2.5 Priority When Constraints Conflict
 
-当多个模块的约束冲突时，建议采用以下优先级：
+When constraints from multiple modules conflict, use this priority:
 
-1. 安全规则 / 平台约束
-2. Canonical State / 世界观事实 / 角色事实
+1. Safety rules / platform constraints
+2. Canonical State / world facts / character facts
 3. Book Contract / BookFraming
 4. StoryMode
 5. StoryMacro / Planner / Structured Outline
 6. StyleEngine
-7. 默认语言习惯 / 模型自由发挥
+7. Default language habits / model free play
 
-解释：
+Explanation:
 
-- 写法引擎必须服从结构与事实边界。
-- 写法引擎的职责是在既定结构内，把表达做对，而不是反向改结构。
+- The Style Engine must obey structure and fact boundaries.
+- Its job is to get expression right inside an already-decided structure, not to reverse-change the structure.
 
-## 3. 哪些现有字段越界，应该保留 / 降级 / 迁移
+## 3. Which Existing Fields Cross Boundaries, and Should Be Kept / Downgraded / Migrated
 
-### 3.1 字段治理原则
+### 3.1 Field Governance Principles
 
-对现有写法字段做治理时，遵守以下三条：
+When governing existing style fields, follow these three rules:
 
-1. `表达层字段保留`
-   - 只要它控制的是“怎么写”，就保留在写法引擎。
+1. `Keep expression-layer fields`
+   - If it controls “how to write,” keep it in the Style Engine.
 
-2. `结构层字段迁出`
-   - 只要它控制的是“写什么、怎么推进、怎么收束”，就不该由写法引擎拥有。
+2. `Move structure-layer fields out`
+   - If it controls “what to write, how to progress, how to close,” the Style Engine should not own it.
 
-3. `边界模糊字段先降级`
-   - 对于既像结构、又像表达的字段，先降级为软提示，不直接删，也不继续扩写。
+3. `Downgrade ambiguous fields first`
+   - For fields that look like both structure and expression, downgrade them to soft hints first. Do not delete them immediately, and do not keep expanding them.
 
-### 3.2 现有字段分级表
+### 3.2 Existing Field Grading Table
 
-以下判断基于当前 [shared/types/styleEngine.ts](../../shared/types/styleEngine.ts) 的字段定义。
+The following judgments are based on the current field definitions in [shared/types/styleEngine.ts](../../shared/types/styleEngine.ts).
 
-| 字段 | 当前问题 | 处理建议 | 最终归属 |
+| Field | Current problem | Recommended action | Final owner |
 | --- | --- | --- | --- |
-| `narrativeRules.progressionMode` | 明显触及推进方式，与 `StoryMode.profile.progressionUnits`、`StoryMacro.progression_loop` 重叠 | `迁移`；在写法引擎内仅保留兼容读取，不再作为新增强规则 | StoryMode / StoryMacro |
-| `narrativeRules.sceneUnitPattern` | 触及场景组织和章节结构，与 planner / structured outline 有重叠 | `降级` 为软提示；后续若继续使用，迁入章节规划模板 | Planner / Structured Outline |
-| `narrativeRules.multiPov` | 实质影响叙事主策略，和 `novel.narrativePov` 职责重叠 | `迁移`；写法引擎只允许控制 POV 距离和切换风格，不决定是否多视角 | Novel Basic Info / StoryMacro |
-| `narrativeRules.looping` | 容易变成推进结构约束，而不是表达约束 | `迁移` 到 StoryMacro；短期内仅作低权重提示 | StoryMacro |
-| `narrativeRules.endingStyle` | 已接近结局风味和收束逻辑，与 `ending_flavor / ending_constraints` 重叠 | `迁移`；写法层只保留“结尾语气”一类局部表达 | StoryMacro |
-| `narrativeRules.povSwitchStyle` | 一半是结构、一半是表达 | `保留但收窄语义`；只表示“切视角时的文字处理方式” | StyleEngine |
-| `narrativeRules.summary` | 属于内部摘要，不是职责冲突 | `保留` | StyleEngine |
-| `characterRules.allowSelfReflection` | 控制角色是否内省，属于表达层，但不能覆盖角色事实 | `保留`，且优先级低于角色状态与剧情事实 | StyleEngine |
-| `characterRules.emotionExpression` | 典型表达层字段 | `保留` | StyleEngine |
-| `characterRules.defenseMechanisms` | 容易与角色设定重叠，但作为“文本表现方式”仍可成立 | `保留但收窄语义`；仅用于表达倾向，不定义角色本体 | StyleEngine |
-| `characterRules.facePriority` | 影响角色外显方式，仍属于表达层 | `保留` | StyleEngine |
-| `characterRules.dialogueStyle` | 典型表达层字段 | `保留` | StyleEngine |
-| `languageRules.register` | 典型表达层字段 | `保留` | StyleEngine |
-| `languageRules.roughness` | 典型表达层字段 | `保留` | StyleEngine |
-| `languageRules.allowIncompleteSentences` | 典型表达层字段 | `保留` | StyleEngine |
-| `languageRules.allowSwearing` | 典型表达层字段，但需服从平台与角色边界 | `保留` | StyleEngine |
-| `languageRules.sentenceVariation` | 典型表达层字段 | `保留` | StyleEngine |
-| `languageRules.allowUselessDetails` | 影响笔触密度，仍属表达层 | `保留` | StyleEngine |
-| `languageRules.summary` | 内部摘要 | `保留` | StyleEngine |
-| `rhythmRules.pace` | 容易与故事节奏、推进速度混淆 | `保留但重定义` 为“文本节奏密度”，不再表达故事推进结构 | StyleEngine |
-| `rhythmRules.paragraphDensity` | 典型表达层字段 | `保留` | StyleEngine |
-| `rhythmRules.allowFragmentedFlow` | 典型表达层字段 | `保留` | StyleEngine |
-| `rhythmRules.actionOverExplanation` | 典型表达层字段 | `保留` | StyleEngine |
-| `rhythmRules.summary` | 内部摘要 | `保留` | StyleEngine |
+| `narrativeRules.progressionMode` | Clearly touches progression method; overlaps `StoryMode.profile.progressionUnits` and `StoryMacro.progression_loop` | `Migrate`; inside the Style Engine, keep compatibility reads only, and do not use it as a newly strengthened rule | StoryMode / StoryMacro |
+| `narrativeRules.sceneUnitPattern` | Touches scene organization and chapter structure; overlaps planner / structured outline | `Downgrade` to a soft hint; if still used later, move into chapter-planning templates | Planner / Structured Outline |
+| `narrativeRules.multiPov` | Materially affects primary narrative strategy; overlaps `novel.narrativePov` | `Migrate`; the Style Engine may only control POV distance and switch texture, not whether multi-POV is used | Novel Basic Info / StoryMacro |
+| `narrativeRules.looping` | Easily becomes a progression-structure constraint instead of an expression constraint | `Migrate` to StoryMacro; in the short term, keep only as a low-weight hint | StoryMacro |
+| `narrativeRules.endingStyle` | Already close to ending flavor and closure logic; overlaps `ending_flavor / ending_constraints` | `Migrate`; the style layer keeps only local expression such as “ending tone” | StoryMacro |
+| `narrativeRules.povSwitchStyle` | Half structure, half expression | `Keep but narrow the meaning`; only means “how the prose handles a POV switch” | StyleEngine |
+| `narrativeRules.summary` | Internal summary, not a responsibility conflict | `Keep` | StyleEngine |
+| `characterRules.allowSelfReflection` | Controls whether a character introspects; this is expression-layer, but must not override character facts | `Keep`, with priority below character state and plot facts | StyleEngine |
+| `characterRules.emotionExpression` | Typical expression-layer field | `Keep` | StyleEngine |
+| `characterRules.defenseMechanisms` | Easy to overlap character setting, but still valid as “how it shows up in the text” | `Keep but narrow the meaning`; only for expression tendency, not character ontology | StyleEngine |
+| `characterRules.facePriority` | Affects how a character is shown; still expression-layer | `Keep` | StyleEngine |
+| `characterRules.dialogueStyle` | Typical expression-layer field | `Keep` | StyleEngine |
+| `languageRules.register` | Typical expression-layer field | `Keep` | StyleEngine |
+| `languageRules.roughness` | Typical expression-layer field | `Keep` | StyleEngine |
+| `languageRules.allowIncompleteSentences` | Typical expression-layer field | `Keep` | StyleEngine |
+| `languageRules.allowSwearing` | Typical expression-layer field, but must obey platform and character boundaries | `Keep` | StyleEngine |
+| `languageRules.sentenceVariation` | Typical expression-layer field | `Keep` | StyleEngine |
+| `languageRules.allowUselessDetails` | Affects stroke density; still expression-layer | `Keep` | StyleEngine |
+| `languageRules.summary` | Internal summary | `Keep` | StyleEngine |
+| `rhythmRules.pace` | Easy to confuse with story rhythm and progression speed | `Keep but redefine` as “textual rhythm density,” no longer story-progression structure | StyleEngine |
+| `rhythmRules.paragraphDensity` | Typical expression-layer field | `Keep` | StyleEngine |
+| `rhythmRules.allowFragmentedFlow` | Typical expression-layer field | `Keep` | StyleEngine |
+| `rhythmRules.actionOverExplanation` | Typical expression-layer field | `Keep` | StyleEngine |
+| `rhythmRules.summary` | Internal summary | `Keep` | StyleEngine |
 
-### 3.3 推荐的字段治理动作
+### 3.3 Recommended Field-Governance Actions
 
-建议分三步执行：
+Execute in three steps:
 
-#### 第一步：语义收窄，不立刻大迁移
+#### Step 1: Narrow semantics; do not migrate immediately
 
-先不急着删字段，而是先明确：
+Do not rush to delete fields. First make this explicit:
 
 1. `progressionMode / looping / endingStyle / multiPov`
-   - 停止作为新增能力继续扩写
-   - 在 prompt 编译里降低权重
-   - 标记为“兼容字段”
+   - Stop expanding them as new capabilities
+   - Lower their weight in prompt compilation
+   - Mark them as “compatibility fields”
 
 2. `sceneUnitPattern`
-   - 改为“章节书写偏好提示”
-   - 不作为 planner 的结构输入源
+   - Change to a “chapter writing-preference hint”
+   - Do not use it as a structural input source for the planner
 
 3. `rhythmRules.pace`
-   - 从“故事节奏”收窄为“文本节奏”
+   - Narrow from “story rhythm” to “textual rhythm”
 
-#### 第二步：新增字段治理说明
+#### Step 2: Governance rule for new fields
 
-以后新增写法字段时，必须先问一句：
+Whenever a new style field is added, ask first:
 
-> 这个字段控制的是表达方式，还是故事结构？
+> Does this field control expression method, or story structure?
 
-若答案更接近以下任一项，则不应进写法引擎：
+If the answer is closer to any of the following, it must not enter the Style Engine:
 
-1. 章节推进单元
-2. 冲突设计
-3. payoff 编排
-4. 结局结构
-5. 视角制度
-6. 角色身份事实
+1. Chapter progression unit
+2. Conflict design
+3. Payoff arrangement
+4. Ending structure
+5. POV regime
+6. Character identity facts
 
-#### 第三步：未来可选迁移
+#### Step 3: Optional future migration
 
-当主链稳定后，可逐步做 schema 收口：
+After the main chain is stable, schema settlement can proceed gradually:
 
-1. 从 `NarrativeRules` 中迁出结构型字段
-2. 保留表达型字段
-3. 为迁移字段提供兼容读逻辑，避免直接破坏旧资产
+1. Move structure-type fields out of `NarrativeRules`
+2. Keep expression-type fields
+3. Provide compatibility read logic for migrated fields so old assets are not broken immediately
 
-## 4. 最终的 PRD 信息架构
+## 4. Final PRD Information Architecture
 
-### 4.1 目标用户
+### 4.1 Target Users
 
-主要服务对象仍然是：
+The primary audience remains:
 
-- 不懂写作术语的新手作者
-- 知道自己想要什么“感觉”，但不会拆规则的人
-- 会担心 AI 写出来太模板、太平、太解释的人
+- Beginner authors who do not know writing terminology
+- People who know what “feel” they want, but cannot break it into rules
+- People who worry AI output is too templated, too flat, and too explanatory
 
-### 4.2 用户核心任务
+### 4.2 Core User Jobs
 
-写法引擎要帮助用户完成的，不是“研究文风”，而是以下三类任务：
+What the Style Engine must help users complete is not “study prose style,” but these three jobs:
 
-1. `我想让它像这种写法`
-2. `我这段稿子 AI 味太重，帮我拉回来`
-3. `我想让整本书保持同一种手感`
+1. `I want it to write like this`
+2. `This draft is too AI-flavored; pull it back`
+3. `I want the whole book to keep the same texture`
 
-### 4.3 产品定位
+### 4.3 Product Positioning
 
-写法引擎的最终 PRD 定位建议为：
+The Style Engine’s final PRD positioning should be:
 
-> **面向小说创作主链的表达控制工作台**
+> **An expression-control workbench on the novel-creation main chain**
 
-它不是孤立页面，而是承担三个层次的功能：
+It is not an isolated page. It carries three layers of function:
 
-1. `资产层`
-   - 创建、编辑、沉淀写法资产
+1. `Asset layer`
+   - Create, edit, and accumulate style assets
 
-2. `应用层`
-   - 把写法资产绑定到书 / 章 / 单次任务
+2. `Application layer`
+   - Bind style assets to book / chapter / single task
 
-3. `质控层`
-   - 检测偏移、修复 AI 味、沉淀 patch
+3. `Quality-control layer`
+   - Detect drift, repair AI flavor, and accumulate patches
 
-### 4.4 一级信息架构
+### 4.4 Primary Information Architecture
 
-建议最终只保留 3 个一级主入口：
+Keep only three first-class entry points:
 
-1. `模仿一种写法`
-   - 输入参考文本 / 拆书结果 / 当前作品片段
-   - 输出可执行写法资产
+1. `Imitate a writing style`
+   - Input: reference text / book-analysis result / current-work excerpt
+   - Output: an executable style asset
 
-2. `给这段稿子去 AI 味`
-   - 输入当前文本
-   - 输出检测结果、修正建议和一键改写
+2. `Remove AI flavor from this draft`
+   - Input: current text
+   - Output: detection results, fix suggestions, and one-click rewrite
 
-3. `给这本书选一种手感`
-   - 面向整本书
-   - 推荐、绑定、查看当前命中写法
+3. `Choose a texture for this book`
+   - Book-scoped
+   - Recommend, bind, and inspect the currently matching style
 
-这三个入口分别对应最重要的三种用户任务，避免首页堆满资产管理概念。
+These three entries map to the three most important user jobs, so the home surface is not filled with asset-management concepts.
 
-### 4.5 二级信息架构
+### 4.5 Secondary Information Architecture
 
-#### A. 资产工作区
+#### A. Asset workspace
 
-用于管理 `StyleProfile`：
+Used to manage `StyleProfile`:
 
-1. 新建写法
-   - 从一句话描述生成
-   - 从参考文本提取
-   - 从拆书生成
-   - 从模板起步
+1. Create a style
+   - Generate from a one-sentence description
+   - Extract from reference text
+   - Generate from book analysis
+   - Start from a template
 
-2. 编辑写法
-   - 查看摘要
-   - 编辑表达规则
-   - 选择反 AI 规则
-   - 试写验证
+2. Edit a style
+   - View summary
+   - Edit expression rules
+   - Select anti-AI rules
+   - Validate with a trial write
 
-3. 写法来源与适用范围
-   - 来源文本
-   - 适用题材
-   - 标签
+3. Style source and scope
+   - Source text
+   - Applicable genres
+   - Tags
 
-#### B. 绑定与应用工作区
+#### B. Binding and application workspace
 
-用于管理 `StyleBinding`：
+Used to manage `StyleBinding`:
 
-1. 绑定到整本书
-2. 绑定到章节
-3. 绑定到单次任务
-4. 查看命中优先级
-5. 查看当前生效写法摘要
+1. Bind to the whole book
+2. Bind to a chapter
+3. Bind to a single task
+4. Inspect hit priority
+5. Inspect the currently effective style summary
 
-#### C. 质控与修复工作区
+#### C. Quality-control and repair workspace
 
-用于管理 `AntiAiRule + Detection + Rewrite + Patch`：
+Used to manage `AntiAiRule + Detection + Rewrite + Patch`:
 
-1. 风格检测
-2. 去 AI 味检测
-3. 一键修正
-4. 修正后差异预览
-5. 将重复修正沉淀为 patch
+1. Style detection
+2. Anti-AI detection
+3. One-click correction
+4. Diff preview after correction
+5. Settle repeated corrections into a patch
 
-### 4.6 UI 层的产品表达
+### 4.6 Product Expression at the UI Layer
 
-为了避免“功能做大后用户反而更糊”，建议 UI 表达遵守以下原则：
+To avoid “more features, more confusion,” UI expression should follow these principles:
 
-1. 首页只讲用户任务，不讲内部术语
-2. `StyleProfile`、`StyleBinding`、`CompiledBlocks` 这类词只在高级区出现
-3. 页面默认呈现：
-   - 当前书的默认写法
-   - 当前文本的问题
-   - 下一步推荐动作
+1. The home surface talks only about user jobs, not internal terms
+2. Words such as `StyleProfile`, `StyleBinding`, and `CompiledBlocks` appear only in advanced areas
+3. The page’s default presentation is:
+   - The book’s default style
+   - Problems in the current text
+   - The recommended next action
 
-### 4.7 非目标
+### 4.7 Non-Goals
 
-写法引擎的 PRD 中，明确以下内容为非目标：
+The Style Engine PRD explicitly treats the following as non-goals:
 
-1. 不负责角色设定编辑
-2. 不负责世界观设定编辑
-3. 不负责故事骨架设计
-4. 不负责书级卖点设计
-5. 不成为“另一个 planner”
+1. Does not own character-setting editing
+2. Does not own worldbuilding editing
+3. Does not own story-skeleton design
+4. Does not own book-level selling-point design
+5. Does not become “another planner”
 
-## 5. 如何接入自动导演而不和现有模块冲突
+## 5. How to Plug Into Auto-Director Without Conflicting With Existing Modules
 
-### 5.1 接入原则
+### 5.1 Integration Principles
 
-自动导演接入写法引擎时，必须遵守：
+When auto-director integrates the Style Engine, it must follow:
 
-1. `先轻接，后深接`
-   - 前半段先接入轻量表达意图，不直接让写法引擎主导结构。
+1. `Light integration first, deep integration later`
+   - The first half of the chain takes a lightweight expression intent. The Style Engine must not dominate structure.
 
-2. `结构归导演，表达归写法`
-   - 导演负责方向、规划、卷章拆解。
-   - 写法引擎负责这些产物最终怎么被写出来。
+2. `Structure belongs to the director; expression belongs to style`
+   - The director owns direction, planning, and volume/chapter breakdown.
+   - The Style Engine owns how those products are finally written.
 
-3. `前半段摘要注入，后半段全量注入`
-   - 自动导演前半段只消费轻量写法摘要。
-   - 到章节执行和质量修复阶段，再消费全量编译规则。
+3. `Summary injection in the first half; full injection in the second half`
+   - Auto-director’s first half consumes only a lightweight style summary.
+   - Full compiled rules are consumed only at chapter execution and quality-repair stages.
 
-### 5.2 接入点设计
+### 5.2 Integration-Point Design
 
-#### 阶段 A：自动导演启动前
+#### Stage A: Before auto-director starts
 
-目标：
+Goal:
 
-- 让写法引擎参与，但不增加新手负担。
+- Let the Style Engine participate without adding beginner burden.
 
-建议做法：
+Recommended approach:
 
-1. 在自动导演创建页保留一个简单问题：
-   - `你想让这本书读起来是什么感觉？`
+1. Keep one simple question on the auto-director creation page:
+   - `How do you want this book to read?`
 
-2. 可选高级入口：
-   - 选择已有写法资产
-   - 从一句话生成临时写法
-   - 从参考文本提取临时写法
+2. Optional advanced entries:
+   - Choose an existing style asset
+   - Generate a temporary style from one sentence
+   - Extract a temporary style from reference text
 
-3. 如果用户不选：
-   - 系统允许自动推荐一套默认书级手感
+3. If the user does not choose:
+   - The system may auto-recommend a default book-level texture
 
-这一阶段只产生 `StyleIntent` 或轻量 `StyleContract Summary`，不要求用户先进入完整写法工作台。
+This stage only produces `StyleIntent` or a lightweight `StyleContract Summary`. The user is not required to enter the full style workbench first.
 
-#### 阶段 B：导演候选生成
+#### Stage B: Director candidate generation
 
-目标：
+Goal:
 
-- 让候选方向的表达气质更准，但不改变候选的结构职责。
+- Make candidate directions more accurate in expressive temperament, without changing the candidate’s structural duties.
 
-建议注入内容：
+Recommended injection content:
 
-1. 目标读感
-2. 语言粗粝度 / 克制度
-3. 对话张力倾向
-4. 解释密度偏好
-5. 反 AI 高风险项摘要
+1. Target reading feel
+2. Language roughness / restraint
+3. Dialogue-tension tendency
+4. Explanation-density preference
+5. High-risk anti-AI item summary
 
-明确禁止注入：
+Explicitly forbidden to inject:
 
-1. progression loop 决策
-2. 章节单元决策
-3. 结局结构决策
-4. 核心冲突设计
+1. Progression-loop decisions
+2. Chapter-unit decisions
+3. Ending-structure decisions
+4. Core conflict design
 
-#### 阶段 C：Book Contract / Story Macro / Blueprint
+#### Stage C: Book Contract / Story Macro / Blueprint
 
-目标：
+Goal:
 
-- 让规划期知道“这本书应该呈现怎样的整体读感”。
+- Let the planning stage know “what overall reading feel this book should present.”
 
-建议做法：
+Recommended approach:
 
-1. 只注入 `StyleContract Summary`
-2. 作为 `tone guardrails / expression guardrails` 使用
-3. 不让写法资产替代 `StoryMode / StoryMacro`
+1. Inject only `StyleContract Summary`
+2. Use it as `tone guardrails / expression guardrails`
+3. Do not let a style asset replace `StoryMode / StoryMacro`
 
-建议接入字段：
+Recommended injected fields:
 
-1. 读感承诺
-2. 语言密度
-3. 情绪外显方式
-4. 对话风格
-5. 反 AI 守则摘要
+1. Reading-feel promise
+2. Language density
+3. Emotion-display method
+4. Dialogue style
+5. Anti-AI precepts summary
 
-#### 阶段 D：章节执行
+#### Stage D: Chapter execution
 
-目标：
+Goal:
 
-- 进入写法引擎真正强介入阶段。
+- Enter the stage where the Style Engine truly intervenes strongly.
 
-建议做法：
+Recommended approach:
 
-1. 使用完整 `CompiledStylePromptBlocks`
-2. 继续保留书 / 章 / task 三层 binding 机制
-3. 生成后立即执行风格检测与去 AI 修正
+1. Use complete `CompiledStylePromptBlocks`
+2. Keep the book / chapter / task three-layer binding mechanism
+3. Immediately run style detection and anti-AI correction after generation
 
-这一阶段是写法引擎的主战场，也是最不容易与导演冲突的阶段。
+This stage is the Style Engine’s main battlefield, and the stage least likely to conflict with the director.
 
-#### 阶段 E：自动导演后续恢复与修复
+#### Stage E: Auto-director later recovery and repair
 
-目标：
+Goal:
 
-- 让导演恢复链不是“重跑结构”，而是也能识别表达问题。
+- Let the director recovery chain recognize expression problems, instead of only “re-running structure.”
 
-建议做法：
+Recommended approach:
 
-1. 区分结构型失败与表达型失败
-2. 若是表达型失败：
-   - 优先走写法检测 / 自动重写 / patch
-3. 不要把表达问题回退成整段导演重跑
+1. Distinguish structural failure from expression failure
+2. If it is an expression failure:
+   - Prefer style detection / auto-rewrite / patch
+3. Do not roll an expression problem back into a full director rerun
 
-### 5.3 不冲突的硬规则
+### 5.3 Hard Rules Against Conflict
 
-为防止自动导演与写法引擎功能冲突，建议明确以下硬规则：
+To keep auto-director and the Style Engine from colliding, make these hard rules explicit:
 
-1. 自动导演前半段只读取写法摘要，不读取全量结构型写法字段。
-2. 写法引擎不能覆盖导演已经确认的结构产物。
-3. 结构型字段即使残留在旧写法资产中，也不能在导演阶段作为强约束注入。
-4. 章节 runtime 才是写法引擎全量生效的默认阶段。
-5. 自动导演 UI 中必须明确展示：
-   - 当前命中写法
-   - 当前阶段仅生效的写法摘要
-   - 何时会在正文阶段启用完整写法约束
+1. Auto-director’s first half reads only the style summary, not the full set of structure-type style fields.
+2. The Style Engine cannot override structural products the director has already confirmed.
+3. Even if structure-type fields remain in old style assets, they must not be injected as hard constraints during director stages.
+4. Chapter runtime is the default stage where the Style Engine takes full effect.
+5. Auto-director UI must clearly show:
+   - Currently matching style
+   - The style summary that is in effect only for the current stage
+   - When full style constraints will be enabled in the prose stage
 
-### 5.4 推荐的最小落地顺序
+### 5.4 Recommended Minimum Rollout Order
 
-建议按以下顺序接入，而不是一次性大改：
+Integrate in this order, rather than changing everything at once:
 
-#### P1：轻量参与
+#### P1: Lightweight participation
 
-1. 自动导演入口新增“书级手感”输入
-2. 候选 / Book Contract / Story Macro 只注入轻量摘要
+1. Add a “book-level texture” input at the auto-director entry
+2. Inject only a lightweight summary into candidates / Book Contract / Story Macro
 
-#### P2：后段深化
+#### P2: Deepen the later stages
 
-1. 章节执行使用完整写法编译块
-2. 自动导演执行后自动做风格检测与去 AI 修正
+1. Chapter execution uses complete compiled style blocks
+2. After auto-director execution, automatically run style detection and anti-AI correction
 
-#### P3：闭环沉淀
+#### P3: Closed-loop accumulation
 
-1. 将重复表达修正沉淀为 `StylePatch`
-2. 支持从“当前作品稳定写法”反推生成书级资产
+1. Settle repeated expression corrections into `StylePatch`
+2. Support reverse-generating a book-level asset from “the current work’s stable style”
 
-## 6. 对当前实现的直接指导
+## 6. Direct Guidance for the Current Implementation
 
-基于当前仓库状态，建议后续实施遵守以下直接指导：
+Based on the current repository state, later implementation should follow this direct guidance:
 
-1. 保留现有 `StyleProfile / StyleBinding / AntiAiRule / Detection / Rewrite` 主体结构。
-2. 不把写法引擎改造成“结构规划模块”。
-3. 新增自动导演接入时，优先增加轻量写法摘要输入，而不是直接把整套 `styleProfile` 深塞到前半段。
-4. 对 `shared/types/styleEngine.ts` 中的结构越界字段，先做文档级收口与语义降权，再决定代码迁移时机。
-5. 产品页面上继续保留：
-   - 模仿写法
-   - 去 AI 味
-   - 书级默认写法
-   这三条最强用户认知入口。
+1. Keep the existing `StyleProfile / StyleBinding / AntiAiRule / Detection / Rewrite` main structure.
+2. Do not turn the Style Engine into a “structure-planning module.”
+3. When adding auto-director integration, prefer a lightweight style-summary input first, instead of stuffing the full `styleProfile` into the first half of the chain.
+4. For structure-crossing fields in `shared/types/styleEngine.ts`, settle them first at the document level and lower their semantic weight, then decide when to migrate code.
+5. Product pages should continue to keep:
+   - Imitate a writing style
+   - Remove AI flavor
+   - Book-level default style
+   These three strongest user-cognition entry points.
 
-## 7. 最终结论
+## 7. Final Conclusion
 
-写法引擎的正确扩展方式，不是从“模仿写法 / 去 AI 味”转向另一套全新模块，而是：
+The correct way to expand the Style Engine is not to leave “imitate a writing style / remove AI flavor” for an entirely new module. It is:
 
-1. 保住这两个最核心、最直观的能力；
-2. 把它们纳入“表达执行层”的更完整闭环；
-3. 严格切断它与 `BookFraming / StoryMode / StoryMacro` 的职责重叠；
-4. 让它在自动导演中 **参与表达，不接管结构**。
+1. Keep these two most core, most intuitive capabilities;
+2. Fold them into a more complete “expression execution layer” loop;
+3. Strictly cut overlapping duties with `BookFraming / StoryMode / StoryMacro`;
+4. Let it **participate in expression, not take over structure**, inside auto-director.
 
-最终应形成这样的判断：
+The resulting judgment should be:
 
-> `BookFraming` 决定这本书卖什么；  
-> `StoryMode` 决定这本书怎么推进；  
-> `StoryMacro` 决定故事怎样成立；  
-> `StyleEngine` 决定这一切最终怎样被写成文字，并持续压制 AI 味。
+> `BookFraming` decides what this book sells;  
+> `StoryMode` decides how this book progresses;  
+> `StoryMacro` decides how the story holds together;  
+> `StyleEngine` decides how all of that is finally written as prose, and continuously suppresses AI flavor.

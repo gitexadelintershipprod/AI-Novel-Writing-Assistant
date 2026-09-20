@@ -1,74 +1,74 @@
-# TASK.md 对照清单与本轮实现范围
+# TASK.md Comparison Checklist and This-Round Implementation Scope
 
-> 归档说明：本文件记录的是早期 TASK 对照审计，许多“未实现”判断已被后续实现和 release notes 取代，已不再作为当前开发依据。
+> Archive note: This file records an early TASK comparison audit. Many “not implemented” judgments have been replaced by later implementation and release notes, and it is no longer current development authority.
 
-本文档对照 [TASK.md](../../../TASK.md) 标注每项计划的当前状态、证据与本轮是否纳入实现。
+This document compares against [TASK.md](../../../TASK.md) and marks each planned item’s current status, evidence, and whether this round includes implementation.
 
-## 阶段一：创作决策记忆系统
+## Phase 1: Creative Decision Memory System
 
-| 计划项 | 当前状态 | 证据 | 本轮纳入 |
+| Planned Item | Current Status | Evidence | Included This Round |
 |--------|----------|------|----------|
-| 1.1 CreativeDecision / WritingSession 数据模型 | 未实现 | schema.prisma 无对应 model | 是（阶段 5） |
-| 1.2 创作决策采集（显式/隐式/管线） | 未实现 | 无 creativeDecision、创作笔记相关代码 | 是（阶段 5，先做最小模型+注入） |
-| 1.3 上下文注入增强（buildContextText 注入决策） | 未实现 | NovelCoreService.buildContextText 无 decisions | 是（阶段 5） |
-| 1.4 CreativeDecisionPanel 前端 | 未实现 | 无 CreativeDecisionPanel、创作笔记 | 后置（阶段 5 先做后端） |
+| 1.1 CreativeDecision / WritingSession data model | Not implemented | schema.prisma has no matching model | Yes (phase 5) |
+| 1.2 Creative-decision capture (explicit/implicit/pipeline) | Not implemented | No creativeDecision or writing-notes related code | Yes (phase 5, start with minimal model + injection) |
+| 1.3 Context-injection enhancement (buildContextText injects decisions) | Not implemented | NovelCoreService.buildContextText has no decisions | Yes (phase 5) |
+| 1.4 CreativeDecisionPanel frontend | Not implemented | No CreativeDecisionPanel or writing notes | Deferred (phase 5 does backend first) |
 
-## 阶段二：事件驱动钩子系统
+## Phase 2: Event-Driven Hook System
 
-| 计划项 | 当前状态 | 证据 | 本轮纳入 |
+| Planned Item | Current Status | Evidence | Included This Round |
 |--------|----------|------|----------|
-| 2.1 EventBus 基础设施 | 未实现 | server/src/events 目录不存在 | 是（阶段 4） |
-| 2.2 事件类型定义 | 未实现 | 无 chapter:drafted 等类型 | 是（阶段 4） |
-| 2.3 syncChapterArtifacts 拆到事件 handler | 未实现 | NovelCoreService 仍内联摘要/fact/RAG | 是（阶段 4） |
-| 2.4 钩子注册机制 | 未实现 | 无 eventBus.on 注册 | 是（阶段 4） |
+| 2.1 EventBus infrastructure | Not implemented | server/src/events directory does not exist | Yes (phase 4) |
+| 2.2 Event type definitions | Not implemented | No types such as chapter:drafted | Yes (phase 4) |
+| 2.3 Split syncChapterArtifacts into event handlers | Not implemented | NovelCoreService still inlines summary/fact/RAG | Yes (phase 4) |
+| 2.4 Hook registration mechanism | Not implemented | No eventBus.on registration | Yes (phase 4) |
 
-## 阶段三：专家代理团队
+## Phase 3: Expert Agent Team
 
-| 计划项 | 当前状态 | 证据 | 本轮纳入 |
+| Planned Item | Current Status | Evidence | Included This Round |
 |--------|----------|------|----------|
-| 3.1 BaseAgent / PlannerAgent / WriterAgent 等类 | 部分实现 | agents 有 orchestrator、runtime、toolRegistry，无独立 Agent 类 | 否（不重做现有 agents） |
-| 3.2 代理定义（每 Agent 独立 model/temperature） | 部分实现 | types/approvalPolicy 有角色与工具权限 | 否 |
-| 3.3 编排器与管线集成（executePipeline→AgentOrchestrator） | 部分实现 | 管线仍走 NovelCoreService/chapterWritingGraph | 否 |
-| 3.4 激活 chapterWritingGraph | 部分实现 | chapterWritingGraph 已接入 createChapterStream/runPipelineChapter | 否 |
-| 3.5 用户可配置代理参数（按角色选模型） | 部分实现 | RuntimeSidebar 有全局 provider/model，无按角色配置 | 否（阶段 3 做模型路由，可扩展） |
+| 3.1 Classes such as BaseAgent / PlannerAgent / WriterAgent | Partially implemented | agents has orchestrator, runtime, toolRegistry, no independent Agent classes | No (do not redo existing agents) |
+| 3.2 Agent definition (independent model/temperature per Agent) | Partially implemented | types/approvalPolicy has roles and tool permissions | No |
+| 3.3 Orchestrator and pipeline integration (executePipeline→AgentOrchestrator) | Partially implemented | Pipeline still goes through NovelCoreService/chapterWritingGraph | No |
+| 3.4 Activate chapterWritingGraph | Partially implemented | chapterWritingGraph is already wired into createChapterStream/runPipelineChapter | No |
+| 3.5 User-configurable agent parameters (select model by role) | Partially implemented | RuntimeSidebar has global provider/model, no per-role config | No (phase 3 does model routing, can be extended) |
 
-## 阶段四：智能模型路由
+## Phase 4: Intelligent Model Routing
 
-| 计划项 | 当前状态 | 证据 | 本轮纳入 |
+| Planned Item | Current Status | Evidence | Included This Round |
 |--------|----------|------|----------|
-| 4.1 modelRouter.ts | 未实现 | server/src/llm 无 modelRouter.ts | 是（阶段 3） |
-| 4.2 TaskType / resolveModel 路由策略 | 未实现 | factory 仅 provider+options | 是（阶段 3） |
-| 4.3 ModelRouteConfig 表 | 未实现 | schema 无 ModelRouteConfig | 是（阶段 3） |
-| 4.4 设置页「模型路由」标签 | 未实现 | SettingsPage 无该标签 | 是（阶段 3） |
-| 4.5 getLLM(provider, options, taskType?) | 未实现 | getLLM 无 taskType | 是（阶段 3） |
+| 4.1 modelRouter.ts | Not implemented | server/src/llm has no modelRouter.ts | Yes (phase 3) |
+| 4.2 TaskType / resolveModel routing policy | Not implemented | factory is only provider+options | Yes (phase 3) |
+| 4.3 ModelRouteConfig table | Not implemented | schema has no ModelRouteConfig | Yes (phase 3) |
+| 4.4 Settings page “Model routing” tab | Not implemented | SettingsPage has no such tab | Yes (phase 3) |
+| 4.5 getLLM(provider, options, taskType?) | Not implemented | getLLM has no taskType | Yes (phase 3) |
 
-## 阶段六：叙事距离感知检索
+## Phase 6: Narrative-Distance-Aware Retrieval
 
-| 计划项 | 当前状态 | 证据 | 本轮纳入 |
+| Planned Item | Current Status | Evidence | Included This Round |
 |--------|----------|------|----------|
-| 6.1 HybridRetrievalService 距离衰减 | 未实现 | 无 applyNarrativeDecay、currentChapterOrder | 是（阶段 2） |
-| 6.2 RagIndexService chapterOrder/importance 元数据 | 部分实现 | 部分 owner 已写 order，需统一 | 是（阶段 2） |
-| 6.3 关键内容锚点不衰减 | 未实现 | 无 importance 标记 | 后置（阶段 2 先做距离衰减） |
+| 6.1 HybridRetrievalService distance decay | Not implemented | No applyNarrativeDecay or currentChapterOrder | Yes (phase 2) |
+| 6.2 RagIndexService chapterOrder/importance metadata | Partially implemented | Some owners already write order; needs unification | Yes (phase 2) |
+| 6.3 Key-content anchors do not decay | Not implemented | No importance mark | Deferred (phase 2 does distance decay first) |
 
-## 阶段七：AI 推理过程可视化
+## Phase 7: AI Reasoning Process Visualization
 
-| 计划项 | 当前状态 | 证据 | 本轮纳入 |
+| Planned Item | Current Status | Evidence | Included This Round |
 |--------|----------|------|----------|
-| 7.1 GenerationTrace 模型 | 部分实现 | 有 AgentRun/AgentStep，无章节级 GenerationTrace | 是（阶段 3：复用 AgentRun/Step 接章节） |
-| 7.2 LangGraph 节点插桩 | 未实现 | chapterWritingGraph 无 traced 包装 | 是（阶段 3：接入现有 trace） |
-| 7.3 NovelChapterEdit 生成轨迹面板 | 未实现 | 章节编辑页无轨迹入口 | 是（阶段 3） |
+| 7.1 GenerationTrace model | Partially implemented | Has AgentRun/AgentStep, no chapter-level GenerationTrace | Yes (phase 3: reuse AgentRun/Step and attach to chapters) |
+| 7.2 LangGraph node instrumentation | Not implemented | chapterWritingGraph has no traced wrapper | Yes (phase 3: wire existing trace) |
+| 7.3 NovelChapterEdit generation-trace panel | Not implemented | Chapter edit page has no trace entry | Yes (phase 3) |
 
-## 阶段八：创作快照与版本回溯
+## Phase 8: Creation Snapshot and Version Rollback
 
-| 计划项 | 当前状态 | 证据 | 本轮纳入 |
+| Planned Item | Current Status | Evidence | Included This Round |
 |--------|----------|------|----------|
-| 8.1 NovelSnapshot 模型 | 未实现 | schema 无 NovelSnapshot | 是（阶段 5） |
-| 8.2 自动快照时机 | 未实现 | 无 pipeline/outline 前快照 | 是（阶段 5） |
-| 8.3 restoreFromSnapshot | 未实现 | 无该方法 | 是（阶段 5） |
-| 8.4 NovelEdit 版本历史标签 | 未实现 | 无快照列表/恢复 UI | 是（阶段 5） |
+| 8.1 NovelSnapshot model | Not implemented | schema has no NovelSnapshot | Yes (phase 5) |
+| 8.2 Automatic snapshot timing | Not implemented | No snapshot before pipeline/outline | Yes (phase 5) |
+| 8.3 restoreFromSnapshot | Not implemented | Method does not exist | Yes (phase 5) |
+| 8.4 NovelEdit version-history tab | Not implemented | No snapshot list / restore UI | Yes (phase 5) |
 
-## 本轮范围收敛
+## This-Round Scope Convergence
 
-- **立即修复**：智能代理「前两章写了什么」「写第三章」未命中正确工具（阶段 1）。
-- **MVP 补齐**：叙事距离衰减（阶段 2）、模型路由 + 章节轨迹（阶段 3）、事件总线（阶段 4）、创作决策记忆 + 小说快照（阶段 5）。
-- **后置**：CreativeDecisionPanel 前端、按角色配置代理、从某阶段重跑、importance 锚点。
+- **Immediate fix**: the intelligent agent “what did the first two chapters write” / “write chapter three” did not hit the correct tool (phase 1).
+- **MVP fill**: narrative-distance decay (phase 2), model routing + chapter trace (phase 3), event bus (phase 4), creative-decision memory + novel snapshot (phase 5).
+- **Deferred**: CreativeDecisionPanel frontend, configure agents by role, rerun from a given stage, importance anchors.

@@ -1,46 +1,46 @@
-# AI 小说创作工作台 / AI Novel Production Engine - 项目初始化
+# AI Novel Writing Workbench / AI Novel Production Engine - Project Initialization
 
-## 项目概述
-构建一个面向私有化部署的 AI 小说创作工作台，采用前后端分离架构。
-本次只初始化项目骨架和核心基础设施，不实现具体业务功能。
+## Project Overview
+Build an AI novel-writing workbench for private deployment, using a separated frontend/backend architecture.
+This pass only initializes the project skeleton and core infrastructure. It does not implement concrete business features.
 
-## 技术栈要求
+## Tech Stack Requirements
 
-### 前端 (client/)
+### Frontend (client/)
 - Vite 5 + React 18 + TypeScript 5
-- React Router v6（文件式路由配置）
-- TailwindCSS v3 + Shadcn/UI（组件库）
-- Zustand v4（客户端状态）
-- @tanstack/react-query v5（服务端状态 + 请求缓存）
-- Axios（HTTP 客户端，统一封装 baseURL 和错误处理）
-- Sonner（Toast 通知）
-- Lucide React（图标）
-- React Markdown + rehype-highlight（Markdown 渲染）
-- Framer Motion（动画，按需）
-- React Hook Form + Zod（表单验证）
+- React Router v6 (file-style route configuration)
+- TailwindCSS v3 + Shadcn/UI (component library)
+- Zustand v4 (client state)
+- @tanstack/react-query v5 (server state + request cache)
+- Axios (HTTP client, unified baseURL and error handling)
+- Sonner (Toast notifications)
+- Lucide React (icons)
+- React Markdown + rehype-highlight (Markdown rendering)
+- Framer Motion (animation, on demand)
+- React Hook Form + Zod (form validation)
 
-### 后端 (server/)
+### Backend (server/)
 - Node.js 20 + Express 4 + TypeScript 5
 - LangChain.js (@langchain/core @langchain/openai @langchain/community)
 - LangGraph.js (@langchain/langgraph)
-- Prisma 5 + SQLite（开发）/ PostgreSQL（生产预留）
-- Zod（请求体验证）
-- cors + helmet + morgan（基础中间件）
-- dotenv（环境变量）
-- 流式响应：原生 SSE（text/event-stream）
+- Prisma 5 + SQLite (development) / PostgreSQL (production reserved)
+- Zod (request-body validation)
+- cors + helmet + morgan (base middleware)
+- dotenv (environment variables)
+- Streaming responses: native SSE (text/event-stream)
 
-### 共享 (shared/)
-- 纯 TypeScript 类型定义文件
-- 前后端共用的请求/响应 interface
-- 枚举值（LLM provider、角色类型、世界维度等）
+### Shared (shared/)
+- Pure TypeScript type-definition files
+- Request/response interfaces shared by frontend and backend
+- Enums (LLM provider, character types, world dimensions, and similar)
 
-## 目录结构
+## Directory Structure
 
-请生成以下完整目录结构：
+Please generate the following complete directory structure:
 ├── client/
 │ ├── src/
-│ │ ├── api/ # Axios 请求封装（按业务模块分文件）
-│ │ │ ├── client.ts # Axios 实例（baseURL、拦截器）
+│ │ ├── api/ # Axios request wrappers (one file per business module)
+│ │ │ ├── client.ts # Axios instance (baseURL, interceptors)
 │ │ │ ├── novel.ts
 │ │ │ ├── world.ts
 │ │ │ ├── character.ts
@@ -48,16 +48,16 @@
 │ │ │ ├── chat.ts
 │ │ │ └── settings.ts
 │ │ ├── components/
-│ │ │ ├── ui/ # Shadcn/UI 组件（直接放置，不分子目录）
+│ │ │ ├── ui/ # Shadcn/UI components (place directly, no subdirectories)
 │ │ │ ├── layout/
-│ │ │ │ ├── AppLayout.tsx # 主布局（Navbar + Sidebar + Content）
+│ │ │ │ ├── AppLayout.tsx # Main layout (Navbar + Sidebar + Content)
 │ │ │ │ ├── Navbar.tsx
 │ │ │ │ └── Sidebar.tsx
-│ │ │ └── common/ # 通用业务组件
-│ │ │ ├── LLMSelector.tsx # 模型选择器（全局复用）
-│ │ │ ├── StreamOutput.tsx # SSE 流式内容展示组件
+│ │ │ └── common/ # Shared business components
+│ │ │ ├── LLMSelector.tsx # Model selector (global reuse)
+│ │ │ ├── StreamOutput.tsx # SSE streaming content display component
 │ │ │ └── MarkdownViewer.tsx
-│ │ ├── pages/ # 页面组件（对应路由）
+│ │ ├── pages/ # Page components (matching routes)
 │ │ │ ├── Home.tsx
 │ │ │ ├── novels/
 │ │ │ │ ├── NovelList.tsx
@@ -77,18 +77,18 @@
 │ │ │ └── astrology/
 │ │ │ └── AstrologyPage.tsx
 │ │ ├── store/ # Zustand stores
-│ │ │ ├── llmStore.ts # 当前选择的 LLM provider/model
-│ │ │ ├── chatStore.ts # 聊天历史（IndexedDB 持久化）
-│ │ │ └── uiStore.ts # UI 状态（侧边栏折叠等）
-│ │ ├── hooks/ # 自定义 React Hooks
-│ │ │ ├── useSSE.ts # SSE 流式请求 Hook
-│ │ │ └── useLocalDB.ts # IndexedDB 操作 Hook
+│ │ │ ├── llmStore.ts # Currently selected LLM provider/model
+│ │ │ ├── chatStore.ts # Chat history (IndexedDB persistence)
+│ │ │ └── uiStore.ts # UI state (sidebar collapse and similar)
+│ │ ├── hooks/ # Custom React Hooks
+│ │ │ ├── useSSE.ts # SSE streaming-request Hook
+│ │ │ └── useLocalDB.ts # IndexedDB operation Hook
 │ │ ├── lib/
-│ │ │ ├── utils.ts # cn() 工具函数（Shadcn 用）
-│ │ │ └── constants.ts # 常量（API_BASE_URL 等）
+│ │ │ ├── utils.ts # cn() helper (used by Shadcn)
+│ │ │ └── constants.ts # Constants (API_BASE_URL and similar)
 │ │ ├── router/
-│ │ │ └── index.tsx # React Router 路由配置
-│ │ ├── types/ # 前端专用类型（继承 shared/）
+│ │ │ └── index.tsx # React Router route configuration
+│ │ ├── types/ # Frontend-only types (inherit shared/)
 │ │ └── main.tsx
 │ ├── index.html
 │ ├── vite.config.ts
@@ -98,7 +98,7 @@
 │
 ├── server/
 │ ├── src/
-│ │ ├── routes/ # Express 路由（按业务模块）
+│ │ ├── routes/ # Express routes (by business module)
 │ │ │ ├── novel.ts
 │ │ │ ├── world.ts
 │ │ │ ├── character.ts
@@ -106,7 +106,7 @@
 │ │ │ ├── chat.ts
 │ │ │ ├── settings.ts
 │ │ │ └── astrology.ts
-│ │ ├── services/ # 业务逻辑层
+│ │ ├── services/ # Business-logic layer
 │ │ │ ├── novel/
 │ │ │ │ ├── NovelService.ts
 │ │ │ │ └── ChapterService.ts
@@ -114,48 +114,48 @@
 │ │ │ │ └── WorldService.ts
 │ │ │ └── writingFormula/
 │ │ │ └── WritingFormulaService.ts
-│ │ ├── graphs/ # LangGraph 工作流定义
-│ │ │ ├── novelOutlineGraph.ts # 小说大纲生成图
-│ │ │ ├── worldBuildingGraph.ts # 世界观构建图
-│ │ │ ├── chapterWritingGraph.ts # 章节写作图
-│ │ │ └── characterDesignGraph.ts # 角色设计图
-│ │ ├── chains/ # LangChain 链（非图状流程）
-│ │ │ ├── writingFormulaChain.ts # 写作公式提取/应用
-│ │ │ ├── titleGeneratorChain.ts # 标题生成
-│ │ │ └── chatChain.ts # 对话链
+│ │ ├── graphs/ # LangGraph workflow definitions
+│ │ │ ├── novelOutlineGraph.ts # Novel-outline generation graph
+│ │ │ ├── worldBuildingGraph.ts # Worldbuilding graph
+│ │ │ ├── chapterWritingGraph.ts # Chapter-writing graph
+│ │ │ └── characterDesignGraph.ts # Character-design graph
+│ │ ├── chains/ # LangChain chains (non-graph flows)
+│ │ │ ├── writingFormulaChain.ts # Writing-formula extract/apply
+│ │ │ ├── titleGeneratorChain.ts # Title generation
+│ │ │ └── chatChain.ts # Chat chain
 │ │ ├── llm/
-│ │ │ ├── factory.ts # LLM 工厂（根据 provider 返回对应 ChatModel）
-│ │ │ ├── providers.ts # Provider 配置（baseURL、默认模型）
-│ │ │ └── streaming.ts # SSE 流式响应工具函数
+│ │ │ ├── factory.ts # LLM factory (return matching ChatModel by provider)
+│ │ │ ├── providers.ts # Provider config (baseURL, default model)
+│ │ │ └── streaming.ts # SSE streaming-response helpers
 │ │ ├── db/
-│ │ │ └── prisma.ts # Prisma Client 单例
+│ │ │ └── prisma.ts # Prisma Client singleton
 │ │ ├── middleware/
-│ │ │ ├── validate.ts # Zod 请求验证中间件
-│ │ │ ├── errorHandler.ts # 统一错误处理
-│ │ │ └── auth.ts # 【预留】鉴权中间件（默认 passthrough）
+│ │ │ ├── validate.ts # Zod request-validation middleware
+│ │ │ ├── errorHandler.ts # Unified error handling
+│ │ │ └── auth.ts # [Reserved] auth middleware (default passthrough)
 │ │ ├── prisma/
-│ │ │ └── schema.prisma # 数据库模型（保留原有模型，去掉 User 鉴权字段）
-│ │ └── app.ts # Express 应用入口
+│ │ │ └── schema.prisma # Database models (keep existing models, remove User auth fields)
+│ │ └── app.ts # Express application entry
 │ ├── tsconfig.json
 │ ├── .env.example
 │ └── package.json
 │
 ├── shared/
 │ ├── types/
-│ │ ├── novel.ts # Novel / Chapter / Character 类型
-│ │ ├── world.ts # World / WorldProperty 类型
-│ │ ├── writingFormula.ts # WritingFormula 类型
-│ │ ├── llm.ts # LLMProvider / ModelConfig 枚举和类型
-│ │ └── api.ts # 统一 API 响应格式 ApiResponse<T>
+│ │ ├── novel.ts # Novel / Chapter / Character types
+│ │ ├── world.ts # World / WorldProperty types
+│ │ ├── writingFormula.ts # WritingFormula types
+│ │ ├── llm.ts # LLMProvider / ModelConfig enums and types
+│ │ └── api.ts # Unified API response format ApiResponse<T>
 │ ├── tsconfig.json
 │ └── package.json
 │
-├── package.json # Workspace 根（npm workspaces 或 pnpm）
+├── package.json # Workspace root (npm workspaces or pnpm)
 └── README.md
-## 核心架构规范
+## Core Architecture Rules
 
-### 1. API 响应统一格式
-所有接口返回：
+### 1. Unified API Response Format
+All endpoints return:
 // shared/types/api.ts
 interface ApiResponse<T> {
   success: boolean
@@ -164,76 +164,76 @@ interface ApiResponse<T> {
   message?: string
 }
 
-// 流式接口使用 SSE，每帧格式：
+// Streaming endpoints use SSE, each frame format:
 // data: {"type": "chunk", "content": "..."}\n\n
 // data: {"type": "done"}\n\n
 // data: {"type": "error", "error": "..."}\n\n
 
-2. LLM Factory 规范
+2. LLM Factory Rules
 // server/src/llm/factory.ts
-// 支持的 provider：deepseek / siliconflow / openai / anthropic
-// 所有 provider 统一返回 BaseChatModel 实例
-// Provider 配置从数据库 api_keys 表读取，fallback 到 .env
-// 接口：
+// Supported providers: deepseek / siliconflow / openai / anthropic
+// All providers uniformly return a BaseChatModel instance
+// Provider config is read from the api_keys table, fallback to .env
+// Interface:
 getLLM(provider: LLMProvider, options?: { model?: string; temperature?: number }): BaseChatModel
-// server/src/llm/factory.ts// 支持的 provider：deepseek / siliconflow / openai / anthropic// 所有 provider 统一返回 BaseChatModel 实例// Provider 配置从数据库 api_keys 表读取，fallback 到 .env// 接口：getLLM(provider: LLMProvider, options?: { model?: string; temperature?: number }): BaseChatModel
-3. LangGraph 图规范
-每个 Graph 文件导出：
-// 状态定义（Annotation）
-// 节点函数（纯函数，接收 state 返回 Partial<state>）
-// 图构建（StateGraph + addNode + addEdge）
-// 编译后的 graph（compiledGraph，供 service 调用）
-// 流式调用方式：graph.streamEvents(input, { version: "v2" })
-// 状态定义（Annotation）// 节点函数（纯函数，接收 state 返回 Partial<state>）// 图构建（StateGraph + addNode + addEdge）// 编译后的 graph（compiledGraph，供 service 调用）// 流式调用方式：graph.streamEvents(input, { version: "v2" })
-4. SSE 流式规范
+// server/src/llm/factory.ts// Supported providers: deepseek / siliconflow / openai / anthropic// All providers uniformly return a BaseChatModel instance// Provider config is read from the api_keys table, fallback to .env// Interface: getLLM(provider: LLMProvider, options?: { model?: string; temperature?: number }): BaseChatModel
+3. LangGraph Graph Rules
+Each Graph file exports:
+// State definition (Annotation)
+// Node functions (pure functions, receive state and return Partial<state>)
+// Graph construction (StateGraph + addNode + addEdge)
+// Compiled graph (compiledGraph, called by services)
+// Streaming call style: graph.streamEvents(input, { version: "v2" })
+// State definition (Annotation)// Node functions (pure functions, receive state and return Partial<state>)// Graph construction (StateGraph + addNode + addEdge)// Compiled graph (compiledGraph, called by services)// Streaming call style: graph.streamEvents(input, { version: "v2" })
+4. SSE Streaming Rules
 // server/src/llm/streaming.ts
 // streamToSSE(res: Response, generator: AsyncIterable<string>): Promise<void>
-// 设置 Content-Type: text/event-stream
-// 写入格式：data: JSON.stringify({type, content})\n\n
-// 心跳：每 15s 发送 data: {"type":"ping"}\n\n
-// 结束：data: {"type":"done"}\n\n
-// server/src/llm/streaming.ts// streamToSSE(res: Response, generator: AsyncIterable<string>): Promise<void>// 设置 Content-Type: text/event-stream// 写入格式：data: JSON.stringify({type, content})\n\n// 心跳：每 15s 发送 data: {"type":"ping"}\n\n// 结束：data: {"type":"done"}\n\n
-5. 鉴权预留规范
+// Set Content-Type: text/event-stream
+// Write format: data: JSON.stringify({type, content})\n\n
+// Heartbeat: every 15s send data: {"type":"ping"}\n\n
+// End: data: {"type":"done"}\n\n
+// server/src/llm/streaming.ts// streamToSSE(res: Response, generator: AsyncIterable<string>): Promise<void>// Set Content-Type: text/event-stream// Write format: data: JSON.stringify({type, content})\n\n// Heartbeat: every 15s send data: {"type":"ping"}\n\n// End: data: {"type":"done"}\n\n
+5. Auth Reservation Rules
 // server/src/middleware/auth.ts
-// 当前：直接 next()，不做任何验证
-// 预留接口：在 req 上扩展 user 字段（可选）
-// 路由层：所有路由都通过 router.use(authMiddleware)，但当前 middleware 直接放行
-// 未来只需替换 auth.ts 实现，路由层无需改动
-// server/src/middleware/auth.ts// 当前：直接 next()，不做任何验证// 预留接口：在 req 上扩展 user 字段（可选）// 路由层：所有路由都通过 router.use(authMiddleware)，但当前 middleware 直接放行// 未来只需替换 auth.ts 实现，路由层无需改动
-6. Prisma Schema 调整
-去掉 User 表和所有 userId 外键约束（私有化部署无需多用户）
-APIKey 表保留但去掉 userId 字段
-WritingFormula / TitleLibrary / World 表去掉 userId 字段
-其余模型保持不变
-7. 前端 SSE Hook 规范
+// Current: call next() directly, no verification
+// Reserved interface: extend an optional user field on req
+// Route layer: all routes go through router.use(authMiddleware), but the current middleware always passes through
+// Later only auth.ts implementation needs replacement; the route layer does not change
+// server/src/middleware/auth.ts// Current: call next() directly, no verification// Reserved interface: extend an optional user field on req// Route layer: all routes go through router.use(authMiddleware), but the current middleware always passes through// Later only auth.ts implementation needs replacement; the route layer does not change
+6. Prisma Schema Adjustments
+Remove the User table and all userId foreign-key constraints (private deployment does not need multi-user)
+Keep the APIKey table but remove the userId field
+Remove the userId field from WritingFormula / TitleLibrary / World tables
+Keep remaining models unchanged
+7. Frontend SSE Hook Rules
 // client/src/hooks/useSSE.ts
-// 封装 EventSource 或 fetch + ReadableStream
-// 支持：onChunk / onDone / onError 回调
-// 支持：手动 abort（组件卸载时自动中止）
-// 接口：useSSE(url, body, options) => { start, abort, content, isStreaming }
-// client/src/hooks/useSSE.ts// 封装 EventSource 或 fetch + ReadableStream// 支持：onChunk / onDone / onError 回调// 支持：手动 abort（组件卸载时自动中止）// 接口：useSSE(url, body, options) => { start, abort, content, isStreaming }
-初始化任务
-请完成以下初始化（不实现业务逻辑）：
-创建 monorepo 结构，使用 pnpm workspaces
-client/ 初始化：
-配置 Vite + React + TypeScript
-安装并配置 TailwindCSS + Shadcn/UI（添加 button/input/card/dialog/tabs/select/badge/toast 组件）
-配置 React Router v6（含占位路由）
-创建 Axios client（含 baseURL 和错误拦截器）
-创建 AppLayout（Navbar + 主内容区）
-创建 LLMSelector 通用组件骨架
-创建 useSSE Hook
-配置 TanStack Query Provider
-server/ 初始化：
-配置 Express + TypeScript + ts-node-dev
-配置 CORS（允许 localhost:5173）
-创建统一错误处理中间件
-创建 authMiddleware（直接 passthrough）
-创建 LLM factory（支持 deepseek/openai/siliconflow，统一使用 ChatOpenAI + baseURL）
-创建 SSE streaming 工具函数
-配置 Prisma（含 schema，SQLite）
-创建一个示例路由 /api/health 验证服务正常
-shared/ 初始化：
-创建所有类型定义文件
-配置 TypeScript paths（client 和 server 都引用 shared/types）
-根目录创建 .env.example 和 README.md（含本地启动命令）
+// Wrap EventSource or fetch + ReadableStream
+// Support: onChunk / onDone / onError callbacks
+// Support: manual abort (auto-abort on component unmount)
+// Interface: useSSE(url, body, options) => { start, abort, content, isStreaming }
+// client/src/hooks/useSSE.ts// Wrap EventSource or fetch + ReadableStream// Support: onChunk / onDone / onError callbacks// Support: manual abort (auto-abort on component unmount)// Interface: useSSE(url, body, options) => { start, abort, content, isStreaming }
+Initialization Tasks
+Please complete the following initialization (do not implement business logic):
+Create the monorepo structure using pnpm workspaces
+client/ initialization:
+Configure Vite + React + TypeScript
+Install and configure TailwindCSS + Shadcn/UI (add button/input/card/dialog/tabs/select/badge/toast components)
+Configure React Router v6 (including placeholder routes)
+Create the Axios client (including baseURL and error interceptor)
+Create AppLayout (Navbar + main content area)
+Create the LLMSelector shared-component skeleton
+Create the useSSE Hook
+Configure TanStack Query Provider
+server/ initialization:
+Configure Express + TypeScript + ts-node-dev
+Configure CORS (allow localhost:5173)
+Create unified error-handling middleware
+Create authMiddleware (direct passthrough)
+Create the LLM factory (support deepseek/openai/siliconflow, uniformly use ChatOpenAI + baseURL)
+Create SSE streaming helpers
+Configure Prisma (including schema, SQLite)
+Create a sample route /api/health to verify the service is healthy
+shared/ initialization:
+Create all type-definition files
+Configure TypeScript paths (both client and server reference shared/types)
+Create .env.example and README.md at the repo root (including local start commands)

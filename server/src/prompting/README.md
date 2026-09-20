@@ -1,26 +1,26 @@
 # Prompting Registry
 
-`server/src/prompting/` 是本项目产品级 prompt 的唯一新增管理入口。
+`server/src/prompting/` is the only allowed entrypoint for adding new product-level prompts in this project.
 
 ## Hard Rules
 
-- 新增产品级 prompt 必须定义为 `PromptAsset`。
-- 新增产品级 prompt 必须放在 `server/src/prompting/prompts/<family>/` 下。
-- 新增产品级 prompt 必须在 `server/src/prompting/registry.ts` 注册。
-- 新增产品级 prompt 必须进入提示词管理目录，并支持目录检索、版本查看、上下文预览和受控测试；只注册运行时资产不算完成纳管。
-- 新增业务能力不得在 service 内直接拼 `systemPrompt/userPrompt` 后调用 `invokeStructuredLlm`。
-- 新增业务能力不得在 service 内直接使用裸 `getLLM()` 发起产品级 prompt 调用。
-- 修改到旧的未纳管 prompt 业务链路时，默认一并迁入 registry，而不是继续在原文件扩写。
+- New product-level prompts must be defined as a `PromptAsset`.
+- New product-level prompts must live under `server/src/prompting/prompts/<family>/`.
+- New product-level prompts must be registered in `server/src/prompting/registry.ts`.
+- New product-level prompts must enter the prompt management catalog and support catalog search, version viewing, context preview, and controlled testing; registering a runtime asset alone does not count as completed governance.
+- New business capabilities must not assemble `systemPrompt/userPrompt` inside a service and then call `invokeStructuredLlm`.
+- New business capabilities must not use a bare `getLLM()` from service code to make product-level prompt calls.
+- When touching an existing unregistered prompt business path, default to migrating it into the registry instead of continuing to expand the old file.
 
 ## Allowed Exceptions
 
-- `server/src/llm/structuredInvoke.ts` 内部 JSON repair prompt。
-- `server/src/llm/connectivity.ts` 这类探活/连通性探针。
-- 二期范围内的 `graphs/*`、`routes/chat.ts`、`services/novel/runtime/*`、以及其他流式桥接代码。
+- The internal JSON repair prompt in `server/src/llm/structuredInvoke.ts`.
+- Connectivity / probe prompts such as `server/src/llm/connectivity.ts`.
+- Phase-two flow adapters in `graphs/*`, `routes/chat.ts`, `services/novel/runtime/*`, and other stream bridge code.
 
 ## Asset Checklist
 
-新增 prompt 时必须同时提供：
+When adding a new prompt, you must also provide:
 
 - `id`
 - `version`
@@ -28,53 +28,53 @@
 - `mode`
 - `language`
 - `contextPolicy`
-- `outputSchema` 或 text 模式的 `postValidate`
+- `outputSchema`, or `postValidate` for text mode
 - `render()`
 
-可选但推荐同时评估：
+Optional but recommended to evaluate at the same time:
 
-- `repairPolicy`：控制结构化 JSON/schema repair 次数
-- `semanticRetryPolicy`：控制 `postValidate` 失败后的统一语义重试次数
+- `repairPolicy`: controls how many structured JSON/schema repair attempts are allowed
+- `semanticRetryPolicy`: controls how many unified semantic retries run after `postValidate` fails
 
-正文生成 Prompt 还必须提供：
+Prose-generation prompts must also provide:
 
-- 安全的基础编辑 slots，用于调整语气、节奏、段落、对话、描写、钩子和禁用倾向；
-- 高级 System / Human 模板编辑能力，支持作品范围、上下文 token、预览、测试、版本、回滚和恢复官方模板；
-- required context 保护，确保角色硬事实、任务、连续性、世界规则、平台写法和风格合同不能被模板静默移除；
-- PromptAsset / catalog 能力声明，禁止在前端通过固定 Prompt ID 决定是否支持高级编辑。
+- Safe basic editing slots for tone, pacing, paragraphs, dialogue, description, hooks, and forbidden tendencies;
+- Advanced System / Human template editing, supporting work scope, context tokens, preview, test, version, rollback, and restore of the official template;
+- Required-context protection so character hard facts, tasks, continuity, world rules, platform writing, and style contracts cannot be silently removed by a template;
+- PromptAsset / catalog capability declarations; the frontend must not decide advanced-edit support from a hardcoded Prompt ID.
 
-`PromptAsset.management` 是提示词管理能力的可信声明：
+`PromptAsset.management` is the trusted declaration of prompt-management capability:
 
-- `productPrompt` 表示该资产必须进入目录、预览和受控测试；
-- `proseGeneration` 表示它属于小说正文治理门禁；
-- `editModes` 声明 `readonly`、`slots`、`advanced_template`，前端只能按该能力渲染；
-- `advancedTemplate.requiredContextGroups` 定义高级模板不能静默移除的正式上下文。
+- `productPrompt` means the asset must enter the catalog, preview, and controlled testing;
+- `proseGeneration` means it belongs to the novel-prose governance gate;
+- `editModes` declares `readonly`, `slots`, and `advanced_template`; the frontend may render only according to that capability;
+- `advancedTemplate.requiredContextGroups` defines official context that an advanced template cannot silently remove.
 
-结构化正文 Prompt 使用高级模板时，自定义模板先编译，结构化输出提示随后由运行时追加，最终输出仍必须通过注册资产的 Schema。用户模板不能覆盖或删除 Schema、repair、postValidate 和输出字段合同。
+When a structured prose prompt uses an advanced template, the custom template is compiled first, structured-output instructions are then appended by the runtime, and the final output must still pass the registered asset Schema. User templates cannot override or delete Schema, repair, postValidate, or the output-field contract.
 
 ## Naming
 
-- 使用 `family.capability` 风格的 `id`
-- `version` 使用 `v1`、`v2`
-- 示例：
+- Use a `family.capability` style `id`
+- Use `v1`, `v2` for `version`
+- Examples:
   - `audit.chapter.full@v2`
   - `world.structure.generate@v1`
   - `style.recommendation@v1`
 
 ## Runner Usage
 
-- 结构化输出使用 `runStructuredPrompt`
-- 纯文本输出使用 `runTextPrompt`
-- 流式文本输出使用 `streamTextPrompt`
-- 流式结构化输出使用 `streamStructuredPrompt`
-- 调用方继续保留原 service 的 public method、数据库写入和返回 shape
+- Structured output uses `runStructuredPrompt`
+- Plain-text output uses `runTextPrompt`
+- Streaming text output uses `streamTextPrompt`
+- Streaming structured output uses `streamStructuredPrompt`
+- Callers keep the original service public method, database writes, and return shape
 
-说明：
+Notes:
 
-- `repairPolicy` 负责 JSON 解析 / schema 校验失败后的 repair
-- `semanticRetryPolicy` 负责 JSON 已合法但 `postValidate` 未通过时的再生成
+- `repairPolicy` handles repair after JSON parse / schema validation failure
+- `semanticRetryPolicy` handles regeneration when JSON is already valid but `postValidate` did not pass
 
 ## Migration Default
 
-- 如果一个 prompt 还没有资产化，不要在原 service 里继续加分支。
-- 先创建资产，再把 service 切到 registry + runner。
+- If a prompt is not yet assetized, do not keep adding branches in the original service.
+- Create the asset first, then switch the service to registry + runner.

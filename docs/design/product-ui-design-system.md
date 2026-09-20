@@ -1,346 +1,346 @@
-# 产品 UI 总体设计系统
+# Product UI Design System
 
 ## Background
 
-本项目的核心体验不是通用后台管理，也不是聊天机器人，而是帮助写作新手完成一整本小说的 AI 创作工作台。界面需要把复杂的自动导演、角色、世界观、章节生产、知识库和任务恢复能力组织成清晰的创作路径。
+The core experience of this project is not a generic admin console and not a chatbot. It is an AI creation workbench that helps writing beginners finish a complete novel. The interface must organize complex auto-director, character, worldbuilding, chapter production, knowledge-base, and task-recovery capabilities into a clear creation path.
 
-本规范用于约束后续产品 UI 设计、页面生成和前端组件构建。公开文档站继续遵循 `site/DESIGN.md`；客户端产品界面以本文为准。
+This spec constrains later product UI design, page generation, and frontend component construction. The public documentation site continues to follow `site/DESIGN.md`. The client product UI follows this document.
 
 ## Design North Star
 
-用户打开产品后，应立刻知道：
+After opening the product, the user should immediately know:
 
-- 当前正在创作哪本小说。
-- 小说处于哪个阶段。
-- 系统建议下一步做什么。
-- 角色、世界观、章节连续性是否稳定。
-- 哪些问题会阻止继续生成，哪些只是后续可处理的质量提醒。
+- Which novel they are currently creating.
+- Which stage the novel is in.
+- What the system recommends doing next.
+- Whether character, worldbuilding, and chapter continuity are stable.
+- Which problems will block further generation, and which are only later quality reminders.
 
-所有页面都应服务于“让新手继续推进完整小说”，避免把能力展示成一组互不相关的工具入口。
+Every page should serve “help a beginner keep advancing a complete novel.” Do not present capabilities as a set of unrelated tool entrypoints.
 
 ## Product Personality
 
-界面气质应是“专业创作驾驶舱”，不是营销页、表单后台或普通聊天页。
+The interface personality should be a “professional creation cockpit,” not a marketing page, form-admin backend, or ordinary chat page.
 
-- 清晰：信息层级明确，用户能快速判断当前状态和下一步。
-- 克制：减少装饰性渐变、浮动卡片、过度阴影和大面积视觉噪声。
-- 连续：角色、世界观、章节、任务之间要有明显的流程关系。
-- 可控：AI 自动执行时必须让用户看见当前阶段、风险和可恢复入口。
-- 初学者友好：默认推荐下一步，不要求用户理解复杂写作术语后才能操作。
+- Clear: information hierarchy is explicit so the user can quickly judge current state and next step.
+- Restrained: reduce decorative gradients, floating cards, excessive shadows, and large visual noise.
+- Continuous: character, worldbuilding, chapters, and tasks should have an obvious process relationship.
+- Controllable: when AI runs automatically, the user must see the current stage, risks, and recoverable entrypoints.
+- Beginner-friendly: default to recommending the next step; do not require the user to understand complex craft terms before they can act.
 
 ## Scope
 
-本文只定义项目级 UI 设计原则和组件构建规则，不规定某一个页面的具体版式、模块顺序或首屏内容。具体页面设计应另写页面级说明，并引用本文作为约束。
+This document only defines project-level UI design principles and component-construction rules. It does not prescribe one page’s concrete layout, module order, or first-screen content. Concrete page design should be written as a page-level note and cite this document as a constraint.
 
-本文约束范围：
+This document constrains:
 
-- 产品信息架构原则。
-- 页面类型与布局模式。
-- 视觉语言与设计 token。
-- 前端 UI 组件构建规则。
-- 响应式、可访问性、文案和状态表达。
-- 角色、世界观、章节连续性等核心生成资产的可视化原则。
+- Product information-architecture principles.
+- Page types and layout patterns.
+- Visual language and design tokens.
+- Frontend UI component-construction rules.
+- Responsive behavior, accessibility, copy, and status expression.
+- Visualization principles for core generation assets such as character, worldbuilding, and chapter continuity.
 
-本文不包含：
+This document does not include:
 
-- 任意单页的最终布局方案。
-- 某个页面必须展示哪些具体卡片。
-- 某个页面的线框图或视觉稿。
-- 临时活动页、营销页或公开文档站设计。
+- The final layout of any single page.
+- Which specific cards a page must show.
+- Wireframes or visual comps for a specific page.
+- Temporary campaign pages, marketing pages, or public documentation-site design.
 
 ## Information Architecture
 
-产品信息架构按用户任务组织，而不是按后端模块、数据表或技术链路组织。
+Product information architecture is organized by user tasks, not by backend modules, tables, or technical chains.
 
-全局导航应保持稳定，功能区之间的边界应清晰：
+Global navigation should stay stable, and boundaries between capability areas should be clear:
 
-- 创作推进：承载继续创作、阶段进度、下一步建议。
-- 小说项目：承载单本小说的资料、阶段、章节和历史。
-- 自动导演：承载全书规划、执行状态、阻塞与恢复。
-- 章节生产：承载生成、审阅、修复、批量执行。
-- 角色与世界观：承载长期生成资产、连续性、设定事实。
-- 知识与检索：承载知识文档、RAG 索引、检索状态。
-- 任务与提醒：承载失败、审批、质量债务、恢复入口。
-- 系统配置：承载模型、供应商、通知、运行环境。
+- Creation progress: continue creating, stage progress, next-step recommendation.
+- Novel project: one novel’s materials, stages, chapters, and history.
+- Auto-director: whole-book planning, execution state, blocking, and recovery.
+- Chapter production: generation, review, repair, and batch execution.
+- Character and worldbuilding: long-lived generation assets, continuity, and setting facts.
+- Knowledge and retrieval: knowledge documents, RAG index, and retrieval status.
+- Tasks and reminders: failures, approvals, quality debt, and recovery entrypoints.
+- System configuration: models, providers, notifications, and runtime environment.
 
-导航层级只定义用户如何理解产品，不等同于页面布局。具体页面可以根据任务复杂度采用单栏、双栏、三栏、分步、列表、编辑器或工作台模式。
+Navigation hierarchy only defines how users understand the product. It is not the same as page layout. A concrete page may use single-column, two-column, three-column, step, list, editor, or workbench mode depending on task complexity.
 
 ## Experience Model
 
-所有核心体验围绕一个循环展开：
+All core experience is organized around one loop:
 
-1. 用户选择或创建创作对象。
-2. 系统给出当前阶段和推荐动作。
-3. 用户确认、生成、审阅或修复。
-4. 系统同步角色、世界观、章节事实和任务状态。
-5. 下一步继续读取这些资产推进创作。
+1. The user selects or creates a creation object.
+2. The system presents the current stage and a recommended action.
+3. The user confirms, generates, reviews, or repairs.
+4. The system syncs characters, worldbuilding, chapter facts, and task state.
+5. The next step continues by reading those assets to advance creation.
 
-界面设计应持续暴露这个循环，让用户理解系统不是一次性生成文本，而是在维护一部长篇小说的持续状态。
+Interface design should keep exposing this loop so users understand the system is not a one-shot text generator; it is maintaining the ongoing state of a long novel.
 
 ## Page Archetypes
 
-页面设计时先判断所属类型，再选择布局。一个具体页面可以组合多种类型，但必须有一个主类型。
+When designing a page, first decide its type, then choose layout. A concrete page may combine several types, but it must have one primary type.
 
 ### Dashboard
 
-用于展示状态总览、推荐动作、风险和进度。它的职责是帮助用户判断“现在该做什么”，不是承载完整编辑工作。
+Used to show status overview, recommended actions, risks, and progress. Its job is to help the user decide “what to do now,” not to host complete editing work.
 
 ### Workspace
 
-用于围绕一个主要对象持续工作，例如一本小说、一个生成任务或一个创作线程。它应始终显示当前对象、当前阶段、主操作和辅助状态。
+Used to keep working around one primary object, for example a novel, a generation task, or a creation thread. It should always show the current object, current stage, primary action, and supporting status.
 
 ### Editor
 
-用于阅读、修改和审阅长内容。正文或主要内容必须是视觉中心，参数、诊断和辅助信息不能挤占主内容。
+Used to read, edit, and review long content. The prose or main content must be the visual center. Parameters, diagnostics, and supporting information must not crowd out the main content.
 
 ### Asset Library
 
-用于维护角色、世界观、知识、模板、规则等可复用资产。资产库页面应突出资产状态、来源、影响范围和最近使用情况，不只是列表管理。
+Used to maintain reusable assets such as characters, worldbuilding, knowledge, templates, and rules. Asset-library pages should highlight asset status, source, impact scope, and recent use, not only list management.
 
 ### Task Queue
 
-用于处理审批、失败、提醒、质量债务和恢复动作。任务项必须区分阻塞、非阻塞风险和普通提醒。
+Used to handle approvals, failures, reminders, quality debt, and recovery actions. Task items must distinguish blocking issues, non-blocking risks, and ordinary reminders.
 
 ### Settings
 
-用于配置模型、供应商、通知和系统能力。设置页不应阻塞新用户开始创作，除非缺失配置会导致核心流程不可用。
+Used to configure models, providers, notifications, and system capabilities. Settings pages should not block a new user from starting creation unless missing configuration would make the core flow unusable.
 
 ## Page Structure Rules
 
-每个核心页面都应明确：
+Every core page should make these explicit:
 
-- 当前对象：用户正在处理哪本书、哪个任务、哪类资产或哪段内容。
-- 当前阶段：系统处于规划、生成、审阅、同步、等待确认还是恢复状态。
-- 主任务：当前页面最重要的一件事。
-- 推荐动作：系统建议用户下一步做什么。
-- 状态反馈：哪些已完成、哪些进行中、哪些需要处理。
-- 辅助信息：只在支持主任务时展示，避免信息堆叠。
+- Current object: which book, task, asset class, or piece of content the user is working on.
+- Current stage: whether the system is planning, generating, reviewing, syncing, waiting for confirmation, or recovering.
+- Primary task: the single most important thing on this page.
+- Recommended action: what the system suggests the user do next.
+- Status feedback: what is done, what is in progress, and what needs handling.
+- Supporting information: shown only when it supports the primary task; avoid stacking information.
 
-页面不得把所有能力平铺到首屏。首屏只承载当前任务、关键状态和下一步动作；低频配置和技术细节应放入次级区域。
+A page must not flatten every capability onto the first screen. The first screen only carries the current task, key status, and next action. Low-frequency configuration and technical detail belong in secondary areas.
 
 ## Visual System
 
-整体采用安静、清晰、工作台式视觉。
+The overall look is quiet, clear, and workbench-like.
 
 ### Color
 
-优先使用 Tailwind 和项目语义 CSS 变量，不在页面中随意写一次性颜色。
+Prefer Tailwind and project semantic CSS variables. Do not write one-off colors freely in pages.
 
-语义颜色建议：
+Suggested semantic colors:
 
-- Primary：主操作、当前阶段、关键选中状态。
-- Muted：辅助背景、弱信息区域。
-- Border：分区边界、输入框边界。
-- Destructive：阻塞、失败、危险操作。
-- Warning：待确认、质量债务、非阻塞风险。
-- Success：完成、可继续、同步成功。
-- Info：生成中、处理中、系统建议。
+- Primary: primary actions, current stage, key selected state.
+- Muted: supporting backgrounds and weak-information areas.
+- Border: section boundaries and input boundaries.
+- Destructive: blocking, failure, dangerous actions.
+- Warning: pending confirmation, quality debt, non-blocking risk.
+- Success: complete, can continue, sync succeeded.
+- Info: generating, processing, system suggestion.
 
-客户端主题必须提供 `success`、`warning`、`info` 及对应 foreground token。业务页面应通过这些语义 token 表达状态，不直接散落 `emerald`、`amber`、`sky` 或一次性十六进制颜色。
+The client theme must provide `success`, `warning`, `info`, and matching foreground tokens. Business pages should express status through these semantic tokens and must not scatter `emerald`, `amber`, `sky`, or one-off hex colors.
 
-新增颜色前，应先判断能否映射到语义变量。确实需要新增时，先扩展全局 token，再使用。
+Before adding a color, first decide whether it can map to a semantic variable. If a new color is truly needed, extend the global tokens first, then use it.
 
 ### Typography
 
-- 页面主标题用于对象和阶段，不用于装饰。
-- 卡片标题应短，不使用大号 hero 字体。
-- 正文、说明和状态文本保持清晰的中文阅读体验。
-- 不使用 viewport 宽度直接缩放字体。
-- 字间距保持默认，不使用负字距。
+- Page main titles are for object and stage, not decoration.
+- Card titles should be short; do not use large hero type.
+- Body, explanation, and status text should stay a clear reading experience for Chinese.
+- Do not scale type directly from viewport width.
+- Keep default letter-spacing; do not use negative tracking.
 
 ### Spacing
 
-- 页面级区域使用稳定的间距节奏。
-- 同一页面内卡片内边距、标题间距、按钮间距应统一。
-- 不用嵌套卡片堆层级；需要分组时优先使用分区、列表、表格或 tabs。
+- Page-level regions use a stable spacing rhythm.
+- Card padding, title spacing, and button spacing should be consistent within one page.
+- Do not stack hierarchy with nested cards. When grouping is needed, prefer sections, lists, tables, or tabs.
 
 ### Low-border Hierarchy
 
-- 普通内容分组默认无可见边框、无阴影，优先使用标题层级、留白、对齐、浅底色和分隔线建立关系。
-- 边框只用于传达必要边界：表单控件、选中或聚焦状态、警告与错误、表格或列表分隔、拖放区域，以及弹窗、菜单等浮层。
-- 同一页面不得连续堆叠等视觉重量的矩形容器；已有外层区域时，内部内容使用无边框行、分区或弱背景。
-- 判断标准不是“是否使用了 Card 组件”，而是去掉边框后是否仍能正确理解层级和完成操作；若可以，必须去掉。
+- Ordinary content grouping has no visible border and no shadow by default. Prefer title hierarchy, whitespace, alignment, light background, and dividers to establish relationship.
+- Borders are used only to communicate a necessary boundary: form controls, selected or focus state, warning and error, table or list separation, drag-and-drop targets, and floating layers such as dialogs and menus.
+- One page must not stack rectangles of equal visual weight. When an outer region already exists, inner content uses borderless rows, sections, or a weak background.
+- The test is not “whether a Card component was used,” but whether hierarchy and interaction remain clear after the border is removed. If they do, the border must be removed.
 
 ### Radius and Shadow
 
-- 默认圆角保持克制，卡片建议 8px 左右。
-- 不使用大面积圆角胶囊卡片承载复杂文本。
-- 阴影只用于浮层、弹窗和菜单等临时层级。
-- 常规内容区主要靠背景、间距、排版和必要分隔线区分。
+- Default radius stays restrained; cards should be around 8px.
+- Do not use large rounded capsule cards to carry complex text.
+- Shadows are reserved for temporary elevation such as floating layers, dialogs, and menus.
+- Ordinary content areas are distinguished mainly by background, spacing, typography, and necessary dividers.
 
 ## Component Construction Rules
 
-当前客户端使用项目自有 UI primitives、Tailwind CSS 和 CSS 变量。现有 `components/ui/` 文件作为兼容层由项目直接维护，不再以 shadcn/ui 的默认样式或生成器作为设计来源。
+The current client uses project-owned UI primitives, Tailwind CSS, and CSS variables. Existing `components/ui/` files are a compatibility layer maintained directly by the project. shadcn/ui default styles or generators are no longer the design source.
 
 ### Component Ownership
 
-- `client/src/components/ui/` 只放项目自有基础 UI primitive；禁止在这里放业务组件。
-- 业务组合组件放到明确模块目录，例如 `components/autoDirector/`、`components/creativeHub/`、`pages/novels/components/`。
-- 知识、题材、角色、世界和规则等跨模块资产库共用的页面结构归属 `components/assetLibrary/`；该目录只组合页头、状态、推荐动作、分区和空态，不读取 API 或持有业务状态。
-- 不把业务逻辑写进 `components/ui/`。
-- 不新增无归属的 `helpers`、`utils` 式 UI 文件来承载业务组件。
+- `client/src/components/ui/` holds only project-owned basic UI primitives. Business components are forbidden here.
+- Business composition components go into an explicit module directory, for example `components/autoDirector/`, `components/creativeHub/`, `pages/novels/components/`.
+- Cross-module asset-library page structure for knowledge, genre, character, world, and rules belongs in `components/assetLibrary/`. That directory only composes header, status, recommended action, sections, and empty state; it does not read APIs or hold business state.
+- Do not put business logic into `components/ui/`.
+- Do not add unowned `helpers` or `utils` style UI files to host business components.
 
 ### Composition
 
-- 优先组合现有基础组件，不复制相似 JSX。
-- 同一模块出现 3 次以上的同类状态卡、任务行、资产摘要，应抽成模块组件。
-- 组件 props 使用领域语义，例如 `status`、`nextAction`、`riskLevel`，不要只传一堆视觉 class。
-- class 合并统一使用项目 `cn()` 工具。
+- Prefer composing existing primitives; do not copy similar JSX.
+- If the same kind of status card, task row, or asset summary appears more than 3 times in one module, extract a module component.
+- Component props use domain semantics such as `status`, `nextAction`, and `riskLevel`. Do not pass only a pile of visual classes.
+- Class merging always uses the project `cn()` helper.
 
 ### Project-owned Primitive Usage
 
-- 新增通用控件优先组合现有项目 primitive；确需复杂交互行为时可以使用 Radix 等无样式行为基础，但视觉必须由项目 token 和规则定义。
-- 禁止安装新的 shadcn/ui 组件或运行其生成器。现有兼容组件可以渐进重构，不要求为改名进行无收益的大规模迁移。
-- 基础组件的默认外观必须克制；普通 Surface/Card 默认无可见边框和阴影，语义边框由调用方显式声明。
-- 不直接修改第三方包；复杂业务区域应包装项目基础组件，而不是在页面里堆大量无归属的 `div`。
+- New generic controls should first compose existing project primitives. When complex interaction behavior is truly needed, unstyled behavior primitives such as Radix may be used, but visuals must be defined by project tokens and rules.
+- Do not install new shadcn/ui components or run their generator. Existing compatibility components may be refactored gradually; a no-benefit mass rename migration is not required.
+- Default appearance of primitives must stay restrained. Ordinary Surface/Card has no visible border or shadow by default; semantic borders are declared explicitly by the caller.
+- Do not patch third-party packages directly. Complex business regions should wrap project primitives instead of stacking unowned `div`s in the page.
 
 ### Icons
 
-- 工具按钮和状态入口优先使用 `lucide-react` 图标。
-- 图标按钮必须有可访问名称或 tooltip。
-- 不用文字胶囊替代常见图标行为，例如返回、刷新、保存、下载、搜索。
+- Tool buttons and status entrypoints prefer `lucide-react` icons.
+- Icon buttons must have an accessible name or tooltip.
+- Do not replace common icon actions such as back, refresh, save, download, and search with text capsules.
 
 ### State Components
 
-所有重要页面必须覆盖：
+Every important page must cover:
 
-- Loading：显示正在加载的对象和动作。
-- Empty：告诉用户可以做什么，而不是只写“暂无数据”。
-- Error：说明影响范围和下一步恢复动作。
-- Disabled：解释为什么当前动作不可用。
-- Success：只在需要确认完成时出现，不制造噪声。
+- Loading: show the object and action being loaded.
+- Empty: tell the user what they can do, not only “no data.”
+- Error: explain impact scope and the next recovery action.
+- Disabled: explain why the current action is unavailable.
+- Success: appear only when completion confirmation is needed; do not create noise.
 
 ## Layout Rules
 
 ### Desktop
 
-优先使用工作台布局：
+Prefer a workbench layout:
 
-- 左侧导航。
-- 顶部状态栏。
-- 中央主任务区。
-- 右侧建议或状态区。
+- Left navigation.
+- Top status bar.
+- Central primary-task area.
+- Right suggestion or status area.
 
-正文编辑、章节生成、创作中枢等页面可以使用三栏布局，但必须保证主任务区是视觉中心。
+Pages such as prose editing, chapter generation, and Creative Hub may use a three-column layout, but the primary-task area must remain the visual center.
 
 ### Mobile
 
-移动端不简单压缩桌面布局。
+Mobile must not simply compress the desktop layout.
 
-- 主任务优先显示。
-- 侧栏内容下沉为折叠区、tabs 或底部操作。
-- 复杂表格改为列表。
-- 操作按钮允许全宽。
-- 输入控件字号不得低于 16px，避免移动端缩放。
+- Show the primary task first.
+- Side-column content sinks into collapsed regions, tabs, or bottom actions.
+- Complex tables become lists.
+- Action buttons may be full width.
+- Input control type size must not be below 16px, to avoid mobile zoom.
 
 ### Responsive Safety
 
-- 固定格式组件需要明确尺寸或响应式约束，例如面板、工具栏、统计块、章节卡。
-- 长文本必须允许换行，不得溢出按钮或卡片。
-- 页面不得出现横向滚动，除非是明确的横向 tabs 或数据表区域。
+- Fixed-format components need explicit size or responsive constraints, for example panels, toolbars, statistic blocks, and chapter cards.
+- Long text must wrap; it must not overflow buttons or cards.
+- Pages must not have horizontal scroll unless it is an explicit horizontal-tab or data-table region.
 
 ## Product Copy Rules
 
-所有用户可见文案必须从用户任务出发。
+All user-visible copy must start from the user task.
 
-推荐写法：
+Recommended wording:
 
-- “继续生成下一章”
-- “确认角色变化”
-- “查看世界观冲突”
-- “这条提醒不会阻止继续生成”
-- “从小说基础信息设置默认写法”
+- “Continue generating the next chapter”
+- “Confirm character changes”
+- “View worldbuilding conflicts”
+- “This reminder will not block further generation”
+- “Set the default writing style from novel basic information”
 
-避免写法：
+Wording to avoid:
 
-- “已升级为新流程”
-- “迁移到新模块”
-- “当前 pipeline 状态”
+- “Upgraded to the new flow”
+- “Migrated to the new module”
+- “Current pipeline status”
 - “runtime sync failed”
-- “旧逻辑不再使用”
+- “Old logic is no longer used”
 
-技术诊断可以存在，但默认折叠到“详情”或“开发信息”。
+Technical diagnostics may exist, but they default to a collapsed “Details” or “Developer information” area.
 
 ## AI Workflow Visibility
 
-AI 自动执行必须可视化为用户能理解的流程。
+AI automatic execution must be visualized as a process the user can understand.
 
-页面应区分：
+Pages should distinguish:
 
-- 正在规划。
-- 正在生成。
-- 正在审阅。
-- 正在同步角色和世界观。
-- 等待用户确认。
-- 可继续但有质量债务。
-- 必须重规划。
+- Planning.
+- Generating.
+- Reviewing.
+- Syncing characters and worldbuilding.
+- Waiting for user confirmation.
+- Can continue, but with quality debt.
+- Must replan.
 
-不要只显示 loading spinner。长任务需要阶段、进度、最近事件和恢复入口。
+Do not show only a loading spinner. Long tasks need stage, progress, recent events, and a recovery entrypoint.
 
 ## Character and Worldbuilding Visibility
 
-角色与世界观必须在界面上被呈现为“参与生成的资产”。
+Characters and worldbuilding must be presented in the UI as “assets that participate in generation.”
 
-章节生成前，应让用户看到：
+Before chapter generation, the user should see:
 
-- 本章涉及哪些角色。
-- 角色当前状态和关系。
-- 本章涉及哪些世界规则。
-- 哪些事实会约束正文。
+- Which characters this chapter involves.
+- Current character state and relationships.
+- Which world rules this chapter involves.
+- Which facts will constrain the prose.
 
-章节生成后，应让用户看到：
+After chapter generation, the user should see:
 
-- 角色时间线是否更新。
-- 章节摘要是否生成。
-- 新事实是否沉淀。
-- RAG 或知识索引是否排队或完成。
+- Whether the character timeline was updated.
+- Whether a chapter summary was generated.
+- Whether new facts were persisted.
+- Whether RAG or knowledge indexing is queued or complete.
 
-这能让用户理解系统为什么能维持长篇连续性。
+This helps the user understand why the system can maintain long-novel continuity.
 
 ## Accessibility
 
-- 交互元素必须支持键盘访问。
-- 弹窗、菜单、选择器保留焦点管理。
-- 图标按钮必须有 `aria-label` 或可见 tooltip。
-- 颜色不能作为唯一状态表达，必须配合文字或图标。
-- 状态提示应对屏幕阅读器友好。
+- Interactive elements must support keyboard access.
+- Dialogs, menus, and selectors keep focus management.
+- Icon buttons must have an `aria-label` or a visible tooltip.
+- Color cannot be the only status expression; it must be paired with text or an icon.
+- Status notices should be screen-reader friendly.
 
 ## Quality Checklist
 
-新增或重做页面前，先检查：
+Before adding or redoing a page, check:
 
-- 页面首屏是否有明确下一步。
-- 主按钮是否唯一且符合当前阶段。
-- 用户是否能看见当前小说、章节或任务对象。
-- 角色、世界观、连续性是否在相关流程中可见。
-- 阻塞、警告、普通提醒是否有清晰区别。
-- 空状态是否能引导用户继续。
-- 移动端是否不横向溢出。
-- 是否复用现有组件和 token。
-- 是否避免了嵌套卡片、装饰渐变和一次性颜色。
-- 文案是否从用户视角解释功能。
+- Does the first screen have a clear next step?
+- Is the primary button unique and aligned with the current stage?
+- Can the user see the current novel, chapter, or task object?
+- Are character, worldbuilding, and continuity visible in the related flow?
+- Are blocking, warning, and ordinary reminders clearly distinguished?
+- Does the empty state guide the user to continue?
+- Does mobile avoid horizontal overflow?
+- Are existing components and tokens reused?
+- Are nested cards, decorative gradients, and one-off colors avoided?
+- Does the copy explain the function from the user’s point of view?
 
 ## Implementation Checklist
 
-前端实现前，先确认：
+Before frontend implementation, confirm:
 
-- 是否已有可复用的 `components/ui` primitive。
-- 是否应抽成模块组件，而不是写在页面里。
-- 是否需要新增全局 token。
-- 是否需要为状态、空态、错误态建统一组件。
-- 是否会让单文件超过可维护范围。
-- 是否需要更新模块文档或 wiki。
+- Whether a reusable `components/ui` primitive already exists.
+- Whether it should be extracted as a module component instead of written in the page.
+- Whether a new global token is needed.
+- Whether unified components are needed for status, empty, and error states.
+- Whether it would push a single file past a maintainable size.
+- Whether module docs or the wiki need an update.
 
-实现后，至少进行：
+After implementation, at least do:
 
-- TypeScript 检查。
-- 关键响应式断点人工检查或截图检查。
-- 主要状态检查：loading、empty、error、normal。
-- 对新增 UI copy 做用户视角复核。
+- TypeScript check.
+- Manual or screenshot check of key responsive breakpoints.
+- Main state check: loading, empty, error, normal.
+- User-perspective review of newly added UI copy.
 
 ## Relationship to Other Docs
 
-- `site/DESIGN.md`：公开文档站和 GitHub Pages 介绍站规范。
-- `docs/design/product-ui-design-system.md`：客户端产品 UI 和组件构建规范。
-- `docs/wiki/product/beginner-first-novel-completion.md`：产品目标和新手完成整本小说的长期原则。
-- `docs/plans/assistant-ui-plan.md`：创作中枢和 assistant-ui 迁移计划。
+- `site/DESIGN.md`: public documentation site and GitHub Pages intro-site spec.
+- `docs/design/product-ui-design-system.md`: client product UI and component-construction spec.
+- `docs/wiki/product/beginner-first-novel-completion.md`: product goal and long-term principles for beginners finishing a full novel.
+- `docs/plans/assistant-ui-plan.md`: Creative Hub and assistant-ui migration plan.

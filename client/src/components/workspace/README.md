@@ -1,7 +1,7 @@
-# Workspace 页面组合边界
+# Workspace Page Composition Boundary
 
-本目录只提供工作台共用的页头、推荐动作和状态反馈视觉合同。
+This directory only provides the visual contract shared by workbench pages: page header, recommended actions, and status feedback.
 
-- 组件不读取 API、不解释业务状态，也不执行任务动作。
-- 页面必须先用结构化字段决定 `tone`、标题和后果说明，再交给这里渲染。
-- 状态色只使用全局语义 token；`danger` 表示阻塞或失败，`warning` 表示可继续处理的提醒，`info` 表示进行中或待操作。
+- Components do not read APIs, interpret business state, or execute task actions.
+- The page must first decide `tone`, title, and consequence copy from structured fields, then hand them here for rendering.
+- Status color uses only global semantic tokens: `danger` means blocked or failed, `warning` means a reminder that can still be handled, and `info` means in progress or waiting for action.

@@ -1,58 +1,58 @@
-# Creative Hub 前端模块边界
+# Creative Hub frontend module boundary
 
-## 模块职责
+## Module duty
 
-Creative Hub 是围绕小说状态进行查询、诊断和下一步引导的工作台。它负责展示当前小说、创作线程、AI 执行记录、待确认操作和推荐下一步，并把查询动作交给既有 Creative Hub Runtime 与受控工具。
+Creative Hub is a workspace for querying novel state, diagnosing problems, and guiding the next step. It shows the current novel, creative threads, AI execution records, pending confirmations, and the recommended next action, and it sends query actions to the existing Creative Hub runtime and controlled tools.
 
-本模块不是小说生产事实源，也不是第二套小说生产器。自动导演、章节生产、任务投影和资源服务继续维护各自事实；Creative Hub 只读取这些结构化状态、解释影响并导航到正式工作流。完整 Agent 驱动创作使用独立项目：`https://github.com/ExplosiveCoderflome/ani-book-agent`，使用者从 GitHub 克隆后独立安装和运行。
+This module is not the novel-production source of truth, and it is not a second novel producer. Auto-Director, chapter production, task projection, and resource services keep their own facts. Creative Hub only reads those structured states, explains the impact, and navigates into the formal workflow. Full agent-driven creation lives in a separate project: `https://github.com/ExplosiveCoderflome/ani-book-agent`. Users clone it from GitHub and install and run it independently.
 
-## 目录所有权
+## Directory ownership
 
-- `CreativeHubPage.tsx`：页面级查询、Mutation、URL 同步和三栏工作台编排。业务展示判断不应继续堆在页面 JSX 中。
-- `routing/`：Creative Hub 深链接与资源绑定参数的纯转换，只处理 URL 和结构化 binding。
-- `presentation/`：把已有线程、初始化、生产、诊断和回合摘要投影为当前对象、阶段和唯一推荐动作。这里不得通过关键词识别用户意图。
-- `hooks/useCreativeHubRuntime.ts`：assistant-ui/LangGraph 适配、线程消息装载、流式运行、checkpoint、分支和运行产物投影。
-- `components/CreativeHubConversation.tsx` 与消息组件：创作推进记录、自由输入、消息编辑、分支、重新生成、Tool UI 和审批交互。
-- `components/CreativeHubSidebar.tsx`：当前小说和资源绑定、正式工作流导航、阻塞摘要与折叠的运行详情。
-- `components/CreativeHubThreadList.tsx`：线程选择、创建、归档和删除；不读取 API。
-- `components/CreativeHubToolResultCard.tsx`：对结构化工具名和工具输出做确定性 UI 映射。工具名映射属于结构化结果展示，不承担意图路由。
-- `lib/creativeHubSyntheticMessages.ts`：把回合摘要、诊断与调试事件投影成消息流内联产物。
+- `CreativeHubPage.tsx`: page-level queries, mutations, URL sync, and three-column workspace orchestration. Do not keep stacking business display decisions in page JSX.
+- `routing/`: pure conversion of Creative Hub deep links and resource-binding params. It only handles URL and structured binding.
+- `presentation/`: project existing threads, initialization, production, diagnosis, and turn summaries into the current object, stage, and single recommended action. Do not recognize user intent with keywords here.
+- `hooks/useCreativeHubRuntime.ts`: assistant-ui/LangGraph adaptation, thread message load, streaming run, checkpoint, branch, and run-artifact projection.
+- `components/CreativeHubConversation.tsx` and message components: production record, free input, message edit, branch, regenerate, Tool UI, and approval.
+- `components/CreativeHubSidebar.tsx`: current novel and resource binding, formal-workflow navigation, blocker summary, and collapsed run detail.
+- `components/CreativeHubThreadList.tsx`: thread select, create, archive, and delete. It does not call the API.
+- `components/CreativeHubToolResultCard.tsx`: deterministic UI mapping of structured tool names and tool output. Tool-name mapping is structured result display, not intent routing.
+- `lib/creativeHubSyntheticMessages.ts`: project turn summaries, diagnoses, and debug events into inline message-stream artifacts.
 
-跨工作台复用的无状态页头、推荐动作和状态反馈归属 `client/src/components/workspace/`。带有 Creative Hub 类型、运行时或资源绑定语义的组件必须留在本模块，不能下沉为泛化 helper。
+Stateless headers, recommended actions, and status feedback reused across workspaces belong in `client/src/components/workspace/`. Components that carry Creative Hub types, runtime, or resource-binding semantics must stay in this module. Do not sink them into a generic helper.
 
-## 状态优先级
+## Status priority
 
-页面只展示一个主要推荐动作，按以下顺序消费已有结构化状态：
+The page shows one primary recommended action and consumes existing structured state in this order:
 
-1. 查询、线程装载或线程创建失败：提供对应重试入口。
-2. 显式 interrupt，或线程/最近回合处于 `interrupted`：引导处理待确认操作。
-3. Runtime 或线程正在执行：展示执行状态，禁止再次发送或切换关键资源。
-4. 线程、最近回合、诊断或生产处于结构化失败：使用已有恢复建议。
-5. 新书初始化未完成：使用 `novelSetup.recommendedAction`。
-6. 最近回合有下一步：使用 `latestTurnSummary.nextSuggestion`。
-7. 未绑定小说：引导选择小说或打开正式创建入口。
-8. 其余状态：进入现有正式小说工作台或自动导演入口。
+1. Query, thread load, or thread create failed: offer the matching retry entry.
+2. Explicit interrupt, or the thread / latest turn is `interrupted`: guide the pending confirmation.
+3. Runtime or thread is executing: show execution status; do not send again or switch key resources.
+4. Thread, latest turn, diagnosis, or production is in structured failure: use the existing recovery advice.
+5. New-book setup is incomplete: use `novelSetup.recommendedAction`.
+6. Latest turn has a next step: use `latestTurnSummary.nextSuggestion`.
+7. No novel is bound: guide novel selection or the formal create entry.
+8. Everything else: enter the existing formal novel workspace or Auto-Director.
 
-该优先级只对 AI/Runtime 已输出的结构化结论做确定性展示，不得增加关键词、正则或自由文本分流。
+This priority only displays structured conclusions already produced by AI/runtime. Do not add keyword, regex, or free-text routing.
 
-## 交互规则
+## Interaction rules
 
-- 切换线程时先清空上一线程消息；装载失败必须保留错误和重试入口，不能继续显示旧消息。
-- URL 中的 `threadId` 是当前线程的前端事实源。浏览器前进、后退和深链接必须直接驱动工作区；旧线程的加载、流式事件、审批或资源绑定响应不得覆盖新线程状态。
-- 深链接只携带资源绑定但没有 `threadId` 时，只能复用绑定完全一致的线程；没有匹配线程就创建新的绑定线程，不能回退到无关的最近线程并覆盖入口上下文。
-- 线程、小说详情和小说列表的 Loading、Error、Empty 必须彼此区分，不能把失败渲染成空数据。
-- Runtime 执行、资源绑定、审批或生产提交期间，冲突操作必须呈现真实 disabled/pending；不得保留可点击外观后在处理函数中静默返回。
-- 当前线程内容或状态加载失败时，主创作区保持禁用，但线程选择和新建线程必须继续可用，确保用户能够离开损坏现场。
-- 切换小说时必须清除上一部小说的章节和世界观绑定，避免形成跨小说混合上下文；任务、公式、知识资料等独立绑定按用户现有选择保留。
-- 小说详情未成功读取时不得提交生产设置，避免空字段覆盖当前小说。
-- Tool Result、回合摘要和审批优先留在消息流；侧栏只展示支持下一步所需的摘要，资源 ID 与模型细节默认折叠。
-- Run、Checkpoint 和 Provider 等技术标识只能出现在展开后的运行与调试区域，折叠标题只说明信息类别和记录数量。
-- 移动端先展示推荐动作和创作推进，再展示小说上下文与线程管理；输入字号不低于 16px。
-- 样式使用全局语义 token，不在模块中散落色板色、装饰渐变、重阴影或超大圆角。
+- When switching threads, clear the previous thread’s messages first. A load failure must keep the error and retry entry; do not keep showing old messages.
+- URL `threadId` is the frontend source of truth for the current thread. Browser forward, back, and deep links must drive the workspace. Load, stream, approval, or resource-binding responses from an old thread must not overwrite the new thread.
+- When a deep link carries resource binding but no `threadId`, reuse only a thread whose binding matches exactly. If none matches, create a new bound thread. Do not fall back to an unrelated recent thread and overwrite the entry context.
+- Loading, error, and empty states for thread, novel detail, and novel list must be distinct. Do not render failure as empty data.
+- During runtime execution, resource binding, approval, or production submit, conflicting actions must look truly disabled/pending. Do not keep a clickable look and silently return in the handler.
+- If the current thread content or status fails to load, keep the main creation area disabled, but thread selection and new-thread must stay available so the user can leave the broken scene.
+- Switching novels must clear the previous novel’s chapter and world bindings so mixed cross-novel context cannot form. Independent bindings such as tasks, formulas, and knowledge materials keep the user’s current selection.
+- Do not submit production settings when novel detail has not loaded successfully, so empty fields cannot overwrite the current novel.
+- Tool results, turn summaries, and approvals stay in the message stream first. The sidebar only shows the summary needed for the next step; resource IDs and model details stay collapsed by default.
+- Technical identifiers such as Run, Checkpoint, and Provider may appear only in the expanded run/debug area. Collapsed titles name the information class and record count.
+- On mobile, show the recommended action and production progress first, then novel context and thread management. Input font size is at least 16px.
+- Styling uses global semantic tokens. Do not scatter palette colors, decorative gradients, heavy shadows, or oversized radii in the module.
 
-## 验证边界
+## Verification boundary
 
-- 路由 binding 和工作台推荐优先级使用纯函数测试。
-- 页面组合与语义样式使用客户端设计合同测试。
-- 运行时或表单状态变更至少执行 client typecheck 和聚焦 client tests。
-- UI 交互与视觉验收由用户完成，默认不运行浏览器或截图测试。
+- Routing binding and workspace recommendation priority use pure-function tests.
+- Page composition and semantic styles use client design-contract tests.
+- Runtime or form-state changes at least run client typecheck and focused client tests.
+- UI interaction and visual acceptance belong to the user. Do not run browser or screenshot tests by default.

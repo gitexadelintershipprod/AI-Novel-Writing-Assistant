@@ -1,16 +1,16 @@
-# 全局创作初始化与首书向导
+# Global Creation Setup and First-Book Wizard
 
-## 模块边界
+## Module Boundary
 
-- `QuickSetupService` 负责判断创作环境是否可用，并在用户显式提交快捷配置后检测模型、保存厂商和初始化核心任务路由。
-- `FirstNovelOnboardingService` 只读取真实小说、章节和自动导演状态，生成第一本书里程碑投影。
-- 前端不得自行勾选或伪造里程碑完成状态；本地存储仅用于记住情境提示是否关闭。
+- `QuickSetupService` decides whether the creation environment is usable, and after the user explicitly submits quick setup it probes the model, saves the provider, and initializes core task routing.
+- `FirstNovelOnboardingService` only reads real novel, chapter, and auto-director state to produce a first-book milestone projection.
+- The frontend must not tick or fabricate milestone completion itself; local storage is used only to remember whether a situational hint was dismissed.
 
-## 运行规则
+## Runtime Rules
 
-- 普通文本和结构化输出检测都成功后，快捷配置才可标记完成。
-- 首次配置会将一个文本模型应用到全部核心创作任务，之后用户可在高级模型路由中分别调整。
-- 前端在没有可用模型时自动打开快捷配置；顶栏的模型设置入口可随时重新进入同一配置流程。快捷配置只处理厂商、密钥、地址、默认模型和连通性检测，完整系统设置继续承载多厂商、模型路由与其他高级维护项。
-- 只有首次自动配置成功的结果页才提供首书交接入口，引导用户从一句灵感进入自动导演；顶栏主动打开的模型设置保持为纯维护流程，避免打断已有用户。
-- 已有可读首章的项目直接视为首书向导毕业，不要求重新走引导。
-- 本模块不管理小说生产，也不修改自动导演检查点；它只提供启动条件与只读引导投影。
+- Quick setup may be marked complete only after both ordinary text and structured-output probes succeed.
+- First-time setup applies one text model to all core creation tasks; the user can later adjust each task in advanced model routing.
+- The frontend opens quick setup automatically when no usable model is available; the top-bar model-settings entry can re-enter the same configuration flow at any time. Quick setup only handles provider, key, address, default model, and connectivity probe. Full system settings continue to own multi-provider, model routing, and other advanced maintenance.
+- Only the result page after a successful first automatic configuration offers the first-book handoff, guiding the user from one-sentence inspiration into auto-director. Model settings opened from the top bar stay a pure maintenance flow so existing users are not interrupted.
+- A project that already has a readable first chapter is treated as having graduated from the first-book wizard; it is not required to walk through onboarding again.
+- This module does not manage novel production and does not modify auto-director checkpoints; it only provides start conditions and a read-only guidance projection.

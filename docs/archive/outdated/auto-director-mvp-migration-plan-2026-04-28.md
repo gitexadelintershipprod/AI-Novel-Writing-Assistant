@@ -1,133 +1,133 @@
-# 自动导演统一运行时 MVP 落地切片方案
+# Auto-Director Unified Runtime MVP Implementation Slice Plan
 
-> 归档说明：本文件记录的是 2026-04-28 的自动导演 MVP 迁移切片，已不再作为当前开发依据。当前自动导演事实以 `docs/wiki/workflows/auto-director-runtime.md`、`docs/plans/auto-director-execution-plane-isolation-plan.md`、`docs/plans/director-mode-module-state-refactor-checklist.md` 和 release notes 为准。
+> Archive note: This file records the 2026-04-28 auto-director MVP migration slice and is no longer current development authority. Current auto-director facts follow `docs/wiki/workflows/auto-director-runtime.md`, `docs/plans/auto-director-execution-plane-isolation-plan.md`, `docs/plans/director-mode-module-state-refactor-checklist.md`, and the release notes.
 
-更新日期：2026-04-28
+Updated: 2026-04-28
 
-关联总纲：`docs/plans/auto-director-unified-runtime-refactor-plan.md`
+Related master plan: `docs/plans/auto-director-unified-runtime-refactor-plan.md`
 
-## 1. 文档定位
+## 1. Document Positioning
 
-`auto-director-unified-runtime-refactor-plan.md` 是自动导演重构总纲，负责回答“系统最终应该长成什么样”。
+`auto-director-unified-runtime-refactor-plan.md` is the auto-director refactor master plan. It answers what the system should look like when finished.
 
-本文是 MVP 工程落地切片，负责回答“第一阶段怎么开工，怎么避免一口气重写成另一个巨型系统”。
+This document is the MVP engineering slice. It answers how Phase 1 should start, and how to avoid rewriting everything at once into another giant system.
 
-核心判断：
+Core judgments:
 
-- 总纲方向保留：自动导演创建、AI 接管、手动修改后继续、失败恢复，都应进入同一个 Director Runtime。
-- MVP 不追求一次性完成所有未来模块，而是先做最小可迁移运行时。
-- 新模块从第一天就保持图兼容、事件兼容、策略兼容和产物账本兼容。
-- LangGraph 可以作为后续编排壳，但不能成为第一阶段的主要目标。
+- Keep the master-plan direction: auto-director creation, AI takeover, continue-after-manual-edit, and failure recovery should all enter the same Director Runtime.
+- The MVP does not try to finish every future module in one pass. It first builds a minimum migratable runtime.
+- New modules stay graph-compatible, event-compatible, policy-compatible, and artifact-ledger-compatible from day one.
+- LangGraph can be a later orchestration shell, but it must not be the main Phase 1 goal.
 
-本文中的 TypeScript 结构是概念契约示意，不代表当前阶段立即修改数据库字段或 API 字段。
+TypeScript structures in this document are conceptual contract sketches. They do not mean database or API fields should be changed immediately in the current phase.
 
-## 2. 当前项目进度对账
+## 2. Current Project Progress Reconciliation
 
-本节基于 2026-04-28 在 `beta` 分支的快速代码对账，避免 MVP 被误解成脱离当前实现的空架构。
+This section is based on a 2026-04-28 quick code reconciliation on the `beta` branch, so the MVP is not mistaken for empty architecture detached from current implementation.
 
-当前已经具备的能力：
+Capabilities already in place:
 
-- 自动导演已有独立路由：`server/src/routes/novelDirector.ts`，包含候选生成、候选修订、候选确认、接管 readiness、接管启动等入口。
-- 自动导演主实现集中在 `server/src/services/novel/director/`，其中 `NovelDirectorService.ts` 约 1544 行，仍是主要编排中心。
-- 接管链路已经拆出多个文件，例如 `novelDirectorTakeover.ts`、`novelDirectorTakeoverRuntime.ts`、`novelDirectorTakeoverExecution.ts`、`novelDirectorTakeoverContinue.ts`、`novelDirectorTakeoverReset.ts`。
-- 自动执行也已有子运行时，例如 `novelDirectorAutoExecutionRuntime.ts`、`novelDirectorAutoExecutionCheckpointRuntime.ts`、`novelDirectorAutoExecutionScopeRuntime.ts`。
-- 当前自动导演主链没有直接使用 LangGraph；LangGraph 主要在 `server/src/creativeHub/CreativeHubLangGraph.ts`、`server/src/creativeHub/CreativeHubInterruptLangGraph.ts` 和 `server/src/graphs/*`。
-- 当前 workflow task 已有阶段、checkpoint、resume target、seed payload、follow-up notification 等能力，不能简单忽略或重造。
-- 项目已有 AgentRuntime 的 `idempotencyKey` 思路、auto director follow-up action log 去重、pipeline job 选择/去重辅助、任务中心和通知投影能力。
-- 已有 `NovelArtifactService`，但目前更像 storyline version 的薄包装，不等于本方案所说的 Director Artifact Ledger。
-- `shared/types/novelDirector.ts` 已有 run mode、auto execution plan/state、quality repair risk、takeover start phase、lock scope、candidate batch、task seed snapshot 等类型。
-- `shared/types/novelWorkflow.ts` 已有 workflow stage、checkpoint、resume target、Book Contract 等关键类型。
+- Auto-director already has dedicated routes: `server/src/routes/novelDirector.ts`, including candidate generation, candidate revision, candidate confirmation, takeover readiness, takeover start, and similar entry points.
+- The main auto-director implementation is concentrated in `server/src/services/novel/director/`. `NovelDirectorService.ts` is about 1544 lines and is still the main orchestration center.
+- The takeover chain has already been split into multiple files, for example `novelDirectorTakeover.ts`, `novelDirectorTakeoverRuntime.ts`, `novelDirectorTakeoverExecution.ts`, `novelDirectorTakeoverContinue.ts`, `novelDirectorTakeoverReset.ts`.
+- Auto execution already has sub-runtimes, for example `novelDirectorAutoExecutionRuntime.ts`, `novelDirectorAutoExecutionCheckpointRuntime.ts`, `novelDirectorAutoExecutionScopeRuntime.ts`.
+- The current auto-director main chain does not use LangGraph directly. LangGraph is mainly in `server/src/creativeHub/CreativeHubLangGraph.ts`, `server/src/creativeHub/CreativeHubInterruptLangGraph.ts`, and `server/src/graphs/*`.
+- Current workflow tasks already have stage, checkpoint, resume target, seed payload, follow-up notification, and similar capabilities. These cannot simply be ignored or rebuilt.
+- The project already has AgentRuntime's `idempotencyKey` idea, auto-director follow-up action log deduplication, pipeline job selection/dedup helpers, and task-center and notification projection capabilities.
+- `NovelArtifactService` already exists, but it currently looks more like a thin wrapper around storyline versioning. It is not the Director Artifact Ledger described in this plan.
+- `shared/types/novelDirector.ts` already has run mode, auto execution plan/state, quality repair risk, takeover start phase, lock scope, candidate batch, task seed snapshot, and similar types.
+- `shared/types/novelWorkflow.ts` already has workflow stage, checkpoint, resume target, Book Contract, and other key types.
 
-因此，MVP 的实现策略应是“贴合并收拢现有能力”，而不是从零搭一个平行系统：
+Therefore the MVP implementation strategy should be to align with and consolidate existing capabilities, not to stand up a parallel system from scratch:
 
-- StepRun 概念应优先评估能否复用或扩展现有 `NovelWorkflowTask`、workflow milestone、AgentStep 或 task detail step，而不是直接新增一套孤立表。
-- DirectorEvent 概念应优先对齐现有 auto director follow-up event builder、notification log、task center projection，再补足缺失的事实事件。
-- Artifact Ledger MVP 应优先做 wrapper/index，关联旧业务表和现有产物，不替代旧表。
-- 幂等性应优先复用项目已有 `idempotencyKey` 经验和 action log 去重模式。
-- 并发锁应结合当前 workflow task active status、pipeline job 状态、auto execution state 设计。
+- The StepRun concept should first be evaluated for reuse or extension of existing `NovelWorkflowTask`, workflow milestone, AgentStep, or task detail step, rather than immediately adding an isolated table set.
+- The DirectorEvent concept should first align with the existing auto-director follow-up event builder, notification log, and task-center projection, then fill in missing fact events.
+- Artifact Ledger MVP should first be a wrapper/index that associates old business tables and existing artifacts, not a replacement for those tables.
+- Idempotency should first reuse the project's existing `idempotencyKey` experience and action-log dedup pattern.
+- Concurrency locks should be designed against current workflow task active status, pipeline job status, and auto execution state.
 
-结论：这份 MVP 不是对当前进度的否定，而是把当前已经长出来的候选、接管、自动执行、workflow、follow-up、pipeline、prompt asset 等能力收束到统一运行时边界里。
+Conclusion: this MVP is not a rejection of current progress. It is a way to gather already-grown capabilities—candidate, takeover, auto execution, workflow, follow-up, pipeline, prompt asset—into a unified runtime boundary.
 
-## 3. MVP 总目标
+## 3. MVP Overall Goal
 
-MVP 的目标不是“重写自动导演”，而是让现有链路逐步归口到一套可观察、可恢复、可扩展的运行时边界里。
+The MVP goal is not "rewrite auto-director." It is to gradually route existing chains into one observable, recoverable, extensible runtime boundary.
 
-MVP 完成后应达到：
+After the MVP:
 
-- 所有入口先进入 Director Runtime 门面。
-- 接管已有小说先经过 Workspace Analyzer，而不是走独立接管链。
-- 关键阶段至少能写入 StepRun 和 DirectorEvent。
-- 关键产物能被 Artifact Ledger 索引。
-- 自动、手动、半自动由 Policy Engine 控制，而不是散落在阶段分支。
-- 旧阶段可以被 Node Runner 包装成标准节点。
-- 单个审核或修复失败不会冻结整条链。
-- 后续低风险 LangGraph 试点只替换编排壳，不重写节点能力。
+- Every entry first goes through the Director Runtime facade.
+- Taking over an existing novel first goes through Workspace Analyzer, instead of a separate takeover chain.
+- Key stages can at least write StepRun and DirectorEvent.
+- Key artifacts can be indexed by Artifact Ledger.
+- Automatic, manual, and semi-automatic modes are controlled by Policy Engine, not scattered across stage branches.
+- Old stages can be wrapped as standard nodes by Node Runner.
+- A single audit or repair failure does not freeze the whole chain.
+- Later low-risk LangGraph pilots only replace the orchestration shell; they do not rewrite node capabilities.
 
-## 4. MVP 明确不做什么
+## 4. What the MVP Explicitly Will Not Do
 
-第一阶段不做：
+Phase 1 will not:
 
-- 不一次性把所有产物纳入 Artifact Ledger。
-- 不一次性拆完 `NovelDirectorService`。
-- 不一开始就完整 LangGraph 化章节执行、修复和 pipeline job。
-- 不一开始就做完整 Capability Registry。
-- 不一开始就把世界观治理、角色治理、知识库编排全部主链化。
-- 不让 Director Runtime 直接拼 prompt、生成正文或判断复杂创作质量。
-- 不在没有稳定事件与幂等机制前做大范围自动重算。
+- Put every artifact into Artifact Ledger at once.
+- Fully split `NovelDirectorService` at once.
+- Fully LangGraph-ize chapter execution, repair, and pipeline jobs from the start.
+- Build a complete Capability Registry from the start.
+- Put world-setting governance, character governance, and knowledge-base orchestration fully onto the main chain from the start.
+- Let Director Runtime itself assemble prompts, generate body text, or judge complex creative quality.
+- Do large-scale automatic recomputation before stable events and idempotency exist.
 
-## 5. 最小模块边界
+## 5. Minimum Module Boundaries
 
 ### 5.1 DirectorRuntime
 
-只负责 run 生命周期：
+Only owns the run lifecycle:
 
-- 创建 run。
-- 恢复 run。
-- 暂停 run。
-- 继续 run。
-- 切换 policy。
-- 调用 Workspace Analyzer。
-- 调用 Node Runner。
-- 处理事件和状态同步。
+- Create run.
+- Resume run.
+- Pause run.
+- Continue run.
+- Switch policy.
+- Call Workspace Analyzer.
+- Call Node Runner.
+- Handle events and state sync.
 
-DirectorRuntime 不应该：
+DirectorRuntime should not:
 
-- 直接生成小说内容。
-- 直接拼 prompt。
-- 直接写角色、卷、章节正文。
-- 直接判断复杂创作质量。
-- 直接拼 UI 文案。
-- 直接绕过策略层覆盖用户内容。
+- Directly generate novel content.
+- Directly assemble prompts.
+- Directly write character, volume, or chapter body.
+- Directly judge complex creative quality.
+- Directly assemble UI copy.
+- Directly bypass the policy layer to overwrite user content.
 
-一旦 DirectorRuntime 开始承载 prompt、章节上下文、正文写入和 UI 解释，它就会变成第二个 `NovelDirectorService`。
+Once DirectorRuntime starts carrying prompts, chapter context, body writes, and UI explanation, it becomes a second `NovelDirectorService`.
 
 ### 5.2 WorkspaceAnalyzer
 
-分成两层：
+Split into two layers:
 
-- Workspace Inventory：确定性扫描，负责资产存在性、版本、任务、运行状态、用户编辑记录。
-- Workspace Interpretation：AI 结构化分析，负责生产阶段、风险、推荐动作、改动影响和最小修复路径。
+- Workspace Inventory: deterministic scan for asset existence, versions, tasks, run state, and user-edit records.
+- Workspace Interpretation: AI structured analysis for production stage, risk, recommended action, change impact, and the minimum repair path.
 
-确定性扫描适合判断：
+Deterministic scan is suited for:
 
-- 哪些资产存在。
-- 哪些章节已有正文。
-- 哪个产物版本最新。
-- 产物依赖的上游版本是否变化。
-- 用户是否编辑过某章。
-- 是否有 active run。
-- 是否允许覆盖用户手写内容。
+- Which assets exist.
+- Which chapters already have body text.
+- Which artifact version is latest.
+- Whether upstream versions that an artifact depends on have changed.
+- Whether the user has edited a chapter.
+- Whether there is an active run.
+- Whether overwriting user-written content is allowed.
 
-AI 结构化分析适合判断：
+AI structured analysis is suited for:
 
-- 主角动机变化是否影响后续卷目标。
-- 用户改写第 3 章是否破坏前 30 章承诺。
-- 世界观设定是否足以支撑当前冲突。
-- 最近 5 章是否节奏重复。
-- 某个角色是否工具人化。
-- 当前小说下一步最自然该补什么。
+- Whether a change in the protagonist's motivation affects later volume goals.
+- Whether the user's rewrite of chapter 3 breaks promises made in the first 30 chapters.
+- Whether world-setting is enough to support the current conflict.
+- Whether the last 5 chapters repeat the same pacing.
+- Whether a character has become a mere plot device.
+- What the novel most naturally needs to fill in next.
 
-概念契约：
+Conceptual contract:
 
 ```ts
 type WorkspaceAnalysis = {
@@ -141,9 +141,9 @@ type WorkspaceAnalysis = {
 
 ### 5.3 ArtifactLedger MVP
 
-第一版只做索引、版本、依赖、来源和健康状态，不替代所有业务表。
+The first version only does index, version, dependency, source, and health status. It does not replace all business tables.
 
-MVP 优先纳入：
+MVP should prefer to include:
 
 - `book_contract`
 - `story_macro`
@@ -154,7 +154,7 @@ MVP 优先纳入：
 - `audit_report`
 - `repair_ticket`
 
-暂缓纳入但为后续保留：
+Defer but reserve for later:
 
 - `reader_promise`
 - `character_governance_state`
@@ -164,14 +164,14 @@ MVP 优先纳入：
 - `continuity_state`
 - `rolling_window_review`
 
-第一版至少回答四个问题：
+The first version should at least answer four questions:
 
-1. 这个产物是什么类型？
-2. 这个产物当前可信版本是哪一个？
-3. 它依赖哪些上游产物？
-4. 它被谁生成或修改过？
+1. What type is this artifact?
+2. Which version is currently trusted?
+3. Which upstream artifacts does it depend on?
+4. Who generated or modified it?
 
-概念契约：
+Conceptual contract:
 
 ```ts
 type DirectorArtifact = {
@@ -205,11 +205,11 @@ type DirectorArtifact = {
 };
 ```
 
-关键原则：不要把所有产物正文都塞进 Ledger。`contentRef` 指向旧业务表或专用内容表，Ledger 负责索引和依赖。
+Key principle: do not stuff all artifact body content into the Ledger. `contentRef` points at the old business table or a dedicated content table. The Ledger owns index and dependency.
 
 ### 5.4 PolicyEngine V1
 
-第一版控制策略只保留四种：
+The first version keeps only four control policies:
 
 ```ts
 type DirectorPolicyMode =
@@ -219,7 +219,7 @@ type DirectorPolicyMode =
   | "auto_safe_scope";
 ```
 
-策略决策关注：
+Policy decisions focus on:
 
 ```ts
 type PolicyDecision = {
@@ -239,19 +239,19 @@ type PolicyDecision = {
 };
 ```
 
-硬规则：
+Hard rules:
 
-- 覆盖用户手写内容必须经过 Policy Engine。
-- 自动修复默认最多一次。
-- 质量失败必须带 `affectedScope`。
-- 非破坏性质量问题默认不全局阻断。
-- 高风险问题只阻断受影响范围。
+- Overwriting user-written content must go through Policy Engine.
+- Auto-repair defaults to at most once.
+- Quality failure must carry `affectedScope`.
+- Non-destructive quality issues default to not blocking globally.
+- High-risk issues only block the affected scope.
 
 ### 5.5 NodeRunner
 
-NodeRunner 负责执行一个节点，但不把每个节点的业务逻辑写进自己内部。
+NodeRunner executes a node, but does not embed each node's business logic inside itself.
 
-节点契约从 Phase 2 就要图兼容：
+Node contracts should be graph-compatible from Phase 2:
 
 ```ts
 type DirectorNodeContract = {
@@ -269,7 +269,7 @@ type DirectorNodeContract = {
 };
 ```
 
-节点结果：
+Node result:
 
 ```ts
 type DirectorNodeResult = {
@@ -286,44 +286,44 @@ type DirectorNodeResult = {
 };
 ```
 
-这样即使第一阶段不用 LangGraph，后续图化也只是替换编排壳，而不是重写节点。
+This way, even if Phase 1 does not use LangGraph, later graph-ization only replaces the orchestration shell instead of rewriting nodes.
 
-## 6. 运行可靠性约束
+## 6. Runtime Reliability Constraints
 
-### 6.1 幂等性
+### 6.1 Idempotency
 
-任何会写数据库的节点都必须有 `idempotencyKey`。
+Any node that writes to the database must have an `idempotencyKey`.
 
-推荐规则：
+Recommended rule:
 
 ```ts
 const idempotencyKey = `${runId}:${nodeKey}:${targetType}:${targetId ?? "global"}`;
 ```
 
-执行前先查 StepRun、Artifact Ledger 或 operation log：
+Before execution, first look up StepRun, Artifact Ledger, or operation log:
 
-- 如果同一个 key 已经成功完成，直接复用结果。
-- 如果同一个 key 正在执行，不重复启动。
-- 如果同一个 key 失败，按 retry budget 和 PolicyDecision 决定是否重试。
+- If the same key already completed successfully, reuse the result.
+- If the same key is currently executing, do not start another run.
+- If the same key failed, decide whether to retry from retry budget and PolicyDecision.
 
-这能避免服务重启、用户重复点击继续、后台恢复、LangGraph resume 造成重复创建角色、卷、章节或 pipeline job。
+This avoids duplicate creation of characters, volumes, chapters, or pipeline jobs caused by service restart, the user clicking continue again, background recovery, or LangGraph resume.
 
-### 6.2 并发锁
+### 6.2 Concurrency Locks
 
-MVP 至少需要这些锁语义：
+MVP needs at least these lock semantics:
 
-- novel-level active run lock。
-- artifact-level write lock。
-- chapter pipeline lock。
-- pause / resume / cancel 状态锁。
+- novel-level active run lock.
+- artifact-level write lock.
+- chapter pipeline lock.
+- pause / resume / cancel state lock.
 
-目标是防止同一本小说被多个入口同时写同一批资产，例如创作中枢、任务中心和后台恢复同时触发继续。
+The goal is to prevent the same novel from having multiple entry points write the same assets at once—for example Creative Hub, task center, and background recovery all triggering continue.
 
-### 6.3 成本预算
+### 6.3 Cost Budget
 
-AI-first 不等于每一步无限调用模型。
+AI-first does not mean unlimited model calls at every step.
 
-建议加入 BudgetPolicy：
+Recommend adding BudgetPolicy:
 
 ```ts
 type DirectorBudgetPolicy = {
@@ -335,18 +335,18 @@ type DirectorBudgetPolicy = {
 };
 ```
 
-MVP 阶段默认：
+MVP defaults:
 
-- Workspace Analyzer 可以调用 AI，但应先使用确定性 Inventory 缩小上下文。
-- 自动修复最多一次。
-- Rolling Window Review 暂不进入基础运行时，后续作为能力模块试点。
-- 高成本审查需要 policy 或用户授权。
+- Workspace Analyzer may call AI, but should first use deterministic Inventory to shrink context.
+- Auto-repair at most once.
+- Rolling Window Review does not enter the base runtime yet; later it can be a capability-module pilot.
+- High-cost review needs policy or user authorization.
 
-### 6.4 事件与投影
+### 6.4 Events and Projection
 
-DirectorEvent 是事实记录，不是 UI 文案、WorkflowTask 状态或 Artifact Ledger。
+DirectorEvent is a fact record. It is not UI copy, WorkflowTask state, or Artifact Ledger.
 
-示例事件：
+Example events:
 
 ```ts
 type DirectorEvent =
@@ -357,91 +357,91 @@ type DirectorEvent =
   | { type: "quality_issue_found"; issueId: string; severity: string; affectedScope: string };
 ```
 
-投影层负责把事件转换给不同界面：
+The projection layer converts events for different surfaces:
 
-- DirectorEvent -> TaskCenterProjection。
-- DirectorEvent -> FrontendProgressProjection。
-- DirectorEvent -> CreativeHubMessageProjection。
+- DirectorEvent -> TaskCenterProjection.
+- DirectorEvent -> FrontendProgressProjection.
+- DirectorEvent -> CreativeHubMessageProjection.
 
-节点不直接拼用户可见文案，避免后端流程、任务中心和前端解释继续互相缠绕。
+Nodes do not assemble user-visible copy themselves. That keeps backend flow, task center, and frontend explanation from staying tangled together.
 
-## 7. MVP 迁移路线
+## 7. MVP Migration Path
 
-### Phase 0：运行可见性，不改主链
+### Phase 0: Runtime visibility, no main-chain change
 
-目标：先让当前系统可观察，便于后续对比旧链路和新链路行为。
+Goal: make the current system observable first, so later comparison of old-chain and new-chain behavior is possible.
 
-交付：
+Deliverables:
 
-- StepRun 账本草案。
-- DirectorEvent 事件记录草案。
-- 自动导演长阶段 heartbeat。
-- 候选阶段接入 tracked step。
-- 前端任务中心优先读事件投影草案，而不是继续猜状态。
+- StepRun ledger draft.
+- DirectorEvent record draft.
+- Auto-director long-stage heartbeat.
+- Candidate stage connected to tracked step.
+- Frontend task center prefers reading the event-projection draft instead of continuing to guess state.
 
-验收：
+Acceptance:
 
-- 自动导演进度不会长时间停在无解释状态。
-- 服务端能看到每个主要步骤开始、完成、失败、恢复。
-- 不改变当前主链业务结果。
+- Auto-director progress does not sit for a long time in an unexplained state.
+- The server can see each major step start, complete, fail, and recover.
+- Current main-chain business results do not change.
 
-### Phase 1：Director Runtime 门面
+### Phase 1: Director Runtime facade
 
-目标：所有入口先进入统一门面，再转调旧实现。
+Goal: every entry first goes through a unified facade, then delegates to the old implementation.
 
-入口包括：
+Entries include:
 
-- 新建小说。
-- 接管已有小说。
-- 继续任务。
-- 失败恢复。
-- 手动修改后继续。
+- Create a new novel.
+- Take over an existing novel.
+- Continue a task.
+- Failure recovery.
+- Continue after a manual edit.
 
-交付：
+Deliverables:
 
-- DirectorRuntime facade。
-- run 生命周期状态。
-- 旧 API 兼容。
-- 运行状态快照。
+- DirectorRuntime facade.
+- Run lifecycle state.
+- Old API compatibility.
+- Runtime state snapshot.
 
-验收：
+Acceptance:
 
-- 旧功能仍能跑。
-- 新入口和旧入口都能归档到 run。
-- `NovelDirectorService` 开始退化为兼容旧 API 的 facade，而不是继续扩张。
+- Old features still run.
+- New and old entries can both be archived onto a run.
+- `NovelDirectorService` starts shrinking into a facade that keeps old APIs compatible, instead of continuing to grow.
 
-### Phase 2：Workspace Analyzer V1
+### Phase 2: Workspace Analyzer V1
 
-目标：接管、手动继续和失败恢复先进入工作区分析。
+Goal: takeover, manual continue, and failure recovery first enter workspace analysis.
 
-交付：
+Deliverables:
 
-- Deterministic Inventory。
-- AI Workspace Interpretation。
-- Recommended Next Action。
-- 接管入口调用 Analyzer，再映射到旧链路继续动作。
+- Deterministic Inventory.
+- AI Workspace Interpretation.
+- Recommended Next Action.
+- Takeover entry calls Analyzer, then maps onto the old chain's continue actions.
 
-验收：
+Acceptance:
 
-- 已有小说启用 AI 接管时，系统先输出当前状态和推荐下一步。
-- 用户手动修改后，系统能判断是否直接继续、复核、局部重算或人工确认。
-- 接管链路不再独自猜测主链状态。
+- When AI takeover is enabled for an existing novel, the system first outputs current state and recommended next step.
+- After a user manual edit, the system can judge whether to continue directly, re-check, recompute locally, or wait for human confirmation.
+- The takeover chain no longer guesses main-chain state on its own.
 
-### Phase 3：Artifact Ledger MVP
+### Phase 3: Artifact Ledger MVP
 
-目标：先做 ledger wrapper，不一次性迁移旧表。
+Goal: build a ledger wrapper first; do not migrate old tables in one pass.
 
-接入方式：
+Integration path:
 
 ```text
-旧服务生成产物
+Old service produces artifact
   ↓
-原样写旧业务表
+Write old business table as before
   ↓
-额外写 DirectorArtifact 记录
+Additionally write a DirectorArtifact record
 ```
 
-优先接入：
+Prefer to integrate first:
 
 - `book_contract`
 - `story_macro`
@@ -452,45 +452,45 @@ type DirectorEvent =
 - `audit_report`
 - `repair_ticket`
 
-交付：
+Deliverables:
 
-- DirectorArtifact wrapper。
-- imported / backfilled artifact 记录。
-- trustLevel 或 status 的最小标记。
-- dependsOn 的最小记录。
+- DirectorArtifact wrapper.
+- imported / backfilled artifact records.
+- Minimal trustLevel or status marking.
+- Minimal dependsOn records.
 
-验收：
+Acceptance:
 
-- 新生成产物能写入旧业务表和 Ledger。
-- 已有小说能 backfill 出基础 artifact 索引。
-- Workspace Analyzer 能读取 Ledger 判断可信产物和缺失产物。
+- Newly produced artifacts can be written to both the old business table and the Ledger.
+- Existing novels can backfill a basic artifact index.
+- Workspace Analyzer can read the Ledger to judge trusted artifacts and missing artifacts.
 
-### Phase 4：Policy Engine V1
+### Phase 4: Policy Engine V1
 
-目标：把自动、手动、半自动、修复、覆盖保护从各阶段分支中抽出来。
+Goal: pull automatic, manual, semi-automatic, repair, and overwrite-protection out of per-stage branches.
 
-交付：
+Deliverables:
 
 - `suggest_only`
 - `run_next_step`
 - `run_until_gate`
 - `auto_safe_scope`
-- PolicyDecision。
-- QualityGateResult。
-- 覆盖保护。
-- 一次自动修复策略。
+- PolicyDecision.
+- QualityGateResult.
+- Overwrite protection.
+- One-shot auto-repair policy.
 
-验收：
+Acceptance:
 
-- 覆盖用户内容必须经过 Policy Engine。
-- 单个章节审核失败只生成 repair_ticket 或 blocked_scope，不冻结整条链。
-- 自动修复失败后进入人工修复或带风险继续。
+- Overwriting user content must go through Policy Engine.
+- A single chapter audit failure only produces a repair_ticket or blocked_scope; it does not freeze the whole chain.
+- After auto-repair fails, enter manual repair or continue-with-risk.
 
-### Phase 5：Node Runner 包旧阶段
+### Phase 5: Node Runner wraps old stages
 
-目标：减少 `NovelDirectorService` 的主编排负担。
+Goal: reduce `NovelDirectorService`'s main-orchestration burden.
 
-先包装旧阶段，不急着细拆：
+Wrap old stages first; do not rush a fine-grained split:
 
 - `candidate_generation_node`
 - `book_contract_node`
@@ -501,85 +501,85 @@ type DirectorEvent =
 - `chapter_execution_node`
 - `quality_repair_node`
 
-每个节点统一声明：
+Each node uniformly declares:
 
-- 读哪些 artifact。
-- 写哪些 artifact。
-- 是否需要审批。
-- 是否可能覆盖用户内容。
-- 如何记录事件。
-- 如何记录 StepRun。
-- 如何失败恢复。
+- Which artifacts it reads.
+- Which artifacts it writes.
+- Whether approval is required.
+- Whether it may overwrite user content.
+- How it records events.
+- How it records StepRun.
+- How it recovers from failure.
 
-验收：
+Acceptance:
 
-- 旧阶段可以通过 Node Runner 执行。
-- 新旧入口都能复用同一节点包装。
-- 节点执行结果能写 StepRun、DirectorEvent 和 Artifact Ledger。
+- Old stages can execute through Node Runner.
+- New and old entries can reuse the same node wrappers.
+- Node execution results can write StepRun, DirectorEvent, and Artifact Ledger.
 
-### Phase 6：低风险 LangGraph 试点
+### Phase 6: Low-risk LangGraph pilot
 
-目标：验证图编排，而不是全面迁移主链。
+Goal: verify graph orchestration, not migrate the main chain wholesale.
 
-推荐试点：
-
-```text
-Workspace Analyzer -> 推荐下一步 -> run_next_step -> gate
-```
-
-或：
+Recommended pilot:
 
 ```text
-候选方向生成 -> 标题包 -> candidate_selection_required interrupt
+Workspace Analyzer -> recommend next step -> run_next_step -> gate
 ```
 
-候选阶段适合作为试点，因为：
+Or:
 
-- 写入少。
-- 人工确认点明确。
-- 失败影响小。
-- 可以验证 interrupt / resume。
-- 可以验证 stream updates。
-- 可以验证事件投影。
+```text
+Candidate direction generation -> title pack -> candidate_selection_required interrupt
+```
 
-验收：
+The candidate stage is a good pilot because:
 
-- LangGraph 只负责编排、暂停、恢复和追踪。
-- 业务状态仍来自 DirectorRuntime、ArtifactLedger 和 PolicyEngine。
-- 不把章节执行和 pipeline job 一次性搬进图。
+- It writes little.
+- The human confirmation point is clear.
+- Failure impact is small.
+- It can verify interrupt / resume.
+- It can verify stream updates.
+- It can verify event projection.
 
-### Phase 7：创作质量模块逐步主链化
+Acceptance:
 
-目标：在统一运行时稳定后，再增强网文创作质量。
+- LangGraph only owns orchestration, pause, resume, and tracing.
+- Business state still comes from DirectorRuntime, ArtifactLedger, and PolicyEngine.
+- Do not move chapter execution and pipeline jobs into the graph in one pass.
 
-建议顺序：
+### Phase 7: Creative-quality modules gradually onto the main chain
 
-1. Source and Knowledge Pack。
-2. World Skeleton / World Rules。
-3. Character Governance State。
-4. Chapter Retention Contract。
-5. Rolling Window Review。
+Goal: strengthen web-fiction creative quality only after the unified runtime is stable.
 
-优先级最高的是 Chapter Retention Contract，因为它直接改善章节留存。
+Suggested order:
 
-## 8. 三张迁移表
+1. Source and Knowledge Pack.
+2. World Skeleton / World Rules.
+3. Character Governance State.
+4. Chapter Retention Contract.
+5. Rolling Window Review.
 
-### 8.1 产物类型表
+Chapter Retention Contract has the highest priority because it directly improves chapter retention.
 
-| Artifact Type | 作用 | 上游依赖 | 下游影响 | 自动覆盖策略 |
+## 8. Three Migration Tables
+
+### 8.1 Artifact Type Table
+
+| Artifact Type | Role | Upstream dependencies | Downstream impact | Auto-overwrite policy |
 | --- | --- | --- | --- | --- |
-| `book_contract` | 固化书级方向、读者承诺、题材边界 | candidate / user seed | story macro、角色、卷规划、章节任务 | 高风险，需要确认 |
-| `story_macro` | 固化主线、冲突引擎、长线推进 | book contract | 角色、分卷、章节计划 | 高风险，需要确认 |
-| `character_cast` | 核心角色阵容 | book contract / story macro | 角色治理、卷规划、章节任务 | 中高风险 |
-| `volume_strategy` | 分卷目标和升级路线 | book contract / story macro / characters | chapter plan | 中风险 |
-| `chapter_task_sheet` | 章节执行合同 | volume strategy / characters / world rules | chapter draft | 中风险 |
-| `chapter_draft` | 正文草稿 | task sheet / context | audit / continuity | 用户编辑后高保护 |
-| `audit_report` | 质量审核结果 | chapter draft / recent context | repair ticket | 可自动生成 |
-| `repair_ticket` | 修复任务 | audit report | repair action | 可自动生成 |
+| `book_contract` | Freeze book-level direction, reader promises, and genre boundaries | candidate / user seed | story macro, characters, volume planning, chapter tasks | High risk; requires confirmation |
+| `story_macro` | Freeze main plot, conflict engine, and long-arc progression | book contract | characters, volume split, chapter plan | High risk; requires confirmation |
+| `character_cast` | Core character roster | book contract / story macro | character governance, volume planning, chapter tasks | Medium-high risk |
+| `volume_strategy` | Volume goals and upgrade path | book contract / story macro / characters | chapter plan | Medium risk |
+| `chapter_task_sheet` | Chapter execution contract | volume strategy / characters / world rules | chapter draft | Medium risk |
+| `chapter_draft` | Body-text draft | task sheet / context | audit / continuity | High protection after user edit |
+| `audit_report` | Quality-audit result | chapter draft / recent context | repair ticket | Can be auto-generated |
+| `repair_ticket` | Repair task | audit report | repair action | Can be auto-generated |
 
-### 8.2 节点契约表
+### 8.2 Node Contract Table
 
-| Node | Reads | Writes | Gate | 可重试 | 是否可能覆盖用户内容 |
+| Node | Reads | Writes | Gate | Retryable | May overwrite user content |
 | --- | --- | --- | --- | --- | --- |
 | `workspace_analyze` | novel assets | analysis snapshot | no | yes | no |
 | `candidate_generation` | user seed / source pack | candidate batch | yes | yes | no |
@@ -592,46 +592,46 @@ Workspace Analyzer -> 推荐下一步 -> run_next_step -> gate
 | `quality_repair` | chapter_draft / audit_report | repair_ticket / revised draft | optional | once | yes |
 | `rolling_window_review` | recent drafts | audit_report / repair_ticket | no | yes | no |
 
-### 8.3 旧模块迁移表
+### 8.3 Old Module Migration Table
 
-| 旧模块 | 新位置 | 迁移方式 |
+| Old module | New location | Migration method |
 | --- | --- | --- |
-| `NovelDirectorService` | facade + DirectorRuntime caller | 逐步瘦身 |
-| Candidate Stage | Candidate nodes | 包装后迁移 |
-| Story Macro Phase | Planning nodes | 先包旧函数 |
-| Pipeline Phases | Character / Volume nodes | 分阶段拆分 |
-| Structured Outline Phase | Outline subgraph / chapter planning nodes | 重点拆节点 |
-| Auto Execution Runtime | ChapterExecution adapter | 保留为子执行器 |
-| Takeover Runtime | WorkspaceAnalyzer + RecoveryPolicy | 并入统一入口 |
-| Workflow Service | Task projection + legacy compatibility | 不再承载业务真相 |
+| `NovelDirectorService` | facade + DirectorRuntime caller | Shrink gradually |
+| Candidate Stage | Candidate nodes | Wrap, then migrate |
+| Story Macro Phase | Planning nodes | Wrap old functions first |
+| Pipeline Phases | Character / Volume nodes | Split in stages |
+| Structured Outline Phase | Outline subgraph / chapter planning nodes | Priority: split into nodes |
+| Auto Execution Runtime | ChapterExecution adapter | Keep as a sub-executor |
+| Takeover Runtime | WorkspaceAnalyzer + RecoveryPolicy | Fold into the unified entry |
+| Workflow Service | Task projection + legacy compatibility | No longer the source of business truth |
 
-## 9. 网文质量模块的收敛优先级
+## 9. Web-Fiction Quality Module Convergence Priority
 
-总纲中的创作质量增强方向是对的，但 MVP 后第一批只建议做三个。
+The master plan's creative-quality enhancements are the right direction, but after the MVP the first batch should only do three.
 
 ### 9.1 Reader Promise Ledger
 
-把读者承诺变成可追踪产物：
+Turn reader promises into trackable artifacts:
 
 ```text
-书级承诺
+Book-level promises
   ↓
-卷级承诺
+Volume-level promises
   ↓
-节奏段承诺
+Pacing-segment promises
   ↓
-章节承诺
+Chapter promises
   ↓
-审核承诺兑现度
+Audit of promise fulfillment
 ```
 
-这能提升长篇一致性，也能让自动导演知道每一章为什么值得写。
+This improves long-form consistency and also lets auto-director know why each chapter is worth writing.
 
 ### 9.2 Chapter Retention Contract
 
-章节任务单应升级为留存合同。
+The chapter task sheet should upgrade to a retention contract.
 
-概念契约：
+Conceptual contract:
 
 ```ts
 type ChapterRetentionContract = {
@@ -671,24 +671,24 @@ type ChapterRetentionContract = {
 };
 ```
 
-它比单纯“章节大纲”更适合网文生产，因为它直接约束读者获得感、变化、压力和章末追读理由。
+It is a better fit for web-fiction production than a plain "chapter outline," because it directly constrains reader payoff, change, pressure, and the reason to keep reading at chapter end.
 
 ### 9.3 Rolling Window Review
 
-第一版只做最近 5 章：
+First version only covers the last 5 chapters:
 
-- 最近 5 章是否同质。
-- 主角目标有没有推进。
-- 读者承诺有没有兑现或加码。
-- 结尾钩子是否重复。
-- 角色关系是否停滞。
-- 世界规则是否参与冲突。
+- Whether the last 5 chapters are homogeneous.
+- Whether the protagonist's goal has advanced.
+- Whether reader promises have been fulfilled or raised.
+- Whether ending hooks repeat.
+- Whether character relationships have stalled.
+- Whether world rules participate in conflict.
 
-这个模块适合作为 Capability Registry 的第一个新增审核模块。
+This module is a good first new review module for Capability Registry.
 
-## 10. 创作中枢接入边界
+## 10. Creative Hub Integration Boundary
 
-创作中枢应调用 Director Runtime 的公开动作：
+Creative Hub should call Director Runtime public actions:
 
 - `analyze_director_workspace`
 - `get_director_run_status`
@@ -698,91 +698,91 @@ type ChapterRetentionContract = {
 - `switch_director_policy`
 - `evaluate_manual_edit_impact`
 
-不应直接调用：
+Should not call directly:
 
 - `generateVolumeStrategy()`
 - `runStructuredOutlinePhase()`
 - `continueTakeoverExecution()`
 - `repairChapterTitle()`
 
-边界：
+Boundary:
 
 ```text
-创作中枢 = 用户对话入口 + 审批展示 + 工具调用协调
-自动导演 = 长运行小说生产系统
+Creative Hub = user conversation entry + approval display + tool-call coordination
+Auto-director = long-running novel production system
 ```
 
-两个系统都可以使用 LangGraph，但不应揉成一个超级图。
+Both systems may use LangGraph, but they should not be mashed into one super-graph.
 
-## 11. MVP 验收场景
+## 11. MVP Acceptance Scenarios
 
-第一批至少覆盖以下场景：
+First batch should at least cover:
 
-1. 一句话灵感新建小说，生成候选并停在候选确认。
-2. 确认候选后生成 Book Contract、角色、卷规划、前 10 章任务单。
-3. 已有小说有角色和前 8 章正文，接管后推荐补第 9-20 章任务单。
-4. 用户修改主角动机，系统判断角色治理和后续章纲需要复核。
-5. 用户只润色第 3 章正文，系统只更新连续性记忆，不重做宏观规划。
-6. 第 5 章审核失败，生成 repair_ticket，不冻结整本书。
-7. 自动修复一次失败后，进入人工修复或带风险继续选择。
-8. 服务重启后先标记为可手动恢复；用户确认恢复后，从最后成功 artifact / step 继续，不重复创建章节。
+1. Create a novel from a one-sentence idea, generate candidates, and stop at candidate confirmation.
+2. After confirming a candidate, generate Book Contract, characters, volume plans, and the first 10 chapter task sheets.
+3. An existing novel has characters and the first 8 chapters of body text; after takeover, recommend filling chapter 9-20 task sheets.
+4. The user changes the protagonist's motivation; the system judges that character governance and later chapter outlines need re-check.
+5. The user only polishes chapter 3 body text; the system only updates continuity memory and does not redo macro planning.
+6. Chapter 5 audit fails; generate a repair_ticket without freezing the whole book.
+7. After one auto-repair failure, enter a choice of manual repair or continue-with-risk.
+8. After a service restart, first mark as manually recoverable; after the user confirms recovery, continue from the last successful artifact / step without duplicating chapter creation.
 
-## 12. 第一轮开工建议
+## 12. First-Round Start Recommendation
 
-第一轮最建议只做四件事：
+The first round should do only four things:
 
-1. 建 StepRun / DirectorEvent 的最小可见性。
-2. 建 DirectorRuntime facade，让所有入口先归口。
-3. 建 Workspace Analyzer V1，先把接管和手动继续统一成工作区分析。
-4. 建 Artifact Ledger wrapper，只给 6-8 个核心产物补索引，不迁移旧业务表。
+1. Build minimum visibility for StepRun / DirectorEvent.
+2. Build the DirectorRuntime facade so every entry first routes through it.
+3. Build Workspace Analyzer V1 so takeover and manual continue first unify as workspace analysis.
+4. Build the Artifact Ledger wrapper; add index only for 6-8 core artifacts, without migrating old business tables.
 
-这四件事做完，系统还没有完全重构，但已经从“多条链路各自演化”变成“同一运行时逐步接管旧能力”。这时再做 Policy Engine、Node Runner、低风险 LangGraph 试点，风险会小很多。
+After these four, the system is not fully refactored, but it has moved from "multiple chains evolving separately" to "one runtime gradually taking over old capabilities." Doing Policy Engine, Node Runner, and a low-risk LangGraph pilot after that is much lower risk.
 
-## 13. 2026-04-28 MVP 实现进度
+## 13. 2026-04-28 MVP Implementation Progress
 
-本轮实现已把 MVP 的底座接入现有链路，仍以旧阶段为执行主体，避免一次性重写自动导演：
+This round has plugged the MVP foundation into the existing chain, still using old stages as the execution body, to avoid rewriting auto-director in one pass:
 
-- 新增共享运行时契约：`DirectorRuntimeSnapshot`、`DirectorStepRun`、`DirectorEvent`、`DirectorArtifactRef`、`DirectorWorkspaceAnalysis`、`DirectorPolicyDecision`。
-- 新增 `DirectorRuntimeService` 门面，封装 run 初始化、状态快照、工作区分析、策略切换、节点记录和 NodeRunner。
-- 新增 `DirectorWorkspaceAnalyzer`，先做确定性 Inventory，再通过注册 PromptAsset 进行 AI 结构化解释。
-- 新增 Artifact Ledger wrapper：暂存于 workflow task 的 `directorRuntime.artifacts`，通过 `contentRef` 指向旧业务表，不迁移数据表。
-- 新增 Policy Engine V1：支持 `suggest_only`、`run_next_step`、`run_until_gate`、`auto_safe_scope`，并把自动修复预算固定为一次。
-- 自动导演候选、确认、接管、继续和主 pipeline 阶段已经开始写入 runtime step / event / workspace analysis。
-- 新增后端路由与前端 API：工作区分析、运行时快照、策略切换、运行时继续。
-- 新增任务中心、开书进度面板和小说工作台侧栏的 runtime projection 展示，用户可以看到当前节点、最近事件、是否需要处理和推进方式。
-- 新增手动编辑影响分析，先通过确定性 artifact / hash inventory 找出变化，再交给注册 PromptAsset 做 AI 结构化判断。
-- 新增 Context Broker、Prompt Workbench 只读目录 / 预览底座，章节写作、章节审校和自动导演工作区分析开始共用上下文块组织。
-- 新增 Step Module / Workflow Plan 底座，章节执行、质量检查、修复、状态提交、伏笔同步和角色资源同步已开始标准节点投影。
-- 新增 `DirectorLangGraphPilot` 低风险试点，验证 workspace analyze -> recommend next action -> run next step -> approval interrupt 的 interrupt / resume / trace 能力，但未接主链。
-- 启动恢复策略已定为服务重启后先标记为待手动恢复，由用户确认后再继续，不做后台静默自动续跑。
-- 新增策略和运行时相关定向测试，覆盖只建议模式、用户内容保护、一次自动修复预算、NodeRunner、Artifact Ledger、Event Projection、LangGraph Pilot、Prompt Workbench、Context Broker、director runtime tools 和启动恢复初始化。
+- Added shared runtime contracts: `DirectorRuntimeSnapshot`, `DirectorStepRun`, `DirectorEvent`, `DirectorArtifactRef`, `DirectorWorkspaceAnalysis`, `DirectorPolicyDecision`.
+- Added `DirectorRuntimeService` facade wrapping run init, state snapshot, workspace analysis, policy switch, node recording, and NodeRunner.
+- Added `DirectorWorkspaceAnalyzer`: deterministic Inventory first, then AI structured interpretation via a registered PromptAsset.
+- Added Artifact Ledger wrapper: staged in the workflow task's `directorRuntime.artifacts`, pointing at old business tables via `contentRef`, without migrating data tables.
+- Added Policy Engine V1: supports `suggest_only`, `run_next_step`, `run_until_gate`, `auto_safe_scope`, and fixes auto-repair budget at one attempt.
+- Auto-director candidate, confirm, takeover, continue, and main pipeline stages have started writing runtime step / event / workspace analysis.
+- Added backend routes and frontend APIs: workspace analysis, runtime snapshot, policy switch, runtime continue.
+- Added runtime projection display in task center, book-opening progress panel, and novel workbench sidebar so users can see the current node, recent events, whether action is needed, and how to advance.
+- Added manual-edit impact analysis: first find changes via deterministic artifact / hash inventory, then hand them to a registered PromptAsset for AI structured judgment.
+- Added Context Broker and Prompt Workbench read-only catalog / preview foundation; chapter writing, chapter review, and auto-director workspace analysis have started sharing context-block organization.
+- Added Step Module / Workflow Plan foundation; chapter execution, quality check, repair, state commit, foreshadowing sync, and character-resource sync have started standard node projection.
+- Added `DirectorLangGraphPilot` as a low-risk pilot to verify interrupt / resume / trace for workspace analyze -> recommend next action -> run next step -> approval interrupt, but it is not wired to the main chain.
+- Startup recovery policy is now: after service restart, first mark as waiting for manual recovery; continue only after user confirmation; do not silently auto-continue in the background.
+- Added targeted tests for policy and runtime covering suggest-only mode, user-content protection, one-shot auto-repair budget, NodeRunner, Artifact Ledger, Event Projection, LangGraph Pilot, Prompt Workbench, Context Broker, director runtime tools, and startup-recovery initialization.
 
-当前完成度判断：
+Current completeness judgment:
 
-- 按本 MVP 底座衡量，当前约完成 `80%`。
-- 按自动导演统一运行时完整形态衡量，当前约完成 `60%-65%`。
-- 当前最重要的剩余工作不是“直接把主链改成 LangGraph”，而是先让 Step Module / NodeRunner / PolicyEngine 成为所有写入动作的统一执行合同。
+- Measured against this MVP foundation, currently about `80%` complete.
+- Measured against the full auto-director unified-runtime shape, currently about `60%-65%` complete.
+- The most important remaining work is not "directly turn the main chain into LangGraph." It is first making Step Module / NodeRunner / PolicyEngine the unified execution contract for every write action.
 
-仍未在本轮直接完成的内容：
+Not completed directly in this round:
 
-- 未新增独立数据库表；Artifact Ledger 先作为旧 workflow seed payload 的 wrapper 索引。
-- 未把所有自动导演旧阶段完整改成标准 Step Module / NodeRunner 执行；部分路径仍属于旧阶段 + runtime 记录的混合形态。
-- 未把章节执行、质量修复和 pipeline job 全部做成可组合、可重放、可审计的统一 Step Runtime。
-- 未把 LangGraph 接到自动导演主链；当前仍保持“运行时先统一，图编排后替换外壳”的路线。
-- 未把 `reader_promise`、`chapter_retention_contract`、`continuity_state`、`rolling_window_review`、`character_governance_state` 做成完整评估 -> 修复 -> 再评估闭环。
-- 未把世界观生成、角色治理、拆书知识库编排纳入主链执行，只在 Workspace Inventory 中保留是否已绑定的判断基础。
-- 未完成真实 Prisma 数据的系统性回归，尤其是旧项目接管、服务重启后手动恢复、章节批量执行、改文后局部修复和多卷长周期推进。
-- 未处理 `server/src/prompting/workflows/workflowRegistry.ts` 超过 700 行的模块化技术债，后续继续扩展 intent 前应拆分按域 workflow definitions。
+- No independent database tables were added; Artifact Ledger is first a wrapper index on the old workflow seed payload.
+- Not all old auto-director stages were fully converted to standard Step Module / NodeRunner execution; some paths are still a mix of old stages plus runtime recording.
+- Chapter execution, quality repair, and pipeline jobs were not all made into a composable, replayable, auditable unified Step Runtime.
+- LangGraph was not wired to the auto-director main chain; the current line remains "unify the runtime first, replace the shell with graph orchestration later."
+- `reader_promise`, `chapter_retention_contract`, `continuity_state`, `rolling_window_review`, `character_governance_state` were not made into a complete evaluate -> repair -> re-evaluate loop.
+- World-setting generation, character governance, and book-analysis knowledge-base orchestration were not brought onto main-chain execution; Workspace Inventory only keeps the bound-or-not judgment basis.
+- Systematic regression against real Prisma data was not completed, especially old-project takeover, manual recovery after service restart, batch chapter execution, local repair after rewrite, and multi-volume long-horizon progression.
+- The modularization debt of `server/src/prompting/workflows/workflowRegistry.ts` exceeding 700 lines was not handled; later intent expansion should first split workflow definitions by domain.
 
-下一轮更适合做：
+Better next-round work:
 
-1. **执行合同收口**：把候选、确认、接管、规划、拆章、章节执行、审校、修复、状态提交都收口到 Step Module / NodeRunner / PolicyEngine。
-2. **真实恢复回归**：围绕服务重启后手动恢复、失败重试、旧项目接管和批量章节执行做真实 Prisma 数据抽样。
-3. **产物账本深化**：把 reader promise、chapter retention、continuity、rolling review、character governance 升级为可追踪、可失效、可修复的产物体系。
-4. **创作中枢闭环**：让中枢工具调用不只读 runtime，还能稳定走 approval gate、runtime continue、projection 回传和用户确认。
-5. **LangGraph 低风险接入**：先把 `DirectorLangGraphPilot` 接到 workspace analyze -> run next step 这类低风险入口，只做编排、interrupt、resume 和 trace。
-6. **模块化清债**：拆分 `workflowRegistry.ts`，避免 director intent 继续堆进单个中心化大表。
+1. **Close the execution contract**: route candidate, confirm, takeover, planning, chapter breakdown, chapter execution, review, repair, and state commit through Step Module / NodeRunner / PolicyEngine.
+2. **Real recovery regression**: sample real Prisma data around manual recovery after service restart, failure retry, old-project takeover, and batch chapter execution.
+3. **Deepen the artifact ledger**: upgrade reader promise, chapter retention, continuity, rolling review, and character governance into a trackable, invalidatable, repairable artifact system.
+4. **Creative Hub closed loop**: hub tool calls should not only read runtime; they should stably walk approval gate, runtime continue, projection feedback, and user confirmation.
+5. **Low-risk LangGraph wiring**: first attach `DirectorLangGraphPilot` to low-risk entries such as workspace analyze -> run next step, doing only orchestration, interrupt, resume, and trace.
+6. **Modularization debt cleanup**: split `workflowRegistry.ts` so director intent does not keep piling into one centralized large table.
 
-## 14. 一句话结论
+## 14. One-Sentence Conclusion
 
-总纲是方向，MVP 是切片。先做可见性、统一入口、工作区分析、产物索引和策略边界，再包装旧节点，最后用低风险 LangGraph 试点验证编排。不要一开始就把所有创作质量模块和完整图编排同时上线。
+The master plan is the direction; the MVP is the slice. First do visibility, unified entry, workspace analysis, artifact index, and policy boundary; then wrap old nodes; finally verify orchestration with a low-risk LangGraph pilot. Do not ship every creative-quality module and full graph orchestration at the start.

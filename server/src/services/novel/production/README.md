@@ -1,16 +1,16 @@
-# 小说正文生产执行边界
+# Novel Prose Production Execution Boundary
 
-`NovelCorePipelineService` 是章节流水线任务的门面，负责创建、复用、恢复、取消任务以及维护任务生命周期。
+`NovelCorePipelineService` is the facade for chapter pipeline tasks. It creates, reuses, resumes, and cancels tasks, and maintains the task lifecycle.
 
-`NovelPipelineExecutor` 负责一次已领取流水线的章节执行循环，包括正文生成、质量闭环、滚动路线补齐、下一章 JIT 预取和章节边界交接。它不创建第二套正文能力，具体章节写作、审校、修复和事实提交仍委托统一的 `ChapterRuntimeCoordinator`。
+`NovelPipelineExecutor` owns the chapter execution loop for one already-claimed pipeline, including prose generation, quality closure, rolling-route fill, next-chapter JIT prefetch, and chapter-boundary handoff. It does not create a second set of prose capabilities; concrete chapter writing, review, repair, and fact commit still delegate to the unified `ChapterRuntimeCoordinator`.
 
-执行器内部按职责使用三个明确子边界：`qualityClosure/` 负责章节审校、质量债和明确重规划结果，`issueGovernance/` 负责把任务策略转换成继续、暂停或失败控制流，`handoff/` 只在章节安全落库边界处理生产体验交接。
+Inside the executor, three explicit sub-boundaries are used by responsibility: `qualityClosure/` owns chapter review, quality debt, and explicit replan results; `issueGovernance/` converts task policy into continue, pause, or fail control flow; `handoff/` handles production-experience handoff only at the chapter safe-persist boundary.
 
-维护规则：
+Maintenance rules:
 
-- 自动导演、手动批量和恢复入口都通过流水线门面进入同一个执行器。
-- 路线窗口只保证未来方向可用；完整执行合同只为下一章即时生成。
-- 普通质量债不能停止全书生产，只有明确重规划或运行时安全问题可以停止。
-- 问题事件只有在流水线状态或控制流真正采用对应动作后，才允许登记为已执行。
-- 从简易自动创作交接专业工作台只能在章节落库边界生效。
-- 延迟角色、世界和规划增强的优先级低于正文、审校、修复和下一章 JIT。
+- Auto-director, manual batch, and resume entrypoints all enter the same executor through the pipeline facade.
+- The route window only guarantees that future direction is available; a full execution contract is generated just-in-time for the next chapter.
+- Ordinary quality debt must not stop whole-book production. Only an explicit replan or a runtime safety problem may stop it.
+- An issue event may be recorded as executed only after pipeline state or control flow actually adopts the corresponding action.
+- Handoff from simple auto-creation to the professional workbench may take effect only at the chapter persist boundary.
+- Deferred character, world, and planning enhancements have lower priority than prose, review, repair, and next-chapter JIT.

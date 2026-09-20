@@ -1,9 +1,9 @@
-# LLM 实况执行边界
+# LLM Live Execution Boundary
 
-本模块提供 LLM 生成过程的临时可视化事件，不负责业务结果、任务状态或数据库写入。
+This module provides temporary visualization events for the LLM generation process. It does not own business results, task state, or database writes.
 
-- `LlmLiveBroker` 维护短期会话、最新预览和订阅；完成或失败会话保留 10 分钟，便于页面重连。
-- `llmLiveSession` 将 Prompt 调用元数据映射为可订阅的任务、小说、章节上下文。
-- `http/llmLiveRoutes` 仅以 SSE 输出全局或按任务筛选的快照和增量事件；断开浏览器连接只会取消订阅，不能取消服务端生成。
+- `LlmLiveBroker` maintains short-lived sessions, the latest preview, and subscriptions. Completed or failed sessions are kept for 10 minutes so the page can reconnect.
+- `llmLiveSession` maps Prompt call metadata into subscribable task, novel, and chapter context.
+- `http/llmLiveRoutes` only emit global or task-filtered snapshots and incremental events over SSE. Closing the browser connection only cancels the subscription; it cannot cancel server-side generation.
 
-调用方必须由服务端消费模型流并继续执行原有的解析、校验、修复和保存逻辑。实况内容是未校验预览，不能被当作正式小说内容或任务完成依据。
+Callers must consume the model stream on the server and continue the original parse, validate, repair, and save logic. Live content is an unvalidated preview and must not be treated as official novel content or as evidence that a task is complete.

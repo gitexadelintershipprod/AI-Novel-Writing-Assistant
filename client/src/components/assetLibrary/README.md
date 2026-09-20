@@ -1,8 +1,8 @@
-# Asset Library 页面组合边界
+# Asset Library Page Composition Boundary
 
-本目录承载知识、题材、角色、世界和规则等跨页面复用的资产库视觉合同：页头、状态摘要、推荐下一步、内容分区和空态。
+This directory holds the visual contract reused across knowledge, genre, character, world, and rule asset-library pages: page header, status summary, recommended next step, content sections, and empty state.
 
-- 这里只组合页面结构和语义状态，不读取 API、不持有业务状态、不执行资产操作。
-- 页面业务组件继续归属各自模块，外部只从本目录 `index.ts` 使用组合组件。
-- 状态颜色使用全局 `success`、`warning`、`info`、`destructive` token，不在资产库页面散落一次性颜色。
-- 资产库首屏应说明资产用途和下一步；后端没有提供来源、影响范围或使用次数时，不在 UI 中推测或伪造。
+- It only composes page structure and semantic state. It does not read APIs, hold business state, or execute asset operations.
+- Page business components remain owned by their own modules. Externals use composition components only from this directory's `index.ts`.
+- Status color uses the global `success`, `warning`, `info`, and `destructive` tokens. Do not scatter one-off colors across asset-library pages.
+- The asset-library first screen should explain what the assets are for and what to do next. When the backend does not provide source, impact scope, or usage count, the UI must not guess or fabricate them.
