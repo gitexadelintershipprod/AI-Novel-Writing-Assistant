@@ -1,45 +1,45 @@
-# 重复故障模式与排查路径
+# Recurring failure modes and diagnosis paths
 
-## 背景
+## Background
 
-项目多次出现的故障往往不是单点 bug，而是边界被绕过：重型任务跑在 API 进程、状态多源推断、Prompt 绕过 registry、章节热路径过长、RAG 检索范围不一致。把这些排查结论沉淀下来，可以避免每次重新定位同类问题。
+Failures that keep showing up in this project are often not single-point bugs. They are bypassed boundaries: heavy work running in the API process, state inferred from multiple sources, prompts bypassing the registry, a chapter hot path that is too long, or inconsistent RAG retrieval scope. Keeping these diagnosis conclusions avoids relocating the same class of problem every time.
 
-## 决策
+## Decision
 
-调试时先确认事实源、执行面、投影和治理入口，再看具体代码。不要先用 UI 补丁、关键词兜底或局部 try/catch 掩盖系统性问题。
+When debugging, first confirm the fact source, execution plane, projection, and governance entry, then look at the specific code. Do not first hide a systemic issue with a UI patch, a keyword fallback, or a local try/catch.
 
-## 当前规则
+## Current Rule
 
-- API 卡死先查是否有长任务仍在 Web API 进程执行。
-- 状态不一致先查 `DirectorRun / StepRun / Event / Artifact` 与 projection，而不是先改前端显示。
-- Prompt 输出问题先查 PromptAsset、schema、repair、semantic retry 和 provider capability。
-- 章节产出慢先查热路径是否重新串入多次 LLM 后处理。
-- RAG 不命中先查显式文档、绑定文档、全局启用文档和 context resolver。
-- 数据破坏风险操作必须先备份、验证备份，再取得明确批准。
+- If the API is stuck, first check whether a long task is still executing in the Web API process.
+- If state is inconsistent, first check `DirectorRun / StepRun / Event / Artifact` and projection, not the frontend display.
+- If prompt output is wrong, first check PromptAsset, schema, repair, semantic retry, and provider capability.
+- If chapter output is slow, first check whether the hot path re-serializes multiple LLM post-processing steps.
+- If RAG misses, first check explicit documents, bound documents, globally enabled documents, and the context resolver.
+- Operations with data-destruction risk must back up first, validate the backup, then get explicit approval.
 
-## 示例
+## Examples
 
-常见排查路径：
+Common diagnosis paths:
 
-- 继续导演后所有接口变慢：检查 route 是否直接 await 长任务，Worker 是否独立 lease，SQLite/Prisma 写锁是否被长链路占用。
-- 任务中心显示失败但小说页显示运行中：检查 projection 是否由旧 task status、runtime command 和产物事实混合推断。
-- 章节正文为空还继续推进：检查 writer 空返回防线、单章自动重试和失败落态。
-- 章节审校反复进入修复循环：检查后置质量闭环是否已经封顶为一次修复，最终结果是否已收敛到“未通过但继续生产”，以及工作区是否还把终态章节算成 repair ticket。
-- 长弧伏笔被当成当前章阻断：检查时间线钩子的 `resolveMode` 和 `blocking` 是否被误标成 `immediate + blocking`，以及检测器是否把 `short_arc` / `long_arc` 升级成硬失败。
-- 重新生成候选没有进入新一轮：检查 batch reuse、command idempotency 和候选阶段运行态。
-- 生成没有使用知识库资料：检查 `knowledgeDocumentIds`、小说/世界绑定、启用状态和 prompt context requirement。
+- After continuing the director, every API becomes slow: check whether the route directly awaits a long task, whether the Worker leases independently, and whether SQLite/Prisma write locks are held by a long chain.
+- Task Center shows failed but the novel page shows running: check whether projection mixed old task status, runtime command, and artifact facts.
+- Chapter prose is empty and the chain still advances: check the writer empty-return guard, per-chapter automatic retry, and failure persistence.
+- Chapter review keeps entering a repair loop: check whether the post-quality loop is already capped at one repair, whether the final result has converged to “did not pass but continue production”, and whether the workspace still counts a terminal chapter as a repair ticket.
+- A long-arc setup is treated as a current-chapter block: check whether the timeline hook’s `resolveMode` and `blocking` were mislabeled as `immediate + blocking`, and whether the detector promoted `short_arc` / `long_arc` into a hard failure.
+- Regenerating candidates does not enter a new round: check batch reuse, command idempotency, and candidate-stage runtime state.
+- Generation did not use knowledge-base materials: check `knowledgeDocumentIds`, novel/world bindings, enabled state, and the prompt context requirement.
 
-## 失败模式
+## Failure Modes
 
-不能用来替代根因修复的手段：
+Do not use these as substitutes for a root-cause fix:
 
-- 降低前端轮询频率来掩盖 API 执行面阻塞。
-- UI 禁用按钮来避免重复执行，而不处理 command 幂等。
-- 给意图识别加关键词 fallback 来掩盖 AI schema 或上下文问题。
-- 在业务 service 里补局部 JSON parse 分支来绕过 Prompt Registry。
-- 把后台资产回灌失败显示成正文生成失败。
+- Lowering frontend poll frequency to hide API execution-plane blocking.
+- Disabling a UI button to avoid duplicate execution without handling command idempotency.
+- Adding a keyword fallback to intent recognition to hide an AI schema or context problem.
+- Adding a local JSON-parse branch in a business service to bypass the Prompt Registry.
+- Displaying a background asset-feedback failure as a prose-generation failure.
 
-## 相关模块
+## Related Modules
 
 - `server/src/routes/`
 - `server/src/workers/`
@@ -50,10 +50,10 @@
 - `client/src/pages/tasks/`
 - `client/src/pages/novels/`
 
-## 来源文档
+## Source Documents
 
-- [自动导演执行面隔离与 API 保活计划](../../plans/auto-director-execution-plane-isolation-plan.md)
-- [导演模式模块化与状态治理改造清单](../../plans/director-mode-module-state-refactor-checklist.md)
-- [正文产出链路瘦身与资产回灌优化计划](../../plans/chapter-output-pipeline-optimization-plan.md)
+- [Auto-Director execution-plane isolation and API keep-alive plan](../../plans/auto-director-execution-plane-isolation-plan.md)
+- [Director-mode modularization and state-governance checklist](../../plans/director-mode-module-state-refactor-checklist.md)
+- [Chapter-output pipeline slimming and asset-feedback plan](../../plans/chapter-output-pipeline-optimization-plan.md)
 - [Prompt Governance Audit 2026-05-08](../../checkpoints/prompt-governance-audit-2026-05-08.md)
-- [README 最新更新](../../../README.md)
+- [README latest updates](../../../README.md)

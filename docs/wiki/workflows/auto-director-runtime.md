@@ -1,17 +1,17 @@
-# 自动导演 Runtime 与恢复边界
+# Auto-Director runtime and recovery boundaries
 
-## 背景
+## Background
 
-自动导演承担从灵感、开书、规划、角色准备、卷章规划到章节执行的主链路。历史问题集中在三个方向：Web API 被长任务拖死、继续/恢复/接管入口语义不统一、任务状态和运行时状态多源推断。
+Auto-Director owns the main path from idea, book opening, planning, character prep, volume/chapter planning, through chapter execution. Historical problems clustered in three places: the Web API was blocked by long tasks, continue / resume / takeover entry semantics were inconsistent, and task status plus runtime status were inferred from multiple sources.
 
-这些问题不能靠减少前端轮询、延迟 toast 或禁用按钮解决。根因是自动导演执行面和 Web API 控制面必须隔离，运行状态必须能从事实源投影出来。
+Those problems cannot be fixed by lowering frontend polling, delaying toasts, or disabling buttons. The root cause is that the Auto-Director execution plane and the Web API control plane must be isolated, and runtime status must be projectable from fact sources.
 
-## 决策
+## Decision
 
-自动导演采用控制面和执行面分离：
+Auto-Director separates the control plane from the execution plane:
 
 ```text
-用户动作
+User action
   -> Web API command route
   -> DirectorRunCommand / WorkflowTask queued
   -> Director Worker lease
@@ -19,157 +19,157 @@
   -> PolicyEngine
   -> Artifact Ledger / DirectorEvent
   -> Runtime Projection
-  -> 前端轻量查询
+  -> Lightweight frontend query
 ```
 
-Web API 只接收命令和返回轻量投影；Worker 负责执行重型生产链路；运行状态从 `DirectorRun / DirectorStepRun / DirectorArtifact / DirectorEvent` 等事实源生成。
+The Web API only accepts commands and returns lightweight projections. The worker runs the heavy production chain. Runtime status is generated from fact sources such as `DirectorRun / DirectorStepRun / DirectorArtifact / DirectorEvent`.
 
-## 当前规则
+## Current Rule
 
-### 统一问题治理与停止边界
+### Unified issue governance and stop boundary
 
-自动导演的新任务使用一条统一问题链路：生产阶段报告稳定问题码，治理服务结合任务启动时冻结的全局/本书问题动作，写入 `issue_detected`、执行既有处理入口，再写入 `issue_action_applied`。已带稳定问题码的事件直接使用调用方提供的结构化事实，不再重复调用 AI；只有 `runtime.unclassified` 才调用结构化 AI 补全问题分类。AI 评估不得改变控制流。完整问题记录保存在 `DirectorEvent.metadata`，不另建问题表；相同 fingerprint 必须幂等。旧任务没有 `issueGovernanceVersion: 1` 时继续使用原运行逻辑。
+New Auto-Director tasks use one issue path: production stages report a stable issue code; the governance service combines the global / book issue actions frozen at task start, writes `issue_detected`, runs the existing handling entry, then writes `issue_action_applied`. Events that already carry a stable issue code use the caller’s structured facts and do not call AI again. Only `runtime.unclassified` calls structured AI to complete issue classification. AI assessment must not change control flow. The full issue record lives in `DirectorEvent.metadata`; there is no separate issue table. The same fingerprint must be idempotent. Old tasks without `issueGovernanceVersion: 1` keep the original runtime logic.
 
-策略优先级固定为：不可突破的安全规则 > 本书覆盖 > 全局设置 > 内置默认。运行中的任务只读取 seed 中的有效策略快照，避免规则修改后改变已经开始的生产链。全局规则保存完整策略，本书只保存与全局不同的覆盖项。
+Policy priority is fixed: unbreakable safety rules > book overrides > global settings > built-in defaults. A running task only reads the effective policy snapshot in its seed, so later rule edits cannot change a production chain that has already started. Global rules store the full policy; a book stores only the overrides that differ from global.
 
-问题管理提供“优先完成整本书”和“质量优先”两份预设，但它们只是同一份问题策略的数据起点，不得派生两条正文生产链。两份预设都把自动重试上限限制为 0 或 1；章节运行、审核、修复和规划模块只报告问题事实，由统一决策函数根据任务快照返回动作。质量优先可在人工分阶段创作时暂停等待处理；进入整本自动导演后，已有可用正文的局部质量问题必须由统一安全边界改为记录质量债并继续。用户逐项调整后仍只是本书策略覆盖，不引入新的运行模式。
+Issue management provides two presets, “Finish the whole book first” and “Quality first”, but they are only data starting points for the same issue policy. They must not spawn two prose production chains. Both presets cap automatic retries at 0 or 1. Chapter run, audit, repair, and planning modules only report issue facts; a unified decision function returns the action from the task snapshot. Quality first may pause for handling during manual staged writing. Once full-book Auto-Director is active, local quality problems that already have usable prose must be rewritten by the unified safety boundary into recorded quality debt plus continue. Per-item user adjustments remain book policy overrides and do not introduce a new run mode.
 
-问题动作只有 `auto_retry`、`continue_with_warning`、`pause_for_manual`、`fail_task`。局部质量债、接收检查不可用、局部修复失败与后台预取失败在整本自动导演已有可用正文时只能记录提醒后继续；质量优先策略只可在人工分阶段创作中为相同问题暂停。明确重规划、异常用量、受保护内容与数据完整性风险必须暂停；没有可用正文或无法确认关键结果已保存时不能仅提醒后继续。模型、服务、路线窗口、执行合同、工作线程失联和一般运行失败优先使用任务快照中的唯一重试预算，耗尽后再执行对应策略动作。
+Issue actions are only `auto_retry`, `continue_with_warning`, `pause_for_manual`, and `fail_task`. Local quality debt, unavailable acceptance checks, local repair failure, and background prefetch failure can only record a reminder and continue when full-book Auto-Director already has usable prose. Quality-first policy may pause for those same problems only during manual staged writing. Explicit replan, usage anomalies, protected content, and data-integrity risk must pause. If there is no usable prose, or the key result cannot be confirmed saved, the run cannot continue after a reminder alone. Model, service, route-window, execution-contract, worker-lost, and general runtime failures first consume the single retry budget in the task snapshot, then apply the matching policy action after that budget is exhausted.
 
-每章的唯一自动重试预算同时覆盖运行异常后的整章重试和验收失败后的正文修复。运行重试消耗预算后，重新进入章节流水线时必须把剩余预算传给内部修复；只有真正执行正文修复后才登记消耗，接收判断暂时不可用等仅保留正文并登记复查的问题不得占用修复机会。两层不得各自持有一次机会，也不得因为异常发生在修复途中而重新获得预算。
+Each chapter’s single automatic retry budget covers both whole-chapter retry after a runtime exception and prose repair after acceptance failure. After a runtime retry consumes budget, re-entering the chapter pipeline must pass the remaining budget to inner repair. Consumption is registered only when prose repair actually runs. Problems that keep the prose and only record a recheck, such as temporarily unavailable acceptance, must not consume a repair opportunity. The two layers must not each hold one chance, and they must not regain budget because the exception happened during repair.
 
-`pause_for_manual` 必须在当前章节保存完成后把章节流水线标记为 `pendingManualRecovery`，不能把部分完成任务写成成功。自动导演和后台恢复只投影该暂停，不得自行清除；恢复中心或用户明确发出的继续命令才可解锁流水线，并从下一未完成章节续跑。
+`pause_for_manual` must mark the chapter pipeline as `pendingManualRecovery` after the current chapter is saved. A partially completed task must not be written as success. Auto-Director and background recovery only project that pause; they must not clear it themselves. Only Recovery Center or an explicit user continue command may unlock the pipeline and resume from the next unfinished chapter.
 
-服务重启或租约过期后的自动恢复如果再次失败，也必须写回 `pendingManualRecovery`，保留原任务与检查点供用户恢复，不能直接把可恢复任务终结为失败。恢复查询必须排除已经处于人工恢复状态的任务；重新执行时继续使用 `skipCompleted` 和持久化章节事实，从最早未完成章节开始，不能重写已经完成或已按质量债降级收束的章节。
+If automatic recovery after a service restart or lease expiry fails again, it must also write back `pendingManualRecovery`, keep the original task and checkpoint for the user, and must not terminate a recoverable task as failed. Recovery queries must exclude tasks already in manual recovery. Re-execution keeps using `skipCompleted` and persisted chapter facts, starting from the earliest unfinished chapter, and must not rewrite chapters that are already complete or already finalized under degraded quality debt.
 
-前端从同一事件账本投影问题码、阶段、章节、风险分、实际动作与策略来源。章节问题跳转到章节编辑器，书级问题回到小说工作区或恢复入口。问题记录是质量债和恢复定位依据，不应把可继续的局部问题伪装成全书失败。
+The frontend projects issue code, stage, chapter, risk score, actual action, and policy source from the same event ledger. Chapter issues navigate to the chapter editor; book-level issues return to the novel workspace or recovery entry. Issue records are the basis for quality debt and recovery location. Continuable local problems must not be disguised as whole-book failure.
 
-### 逐步协作与自动模式兼容
+### Step-by-step collaboration and auto-mode compatibility
 
-自动导演的新书起始页允许用户可选指定“题材基底”和一个“主要推进模式”。两项都不是开书门槛：未指定的部分由结构化 AI 资源推荐补齐，辅助推进模式默认由 AI 选择。用户明确选择的资源具有最高优先级，推荐服务只能校验资源仍然有效并补齐空项，不能静默替换。最终解析出的题材、主推进模式、辅助推进模式及其来源必须写入任务快照，并随候选确认保存到小说，供世界设定、人物、大纲、章节规划、正文、审校和修复读取同一份创作基础。
+The Auto-Director new-book start page lets the user optionally specify a genre foundation and a primary progression mode. Neither is an opening gate: unspecified parts are filled by structured AI resource recommendation, and the secondary progression mode is chosen by AI by default. Resources the user explicitly selected have the highest priority. The recommendation service may only validate that resources are still valid and fill empty slots; it must not silently replace them. The resolved genre, primary progression mode, secondary progression mode, and their sources must be written into the task snapshot and saved onto the novel with candidate confirmation, so world setup, characters, outline, chapter planning, prose, audit, and repair all read the same creative foundation.
 
-起始页的“没有想法”灵感也必须遵守同一优先级。请求应向 Prompt 提供资源的可读路径和简短说明，不能只提供数据库 ID；五条灵感可以改变主角、第一章事件、冲突、关系或悬念切口，但不能通过更换用户确认的题材或主要推进模式制造差异。未选择的创作基础仍允许 AI 自行补足。
+The start page’s “I have no idea” inspiration flow must follow the same priority. The request should give the Prompt readable resource paths and short descriptions, not only database IDs. The five inspirations may change the protagonist, first-chapter event, conflict, relationship, or suspense cut, but they must not create variety by replacing the user-confirmed genre or primary progression mode. Unselected creative-foundation slots may still be filled by AI.
 
-候选方向与创作基础属于同一份生成合同。候选生成后若用户修改题材或主要推进模式，界面必须先说明旧方向需要重新适配；确认后同时清除前端候选和任务快照中的旧候选，再重新调用候选生成，禁止让旧候选继续携带上一套资源上下文。资源已删除、失效或无法读取时应提示重新选择；不能通过名称匹配、关键词或硬编码路由猜测替代资源。资源树加载失败不应阻止用户输入想法，未选择状态仍可交给 AI 自动搭配。
+Candidate directions and the creative foundation belong to the same generation contract. If the user changes genre or primary progression mode after candidates are generated, the UI must first explain that the old directions need to be re-adapted. After confirmation, clear both the frontend candidates and the old candidates in the task snapshot, then call candidate generation again. Old candidates must not keep carrying the previous resource context. If a resource is deleted, invalid, or unreadable, prompt the user to choose again. Do not guess a substitute through name matching, keywords, or hard-coded routing. A failed resource-tree load must not block the user from entering an idea; the unselected state can still be handed to AI for automatic pairing.
 
-同一批书级候选的主书名必须保持可辨识。模型应先产出不同的 `workingTitle`，每套候选的标题补强仍可并行执行；整批完成后，运行时必须使用统一的近似标题比较规则检查跨候选重复。发生冲突时优先采用该候选已有的非重复备选标题，只有没有可用备选时才针对冲突候选重生标题，并把已占用书名作为禁止上下文。若重生后仍无可区分标题，应明确失败并允许重试，不能把重复主书名交给用户选择。
+Main titles in the same book-level candidate batch must stay distinguishable. The model should first produce different `workingTitle` values; title reinforcement for each candidate may still run in parallel. After the whole batch finishes, runtime must use one shared near-title comparison rule to check cross-candidate duplicates. On conflict, prefer that candidate’s existing non-duplicate alternate title. Only when no usable alternate exists should the conflicting candidate’s title be regenerated, with already taken titles as forbidden context. If regeneration still cannot produce a distinguishable title, fail clearly and allow retry. Duplicate main titles must not be handed to the user to choose among.
 
-自动导演的书名补强是“主书名决策”，不是标题工坊的“候选池探索”。同一次生成必须读取候选方向的具体卖点、冲突、主角路径、推荐平台、平台判断理由、读者频道和目标读者，并把 `titles[0]` 作为模型已经完成取舍的唯一主书名；后续条目只提供不同具体卖点角度的备选。主书名至少应承载主角身份或处境、题材场景或具体事件、独有机制或优势、具体代价中的两类，不能把故事资产压缩成可套用于多数作品的抽象情绪句。自动导演不得强制平均覆盖文艺、冲突、悬疑和高概念风格，也不得按模型自报的点击分重新排列主书名；标题工坊仍可保留多风格、多句式的候选池规则。确定性后处理只负责结构、数量、去重和跨方案名称冲突，不能用关键词评分替代 AI 的主书名语义决策，也不应把常态质量责任转交给额外复审调用。
+Auto-Director title reinforcement is a “main-title decision”, not the title workshop’s “candidate-pool exploration”. The same generation must read the candidate’s concrete selling points, conflict, protagonist path, recommended platform, platform rationale, reader channel, and target readers, and treat `titles[0]` as the single main title the model has already chosen. Later entries only supply alternates from different concrete selling-point angles. The main title should carry at least two of: protagonist identity or situation, genre scene or concrete event, unique mechanism or advantage, and concrete cost. It must not compress story assets into an abstract emotional sentence that could fit most works. Auto-Director must not force even coverage of literary, conflict, suspense, and high-concept styles, and must not reorder the main title by the model’s self-reported click score. The title workshop may keep multi-style, multi-sentence candidate-pool rules. Deterministic post-processing only handles structure, count, dedup, and cross-plan name conflicts. It must not replace the AI’s main-title semantic decision with keyword scoring, and must not shift ordinary quality responsibility onto an extra review call.
 
-`stage_review` 是现有自动导演链上的显式逐步协作策略，不是另一套生成管线。它复用相同的 StepModule、PolicyEngine、Artifact Ledger 和 asset-first recovery，但每次只执行一个可恢复步骤，随后写入 `step_review_required` 检查点。检查点 seed 必须保留当前 `stepId`、`nodeKey`、目标范围和完成时间，继续操作才允许进入下一个未完成步骤。
+`stage_review` is an explicit step-by-step collaboration policy on the existing Auto-Director chain, not another generation pipeline. It reuses the same StepModule, PolicyEngine, Artifact Ledger, and asset-first recovery, but runs only one recoverable step at a time, then writes a `step_review_required` checkpoint. The checkpoint seed must keep the current `stepId`, `nodeKey`, target range, and completion time. Continue is what allows the next unfinished step.
 
-逐步协作的三个动作边界如下：
+The three step-collaboration action boundaries:
 
-- `validate` 只读取当前步骤的 readiness、completion、progress 和 recovery facts，不写规划资产。
-- `improve` 复用当前步骤模块重新执行，并把用户校准要求加入本次步骤输入；`regenerate` 在此基础上先创建快照。
-- `accept_manual_changes_and_continue` 复用原导演任务，不新建 takeover，不重新生成候选，也不把一次校准要求带入后续步骤。继续时由资产事实重新找到第一个未完成步骤。
+- `validate` only reads the current step’s readiness, completion, progress, and recovery facts. It does not write planning assets.
+- `improve` reuses the current step module and adds the user’s calibration requirement to this step’s input. `regenerate` does the same after first creating a snapshot.
+- `accept_manual_changes_and_continue` reuses the original director task. It does not create a new takeover, regenerate candidates, or carry one calibration requirement into later steps. On continue, asset facts find the first unfinished step again.
 
-人工保存的规划资产必须登记为 `user_edited`、`protectedUserContent=true`，更新内容 hash 和版本。上游规划变化只让依赖它的下游规划 artifact 变为 `stale`；`chapter_draft` 不因规划重算被清空或标记为可覆盖。`volume_beat_sheet` 和 `volume_chapter_list` 是独立 artifact 类型，用于区分节奏板、拆章列表和章节正文。
+Manually saved planning assets must be registered as `user_edited`, `protectedUserContent=true`, with updated content hash and version. Upstream planning changes only make dependent downstream planning artifacts `stale`. `chapter_draft` is not cleared or marked overwritable because planning was recomputed. `volume_beat_sheet` and `volume_chapter_list` are independent artifact types, used to distinguish beat sheet, chapter-split list, and chapter prose.
 
-新书确认方向后采用 `auto_to_ready + fast_start` 进入开篇准备。小说项目一旦建立，用户即可提前选择简易创作并进入只读书架；该选择写入任务 `productionExperience` 和小说 `creationExperience`，但不得跳过角色、卷章和执行合同准备。开篇路线可用后，已选择简易创作的任务自动转为 `full_book_autopilot` 并开始正文；尚未选择的任务停在 `production_experience_required`。任务 Seed 必须持久化 `startupPreparation`，使服务重启后仍能恢复路线窗口、下一章细化游标与延迟增强策略。后续因重规划再次进入结构化大纲时，应沿用已确认的简易生产方式，不重复要求选择。
+After the user confirms a new-book direction, the run enters opening prep with `auto_to_ready + fast_start`. Once the novel project exists, the user may choose simple creation early and enter the read-only shelf. That choice is written to the task `productionExperience` and the novel `creationExperience`, but must not skip character, volume/chapter, or execution-contract prep. When the opening route is ready, a task that already chose simple creation automatically becomes `full_book_autopilot` and starts prose. A task that has not chosen yet stops at `production_experience_required`. The task seed must persist `startupPreparation` so a service restart can still recover the route window, next-chapter refinement cursor, and deferred enhancement policy. If structured outline is entered again later because of replan, reuse the already confirmed simple production mode and do not ask again.
 
-快速启动的目标是连续抵达首章正文。关键路径只允许等待精简故事基础、开篇世界切片、核心角色、3～5 章路线和下一章执行合同；普通系统规划重算应以安全范围策略自动通过。完整世界手册、非开篇角色增强、远期卷骨架和后续完整章节合同不得占用正文关键路径。若步骤会覆盖 `protectedUserContent`，或命中数据完整性、正文保护、模型服务和运行时安全风险，仍必须暂停。
+Fast start’s goal is to reach first-chapter prose continuously. The critical path may wait only for a slim story foundation, opening world slice, core characters, a 3–5 chapter route, and the next-chapter execution contract. Ordinary system planning recomputes should auto-pass under a safe-scope policy. A full world handbook, non-opening character enhancement, far-future volume skeleton, and later full chapter contracts must not occupy the prose critical path. If a step would overwrite `protectedUserContent`, or hits data integrity, prose protection, model-service, or runtime safety risk, it must still pause.
 
-- API route 不直接 `await` 自动导演长任务、章节生成、卷拆章、质量修复或 LLM 生产链路。
-- 高优先级硬约束：自动导演不是第二套章节生成系统。控制面可以有导演专属 command、projection 和审批策略，但正文生成与正文修复的业务执行链必须与手动单章和批量执行共用同一套 runtime。
-- 继续、恢复、重试、接管、审批、取消等用户动作先转为 command，不各自维护独立业务流程。
-- `DirectorRunCommand` 表达控制面命令、租约和幂等，不表达业务完成事实。
-- `DirectorRun` 是书级导演运行的根状态，`DirectorStepRun` 是步骤执行记录，`DirectorEvent` 和 `DirectorArtifact` 用于投影和恢复。
-- StepModule 应声明输入、输出、产物、进度检查和恢复策略；Pipeline 只编排，不直接知道具体业务表和 Prompt 细节。
-- StepModule 的只读事实检查必须能用 `novelId` 独立运行。`taskId`、run、command、artifacts 和 projection hints 属于自动导演扩展上下文，不能成为 `inspectReadiness`、`inspectCompletion`、`inspectProgress` 的必需条件；没有导演任务时应返回基于小说事实的最小状态。
-- 手动章节生成和手动章节修复也应先进入 StepModule，再由步骤内部委托统一章节 runtime。路由可以保留 SSE 协议和用户入口差异，但不能再直接绕过 `chapter.draft.write` 或 `chapter.draft.repair` 形成第二套执行路径。
-- 手动修复和自动修复必须共用 `ChapterContentFinalizationService` 完成最终接收判断、章节生命周期更新、可信事实写入和 `chapter:finalized` 事件。修复通过后正文以 `confirmed` 进入同步并把章节置为 `completed`；仍需处理时保留可用正文，以 `debt` 同步并维持 `needs_repair`。修复请求没有携带明确问题时，只能用同一上下文执行只读章节审核来发现问题；不得调用会修改生命周期、写质量记录或触发重规划的手动审校命令。旧审校也不能作为修复后的最终裁决出口。
-- StepModule 核心运行时的依赖必须通过显式依赖包或默认装配函数进入，不允许在构造函数中用动态 `require()` 临时拉取服务。默认装配可以继续使用现有服务实例，但依赖关系必须在模块边界可读、可替换、可测试。
-- 自动导演顺序调度应发生在编排器 / StepModule 层；章节批量执行器 `NovelDirectorAutoExecutionRuntime.runFromReady()` 当前仍是 `chapter.draft.write` 的执行实现之一，不能直接反调同一个步骤，否则会形成递归执行。后续若要把章节批量执行也拆成纯步骤调度，必须先把“启动/恢复 pipeline job”抽成低层端口，再让调度器只遍历步骤计划。
-- Projection 面向 UI，只返回阶段、阻塞原因、下一步、可恢复范围等轻量状态，不返回完整大对象。
-- 前端必须区分完整驾驶舱快照和轻量运行投影。完整快照包含 `displayState.steps`、近期事件、事实体检和里程碑，适合进度弹窗；轻量投影只表达当前运行摘要，适合导航栏和任务中心高频轮询。两者不能共用 React Query key，否则轮询会用轻量响应覆盖完整快照，导致弹窗步骤视图退化。
-- 自动导演 UI 主状态必须由 `DirectorDashboardView` 统一裁决。`DirectorRuntimeProjection`、事实体检、章节进度和工作区摘要都是材料层；它们可以提供诊断、风险和最近事件，但不能在前端各自决定主 badge、主进度、主按钮或是否等待确认。
-- `DirectorDashboardView` 必须携带 `sourceTrace` 和 `progressSource`，让调试者能看到主状态和主进度来自 task、worker、checkpoint、chapter facts 还是 runtime projection。当前端需要显示驾驶舱、进度弹窗、任务中心、任务抽屉或小说页接管提示时，应优先读取这个最终展示模型。书级自动化投影可以继续暴露旧字段做兼容，但这些字段应由 `DirectorDashboardView` 派生，而不是重新裁决主状态。
-- 当任务事实已经是 `failed` 或 `cancelled`，前端必须优先展示终态和失败摘要；任何遗留的运行中 Dashboard 快照只能作为历史诊断，不能继续显示“实时推进”或覆盖恢复入口。失败摘要优先使用任务错误，其次使用检查点摘要，确保用户看到实际卡住的章节或合同问题。
-- 工作流提醒、章节标题提醒、缺资源风险和 stale artifact 只能作为诊断或辅助操作展示；当 `DirectorDashboardView.mode` 是 `running` 或 `queued` 时，这些提醒不得把主容器、主 badge 或主按钮改成等待确认。
-- 浏览器桌面提醒只消费“导演跟进”投影中的可处理分组：`needs_validation`、`exception`、`pending`。`auto_progress` 和 `replaced` 仍可显示在跟进中心，但不触发系统级通知。提醒开关属于当前浏览器本地偏好，并且必须受浏览器通知权限约束；前端不得为了弹窗重新推断 task status 或绕过跟进投影。
-- 服务重启后不静默续跑长任务，应从真实产物断点判断可恢复范围，再由用户或策略确认继续。
-- 自动导演驱动章节生产时，只能通过 `novelService.startPipelineJob(...)` 或 `resumePipelineJob(...)` 进入统一章节执行主链；导演侧不得直接调用 writer、patch repair、heavy repair 或旧手动修文 service。
-- 自动导演遇到章节质量失败时，只能复用统一质量修复规则：patch first，失败后最多一次 `heavy_repair`，再失败则登记质量债务或 recoverable failure 并继续后续章节。导演 runtime 不得再发明独立的“导演专用修文分支”。
-- 自动导演进入下一章前必须服从章节生产链的 `final_content -> timeline_finalization -> next_chapter` 规则。导演可以决定继续、跳过或重规划，但不能绕过 `ChapterTimelineFinalizationService`。
-- 自动导演的“跳过质量修复并继续”不是绕过时间线。达到修复预算上限或用户选择 `skip_quality_repair` 时，执行面必须先基于当前最佳正文提交 degraded timeline checkpoint，再登记质量债务并推进剩余章节。
-- 自动导演不得在 director 内部补写时间线提交逻辑。stable/degraded timeline、`ChapterTimeAnchor`、hook 承接、checkpoint metadata 都属于统一章节 runtime，不属于导演专属恢复逻辑。
-- 自动导演驱动章节生产时，章节 pipeline 的 LLM 用量必须写入导演用量遥测，并带上 `chapterId`。每章累计 token 超过硬预算时，运行时应打开 `usage_anomaly` 熔断并暂停后续自动执行，防止任务重启、质量循环或上下文膨胀继续放大消耗。
-- 自动导演投影必须把 `terminalAction=defer_and_continue` 且非重规划的质量结果视为“已记录质量债务”，不能升级成 `action_required`、`error` 或“出错需处理”。这类质量债务只影响后续优化提示，不阻塞继续执行。
-- 重规划决策必须携带作用域。`local_window` 是默认作用域：自动导演生成并保存 `ReplanRun`，只刷新当前章之后没有正文的章节计划和执行合同，然后从第一个未完成章节继续；已有正文、人工保护内容和已确认章节只能作为上下文，绝不能被局部重规划覆盖。`global_book` 才是整书结构不可恢复的显式判断，可进入 `replan_required` 检查点等待处理。
-- 章节质量闭环是生产链中唯一的重规划升级入口。章节审核返回 `local_patch_plan`、`continue_with_warning`、`patchable_obligation_gap` 或修复后仍有可记录义务缺口时，应登记为质量债务或局部修复建议并继续剩余章节，不能因为 `recommended=true` 就写入 `replanAlertDetails`。局部重规划调用失败而当前章已有可用正文时，也只记录失败原因和质量债务；无可用正文、运行时安全风险或数据完整性风险才允许停止。
-- `replan_required` 即使出现在全书自动成书或 AI 主驾自动执行中，也仍是阻塞检查点。运行时应停止在实际触发章节，并把摘要写成“已执行至第 N 章，后续需重规划”，不能把目标范围直接显示为已完成。
-- `replan_required` 的默认恢复动作是“重规划后继续”，不是跳过当前质量修复。恢复链必须先检查检查点锚点是否已有成功的 `ReplanRun`；没有时调用统一 `replanNovel`，成功后才允许消费旧质量提示并从第一个没有正文的章节继续。只有用户或结构化策略明确选择 `skip_quality_repair` 时，运行时才能跳过重规划。
-- 简易书架、专业工作台、任务抽屉、AI 驾驶舱和小说列表必须消费同一个结构化恢复动作。任何界面看到 `replan_required` 时，默认主操作都应发送 `auto_execute_range` 并显示“重规划后继续”；“打开质量修复”可以作为查看入口，但不能在某种创作模式下把默认动作改回 `skip_quality_repair`。
-- 重规划调用失败时不得静默降级为跳过修复，也不得提前清除 `replan_required`。任务应保留原检查点并展示真实错误，已有正文、章节事实和人工内容均保持不变，供用户再次重规划或转入专业模式处理。
-- `auto_execute_range` 是用户对当前章节执行范围的显式继续授权。恢复链路即使先回到结构化大纲或执行合同同步，也必须把该授权传入后续 Pipeline 的 `approveAutoExecutionScope`，并在结构化同步后主动进入章节执行节点；不能只依赖自动审批偏好，否则命令会成功结束但章节执行节点仍停在审批门。
-- 用户确认新书方向后，自动导演先投影为“准备开篇”。项目建立后可提前选择简易创作进入书架，但正文必须等待开篇路线和执行合同可用；未提前选择时，准备完成后投影为“等待选择生产方式”。选择专业创作则进入完整工作台且不自动生成正文。用户从简易自动创作切换到专业工作台时必须在章节边界生效：当前章允许安全落库，后续自动章节停止，已有正文和人工内容保持不变。
-- 新书自动导演创建的恢复入口是独立页面 `/novels/auto-director?taskId=<workflowTaskId>`。`taskId` 是前端 URL 的主参数；旧的 `/novels/create?mode=director&workflowTaskId=<id>` 只作为兼容输入，进入后应规范化到新页面。任务中心、恢复入口、候选确认链接和服务端 `sourceRoute` 都应指向新页面，保证刷新、桌面重启或崩溃恢复后回到同一个候选/进度现场。
-- `/novels/create` 只承担手动创建表单和旧链接跳转，不再挂载自动导演弹窗。自动导演候选批次、定向修订、标题重做、候选确认和执行进度都属于独立创建页主区，不能再通过候选弹窗套在创建弹窗里展示。
-- 现有项目接管的默认范围是“全书前置规划接管”，不是章节范围。接管可以选择资产起点，但导演必须先补齐 Story Macro / Book Contract / 角色 / 卷战略 / 拆章，随后停在 `production_experience_required`；接管入口携带的旧章节范围或全书自动参数不得提前启动正文。
-- 现有项目接管的用户入口应优先呈现“系统推荐接续位置 + 资产保护说明 + 一键继续”。阶段选择、重跑当前步、范围执行、自动审批等属于高级控制，默认折叠。只有会覆盖或重建已有资产的动作才需要显式确认；普通 `continue_existing` 不应让用户先理解内部阶段卡片才能启动。
-- 接管入口的进度体检应把“系统看到的资产”直接展示给用户，至少包含卷规划、拆章同步、章节细化、正文书写和质量进度。若 URL 或上下文携带 `workspaceTaskId` / `directorTaskId`，前端应并行读取该任务快照，并优先用任务真实阶段、当前章节和任务状态解释主按钮；任务快照读取失败时再退回小说资产体检，不能让慢体检阻塞弹窗打开。
-- 接管入口只能把 `directorTaskId`、当前 active auto-director task 或 live auto-director projection 作为“当前导演任务”上下文。`workspaceTaskId` 属于普通编辑工作流 lane，不能传入接管弹窗参与“进入当前任务”判断；否则被本地收起但仍处于 `waiting_approval` 的手动流程会误导接管入口，以为存在可继续的自动导演任务。
-- 书级自动化投影如果返回 `failed`、`blocked` 或 `waiting_recovery` 且包含 `latestTask.id`，前端必须把它视为当前需要处理的导演状态。即使 URL 没有 `directorTaskId`、active auto-director task 查询返回空，AI 驾驶舱、任务抽屉入口和恢复入口也要显示该投影，并在用户打开详情时把 `latestTask.id` 写入 `directorTaskId`。`completed` / `cancelled` 终态可以继续只在 URL 钉住时展示，避免旧任务反复打扰。
-- 当接管入口能从任务快照或小说资产推断出下一章和章节总数时，默认入口可以提供“推进至第 N 章”的轻量选择。该选择必须生成显式 `chapter_range` 的 `autoExecutionPlan`，范围从当前待执行章开始，到用户选择的目标章结束；高级设置打开时仍以高级范围配置为准。
-- 现有项目接管进入执行面时，用户提交的 `runMode`、`chapter_range` 与自动审批配置必须作为同一份执行契约写入任务 Seed，并驱动后续拆章细化与章节执行。运行时不得把范围接管降级为 `auto_to_ready`，也不得回退读取上一条已完成任务的范围；若最终持久化范围和用户请求不一致，应明确失败并保留可诊断证据，而不能显示为流程完成。
-- `workflow_completed` 是任务主状态的终态事实。章节正文、连续性、角色资源和读者承诺的索引事件可以在安全落库后异步补记，但只能作为历史事件，不能覆盖完成任务的主进度、当前动作或检查点展示。
-- 接管任务的 `downstreamReset` 元数据只表达“从接管点开始，后续旧资产需要重新校验”，不能覆盖任务已经推进到更后阶段的事实进度。UI 合成步骤状态时，应以当前运行阶段为边界，只把当前阶段及其后的 reset steps 显示为待推进；早于当前阶段的步骤应按任务进度或真实资产显示已完成。
-- `chapter_batch_ready` 的质量提醒属于当前批次的继续门。用户点击“继续自动执行章节”后，`approveAutoExecutionScope` 应允许 AI 主驾跳过当前质量提醒并启动剩余章节。
-- 章节范围自动执行的 StepModule 事实门控必须按本次授权范围裁剪章节进度。`chapter.draft.write`、`chapter.state.commit` 等范围内步骤只能校验当前 `autoExecution` / `autoExecutionPlan` 的章节区间，不能让范围外已有正文但缺状态提交的旧章节阻塞当前批次完成。
-- 章节质量审校、章节修复和章节状态提交必须使用同一份章节范围事实。局部质量问题已经被质量闭环标记为 `terminalAction=defer_and_continue` 时，它是章节级质量债，不应再因为 `blockingObligations` 或缺少独立 `StoryStateSnapshot` 把全局自动导演卡在 `chapter.state.commit`；只有 `replan_required` / `recommendedAction=replan` 这类明确重规划信号才能阻断后续章节范围。
-- `replan_required` 的继续语义必须由服务端按任务 checkpoint 统一规范化。无论入口发送普通 `resume`、批准关卡或从检查点恢复，运行时都按“保留可用正文、登记质量债、继续剩余章节”处理，不能因前端命令类型不同重读同一个重规划结果并再次暂停。
-- `skip_quality_repair` 表示“先跳过本次质量 / 重规划建议并继续”。执行面必须把实际触发质量问题且已经生成正文的章节登记到 `qualityDebtSummaries`，再继续剩余章节范围；不能把风险当成已修复，也不能丢弃后续质量回收所需的章节、原因和时间信息。
-- 质量债来源必须来自明确的 pipeline job 章节范围或已持久化章节事实，不能从 `nextChapterId` / `nextChapterOrder` 推断。`nextChapter*` 只表示下一章待执行游标，不表示当前质量问题来源；空正文、仅有执行合同或仅有任务单的章节不得进入 `skippedChapterIds`、`skippedChapterOrders`、`qualityDebtChapterIds` 或 `qualityDebtChapterOrders`。
-- 自动导演 projection 必须优先相信任务 checkpoint。任务已经处于 `waiting_approval` 且存在 checkpoint 时，应屏蔽陈旧的 `DirectorStepRun.running`，否则 UI 会把等待处理的质量门显示成仍在执行。
-- 自动导演展示态也必须反向保护真实运行态。任务已经处于 `running` 且存在当前推进标签、当前 item 或实时进度时，应屏蔽陈旧的 `waiting_approval` / `requiresUserAction` 投影；否则驾驶舱会把正在细化、写作或审校的任务误显示成“等待确认”，并露出无效确认按钮。
-- 自动导演执行详情、AI 驾驶舱和进度弹窗必须共享同一条细粒度运行标签优先级：章节 pipeline 的 `currentItemLabel` / runtime projection `currentLabel` 高于 StepModule 的节点级 `DirectorStepRun.label`。`DirectorStepRun.label` 只能作为缺少任务标签时的兜底，不能把“正在自动审校第 N 章”覆盖成“执行章节生成批次”。
-- 自动导演投影应携带章节质量根因：`rootCauseCode`、`blockingObligations`、`qualityDebtSummary` 和 `qualityBudgetSummary`。执行详情优先用这些字段解释“缺了什么、系统已处理到哪一步、下一步会怎么继续”，而不是把所有章节执行问题显示成通用失败。
-- 角色准备阶段的 `character_setup_required` 是可恢复检查点，不是失败。若角色阵容候选已经生成但质量闸要求用户确认，StepModule 应把它识别为 acceptable pause：任务状态停在 `waiting_approval`，候选保留给用户审核或应用，不能再用“正式角色数为 0”把 `character.cast.prepare` 升级成失败。只有在没有正式角色、没有可用候选、也没有可恢复检查点时，才应视为角色准备失败。
-- 角色阵容“应用”分为核心落库和增强补齐两层。核心落库同步完成主角、主要对手、开篇登场角色及必要关系，足以支持开篇规划与正文。外显资料、心智快照和完整动态投影属于延迟增强；快速启动不得等待它们。首章正文稳定落库后，系统才可为同一本书串行启动一个低优先级增强任务；失败只记录资料待补齐，不得把自动导演标记为失败。
-- 角色阵容质量闸不得用正则、关键词表、固定文本片段或字符比例判断身份承接、隐藏真相、题材理解、语言质量或角色职责。这些创作语义必须交给 AI-first 结构化理解、PromptAsset、semantic retry 或 AI 评估链路。确定性闸门只能检查结构契约，例如是否存在 protagonist、gender、必填字段和可恢复检查点。
+- An API route must not directly `await` Auto-Director long tasks, chapter generation, volume chapter-splitting, quality repair, or LLM production chains.
+- High-priority hard constraint: Auto-Director is not a second chapter-generation system. The control plane may have director-specific commands, projections, and approval policy, but the business execution chain for prose generation and prose repair must share the same runtime as manual single-chapter and batch execution.
+- Continue, resume, retry, takeover, approve, and cancel first become commands. They do not each keep an independent business flow.
+- `DirectorRunCommand` expresses control-plane command, lease, and idempotency. It does not express business-completion facts.
+- `DirectorRun` is the root state of a book-level director run. `DirectorStepRun` is the step execution record. `DirectorEvent` and `DirectorArtifact` are used for projection and recovery.
+- A StepModule should declare inputs, outputs, artifacts, progress checks, and recovery policy. The pipeline only orchestrates; it must not know concrete business tables and Prompt details directly.
+- A StepModule’s read-only fact checks must be able to run independently with `novelId`. `taskId`, run, command, artifacts, and projection hints are Auto-Director extension context and must not be required for `inspectReadiness`, `inspectCompletion`, or `inspectProgress`. With no director task, return a minimal state based on novel facts.
+- Manual chapter generation and manual chapter repair should also enter a StepModule first, then have the step internally delegate to the unified chapter runtime. Routes may keep SSE protocol and user-entry differences, but must not bypass `chapter.draft.write` or `chapter.draft.repair` and form a second execution path.
+- Manual repair and automatic repair must share `ChapterContentFinalizationService` for final acceptance, chapter lifecycle updates, trusted-fact writes, and the `chapter:finalized` event. After a successful repair, prose enters sync as `confirmed` and the chapter becomes `completed`. If more handling is needed, keep usable prose, sync as `debt`, and keep `needs_repair`. If a repair request carries no explicit issue, the only way to find issues is a read-only chapter audit in the same context. Do not call a manual review command that would change lifecycle, write quality records, or trigger replan. Old review must not be the final adjudication exit after repair.
+- Core StepModule runtime dependencies must enter through an explicit dependency pack or a default assembly function. Constructors must not temporarily pull services with dynamic `require()`. Default assembly may keep using existing service instances, but the dependency relationship must be readable, replaceable, and testable at the module boundary.
+- Auto-Director sequential scheduling belongs in the orchestrator / StepModule layer. The chapter batch executor `NovelDirectorAutoExecutionRuntime.runFromReady()` is still one execution implementation of `chapter.draft.write` and must not call the same step back directly, or it would recurse. If chapter batch execution is later split into pure step scheduling, first extract “start / resume pipeline job” as a low-level port, then let the scheduler only walk the step plan.
+- Projection is for the UI. It only returns lightweight state such as stage, block reason, next step, and recoverable range, not full large objects.
+- The frontend must distinguish the full cockpit snapshot from the lightweight runtime projection. The full snapshot includes `displayState.steps`, recent events, fact checkup, and milestones, and fits the progress dialog. The lightweight projection only expresses the current run summary and fits navbar and Task Center high-frequency polling. They must not share a React Query key, or polling will overwrite the full snapshot with the lightweight response and degrade the dialog step view.
+- Auto-Director UI main state must be decided by `DirectorDashboardView` alone. `DirectorRuntimeProjection`, fact checkup, chapter progress, and workspace summary are material layers. They may provide diagnostics, risk, and recent events, but must not each decide the main badge, main progress, main button, or whether to wait for confirmation.
+- `DirectorDashboardView` must carry `sourceTrace` and `progressSource` so a debugger can see whether main state and main progress come from task, worker, checkpoint, chapter facts, or runtime projection. When the frontend needs to show the cockpit, progress dialog, Task Center, task drawer, or novel-page takeover hint, it should prefer this final display model. Book-level automation projections may keep exposing old fields for compatibility, but those fields should be derived from `DirectorDashboardView`, not re-decide main state.
+- When task facts are already `failed` or `cancelled`, the frontend must prefer the terminal state and failure summary. Any leftover in-progress Dashboard snapshot is historical diagnosis only and must not keep showing “live progress” or cover the recovery entry. The failure summary prefers the task error, then the checkpoint summary, so the user sees the chapter or contract problem that actually stuck.
+- Workflow reminders, chapter-title reminders, missing-resource risk, and stale artifacts may only appear as diagnostics or secondary actions. When `DirectorDashboardView.mode` is `running` or `queued`, those reminders must not change the main container, main badge, or main button into waiting-for-confirmation.
+- Browser desktop notifications consume only actionable groups in the “director follow-up” projection: `needs_validation`, `exception`, `pending`. `auto_progress` and `replaced` may still show in the follow-up center, but they do not trigger system notifications. The reminder switch is a current-browser local preference and must obey browser notification permission. The frontend must not re-infer task status for a popup or bypass the follow-up projection.
+- After a service restart, do not silently resume long tasks. Judge the recoverable range from real artifact breakpoints, then let the user or policy confirm continue.
+- When Auto-Director drives chapter production, it may enter the unified chapter execution chain only through `novelService.startPipelineJob(...)` or `resumePipelineJob(...)`. The director side must not directly call writer, patch repair, heavy repair, or the old manual rewrite service.
+- When Auto-Director hits a chapter quality failure, it may only reuse the unified quality-repair rule: patch first, at most one `heavy_repair` after that fails, then register quality debt or a recoverable failure and continue later chapters. Director runtime must not invent a separate “director-only rewrite branch”.
+- Before Auto-Director enters the next chapter, it must obey the chapter production chain’s `final_content -> timeline_finalization -> next_chapter` rule. The director may decide continue, skip, or replan, but it must not bypass `ChapterTimelineFinalizationService`.
+- Auto-Director’s “skip quality repair and continue” is not a timeline bypass. When the repair budget is exhausted or the user chooses `skip_quality_repair`, the execution plane must first submit a degraded timeline checkpoint from the current best prose, then register quality debt and advance remaining chapters.
+- Auto-Director must not patch timeline-commit logic inside director. Stable/degraded timeline, `ChapterTimeAnchor`, hook handoff, and checkpoint metadata belong to the unified chapter runtime, not director-specific recovery logic.
+- When Auto-Director drives chapter production, chapter-pipeline LLM usage must be written into director usage telemetry with `chapterId`. When a chapter’s cumulative tokens exceed the hard budget, runtime should open the `usage_anomaly` circuit breaker and pause later automatic execution, so task restart, quality loops, or context bloat cannot keep amplifying spend.
+- Auto-Director projection must treat a quality result with `terminalAction=defer_and_continue` that is not a replan as “quality debt already recorded”. It must not escalate to `action_required`, `error`, or “error needs handling”. That quality debt only affects later optimization hints and does not block continued execution.
+- Replan decisions must carry scope. `local_window` is the default: Auto-Director generates and saves a `ReplanRun`, refreshes only chapter plans and execution contracts after the current chapter that have no prose, then continues from the first unfinished chapter. Existing prose, user-protected content, and confirmed chapters are context only and must never be overwritten by a local replan. `global_book` is the explicit judgment that whole-book structure is unrecoverable, and may enter a `replan_required` checkpoint to wait for handling.
+- The chapter quality loop is the only replan-escalation entry on the production chain. If chapter audit returns `local_patch_plan`, `continue_with_warning`, `patchable_obligation_gap`, or there is still a recordable obligation gap after repair, register it as quality debt or local repair guidance and continue remaining chapters. Do not write `replanAlertDetails` just because `recommended=true`. If a local replan call fails and the current chapter already has usable prose, only record the failure reason and quality debt. Stop only when there is no usable prose, runtime safety risk, or data-integrity risk.
+- `replan_required` remains a blocking checkpoint even inside full-book Auto-Director or AI-pilot auto-execution. Runtime should stop at the chapter that actually triggered it, and the summary should read “Executed through chapter N; later chapters need replanning”. It must not display the target range as already complete.
+- The default recovery action for `replan_required` is “Replan, then continue”, not skip the current quality repair. The recovery chain must first check whether the checkpoint anchor already has a successful `ReplanRun`. If not, call unified `replanNovel`, and only after success consume the old quality hint and continue from the first chapter without prose. Runtime may skip replan only when the user or a structured policy explicitly chooses `skip_quality_repair`.
+- The simple shelf, professional workbench, task drawer, AI cockpit, and novel list must consume the same structured recovery action. When any surface sees `replan_required`, the default primary action should send `auto_execute_range` and show “Replan, then continue”. “Open quality repair” may be a view entry, but no creation mode may change the default action back to `skip_quality_repair`.
+- If the replan call fails, do not silently degrade to skip repair, and do not clear `replan_required` early. Keep the original checkpoint and show the real error. Existing prose, chapter facts, and user content stay unchanged so the user can replan again or move to professional mode.
+- `auto_execute_range` is the user’s explicit continue authorization for the current chapter execution range. Even if recovery first returns to structured outline or execution-contract sync, that authorization must be passed into the later pipeline’s `approveAutoExecutionScope`, and after structured sync the run must actively enter the chapter-execution node. Do not rely only on auto-approval preference, or the command will succeed while the chapter-execution node still sits at the approval gate.
+- After the user confirms a new-book direction, Auto-Director first projects as “preparing the opening”. After the project exists, the user may choose simple creation early and enter the shelf, but prose must wait until the opening route and execution contract are available. If the user has not chosen yet, projection after prep is “waiting to choose production mode”. Choosing professional creation enters the full workbench and does not auto-generate prose. Switching from simple auto-creation to the professional workbench must take effect at a chapter boundary: the current chapter may land safely, later automatic chapters stop, and existing prose and user content stay unchanged.
+- The recovery entry created by new-book Auto-Director is the standalone page `/novels/auto-director?taskId=<workflowTaskId>`. `taskId` is the primary frontend URL parameter. The old `/novels/create?mode=director&workflowTaskId=<id>` is compatibility input only and should normalize to the new page after entry. Task Center, recovery entries, candidate-confirm links, and server `sourceRoute` should all point at the new page so refresh, desktop restart, or crash recovery return to the same candidate / progress scene.
+- `/novels/create` only hosts the manual create form and old-link redirects. It no longer mounts the Auto-Director dialog. Candidate batches, directed revision, title redo, candidate confirm, and execution progress belong to the standalone create page’s main area, and must not be shown as a candidate dialog nested inside the create dialog.
+- The default range for taking over an existing project is “whole-book upstream planning takeover”, not a chapter range. Takeover may choose an asset starting point, but the director must first complete Story Macro / Book Contract / characters / volume strategy / chapter split, then stop at `production_experience_required`. Old chapter ranges or full-book auto parameters carried on the takeover entry must not start prose early.
+- The user entry for existing-project takeover should prefer “system-recommended continue position + asset-protection explanation + one-click continue”. Stage selection, rerun current step, range execution, and auto-approval are advanced controls and are collapsed by default. Only actions that would overwrite or rebuild existing assets need explicit confirmation. Ordinary `continue_existing` should not require the user to understand internal stage cards before starting.
+- Takeover progress checkup should show “the assets the system can see” directly, at least volume planning, chapter-split sync, chapter refinement, prose writing, and quality progress. If the URL or context carries `workspaceTaskId` / `directorTaskId`, the frontend should read that task snapshot in parallel and prefer the task’s real stage, current chapter, and task status to explain the main button. If the task snapshot fails, fall back to novel-asset checkup. A slow checkup must not block the dialog from opening.
+- Takeover may use only `directorTaskId`, the current active auto-director task, or the live auto-director projection as “current director task” context. `workspaceTaskId` belongs to an ordinary editing-workflow lane and must not be passed into the takeover dialog for “enter current task” judgment. Otherwise a locally collapsed manual flow that is still `waiting_approval` will mislead takeover into thinking a continuable Auto-Director task exists.
+- If a book-level automation projection returns `failed`, `blocked`, or `waiting_recovery` and includes `latestTask.id`, the frontend must treat it as the director state that needs handling. Even when the URL has no `directorTaskId` and the active auto-director task query is empty, the AI cockpit, task-drawer entry, and recovery entry must show that projection, and writing `latestTask.id` into `directorTaskId` when the user opens details. `completed` / `cancelled` terminals may keep showing only when the URL pins them, so old tasks do not keep interrupting.
+- When takeover can infer the next chapter and chapter total from the task snapshot or novel assets, the default entry may offer a lightweight “Advance to chapter N” choice. That choice must generate an explicit `chapter_range` `autoExecutionPlan` from the current pending chapter through the user-chosen target chapter. When advanced settings are open, the advanced range configuration still wins.
+- When existing-project takeover enters the execution plane, the submitted `runMode`, `chapter_range`, and auto-approval config must be written into the task seed as one execution contract and drive later chapter-split refinement and chapter execution. Runtime must not degrade range takeover to `auto_to_ready`, and must not fall back to reading the previous completed task’s range. If the finally persisted range disagrees with the user request, fail clearly and keep diagnosable evidence. Do not display the flow as complete.
+- `workflow_completed` is the terminal fact of the task’s main status. Index events for chapter prose, continuity, character resources, and reader promises may be backfilled asynchronously after a safe land, but they are historical events only and must not overwrite a completed task’s main progress, current action, or checkpoint display.
+- Takeover-task `downstreamReset` metadata only means “from the takeover point on, later old assets need revalidation”. It must not overwrite the fact that the task has already advanced to a later stage. When the UI synthesizes step state, use the current run stage as the boundary and show only the current stage and later reset steps as pending. Steps earlier than the current stage should show completed from task progress or real assets.
+- Quality reminders on `chapter_batch_ready` belong to the current batch’s continue gate. After the user clicks “Continue auto-executing chapters”, `approveAutoExecutionScope` should let AI-pilot skip the current quality reminder and start remaining chapters.
+- Chapter-range auto-execution StepModule fact gating must clip chapter progress to this authorization range. In-range steps such as `chapter.draft.write` and `chapter.state.commit` may only validate the chapter interval of the current `autoExecution` / `autoExecutionPlan`. Old out-of-range chapters that already have prose but lack a state commit must not block the current batch from completing.
+- Chapter quality audit, chapter repair, and chapter state commit must use the same chapter-range facts. When a local quality problem has already been marked `terminalAction=defer_and_continue` by the quality loop, it is chapter-level quality debt. It must not pin global Auto-Director at `chapter.state.commit` because of `blockingObligations` or a missing standalone `StoryStateSnapshot`. Only explicit replan signals such as `replan_required` / `recommendedAction=replan` may block the later chapter range.
+- Continue semantics for `replan_required` must be normalized on the server from the task checkpoint. Whether the entry sends ordinary `resume`, approves a gate, or restores from a checkpoint, runtime treats it as “keep usable prose, register quality debt, continue remaining chapters”. Different frontend command types must not reread the same replan result and pause again.
+- `skip_quality_repair` means “skip this quality / replan suggestion for now and continue”. The execution plane must register chapters that actually triggered the quality issue and already generated prose into `qualityDebtSummaries`, then continue the remaining chapter range. It must not treat the risk as repaired, and must not drop the chapter, reason, and time information later quality recovery needs.
+- Quality-debt sources must come from an explicit pipeline-job chapter range or persisted chapter facts. They must not be inferred from `nextChapterId` / `nextChapterOrder`. `nextChapter*` is only the next-chapter pending cursor, not the current quality-issue source. Chapters with empty prose, only an execution contract, or only a task sheet must not enter `skippedChapterIds`, `skippedChapterOrders`, `qualityDebtChapterIds`, or `qualityDebtChapterOrders`.
+- Auto-Director projection must prefer the task checkpoint. When the task is already `waiting_approval` and a checkpoint exists, hide stale `DirectorStepRun.running`, or the UI will show a waiting quality gate as still executing.
+- Auto-Director display state must also protect real running state in the other direction. When the task is already `running` and has a current progress label, current item, or live progress, hide stale `waiting_approval` / `requiresUserAction` projections. Otherwise the cockpit will show a task that is refining, writing, or auditing as “waiting for confirmation” and expose a useless confirm button.
+- Auto-Director execution details, AI cockpit, and the progress dialog must share the same fine-grained run-label priority: chapter pipeline `currentItemLabel` / runtime projection `currentLabel` outrank StepModule node-level `DirectorStepRun.label`. `DirectorStepRun.label` is only a fallback when the task has no label. It must not overwrite “Auto-auditing chapter N” with “Executing chapter generation batch”.
+- Auto-Director projection should carry chapter quality root cause: `rootCauseCode`, `blockingObligations`, `qualityDebtSummary`, and `qualityBudgetSummary`. Execution details should prefer those fields to explain what is missing, how far the system has handled it, and how the next step will continue, instead of showing every chapter-execution problem as a generic failure.
+- `character_setup_required` in character prep is a recoverable checkpoint, not a failure. If cast candidates are already generated but the quality gate requires user confirmation, the StepModule should treat it as an acceptable pause: task status stops at `waiting_approval`, candidates are kept for user review or apply, and `character.cast.prepare` must not be escalated to failure just because “formal character count is 0”. Treat character prep as failed only when there are no formal characters, no usable candidates, and no recoverable checkpoint.
+- Cast “apply” has two layers: core persist and deferred enhancement. Core persist synchronously lands protagonist, main opponent, opening-appearing characters, and required relationships, enough for opening planning and prose. Visible profile, mind snapshot, and full dynamics projection are deferred enhancement. Fast start must not wait for them. After first-chapter prose lands stably, the system may start one low-priority enhancement task for the same book, serially. Failure only records profile-to-complete; it must not mark Auto-Director failed.
+- The cast quality gate must not use regex, keyword tables, fixed text fragments, or character-ratio checks to judge identity handoff, hidden truth, genre understanding, language quality, or character duty. Those creative semantics belong to AI-first structured understanding, PromptAsset, semantic retry, or an AI evaluation chain. Deterministic gates may only check structural contracts, such as whether a protagonist, gender, required fields, and a recoverable checkpoint exist.
 
-## 示例
+## Examples
 
-推荐做法：
+Recommended:
 
-- `continue` 请求只创建或复用 active command，立即返回 command id、task id 和轻量状态。
-- Worker lease 后调用统一 Pipeline，由 StepModule 组装输入、执行、验证输出并提交产物。
-- 前端任务中心读取 runtime projection，而不是高频拉取完整 volumes、seed payload 或候选批次。
+- A `continue` request only creates or reuses an active command and immediately returns command id, task id, and lightweight status.
+- After the worker leases, it calls the unified pipeline. The StepModule assembles input, executes, validates output, and commits artifacts.
+- The frontend Task Center reads the runtime projection instead of frequently pulling full volumes, seed payload, or candidate batches.
 
-禁止做法：
+Forbidden:
 
-- 在 route 里直接调用 `runDirectorPipeline`、`generateVolumes`、`chapterExecution` 或质量修复。
-- 用 `setImmediate`、`void Promise` 或 fire-and-forget 在 Web API 进程中伪装后台任务。
-- 让旧 task status 直接决定 runtime completion。
-- 在 `director/` 内部新增直接写正文、直接 patch repair 或直接 full rewrite 的实现，把自动导演演变成旁路写作系统。
-- 在核心运行时构造函数中继续堆叠动态 `require()`，导致依赖边界只能靠运行时碰撞发现。
+- Calling `runDirectorPipeline`, `generateVolumes`, `chapterExecution`, or quality repair directly in a route.
+- Pretending to be a background task inside the Web API process with `setImmediate`, `void Promise`, or fire-and-forget.
+- Letting old task status directly decide runtime completion.
+- Adding implementations inside `director/` that write prose, patch-repair, or full-rewrite directly, turning Auto-Director into a bypass writing system.
+- Keep stacking dynamic `require()` in core runtime constructors so dependency boundaries can only be discovered by runtime collision.
 
-## 失败模式
+## Failure Modes
 
-- 点击继续后普通查询接口一起挂起：优先检查是否有重型执行仍在 API 进程内运行。
-- 点击“继续自动执行章节”后 toast 成功但没有新的 LLM 请求：优先检查 command 是否已成功执行但 `chapter_execution_node` 仍是 `waiting_approval`，以及 `auto_execute_range` 是否在恢复分支或质量提醒分支丢失了 `approveAutoExecutionScope`。
-- 点击 `replan_required` 状态的“继续自动导演”后没有新 LLM 请求：检查服务端是否仍把任务 checkpoint 透传为普通 `resume`。继续运行时必须按 checkpoint 自动规范化为质量债继续路径，前端按钮类型不能改变该语义。
-- 点击 `skip_quality_repair` 后直接越过空章节：检查质量债是否错误绑定到 `nextChapterOrder`。正确状态应把质量债绑定到刚完成并触发质量提醒的章节，状态重算后最早空正文章节仍应留在 `remainingChapterOrders` 首位。
-- 跳过质量修复后下一章脱节：检查跳过前是否写入 `timeline_finalization/degraded` checkpoint，以及当前章节是否已有 `ChapterTimeAnchor`。如果没有，说明执行面把跳过误当成直接进入下一章。
-- 单章 token 异常飙升：检查 `DirectorLlmUsageRecord.metadataJson.chapterId` 是否完整、`usage_anomaly` 熔断是否记录了触发章节，以及是否存在重复门禁、重复章节合同或 timeline 上下文膨胀。
-- 章节范围任务停在 `chapter.state.commit facts are not complete yet`：先比较任务范围内和整本书的 `draftedChapterCount / committedChapterCount`。如果范围内已齐但整本书仍有旧章节缺 `StoryStateSnapshot` 或 `CanonicalStateVersion`，说明事实门控没有按 `autoExecution` / `autoExecutionPlan` 裁剪章节进度，应修 StepModule 的 scoped progress，而不是补写无关章节来绕过。如果范围内只差已经 `defer_and_continue` 的质量债章节，应检查质量债分类是否仍被 `blockingObligations` 抢先判成 blocking，以及 `chapter_state_committed` 进度是否接受降级继续状态。
-- 执行详情仍只显示 `chapter.draft.write 未满足其完成标准`：检查章节 runtime package 是否已经写入 `failureClassification`，以及 `quality_loop_assessed` 事件是否把 `rootCauseCode` 和 `blockingObligations` 投影到前端。
-- 执行详情显示 `character.cast.prepare 未满足其完成标准`：先检查任务是否已有 `character_setup_required` 检查点和 `CharacterCastOption` 候选。如果候选存在，应修复 acceptable pause 或任务投影，而不是要求重新生成整条主链；如果候选不存在，再检查角色生成 Prompt、结构化输出和持久化路径。
-- UI 显示失败但任务已重新排队：检查 projection 是否仍把旧 task status 当事实源。
-- 小说实际存在失败导演任务但 AI 驾驶舱显示空闲：先检查当前 URL 是否只有 `workspaceTaskId` 而没有 `directorTaskId`，再查 `book-automation` 投影是否已经返回 `projection.status=failed` 和 `latestTask.id`。如果投影有失败任务但侧栏仍隐藏，说明前端把未钉住的失败投影当成历史终态过滤了；正确行为是显示失败投影，并让“查看失败原因”跳转到带 `directorTaskId` 的任务详情。
-- 候选确认或恢复入口回到 `/novels/create`：检查 `resumeTargetToRoute`、书级自动化投影、任务 UI helper 和移动端入口是否仍在生成旧的 `workflowTaskId + mode=director` 链接。正确链接应使用 `/novels/auto-director?taskId=...`，旧链接只应由前端兼容跳转处理。
-- 服务重启后假 running：检查租约过期、active step、command 状态和产物断点是否统一投影。
-- 重复点击继续产生多条执行链：检查 command 幂等键和 active command 复用。
-- 新书未选择简易创作却在开篇路线准备完成后直接开始第 1 章：检查确认接口、结构化大纲阶段或恢复逻辑是否把默认的 `professional` 误当成显式选择。只有用户提前选择简易创作时才可自动进入 `chapter_batch_ready`；否则必须停在 `production_experience_required`。
-- `auto_to_ready` 停在“等待确认分卷策略”且没有 checkpoint：检查运行策略是否把普通 `downstream_recompute` 当成人工审批。前期规划门应自动使用安全范围授权，用户保护内容仍由 policy gate 拦截。
-- 章节执行出现 `Chapter execution did not produce observable draft content`，实际原因却是“高内存卷规划正在处理同一范围”：优先检查章节执行触发的 JIT 路线预取是否携带同一个 `workflowTaskId`。自动导演在结构化规划阶段已经持有自己的高内存租约；同一任务的 JIT 卷规划必须沿用该所有者，否则会被错误识别为并发任务并返回 409。任务状态已失败但活动步骤仍显示运行中时，应以任务 `status` 和最后检查点为事实源，活动步骤属于待修复的旧投影。
+- Ordinary query APIs hang after clicking continue: first check whether heavy execution is still running inside the API process.
+- Toast succeeds after “Continue auto-executing chapters” but there is no new LLM request: first check whether the command already succeeded while `chapter_execution_node` is still `waiting_approval`, and whether `auto_execute_range` lost `approveAutoExecutionScope` on a recovery or quality-reminder branch.
+- Clicking “Continue Auto-Director” in `replan_required` produces no new LLM request: check whether the server still passes the task checkpoint through as ordinary `resume`. Continue runtime must auto-normalize from the checkpoint onto the quality-debt continue path. Frontend button type must not change that meaning.
+- Clicking `skip_quality_repair` jumps over empty chapters: check whether quality debt was wrongly bound to `nextChapterOrder`. The correct state binds quality debt to the chapter that just finished and triggered the quality reminder. After status recompute, the earliest empty-prose chapter should still sit first in `remainingChapterOrders`.
+- The next chapter disconnects after skipping quality repair: check whether a `timeline_finalization/degraded` checkpoint was written before the skip, and whether the current chapter already has a `ChapterTimeAnchor`. If not, the execution plane treated skip as a direct jump to the next chapter.
+- Single-chapter tokens spike: check whether `DirectorLlmUsageRecord.metadataJson.chapterId` is complete, whether the `usage_anomaly` breaker recorded the triggering chapter, and whether there is duplicate gating, duplicate chapter contracts, or timeline-context bloat.
+- A chapter-range task stops at `chapter.state.commit facts are not complete yet`: first compare in-range vs whole-book `draftedChapterCount / committedChapterCount`. If the range is complete but the whole book still has old chapters missing `StoryStateSnapshot` or `CanonicalStateVersion`, fact gating did not clip chapter progress to `autoExecution` / `autoExecutionPlan`. Fix the StepModule’s scoped progress; do not write unrelated chapters as a bypass. If the range only lacks chapters already in `defer_and_continue` quality debt, check whether quality-debt classification is still preempted as blocking by `blockingObligations`, and whether `chapter_state_committed` progress accepts degraded continue state.
+- Execution details still only show `chapter.draft.write did not meet its completion criteria`: check whether the chapter runtime package already wrote `failureClassification`, and whether the `quality_loop_assessed` event projected `rootCauseCode` and `blockingObligations` to the frontend.
+- Execution details show `character.cast.prepare did not meet its completion criteria`: first check whether the task already has a `character_setup_required` checkpoint and `CharacterCastOption` candidates. If candidates exist, fix the acceptable pause or task projection; do not require regenerating the whole main chain. If candidates do not exist, then check the character-generation Prompt, structured output, and persistence path.
+- UI shows failure while the task has already been re-queued: check whether projection still treats old task status as the fact source.
+- The novel actually has a failed director task but the AI cockpit shows idle: first check whether the current URL has only `workspaceTaskId` and no `directorTaskId`, then whether the `book-automation` projection already returns `projection.status=failed` and `latestTask.id`. If the projection has a failed task but the sidebar still hides it, the frontend filtered an unpinned failed projection as a historical terminal. The correct behavior is to show the failed projection and let “View failure reason” jump to task details with `directorTaskId`.
+- Candidate confirm or recovery returns to `/novels/create`: check whether `resumeTargetToRoute`, book-level automation projection, task UI helpers, and mobile entries still generate old `workflowTaskId + mode=director` links. The correct link uses `/novels/auto-director?taskId=...`. Old links should be handled only by frontend compatibility redirects.
+- Fake `running` after a service restart: check whether lease expiry, active step, command status, and artifact breakpoints project consistently.
+- Repeated continue clicks spawn multiple execution chains: check command idempotency keys and active-command reuse.
+- A new book did not choose simple creation but starts chapter 1 as soon as the opening route is ready: check whether the confirm API, structured-outline stage, or recovery logic treated default `professional` as an explicit choice. Only an early user choice of simple creation may auto-enter `chapter_batch_ready`; otherwise stop at `production_experience_required`.
+- `auto_to_ready` stops at “Waiting to confirm volume strategy” with no checkpoint: check whether run policy treated ordinary `downstream_recompute` as human approval. Early planning gates should auto-use safe-scope authorization. User-protected content is still intercepted by the policy gate.
+- Chapter execution shows `Chapter execution did not produce observable draft content`, but the real reason is “high-memory volume planning is handling the same range”: first check whether the JIT route prefetch triggered by chapter execution carries the same `workflowTaskId`. Auto-Director already holds its own high-memory lease during structured planning; JIT volume planning for the same task must reuse that owner, or it is wrongly treated as a concurrent task and returns 409. When task status is already failed but the active step still shows running, treat task `status` and the last checkpoint as the fact source. The active step is a stale projection to fix.
 
-高内存冲突属于可恢复资源等待，不得要求用户重新创建小说或重新生成已完成规划。失败卡必须说明已保存的范围，并提供“从检查点重新尝试”和“查看运行详情”；恢复操作沿用原任务、原模型和原策略快照。若冲突来自另一条真实仍在运行的任务，恢复前应等待其完成或取消；同任务 JIT 预取不应触发该提示。
+High-memory conflict is recoverable resource waiting. It must not require the user to recreate the novel or regenerate completed planning. The failure card must state the saved range and offer “Retry from checkpoint” and “View run details”. Recovery reuses the original task, model, and policy snapshot. If the conflict comes from another task that is truly still running, wait for it to finish or cancel before recovering. Same-task JIT prefetch should not trigger this prompt.
 
-不能用前端禁用按钮或降低轮询频率掩盖执行面阻塞。
+Do not hide execution-plane blocking by disabling frontend buttons or lowering polling frequency.
 
-## 相关模块
+## Related Modules
 
 - `server/src/services/novel/director/DirectorCommandService.ts`
 - `server/src/services/novel/director/DirectorCommandExecutor.ts`
@@ -183,45 +183,45 @@ Web API 只接收命令和返回轻量投影；Worker 负责执行重型生产�
 - `client/src/components/autoDirector/AutoDirectorPauseNotificationWatcher.tsx`
 - `client/src/pages/settings/AutoDirectorBrowserNotificationSettingsCard.tsx`
 
-## 来源文档
+## Source Documents
 
-- [自动导演执行面隔离与 API 保活计划](../../plans/auto-director-execution-plane-isolation-plan.md)
-- [导演模式模块化与状态治理改造清单](../../plans/director-mode-module-state-refactor-checklist.md)
-- [Novel Director 子系统](../../../server/src/services/novel/director/README.md)
-- [README 当前能力说明](../../../README.md)
+- [Auto-Director execution-plane isolation and API keep-alive plan](../../plans/auto-director-execution-plane-isolation-plan.md)
+- [Director-mode modularization and state-governance checklist](../../plans/director-mode-module-state-refactor-checklist.md)
+- [Novel Director subsystem](../../../server/src/services/novel/director/README.md)
+- [README current capabilities](../../../README.md)
 
-## 紧凑全书完成合同
+## Compact full-book completion contract
 
-自动导演按任务的目标章节数构建 `completionProfile`。目标不超过 60 章时使用 `compact_book`：原始的 `first30ChapterPromise` 仍原样保存，但在规划和正文上下文中解释为“全书核心承诺”；最大章节数为目标数加 5，追加章节只能用于收束既有主线。超过 60 章保持 `serial_book` 和“前 30 章承诺”语义。
+Auto-Director builds a `completionProfile` from the task’s target chapter count. At or below 60 chapters it uses `compact_book`: the original `first30ChapterPromise` is still stored as-is, but planning and prose context interpret it as the “full-book core promise”. Maximum chapter count is the target plus 5. Extra chapters may only close existing main lines. Above 60 chapters it keeps `serial_book` and “first 30 chapters promise” semantics.
 
-紧凑作品的规划采用建立承诺、升级转向、解决兑现三段式结构，目标章节到达后必须通过结局合同检查才可以标记全书完成。结局合同关注主冲突、主角目标、关系变化、核心回报和主题落点；普通质量债不改变全书完成状态，缺少关键结局证据时才进入收尾或重规划恢复。
+Compact-work planning uses a three-part structure: establish the promise, escalate and turn, then resolve and pay off. After the target chapter is reached, the book may be marked complete only after an ending-contract check. The ending contract cares about the main conflict, protagonist goal, relationship change, core payoff, and thematic landing. Ordinary quality debt does not change whole-book completion. Missing key ending evidence is what enters wrap-up or replan recovery.
 
-旧任务没有 `completionProfile` 时按连载模式兼容读取，不修改已有正文或原始承诺字段。
+Old tasks without `completionProfile` are read in serial-book compatibility mode. Existing prose and original promise fields are not modified.
 
-## 正文优先与自动恢复
+## Draft-first priority and auto-recovery
 
-自动导演的默认优先级是完成正文。章节已经产生可保存正文时，局部审校风险、自然度提示、回报尚未到兑现窗口和普通质量债都必须降级为章节级记录，不能单独把全局任务切到 `replan_required`。只有结构化状态明确要求重规划、正文不可用，或运行时/数据安全失败，才允许暂停批量执行。
+Auto-Director’s default priority is finishing prose. Once a chapter has saveable prose, local audit risk, naturalness hints, payoffs whose window has not yet arrived, and ordinary quality debt must all degrade to chapter-level records. They must not alone switch the global task to `replan_required`. Pause batch execution only when structured state explicitly requires replan, prose is unusable, or a runtime / data-safety failure occurs.
 
-章节运行时异常由当前章节负责自动处理；每章最多使用一次由问题策略快照提供的自动重试机会，且运行异常重试与质量修复共享这次机会。处理不能重写已稳定保存的前文，也不能创建第二条生产链。预算耗尽且仍没有可用正文时，才创建可恢复检查点，并保留章节、阶段和最近游标，避免把内部堆栈直接当成用户操作要求。
+Chapter runtime exceptions are handled automatically by the current chapter. Each chapter may use at most one automatic retry opportunity from the issue-policy snapshot, and runtime-exception retry shares that opportunity with quality repair. Handling must not rewrite already stably saved prior prose, and must not create a second production chain. Only when the budget is exhausted and there is still no usable prose should a recoverable checkpoint be created, keeping chapter, stage, and the latest cursor, instead of treating an internal stack as a user action requirement.
 
-回报账本的 `overdue` 只有在当前章节已经越过明确的 `targetEndChapterOrder` 后才生效。仍处于承诺窗口内的项目属于待推进或紧急提示，不得让生成决策提前返回 `replan`。账本内部标识（例如 `payoff/payoff_missing_progress`）只能用于诊断和质量记录，不能写入章节的“必须推进”合同。
+Payoff-ledger `overdue` takes effect only after the current chapter has already passed an explicit `targetEndChapterOrder`. Items still inside their promise window are pending progress or urgent hints. Generation decisions must not return `replan` early. Internal ledger identifiers (for example `payoff/payoff_missing_progress`) are only for diagnosis and quality records. They must not be written into the chapter’s “must advance” contract.
 
-## 风险评分与问题动作
+## Risk scoring and issue actions
 
 ### Background
 
-自动导演需要把问题的紧急程度以新手能理解的方式表达出来，但不能让评分成为问题管理之外的第二条停止通道。风险分数只用于沟通、排序和通知；重试、继续、暂停或结束完全由稳定问题码对应的任务策略快照及安全强制规则决定。
+Auto-Director needs to express how urgent a problem is in a way beginners can understand, without letting the score become a second stop channel outside issue management. Risk scores are only for communication, ranking, and notification. Retry, continue, pause, or end are decided entirely by the task policy snapshot for the stable issue code and by safety enforcement rules.
 
 ### Current Rule
 
-- 每个需要说明的异常使用 `DirectorRiskAssessment` 记录 1–8 分、类别、影响范围、证据和建议。8 分是最高风险分；评分不拥有暂停权限，也不覆盖问题动作。
-- 全局和本书只保存问题码动作与自动重试次数。不存在独立风险阈值、书级阈值覆盖或任务 `riskPolicy` 快照。
-- 需要关注的问题写入自动导演账本、运行时投影与通知渠道。外部通知按 `任务 + 问题指纹 + 动作` 去重，避免同一问题在重试时反复打扰用户。
-- 全局和本书规则界面允许每个稳定问题码选择四种动作，并在用户产生未保存修改后显示风险提示。策略可保存用户偏好，但 `generation.output_unusable`、`quality.replan_required`、`runtime.token_budget_exceeded`、`runtime.protected_content`、`runtime.data_integrity` 与 `runtime.persistence_failed` 必须由目录中的 `enforcedAction` 执行安全兜底；此时实际决策的 `policySource` 为 `safety`，不能把偏好伪装成已自动放行。
-- `replan_required`、`stop_for_replan`、无可用正文、运行时安全、数据完整性和受保护正文冲突通过问题目录中的安全动作进入可恢复暂停；其风险分可固定记为 8 分用于说明，但暂停不依赖评分模型或任何阈值。
-- `local_patch_plan`、`continue_with_warning`、`defer_and_continue`、局部修复残留和普通质量债无论分数多高，都只能记录质量债或局部修复提醒；它们的 `canPause` 必须为 false，不能把全书任务路由到 `replan_required`。
-- 章节流水线完成问题分类和动作治理后，自动导演检查点只消费该结构化结果，不得再调用风险评分模型重新决定继续或暂停。`qualityRepairRisk` 仅负责把影响范围和提示投影给用户；历史 `latestRiskAssessment` 可以保留展示，但不能在检查点重算。
-- `DirectorPolicyEngine` 只负责执行前置边界：写操作是否允许、是否需要审批、是否影响用户保护内容，以及大范围或高成本动作是否越权。它不保存质量失败动作、自动修复次数或章节重试预算；这些运行期问题只能由问题策略快照和章节流水线处理。旧任务中残留的同名策略字段仅作兼容数据读取，不能重新接回执行分支。
+- Each exception that needs explanation uses `DirectorRiskAssessment` to record a 1–8 score, category, impact scope, evidence, and suggestion. 8 is the highest risk score. Scoring does not own pause permission and does not override the issue action.
+- Global and book settings store only issue-code actions and automatic retry counts. There is no independent risk threshold, book-level threshold override, or task `riskPolicy` snapshot.
+- Issues that need attention are written to the Auto-Director ledger, runtime projection, and notification channels. External notifications dedupe by `task + issue fingerprint + action`, so the same issue does not keep interrupting the user on retry.
+- Global and book rule UIs let each stable issue code choose one of the four actions, and show a risk hint after the user has unsaved changes. Policy may save user preference, but `generation.output_unusable`, `quality.replan_required`, `runtime.token_budget_exceeded`, `runtime.protected_content`, `runtime.data_integrity`, and `runtime.persistence_failed` must execute the catalog’s `enforcedAction` as the safety floor. In that case the actual decision’s `policySource` is `safety`; preference must not be disguised as already auto-allowed.
+- `replan_required`, `stop_for_replan`, no usable prose, runtime safety, data integrity, and protected-prose conflict enter recoverable pause through the catalog’s safety action. Their risk score may be recorded as a fixed 8 for explanation, but pause does not depend on the scoring model or any threshold.
+- `local_patch_plan`, `continue_with_warning`, `defer_and_continue`, leftover local repair, and ordinary quality debt, no matter how high the score, may only record quality debt or a local repair reminder. Their `canPause` must be false. They must not route the whole-book task to `replan_required`.
+- After the chapter pipeline finishes issue classification and action governance, the Auto-Director checkpoint only consumes that structured result. It must not call the risk-scoring model again to decide continue or pause. `qualityRepairRisk` only projects impact scope and hints to the user. Historical `latestRiskAssessment` may remain for display, but it must not be recomputed at the checkpoint.
+- `DirectorPolicyEngine` only owns pre-execution boundaries: whether a write is allowed, whether approval is required, whether user-protected content is affected, and whether a large-scope or high-cost action is out of authorization. It does not store quality-failure actions, automatic repair counts, or chapter retry budget. Those runtime issues may only be handled by the issue-policy snapshot and the chapter pipeline. Same-named policy fields left in old tasks are compatibility reads only and must not be wired back into the execution branch.
 
 ### Related Modules
 
@@ -232,18 +232,18 @@ Web API 只接收命令和返回轻量投影；Worker 负责执行重型生产�
 - `server/src/services/novel/director/issues/DirectorIssueService.ts`
 - `client/src/components/autoDirector/DirectorRuntimeProjectionCard.tsx`
 
-## 创作界面与生产合同
+## Creation UI and production contract
 
-`creationExperience` 只表示工作区的显示偏好：`simple` 打开 `/novels/:id/simple` 阅读书架，`professional` 打开 `/novels/:id/edit` 完整工作台。它不能成为小说、章节、角色、规划、导出、删除或其他写操作的权限边界。
+`creationExperience` only means workspace display preference: `simple` opens the `/novels/:id/simple` reading shelf, `professional` opens the `/novels/:id/edit` full workbench. It must not become an authorization boundary for novel, chapter, character, planning, export, delete, or other write operations.
 
-自动导演在前期准备完成后允许用户选择界面，两种选择都写入相同的 `full_book_autopilot`、全书执行计划和自动审批配置。`productionExperience` 仅保存当次选择以便返回对应界面；不得把专业界面降级为 `auto_to_ready`，也不得在简易界面切换到专业界面时等当前章节结束后停止自动生产。
+After early prep, Auto-Director lets the user choose the UI. Both choices write the same `full_book_autopilot`, full-book execution plan, and auto-approval config. `productionExperience` only stores that choice so the user can return to the matching UI. It must not degrade the professional UI to `auto_to_ready`, and must not stop automatic production when switching from the simple UI to the professional UI after the current chapter ends.
 
-界面可随时切换，切换只更新显示偏好并跳转路由，不创建第二条任务、不改写任务进度、不取消运行中的章节任务。旧任务中的历史模式字段按原数据兼容读取，但新的运行逻辑不得再根据界面偏好提前启动、暂停或改变全书生产范围。
+The UI may switch at any time. Switching only updates display preference and navigates. It does not create a second task, rewrite task progress, or cancel a running chapter task. Historical mode fields on old tasks are read in compatibility mode, but new runtime logic must not start, pause, or change the full-book production range based on UI preference.
 
-## 简易创作的自动续写
+## Auto-continue from simple creation
 
-简易创作书架是自动成书的恢复入口，而不是专业工作台的替代诊断页。书架投影已经返回最近自动导演任务的 `directorTaskId`，因此“按 AI 建议继续”必须直接向该任务提交继续命令；不得改用只查询 `queued/running` 任务的接口。重规划检查点会把任务置为失败态，重新查询活跃任务会错误地产生“没有找到可恢复的 AI 任务”。
+The simple-creation shelf is the recovery entry for automatic book completion, not a substitute diagnostics page for the professional workbench. The shelf projection already returns the latest Auto-Director task’s `directorTaskId`, so “Continue following the AI suggestion” must submit a continue command to that task. Do not switch to an API that only queries `queued/running` tasks. A replan checkpoint puts the task into a failed state; re-querying active tasks wrongly produces “No recoverable AI task found”.
 
-当用户从简易创作书架明确选择继续时，已有可读正文的章节即使带有 `replan_required` 质量标记，也应先保留正文、登记章节级质量债并继续后续章节。该授权不适用于无可用正文、运行时安全、数据完整性或受保护人工内容冲突；这些情况仍需停在可恢复检查点。后续章节通过滚动规划与事实账本重新装配，不应要求新手理解或手动修改内部重规划信息。
+When the user explicitly chooses continue from the simple-creation shelf, chapters that already have readable prose, even with a `replan_required` quality mark, should first keep the prose, register chapter-level quality debt, and continue later chapters. That authorization does not apply to no usable prose, runtime safety, data integrity, or protected user-content conflict; those cases still stop at a recoverable checkpoint. Later chapters are reassembled through rolling planning and the fact ledger. Beginners should not need to understand or manually edit internal replan information.
 
-简易创作书架投影任务的问题事件记录。每条记录展示风险分数、证据、影响章节、实际动作和下一步建议；这些信息必须来自自动导演的同一份事件账本与任务 Seed，不能在书架重新计算。书架的问题管理入口只调整本书的问题动作和自动重试次数，与专业模式使用同一套规则。
+The simple-creation shelf projects the task’s issue-event records. Each record shows risk score, evidence, affected chapters, actual action, and next-step suggestion. That information must come from the same Auto-Director event ledger and task seed; the shelf must not recompute it. The shelf’s issue-management entry only adjusts this book’s issue actions and automatic retry counts, using the same rules as professional mode.

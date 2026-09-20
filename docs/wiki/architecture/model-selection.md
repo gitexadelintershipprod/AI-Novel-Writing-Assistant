@@ -1,50 +1,50 @@
-# 当前模型选择与厂商默认模型边界
+# Current model selection and vendor default-model boundary
 
-## 背景
+## Background
 
-顶部模型选择会影响 Creative Hub、自动导演、章节生产、写法引擎、世界观与角色生成等多条 AI 调用入口。过去如果当前选择只存在浏览器本地存储，项目重启、桌面 userData 变化、浏览器 origin 变化或本地缓存被清理后，界面会回到前端内置默认值。内置默认值又可能落到某个厂商的旧模型名，导致新手用户在不理解模型配置细节时直接遇到不可用模型。
+The top model selector affects many AI call entrypoints: Creative Hub, Auto-Director, chapter production, the writing-formula engine, worldbuilding, and character generation. If the current selection lived only in browser local storage, a project restart, a desktop `userData` change, a browser-origin change, or a cleared local cache would send the UI back to a frontend built-in default. That built-in default could land on a vendor's old model name, so a beginner who does not understand model-configuration details would hit an unusable model immediately.
 
-模型厂商配置和当前模型选择必须分清事实源：厂商配置说明“这个厂商如何连接、默认模型是什么、是否可运行”；当前模型选择说明“顶部工作区现在要用哪一个厂商和模型”。
+Vendor configuration and current model selection must be separate sources of truth. Vendor configuration answers "how this vendor connects, what its default model is, and whether it can run." Current model selection answers "which vendor and model the top workspace should use now."
 
-## 决策
+## Decision
 
-当前顶部模型选择以服务端 `AppSetting` 为主要事实源。前端状态只作为本次页面运行时的投影，不再用浏览器 localStorage 决定长期默认模型。
+The current top model selection uses server-side `AppSetting` as the primary source of truth. Frontend state is only a projection for this page session. Browser localStorage no longer decides the long-term default model.
 
-当没有已保存的当前选择，或已保存的厂商不可运行时，系统从已配置、启用且有模型列表的厂商中解析一个可运行选择。解析顺序优先尊重用户保存的厂商和模型；只有保存值缺失或失效时，才使用可运行厂商列表的首个候选。
+When there is no saved current selection, or the saved vendor cannot run, the system resolves a runnable choice from vendors that are configured, enabled, and have a model list. Resolution prefers the user's saved vendor and model. Only when the saved values are missing or invalid does it use the first candidate in the runnable-vendor list.
 
-内置厂商的静态模型清单只能作为设置页的候选提示或已有配置的兜底，不应在未保存模型时直接成为顶部当前模型。未保存模型时应优先使用服务端能获取到的模型目录；获取不到目录时，让厂商保持不可运行状态，引导用户在设置页明确选择或填写模型。
+A built-in vendor's static model list may only be a settings-page candidate hint or a fallback for already-saved configuration. It must not become the top current model when no model has been saved. When no model is saved, prefer the model catalog the server can fetch. If the catalog cannot be fetched, keep the vendor non-runnable and guide the user to choose or enter a model explicitly on the settings page.
 
-## 当前规则
+## Current Rule
 
-- 顶部当前模型选择保存到 `AppSetting` 的 `llm.currentSelection`，内容包含 provider、model、temperature 和可选 maxTokens。
-- 前端 `useLLMStore` 保存的是运行时投影；页面启动后由设置接口和当前选择接口共同水合。
-- `LLMSelector` 只展示已配置、启用、且存在可用模型的厂商。
-- 用户在顶部切换厂商或模型后，前端应同步保存到服务端当前选择。
-- 没有保存模型的内置厂商不应因为 `PROVIDERS.*.defaultModel` 存在就被视为可运行；需要保存模型、环境模型或可拉取的模型目录。
-- 模型路由、结构化兜底和各任务的显式模型覆盖仍属于独立配置；它们不等同于顶部当前模型。
-- DeepSeek 的新配置推荐值是 `deepseek-v4-flash`。这个推荐只影响未保存模型时的配置引导与内置候选顺序，不覆盖已有厂商配置、顶部当前选择或任务级路由。
+- The top current model selection is saved to `AppSetting` as `llm.currentSelection`, including provider, model, temperature, and optional maxTokens.
+- Frontend `useLLMStore` holds a runtime projection. After the page starts, the settings API and the current-selection API hydrate it together.
+- `LLMSelector` only shows vendors that are configured, enabled, and have available models.
+- After the user switches vendor or model at the top of the workspace, the frontend should persist that choice to the server current selection.
+- A built-in vendor with no saved model must not be treated as runnable just because `PROVIDERS.*.defaultModel` exists. It needs a saved model, an environment model, or a fetchable model catalog.
+- Model routing, structured fallback, and per-task explicit model overrides remain independent configuration. They are not the same as the top current model.
+- DeepSeek's recommended new-configuration value is `deepseek-v4-flash`. That recommendation only affects configuration guidance and built-in candidate order when no model has been saved. It does not override an existing vendor configuration, the top current selection, or task-level routing.
 
-## 示例
+## Examples
 
-推荐做法：
+Recommended:
 
-- 用户在顶部从 DeepSeek 切到 Qwen 后，重启项目仍从服务端读取 Qwen 和对应模型。
-- 某厂商配置了 API Key 但没有保存模型时，服务端先尝试读取该厂商模型目录，并把目录首项作为当前可用模型。
-- 如果模型目录无法读取，设置页继续允许用户手动填写模型，但顶部不自动选择内置旧模型名。
+- After the user switches from DeepSeek to Qwen at the top of the workspace, a project restart still reads Qwen and the matching model from the server.
+- If a vendor has an API key but no saved model, the server first tries to read that vendor's model catalog and uses the catalog's first item as the currently available model.
+- If the model catalog cannot be read, the settings page still allows the user to enter a model manually, but the top selector does not automatically pick a built-in old model name.
 
-禁止或不推荐做法：
+Forbidden or discouraged:
 
-- 在前端状态初始化时写死 `deepseek/deepseek-chat`。
-- 因为某个 provider 的静态 defaultModel 存在，就把未完成配置的厂商显示为可运行。
-- 用关键词、特殊厂商分支或一次性迁移脚本掩盖模型目录和当前选择事实源不一致的问题。
+- Hard-code `deepseek/deepseek-chat` during frontend state initialization.
+- Treat an unfinished vendor as runnable because its static `defaultModel` exists.
+- Hide a mismatch between the model catalog and the current-selection source of truth with keywords, vendor-specific branches, or a one-off migration script.
 
-## 失败模式
+## Failure Modes
 
-- 重启后顶部模型跳回旧默认：先查 `AppSetting.llm.currentSelection` 是否存在，再查前端是否完成水合，最后查当前厂商是否仍在 `/api/settings/api-keys` 的可运行列表中。
-- 顶部显示的模型不可用：检查厂商是否只有静态默认模型、是否没有保存模型、模型目录是否拉取失败。
-- 设置页能看到厂商但顶部没有它：确认 `isConfigured`、`isActive` 和模型列表是否同时满足，未配置模型的厂商不应进入顶部候选。
+- After restart, the top model jumps back to an old default: first check whether `AppSetting.llm.currentSelection` exists, then whether the frontend finished hydration, then whether the current vendor is still in the runnable list from `/api/settings/api-keys`.
+- The top selector shows an unusable model: check whether the vendor has only a static default model, whether no model was saved, and whether the model-catalog fetch failed.
+- The settings page shows a vendor but the top selector does not: confirm that `isConfigured`, `isActive`, and the model list are all satisfied. A vendor with no configured model must not enter the top candidates.
 
-## 相关模块
+## Related Modules
 
 - `server/src/services/settings/LLMSelectionSettingsService.ts`
 - `server/src/routes/settings/llmSelectionRoutes.ts`
@@ -54,7 +54,7 @@
 - `client/src/components/common/LLMSelector.tsx`
 - `client/src/store/llmStore.ts`
 
-## 来源文档
+## Source Documents
 
-- [模块边界与文档治理](./module-boundaries.md)
-- [项目协作规则](../../../AGENTS.md)
+- [Module boundaries and documentation governance](./module-boundaries.md)
+- [Project collaboration rules](../../../AGENTS.md)

@@ -1,29 +1,29 @@
-# GitHub Pages 公开介绍站
+# GitHub Pages public intro site
 
 ## Background
 
-项目的 README 已经承载了完整功能说明、开发记录、运行方式和截图，但它更适合已经进入仓库的读者。公开传播入口需要在更短时间内说明三件事：这个项目解决什么问题、长篇小说生产链怎样推进、访问者下一步应该下载桌面版还是查看源码。
+The project README already carries full feature notes, development history, how to run, and screenshots, but it is a better fit for readers who are already in the repository. A public outreach entry needs to explain three things in a shorter time: what problem this project solves, how the long-novel production chain advances, and whether the visitor should download the desktop app or look at the source next.
 
-因此公开介绍站应作为独立站点维护，而不是把主客户端首页或 README 直接拿来部署。
+The public intro site should therefore be maintained as an independent site, not by deploying the main client home or the README as-is.
 
 ## Decision
 
-- 公开介绍站放在 `site/` workspace，使用 React + Vite 构建为纯静态产物。
-- 站点只依赖已有产品截图和公开下载 / 仓库链接，不连接后端，不读取本地用户数据。
-- GitHub Pages 部署由 `.github/workflows/site-pages.yml` 负责，推送到 `main` 或手动触发时构建 `@ai-novel/site` 并发布 `site/dist`。
-- 站点视觉内容优先使用真实产品截图和项目社交预览图，避免用抽象插画替代产品界面。
-- 站点设计方向定义在 `site/DESIGN.md`，采用“文学编辑部 + AI 控制台”的表达：暖纸面承载创作叙事，暗色控制台承载产品可信度。
-- 文档展示采用白名单 manifest，公开入口只展示面向使用者和潜在用户的文档，不自动暴露整个 `docs/` 目录。
-- 文档内容由 `site/src/docsContent.ts` 使用 Vite glob 自动加载，公开范围仍由 `site/src/docsManifest.ts` 决定；新增公开文档必须登记到 manifest，并通过 `pnpm check:docs-manifest` 校验。
+- The public intro site lives in the `site/` workspace and is built with React + Vite as a pure static artifact.
+- The site depends only on existing product screenshots and public download / repository links. It does not connect to the backend and does not read local user data.
+- GitHub Pages deployment is owned by `.github/workflows/site-pages.yml`. On push to `main` or a manual trigger it builds `@ai-novel/site` and publishes `site/dist`.
+- Visual content prefers real product screenshots and the project social preview image. Do not replace the product UI with abstract illustration.
+- Site design direction is defined in `site/DESIGN.md`: “literary editorial office + AI console”. Warm paper carries the creation narrative; a dark console carries product credibility.
+- Docs display uses a whitelist manifest. The public entry shows only documents aimed at users and prospective users. It does not automatically expose the whole `docs/` directory.
+- Document content is loaded by `site/src/docsContent.ts` with a Vite glob. Public scope is still decided by `site/src/docsManifest.ts`. New public docs must be registered in the manifest and checked with `pnpm check:docs-manifest`.
 
 ## Current Rule
 
-介绍站的主要读者是第一次看到项目的人，文案应从用户视角解释：
+The intro site’s primary readers are people seeing the project for the first time. Copy should explain from the user’s point of view:
 
-- AI Novel Writing Assistant 如何帮助新手从一句灵感推进到整本小说。
-- 自动导演、世界 / 角色准备、卷级拆章、章节执行和质量修复之间的关系。
-- 开发者为什么可以从这个项目研究 AI Native Product、Agent Workflow 和长篇生产链。
-- 查看源码、本地 Docker / pnpm 运行，以及可选的 Windows 桌面版入口。
+- How AI Novel Writing Assistant helps a beginner move from one idea to a finished novel.
+- How Auto-Director, world / character prep, volume chapter-splitting, chapter execution, and quality repair relate.
+- Why a developer can study AI-native product, agent workflow, and a long-form production chain here.
+- Source viewing, local Docker / pnpm running, and an optional Windows desktop entry.
 
 ## Language Rule
 
@@ -35,82 +35,82 @@ Keep the public surface and the internal maintenance surface in English, with on
 - `docs/public/` user-facing pages are English except the Georgian usage guide.
 - The Georgian usage guide lives at `docs/public/georgian-user-guide.md` and must stay registered in the public docs manifest.
 
-站点不应承担内部架构 wiki、执行计划或检查点浏览器职责。详细开发说明仍保留在 README 和 docs 中。
+The site must not own the internal architecture wiki, execution plans, or checkpoint browser. Detailed development notes stay in the README and docs.
 
-公开文档入口只展示以下来源：
+The public docs entry only shows these sources:
 
-- `docs/public/introduction.md`：项目是什么、适合谁、核心能力、长篇生产链和下载入口。
-- `docs/public/installation.md`：Windows 安装、桌面版准备、模型连接和 Qdrant 可选配置。
-- `docs/public/usage-guide.md`：面向第一次使用者的安装、配置模型、创建小说和跑通主链指南。
-- `docs/public/georgian-user-guide.md`：格鲁吉亚语使用说明（Creation / Assets / System）。
-- `docs/public/faq.md` 与 `docs/public/troubleshooting.md`：用户常见问题、任务排查、模型连接、知识库召回和数据备份建议。
-- `docs/public/modules/`：与应用侧栏一致的模块介绍，每个侧栏模块至少有一个用户向入口说明页。
-- `docs/public/development-roadmap.md`：公开路线图，只写高层产品方向。
-- `docs/releases/release-notes.md`：用户可见更新日志。
+- `docs/public/introduction.md`: what the project is, who it is for, core capabilities, the long-form production chain, and download entries.
+- `docs/public/installation.md`: Windows install, desktop prep, model connection, and optional Qdrant configuration.
+- `docs/public/usage-guide.md`: a first-user guide for install, model setup, creating a novel, and running the main chain.
+- `docs/public/georgian-user-guide.md`: Georgian usage notes (Creation / Assets / System).
+- `docs/public/faq.md` and `docs/public/troubleshooting.md`: common user questions, task diagnosis, model connection, knowledge-base recall, and data-backup advice.
+- `docs/public/modules/`: module introductions aligned with the app sidebar. Each sidebar module has at least one user-facing entry page.
+- `docs/public/development-roadmap.md`: the public roadmap, high-level product direction only.
+- `docs/releases/release-notes.md`: user-visible update history.
 
-公开文档入口不应默认展示：
+The public docs entry should not show by default:
 
-- `docs/wiki/` 内部产品原则、工作流边界、架构规则、Prompt / RAG 维护规则。
-- `docs/archive/` 历史归档。
-- `docs/checkpoints/` 阶段检查点。
-- `docs/plans/` 执行计划。
-- `TASK.md`、临时任务清单和未整理检查项。
+- `docs/wiki/` internal product principles, workflow boundaries, architecture rules, and Prompt / RAG maintenance rules.
+- `docs/archive/` historical archives.
+- `docs/checkpoints/` phase checkpoints.
+- `docs/plans/` execution plans.
+- `TASK.md`, temporary task lists, and unorganized check items.
 
-这个边界的原因是：公开站读者通常想快速判断项目是否值得使用或关注，而内部 wiki 面向维护者和 AI agent，包含大量架构约束、失败模式和开发治理规则。两类内容混在同一个入口里，会增加新用户理解成本，也会让内部维护文档承担不适合的传播职责。
+The reason for this boundary: public-site readers usually want to decide quickly whether the project is worth using or following. The internal wiki is for maintainers and AI agents, and it contains many architecture constraints, failure modes, and development-governance rules. Mixing both into one entry raises new-user cost and also forces internal maintenance docs to do outreach they are not suited for.
 
 ## Design Rule
 
-公开介绍站不使用通用 SaaS 卡片堆叠作为主要表达。首屏必须直接说明 “From one idea to a finished novel”，并用真实界面作为产品证据。页面结构应优先围绕长篇生产链展开：方向、世界 / 角色、拆章、正文、修复。功能能力可以出现，但必须服务这条主线。
+The public intro site does not use generic SaaS card stacks as its main expression. The first screen must state “From one idea to a finished novel” directly, and use real UI as product evidence. Page structure should unfold around the long-form production chain: direction, world / characters, chapter split, prose, repair. Feature capabilities may appear, but they must serve that main line.
 
-视觉上，站点应保持两种气质的平衡：
+Visually, the site should keep two temperaments in balance:
 
-- 文学编辑感：serif 标题、瓷白纸面、克制线条、低噪声排版。
-- AI 控制台感：暗色产品区、真实截图、状态与模块化能力说明。
+- Literary editorial: serif titles, porcelain-white paper, restrained lines, low-noise typesetting.
+- AI console: dark product regions, real screenshots, status, and modular capability notes.
 
-新增站点页面或视觉改动时，应先检查 `site/DESIGN.md`，避免把站点改回普通营销页。
+When adding a site page or changing visuals, check `site/DESIGN.md` first so the site does not fall back into an ordinary marketing page.
 
 ## Documentation Rule
 
-公开文档应按用户旅程分组：Getting started、Playbooks、Production chain in depth、Module overview、Main writing chain、Knowledge and style、Story assets、Derived workshops、System、Project updates。不要把 20 多个模块平铺到一个“功能模块”分类里。
+Public docs should group by user journey: Getting started, Playbooks, Production chain in depth, Module overview, Main writing chain, Knowledge and style, Story assets, Derived workshops, System, Project updates. Do not flatten 20+ modules into one “feature modules” category.
 
-当公开文档需要解释自动导演、章节执行、RAG 和恢复机制时，应单独设置“实战手册”和“生产链深度”分类，避免把复杂运行时压缩成首页卖点短语。生产链深度文档可以引用代码阶段名，但必须同时给出中文含义、用户动作、产物位置和恢复方式。
+When public docs need to explain Auto-Director, chapter execution, RAG, and recovery, give them separate Playbooks and Production-chain-in-depth categories. Do not compress complex runtime into homepage selling phrases. Production-chain-in-depth docs may cite code stage names, but they must also give the English meaning, the user action, where the artifact lives, and how to recover.
 
-文档阅读页应提供：
+The docs reading page should provide:
 
-- 左侧 manifest 导航。
-- 本地全文搜索。
-- 面包屑。
-- GitHub 原文链接。
-- 文内目录和当前标题高亮。
-- 上一篇 / 下一篇导航。
-- 长文档折叠式目录、表格样式和 tip / warn / checkpoint callout。
-- 面向自动导演阶段的 SVG/PNG 流程图。
+- Left-side manifest navigation.
+- Local full-text search.
+- Breadcrumbs.
+- A GitHub source link.
+- In-page table of contents and current-heading highlight.
+- Previous / next navigation.
+- Collapsible TOC for long docs, table styling, and tip / warn / checkpoint callouts.
+- SVG/PNG flow diagrams for Auto-Director stages.
 
-这些能力的目的不是把公开站变成内部文档系统，而是降低新用户查找安装、开书、恢复、配置和模块用途的成本。公开站搜索只索引 manifest 登记的公开文档，不应索引内部 wiki、计划、检查点或归档资料。
+These capabilities are not meant to turn the public site into an internal docs system. They lower the cost for a new user to find install, opening a book, recovery, configuration, and module purpose. Public-site search indexes only manifest-registered public docs. It must not index the internal wiki, plans, checkpoints, or archives.
 
-自动导演阶段文档的来源锚点是 `server/src/services/novel/director/projections/novelDirectorProgress.ts`。`docs/public/flow/auto-director-pipeline.md` 顶部的 `DIRECTOR_PROGRESS_ITEM_KEYS` 必须覆盖代码中的 `DirectorProgressItemKey`，`pnpm check:docs-manifest` 会检查这一点。新增阶段时，文档必须解释阶段含义、产物、checkpoint/auto-approval 行为和失败恢复策略。
+The source anchor for Auto-Director stage docs is `server/src/services/novel/director/projections/novelDirectorProgress.ts`. `DIRECTOR_PROGRESS_ITEM_KEYS` at the top of `docs/public/flow/auto-director-pipeline.md` must cover `DirectorProgressItemKey` in code. `pnpm check:docs-manifest` checks this. When a stage is added, the docs must explain the stage meaning, artifacts, checkpoint / auto-approval behavior, and failure-recovery strategy.
 
 ## Routing And Prerender Rule
 
-公开文档站使用 History 路由，不再把文档路径放在 hash 里。面向用户和搜索引擎的标准路径是 `/AI-Novel-Writing-Assistant/docs/<docId>`，文档首页是 `/AI-Novel-Writing-Assistant/docs`。组件、搜索结果、面包屑、分页和 Markdown 内部文档链接都应输出真实路径；`#/docs/<docId>` 只作为旧链接兼容入口，由首页脚本替换为新路径。
+The public docs site uses History routing. Document paths no longer live in the hash. The user- and search-engine-facing canonical path is `/AI-Novel-Writing-Assistant/docs/<docId>`, and the docs home is `/AI-Novel-Writing-Assistant/docs`. Components, search results, breadcrumbs, pagination, and in-Markdown document links should emit real paths. `#/docs/<docId>` is only a compatibility entry for old links, rewritten to the new path by the home script.
 
-GitHub Pages 仍是静态托管，因此必须同时保留两层能力：
+GitHub Pages is still static hosting, so both layers must remain:
 
-- `site/public/404.html` 负责把找不到物理文件的真实路径编码到 query，再回到首页恢复路径。
-- `site/index.html` 的早期脚本负责解码 404 query，并兼容旧 hash 文档链接。
+- `site/public/404.html` encodes a missing physical-file real path into the query, then returns to home to restore the path.
+- The early script in `site/index.html` decodes the 404 query and also accepts old hash document links.
 
-构建阶段必须预渲染公开文档。`site/scripts/prerender.cjs` 在 Vite build 后遍历 `docsManifest`，为首页、文档首页和每篇公开文档写出完整 HTML。预渲染 HTML 必须包含正文、标题、description、canonical 和构建后的 hashed asset URL，不能只留下空的 `#root` 等客户端加载。
+The build must prerender public docs. After the Vite build, `site/scripts/prerender.cjs` walks `docsManifest` and writes complete HTML for the home, the docs home, and every public document. Prerendered HTML must include body, title, description, canonical, and the hashed post-build asset URLs. It cannot leave an empty `#root` for the client to fill.
 
-为了同时兼容 GitHub Pages 和本地 Vite preview 的无尾斜杠访问，非首页路由需要同时写出目录版 `index.html` 和 `.html` 副本，例如 `dist/docs/introduction/index.html` 与 `dist/docs/introduction.html`。sitemap 应始终使用无 hash、无尾斜杠的真实路径。
+To support both GitHub Pages and local Vite preview without a trailing slash, non-home routes need both a directory `index.html` and an `.html` copy, for example `dist/docs/introduction/index.html` and `dist/docs/introduction.html`. The sitemap should always use real paths with no hash and no trailing slash.
 
 ## Related Modules
 
-- `site/`：公开介绍站源码与本地构建说明。
-- `.github/workflows/site-pages.yml`：GitHub Pages 静态部署流程。
-- `images/`：产品截图与 GitHub 社交预览图的源资产。
-- `site/src/docsManifest.ts`：公开文档白名单。
-- `site/src/docsContent.ts`：公开文档内容加载。
-- `site/src/docsAssets.ts`：公开文档流程图资源加载。
-- `site/src/DocsPage.tsx`：文档索引与 Markdown 阅读页。
-- `scripts/check-docs-manifest.cjs`：公开文档登记校验。
-- `docs/releases/release-notes.md`：用户可见发布记录。
+- `site/`: public intro-site source and local build notes.
+- `.github/workflows/site-pages.yml`: GitHub Pages static deploy flow.
+- `images/`: source assets for product screenshots and the GitHub social preview.
+- `site/src/docsManifest.ts`: public-docs whitelist.
+- `site/src/docsContent.ts`: public-docs content loading.
+- `site/src/docsAssets.ts`: public-docs flow-diagram asset loading.
+- `site/src/DocsPage.tsx`: docs index and Markdown reading page.
+- `scripts/check-docs-manifest.cjs`: public-docs registration check.
+- `docs/releases/release-notes.md`: user-visible release history.

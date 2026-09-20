@@ -1,76 +1,76 @@
-# 简易创作模式
+# Simple creation mode
 
 ## Background
 
-完整小说生产需要题材定位、书级规划、角色准备、卷章规划、正文生成、审校与修复。新手在自动导演完成前期准备后，真正需要决定的是由 AI 持续生产整本书，还是进入完整工作台亲自控制正文生产。
+A complete novel still needs genre positioning, book-level planning, character prep, volume and chapter planning, prose generation, review, and repair. After Auto-Director finishes early prep, the real decision for a beginner is whether AI should keep producing the whole book, or whether they should enter the full workspace and control prose production themselves.
 
-简易创作因此属于“正文生产体验”，不是小说创建方式。手动创建继续使用专业表单；新书自动导演和已有项目接管都先推进到可开写，再在同一个交接点选择生产方式。
+Simple creation is therefore a prose-production experience, not a novel-creation method. Manual create still uses the professional form. New-book Auto-Director and takeover of an existing project both advance to “ready to write”, then choose the production experience at the same handoff.
 
 ## Decision
 
-- `creationExperience=simple` 表示项目使用简易创作体验；`professional` 表示完整工作台。它与 `projectMode` 分离，后者仍只描述 AI 协作策略。
-- 自动导演前期固定使用 `auto_to_ready`，完成方向、角色、卷章规划和章节执行资源后写入 `production_experience_required`，正文不得提前启动。
-- `auto_to_ready` 必须自动通过普通的角色、分卷、拆章和系统规划重算门，不能在生产方式交接前暴露专业审批；用户保护内容、数据完整性和运行时安全门仍保持阻塞。
-- 选择简易创作后，原导演任务切换为 `full_book_autopilot`、全书执行范围与全部自动确认点并继续运行；普通重规划、章节质量债和局部修复不要求新手审批。
-- 选择专业创作后，原导演前期任务完成且不生成正文，用户进入完整工作台。
-- 简易模式只改变用户交互和用户写权限，不建立第二套规划、写作、审校或恢复链路。
-- 简易页与专业工作台必须提交同一个自动导演 `continue` 命令，并由同一个导演 Runtime 解释继续范围。简易模式不得增加专属生产接口、专属任务类型或旁路调度器；它只把全书自动推进作为默认参数，并减少高级信息与人工操作。
+- `creationExperience=simple` means the project uses the simple creation experience; `professional` means the full workspace. It is separate from `projectMode`, which still only describes the AI collaboration strategy.
+- Auto-Director prep always uses `auto_to_ready`. After direction, characters, volume/chapter planning, and chapter-execution resources are ready, it writes `production_experience_required`. Prose must not start early.
+- `auto_to_ready` must automatically pass ordinary character, volume, chapter-split, and system planning-recompute gates. It must not expose professional approvals before the production-experience handoff. User-protected content, data integrity, and runtime safety gates stay blocking.
+- After simple creation is chosen, the original director task switches to `full_book_autopilot`, a whole-book execution range, and all auto-confirm points, then continues. Ordinary replanning, chapter quality debt, and local repair do not require beginner approval.
+- After professional creation is chosen, the original director prep task completes and does not generate prose. The user enters the full workspace.
+- Simple mode only changes user interaction and user write permission. It does not create a second planning, writing, review, or recovery chain.
+- The simple page and the professional workspace must submit the same Auto-Director `continue` command, interpreted by the same director runtime. Simple mode must not add a dedicated production API, dedicated task type, or bypass scheduler. It only makes whole-book auto-advance the default parameters and reduces advanced information and manual operations.
 
-### 交接命令
+### Handoff command
 
-生产方式命令只能用于已绑定小说且停在 `production_experience_required` 的自动导演任务。首次选择必须原子写入小说体验和任务 seed；重复提交相同选择复用既有结果，不创建第二个任务或执行链；提交不同选择必须拒绝。
+The production-experience command may be used only on an Auto-Director task that is already bound to a novel and stopped at `production_experience_required`. The first choice must atomically write the novel experience and the task seed. Resubmitting the same choice reuses the existing result and must not create a second task or execution chain. Submitting a different choice must be rejected.
 
-已有项目接管可以选择从哪个资产阶段开始，但不能通过旧的范围执行或全书自动模式跳过生产交接。已有正文进入简易创作后同样只读，系统继续遵守用户正文保护。
+Takeover of an existing project may choose which asset stage to start from, but it cannot skip the production handoff through the old range-execution or whole-book auto mode. Existing prose that enters simple creation stays read-only. The system still honors user prose protection.
 
 ## Current Rule
 
-### 用户写权限
+### User write permissions
 
-简易项目的设定、规划、角色和章节对用户只读。服务端 HTTP 门禁必须拒绝用户修改、删除、手动生成和手动修复操作；只隐藏前端按钮不构成权限保护。
+On a simple project, setting, planning, characters, and chapters are read-only for the user. Server HTTP gates must reject user modify, delete, manual generate, and manual repair operations. Hiding frontend buttons is not a permission boundary.
 
-自动导演、章节 runtime、审校修复与资产同步属于系统内部写入，不经过用户 HTTP 写门禁，可以继续更新项目。读取、导出和任务恢复保持可用。
+Auto-Director, chapter runtime, review repair, and asset sync are internal system writes. They do not go through the user HTTP write gate and may keep updating the project. Read, export, and task recovery stay available.
 
-### 展示边界
+### Display boundary
 
-简易项目默认进入实时章节书架：
+A simple project defaults to a live chapter bookshelf:
 
-- 未定稿章节只显示生产状态，不展示中间正文。
-- 只有完成或批准的章节正文可进入只读阅读器。
-- 书架必须直接提供只读的创作资源概览，至少覆盖整书承诺、世界摘要、主要角色和分卷路线，让用户能看到 AI 为后续章节建立了哪些依据；详细专业字段仍保持次级展示，不能压过章节进度与正文阅读。
-- 创作资源必须来自与专业工作台相同的已保存资产，不能为简易模式另建一套摘要事实或通过前端拼装猜测。
-- 质量债放入次级只读资料区。
-- 安全暂停只展示可理解的问题与推荐恢复动作，不把内部 checkpoint 或专业规划术语作为主要文案。
+- Undrafted chapters show production status only, not intermediate prose.
+- Only completed or approved chapter prose may enter the read-only reader.
+- The bookshelf must provide a read-only overview of creation resources, covering at least the book contract, world summary, main characters, and volume route, so the user can see what AI prepared for later chapters. Detailed professional fields stay secondary and must not overpower chapter progress and prose reading.
+- Creation resources must come from the same saved assets as the professional workspace. Simple mode must not invent a second set of summary facts or assemble guesses on the frontend.
+- Quality debt goes in a secondary read-only materials area.
+- Safety pauses show an understandable problem and a recommended recovery action. They must not use internal checkpoints or professional planning terms as primary copy.
 
-### 局部批次完成后的续写
+### Continuation after a local batch completes
 
-简易模式的“全书是否完成”必须由小说目标章数与已保存正文共同判断，不能直接继承最近一次导演任务的终态。`workflow_completed` 只证明该任务授权的范围已经结束；当任务只覆盖局部章节时，它不等于整本书完成。
+Whether a simple-mode book is finished must be judged from the novel’s target chapter count and saved prose together. It must not inherit the terminal state of the latest director task. `workflow_completed` only proves that the range authorized for that task has ended. When the task covered a local chapter range, it is not whole-book completion.
 
-最近批次成功但仍有空正文章节时，章节书架必须直接提供后续范围的继续按钮。按钮提交专业工作台同一个导演继续命令，并显式请求 `full_book_autopilot`；统一 Runtime 清除已结束的局部执行游标，再从真实章节产物推导下一待写章。用户不需要进入创作中枢或专业工作台。
+When the latest batch succeeded but empty-prose chapters remain, the chapter bookshelf must offer a continue button for the remaining range. The button submits the same director continue command as the professional workspace and explicitly requests `full_book_autopilot`. The unified runtime clears the finished local execution cursor, then derives the next unwritten chapter from real chapter artifacts. The user does not need Creative Hub or the professional workspace.
 
-继续命令进入排队或运行状态后，原按钮位置必须显示“排队中”或“正在生成后续章节”，并持续展示当前章节动作。不能只隐藏按钮并等待正文落库，否则新手无法区分“系统正在生成”和“点击没有生效”。
+After the continue command enters queued or running, the original button location must show “Queued” or “Generating later chapters” and keep showing the current chapter action. Do not only hide the button and wait for prose to land. Otherwise a beginner cannot tell “the system is generating” from “the click did nothing”.
 
-续写范围必须保留所有已有正文。恢复判断优先读取正文、章节状态和执行合同；历史任务中的 `startOrder / endOrder / remainingChapterCount` 只能用于诊断，不能把已完成的旧范围再次当作待执行范围。
+Continuation range must keep all existing prose. Recovery judgment reads prose, chapter status, and the execution contract first. Historical `startOrder / endOrder / remainingChapterCount` are diagnostic only. They must not treat a finished old range as still pending.
 
-### 转为专业创作
+### Convert to professional creation
 
-用户可以主动、不可逆地转为专业创作。转换只更新体验字段并开放完整工作台，不清理资产、不重新建书、不取消正在运行的自动导演任务。专业项目不能切回简易模式，避免已发生人工编辑后重新建立“系统独占写入”的错误假设。
+The user may convert to professional creation once, irreversibly. Conversion only updates the experience field and opens the full workspace. It does not clean assets, recreate the book, or cancel a running Auto-Director task. A professional project cannot switch back to simple mode, so the system never re-assumes exclusive system writes after human edits have happened.
 
 ## Failure Modes
 
-- 简易项目仍能通过直接 API 修改：检查小说 HTTP 写门禁是否覆盖对应写路由，不能只修前端。
-- 自动导演提前生成正文：检查新书确认和接管输入是否都被收敛为 `auto_to_ready`，以及最终规划阶段是否写入生产交接 checkpoint。
-- 自动导演停在分卷或拆章确认：检查前期规划步骤是否错误沿用 `run_until_gate` 的规划重算审批。`auto_to_ready` 应在不覆盖用户保护内容的前提下使用安全范围策略继续。
-- 重复选择后出现两条任务：检查生产方式命令的条件更新、seed 中的选择事实和 active command 复用。
-- 自动导演无法写入简易项目：检查内部服务是否错误地通过用户 HTTP 接口回写。
-- 书架提前展示半成品：检查章节是否达到 completed / approved / published，再返回正文。
-- 书架只有数量、看不到 AI 产出：检查只读投影是否返回 Book Contract、世界、角色与卷规划的稳定摘要；不要要求用户转为专业模式才能确认这些资源。
-- 局部批次成功后没有续写入口：检查书架是否把最近任务的 `succeeded` 直接投影为全书完成。应比较目标章节与已保存正文，并为剩余范围提供当前页续写。
-- 点击续写后按钮消失且没有反馈：检查页面是否在 `queued / running` 状态用运行提示替换按钮，以及当前动作是否继续轮询。不要为了解决展示问题新增简易模式专属生产接口。
-- 转专业后任务中断或资产丢失：转换接口不得触发重建、清理、takeover 或新建导演任务。
+- A simple project can still be modified through a direct API: check whether the novel HTTP write gate covers the write route. Do not only fix the frontend.
+- Auto-Director generates prose early: check that both new-book confirm and takeover input converge to `auto_to_ready`, and that the final planning stage writes the production-handoff checkpoint.
+- Auto-Director stops on volume or chapter-split confirm: check whether early planning steps wrongly reused `run_until_gate` planning-recompute approval. `auto_to_ready` should continue with a safe-range policy without overriding user-protected content.
+- Two tasks appear after a repeated choice: check the production-experience command’s conditional update, the choice fact in the seed, and active-command reuse.
+- Auto-Director cannot write a simple project: check whether an internal service is wrongly writing back through the user HTTP API.
+- The bookshelf shows half-finished prose: check that the chapter reached completed / approved / published before returning prose.
+- The bookshelf shows counts but not AI output: check that the read-only projection returns stable summaries of the book contract, world, characters, and volume plan. Do not require converting to professional mode just to confirm those resources.
+- No continuation entry after a successful local batch: check whether the bookshelf projected the latest task `succeeded` as whole-book completion. Compare target chapters with saved prose and offer in-page continuation for the remaining range.
+- The continue button vanishes with no feedback: check that `queued / running` replaces the button with a running hint and that the current action keeps polling. Do not add a simple-mode-only production API to fix a display problem.
+- Tasks interrupt or assets vanish after converting to professional: the conversion API must not trigger rebuild, cleanup, takeover, or a new director task.
 
 ## Related Modules
 
-- 自动导演确认、接管与生产交接命令
-- 小说 HTTP 写边界
-- 自动导演创建页与实时章节书架
-- 章节生产和质量债规则
+- Auto-Director confirm, takeover, and production-handoff commands
+- Novel HTTP write boundary
+- Auto-Director create page and live chapter bookshelf
+- Chapter production and quality-debt rules

@@ -1,37 +1,37 @@
-# LLM 限速器内存泄漏与淘汰机制
+# LLM request-limiter memory leak and eviction
 
-## 背景
+## Background
 
-`server/src/llm/requestLimiter.ts` 维护一个全局 `sharedLimiters: Map<string, ProviderModelRequestLimiter>`。Map 的 key 是 `provider:model:concurrencyLimit:requestIntervalMs` 的复合字符串。
+`server/src/llm/requestLimiter.ts` keeps a global `sharedLimiters: Map<string, ProviderModelRequestLimiter>`. The Map key is the composite string `provider:model:concurrencyLimit:requestIntervalMs`.
 
-每次用户在设置页修改 provider 的并发数或请求间隔，`concurrencyLimit`/`requestIntervalMs` 发生变化，`getLimiterKey` 会生成新 key，旧 key 的 entry 留在 Map 里永不淘汰。长期运行后 Map 会持续增长，造成内存泄漏。
+Every time a user changes a provider’s concurrency or request interval on Settings, `concurrencyLimit` / `requestIntervalMs` change, `getLimiterKey` produces a new key, and the old key’s entry stays in the Map forever. Over a long run the Map keeps growing and leaks memory.
 
-## 决策
+## Decision
 
-新增 `evictSharedLimiters(provider: string)` 导出函数：遍历 Map，删除所有以 `provider:` 开头的 key。
+Add an exported `evictSharedLimiters(provider: string)`: walk the Map and delete every key that starts with `provider:`.
 
-持有旧实例引用的 LLM 客户端仍可正常完成在途请求（引用不被释放），新请求使用新配置创建的实例——无请求中断风险。
+LLM clients that still hold a reference to the old instance can finish in-flight requests (the reference is not released). New requests use the instance created with the new configuration. There is no request-interruption risk.
 
-淘汰调用点放在 **routes 层**，与 `setProviderSecretCache` 共同触发：
+The eviction call site lives at the **routes layer**, triggered together with `setProviderSecretCache`:
 
-| 调用位置 | 触发场景 |
-|----------|----------|
-| `server/src/routes/settings.ts` | 内置 provider upsert（含启用/停用） |
-| `server/src/routes/settings/customProviderRoutes.ts` | 自定义 provider 删除 |
+| Call site | Trigger |
+|----------|---------|
+| `server/src/routes/settings.ts` | Built-in provider upsert (including enable/disable) |
+| `server/src/routes/settings/customProviderRoutes.ts` | Custom provider delete |
 
-## 当前规则
+## Current Rule
 
-- `evictSharedLimiters` 只放 routes 层，不放 SecretStore 层（SecretStore 是数据访问层，不应感知 LLM 子系统内部）
-- 任何涉及 provider 配置变更的 route 都需要在 `setProviderSecretCache` 之后调用 `evictSharedLimiters`
-- 若未来在 routes 层以外新增 provider 配置变更路径，同样需要同步调用淘汰
+- `evictSharedLimiters` lives only at the routes layer, not in SecretStore (SecretStore is a data-access layer and should not know LLM-subsystem internals).
+- Any route that changes provider configuration must call `evictSharedLimiters` after `setProviderSecretCache`.
+- If a provider-configuration change path is added outside the routes layer later, eviction must be called there too.
 
-## 失败模式
+## Failure Modes
 
-- **淘汰时机晚于请求**：极低概率——配置变更和旧 limiter 调用之间有竞态，但旧 limiter 实例不会因淘汰而失效，在途请求仍会完成。
-- **遗漏调用点**：如果新增 provider 配置路由忘记调用 `evictSharedLimiters`，旧 entry 仍会累积。建议：grep `setProviderSecretCache` 调用点时同步检查是否有配对的 `evictSharedLimiters`。
+- **Eviction later than a request**: very low probability — there is a race between the configuration change and an old-limiter call, but the old limiter instance does not become invalid because of eviction, and in-flight requests still complete.
+- **Missed call site**: if a new provider-configuration route forgets `evictSharedLimiters`, old entries still accumulate. Suggested check: when grepping `setProviderSecretCache` call sites, also check for a paired `evictSharedLimiters`.
 
-## 关联文件
+## Related Modules
 
-- `server/src/llm/requestLimiter.ts` — `sharedLimiters` Map、`evictSharedLimiters`
-- `server/src/routes/settings.ts` — 内置 provider 配置变更
-- `server/src/routes/settings/customProviderRoutes.ts` — 自定义 provider 删除
+- `server/src/llm/requestLimiter.ts` — `sharedLimiters` Map, `evictSharedLimiters`
+- `server/src/routes/settings.ts` — built-in provider configuration changes
+- `server/src/routes/settings/customProviderRoutes.ts` — custom provider delete

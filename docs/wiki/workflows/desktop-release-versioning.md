@@ -1,40 +1,40 @@
-# 桌面版本号与发布标识规则
+# Desktop version numbers and release identifiers
 
 ## Background
 
-桌面客户端有三处会暴露版本信息：界面顶部的当前版本、Electron 打包产物的应用版本、GitHub Release 的发布 tag。如果这些信息分别维护，用户截图、安装包文件名和自动更新判断会很容易出现不一致。
+The desktop client exposes version information in three places: the current version in the UI header, the Electron package app version, and the GitHub Release tag. If those are maintained separately, user screenshots, installer filenames, and auto-update checks drift apart easily.
 
 ## Current Rule
 
-- `desktop/package.json` 的 `version` 是桌面客户端唯一版本源。
-- 前端网页开发态从 Vite 注入的 `VITE_APP_VERSION` 读取该版本，桌面运行态优先读取 Electron runtime 提供的 `appVersion`。
-- 正式发布 tag 必须是 `vX.Y.Z`，并且 `X.Y.Z` 必须等于 `desktop/package.json` 的 `version`。
-- 不在 UI、README 或发布脚本中硬编码另一个客户端版本号。
-- GitHub 桌面发布 workflow 必须使用 Node 24 运行时和 Node 24 代际的官方 action，不再依赖 `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24` 去强制旧 Node 20 action。
-- 桌面更新状态以 Electron runtime 投影为唯一事实来源；工作区顶部入口、更新弹窗、启动页和系统设置只负责以不同密度展示同一份状态，不各自推断更新结果。
-- 工作区顶部版本号是日常更新入口。发现新版本、下载中或等待重启时，入口必须直接显示对应状态；系统设置保留完整详情，但不能作为唯一入口。
-- 面向用户的更新状态、错误说明和操作按钮使用中文；底层错误详情写入桌面日志，不把英文异常原文直接暴露给用户。
+- `desktop/package.json` `version` is the only version source for the desktop client.
+- Web-dev frontend reads that version from Vite-injected `VITE_APP_VERSION`. Desktop runtime prefers `appVersion` supplied by the Electron runtime.
+- A public release tag must be `vX.Y.Z`, and `X.Y.Z` must equal `desktop/package.json` `version`.
+- Do not hard-code another client version in UI, README, or release scripts.
+- The GitHub desktop release workflow must use the Node 24 runtime and official Node 24-generation actions. Do not rely on `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24` to force older Node 20 actions.
+- Desktop update state uses the Electron runtime projection as the only fact source. Workspace header entry, update dialog, startup page, and system settings only present that same state at different density. They must not each infer the update result.
+- The workspace header version is the everyday update entry. When a new version is found, downloading, or waiting to restart, the entry must show that state directly. System settings keep full detail but must not be the only entry.
+- User-facing update status, error explanations, and action buttons use English. Underlying error details go to the desktop log. Do not dump raw exception strings into the UI.
 
 ## Release Steps
 
-1. 发新版桌面包前，先运行 `pnpm release:desktop:bump X.Y.Z` 更新 `desktop/package.json`。
-2. 更新用户可见 release notes 和 README 最新更新，说明该版本面向用户的变化。
-3. 合入 `main` 后运行 `node scripts/trigger-desktop-release.cjs --dry-run`，确认工作区、分支和 tag 规则都通过。
-4. 只使用与 `desktop/package.json` 对齐的 `vX.Y.Z` tag 触发正式 GitHub Release。
+1. Before shipping a new desktop package, run `pnpm release:desktop:bump X.Y.Z` to update `desktop/package.json`.
+2. Update user-visible release notes and README latest updates with that version's user-facing changes.
+3. After merge to `main`, run `node scripts/trigger-desktop-release.cjs --dry-run` and confirm workspace, branch, and tag rules pass.
+4. Trigger a public GitHub Release only with a `vX.Y.Z` tag aligned to `desktop/package.json`.
 
 ## Failure Modes
 
-- 如果界面顶部显示版本和安装包文件名不一致，先检查打包所用 commit 的 `desktop/package.json`，不要在前端组件里补一个临时版本。
-- 如果 GitHub Release tag 已存在，不能复用同一个版本重新上传；应继续 bump 到新的 `X.Y.Z`。
-- 如果发版前只更新 release notes 但没有 bump 桌面版本，自动更新链路会把新包识别成旧版本，必须先修正版本源再发布。
-- 如果 GitHub Actions 提示某个 action 仍在使用 Node 20，应优先升级该 action 的 major 版本，而不是重新加入强制运行时环境变量。
+- If the UI header version and installer filename disagree, first check `desktop/package.json` on the packaged commit. Do not patch a temporary version into a frontend component.
+- If a GitHub Release tag already exists, do not reuse the same version for a new upload. Bump to a new `X.Y.Z`.
+- If release notes are updated without bumping the desktop version, auto-update will treat the new package as the old version. Fix the version source before publishing.
+- If GitHub Actions reports that an action still uses Node 20, upgrade that action's major version first instead of re-adding a forced runtime env var.
 
 ## Related Modules
 
-- `client/vite.config.ts`：把桌面版本注入网页开发态和普通前端构建。
-- `client/src/lib/constants.ts`：统一导出前端可用的 `APP_VERSION`。
-- `client/src/components/layout/desktopUpdaterPresentation.ts`：统一更新状态、安装形态和通道的用户文案。
-- `client/src/components/layout/DesktopUpdatePanel.tsx`：供顶部弹窗与系统设置复用的更新操作面板。
-- `desktop/src/main.ts`：桌面运行态把 Electron `app.getVersion()` 注入 renderer。
-- `desktop/src/runtime/updater.ts`：检查、下载和安装状态的事实来源。
-- `scripts/bump-desktop-version.cjs` 与 `scripts/trigger-desktop-release.cjs`：版本推进与正式发布 tag 校验。
+- `client/vite.config.ts`: injects the desktop version into web-dev and ordinary frontend builds.
+- `client/src/lib/constants.ts`: unified export of frontend `APP_VERSION`.
+- `client/src/components/layout/desktopUpdaterPresentation.ts`: unified user copy for update status, install shape, and channel.
+- `client/src/components/layout/DesktopUpdatePanel.tsx`: update action panel reused by the header dialog and system settings.
+- `desktop/src/main.ts`: desktop runtime injects Electron `app.getVersion()` into the renderer.
+- `desktop/src/runtime/updater.ts`: fact source for check, download, and install state.
+- `scripts/bump-desktop-version.cjs` and `scripts/trigger-desktop-release.cjs`: version bump and public release tag checks.

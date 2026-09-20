@@ -1,50 +1,52 @@
-# 角色连续性与硬事实排查
+# Character continuity and hard-facts diagnosis
 
-## 背景
+## Background
 
-章节连贯性问题不全是时间线问题。时间线能约束事件顺序、章节钩子和故事内时间，但人物的身份、阵营、境界、当前位置和可行动状态属于角色事实源。如果这些事实没有在角色准备阶段稳定生成，并在正文生成前进入 writer 上下文，后置审计只能发现问题，不能阻止错误进入初稿。
+Chapter continuity problems are not all timeline problems. A timeline can constrain event order, chapter hooks, and story-internal time, but a character’s identity, camp, realm, current location, and actionable state belong to a character fact source. If those facts are not stably generated during character prep and do not enter writer context before prose generation, post-audit can only find the error. It cannot keep the error out of the first draft.
 
-典型表现包括：
+Typical appearances:
 
-- 角色完整设定里的 `personality / background / development` 长期为空，导致角色只能以功能位或短描述进入后续规划。
-- 角色阵营、身份标签缺失，正文把“阐教门下申公豹”误写成“截教外门弟子”。
-- 角色境界或战力缺失，正文把“大罗金仙赵公明”误写成“真仙后期”。
-- 已有角色状态没有进入生成前约束，正文需要靠审计或修复再兜底。
+- `personality / background / development` in the full character setting stay empty for a long time, so the character can only enter later planning as a function slot or a short description.
+- Character camp or identity labels are missing, and prose writes “Shen Gongbao, disciple of Chan Jiao” as “an outer Jie Jiao disciple”.
+- Character realm or combat power is missing, and prose writes “Zhao Gongming, a Daluo Golden Immortal” as “late True Immortal”.
+- Existing character state never entered pre-generation constraints, so prose has to fall back on audit or repair.
 
-## 诊断结论
+## Decision
 
-角色完整设定空字段的根因不是数据库缺列。`Character` 表已有 `personality / background / development`，但核心角色阵容的结构化输出和落库链路没有要求、保存这三项；补充角色链路已有类似字段，因此两条角色入口的结构不一致。
+Empty fields in the full character setting are not missing database columns. The `Character` table already has `personality / background / development`, but the structured output and persist path for the core cast did not require or save those three. The supporting-character path already had similar fields, so the two character entries were structurally inconsistent.
 
-角色阵营和境界错误的根因也不应归到时间线。时间线只知道事件是否发生和钩子是否承接，无法天然判断“申公豹属于阐教还是截教”“赵公明当前境界是什么”。这些必须作为角色硬事实进入角色库和 writer required context。
+Camp and realm errors should also not be blamed on the timeline. The timeline only knows whether an event happened and whether a hook was taken up. It cannot naturally judge “does Shen Gongbao belong to Chan Jiao or Jie Jiao” or “what is Zhao Gongming’s current realm”. Those must enter the character library and writer required context as character hard facts.
 
-## 当前规则
+## Current Rule
 
-- 核心角色阵容和补充角色应输出一致的角色档案字段：`personality / background / development`。
-- 角色硬事实至少包括：`identityLabel`、`factionLabel`、`stanceLabel`、`powerLevel`、`realm`、`currentLocation`、`availability`、`prohibitions`。
-- 角色硬事实是写作约束，不替代 `CharacterTimeline`、`CharacterDynamics`、`StoryStateSnapshot` 或时间线模块。
-- `participant_subset` 只承担软性人物简介和当前参与角色摘要，不承担不可违背事实约束。
-- writer 前必须带 `character_hard_facts` required context。该块即使为空也要存在，空态要明确提示不得凭空改写角色身份、阵营、境界、所在地和行动可用性。
-- 角色外显资料属于进入正文前应补齐的可视化角色资产，包括 `appearance / physique / attireStyle / signatureDetail / voiceTexture / presenceImpression`。自动应用角色阵容时，如果这些字段为空，应使用当前任务或当前页面选择的 LLM 设置补齐，避免落回未配置或能力不稳定的默认模型路径。
-- 旧角色已有人工编辑内容时，自动应用角色阵容只能补空字段，不覆盖用户已填写的人物档案和硬事实。
-- 审计继续作为后置检测和修复输入，但不能成为角色事实的主要来源。
+- Core cast and supporting characters should emit the same dossier fields: `personality / background / development`.
+- Character hard facts include at least: `identityLabel`, `factionLabel`, `stanceLabel`, `powerLevel`, `realm`, `currentLocation`, `availability`, `prohibitions`.
+- Character hard facts are writing constraints. They do not replace `CharacterTimeline`, `CharacterDynamics`, `StoryStateSnapshot`, or the timeline module.
+- `participant_subset` only carries a soft character brief and a summary of currently participating characters. It does not carry inviolable fact constraints.
+- Writer must carry `character_hard_facts` required context. The block must exist even when empty. The empty state must explicitly say not to invent a rewrite of identity, camp, realm, location, or action availability.
+- Character visible-profile materials are visual character assets that should be completed before prose, including `appearance / physique / attireStyle / signatureDetail / voiceTexture / presenceImpression`. When auto-applying a character cast, if those fields are empty, complete them with the LLM settings chosen on the current task or current page. Do not fall back to an unconfigured or unstable default-model path.
+- When an old character already has human-edited content, auto-applying a character cast may only fill empty fields. It must not overwrite a user-filled dossier or hard facts.
+- Audit remains a post-detection and repair input. It cannot become the primary source of character facts.
 
-## 排查路径
+## Examples
 
-1. 先检查角色库中 `personality / background / development` 是否为空。如果核心角色为空而补充角色不为空，优先查角色阵容 schema 和 `applyCharacterCastOption()`。
-2. 再检查角色硬事实是否进入运行时上下文。重点看 `GenerationContextPackage.characterHardFacts` 和 writer blocks 里的 `character_hard_facts`。
-3. 如果正文出现阵营或境界错误，先判断角色库是否有对应硬事实；没有就修角色准备链路，有但 writer 没收到就修上下文组装。
-4. 如果 writer 收到了硬事实仍写错，再进入审计、修复 prompt 或模型遵循度排查。
-5. 如果角色编辑页外显资料长期显示“待补全”，先用当前任务模型手动触发单角色或批量补齐验证 prompt 能力；手动可生成但自动应用后仍为空时，优先检查角色阵容应用链路是否把 `provider / model / temperature` 传入外显资料补齐服务。
+Diagnosis path:
 
-## 失败模式
+1. First check whether `personality / background / development` are empty in the character library. If core characters are empty and supporting characters are not, look at the character-cast schema and `applyCharacterCastOption()` first.
+2. Then check whether character hard facts entered runtime context. Focus on `GenerationContextPackage.characterHardFacts` and `character_hard_facts` in writer blocks.
+3. If prose has a camp or realm error, first decide whether the character library has the matching hard fact. If not, fix the character-prep chain. If it does but the writer did not receive it, fix context assembly.
+4. If the writer received the hard facts and still wrote them wrong, then enter audit, repair-prompt, or model-adherence diagnosis.
+5. If the character-edit page visible profile stays at “to complete” for a long time, first use the current task model to trigger single-character or batch completion and verify prompt capability. If manual generate works but auto-apply still leaves them empty, first check whether the character-cast apply path passed `provider / model / temperature` into the visible-profile completion service.
 
-- 只在审计阶段检测“阵营错误”，但 writer 输入里没有阵营事实：初稿会持续犯错。
-- 只把阵营放在 `character_dynamics`：动态投影可能为空或被裁剪，不能承担硬约束。
-- 只依赖时间线状态：时间线可发现事件顺序错乱，但不能稳定推断角色所属阵营和修为层级。
-- 自动应用角色阵容时没有携带当前 LLM 设置：外显资料补齐会走默认模型路径，可能表现为任务长时间等待或落库后仍为空。
-- 自动应用角色阵容覆盖人工编辑：会破坏用户已经修正过的人物设定。
+## Failure Modes
 
-## 相关模块
+- Detecting “camp wrong” only at audit, while writer input has no camp fact: first drafts keep making the same error.
+- Putting camp only on `character_dynamics`: a dynamic projection may be empty or clipped, and cannot carry a hard constraint.
+- Depending only on timeline state: a timeline can find event-order mistakes, but it cannot stably infer which camp a character belongs to or their cultivation tier.
+- Auto-applying a character cast without the current LLM settings: visible-profile completion takes the default-model path, which may look like a long-waiting task or still-empty persist.
+- Auto-applying a character cast overwrites human edits: that destroys character setting the user already corrected.
+
+## Related Modules
 
 - `server/src/prompting/prompts/novel/characterPreparation.*`
 - `server/src/services/novel/characterPrep/`

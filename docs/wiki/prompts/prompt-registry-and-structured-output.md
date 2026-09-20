@@ -1,131 +1,131 @@
-# Prompt Registry 与结构化输出
+# Prompt Registry and structured output
 
-## 背景
+## Background
 
-项目是 AI-native 小说生产系统。意图识别、任务分类、规划、路由、工具选择、质量判断和修复建议都应依赖 AI 的结构化理解，而不是关键词和硬编码分支。
+This project is an AI-native novel production system. Intent recognition, task classification, planning, routing, tool selection, quality judgment, and repair advice should all depend on AI structured understanding, not keywords and hard-coded branches.
 
-历史上，产品级 prompt 容易散落在 service 里，伴随本地 `JSON.parse`、try/catch 修复和局部 normalization。这样会让结构化输出、repair、语义重试、上下文要求和治理元数据无法统一审计。
+Historically, product-level prompts scattered into services, with local `JSON.parse`, try/catch repair, and local normalization. Structured output, repair, semantic retry, context requirements, and governance metadata then could not be audited together.
 
-## 决策
+## Decision
 
-`server/src/prompting/` 是新增产品级 prompt 的唯一治理入口。产品级 prompt 必须作为 `PromptAsset` 注册，并通过统一 runner 执行。结构化输出使用 schema、JSON repair 和 semantic retry 处理；确定性代码只做输入校验、安全边界和已结构化输出后的处理。
+`server/src/prompting/` is the only governance entry for new product-level prompts. A product-level prompt must be registered as a `PromptAsset` and executed through the unified runner. Structured output uses schema, JSON repair, and semantic retry. Deterministic code only does input validation, safety bounds, and post-processing of already-structured output.
 
-## 当前规则
+## Current Rule
 
-- `director.risk.assessment` 只负责把无法由确定性安全检查直接编码的问题结构化为稳定问题码、1～8 风险分、证据与建议动作。业务服务不得根据异常消息关键词或正则猜测问题类型；已知的空正文、明确重规划、保护内容和数据完整性信号可以直接提供稳定问题码，再由统一治理服务应用策略。
-- 风险评估失败不能生成虚构分类。确定性调用方提供的问题码仍然有效；只有 `runtime.unclassified` 允许 AI 改判为更具体的稳定问题码。安全锁定规则在结构化评估之后执行，AI 建议不能越过全书继续规则或数据安全底线。
+- `director.risk.assessment` only structures problems that deterministic safety checks cannot encode directly into a stable problem code, a 1–8 risk score, evidence, and a recommended action. Business services must not guess problem type from exception-message keywords or regex. Known empty prose, explicit replan, protected content, and data-integrity signals may supply a stable problem code directly; the unified governance service then applies policy.
+- A failed risk assessment must not invent a classification. Problem codes supplied by the deterministic caller remain valid. Only `runtime.unclassified` may be rejudged by AI into a more specific stable problem code. Safety lock rules run after structured assessment. AI advice cannot override whole-book continuation rules or the data-safety floor.
 
-- 新增产品级 prompt 必须放在 `server/src/prompting/prompts/<family>/`。
-- 新增产品级 prompt 必须在 `server/src/prompting/registry.ts` 注册。
-- 新增产品级 prompt 还必须进入提示词管理目录，能够被检索、查看版本、预览实际上下文并执行受控测试；只完成 Registry 注册不等于完成提示词管理纳管。
-- Prompt 工程完善的最高优先级是正文写作提示词，尤其是 `novel.chapter.writer` 及其直接依赖的章节写作上下文。规划、审校、修复、Workbench 和可视化工具的改动都应服务“能稳定产出可用正文”这一主目标；如果资源有限，优先保证正文写作 prompt 的上下文完整、角色硬事实准确、章节任务清晰、风格约束可控、章末钩子可执行。
-- `PromptAsset` 必须提供 `id`、`version`、`taskType`、`mode`、`language`、`contextPolicy`、`render()`，结构化 prompt 还必须有 `outputSchema` 或等价校验。
-- 创作语义判断必须 AI-first。角色身份承接、隐藏身份、题材理解、故事职责、质量风险、下一步动作、修复建议等产品语义，不得用正则、关键词表、固定字符串片段、字符比例或手写分支来判断或阻断流程；这类能力应进入 PromptAsset、结构化输出 schema、semantic retry 或 AI 评估链路。
-- 确定性代码只允许处理结构契约和安全边界，例如必填字段、枚举归一、ID 是否存在、数组长度、权限和数据保护。确定性质量闸门可以指出“缺少 protagonist / gender / 必填字段”这类结构问题，但不能判断“是否承接了某个题材身份”“名字是否像功能位”“语言是否像英文残留”等创作语义。
-- 结构化输出使用 `runStructuredPrompt`，纯文本使用 `runTextPrompt`，流式能力使用对应 stream runner。
-- JSON 解析、schema 校验失败由 repair policy 处理；JSON 合法但业务语义不合格由 semantic retry 处理。
-- 自动导演关键路径优先使用职责单一的小型结构化合同。开篇世界切片、路线窗口和下一章执行合同应分别约束，不要为了减少代码步骤把整本世界、全角色、整卷章节和执行细节塞进一个巨型 JSON。拆分的目标是降低 repair 面积和首章前耗时，不是复制生产链。
-- 自定义高级模板或业务上下文只能影响提示词正文。运行时必须在模板编译后强制追加 JSON skeleton、完整 Schema 和 repair 合同，用户模板不能覆盖这些结构安全边界。
-- 所有通过 registry runner 执行的 PromptAsset 都必须产生 prompt quality telemetry，用于观察 repair 率、semantic retry 率、空输出率、上下文 token 预算、输出长度和耗时。业务服务不得绕过 runner 自行吞掉 postValidate 失败；语义失败应通过 `semanticRetryPolicy` 重试，或通过明确的 `postValidateFailureRecovery` 降级。
-- 章节列表、卷级拆章这类规划 prompt 可以在结构化输出后增加轻量业务质量闸门，用于拦截空泛摘要、连续被动推进、第一人称长句章名、缺少主角主动行动或缺少阶段兑现 / 钩子的章节段。质量闸门只负责指出结构化结果的问题并触发重试，不能替代 AI 做章节规划，也不能用关键词分支生成章节内容。
-- Prompt 中展示给模型的状态名、枚举名和示例必须与 schema 可接受值一致。上下文里如果存在历史别名或业务口语值，例如 `active` 表示已推进但未兑现，应在 prompt 明确转换规则，并在 schema preprocess 中做确定性归一，不能把同一类别名反复交给 LLM repair。
-- 高频评估类结构化 prompt 必须同时具备完整 JSON skeleton、受限枚举表、非空示例和 schema preprocess。章节接收闸门、章节任务单质量门禁这类 prompt 不能只在自然语言里描述“可用 / 可修 / 阻断”，必须把 `status`、`verdict`、`issues.target`、`confidence` 等字段的合法值写入 system prompt，并在 schema 边界归一常见别名，例如 `acceptable -> accepted`、`pacing -> semantic`、`85 -> 0.85`。
-- 抽取类 schema 如果用字符串承载“可读状态值”，必须在 PromptAsset 中明示数值也要按字符串输出，并在 schema 层对已经结构化的数值 / 布尔标量做确定性字符串化。典型场景是时间线 `stateChanges.before/after`：差评值、评分、倒计时等是剧情状态，不是计算字段，进入连续性账本时应保存为 `"19"`、`"5"` 这类可读文本，避免每次抽取都把合理数值输出推给 JSON repair。
-- 聚合型结构化 prompt 必须列出所有受限 enum 字段，不能只列最容易出错的字段。章节资产抽取这类一次性输出多个子账本的 prompt，应同时约束 `updateType`、`resourceType`、`narrativeFunction`、`scopeType`、`syncPlan` 等字段；否则模型会用语义合理但不被 schema 接受的自然分类词，导致后台任务被 Zod 校验失败卡住。
-- 结构化输出后的确定性归一只用于字段别名、枚举别名和兼容旧形状，例如把 `pacing` 映射为接收闸门的 `plot`、把 payoff `active` 映射为 `pending_payoff`、把字符串风险转成 `{ code, severity, summary }` 对象。不能用这种归一替代 AI 对剧情事实、风险等级或下一步动作的判断。
-- 章节接收闸门、时间线抽取和章节资产抽取都属于高频后台结构化 prompt，示例必须覆盖非空对象数组。`missingObligations`、`hooks/possibleHooks`、资源变化等字段不能只给空数组示例，否则模型在发现真实问题时容易自造字段或把对象压成字符串。
-- 事实抽取类 prompt 不继承创作温度。时间线、章节资产 delta、接收闸门等用于审校或账本写入的调用应在 service 层钳制低温，避免自动导演高创造温度放大 schema drift。
-- JSON repair 日志应保留 `promptId`、`schemaPaths`、`repairAttempt` 和 `validationError`。诊断 repair 率时先按 `promptId + schemaPath` 聚合，判断是 prompt 示例、枚举合同、上下文污染还是模型路由问题。
-- JSON repair 必须接收目标 JSON Schema，不能只依赖原始校验错误推测字段结构。尤其在原始文本无法解析、`schemaPaths` 为空时，完整 schema 是修复模型恢复必填字段、嵌套对象和枚举合同的唯一可靠依据。
-- repair 不应无限量回放损坏输出。遇到超长重复、乱码或退化内容时，应保留足够的前缀与尾部用于恢复语义，同时压缩中间异常内容，避免损坏文本继续污染修复上下文。
-- 开书灵感、短方向候选这类“小结构、强创作上下文”的任务，通用 JSON repair 可能只恢复字段结构，却丢失用户已选题材、推进方式和方向差异。此类 PromptAsset 应限制采样温度与输出预算、给出完整非空数组示例；原始输出退化或结构损坏时，优先携带原始业务上下文重新执行已注册 Prompt，而不是让无业务上下文的 repair 补造一组新内容。传输错误仍直接返回，不能用内容重试掩盖模型连接问题。
-- 长列表与多层对象类 PromptAsset 必须同时控制字段长度、数组规模和调用级输出预算。仅声明“严格 JSON”不能防止模型把说明文字塞进字段或在闭合括号前持续生成；可以按卷、节拍或片段拆分的结果，应优先分段生成并持久化。
-- 空模型响应不属于 JSON 或 schema 修复问题。结构化运行时必须在进入 repair 前识别空响应，将其归为模型传输 / 输出失败，并优先交给模型路由、备用模型或当前生产项重试；repair 没有原始语义可保留，禁止用空对象补造必填业务内容。
-- 支持开关思考模式的模型执行结构化任务时，应由 provider capability profile 显式关闭思考模式，避免推理预算耗尽后没有最终 JSON。新模型别名接入时必须同步验证其思考开关、结构化 profile 和实际请求参数，不能只把模型名加入下拉列表。
-- Semantic retry 必须把原始业务失败原因传回重试 prompt，并指明需要整体重排还是局部修正。章节列表、卷级拆章这类结果如果因为标题同构、章节功能重复、摘要空泛或结尾牵引不足被拒绝，重试指令应要求重排整组标题骨架和章节功能分配，而不是只替换被点名的一章。
-- editable slots 只能开放低风险表达层内容，不能覆盖 schema、postValidate、taskType、mode、contextPolicy、工具目录、审批边界或 required context。
-- Prompt Workbench 的可视化编辑器只能把 `PromptAsset.slots` 呈现为可编辑项。`replace`、`token`、`append`、`choice` 和 `toggle` 可以映射成不同控件，但保存仍必须走 slot override；不得把整段 system prompt、contextPolicy 或 schema 暴露为自由编辑文本。
-- Prompt Workbench 的上下文注入面板只读消费 `preview.context.blocks`、`selectedBlockIds`、`droppedBlockIds` 和 `summarizedBlockIds`。安全槽位模式不常驻展示该诊断面板，因为用户不能在该模式调整上下文；高级模板模式才显示上下文引用，用于插入稳定 token 和检查必需上下文。`chapter_mission`、`character_hard_facts`、`obligation_contract`、`style_contract` 等 required 或关键生成上下文必须显示锁定状态，不能在前端提供关闭 required context 的入口。
-- 正文效果实验室是 `novel.chapter.writer` 的作者入口，不维护独立 Prompt 或生成链。它必须复用 Prompt Workbench 的本书模板、真实章节上下文、预览编译和受控测试接口；从章节编辑器进入时自动带入小说与章节，试写结果不得保存为章节正文或推进自动导演。
-- Prompt Workbench 在“本书”范围下如果同时选择了小说和章节，预览必须优先使用该小说章节的只读上下文；只有没有真实章节或无法装配真实上下文时，才允许通过 `executionContext.metadata.extraContextBlocks` 提供示例资料块。示例块只服务预览，不保存为用户覆盖，也不能替代正式运行时的 Context Broker / resolver。
-- `novel.chapter.writer` 的 Workbench 预览必须注入只读 `chapterWriteContext`，并通过默认 Context Broker 解析出 `book_contract`、`chapter_mission`、`timeline_context`、`previous_chapter_hook`、`character_hard_facts`、`obligation_contract`、`volume_window`、`participant_subset`、`local_state` 和 `style_contract`。预览按钮不得调用会补写章节计划、推进自动导演或修改小说数据的生成装配器；如果只能使用降级上下文，诊断信息必须说明来源边界。
-- Prompt Workbench 的测试产出是预览之后的受控执行入口。它可以用当前未保存的 slot 草稿或高级模板草稿调用 LLM，并允许用户为这次测试选择 provider、model、temperature 和输出上限；但它仍必须先走注册 `PromptAsset`、Context Broker、slot/template 编译、结构化 schema 和 repair 策略。测试产出不得接受任意自由 system prompt，不得改写 `contextPolicy`、schema、postValidate、semantic retry 或 required context。
-- 文本类 Prompt 的测试产出应通过 SSE 将模型增量直接展示给用户，减少长正文试写的等待感；流式请求仍使用同一份已编译的 Prompt、上下文和模型路由，结束后不得写入章节正文或推进生产链。结构化 Prompt 必须等待 schema 校验、repair 和语义规则完成后再展示最终结果，不能把未校验的 JSON 片段当作可信测试结论。
-- `PromptAsset.contextRequirements` 中声明的每个 required group 都必须能被默认 Context Broker 解析，或在真实调用路径中通过 fallback blocks 明确补齐。像 `chapter_boundary`、`structure_obligations` 这类审校必需上下文，不能只写在 prompt 文案或前端示例里，必须有后端 resolver / context block 产出路径。
-- Prompt Workbench 的官方版本库以代码注册的 `PromptAsset.slots` 为可信来源。官方当前版只能读取槽位默认值、hash、版本号和 changelog；不得把数据库里的自由编辑文本当作“官方 prompt”，也不得开放 schema、contextPolicy、required context、postValidate 或审批边界给用户覆盖。
-- 正文写作高级模板是受控专家能力，允许正式正文生成 Prompt 在明确的作品范围覆盖 `system` / `human` 模板。它服务成熟用户对正文写作表达和上下文摆放的精细控制，不改变 `PromptAsset.id/version/taskType/mode`、schema、postValidate、contextPolicy 或正文输出形态。
-- 正文写作高级模板的目标范围包括所有正式正文生成 Prompt，而不是永久限定在 `novel.chapter.writer`。长篇章节、短篇片段及后续新增的叙事正文 Prompt 都必须支持安全槽位编辑和高级 System / Human 模板编辑；尚未接入的 Prompt 属于能力缺口，应通过 PromptAsset 能力声明统一接入，不能继续在前端累加 Prompt ID 特判。
-- 正文 Prompt 必须把平台写法作为正式可观察上下文。平台写法控制节奏、段落、冲突与回报密度、关系线权重和结尾牵引，不得覆盖人物硬事实、世界规则、当前任务或已确认情节。完整规则见《平台写法配置与正文 Prompt 可编辑合同》。
-- 高级模板只能通过稳定 token 引用上下文、运行变量和槽位，例如 `{{context.chapter_mission}}`、`{{input.chapterTitle}}`、`{{slot.writer.tonePreference}}`。未知 token、未注册 context group 或非法 slot key 必须在预览或保存前被拦截，不能进入可启用版本。
-- `novel.chapter.writer` 的 required context 在高级模板中仍是最低安全边界。用户可以决定 `book_contract`、`chapter_mission`、`timeline_context`、`previous_chapter_hook`、`character_hard_facts`、`obligation_contract`、`volume_window`、`participant_subset`、`local_state`、`style_contract` 的摆放位置；如果模板没有显式引用某个 required group，运行时必须在 human message 末尾追加必需上下文保底区块。optional group 只有被模板显式引用时才注入。
-- `novel.chapter.writer` 最终发送给模型的上下文正文必须面向写作任务可读。`{{context.xxx}}` 和保底 required context 可以在模板、诊断和结构字段中保留原始 group key，但渲染到 human message 时，区块标题和主要字段应使用中文标签，例如 `timeline_context` 显示为 `时间线`、`Title` 显示为 `标题`、角色状态显示为 `目标 / 状态 / 情绪`。内部数据库 ID、风格规则 id 和 `effective_style_profile_id` 这类调试字段不得进入 writer-facing 正文上下文；如需排查，应保留在 diagnostics、日志或专用 meta 文本中。
-- 高级模板版本历史属于本书覆盖数据，不是官方版本库。每次保存创建不可变版本并设为 active；回滚只切换 activeVersionId；恢复官方模板只把 mode 切回 `official` 并保留历史版本，真实生成随即回到 `PromptAsset.render()`。
-- Slot override 的解析优先级固定为：本书覆盖或本书 `official_default` 标记 > 全局覆盖 > `PromptAsset.slots` 官方默认。旧数据中只有 `{ value, baseHash }` 的槽位视为 `custom`，保持兼容。
-- `official_default` 只表示“当前作用域明确采用官方默认值”。全局层保存官方默认值应删除该槽位覆盖；本书层保存官方默认值时，如果全局层存在自定义覆盖，必须写入 `official_default` 标记来遮蔽全局值；如果没有全局覆盖，则删除本书覆盖即可。
-- “恢复官方当前版”必须通过官方恢复动作处理，而不是简单删除本书覆盖。删除本书覆盖的含义是回到继承链；在有全局覆盖时，这会重新继承全局值，不等于恢复官方默认。
-- “保留我的设置”只能更新当前槽位的 `baseHash/baseVersion`，用于确认用户接受自己的覆盖与当前官方版本的差异；不能顺手改写官方默认值、schema 或上下文策略。
-- 旧未纳管 prompt 路径被触碰时，默认先迁入 registry，再扩展能力。
-- 推进模式库的“扩展”属于正式产品 AI 能力：它必须由注册 PromptAsset 同时读取选定根模式、现有同级模式和整库摘要，再输出可直接落库的完整 profile 候选。不能在前端按名称相似度或固定类别补齐，更不能把“扩展”退化为只换名称的子类生成。候选保存仍必须通过既有两级树、重复名称与 profile 校验。
-- 小说封面 Prompt 的默认产品目标是“带准确书名的完整竖版封面”，不是无文字主画面。Prompt 必须同时提供唯一书名、简体中文准确渲染、清晰高对比度排版和禁止副标题/作者名/水印的约束；负面提示词只能拦截乱码、错误书名等文字质量问题，不能把“文字/书名”整体列为禁止项。
+- New product-level prompts must live under `server/src/prompting/prompts/<family>/`.
+- New product-level prompts must be registered in `server/src/prompting/registry.ts`.
+- New product-level prompts must also enter the prompt-management catalog so they can be searched, versioned, previewed with real context, and run in a controlled test. Registry registration alone is not prompt-management onboarding.
+- The highest prompt-engineering priority is prose-writing prompts, especially `novel.chapter.writer` and the chapter-writing context it depends on. Changes to planning, review, repair, Workbench, and visualization tools should serve “reliably produce usable prose”. If resources are limited, keep the prose-writing prompt’s context complete, character hard facts accurate, chapter mission clear, style constraints controllable, and end-of-chapter hook executable.
+- A `PromptAsset` must provide `id`, `version`, `taskType`, `mode`, `language`, `contextPolicy`, and `render()`. Structured prompts also need `outputSchema` or equivalent validation.
+- Creative semantic judgment must be AI-first. Product semantics such as character-identity continuity, hidden identity, genre understanding, story duty, quality risk, next action, and repair advice must not be judged or blocked with regex, keyword tables, fixed string fragments, character ratios, or handwritten branches. Those capabilities belong in a PromptAsset, a structured output schema, semantic retry, or an AI evaluation chain.
+- Deterministic code may only handle structural contracts and safety bounds: required fields, enum normalization, whether an ID exists, array length, permissions, and data protection. A deterministic quality gate may point at structural problems such as “missing protagonist / gender / required field”. It must not judge creative semantics such as “whether a genre identity was continued”, “whether a name looks like a function slot”, or “whether the language looks like leftover English”.
+- Structured output uses `runStructuredPrompt`. Plain text uses `runTextPrompt`. Streaming uses the matching stream runner.
+- JSON parse and schema-validation failures go through the repair policy. JSON that is legal but fails business semantics goes through semantic retry.
+- Auto-Director critical paths prefer small structured contracts with a single duty. Opening world slice, route window, and next-chapter execution contract should be constrained separately. Do not stuff whole-book world, all characters, whole-volume chapters, and execution detail into one giant JSON just to reduce code steps. The split exists to shrink the repair surface and time-to-first-chapter, not to duplicate the production chain.
+- Custom advanced templates or business context may only affect prompt body text. After template compile, runtime must still append the JSON skeleton, the full schema, and the repair contract. User templates cannot override those structural safety bounds.
+- Every PromptAsset executed through the registry runner must emit prompt quality telemetry: repair rate, semantic-retry rate, empty-output rate, context token budget, output length, and latency. Business services must not bypass the runner and swallow `postValidate` failures. Semantic failures should retry through `semanticRetryPolicy`, or degrade through an explicit `postValidateFailureRecovery`.
+- Planning prompts such as chapter lists and volume chapter-splits may add a light business quality gate after structured output, to intercept empty summaries, consecutive passive advance, long first-person chapter titles, missing protagonist initiative, or missing stage payoff / hooks. The quality gate only points at problems in the structured result and triggers retry. It cannot replace AI chapter planning, and it cannot generate chapter content with keyword branches.
+- Status names, enum names, and examples shown to the model in a prompt must match schema-accepted values. If context contains historical aliases or spoken business values, for example `active` meaning advanced but not paid off, the prompt must state the conversion rule, and schema preprocess must do deterministic normalization. Do not keep handing the same alias family to LLM repair.
+- High-frequency evaluation structured prompts must have a complete JSON skeleton, a closed enum table, non-empty examples, and schema preprocess together. Prompts such as the chapter acceptance gate and the chapter-mission quality gate cannot only describe “usable / patchable / blocking” in natural language. Legal values for fields such as `status`, `verdict`, `issues.target`, and `confidence` must be written into the system prompt, and schema bounds must normalize common aliases, for example `acceptable -> accepted`, `pacing -> semantic`, `85 -> 0.85`.
+- If an extraction schema uses a string to carry a readable state value, the PromptAsset must say that numbers also output as strings, and the schema layer must deterministically stringify already-structured number / boolean scalars. A typical case is timeline `stateChanges.before/after`: review scores, ratings, and countdowns are plot state, not computed fields. When they enter the continuity ledger they should be stored as readable text such as `"19"` and `"5"`, so every extraction does not push a reasonable numeric output into JSON repair.
+- Aggregate structured prompts must list every constrained enum field, not only the fields that fail most often. A one-shot chapter-asset extraction prompt that emits several sub-ledgers should constrain `updateType`, `resourceType`, `narrativeFunction`, `scopeType`, `syncPlan`, and similar fields together. Otherwise the model uses semantically reasonable natural category words that the schema rejects, and the background task sticks on Zod validation.
+- Deterministic normalization after structured output is only for field aliases, enum aliases, and old-shape compatibility, for example mapping `pacing` to the acceptance gate’s `plot`, mapping payoff `active` to `pending_payoff`, or turning a string risk into a `{ code, severity, summary }` object. That normalization cannot replace AI judgment of plot facts, risk level, or next action.
+- Chapter acceptance gate, timeline extraction, and chapter-asset extraction are high-frequency background structured prompts. Examples must cover non-empty object arrays. Fields such as `missingObligations`, `hooks/possibleHooks`, and resource changes cannot only show empty-array examples, or the model invents fields or collapses objects into strings when it finds a real problem.
+- Fact-extraction prompts do not inherit creative temperature. Timeline, chapter-asset delta, acceptance gate, and other review or ledger-write calls should clamp to a low temperature at the service layer, so Auto-Director’s high creative temperature does not amplify schema drift.
+- JSON repair logs should keep `promptId`, `schemaPaths`, `repairAttempt`, and `validationError`. When diagnosing repair rate, aggregate first by `promptId + schemaPath` and decide whether the issue is prompt examples, enum contract, context contamination, or model routing.
+- JSON repair must receive the target JSON Schema. It cannot only infer field structure from the original validation error. Especially when the raw text cannot parse and `schemaPaths` is empty, the full schema is the only reliable basis for the repair model to recover required fields, nested objects, and enum contracts.
+- Repair should not replay damaged output without limit. On long repetition, garbage, or degenerate content, keep enough prefix and tail to recover meaning, and compress the abnormal middle, so damaged text does not keep contaminating the repair context.
+- For small-structure, strong-creative-context tasks such as opening inspiration and short direction candidates, generic JSON repair may restore field structure while losing the user’s chosen genre, advancement mode, and direction differences. Those PromptAssets should limit sampling temperature and output budget, and give complete non-empty array examples. When raw output degenerates or structure is damaged, prefer re-running the registered prompt with the original business context, rather than letting a no-business-context repair invent a new set of content. Transport errors still return directly. Content retry must not hide a model-connection problem.
+- Long-list and multi-layer-object PromptAssets must control field length, array size, and call-level output budget together. Declaring “strict JSON” alone does not stop the model stuffing explanation into fields or generating past the closing brace. Results that can split by volume, beat, or fragment should generate and persist in segments first.
+- An empty model response is not a JSON or schema repair problem. Structured runtime must recognize empty responses before entering repair, classify them as model transport / output failure, and prefer model routing, a fallback model, or retry of the current production item. Repair has no original semantics to keep. Do not invent required business content with an empty object.
+- When a model that supports a thinking switch runs a structured task, the provider capability profile should explicitly turn thinking off, so the reasoning budget is not exhausted with no final JSON. When a new model alias is added, verify its thinking switch, structured profile, and actual request parameters together. Do not only add the model name to a dropdown.
+- Semantic retry must pass the original business failure reason back into the retry prompt, and say whether a whole rearrangement or a local fix is needed. If a chapter list or volume chapter-split is rejected for isomorphic titles, repeated chapter functions, empty summaries, or weak ending pull, the retry instruction should rearrange the whole title skeleton and chapter-function assignment, not only replace the named chapter.
+- Editable slots may only open low-risk expression-layer content. They cannot override schema, postValidate, taskType, mode, contextPolicy, tool catalog, approval bounds, or required context.
+- Prompt Workbench’s visual editor may only present `PromptAsset.slots` as editable items. `replace`, `token`, `append`, `choice`, and `toggle` can map to different controls, but save must still go through slot override. Do not expose whole system prompts, contextPolicy, or schema as free-edit text.
+- Prompt Workbench’s context-injection panel is a read-only consumer of `preview.context.blocks`, `selectedBlockIds`, `droppedBlockIds`, and `summarizedBlockIds`. Safe-slot mode does not keep that diagnostic panel resident, because the user cannot adjust context in that mode. Advanced-template mode shows context references, for inserting stable tokens and checking required context. Required or critical generation context such as `chapter_mission`, `character_hard_facts`, `obligation_contract`, and `style_contract` must show a locked state. The frontend must not offer a control that turns required context off.
+- The prose-effect lab is an author entry for `novel.chapter.writer`. It does not maintain a separate prompt or generation chain. It must reuse Prompt Workbench’s this-book template, real chapter context, preview compile, and controlled-test APIs. Entering from the chapter editor auto-carries novel and chapter. Trial-write results must not save as chapter prose or advance Auto-Director.
+- If Prompt Workbench in this-book scope has both a novel and a chapter selected, preview must prefer that novel chapter’s read-only context. Only when there is no real chapter, or real context cannot be assembled, may `executionContext.metadata.extraContextBlocks` supply sample material blocks. Sample blocks serve preview only. They are not saved as user overrides, and they cannot replace the formal runtime Context Broker / resolver.
+- Workbench preview of `novel.chapter.writer` must inject read-only `chapterWriteContext` and resolve `book_contract`, `chapter_mission`, `timeline_context`, `previous_chapter_hook`, `character_hard_facts`, `obligation_contract`, `volume_window`, `participant_subset`, `local_state`, and `style_contract` through the default Context Broker. The preview button must not call a generation assembler that would backfill chapter plans, advance Auto-Director, or mutate novel data. If only degraded context is available, diagnostics must state the source boundary.
+- Prompt Workbench test output is the controlled execution entry after preview. It may call the LLM with the current unsaved slot draft or advanced-template draft, and the user may choose provider, model, temperature, and output limit for that test. It must still go through the registered `PromptAsset`, Context Broker, slot/template compile, structured schema, and repair policy first. Test output must not accept an arbitrary free system prompt, and must not rewrite `contextPolicy`, schema, postValidate, semantic retry, or required context.
+- Text-prompt test output should show model deltas to the user over SSE, so long prose trials wait less. The stream still uses the same compiled prompt, context, and model routing. After it ends, it must not write chapter prose or advance the production chain. Structured prompts must wait for schema validation, repair, and semantic rules before showing a final result. Unvalidated JSON fragments are not a trusted test conclusion.
+- Every required group declared in `PromptAsset.contextRequirements` must be resolvable by the default Context Broker, or explicitly filled with fallback blocks on the real call path. Review-required context such as `chapter_boundary` and `structure_obligations` cannot live only in prompt copy or frontend samples. There must be a backend resolver / context-block production path.
+- Prompt Workbench’s official version library trusts code-registered `PromptAsset.slots`. Official current version may only read slot defaults, hash, version number, and changelog. Database free-edit text must not be treated as “the official prompt”, and schema, contextPolicy, required context, postValidate, or approval bounds must not be opened for user override.
+- Prose-writing advanced templates are a controlled expert capability. They allow a formal prose-generation prompt to override `system` / `human` templates in an explicit work scope. They serve mature users who need fine control of prose expression and context placement. They do not change `PromptAsset.id/version/taskType/mode`, schema, postValidate, contextPolicy, or the prose output shape.
+- The target scope of prose-writing advanced templates is every formal prose-generation prompt, not a permanent lock to `novel.chapter.writer`. Long-form chapters, short-story segments, and later narrative-prose prompts must all support safe-slot editing and advanced System / Human template editing. A prompt that is not yet connected is a capability gap. Connect it through PromptAsset capability declarations. Do not keep stacking Prompt ID special cases on the frontend.
+- Prose prompts must treat the platform writing profile as formal observable context. Platform writing controls pacing, paragraphs, conflict and payoff density, relationship-line weight, and ending pull. It must not override character hard facts, world rules, the current mission, or confirmed plot. Full rules are in [Platform writing profiles and the editable prose-prompt contract](./platform-writing-profiles.md).
+- Advanced templates may only reference context, runtime variables, and slots through stable tokens, for example `{{context.chapter_mission}}`, `{{input.chapterTitle}}`, `{{slot.writer.tonePreference}}`. Unknown tokens, unregistered context groups, or illegal slot keys must be intercepted before preview or save, and must not enter an enableable version.
+- Required context for `novel.chapter.writer` remains the minimum safety bound in advanced templates. Users may decide the placement of `book_contract`, `chapter_mission`, `timeline_context`, `previous_chapter_hook`, `character_hard_facts`, `obligation_contract`, `volume_window`, `participant_subset`, `local_state`, and `style_contract`. If the template does not explicitly reference a required group, runtime must append a required-context safety block at the end of the human message. Optional groups inject only when the template references them explicitly.
+- The context body that `novel.chapter.writer` finally sends to the model must be readable for the writing task. `{{context.xxx}}` and fallback required context may keep the original group key in templates, diagnostics, and structural fields, but when rendered into the human message, block titles and main fields should use English labels, for example `timeline_context` as `Timeline`, `Title` as `Title`, and character state as `Goal / Status / Emotion`. Internal database IDs, style-rule ids, and debug fields such as `effective_style_profile_id` must not enter writer-facing prose context. Keep them in diagnostics, logs, or dedicated meta text when investigation is needed.
+- Advanced-template version history is this-book override data, not the official version library. Each save creates an immutable version and sets it active. Rollback only switches `activeVersionId`. Restoring the official template only switches mode back to `official` and keeps history. Real generation then returns to `PromptAsset.render()`.
+- Slot-override resolution priority is fixed: this-book override or this-book `official_default` mark > global override > `PromptAsset.slots` official default. Old data with only `{ value, baseHash }` is treated as `custom` for compatibility.
+- `official_default` only means “this scope explicitly adopts the official default”. Saving the official default at global layer should delete that slot override. Saving the official default at this-book layer must write an `official_default` mark to mask a global custom override if one exists; if there is no global override, deleting the this-book override is enough.
+- “Restore official current version” must go through the official restore action, not a simple delete of this-book overrides. Deleting this-book overrides means returning to the inheritance chain. When a global override exists, that re-inherits the global value, which is not restoring the official default.
+- “Keep my settings” may only update the current slot’s `baseHash/baseVersion`, confirming that the user accepts the difference between their override and the current official version. It must not quietly rewrite official defaults, schema, or context policy.
+- When an old ungoverned prompt path is touched, migrate it into the registry first, then extend capability.
+- “Expand” in the advancement-mode library is a formal product AI capability: a registered PromptAsset must read the selected root mode, existing sibling modes, and a whole-library summary, then output a complete profile candidate that can land directly. The frontend must not fill by name similarity or a fixed category, and “expand” must not degrade into subclass generation that only changes the name. Candidate save still goes through the existing two-level tree, duplicate-name, and profile validation.
+- The default product goal of the novel-cover prompt is a complete vertical cover with an accurate book title, not a title-free hero image. The prompt must supply a unique book title, accurate title-text rendering, clear high-contrast typography, and a ban on subtitle / author name / watermark. Negative prompts may only intercept text-quality problems such as garbage or a wrong title. They must not ban “text / book title” as a whole.
 
-批准例外：
+Approved exceptions:
 
-- `server/src/llm/structuredInvoke.ts` 内部 JSON repair。
-- `server/src/llm/connectivity.ts` 这类连通性探针。
-- 阶段性保留的 stream bridge，例如 `graphs/*`、`routes/chat.ts`、`services/novel/runtime/*`。
+- JSON repair inside `server/src/llm/structuredInvoke.ts`.
+- Connectivity probes such as `server/src/llm/connectivity.ts`.
+- Phase-retained stream bridges, for example `graphs/*`, `routes/chat.ts`, `services/novel/runtime/*`.
 
-这些例外不是新增 prompt 的默认入口。触碰例外文件时，优先评估能否迁入 PromptAsset + runner；暂时不能迁入时，应补齐等价的 prompt telemetry bridge，避免形成不可观测的第二套 prompt 执行路径。
+These exceptions are not the default entry for new prompts. When touching an exception file, first evaluate whether it can move into PromptAsset + runner. If it cannot yet, add an equivalent prompt telemetry bridge so a second unobservable prompt-execution path is not created.
 
-## 示例
+## Examples
 
-推荐做法：
+Recommended:
 
-- 新增章节接收闸门时，先定义结构化输出 schema，再注册 `PromptAsset`，最后由服务消费结构化结果。
-- 新增意图识别能力时，扩展 AI schema 和工具合同，不加关键词 fallback。
-- 角色阵容质量不足时，修角色准备 PromptAsset、结构化 schema、postValidate / semantic retry 或上下文块，不在 service 中新增关键词、正则或字符比例判断。
-- Prompt Workbench 预览只读返回 messages、上下文块、缺失 required groups 和 trace preview，不保存运行时 override。
-- Prompt Workbench 测试产出用于保存前验证当前草稿。结构化 prompt 应返回 schema 校验后的 JSON、repair 次数和诊断；文本 prompt 应返回模型文本。测试结果可以帮助判断提示词调整是否有效，但不能写入小说正文、推进自动导演或替代正式章节执行链。
-- 某本书需要摆脱被改坏的全局“章末钩子”时，应在本书层写入 `mode: "official_default"`。这样预览、运行时渲染和后续生成都会使用 `PromptAsset.slots` 的官方默认章末钩子，而不是全局覆盖。
-- 用户只想撤销本书自己的改动、继续继承团队/全局设置时，应清除本书覆盖；如果全局设置本身被改坏，则应使用“恢复官方当前版”。
-- 成熟用户要把“角色硬事实”提前放到 human message 开头时，应在正文写作高级模板中插入 `{{context.character_hard_facts}}`；如果同时没有插入 `{{context.style_contract}}`，系统会在 human message 末尾追加风格合约保底块。
-- 某本书试验过激写法后想回到官方正文 prompt，应使用“恢复官方模板”。这不会删除历史版本，后续仍可回滚查看，但真实生成会重新使用 `PromptAsset.render()`。
+- When adding a chapter acceptance gate, define the structured output schema first, register a `PromptAsset`, then let the service consume the structured result.
+- When adding intent recognition, extend the AI schema and tool contract. Do not add a keyword fallback.
+- When character-cast quality is insufficient, fix the character-prep PromptAsset, structured schema, postValidate / semantic retry, or context blocks. Do not add keyword, regex, or character-ratio judgments in the service.
+- Prompt Workbench preview returns messages, context blocks, missing required groups, and trace preview as read-only. It does not save runtime overrides.
+- Prompt Workbench test output validates the current draft before save. Structured prompts should return schema-validated JSON, repair count, and diagnostics. Text prompts should return model text. Test results can show whether a prompt change worked. They cannot write novel prose, advance Auto-Director, or replace the formal chapter execution chain.
+- If a book needs to escape a damaged global “end-of-chapter hook”, write `mode: "official_default"` at this-book layer. Preview, runtime render, and later generation then use the official default hook from `PromptAsset.slots`, not the global override.
+- If the user only wants to undo this-book edits and keep inheriting team/global settings, clear the this-book override. If the global setting itself is damaged, use “restore official current version”.
+- If a mature user wants “character hard facts” at the start of the human message, insert `{{context.character_hard_facts}}` in the prose-writing advanced template. If `{{context.style_contract}}` is not also inserted, the system appends a style-contract safety block at the end of the human message.
+- If a book tried an aggressive writing style and wants to return to the official prose prompt, use “restore official template”. That does not delete history versions, so later rollback is still possible, but real generation uses `PromptAsset.render()` again.
 
-禁止做法：
+Forbidden:
 
-- 在 service 内直接拼 `systemPrompt/userPrompt` 后调用裸 LLM。
-- 在业务文件里新增一套本地 JSON 修复和 schema 分支。
-- 让 Prompt Override 直接替换整段系统提示词或结构化输出 schema。
-- 让测试产出接口接受任意 messages 或自由 prompt，绕过注册提示词、Context Broker、slot/template 编译和结构化输出治理。
-- 把高级模板扩展到审校、规划、修复或全局范围，或让高级模板编辑 contextPolicy、schema、postValidate、模型参数和返回结构。
-- 在高级模板中通过空模板、未知 token 或删除 required context 的方式绕开正文写作安全上下文。
-- 在角色准备、章节规划、意图识别、质量检查、RAG 选择或自动导演路由中，用固定词表、正则、字符比例或特殊字符串分支替代 AI 结构化理解。
-- 用删除本书覆盖来实现“恢复官方默认”，因为这会在存在全局覆盖时错误继承全局值。
-- 把“官方版本库”做成用户可编辑的数据库 prompt 后台，绕开 `PromptAsset.slots` 的代码注册边界。
+- Assembling `systemPrompt/userPrompt` inside a service and calling a raw LLM.
+- Adding a local JSON-repair and schema branch in a business file.
+- Letting a Prompt Override replace a whole system prompt or structured output schema.
+- Letting the test-output API accept arbitrary messages or a free prompt, bypassing registered prompts, Context Broker, slot/template compile, and structured-output governance.
+- Extending advanced templates to review, planning, repair, or global scope, or letting advanced templates edit contextPolicy, schema, postValidate, model parameters, and return structure.
+- Bypassing prose-writing safety context in an advanced template with an empty template, unknown tokens, or deleted required context.
+- Replacing AI structured understanding with fixed vocabularies, regex, character ratios, or special-string branches in character prep, chapter planning, intent recognition, quality check, RAG selection, or Auto-Director routing.
+- Implementing “restore official default” by deleting this-book overrides, because that wrongly inherits the global value when a global override exists.
+- Turning the “official version library” into a user-editable database prompt backend that bypasses the code-registration boundary of `PromptAsset.slots`.
 
-## 失败模式
+## Failure Modes
 
-- 模型返回 JSON 不稳定：先检查 schema、provider JSON 能力和 repair policy，不在业务 service 里补局部解析。
-- 模型请求耗时较长但最终 `content` 为空：先看 LLM 会话日志中的响应长度、模型名和思考模式参数。若原始响应为空，不要根据后续 `{}` repair 错误误判为字段缺失；应检查该模型是否需要关闭思考模式，并确认空响应被归入模型调用失败而不是 JSON repair。
-- 同一 prompt 频繁进入 JSON repair：检查日志里的原始字段值是否来自上下文或示例中的非 schema 值。如果模型只是复用了 prompt 中出现的别名，应先修 prompt/schema 合同；如果输出语义完整但字段名是常见别名，应在 PromptAsset schema 层归一，而不是让后台任务无限重试。
-- 关键路径 repair 率升高时，还要检查合同是否同时承担了远期规划和当前执行。若大量失败集中在深层数组、跨卷章节或非开篇角色字段，应缩小当前 PromptAsset 的职责和输出窗口；不能靠增加 repair 次数掩盖过大的结构合同。
-- 原始输出很长、尾部出现重复字串或乱码，并伴随“未检测到完整 JSON 值”、控制字符或缺少闭合括号：优先判断为输出预算失控或模型退化。应收紧字段与数组边界、压缩输入上下文、设置与任务规模匹配的输出上限，而不是增加更多 repair 轮次。
-- 短创意候选经过 repair 后格式正确但突然偏离用户题材或推进方式：检查 repair 是否只拿到了损坏输出和 JSON Schema。若原始任务依赖强业务上下文，应禁用该 PromptAsset 的通用内容修复，改为用原始上下文、受控温度和同一输出合同重新生成一次。
-- 合法 JSON 总是在同一 `schemaPath` 失败：优先检查 Prompt 示例、枚举说明和 schema 是否互相矛盾；如果错误值直接来自上下文，应修复上下文合同污染。
-- 原始 JSON 无法解析，repair 后又集中缺少必填字段：检查 repair 请求是否携带完整目标 schema。只把解析错误和损坏文本交给模型，会让修复退化成猜测返回结构。
-- `expected string, received number` 如果集中出现在状态抽取字段，通常不是模型理解偏差，而是 schema 将“可读状态文本”和“可计算数值”混在同一个字段里。处理顺序应是：明确 prompt 输出合同，给结构化示例，在 schema preprocess 中保留语义并转成字符串；不要要求 LLM 为每一个数值字段单独 repair。
-- Prompt Catalog 缺上下文预览：补 `contextRequirements`，不要让预览临时查数据库。
-- Prompt Workbench 预览提示缺少 required context：先检查该 group 是否注册在默认 Context Broker，以及 Workbench 样本是否通过 `extraContextBlocks` 提供了手动预览所需的示例块；不要通过放宽 required context 或让用户手动关闭缺失项来掩盖契约缺口。
-- Prompt Workbench 测试产出失败：先判断是模型配置不可用、上下文缺失、结构化 schema 校验失败，还是草稿模板编译失败。不要因为测试入口报错就退回直接调用裸 LLM；修复方向应仍然落在模型路由、Context Broker、PromptAsset schema、slot/template 草稿或 repair/semantic retry 合同上。
-- `novel.chapter.writer` 预览缺少 `book_contract`、`chapter_mission`、`timeline_context`、`previous_chapter_hook`、`character_hard_facts`、`obligation_contract`、`volume_window`、`participant_subset`、`local_state` 或 `style_contract`：优先检查 Workbench 是否为所选小说章节装配了 `metadata.chapterWriteContext`，而不是删 required group、改前端标签或用示例 `promptInput` 冒充运行时上下文。
-- Prompt Workbench 恢复官方默认后仍使用全局坏值：检查本书层是否写入了 `official_default`，以及运行时解析是否仍按“本书 > 全局 > 官方默认”的顺序合并。
-- Reconcile 面板一直提示同一个槽位漂移：检查用户是否选择了“保留我的设置”并更新 `baseHash`，或选择了“恢复官方当前版”并清除了旧覆盖 / 写入了 `official_default`。
-- 正文写作高级模板预览失败并提示未知 token：检查模板中是否存在未通过 `@` 菜单插入的 `{{...}}`，尤其是拼错的 context group、运行变量或 slot key。修复模板 token，而不是在后端新增别名绕过校验。
-- 启用高级模板后真实生成缺少关键上下文：先看预览 diagnostics 中“显式上下文”和“保底追加”列表；如果 required group 没有出现，检查 Context Broker / Workbench `chapterWriteContext` 装配，而不是让用户手写上下文正文。
-- 意图识别漏判：修 PromptAsset、输入上下文、schema 或工具目录，不加关键词路由。
-- 角色阵容看起来没有承接身份、题材或隐藏真相：先查角色准备 PromptAsset、上下文块和结构化输出，不加本地正则抽取身份，不用关键词判断候选能否自动应用。
-- 单个 PromptAsset 的 repair 或 semantic retry 频率异常升高：先查看 prompt quality telemetry 中的 promptId/version、上下文块、输出空率和失败分类，再判断是 schema 合同、上下文污染、模型路由还是 prompt 文案问题。
+- Model JSON is unstable: check schema, provider JSON capability, and repair policy first. Do not add local parsing in a business service.
+- The model request takes a long time and final `content` is empty: first look at response length, model name, and thinking-mode parameters in the LLM session log. If the raw response is empty, do not misread a later `{}` repair error as a missing field. Check whether that model needs thinking turned off, and confirm the empty response was classified as a model-call failure rather than JSON repair.
+- The same prompt frequently enters JSON repair: check whether original field values in the log came from non-schema values in context or examples. If the model only reused an alias that appeared in the prompt, fix the prompt/schema contract first. If the output is semantically complete but field names are common aliases, normalize at the PromptAsset schema layer instead of letting the background task retry forever.
+- When critical-path repair rate rises, also check whether the contract is carrying both far-horizon planning and current execution. If many failures concentrate in deep arrays, cross-volume chapters, or non-opening character fields, shrink the current PromptAsset’s duty and output window. Do not hide an oversized structural contract by adding more repair attempts.
+- Raw output is long, the tail repeats characters or garbage, and errors include “complete JSON value not detected”, control characters, or a missing closing brace: prefer output-budget runaway or model degeneration. Tighten field and array bounds, compress input context, and set an output limit that matches the task scale. Do not add more repair rounds.
+- Short creative candidates become format-correct after repair but suddenly leave the user’s genre or advancement mode: check whether repair only received the damaged output and JSON Schema. If the original task depends on strong business context, disable generic content repair for that PromptAsset and regenerate once with original context, controlled temperature, and the same output contract.
+- Legal JSON always fails at the same `schemaPath`: first check whether prompt examples, enum notes, and schema contradict each other. If the bad value came straight from context, fix the context-contract contamination.
+- Raw JSON cannot parse, and repair then concentrates on missing required fields: check whether the repair request carried the complete target schema. Giving the model only the parse error and damaged text makes repair degenerate into guessing the return shape.
+- `expected string, received number` concentrated on state-extraction fields is usually not a model-understanding miss. The schema mixed “readable state text” and “computable number” in one field. The order should be: make the prompt output contract explicit, give structured examples, and keep semantics while converting to string in schema preprocess. Do not ask the LLM to repair every numeric field one by one.
+- Prompt Catalog lacks a context preview: fill `contextRequirements`. Do not let preview query the database ad hoc.
+- Prompt Workbench preview says required context is missing: first check whether that group is registered on the default Context Broker, and whether the Workbench sample provided the example blocks needed for a manual preview through `extraContextBlocks`. Do not hide a contract gap by relaxing required context or letting the user turn missing items off.
+- Prompt Workbench test output fails: first decide whether model configuration is unavailable, context is missing, structured schema validation failed, or the draft template failed to compile. Do not fall back to calling a raw LLM because the test entry errored. The fix still belongs on model routing, Context Broker, PromptAsset schema, slot/template drafts, or the repair/semantic-retry contract.
+- `novel.chapter.writer` preview is missing `book_contract`, `chapter_mission`, `timeline_context`, `previous_chapter_hook`, `character_hard_facts`, `obligation_contract`, `volume_window`, `participant_subset`, `local_state`, or `style_contract`: first check whether Workbench assembled `metadata.chapterWriteContext` for the selected novel chapter. Do not delete the required group, change frontend labels, or pretend sample `promptInput` is runtime context.
+- Prompt Workbench still uses a damaged global value after restoring official default: check whether this-book layer wrote `official_default`, and whether runtime resolution still merges in this-book > global > official-default order.
+- The Reconcile panel keeps reporting the same slot drift: check whether the user chose “keep my settings” and updated `baseHash`, or chose “restore official current version” and cleared the old override / wrote `official_default`.
+- Prose-writing advanced-template preview fails with an unknown token: check whether the template contains `{{...}}` that was not inserted through the `@` menu, especially a mistyped context group, runtime variable, or slot key. Fix the template token. Do not add a backend alias to bypass validation.
+- Real generation lacks key context after enabling an advanced template: first look at the “explicit context” and “fallback append” lists in preview diagnostics. If a required group is absent, check Context Broker / Workbench `chapterWriteContext` assembly. Do not let the user hand-write context body.
+- Intent recognition misses: fix the PromptAsset, input context, schema, or tool catalog. Do not add keyword routing.
+- The character cast looks as if it did not continue identity, genre, or a hidden truth: first inspect the character-prep PromptAsset, context blocks, and structured output. Do not extract identity with local regex, and do not use keywords to decide whether a candidate can auto-apply.
+- Repair or semantic-retry frequency for one PromptAsset rises abnormally: first inspect promptId/version, context blocks, empty-output rate, and failure classification in prompt quality telemetry, then decide whether the issue is schema contract, context contamination, model routing, or prompt copy.
 
-## 相关模块
+## Related Modules
 
 - `server/src/prompting/`
 - `server/src/prompting/core/promptRunner.ts`
@@ -135,22 +135,22 @@
 - `server/src/agents/`
 - `server/src/creativeHub/`
 
-## 来源文档
+## Source Documents
 
 - [Prompting Registry](../../../server/src/prompting/README.md)
-- [平台写法配置与正文 Prompt 可编辑合同](./platform-writing-profiles.md)
+- [Platform writing profiles and the editable prose-prompt contract](./platform-writing-profiles.md)
 - [Prompt Governance Audit 2026-05-08](../../checkpoints/prompt-governance-audit-2026-05-08.md)
-- [提示词工作台、上下文装配与统一步骤运行时方案](../../plans/prompt-workbench-context-and-step-runtime-plan.md)
+- [Prompt workbench, context assembly, and unified step-runtime plan](../../plans/prompt-workbench-context-and-step-runtime-plan.md)
 - [LLM Schema Refactor Checkpoint](../../checkpoints/llm-schema-refactor-checkpoint.md)
 
-## 紧凑篇幅与结局 Prompt
+## Compact length and ending prompts
 
-`novel.compact_book.structure@v1` 负责三段式结构和结局合同，`novel.compact_book.ending_audit@v1` 负责判断结局合同是否完成。两者都必须注册在 Prompt Registry，并使用结构化 Schema；运行时只用数值章节预算做确定性边界，不用关键词推断结局。
+`novel.compact_book.structure@v1` owns three-act structure and the ending contract. `novel.compact_book.ending_audit@v1` judges whether the ending contract is complete. Both must be registered in the Prompt Registry and use a structured schema. Runtime uses numeric chapter budget only as a deterministic bound. It does not infer an ending from keywords.
 
-终章正文继续复用 `novel.chapter.writer`，由章节上下文携带终章合同；结构化章节列表在全书终章场景下禁止创建下一主线。结局审校把“可追加收尾”和“必须重规划”区分开，普通文风质量债不得升级成全局失败。
+Final-chapter prose still reuses `novel.chapter.writer`, with the ending contract carried in chapter context. A structured chapter list in a whole-book final-chapter scene must not create the next main line. Ending review distinguishes “appendable close” from “must replan”. Ordinary style quality debt must not be promoted to a global failure.
 
-## 自动导演风险评估 Prompt
+## Auto-Director risk-assessment prompt
 
-`director.risk.assessment@v1` 是自动导演异常评分的唯一产品级入口。它接收已结构化的问题、审校结果、重规划建议和任务上下文，返回 1–10 分、类别、影响范围、证据、建议和 `canPause`。评分必须同时覆盖正文可用性、邻章/全书影响、数据与状态风险、可恢复性、用户内容保护和继续生成风险。
+`director.risk.assessment@v1` is the only product-level entry for Auto-Director exception scoring. It receives already-structured problems, review results, replan advice, and task context, and returns a 1–10 score, category, impact range, evidence, advice, and `canPause`. Scoring must cover prose usability, neighbor-chapter / whole-book impact, data and state risk, recoverability, user-content protection, and continued-generation risk together.
 
-运行时只负责确定性安全后处理：运行时安全、数据完整性和明确的全局停止条件统一升为 10 分；章节局部质量债强制禁止暂停。不要在服务层以关键词或正则解释异常、推断风险等级或增加旁路 Prompt；需要改变语义时，应修改该 PromptAsset 的 schema、上下文或指令并保持 Registry 注册。
+Runtime only does deterministic safety post-processing: runtime safety, data integrity, and explicit global-stop conditions unify to score 10; chapter-local quality debt is forced not to pause. Do not interpret exceptions, infer risk level, or add a bypass prompt in the service layer with keywords or regex. To change semantics, edit that PromptAsset’s schema, context, or instructions and keep it Registry-registered.

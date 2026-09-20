@@ -1,58 +1,58 @@
-# 热门题材雷达与自动导演市场简报
+# Market Radar and Auto-Director market brief
 
 ## Background
 
-新手作者很难把“最近什么题材受欢迎”转换成可执行的主角、金手指、开局和标题方案。让用户自行浏览榜单会增加判断负担；把榜单作品直接交给生成模型又容易造成照搬、来源不清和平台差异被抹平。市场雷达负责把公开榜单元数据转换成可追溯的市场信号，并在自动导演第一次生成前形成创作简报。
+Beginner authors have a hard time turning "what genres are popular lately" into an executable protagonist, cheat, opening, and title plan. Letting users browse charts themselves raises judgment load. Handing ranked works straight to a generation model makes copying easy, sources unclear, and platform differences get flattened. Market Radar turns public chart metadata into traceable market signals and forms a creation brief before Auto-Director's first generation.
 
 ## Decision
 
-市场雷达是显式触发的创作前置分析入口，不是质量复审，也不是自动导演的新运行阶段。它不拥有一套独立的题材与推进模式分类：AI 分析只生成可复用的创作基础候选，用户确认后才解析到统一的题材基底库和推进模式库。进入页面先自动启动公开榜单采集并展示事实数据，这一步不得调用 LLM；只有用户明确点击“开始AI分析”后，才执行题材聚类、套路识别、拥挤度、机会判断和创作基础推荐。用户选定分析信号后生成持久化 `MarketCreativeBrief`，自动导演只接收简报 ID，并由服务端解析可信 Prompt 块与资源引用。
+Market Radar is an explicitly triggered pre-creation analysis entry. It is not a quality review and not a new Auto-Director runtime stage. It does not own a separate genre or propulsion-mode taxonomy: AI analysis only produces reusable production-foundation candidates. After the user confirms, those candidates resolve into the shared genre-base library and propulsion-mode library. Entering the page auto-starts public chart collection and shows factual data. That step must not call an LLM. Only after the user explicitly clicks Start AI analysis does clustering, trope recognition, crowding, opportunity judgment, and production-foundation recommendation run. After the user selects analysis signals, a persisted `MarketCreativeBrief` is created. Auto-Director receives only the brief ID. The server resolves trusted prompt blocks and resource references.
 
 ## Current Rule
 
-### 当前启用边界
+### Current enablement boundary
 
-市场雷达暂时关闭，直到接入适合格鲁吉亚语创作或可解释的国际来源。服务端 `MARKET_RADAR_ENABLED` 是最终权限边界，默认关闭；客户端 `VITE_MARKET_RADAR_ENABLED` 只负责隐藏入口和展示停用说明，不能单独开启服务端能力。关闭期间不得启动扫榜恢复任务，所有雷达 API 统一返回 `503`，携带非空 `marketBriefId` 的自动导演请求在读取数据库或调用模型前返回 `400`。普通自动导演流程必须在没有市场简报时完整运行。
+Market Radar is temporarily off until a Georgian-suitable or otherwise explainable international source is connected. Server `MARKET_RADAR_ENABLED` is the final permission boundary and defaults off. Client `VITE_MARKET_RADAR_ENABLED` only hides the entry and shows a disabled explanation; it cannot enable server capability on its own. While off, do not start chart-scan recovery jobs. All radar APIs return `503`. Auto-Director requests that carry a non-empty `marketBriefId` return `400` before reading the database or calling a model. Ordinary Auto-Director must run fully without a market brief.
 
-停用是可逆的能力开关，不是模块删除。来源适配器、持久化结构、共享类型和雷达 Prompt 保持原样；恢复前必须重新评估来源合规性、语言适配和推荐质量，并同时开启前后端开关。
+Disablement is a reversible capability switch, not a module deletion. Source adapters, persistence, shared types, and radar Prompts stay in place. Before turning it back on, re-evaluate source compliance, language fit, and recommendation quality, and enable frontend and backend switches together.
 
-- 首批来源为番茄阅读榜 / 新书榜、起点畅销榜 / 月票榜 / 新书榜、晋江月度榜 / 季度榜 / 新晋作者榜。采集器只读取每个来源配置的单个公开页面，并最多保留成功识别的前 30 项元数据；该数量不是平台全榜或全部分页数据。页面必须明确展示“本次识别条数”和 30 条上限，不能使用“完整榜单”描述当前快照。
-- 允许采集排名、书名、作者、分类、公开标签、简介、公开热度、连载状态和来源链接；禁止采集章节正文、付费内容、登录态数据和用户数据。
-- 同一本书在同一平台多榜出现时，AI 输入会合并作品并保留全部上榜证据；数据库仍保存每次榜单出现，便于历史比较。
-- 页面进入时自动发起一次扫榜，采集结果按平台和榜单展示排名、书名、作者及分类；桌面页面应横向自适应可用空间，榜单卡片使用统一高度并在卡片内滚动查看本次成功识别的全部记录，避免榜单条数差异形成参差过长的页面。AI 分析范围和主操作必须位于原始榜单列表之前。分析完成后应直接定位结果，原始记录继续作为可回看的证据层。
-- 用户可以在 AI 调用前按作品选择分析范围，整榜全选或取消全选入口归属于对应榜单卡片，不在页面顶部重复罗列榜单快捷项。默认选择仍遵循新书信号优先：平台存在可用新书榜或晋江新晋作者榜时默认选择这些榜单内的作品；缺失时默认选择该平台成熟榜单内的作品。最终分析必须只消费本次明确选择的作品 ID，并校验作品属于本次成功快照。旧客户端只提交榜单范围或未提交范围时，服务端继续兼容榜单选择和默认规则。
-- 番茄排行榜使用私有字体保护部分文字。采集器必须从对应公开作品详情页校正标题、作者与简介，并在写入快照前拒绝仍含私有区字符的字段；不得把混淆字形交给 AI 猜测。
-- 扫榜和 AI 分析共用同一个持久化任务，但必须是两个独立阶段：`collectRankings` 完成后进入待分析状态，`analyzeRankings` 只能由显式分析请求触发。禁止在页面进入或采集完成回调中自动调用 LLM。
-- 单个榜单失败只形成平台警告，其他来源继续；全部来源失败时不得开放 AI 分析。应用重启后，未完成的采集或分析任务标为 `interrupted`，保留已有快照供重新扫榜或分析。
-- 30 分钟内相同平台组合复用现有任务；报告保留采集时间，超过 24 小时仍可查看，但界面应允许用户主动刷新。
-- 没有同平台同榜历史快照时，AI 只能标记“当前高频”；存在可比较快照后，才允许使用升温、稳定或降温。
-- 跨平台分析必须通过结构化 `productionFoundation` 同时给出一个题材基底、一个主要推进模式和可选的辅助推进模式。推进模式必须包含完整可复用的驱动力、读者回报、节奏、升级机制与写作约束，不能只保存一次性趋势标签。
-- AI 优先从本次提供的统一资源目录选择 `existingId`。候选引用仍存在时，界面直接显示“库中已有”并提供定位入口，不得显示加入成功或制造重复资源；只有 AI 判断没有等价资产时，才提供手动加入操作。写入前还要按规范化名称复用已有项，避免重复确认制造同名资产。
-- 题材基底与推进模式分别确认、分别记录真实资源 ID。只有服务端复用或创建成功后，界面才能显示“查看资源库”；资源库入口必须携带资源 ID 并定位到对应节点。
-- 历史自动同步报告不得把已有资源冒充为本次新增。引用仍存在时显示“库中已有”并定位原节点；资源已不存在时要求重新分析，不用残缺信息补造资产。
-- 市场信号卡只负责选择本次开书偏好，不提供逐条入库按钮，避免把标题句式、拥挤套路等非资源结论误建为长期资产。
-- 默认创作选择为一项差异化机会加最多三项支撑信号，用户最多选择五项。默认影响模式是“热门中求差异”。
-- 市场简报必须禁止复用榜单作品的人名、专有设定、简介表达和完整书名，只保留读者满足点、爽点机制和结构机会。
-- 市场简报根据用户最终选择的信号再次解析统一资源，并把资源 ID 与信号一起持久化。历史简报仍兼容原有信号数组，缺少 `productionFoundation` 时按普通开书流程继续。
-- `marketBriefId` 进入开书页后，界面直接展示雷达推荐的题材基底、主要推进和辅助推进，并只补充尚未选择的字段；用户已经手动选择的创作基础不得被异步简报覆盖。
-- `marketBriefId` 同时进入开书灵感、故事星图、整书方向和书名生成；市场简报不可阻塞没有市场数据的普通开书流程。
+- First sources are Fanqie ranking / new-book charts, Qidian bestsellers / monthly-ticket / new-book charts, and Jinjiang monthly / quarterly / new-author charts. Collectors read only the single public page configured per source and keep at most the first 30 successfully recognized metadata items. That count is not a full platform chart or all paginated data. The page must show "items recognized this run" and the 30-item cap. Do not describe the current snapshot as a "complete chart".
+- Allowed collection: rank, title, author, category, public tags, synopsis, public heat, serialization status, and source link. Forbidden: chapter prose, paid content, login-state data, and user data.
+- When the same book appears on multiple charts of the same platform, AI input merges the work and keeps all ranking evidence. The database still stores each chart appearance for historical comparison.
+- Entering the page auto-starts one scan. Collection results show rank, title, author, and category by platform and chart. Desktop layout should use available width; chart cards share a unified height and scroll inside the card to show every successfully recognized record, so differing item counts do not make a jagged, overly long page. AI analysis scope and primary actions must sit above the raw chart list. After analysis, jump to results; raw records remain a reviewable evidence layer.
+- Before the AI call, the user can choose analysis scope by work. Select-all / clear-all for a whole chart belongs on that chart card, not as duplicated chart shortcuts at the page top. Default selection still prefers new-book signals: if a platform has a usable new-book chart or Jinjiang new-author chart, default-select works on those charts; otherwise default-select works on that platform's mature charts. Final analysis must consume only the work IDs explicitly chosen this run, and must validate that they belong to this successful snapshot. Old clients that submit only chart scope or omit scope stay compatible with chart selection and the default rule on the server.
+- Fanqie ranking pages protect some text with a private font. The collector must correct title, author, and synopsis from the matching public work-detail page, and must reject fields that still contain private-use characters before writing the snapshot. Do not hand obfuscated glyphs to the AI to guess.
+- Scan and AI analysis share one persisted task, but they must be two independent stages: after `collectRankings` the task enters awaiting-analysis; `analyzeRankings` can only be triggered by an explicit analysis request. Do not auto-call an LLM on page enter or on collection-complete callback.
+- Failure of a single chart is a platform warning; other sources continue. If every source fails, do not open AI analysis. After app restart, unfinished collect or analyze tasks are marked `interrupted`, keeping existing snapshots for a new scan or analysis.
+- Within 30 minutes, the same platform combination reuses the existing task. Reports keep the collection time. After 24 hours they remain viewable, but the UI should let the user refresh.
+- Without a same-platform same-chart historical snapshot, AI may only mark "currently frequent". Warming, stable, or cooling are allowed only after a comparable snapshot exists.
+- Cross-platform analysis must supply, through structured `productionFoundation`, one genre base, one primary propulsion mode, and an optional secondary propulsion mode. A propulsion mode must include reusable drive, reader reward, pacing, escalation, and writing constraints. Do not persist a one-off trend label alone.
+- AI should prefer `existingId` from the unified resource catalog supplied this run. When the candidate reference still exists, the UI shows "already in library" and a locate entry. Do not show a successful add or create a duplicate. Only when AI judges there is no equivalent asset should a manual add be offered. Before write, also reuse existing items by normalized name so repeated confirms do not create same-named assets.
+- Genre base and propulsion mode are confirmed separately and each records a real resource ID. The UI may show "view library" only after the server reused or created successfully. Library entries must carry the resource ID and locate the matching node.
+- Historical auto-sync reports must not present existing resources as newly added this run. If the reference still exists, show "already in library" and locate the original node. If the resource is gone, require re-analysis; do not fabricate assets from incomplete information.
+- Market-signal cards only choose opening preferences for this run. They do not offer per-item ingest buttons, so title patterns, crowded tropes, and other non-resource conclusions are not mistaken for long-lived assets.
+- Default creation selection is one differentiated opportunity plus at most three supporting signals. The user may select at most five. Default influence mode is "differentiate inside the popular set".
+- The market brief must forbid reusing ranked works' character names, proprietary setting, synopsis wording, and complete titles. Keep only reader satisfaction, payoff mechanics, and structural opportunity.
+- The market brief resolves unified resources again from the user's final selected signals, and persists resource IDs together with the signals. Historical briefs stay compatible with the original signal array. Missing `productionFoundation` continues as an ordinary opening flow.
+- After `marketBriefId` enters the opening page, the UI shows the radar-recommended genre base, primary propulsion, and secondary propulsion, and only fills fields not yet chosen. Production foundation the user already chose manually must not be overwritten by an async brief.
+- `marketBriefId` also enters opening inspiration, idea constellation, whole-book direction, and title generation. A market brief must not block ordinary opening that has no market data.
 
 ## Failure Modes
 
-- 平台页面结构变化导致零条目：将对应来源标为失败并显示来源错误，不用固定题材词库伪造分析结果。
-- 历史不足却出现“升温 / 退潮”：检查跨平台 Prompt 的 `hasComparableHistory` 与语义校验。
-- 市场简报在故事星图有效但方向或书名丢失：检查自动导演任务种子是否保留 `marketBriefId`，以及候选阶段是否在服务端解析 Prompt 块。
-- 页面直接提交 Prompt 文本：拒绝该路径。客户端只能提交简报 ID，避免未验证文本进入核心生成上下文。
-- 某一平台失效导致整次扫榜失败：检查平台级隔离；只有所有来源都无可用条目时才能终止分析。
-- 进入市场雷达页面就产生模型调用：检查页面是否只调用 `/scans`，以及采集服务是否错误地直接调用 `analyzeRankings`；AI 只能由 `/scans/:id/analysis` 触发。
-- 采集完成却长期显示 60%：检查采集和分析是否仍共用旧总进度。每个独立阶段完成时进度都必须到 100%，开始 AI 分析后再建立新的阶段进度。
-- 后端已是 `ready / 100%` 但页面仍显示“正在获取”：任务详情一旦加载，界面必须以任务状态为权威，不能让启动请求的 mutation 状态覆盖已完成任务；请求状态只适用于尚未取得任务详情的短暂阶段。
-- 番茄标题出现私有区符号或错字：检查榜单详情校正是否成功；含混淆字符的历史快照不得命中 30 分钟复用保护，应重新采集生成新快照。
-- 页面条数被误解为完整榜单：检查界面是否同时说明“单个公开页面”“本次成功识别”和“每榜最多 30 条”；采集器未实现分页遍历时不得承诺全量。
-- 雷达反复分析后资源库出现同名资产：检查 AI 是否复用目录 `existingId`，以及服务端写入前的规范化名称匹配；不要用关键词分支推断题材归属。
-- 页面显示“已加入”但资源库无法定位：检查 `productionFoundationSync` 是否由成功的手动加入请求写入，以及资源库链接是否携带真实节点 ID；不能根据候选或历史 `productionFoundation` 推断已加入。
-- 新建成功后资源库仍显示旧目录：检查加入成功回调是否失效对应的题材或推进模式查询缓存；不能只刷新雷达报告。
-- 用户手动选择被简报替换：检查创建页是否使用“只补空缺字段”的合并规则；市场推荐是默认值，不是强制覆盖。
+- Platform page structure change yields zero items: mark that source failed and show a source error. Do not fabricate analysis from a fixed genre word list.
+- Warming / cooling appears without enough history: check the cross-platform Prompt's `hasComparableHistory` and semantic validation.
+- Market brief works in idea constellation but direction or title is lost: check whether the Auto-Director task seed kept `marketBriefId`, and whether candidate stages resolve prompt blocks on the server.
+- The page submits prompt text directly: reject that path. The client may submit only a brief ID, so unverified text does not enter core generation context.
+- One platform failing collapses the whole scan: check platform isolation. Analysis may stop only when every source has no usable items.
+- Entering Market Radar already produces a model call: check whether the page only calls `/scans`, and whether the collector wrongly calls `analyzeRankings` directly. AI may be triggered only by `/scans/:id/analysis`.
+- Collection finished but the UI stays at 60%: check whether collect and analyze still share an old overall progress. Each independent stage must reach 100% when it finishes, then start a new stage progress for AI analysis.
+- Backend is already `ready / 100%` but the page still shows "fetching": once task detail is loaded, UI must treat task status as authority. A start-request mutation must not overwrite a finished task. Request state applies only to the short period before task detail exists.
+- Fanqie titles contain private-use symbols or wrong glyphs: check whether ranking-detail correction succeeded. Historical snapshots that still contain obfuscated characters must not hit the 30-minute reuse protection; recapture a new snapshot.
+- Page item count is read as a complete chart: check whether the UI states "single public page", "successfully recognized this run", and "at most 30 per chart" together. Collectors that do not paginate must not promise a full dump.
+- Repeated radar analysis creates same-named assets in the library: check whether AI reused catalog `existingId`, and whether the server matched normalized names before write. Do not infer genre ownership with keyword branches.
+- UI shows "added" but the library cannot locate it: check whether `productionFoundationSync` was written by a successful manual-add request, and whether the library link carries a real node ID. Do not infer "added" from a candidate or historical `productionFoundation`.
+- After a successful create the library still shows the old catalog: check whether the add-success callback invalidated the matching genre or propulsion-mode query cache. Do not refresh only the radar report.
+- User manual selection is replaced by the brief: check whether the create page uses a fill-empty-fields-only merge. Market recommendations are defaults, not forced overwrites.
 
 ## Related Modules
 
@@ -64,5 +64,5 @@
 
 ## Source Documents
 
-- [自动导演故事星图](./auto-director-idea-constellation.md)
-- [Prompt Registry 与结构化输出](../prompts/prompt-registry-and-structured-output.md)
+- [Auto-Director idea constellation](./auto-director-idea-constellation.md)
+- [Prompt Registry and structured output](../prompts/prompt-registry-and-structured-output.md)

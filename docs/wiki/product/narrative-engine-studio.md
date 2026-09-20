@@ -1,197 +1,197 @@
-# 叙事引擎工作台长期蓝图
+# Narrative Engine Studio long-term blueprint
 
 ## Background
 
-当前项目已经不只是“提示词生成正文”的写作工具。自动导演、世界手册、角色系统、角色资源账本、时间线、伏笔、章节任务、质量债务和 Prompt Workbench，实际都在围绕同一个底层目标积累能力：让一部长篇小说拥有可持续运行的叙事状态。
+This project is already more than a writing tool that “prompts a model into prose”. Auto-Director, the world handbook, the character system, the character resource ledger, timeline, setups, chapter missions, quality debt, and Prompt Workbench are all accumulating around one underlying goal: giving a long novel a narrative state that can keep running.
 
-用户提出的长期想法是：把小说创作主链逐步发展成类似游戏管理平台或游戏编辑器的形态。世界、角色、资源、势力和事件不只是章节生成前的文本资料，而是可以被观察、交互、推演和经营的叙事资产。正文生成是这些资产在某个时间点、某个视角下的叙事渲染结果。
+The long-term idea from users is to grow the novel-creation main chain toward a game-management platform or game-editor shape. World, characters, resources, factions, and events are not only text materials before chapter generation. They are narrative assets that can be observed, interacted with, simulated, and operated. Prose generation is the narrative rendering of those assets at a time and from a point of view.
 
 ## Decision
 
-项目长期产品方向可以抽象为 **Narrative Engine Studio / 叙事引擎工作台**。
+The project’s long-term product direction can be abstracted as **Narrative Engine Studio**.
 
-核心判断：
+Core judgment:
 
-> 小说不是被一次性写出来的，而是从持续运行的叙事世界中被渲染出来的。
+> A novel is not written once. It is rendered from a continuously running narrative world.
 
-因此，系统应逐步从“文档生成器”升级为“AI 驱动的叙事世界运营系统”。章节正文仍然是第一目标，但世界、角色、势力、资源、事件和读者可见文本之间应形成更稳定的因果链。
+The system should therefore move from a document generator toward an AI-driven narrative-world operations system. Chapter prose remains the first goal, but world, characters, factions, resources, events, and reader-visible text should form a more stable causal chain.
 
-这不是短期要开发的互动游戏，也不是把主线改成玩家游玩模式。第一阶段仍服务长篇小说完成率，只是在产品心智和资产模型上为未来的游戏编辑器式创作台、角色交互、多世界观衍生和 IP 宇宙管理留出方向。
+This is not a short-term interactive game, and it does not turn the main line into player-play mode. Phase one still serves long-novel completion rate. It only leaves room, in product mind and asset model, for a future game-editor creation desk, character interaction, multi-world derivatives, and IP-universe management.
 
 ## Product Thesis
 
-传统写作工具的主链通常是：
+A traditional writing tool’s main chain is usually:
 
 ```text
-大纲 -> 章节 -> 正文
+outline -> chapter -> prose
 ```
 
-叙事引擎工作台的主链更接近：
+Narrative Engine Studio’s main chain is closer to:
 
 ```text
-世界状态 -> 角色状态 -> 势力状态 -> 事件推进 -> 章节表现 -> 状态回灌
+world state -> character state -> faction state -> event advance -> chapter expression -> state feedback
 ```
 
-在这个模型中：
+In this model:
 
-- 世界是底层规则和空间。
-- 角色是带动机、资源、关系和认知边界的行动主体。
-- 势力是长期压力源和资源分配结构。
-- 事件是状态变化。
-- 章节是某次状态变化的叙事呈现。
-- 正文是最终给读者阅读的渲染结果。
+- The world is underlying rules and space.
+- Characters are acting subjects with motive, resources, relations, and cognitive bounds.
+- Factions are long-term pressure sources and resource-allocation structures.
+- Events are state changes.
+- A chapter is the narrative presentation of one state change.
+- Prose is the final render the reader reads.
 
 ## World Layer
 
-世界层不应只停留在“世界观文本”。长期方向是把世界具现为可阅读、可视化、可推演的叙事空间。
+The world layer should not stay as “world-view text”. The long-term direction is to make the world a readable, visual, simulatable narrative space.
 
-世界资产可以包括：
+World assets can include:
 
-- 世界地图：区域、地点、路线、危险区、资源区、势力边界。
-- 势力地图：组织、阵营、家族、宗门、公司、国家、基地或社群。
-- 势力关系图：同盟、敌对、附庸、渗透、交易、背叛、暂时合作。
-- 资源分布：灵石、军火、粮食、情报、异能晶核、神秘遗物、政治筹码。
-- 世界规则：能力体系、经济规则、权力规则、社会禁忌、灾变机制、代价系统。
-- 世界事件：战争、灾害、政变、秘境开启、市场崩盘、尸潮迁徙、技术突破。
+- World map: regions, locations, routes, danger zones, resource zones, faction borders.
+- Faction map: organizations, camps, families, sects, companies, nations, bases, or communities.
+- Faction relation graph: alliance, hostility, vassalage, infiltration, trade, betrayal, temporary cooperation.
+- Resource distribution: spirit stones, arms, grain, intelligence, power cores, relics, political chips.
+- World rules: ability system, economic rules, power rules, social taboos, disaster mechanics, cost system.
+- World events: war, disaster, coup, secret-realm opening, market crash, corpse-tide migration, technology breakthrough.
 
-世界资产的目标不是让新手先填复杂设定，而是帮助用户“看见世界如何运行”。地图和图谱应优先服务理解与生成链约束，不应变成新手必须维护的复杂编辑器。
+The goal of world assets is not to make beginners fill complex setting first. It is to help users see how the world runs. Maps and graphs should serve understanding and generation-chain constraints. They should not become a complex editor beginners must maintain.
 
 ## Character Layer
 
-角色不应只是资料卡。长期方向是把角色逐步升级为半自治叙事 actor。
+Characters should not stay as dossiers. The long-term direction is to grow them into semi-autonomous narrative actors.
 
-角色资产可以分层：
+Character assets can layer as:
 
-- 公开档案：姓名、身份、外貌、阵营、关系、出场章节。
-- 内在驱动：欲望、恐惧、底线、执念、秘密、未说出口的判断。
-- 当前处境：地点、资源、伤势、任务、压力、掌握信息。
-- 思路线：角色正在误判什么、怀疑什么、想隐瞒什么、打算做什么。
-- 情绪曲线：对主角、势力、事件和自我目标的态度变化。
-- 行动倾向：遇到压力时进攻、交易、逃避、伪装、背叛、牺牲或求助。
-- 交互记忆：用户与角色对话后留下的理解、暗示、承诺或影响。
+- Public dossier: name, identity, appearance, camp, relations, appearance chapters.
+- Inner drive: desire, fear, bottom line, obsession, secrets, unspoken judgments.
+- Current situation: location, resources, injury, mission, pressure, known information.
+- Thought line: what the character is misjudging, suspecting, hiding, and planning to do.
+- Emotion curve: attitude change toward the protagonist, factions, events, and self-goals.
+- Action tendency: attack, trade, flee, disguise, betray, sacrifice, or ask for help under pressure.
+- Interaction memory: understanding, hints, promises, or influence left after the user talks with the character.
 
-用户与角色对话不应被设计成泛聊天，而应服务“理解角色”和“影响角色”。例如用户向角色追问是否信任主角，角色回答中暴露怀疑；系统可以把这次对话沉淀为角色内心倾向证据，后续章节在不破坏主线的前提下参考这种变化。
+User–character dialogue should not be designed as general chat. It should serve “understand the character” and “affect the character”. For example, the user asks whether the character trusts the protagonist; the answer exposes doubt; the system can settle that dialogue as evidence of inner tendency, and later chapters may reference the change without breaking the main line.
 
-角色对话应复用同一套主体协议：小说角色拥有当前叙事状态与有限章节影响能力，基础角色库只提供稳定人格访谈，拆书角色只能在选定章节锚点内依据原文证据回答。统一的是交互与溯源，不能因此合并不同来源的事实与记忆。
+Character dialogue should reuse one subject protocol: novel characters have current narrative state and limited chapter influence; the base character library only offers stable-personality interviews; book-analysis characters may answer only inside a selected chapter anchor from original-text evidence. What is unified is interaction and provenance. Facts and memory from different sources must not be merged.
 
-### 当前落地：角色思路线 MVP
+### Current landing: character thought-line MVP
 
-角色资产控制台已落地首个可运行的“思路线”层：阵容确认后准备角色当前理解、私下意图、行动计划、情绪立场、行动倾向、判断与误判，并保留证据、置信度和来源。它是非正史的 AI 推断快照；章节正文仅把本章参与角色的紧凑思路线作为软性行为引导，身份、阵营、资源、位置和已发生事件仍由正史状态层约束。
+The character-asset console already landed the first runnable thought-line layer: after the cast is confirmed, it prepares the character’s current understanding, private intent, action plan, emotional stance, action tendency, judgments and misjudgments, and keeps evidence, confidence, and source. It is a non-canon AI inference snapshot. Chapter prose uses only a compact thought line for participating characters as a soft behavior guide. Identity, camp, resources, location, and events that already happened stay constrained by the canon state layer.
 
-章节定稿后的思路线变化由既有 `artifact_delta` 单次抽取链唯一回灌，避免增加另一条章节后置推理链。作者可在角色页刷新当前理解，但不能用自由文本直接改写该层。角色对话和关系多方案推演必须与正史确认流程保持隔离。详见[角色智能层：思路线 MVP](../workflows/character-intelligence-layer.md)。
+Thought-line change after a chapter is finalized is fed back only through the existing one-shot `artifact_delta` extraction chain, so another post-chapter reasoning chain is not added. Authors may refresh current understanding on the character page, but they cannot rewrite this layer with free text. Character dialogue and multi-option relation simulation must stay isolated from the canon-confirm flow. See [Character intelligence layer: thought-line MVP](../workflows/character-intelligence-layer.md).
 
-### 当前落地：角色对话层
+### Current landing: character dialogue layer
 
-角色智能层提供的是有边界的角色对话，不是让作者选择预设剧情。作者可直接与角色交谈；角色会依据自身处境、认知和信息边界回应，也可以拒绝、误解或反问。对话主舞台应承接消息与影响确认，思路线则作为并列的场景分析器解释角色的立场和顾虑，不能退回纵向资料表单。对话中形成的行动倾向只有在作者一键确认后，才会在有限章节窗口内作为软性引导；章节定稿仍由 `artifact_delta` 根据正文证据判断是否承接。详见[角色对话层：以角色主体性承接作者意图](../workflows/character-dialogue-layer.md)。
+The character intelligence layer offers bounded character dialogue, not a preset-plot picker. Authors can talk with the character directly. The character answers from its situation, cognition, and information boundary, and may refuse, misunderstand, or counter-ask. The dialogue main stage should carry messages and influence confirm. The thought line sits beside it as a scene analyzer for stance and concern. It must not fall back to a vertical materials form. Action tendencies formed in dialogue become a soft guide inside a limited chapter window only after the author one-click confirms. Chapter finalization still lets `artifact_delta` decide from prose evidence whether to take them up. See [Character dialogue layer: receiving author intent through character agency](../workflows/character-dialogue-layer.md).
 
 ## Main Production Surface
 
-小说主链页面长期可以从“步骤表单页”演化为“创作控制台”：
+Over time, novel main-chain pages can evolve from “step form pages” into a creation console:
 
-- 左侧：当前卷、当前章节、世界状态快照、关键角色位置、势力动态、未兑现伏笔、质量债务。
-- 中间：章节任务、场景队列、冲突推进、事件变更、正文结果。
-- 右侧：角色思路线、世界影响、势力反应、资源变化、AI 建议、用户可干预点。
-- 底部：生成、审校、修复、推演、回滚、模型状态、上下文状态和任务队列。
+- Left: current volume, current chapter, world-state snapshot, key character locations, faction dynamics, unpaid setups, quality debt.
+- Center: chapter missions, scene queue, conflict advance, event changes, prose result.
+- Right: character thought line, world impact, faction reaction, resource change, AI advice, user intervention points.
+- Bottom: generate, review, repair, simulate, roll back, model status, context status, and the task queue.
 
-这个界面方向更接近“导演台 + 世界模拟器 + 章节生产线”。它应保持主目标明确：帮助用户持续完成小说，而不是让用户迷失在过多可调参数里。
+This UI direction is closer to “director desk + world simulator + chapter production line”. It should keep a clear primary goal: help the user keep finishing the novel, not get lost in too many tunable parameters.
 
 ## Novel Workspace Module Boundaries
 
-小说主工作台不能继续按“后台字段表单”扩展。每个步骤都应对应一种可被用户理解的叙事资产，并说明它如何影响后续生成。
+The novel main workspace must not keep expanding as a backend-field form. Every step should map to a narrative asset the user can understand, and should say how it affects later generation.
 
-当前模块边界应按以下方式理解：
+Current module boundaries should be read as:
 
-- **项目设定 / 书级定位**：定义这本书面向谁、靠什么吸引读者、前期必须兑现什么。它是后续世界、角色、卷章和正文生成的上游承诺，不应只是基础信息表。
-- **故事宏观规划 / 故事引擎**：把书级承诺拆成卖点、长期对立、主线钩子、推进回路、成长路径、关键兑现点和不可破坏的结构约束。它不负责创建具体角色阵容，也不直接拆章节，而是为后续角色、卷战略和章节任务提供可执行的主线骨架。
-- **本书世界**：维护世界规则、地点、势力、资源和可注入片段。长期可延展到世界地图、势力地图和势力关系图。
-- **角色准备**：维护角色档案、关系、资源、当前处境和思路线。长期可支持作者与角色对话，但对话影响必须可审阅后再写入正史。
-- **卷战略 / 卷骨架**：把整本承诺分配到卷级节奏、压力源、阶段兑现和卷末牵引。
-- **节奏 / 拆章**：把卷级战略拆成章节任务、冲突强度、节拍和章节执行合同。
-- **章节执行**：读取书级定位、世界、角色、章节任务、时间线和风格资产，生成正文并回灌新状态。
-- **质量修复**：处理正文自然度、连续性、角色一致性、节奏和未兑现义务。它应记录质量债务，不应把所有局部问题都升级为整本阻断。
+- **Project setting / book-level positioning**: defines who this book is for, what attracts readers, and what the early chapters must deliver. It is the upstream promise for later world, character, volume/chapter, and prose generation, not only a basic-info form.
+- **Macro story planning / story engine**: splits the book-level promise into selling points, long-term opposition, main-line hooks, advancement loops, growth paths, key payoff points, and unbreakable structural constraints. It does not create a concrete character cast and does not split chapters. It gives later characters, volume strategy, and chapter missions an executable main-line skeleton.
+- **This book’s world**: maintains world rules, locations, factions, resources, and injectable slices. Long-term it can extend to world maps, faction maps, and faction relation graphs.
+- **Character prep**: maintains dossiers, relations, resources, current situation, and thought line. Long-term it can support author–character dialogue, but dialogue influence must be reviewable before it writes into canon.
+- **Volume strategy / volume skeleton**: allocates the whole-book promise across volume pacing, pressure sources, stage payoff, and end-of-volume pull.
+- **Pacing / chapter split**: splits volume strategy into chapter missions, conflict intensity, beats, and chapter execution contracts.
+- **Chapter execution**: reads book-level positioning, world, characters, chapter missions, timeline, and style assets, generates prose, and feeds new state back.
+- **Quality repair**: handles prose naturalness, continuity, character consistency, pacing, and unmet obligations. It should record quality debt. It should not promote every local issue into a whole-book stop.
 
-第一阶段 UI 改造应从“项目设定 / 书级定位”开始，因为它是所有后续资产的源头。首屏需要优先展示标题、概述、目标读者、核心卖点、商业标签、前 30 章承诺和完成度；本书世界、写法建议、续写来源、项目状态等信息应作为同页下方的资产区或高级设置逐步展开。
+Phase-one UI work should start with project setting / book-level positioning, because it is the source of every later asset. The first screen should lead with title, overview, target reader, core selling points, commercial tags, first-30-chapter promise, and completeness. This-book world, writing advice, continuation source, and project status should unfold lower on the same page as an asset area or advanced settings.
 
-第二个优先模块是“故事宏观规划 / 故事引擎”。首屏需要集中回答：故事想法是否足够、主线骨架是否生成、下一步应生成故事引擎还是构建约束引擎、哪些字段已经锁定、还有哪些冲突或缺口。高级字段、硬约束、约束引擎和故事状态应默认下沉，避免新手在没有理解主线骨架前被完整引擎字段淹没。
+The second priority module is macro story planning / story engine. The first screen should concentrate on: is the story idea enough, has the main-line skeleton been generated, should the next step generate the story engine or the constraint engine, which fields are locked, and which conflicts or gaps remain. Advanced fields, hard constraints, the constraint engine, and story state should sink by default, so beginners are not flooded with full engine fields before they understand the main-line skeleton.
 
-第三个优先模块是“角色准备 / 角色资产控制台”。角色页长期会承载档案、外显、资源、时间线、关系、思路线和角色对话，不适合继续做成长篇纵向表单。当前规则是：左侧稳定保留角色阵容导航，右侧围绕当前焦点角色做标签切换；默认先展示状态、目标、最近出场、故事作用和关键资源，完整档案、外显补全、资源账本、时间线、关系诊断和智能层预留分别进入独立标签页。这样可以降低新手第一次维护角色时的滚动和判断负担，也为后续角色思路线、对话影响记录、关系图谱留下明确入口。
+The third priority module is character prep / the character-asset console. Over time the character page will carry dossier, visible profile, resources, timeline, relations, thought line, and character dialogue. It is a poor fit as one long vertical form. The current rule: the left side stably keeps cast navigation; the right side tab-switches around the current focus character. Default to status, goals, recent appearance, story role, and key resources. Full dossier, visible-profile completion, resource ledger, timeline, relation diagnosis, and intelligence-layer reservations each get their own tab. That lowers scroll and judgment load the first time a beginner maintains characters, and it leaves a clear entry for later thought line, dialogue-influence records, and relation graphs.
 
-角色页的视觉语言也应跟随“资产控制台”定位：焦点角色需要有明确的身份面板和状态锚点；总览优先呈现运行状态、行动边界、戏剧功能和成长轨道；完整字段编辑只放在档案页。避免把所有角色信息都显示成并列输入框或普通资料卡，否则会削弱后续游戏编辑器式角色管理台的产品心智。
+The character page’s visual language should also follow an asset-console position: the focus character needs a clear identity panel and status anchors. Overview leads with operating status, action bounds, dramatic function, and growth track. Full field editing lives only on the dossier tab. Avoid showing all character information as equal input boxes or ordinary profile cards, or the later game-editor character desk will lose product mind.
 
-第四个优先模块是“卷战略 / 卷骨架”。卷战略页不应继续扩展成从卷数、战略、版本、资源到每卷字段全部顺序下排的长页面，而应像一个卷级导演控制台：顶部集中放生成、审查、保存和阶段就绪度，主体默认围绕当前卷展开。当前卷视图需要提供左侧卷导航、右侧焦点卷工作区，并把卷定位、推进压力、兑现牵引分成可扫描的编辑区；战略总览、资产约束、版本对比和影响分析应通过标签或折叠面板切换查看。这样既减少新手滚动负担，也为后续势力投入、角色资源调度、卷级地图、卷间事件推演等管理台能力留下位置。
+The fourth priority module is volume strategy / volume skeleton. The volume-strategy page should not keep expanding into one long page that stacks volume count, strategy, versions, resources, and every per-volume field in order. It should feel like a volume director console: generation, review, save, and stage readiness sit at the top; the body defaults to the current volume. The current-volume view needs left volume navigation, a right focus-volume workspace, and scannable edit regions for volume positioning, advance pressure, and payoff pull. Strategy overview, asset constraints, version compare, and impact analysis switch through tabs or collapsed panels. That reduces beginner scrolling and leaves room for later faction investment, character-resource dispatch, volume maps, and inter-volume event simulation.
 
-卷数决策不应退回“章节数除以固定每卷章数”的机械公式。系统应先根据篇幅给出动态结构建议区间，再让 AI 结合阶段承诺、卖点切换、局面升级、阶段兑现和卷末牵引选择最终卷数。短中篇需要保护三幕式或四段式结构，避免 80 章左右的故事被压成开局卷和结局卷；超长篇需要扩展卷数上限，避免 1000 章以上被少数巨卷压掉阶段回报和后续可调度空间。已有卷草稿和用户固定卷数属于作者控制权，应继续兼容；只有新生成或用户主动恢复系统建议时，才采用动态结构建议。
+Volume-count decisions must not fall back to the mechanical formula “chapter count divided by a fixed chapters-per-volume”. The system should first give a dynamic structure-suggestion range from length, then let AI choose the final volume count from stage promises, selling-point switches, situation upgrades, stage payoff, and end-of-volume pull. Short and mid-length books need a three-act or four-segment structure protected, so an ~80-chapter story is not crushed into an opening volume and an ending volume. Ultra-long books need a higher volume-count ceiling, so 1000+ chapters are not crushed into a few giant volumes that lose stage payoff and later scheduling room. Existing volume drafts and user-fixed volume counts are author control and stay compatible. Dynamic structure suggestion is used only for new generation or when the user actively restores the system suggestion.
 
-角色关系不应只显示为列表。关系页的默认入口应是可交互关系网：节点代表角色资产，边代表表层关系、隐藏张力或动态阶段；右侧详情解释关系为什么重要、下一转折点是什么。全局视图用于看整张关系网，当前角色视图则应把所选角色作为左侧起点，直接关系横向向右展开成树状结构，并让关系线与详情都按当前查看方向说明双方是谁。主角是关系图的叙事锚点，应拥有区别于普通角色的核心样式，让用户在复杂关系中能快速定位故事中心。关系节点卡片应保留足够面积承载姓名、身份、目标和状态标签，不能为了压缩画布而牺牲可读性。图谱布局必须按角色卡片的实际宽高计算节点避让，必要时扩展虚拟画布交给视图缩放，而不是把节点硬塞进固定高度导致角色卡片互相覆盖。角色节点应允许临时拖动整理阅读顺序；在没有坐标持久化设计前，拖动只作用于当前画布，不写入角色数据。同一关系视图内切换焦点角色不应清空用户刚整理过的节点位置，只有切换关系视图、重新加载图谱或重新进入页面时才回到系统布局。图谱、编辑器、控制台这类高密度视图应复用全局全屏 View 组件，统一标题区、操作区、Esc 退出和滚动锁定，避免各页面自行散写 fixed 全屏布局。阵容方案、动态角色系统和关系诊断仍然重要，但应作为关系图谱下方的辅助工具，而不是抢占首屏。这样后续接入角色思路线、对话影响记录和关系阶段推演时，可以自然落到同一张关系网中。
+Character relations should not display only as a list. The relation page’s default entry should be an interactive relation net: nodes are character assets; edges are surface relations, hidden tension, or dynamic stages; the right detail explains why the relation matters and what the next turning point is. The global view shows the whole net. The current-character view should put the selected character as the left origin, expand direct relations rightward as a tree, and make both the relation line and the detail name both sides in the current viewing direction. The protagonist is the narrative anchor of the graph and should have a core style distinct from ordinary characters, so users can find the story center in a complex net. Relation node cards need enough area for name, identity, goal, and status tags. Do not sacrifice readability to compress the canvas. Graph layout must compute node avoidance from actual character-card width and height, and expand a virtual canvas for view zoom when needed, instead of stuffing nodes into a fixed height so cards overlap. Character nodes may be dragged temporarily to tidy reading order. Until coordinate persistence is designed, dragging applies only to the current canvas and does not write character data. Switching the focus character inside the same relation view must not clear positions the user just arranged. Only switching relation views, reloading the graph, or re-entering the page returns to the system layout. High-density views such as graphs, editors, and consoles should reuse the global fullscreen View component, with a unified title region, action region, Esc exit, and scroll lock, so pages do not each write their own fixed fullscreen layout. Cast options, dynamic character systems, and relation diagnosis remain important, but they should sit as tools under the relation graph, not occupy the first screen. Later thought line, dialogue-influence records, and relation-stage simulation can then land on the same relation net.
 
-这条规则服务长期蓝图：未来即使加入地图、势力关系、角色思路线或多世界资产，也要先回答“它如何帮助当前书继续写完”，再决定是否进入主工作台首屏。
+This rule serves the long-term blueprint: even if maps, faction relations, character thought lines, or multi-world assets are added later, first answer “how does this help finish the current book”, then decide whether it enters the main-workspace first screen.
 
 ## Simulation And Author Intervention
 
-长期可以引入“推演”能力，但第一阶段不应直接变成开放世界游玩。
+Simulation can be introduced later, but phase one should not become open-world play.
 
-更自然的演化顺序是：
+A more natural evolution order is:
 
 ```text
-小说生产链
--> 世界 / 角色 / 势力状态可视化
--> 角色思路线与对话
--> 章节前剧情推演
--> 多方案影响预览
--> IP 宇宙资产管理
--> 互动影游或游戏化衍生
+novel production chain
+-> world / character / faction state visualization
+-> character thought line and dialogue
+-> pre-chapter plot simulation
+-> multi-option impact preview
+-> IP universe asset management
+-> interactive film-game or gamified derivatives
 ```
 
-短期可想象的交互不是“玩家选择下一步”，而是“作者测试不同发展方向”。例如：
+Short-term imaginable interaction is not “the player chooses the next step”. It is “the author tests different development directions”. For example:
 
-- 如果主角提前暴露身份，会影响哪些角色关系？
-- 如果某势力提前参战，后续三章的冲突成本是什么？
-- 如果角色背包里的关键道具现在消耗掉，会不会破坏后续伏笔？
-- 如果用户与某角色对话改变其态度，系统应如何标记影响范围？
+- If the protagonist reveals identity early, which character relations are affected?
+- If a faction joins the war early, what is the conflict cost of the next three chapters?
+- If a key item in a character’s pack is consumed now, will later setups break?
+- If user–character dialogue changes an attitude, how should the system mark the impact range?
 
-这类推演应输出影响分析、风险、可恢复点和推荐路径，而不是直接写入正史。
+This kind of simulation should output impact analysis, risk, recoverable points, and a recommended path. It should not write into canon directly.
 
 ## Multi-World And IP Universe
 
-用户提到的多世界观衍生和交集，长期可以发展为 IP 宇宙管理能力。
+The multi-world derivatives and intersections users mentioned can grow into IP-universe management over time.
 
-可能的资产层次：
+Possible asset layers:
 
-- 主世界：当前小说实际使用的世界实例。
-- 派生世界：续作、外传、平行线、IF 线或不同媒介版本。
-- 交集事件：多个世界共享的角色、遗物、组织、灾变源头或历史真相。
-- 世界迁移：角色、势力、道具或能力体系在不同世界规则下的转换。
-- 兼容检查：世界规则、能力代价、时间线和势力关系是否冲突。
-- 跨世界时间线：哪些事件属于主线正史，哪些属于衍生线或分支线。
-- IP 资产包：角色、势力、地图、能力体系、写法风格可被复用和继承。
+- Main world: the world instance this novel actually uses.
+- Derived worlds: sequels, side stories, parallel lines, IF lines, or different-medium versions.
+- Intersection events: characters, relics, organizations, disaster sources, or historical truths shared across worlds.
+- World migration: converting characters, factions, items, or ability systems under different world rules.
+- Compatibility checks: whether world rules, ability costs, timelines, and faction relations conflict.
+- Cross-world timeline: which events are main-line canon, and which belong to derivative or branch lines.
+- IP asset packs: characters, factions, maps, ability systems, and writing styles that can be reused and inherited.
 
-多世界能力必须晚于单书世界状态稳定。否则会放大设定漂移和认知负担。
+Multi-world capability must wait until single-book world state is stable. Otherwise setting drift and cognitive load both grow.
 
 ## Product Principles
 
-- **完成小说优先**：游戏编辑器式能力必须服务整本小说完成率，不能把主链变成高门槛沙盒。
-- **状态先于文本**：正文生成前应先明确世界、角色、势力、事件和资源状态。
-- **可视化服务理解**：地图、图谱和控制台用于降低认知负担，不是增加手工维护量。
-- **交互必须可追踪**：用户与角色、世界或推演系统的交互如果影响后文，必须形成可审阅记录。
-- **AI 负责推演，用户负责确认**：高影响状态变化应由 AI 给出建议、影响范围和风险，再由用户确认写入。
-- **正史与草稿分离**：推演、角色对话和 IF 线默认不进入正史，除非用户明确确认。
-- **资产可复用但需隔离**：跨书、跨世界资产复用必须保留来源和适配边界。
+- **Finish the novel first**: game-editor capabilities must serve whole-novel completion rate. They must not turn the main chain into a high-threshold sandbox.
+- **State before text**: world, character, faction, event, and resource state should be explicit before prose generation.
+- **Visualization serves understanding**: maps, graphs, and consoles lower cognitive load. They do not increase hand maintenance.
+- **Interaction must be traceable**: if user interaction with a character, world, or simulation system will affect later text, it must become a reviewable record.
+- **AI simulates, the user confirms**: high-impact state changes should come as AI advice, impact range, and risk, then the user confirms the write.
+- **Canon and draft stay separate**: simulation, character dialogue, and IF lines stay out of canon by default unless the user explicitly confirms.
+- **Assets are reusable but isolated**: reuse across books or worlds must keep source and adaptation boundaries.
 
 ## Non-Goals For The Current Stage
 
-- 不把小说主链改造成玩家游玩模式。
-- 不要求新手维护完整地图、势力图和变量表。
-- 不把角色聊天做成泛娱乐聊天入口。
-- 不把互动影游、开放世界 Play 或多世界交集作为当前主链前置能力。
-- 不因为未来要支持游戏编辑器式工作台，就削弱自动导演、章节生产和质量闭环。
+- Do not turn the novel main chain into player-play mode.
+- Do not require beginners to maintain a complete map, faction graph, and variable table.
+- Do not turn character chat into a general entertainment chat entry.
+- Do not make interactive film-game, open-world play, or multi-world intersection a current main-chain prerequisite.
+- Do not weaken Auto-Director, chapter production, or the quality loop because a game-editor workspace is a future goal.
 
 ## Failure Modes
 
-- **沙盒化过早**：用户还没写完第一卷，就被地图、变量、关系图和角色聊天分散注意力。
-- **角色聊天污染正史**：用户随手与角色聊天后，系统把未经确认的内容写入后续章节。
-- **世界图谱脱离生成链**：地图和势力图只是装饰，没有进入章节任务和上下文装配。
-- **推演结果不可恢复**：多方案测试直接修改状态，用户无法回到原路线。
-- **多世界过早复用**：主世界尚不稳定就创建衍生世界，导致规则冲突和设定污染。
+- **Sandbox too early**: the user has not finished volume one and is already distracted by maps, variables, relation graphs, and character chat.
+- **Character chat pollutes canon**: after casual chat with a character, the system writes unconfirmed content into later chapters.
+- **World graphs leave the generation chain**: maps and faction graphs are decoration and never enter chapter missions or context assembly.
+- **Simulation results are unrecoverable**: multi-option tests modify state directly, and the user cannot return to the original route.
+- **Multi-world reuse too early**: derived worlds are created while the main world is still unstable, causing rule conflict and setting contamination.
 
 ## Related Modules
 
@@ -207,7 +207,7 @@
 
 ## Source Documents
 
-- 用户关于“游戏管理式小说创作平台”的产品方向讨论。
-- 用户关于世界地图、势力地图、角色思路线、角色对话、多世界观衍生与交集的设想。
-- [新手优先与整本小说完成原则](./beginner-first-novel-completion.md)
-- [世界骨架生成流程](./world-skeleton-generation.md)
+- User discussion of a “game-management-style novel creation platform”.
+- User ideas for world maps, faction maps, character thought lines, character dialogue, and multi-world derivatives and intersections.
+- [Beginner-first full-novel completion](./beginner-first-novel-completion.md)
+- [World skeleton generation](./world-skeleton-generation.md)

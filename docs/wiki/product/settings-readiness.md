@@ -1,31 +1,31 @@
-# 设置页创作可用性原则
+# Settings-page creation readiness
 
 ## Background
 
-系统设置页承载模型厂商、模型路由、知识库、写法引擎、自动导演授权和桌面维护等能力。对于完整写作新手来说，这些配置如果按技术模块平铺，会让用户误以为必须理解所有参数后才能开始写小说。
+The system settings page hosts model providers, model routing, the knowledge base, the writing-style engine, Auto-Director authorization, and desktop maintenance. For a complete writing beginner, laying those controls out as technical modules makes it look as if every parameter must be understood before a novel can start.
 
-设置页的首要任务不是展示所有参数，而是回答用户最关心的问题：现在能不能开始创作，如果不能，还差哪一步。
+The first job of Settings is not to show every parameter. It is to answer the question users care about: can creation start now, and if not, what is still missing.
 
 ## Decision
 
-设置页以“创作可用性检查”作为首屏核心信息。页面应先展示开始创作所需的模型和路由状态，再展示知识库、写法引擎、自动导演高级设置和系统维护。
+Settings uses a creation-readiness check as the first-screen core. The page should show the model and routing status required to start writing first, then the knowledge base, writing-style engine, Auto-Director advanced settings, and system maintenance.
 
-知识库、写法引擎和通知通道属于增强或高级能力，不能在视觉和文案上阻塞用户开始创作。模型厂商详情默认降噪，只展示可用状态、当前模型、余额摘要和主操作；技术参数进入高级详情。
+The knowledge base, writing-style engine, and notification channels are enhancements or advanced capabilities. They must not block starting creation in layout or copy. Provider details stay quiet by default: available status, current model, a balance summary, and the primary action. Technical parameters belong in advanced details.
 
 ## Current Rule
 
-- 首屏必须清楚说明基础创作链路是否可用。
-- 缺少正文模型时，引导用户先配置模型厂商。
-- 模型路由异常时，引导用户进入模型路由管理。
-- 知识库未启用时，明确说明这是可选增强，不阻塞创作。
-- 写法引擎用“快速检测 / 稳定推荐 / 长文提取”这类用户任务语言表达，分钟数保留在高级设置。
-- 审批授权、导演跟进通道、桌面维护不应占据开始创作前的主要注意力。
+- The first screen must make it clear whether the basic creation chain is available.
+- If a prose model is missing, guide the user to configure a model provider first.
+- If model routing is unhealthy, guide the user into model-routing management.
+- If the knowledge base is off, say clearly that it is an optional enhancement and does not block creation.
+- Describe the writing-style engine in user-task language such as “quick check / stable recommendation / long-text extraction”. Keep minute-level timing in advanced settings.
+- Approval authorization, director follow-up channels, and desktop maintenance must not take the main attention before creation can start.
 
 ## Failure Modes
 
-- 如果设置页再次变成厂商、API 地址、模型标签和运行参数的长列表，新手会难以判断下一步，容易放弃开书。
-- 如果知识库或写法引擎文案暗示“必须先配置”，用户会把增强能力误解为创作前置条件。
-- 如果模型路由异常只显示在模型路由页，设置页无法承担全局创作入口的诊断职责。
+- If Settings becomes a long list of vendors, API URLs, model tags, and runtime parameters again, beginners cannot tell the next step and are more likely to abandon opening a book.
+- If knowledge-base or writing-style copy implies “configure this first”, users will treat enhancements as creation prerequisites.
+- If routing failures appear only on the model-routing page, Settings cannot diagnose the global creation entry.
 
 ## Related Modules
 

@@ -1,45 +1,45 @@
-# 时间线约束层
+# Timeline constraint layer
 
-## 背景
+## Background
 
-章节生产链路已有 `StoryStateSnapshot`、`ConsistencyFact` 和 `CharacterTimeline`，但这些资产主要承担章节后的状态摘要、事实抽取和角色经历记录。它们缺少一个独立的“事件顺序约束层”，无法稳定阻止未来事件泄漏、上一章钩子断接、时间倒退、事件重复和角色状态回滚。
+The chapter production chain already has `StoryStateSnapshot`, `ConsistencyFact`, and `CharacterTimeline`, but those assets mainly own post-chapter state summaries, fact extract, and character-experience records. They lack an independent “event-order constraint layer”, so they cannot stably stop future-event leaks, previous-chapter hook breaks, time regression, event duplication, and character-state rollback.
 
-时间线约束层保留事件顺序展示、异步抽取和诊断价值。正文写作的连续性约束由事实账本、章节义务、伏笔账本、读者体验合同和上一章实际尾段共同提供；Timeline 不直接改正文，也不再作为 writer 的 required context。
+The timeline constraint layer keeps event-order display, async extract, and diagnostic value. Continuity constraints for prose writing come from the Fact Ledger, chapter obligations, Payoff Ledger, reader-experience contract, and the previous chapter’s actual closing prose together. Timeline does not directly change prose, and it is no longer writer required context.
 
-## 决策
+## Decision
 
-新增独立 `timeline` 模块，时间线只负责四件事：
+An independent `timeline` module was added. Timeline only does four things:
 
-- 记录计划事件、已发生事件、章节时间锚点、钩子和检测报告。
-- 为前端时间轴、诊断入口和需要显式事件顺序检查的运维流程提供结构化事件与钩子资产。
-- 在正文生成后抽取关键事件并校验时间线一致性。
-- 检测失败时输出问题给章节修复链路，不直接修改正文。
+- Record planned events, occurred events, chapter time anchors, hooks, and check reports.
+- Provide structured event and hook assets to the frontend time axis, diagnostic entries, and ops flows that need explicit event-order checks.
+- After prose generation, extract key events and validate timeline consistency.
+- On check failure, emit issues to the chapter-repair chain. Do not modify prose directly.
 
-失败章节应保留正文并标记为 `needs_repair`，但不能把失败正文中的事件提交为 `occurred` 时间线，避免污染后续上下文。
+A failed chapter should keep its prose and be marked `needs_repair`, but events from failed prose must not be committed as `occurred` timeline, or later context is polluted.
 
-## 当前规则
+## Current Rule
 
-- `StoryTimelineEvent` 管全局事件顺序，区分 `planned` 和 `occurred`。
-- `ChapterTimeAnchor` 管章节处于什么故事时间、承接哪些事件、禁止提前发生哪些事件。
-- `TimelineHook` 保留历史钩子及展示语义；正文写作中的本章承接责任以 `ReaderExperienceContract.inheritedHookResponsibilities` 为准。
-- `TimelineCheckReport` 记录每次正文后的检测结果，供任务中心和章节编辑器展示。
-- `timeline_context` 和 `previous_chapter_hook` 不属于章节写作 required context。writer 必须读取 `reader_experience`、事实账本、伏笔指令、章节义务和上一章实际尾段。
-- 时间线抽取使用结构化 AI 输出；检测器只对结构化事件、钩子和状态变化做确定性判断。
-- Timeline 未进入正文运行包时，不应生成“缺少 timeline context”的质量告警；该状态表示此写作链未启用 Timeline，而不是正文质量问题。
-- 检测失败时不提交 `occurred` 事件；通过或 warning 时才允许提交抽取事件和新钩子。
-- 自动修复由现有章节修复链路处理，timeline 模块只提供问题清单和修复建议。
-- 主章节接收热路径以 acceptance 为准。Timeline 抽取如果由独立入口启用，仍应按同章同正文 content hash 幂等执行。
-- 长弧钩子被正文部分回应时，应标记为已处理或已触达，而不是继续按下一章必须解决的硬阻断处理。
+- `StoryTimelineEvent` owns global event order and distinguishes `planned` from `occurred`.
+- `ChapterTimeAnchor` owns what story time the chapter sits in, which events it picks up, and which events must not happen early.
+- `TimelineHook` keeps historical hooks and display semantics. This chapter’s handoff duty in prose writing is owned by `ReaderExperienceContract.inheritedHookResponsibilities`.
+- `TimelineCheckReport` records each post-prose check result for Task Center and the chapter editor.
+- `timeline_context` and `previous_chapter_hook` are not chapter-writing required context. The writer must read `reader_experience`, the Fact Ledger, payoff directives, chapter obligations, and the previous chapter’s actual closing prose.
+- Timeline extract uses structured AI output. The checker only makes deterministic judgments on structured events, hooks, and state changes.
+- When Timeline has not entered the prose run pack, do not emit a “missing timeline context” quality warning. That state means this writing chain did not enable Timeline, not that the prose has a quality problem.
+- On check failure, do not commit `occurred` events. Extracted events and new hooks may be committed only on pass or warning.
+- Automatic repair is handled by the existing chapter-repair chain. The timeline module only provides an issue list and repair suggestions.
+- The main chapter-acceptance hot path is governed by acceptance. If Timeline extract is enabled by an independent entry, it should still run idempotently on the same chapter and same prose content hash.
+- When a long-arc hook is partly answered by the prose, mark it handled or reached, instead of keeping it as a hard block the next chapter must solve.
 
-## 失败模式
+## Failure Modes
 
-- 第 N 章提前写出第 N+M 章才应发生的事件：先检查章节边界、protected secrets、事实账本和读者体验合同是否进入 writer；独立 Timeline 诊断启用时，再检查 checker 是否输出 `future_event_leak`。
-- 下一章跳过上一章结尾责任：检查章节细化是否把相邻章问题写入 `ReaderExperienceContract.inheritedHookResponsibilities`，以及 writer 是否收到 `reader_experience` block。TimelineHook 仅用于历史展示或辅助诊断。
-- 角色状态回滚：检查上一轮 `occurred` 事件的 `stateChanges` 是否记录了 confirmed 状态。
-- 检测失败但后续章节继续引用污染事件：检查失败章是否错误提交了 `occurred` timeline。
-- 时间线检测长期 warning：检查 extractor prompt 是否无法抽取章节时间锚点，或章节计划本身缺少时间标签。
+- Chapter N writes an event that should only happen in chapter N+M: first check whether chapter boundary, protected secrets, the Fact Ledger, and the reader-experience contract entered the writer. When independent Timeline diagnosis is enabled, then check whether the checker emitted `future_event_leak`.
+- The next chapter skips the previous chapter’s closing duty: check whether chapter refinement wrote the neighboring-chapter question into `ReaderExperienceContract.inheritedHookResponsibilities`, and whether the writer received the `reader_experience` block. `TimelineHook` is only for historical display or auxiliary diagnosis.
+- Character state rolls back: check whether the previous round’s `occurred` events recorded confirmed state in `stateChanges`.
+- Check failed but later chapters still cite polluted events: check whether the failed chapter wrongly committed an `occurred` timeline.
+- Timeline checks stay in long-lived warning: check whether the extractor prompt cannot extract a chapter time anchor, or whether the chapter plan itself lacks a time label.
 
-## 相关模块
+## Related Modules
 
 - `server/src/modules/timeline/`
 - `server/src/services/novel/runtime/GenerationContextAssembler.ts`
@@ -48,8 +48,8 @@
 - `server/src/prompting/prompts/novel/timelineExtractor.prompts.ts`
 - `shared/types/timeline.ts`
 
-## 来源文档
+## Source Documents
 
-- 当前时间线约束层开发方案
-- [章节生产链路](./chapter-production-chain.md)
-- [模块边界与文档治理](../architecture/module-boundaries.md)
+- Current timeline constraint-layer development plan
+- [Chapter production chain](./chapter-production-chain.md)
+- [Module boundaries and documentation governance](../architecture/module-boundaries.md)

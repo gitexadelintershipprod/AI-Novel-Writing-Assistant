@@ -1,76 +1,76 @@
-# Creative Hub 边界
+# Creative Hub boundary
 
-## 背景
+## Background
 
-Creative Hub 是面向新手的只读状态入口，承载问题查询、运行诊断、执行记录解释和正式工作台导航。它帮助用户知道当前小说发生了什么、为什么停在这里以及下一步该去哪里，不承担小说产物生产。
+Creative Hub is a read-only status entry for beginners. It hosts question answering, run diagnosis, execution-record explanation, and navigation into the formal workbench. It helps the user know what happened to the current novel, why it stopped here, and where to go next. It does not produce novel artifacts.
 
-如果 Creative Hub 绕过自动导演、Prompt Registry、Runtime API 或任务状态投影直接调用旧 service，会重新制造多套入口、多套状态和多套恢复语义。
+If Creative Hub bypasses Auto-Director, Prompt Registry, Runtime API, or task-status projection and calls old services directly, it recreates multiple entries, multiple states, and multiple recovery semantics.
 
-## 决策
+## Decision
 
-Creative Hub 是查询与导航入口，不是小说生产事实源。它通过已治理的只读工具、runtime API 和 projection 解释自动导演或章节链路；所有会创建、写入或改变运行状态的动作都由正式工作台承接。
+Creative Hub is a query and navigation entry, not a novel-production fact source. It explains Auto-Director or the chapter chain through governed read-only tools, runtime APIs, and projections. Every action that would create, write, or change run state is taken by the formal workbench.
 
-AI 判断仍是意图识别、规划、路由和下一步推荐的主实现；确定性代码只做输入校验、安全边界、权限、幂等和结构化输出后的处理。
+AI judgment remains the primary implementation for intent recognition, planning, routing, and next-step recommendation. Deterministic code only does input validation, safety boundaries, permission, idempotency, and post-processing of already-structured output.
 
-## 当前规则
+## Current Rule
 
-- Creative Hub 可以理解用户意图、解释当前小说进度、诊断问题、汇总执行记录并推荐正式入口。
-- Creative Hub 不创建小说、生成世界观/角色/大纲、写作或保存正文，不启动整本流水线，也不执行导演继续、策略切换、恢复、重试、取消和审批写入。
-- Creative Hub 不直接承担自动导演长任务、章节生产、质量修复或 RAG 索引的重型执行。
-- Creative Hub 可以把模糊想法交给创作工作室解释和推荐，但不能在对话请求内直接执行短篇计划、分段生成、全篇审校、修复或正文重写。
-- 短篇创作和修改必须通过 `creation_studio` workflow、Prompt Registry 与任务投影执行，确保刷新恢复、幂等和人工正文保护使用同一套事实状态。
-- 当用户目标属于开书、接管、继续、恢复、章节执行或批量生产时，应明确导航到小说工作台、自动导演或任务中心。
-- 工具调用应绑定明确资源和可审计记录，不用自由文本分支替代 AI-first 结构化理解。
-- 面向新手时，Creative Hub 应给出单一推荐下一步、原因和影响范围，不要求用户自己判断复杂工程或小说结构状态。
-- 不新增基于关键词、正则或硬编码分支的产品级意图路由。
+- Creative Hub may understand user intent, explain current novel progress, diagnose problems, summarize execution records, and recommend a formal entry.
+- Creative Hub does not create a novel, generate world / characters / outline, write or save prose, start a whole-book pipeline, or perform director continue, policy switch, recovery, retry, cancel, or approval writes.
+- Creative Hub does not directly take on Auto-Director long tasks, chapter production, quality repair, or heavy RAG indexing.
+- Creative Hub may hand a vague idea to Creation Studio for interpretation and recommendation, but it must not execute short-story planning, segmented generation, full-piece audit, repair, or prose rewrite inside the chat request.
+- Short-story creation and revision must run through the `creation_studio` workflow, Prompt Registry, and task projection, so refresh recovery, idempotency, and human-prose protection use the same fact state.
+- When the user’s goal is opening a book, takeover, continue, recovery, chapter execution, or batch production, navigate explicitly to the novel workbench, Auto-Director, or Task Center.
+- Tool calls should bind to explicit resources and auditable records. Do not replace AI-first structured understanding with free-text branches.
+- For beginners, Creative Hub should give one recommended next step, a reason, and an impact scope. Do not require the user to judge complex engineering or novel-structure state themselves.
+- Do not add product-level intent routing based on keywords, regex, or hard-coded branches.
 
-## 前端工作台合同
+## Frontend workbench contract
 
-Creative Hub 前端按“创作线程 + 当前小说 + 执行活动”组织，而不是按通用聊天产品组织：
+The Creative Hub frontend is organized around “creation thread + current novel + execution activity”, not around a general chat product:
 
-- 页头必须展示当前小说、当前阶段、线程状态和一个主要推荐动作；资源 ID、Run、Checkpoint、Provider 等技术信息只进入折叠详情。
-- 中央创作推进区是视觉中心，承载用户要求、AI 判断、工具执行结果、审批和回合摘要。自由输入能力继续保留，但不能用聊天 Hero 或大量通用问题替代当前任务引导。
-- 小说资源区只展示当前小说上下文和正式入口导航；开书准备与整本生产在小说工作台或自动导演中完成。
-- 线程区负责保存不同创作现场。移动端先展示推荐动作和创作推进，线程管理放在主任务之后。
-- 查询失败、线程装载失败和真实空数据必须使用不同状态；切换线程时不得继续显示上一线程消息。
-- Runtime 正在执行、资源正在绑定、审批正在提交或生产正在启动时，冲突动作必须真实禁用并显示处理中状态。
-- 当前线程装载或状态读取失败时，创作输入、资源修改和审批保持锁定，但线程切换与新建线程属于恢复通道，不能被同一禁用条件一起关闭。
-- URL `threadId` 是前端当前线程的事实标识。线程加载、流式事件、分支检查点、资源绑定和审批响应都必须校验其发起线程；用户通过历史记录或深链接切换后，旧响应只能更新原线程缓存，不能改写当前 URL 或新线程消息。
-- 深链接没有 `threadId`、只有资源绑定时，只能复用绑定完全一致的线程；如果没有匹配项，应创建新线程承接这组资源，禁止退回无关线程并丢弃入口上下文。
-- 小说绑定发生变化时，章节与世界观绑定必须同步清空，再从新小说的真实状态重新装配；不得把上一部小说的下属资源带入新上下文。
+- The page header must show the current novel, current stage, thread status, and one primary recommended action. Technical information such as resource IDs, Run, Checkpoint, and Provider belongs only in collapsed details.
+- The central creation-progress region is the visual center. It hosts the user request, AI judgment, tool-execution results, approval, and turn summaries. Free input remains, but a chat hero or a pile of generic questions must not replace current-task guidance.
+- The novel-resource region only shows current-novel context and formal-entry navigation. Opening prep and whole-book production happen in the novel workbench or Auto-Director.
+- The thread region saves different creation scenes. On mobile, show the recommended action and creation progress first; thread management comes after the main task.
+- Query failure, thread-load failure, and real empty data must use different states. Switching threads must not keep showing the previous thread’s messages.
+- While Runtime is executing, a resource is binding, approval is submitting, or production is starting, conflicting actions must actually disable and show an in-progress state.
+- When the current thread fails to load or status fails to read, creation input, resource edits, and approval stay locked. Thread switching and creating a new thread are recovery channels and must not be closed by the same disable condition.
+- URL `threadId` is the frontend’s fact identity for the current thread. Thread load, stream events, branch checkpoints, resource binding, and approval responses must all validate the originating thread. After the user switches through history or a deep link, old responses may only update the original thread’s cache. They must not rewrite the current URL or the new thread’s messages.
+- A deep link with no `threadId` and only resource bindings may reuse only a thread whose bindings match completely. If there is no match, create a new thread to take those resources. Do not fall back to an unrelated thread and drop the entry context.
+- When the novel binding changes, chapter and world bindings must clear together, then reassemble from the new novel’s real state. Do not carry the previous novel’s child resources into the new context.
 
-前端推荐动作按以下优先级消费已有结构化状态：查询/装载/线程创建失败、运行中、结构化线程/回合/诊断失败、查看执行记录、查看下一步建议、打开小说工作台/自动导演/任务中心。`thread.status`、`thread.latestError` 和 `latestTurnSummary.status` 都属于正式状态输入；该顺序属于结构化输出后的展示策略，不得演变为自由文本意图路由。
+Frontend recommended actions consume existing structured state in this priority: query/load/thread-create failure, running, structured thread/turn/diagnosis failure, view execution records, view next-step suggestions, open novel workbench / Auto-Director / Task Center. `thread.status`, `thread.latestError`, and `latestTurnSummary.status` are all formal state inputs. That order is a display policy after structured output. It must not evolve into free-text intent routing.
 
-跨工作台复用的页头、推荐动作和状态反馈位于 `client/src/components/workspace/`，不得读取 API 或依赖 Creative Hub 类型。消息、线程、资源绑定、Tool UI、Runtime 和状态投影继续归属 `client/src/pages/creativeHub/`。
+Cross-workbench reused header, recommended action, and status feedback live in `client/src/components/workspace/` and must not read the API or depend on Creative Hub types. Messages, threads, resource bindings, Tool UI, Runtime, and state projection stay in `client/src/pages/creativeHub/`.
 
-## 示例
+## Examples
 
-推荐做法：
+Recommended:
 
-- 用户问“这本书现在到哪了”，Creative Hub 读取真实产物进展和 runtime projection，先回答已产出事实，再补充后台任务状态。
-- 用户要求继续自动生成，Creative Hub 解释当前状态并引导到自动导演继续入口。
-- 用户手动改了章节后，Creative Hub 进行只读影响分析，正式修复或继续动作仍在小说工作台处理。
+- The user asks “Where is this book now?” Creative Hub reads real artifact progress and the runtime projection, answers produced facts first, then adds background-task status.
+- The user asks to continue automatic generation. Creative Hub explains current state and guides to the Auto-Director continue entry.
+- After the user edits a chapter by hand, Creative Hub does a read-only impact analysis. Formal repair or continue still happens in the novel workbench.
 
-禁止做法：
+Forbidden:
 
-- 在聊天 route 里直接拼 prompt 调 LLM 决定并执行重型小说生产。
-- 用关键词判断“继续”“恢复”“重试”并绕过 command、policy 和 projection。
-- 把 Creative Hub 扩展为通用聊天，而新增能力不服务整本小说完成。
+- Assembling a prompt in the chat route, calling an LLM to decide, and executing heavy novel production.
+- Using keywords to judge “continue”, “resume”, or “retry” and bypassing command, policy, and projection.
+- Expanding Creative Hub into general chat when the new capability does not serve whole-novel completion.
 
-## 失败模式
+## Failure Modes
 
-- 对话出现写入或执行结果：检查 Creative Hub profile 是否绕过只读 allowlist，或是否错误放行了 preview 类工具。
-- 对话里显示可以继续，但自动导演面板不同步：检查是否绕过 runtime projection。
-- 意图识别失败后加了关键词兜底：应修 Prompt schema、上下文或工具合同，而不是隐藏 AI 能力问题。
-- 切换线程后仍看到上一线程内容：检查 Runtime 是否在装载新线程前清空消息，并是否向页面暴露装载错误。
-- 小说列表或小说详情请求失败却显示为空：检查页面是否把 Error 和 Empty 混为同一分支。
-- 按钮显示可操作但点击没有反应：检查 Runtime、资源绑定、审批和生产提交的 pending 是否传递到实际控件。
-- 浏览器前进或后退后又跳回旧线程：检查当前线程是否仍存在 URL 与本地 state 两套事实，以及旧异步响应是否缺少线程身份校验。
-- 切换小说后仍出现上一部小说的章节或世界观：检查资源 binding patch 是否在小说身份变化时清除下属绑定。
-- 线程加载失败后无法离开当前现场：检查是否把主工作区禁用条件直接复用于线程导航；线程列表应使用独立的恢复型禁用策略。
-- 从拆书、角色或任务入口进入后绑定资源消失：检查无 `threadId` 深链接是否错误回退到第一条历史线程，而不是匹配或创建对应资源线程。
+- The conversation shows a write or execution result: check whether the Creative Hub profile bypassed the read-only allowlist, or wrongly allowed a preview-class tool.
+- The conversation says continue is possible, but the Auto-Director panel is out of sync: check whether runtime projection was bypassed.
+- Keyword fallback was added after intent recognition failed: fix the Prompt schema, context, or tool contract. Do not hide an AI-capability problem.
+- After switching threads, the previous thread’s content is still visible: check whether Runtime cleared messages before loading the new thread, and whether load errors are exposed to the page.
+- Novel-list or novel-detail request failed but the page shows empty: check whether the page mixed Error and Empty into the same branch.
+- A button looks actionable but clicking does nothing: check whether Runtime, resource-binding, approval, and production-submit pending states reach the actual control.
+- Browser back/forward jumps back to the old thread: check whether the current thread still has two fact sources (URL and local state), and whether old async responses lack thread-identity validation.
+- After switching novels, the previous novel’s chapters or world still appear: check whether the resource binding patch clears child bindings when novel identity changes.
+- After a thread-load failure the user cannot leave the current scene: check whether the main-workspace disable condition was reused for thread navigation. The thread list should use an independent recovery-style disable policy.
+- Bound resources disappear after entering from book analysis, characters, or tasks: check whether a no-`threadId` deep link wrongly fell back to the first history thread instead of matching or creating the corresponding resource thread.
 
-## 相关模块
+## Related Modules
 
 - `server/src/creativeHub/`
 - `server/src/agents/`
@@ -83,8 +83,8 @@ Creative Hub 前端按“创作线程 + 当前小说 + 执行活动”组织，�
 - `client/src/components/workspace/`
 - `client/src/pages/tasks/TaskCenterPage.tsx`
 
-## 来源文档
+## Source Documents
 
-- [提示词工作台、上下文装配与统一步骤运行时方案](../../plans/prompt-workbench-context-and-step-runtime-plan.md)
-- [自动导演执行面隔离与 API 保活计划](../../plans/auto-director-execution-plane-isolation-plan.md)
-- [README 项目定位](../../../README.md)
+- [Prompt Workbench, context assembly, and unified step-runtime plan](../../plans/prompt-workbench-context-and-step-runtime-plan.md)
+- [Auto-Director execution-plane isolation and API keep-alive plan](../../plans/auto-director-execution-plane-isolation-plan.md)
+- [README project positioning](../../../README.md)

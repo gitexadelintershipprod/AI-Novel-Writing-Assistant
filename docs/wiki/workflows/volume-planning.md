@@ -1,172 +1,172 @@
-# 卷规划工作流
+# Volume-planning workflow
 
 ## Background
 
-卷规划位于故事宏观规划和章节执行之间，负责把整本书的承诺拆成卷级阶段。它不能只回答“分几卷”，还必须回答每卷为什么值得单独存在、承担什么阶段回报、如何保护前期推进秩序，以及后续卷保留多少可调度空间。
+Volume planning sits between story-macro planning and chapter execution. It splits the whole book’s promises into volume-level stages. It cannot only answer “how many volumes”. It must also answer why each volume deserves to exist on its own, what stage payoff it carries, how it protects early progression order, and how much schedulable room later volumes keep.
 
-目标用户多是写作新手。卷战略如果和卷骨架、节奏板、章节任务脱节，用户很容易把旧骨架误认为已经同步，或者在高风险策略下继续拆章，最终让后续章节反复失焦。因此卷规划需要同时维护数量决策、作者控制权、质量门禁和下游资产一致性。
+Most target users are writing beginners. If volume strategy drifts from volume skeleton, beat sheet, and chapter tasks, users easily treat an old skeleton as already in sync, or keep splitting chapters under a high-risk strategy, until later chapters keep losing focus. Volume planning therefore has to maintain count decisions, author control, quality gates, and downstream-asset consistency together.
 
 ## Decision
 
-当前卷规划采用 **动态结构区间 + AI 策略判断 + 骨架生成** 的两段式工作流：
+Current volume planning uses a two-stage workflow of **dynamic structure range + AI strategy judgment + skeleton generation**:
 
 ```text
-故事宏观规划 / 书级合约
--> 卷数与 hard/soft 指导
--> 卷战略 strategy
--> 卷战略审查 critique
--> 卷骨架 skeleton
--> 节奏板 / 拆章 / 章节执行
+Story macro planning / book-level contract
+-> Volume count and hard/soft guidance
+-> Volume strategy
+-> Volume strategy critique
+-> Volume skeleton
+-> Beat sheet / chapter split / chapter execution
 ```
 
-卷数决策不再以固定每卷章节数除法为核心。章节预算只用于给出结构区间，最终卷数由模型结合阶段承诺、卖点切换、局面升级、阶段兑现和卷末牵引来决定。
+Volume-count decisions are no longer centered on dividing by a fixed chapters-per-volume number. Chapter budget only supplies a structure range. Final volume count is decided by the model from stage promises, selling-point switches, situation upgrades, stage payoffs, and end-of-volume pull.
 
 ## Current Rule
 
-动态卷数区间由 `VolumeCountGuidance` 提供：
+Dynamic volume-count ranges come from `VolumeCountGuidance`:
 
-- `< 60 章`：允许 `1-2` 卷，适合短结构。
-- `60-119 章`：推荐 `3-4` 卷，保护三段式或四段式结构。
-- `120-249 章`：推荐 `4-6` 卷。
-- `250-499 章`：推荐 `6-9` 卷。
-- `500-899 章`：推荐 `9-14` 卷。
-- `900-1499 章`：推荐 `14-20` 卷。
-- `1500+ 章`：推荐 `18-24` 卷。
+- `< 60 chapters`: allow `1-2` volumes, suitable for short structure.
+- `60-119 chapters`: recommend `3-4` volumes, protecting three-part or four-part structure.
+- `120-249 chapters`: recommend `4-6` volumes.
+- `250-499 chapters`: recommend `6-9` volumes.
+- `500-899 chapters`: recommend `9-14` volumes.
+- `900-1499 chapters`: recommend `14-20` volumes.
+- `1500+ chapters`: recommend `18-24` volumes.
 
-`allowedVolumeCountRange` 是技术和手动固定范围，当前上限为 `24`。`decisionVolumeCountRange` 是 AI 自动分卷时应遵守的结构决策区间。静态 Prompt Registry、Prompt Workbench 和真实运行路径必须共享同一个上限，不允许一个路径仍停留在旧的 `16` 卷上限。
+`allowedVolumeCountRange` is the technical and manual hard range; the current upper bound is `24`. `decisionVolumeCountRange` is the structure-decision range AI auto-splitting should obey. The static Prompt Registry, Prompt Workbench, and the real runtime path must share the same upper bound. One path must not still sit on the old `16`-volume cap.
 
 ## Author Control
 
-已有卷草稿和用户固定卷数都属于作者控制权：
+Existing volume drafts and a user-fixed volume count are both author control:
 
-- `userPreferredVolumeCount` 优先级最高，schema 必须硬锁 `recommendedVolumeCount`。
-- 当用户选择沿用草稿，`respectedExistingVolumeCount` 也必须进入 fixed count，而不是只作为上下文软提示。
-- 当用户明确恢复系统建议，才回到 `decisionVolumeCountRange` 内自动判断。
+- `userPreferredVolumeCount` has the highest priority. Schema must hard-lock `recommendedVolumeCount`.
+- When the user chooses to keep the draft, `respectedExistingVolumeCount` must also enter the fixed count, not only as a soft context hint.
+- Only when the user explicitly restores system suggestion does the path return to automatic judgment inside `decisionVolumeCountRange`.
 
-这条规则保护旧项目和用户手动结构。AI 可以解释风险，但不能在“沿用草稿”的路径中擅自改卷数。
+This rule protects old projects and user-manual structure. AI may explain risk, but it must not change volume count on the “keep the draft” path.
 
 ## Strategy And Skeleton Consistency
 
-`strategy` 和 `skeleton` 是不同层级的资产：
+`strategy` and `skeleton` are different asset layers:
 
-- strategy 负责卷数、hard/soft 范围、卷级职责和不确定性。
-- skeleton 负责具体卷骨架字段、章节范围和可编辑卷工作区。
+- Strategy owns volume count, hard/soft range, volume-level duties, and uncertainty.
+- Skeleton owns concrete volume-skeleton fields, chapter ranges, and the editable volume workspace.
 
-重跑 strategy 后，旧 skeleton 不再可信。系统必须清空旧 `volumes`、节奏板和相邻卷再平衡结果，让用户明确重新生成卷骨架。不能让“新战略 + 旧骨架”短暂并存，否则新手会误以为骨架已经按新战略同步。
+After strategy is rerun, the old skeleton is no longer trustworthy. The system must clear old `volumes`, beat sheets, and adjacent-volume rebalance results, and make the user explicitly regenerate the volume skeleton. “New strategy + old skeleton” must not briefly coexist, or beginners will think the skeleton already synced to the new strategy.
 
 ## Critique Boundary
 
-卷战略审查不是纯展示信息。它的边界是：
+Volume-strategy critique is not display-only information. Its boundary is:
 
-- `low` / `medium` 风险：允许继续生成 skeleton，但 UI 应展示风险和建议。
-- `high` 风险：阻断 skeleton 生成，要求用户重新生成或修订 strategy。
-- 自动导演路径在 strategy 后执行 critique，再进入 skeleton；如果 critique 返回高风险，服务端 readiness 和 scope 检查会阻止继续推进。
+- `low` / `medium` risk: skeleton generation may continue, but the UI should show the risk and suggestions.
+- `high` risk: block skeleton generation and require the user to regenerate or revise strategy.
+- The Auto-Director path runs critique after strategy, then enters skeleton. If critique returns high risk, server readiness and scope checks block further progress.
 
-第一版不引入自动修订 strategy 的新 prompt。后续如果增加自动修订，应保持顺序为：
+The first version does not introduce a new prompt that auto-revises strategy. If auto-revise is added later, keep this order:
 
 ```text
 strategy -> critique(high) -> revise strategy -> critique -> skeleton
 ```
 
-不要把 critique 做成“能看不能用”的半成品，也不要让高风险策略直接进入卷骨架。
+Do not leave critique as a “visible but unused” half-product, and do not let a high-risk strategy enter the volume skeleton directly.
 
 ## Story Macro Dependency
 
-卷战略最应该消费的上游是故事宏观规划：主线卖点、长期对立、推进回路、成长路径、关键兑现点和不可破坏约束。
+The upstream volume strategy should consume most is story-macro planning: main selling points, long-term opposition, progression loop, growth path, key payoff points, and unbreakable constraints.
 
-当前 Prompt Context Policy 中 `macro_constraints` 仍是 preferred block，因为历史项目可能缺少故事宏观规划。规则是：
+In the current Prompt Context Policy, `macro_constraints` is still a preferred block because historical projects may lack story-macro planning. The rule is:
 
-- 有 Story Macro 时，每卷 `roleLabel` 必须能映射到主线卖点、冲突升级、成长路径或结尾风味。
-- 无 Story Macro 时，策略必须降级为更保守的结构，并在 `uncertainties` 中说明缺少主线骨架带来的风险。
-- 不允许在缺少 Story Macro 时臆造精细主线阶段。
+- When Story Macro exists, each volume `roleLabel` must map to a main selling point, conflict escalation, growth path, or ending flavor.
+- When Story Macro is missing, strategy must degrade to a more conservative structure and explain in `uncertainties` the risk of lacking a main-line skeleton.
+- Do not invent fine-grained main-line stages when Story Macro is missing.
 
-如果未来产品流程强制所有新项目先生成 Story Macro，可以再把 `macro_constraints` 升级为 required。
+If the product flow later forces every new project to generate Story Macro first, `macro_constraints` can be upgraded to required.
 
 ## Hard / Soft Planning
 
-hard 和 soft 是卷级规划深度，不是质量高低：
+Hard and soft are volume-level planning depth, not quality high vs low:
 
-- `<= 3 卷`：全部 hard，保证短中篇结构完整。
-- `4-6 卷`：前 `3-4` 卷 hard。
-- `7+ 卷`：前 `3-6` 卷 hard，后续 soft。
+- `<= 3 volumes`: all hard, to keep short/mid-length structure complete.
+- `4-6 volumes`: the first `3-4` volumes are hard.
+- `7+ volumes`: the first `3-6` volumes are hard, later ones soft.
 
-hard 卷锁定前期承诺、卖点、推进秩序和节奏稳定性；soft 卷保留后续卷的方向和阶段职责，但不提前写死所有细节。
+Hard volumes lock early promises, selling points, progression order, and pacing stability. Soft volumes keep later volumes’ direction and stage duty without freezing every detail early.
 
 ## Beat Sheet Slot Contract
 
-节奏板采用 **固定职能槽位 + 本卷动态短标题**：
+The beat sheet uses **fixed duty slots + this-volume dynamic short titles**:
 
-- `key` 必须使用系统槽位：`open_hook`、`first_escalation`、`midpoint_turn`、`pressure_lock`、`climax`、`end_hook`；可选扩展位为 `early_complication`、`late_complication`。
-- `label` 是稳定职能名，例如「开卷抓手」「首次升级」，供校验、恢复和 UI 分组使用，不允许自由发明。
-- `title` 是本卷定制短标题，例如「夜市夺印」，由 AI 按卷骨架动态生成。
-- UI 展示优先使用 `职能 · 短标题`；旧数据没有 `title` 时回退为职能名。
-- 节奏分段本身仍是卷内 AI 动态规划；hard/soft 只决定卷级规划深度，不直接决定 beat 切分。
+- `key` must use system slots: `open_hook`, `first_escalation`, `midpoint_turn`, `pressure_lock`, `climax`, `end_hook`; optional extras are `early_complication`, `late_complication`.
+- `label` is the stable duty name, for example `Opening hook` / `First escalation`, used for validation, recovery, and UI grouping. Free invention is not allowed. English is canonical on write; Chinese aliases such as `开卷抓手` and `首次升级` are dual-read only for old rows.
+- `title` is this volume’s custom short title, for example “Seizing the seal at the night market”, generated dynamically by AI from the volume skeleton.
+- UI display prefers `duty · short title`. Old data without `title` falls back to the duty name.
+- Beat segmentation itself remains in-volume AI dynamic planning. Hard/soft only decide volume-level planning depth; they do not directly decide beat cuts.
 
-这条规则避免两种失败：职能名完全写死导致题材模板感过重，以及职能名完全自由导致后续按 beat 重生、校验和导航失稳。
+This rule avoids two failures: fully frozen duty names that feel like genre templates, and fully free duty names that make later beat regenerate, validation, and navigation unstable.
 
 ## Incremental Chapter List By Beat
 
-节奏板仍按整卷生成，拆章默认按单个 beat 增量生成，执行合同继续按单章 JIT 补齐。这样可以让新手先拿到当前节奏段的可写章节，开始细化或开写，而不必等待整卷所有章节标题一次性生成完。
+The beat sheet is still generated for the whole volume. Chapter split defaults to incremental generation by a single beat. Execution contracts still fill per chapter through JIT. Beginners can therefore get writable chapters for the current beat and start refining or writing without waiting for every volume chapter title at once.
 
-手动工作台的主路径是：如果当前聚焦 beat 尚未完整生成章节，就生成该 beat；否则生成第一个未完整 beat。`full_volume` 仍保留为高级 / 批量操作，用于一次补齐本卷全部章节标题。
+The manual workbench main path is: if the currently focused beat has not fully generated chapters, generate that beat; otherwise generate the first incomplete beat. `full_volume` remains an advanced / batch operation for filling all chapter titles in this volume at once.
 
-`single_beat` 生成成功后只校验目标 beat 的局部覆盖，并把该 beat 合并进 `VolumePlanDocument`，保留其他已生成 beat。未生成 beat 可以继续空缺，卷状态使用 `chapter_list_partial:*` 表示本卷拆章尚未全量完成；这不是执行阻断，已经 sync 的章节仍可细化和开写。
+After a successful `single_beat` generation, only validate local coverage of the target beat, merge that beat into `VolumePlanDocument`, and keep other already generated beats. Ungenerated beats may stay empty. Volume status uses `chapter_list_partial:*` to mean this volume’s chapter split is not fully complete. That is not an execution block; already synced chapters may still be refined and written.
 
 ### Cross-Beat Title Integrity
 
-章节标题唯一性属于整卷的确定性数据完整性规则，而不是只在当前 beat 内展示的质量建议。每次 `single_beat` 生成必须遵守以下边界：
+Chapter-title uniqueness is a whole-volume deterministic data-integrity rule, not a quality suggestion shown only inside the current beat. Every `single_beat` generation must obey:
 
-- 已完成 beat 的标题只能作为一次承接摘要出现，不能同时进入“前序摘要”和“锁定摘要”。锁定摘要只保留目标 beat 之后已经存在的章节，避免把前序标题重复注入模型上下文。
-- 冲突强度曲线在拆章阶段只提供章节序号、强度和变化方向，不携带已有标题，防止模型把曲线当作可复述的标题模板。
-- 当前 PromptAsset 把其他 beat 的标题作为结构化保留集合。若模型输出与保留集合冲突，必须进行语义重试；重试耗尽后仍冲突时直接失败，不能把原始输出降级保存。
-- 每个中间合并结果与最终合并结果都要进行整卷标题校验，校验失败不得触发中间工作区持久化、章节同步或正文生产。
+- Titles of completed beats may appear only as a one-time handoff summary. They must not enter both “prior summary” and “locked summary”. Locked summary keeps only chapters that already exist after the target beat, so prior titles are not injected into model context twice.
+- At chapter-split time the conflict-intensity curve only provides chapter index, intensity, and change direction. It does not carry existing titles, so the model cannot treat the curve as a recitable title template.
+- The current PromptAsset treats other beats’ titles as a structured reserved set. If model output conflicts with that set, semantic retry is required. After retries are exhausted, fail directly. Do not degrade-save the raw output.
+- Every intermediate merge result and the final merge result must run whole-volume title validation. A failed check must not trigger intermediate workspace persistence, chapter sync, or prose production.
 
-历史卷若已存在重复标题，标题修复必须逐 beat 重生，确保每次生成都能看到其他 beat 的保留标题。修复保存时通过 `syncToChapterExecution` 同步标题和规划字段，并保持 `preserveContent: true`、`applyDeletes: false`；已有正文是受保护资产，标题修复不得改写正文。
+If a historical volume already has duplicate titles, title repair must regenerate beat by beat so each generation can see the reserved titles of other beats. On save, sync titles and planning fields through `syncToChapterExecution`, keeping `preserveContent: true` and `applyDeletes: false`. Existing prose is a protected asset. Title repair must not rewrite prose.
 
-标题修复由导演命令队列串行执行。命令被领取后任务会进入运行态，这是当前修复命令自己的生命周期标记，运行时不得再把该状态误判为另一条并发任务；真正的并发保护应只由队列的活动命令约束负责。
+Title repair is executed serially by the director command queue. After a command is leased the task enters running; that is this repair command’s own lifecycle mark. Runtime must not mistake that state for another concurrent task. Real concurrency protection belongs only to the queue’s active-command constraint.
 
-单段生成默认不触发相邻卷 rebalance。只有本卷通过 `full_volume` 完成，或用户 / 导演显式要求校准相邻卷时，才运行相邻卷再平衡，避免每拆一段都扰动后续卷规划。
+Single-beat generation does not trigger adjacent-volume rebalance by default. Adjacent-volume rebalance runs only after this volume completes through `full_volume`, or when the user / director explicitly asks to calibrate adjacent volumes, so every beat split does not disturb later volume planning.
 
-章节同步必须继续保护已有正文：自动保存走现有 `syncToChapterExecution` 路径，并保持 `preserveContent: true`、`applyDeletes: false`。重生某个 beat 时，已有正文章节默认锁定，系统只能更新无正文的规划字段。
+Chapter sync must keep protecting existing prose: autosave uses the existing `syncToChapterExecution` path with `preserveContent: true` and `applyDeletes: false`. When regenerating a beat, chapters that already have prose are locked by default. The system may update planning fields only on chapters without prose.
 
 ### Auto-Director Readiness Projection
 
-自动导演使用两个投影语义，不把它们混成一个旧的 `chapterListReady` 判断：
+Auto-Director uses two projection semantics and does not mix them into one old `chapterListReady` judgment:
 
-- `beatChapterListReady`：当前执行窗口需要的 beat 已经生成并可 sync / 细化 / 开写。
-- `volumeChapterListComplete`：本卷 beat 全部生成完成。
+- `beatChapterListReady`: the beat needed by the current execution window is generated and can be synced / refined / written.
+- `volumeChapterListComplete`: every beat in this volume is generated.
 
-全书或卷级自动推进可以在 `beatChapterListReady = true` 且 `volumeChapterListComplete = false` 时进入当前 beat 的章节细化和执行；当前窗口完成后，恢复点应回到 structured outline，继续生成下一个未完成 beat。这样长卷不会因为后半卷标题还没生成，就阻塞第 1 段的正文生产。
+Whole-book or volume-level auto-advance may enter the current beat’s chapter refinement and execution when `beatChapterListReady = true` and `volumeChapterListComplete = false`. After the current window completes, the recovery point should return to structured outline and continue generating the next unfinished beat. A long volume therefore does not block first-beat prose because later-volume titles are not generated yet.
 
-`resolveStructuredOutlineRecoveryCursor` 需要识别第一个未完成 beat，并在允许 partial ready 的自动执行路径中只选择已完成 beat 覆盖的章节。checkpoint 修复和继续运行逻辑必须保留 `volumeChapterListComplete = false` 的事实，避免把当前 beat 执行完误判为整卷 / 全书 workflow completed。
+`resolveStructuredOutlineRecoveryCursor` needs to recognize the first unfinished beat, and on auto-execution paths that allow partial ready it should select only chapters covered by completed beats. Checkpoint repair and continue-run logic must keep the fact that `volumeChapterListComplete = false`, so finishing the current beat is not mistaken for whole-volume / whole-book `workflow completed`.
 
 ### Change Impact Scope
 
-角色注入、局部修订和卖点调整遵守“未写范围最小扰动”：
+Character injection, local revision, and selling-point adjustment obey “minimum disturbance of unwritten range”:
 
-- 已有正文覆盖的 beat 标记为 `locked_with_draft`，默认不重拆、不改写正文。
-- 已生成章节但没有正文的后续 beat 标记为 `stale`，适合重排参与者、补接新角色或刷新规划字段。
-- 尚未生成章节的后续 beat 标记为 `pending`，默认动作是把变化接入后续未写段。
+- Beats covered by existing prose are marked `locked_with_draft`. By default they are not re-split and prose is not rewritten.
+- Later beats that already have generated chapters but no prose are marked `stale`, suitable for reassigning participants, attaching new characters, or refreshing planning fields.
+- Later beats that have not generated chapters are marked `pending`. The default action is to attach the change to later unwritten segments.
 
-UI 和导演事实摘要可以展示 `affectedBeats`、`staleBeatCount`、`lockedBeatCount`、`defaultImpactAction` 和 `advancedImpactActions`，但这些都是投影 / 决策摘要，不需要数据库迁移。只有结构级角色或全局卖点变化明显影响整卷战略时，才提示高级动作，例如重跑节奏板或卷战略。
+UI and director fact summaries may show `affectedBeats`, `staleBeatCount`, `lockedBeatCount`, `defaultImpactAction`, and `advancedImpactActions`, but those are projection / decision summaries and do not need a database migration. Only when a structure-level character or global selling-point change clearly affects whole-volume strategy should advanced actions be suggested, such as rerunning the beat sheet or volume strategy.
 
 ## Downstream Gap
 
-卷规划的价值最终要进入章节执行。当前已存在 `VolumeWindowContext.keyMilestoneGuards` 字段，但卷规划服务尚未完整填充它。这个缺口会导致章节生成仍可能提前兑现后续里程碑或重复卷级高潮。
+Volume planning’s value has to reach chapter execution. `VolumeWindowContext.keyMilestoneGuards` already exists as a field, but the volume-planning service does not yet fill it completely. That gap can still let chapter generation pay off later milestones early or repeat a volume-level climax.
 
-后续修复应让 skeleton 或 beat sheet 生成关键里程碑守卫，并在 `volume_window` 上下文中注入目标章节范围、事件、禁止提前兑现点和节奏说明。
+A later fix should let skeleton or beat-sheet generation produce key milestone guards, and inject target chapter range, events, forbidden-early payoff points, and pacing notes into `volume_window` context.
 
 ## Related Modules
 
-- `shared/types/volumePlanning.ts`：动态卷数区间、hard/soft 范围和作者控制权计算。
-- `shared/types/volumeBeatSlots.ts`：节奏板固定职能槽位、别名归一与展示文案。
-- `server/src/services/novel/volume/volumeGenerationOrchestrator.ts`：strategy、critique、skeleton 的运行顺序和 fixed count 传递。
-- `server/src/services/novel/volume/volumeGenerationHelpers.ts`：scope readiness 与 strategy/skeleton 合并规则。
-- `server/src/services/novel/volume/volumeWorkspaceDocument.ts`：工作区 readiness。
-- `server/src/services/novel/director/recovery/novelDirectorStructuredOutlineRecovery.ts`：自动导演 structured outline 恢复点、partial beat-ready 投影。
-- `server/src/services/novel/volume/volumePlanChangeDetection.ts`：卷级变更和后续 beat 影响范围投影。
-- `server/src/services/novel/dynamics/CharacterDynamicsMutationService.ts`：角色动态变更后的后续未写 beat 影响记录。
-- `server/src/prompting/prompts/novel/volume/strategy.prompts.ts`：卷战略 PromptAsset。
-- `server/src/prompting/prompts/novel/volume/skeleton.prompts.ts`：卷骨架 PromptAsset。
-- `server/src/prompting/prompts/novel/volume/beatSheet.prompts.ts`：节奏板 PromptAsset（固定槽位 + 动态短标题）。
-- `docs/wiki/prompts/novel-generation-quality-guards.md`：卷级关键节点守卫缺口。
+- `shared/types/volumePlanning.ts`: dynamic volume-count ranges, hard/soft ranges, and author-control calculation.
+- `shared/types/volumeBeatSlots.ts`: beat-sheet fixed duty slots, alias normalization, and display copy.
+- `server/src/services/novel/volume/volumeGenerationOrchestrator.ts`: strategy, critique, skeleton run order, and fixed-count pass-through.
+- `server/src/services/novel/volume/volumeGenerationHelpers.ts`: scope readiness and strategy/skeleton merge rules.
+- `server/src/services/novel/volume/volumeWorkspaceDocument.ts`: workspace readiness.
+- `server/src/services/novel/director/recovery/novelDirectorStructuredOutlineRecovery.ts`: Auto-Director structured-outline recovery point and partial beat-ready projection.
+- `server/src/services/novel/volume/volumePlanChangeDetection.ts`: volume-level change and later-beat impact-scope projection.
+- `server/src/services/novel/dynamics/CharacterDynamicsMutationService.ts`: later unwritten-beat impact records after character-dynamics changes.
+- `server/src/prompting/prompts/novel/volume/strategy.prompts.ts`: volume-strategy PromptAsset.
+- `server/src/prompting/prompts/novel/volume/skeleton.prompts.ts`: volume-skeleton PromptAsset.
+- `server/src/prompting/prompts/novel/volume/beatSheet.prompts.ts`: beat-sheet PromptAsset (fixed slots + dynamic short titles).
+- `docs/wiki/prompts/novel-generation-quality-guards.md`: volume-level key-node guard gap.

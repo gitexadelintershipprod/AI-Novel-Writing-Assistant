@@ -1,40 +1,40 @@
-# 自动导演故事星图
+# Auto-Director idea constellation
 
 ## Background
 
-完整新手常常只有模糊的开书感觉，直接要求其写出人物、世界、冲突与长线目标会增加认知负担；只让 AI 返回若干完整梗概，又会让用户失去组合和取舍空间。故事星图位于自动导演“起始想法”阶段，用有限的可选元素帮助用户形成明确偏好，再把选择交给 AI 收束成可继续规划的开书想法。
+Complete beginners often only have a vague opening feeling. Asking them to write characters, world, conflict, and a long-term goal raises cognitive load. Returning only a few complete synopses takes away combination and choice. The idea constellation sits in Auto-Director’s “starting idea” stage. It uses a limited set of optional elements so the user can form a clear preference, then hands the selection to AI to close into a starting idea that planning can continue from.
 
 ## Decision
 
-故事星图采用“AI 根据当前开书上下文生成具体素材，用户选择素材，AI 完成语义组合”的边界。题材基底和推进模式一旦选定就是固定上下文，星图不得擅自替换。候选和最终起始想法都必须通过 Prompt Registry 中的结构化 Prompt 生成；不得用与上下文无关的静态文案伪装成 AI 结果，也不得在生成失败时回退到抽象通用词库。
+The constellation boundary is “AI generates concrete material from the current opening context, the user selects material, AI finishes the semantic combination”. Once a genre base and progression mode are chosen they are fixed context. The constellation must not replace them on its own. Candidates and the final starting idea must be generated through structured prompts in Prompt Registry. Do not disguise context-free static copy as AI results, and do not fall back to an abstract generic word bank when generation fails.
 
 ## Current Rule
 
-- 星图固定包含七个维度：主角开局、题材舞台、金手指 / 核心优势、首章爆点、前期目标、核心阻力、关键关系。
-- 每个维度最多选择一项。前端只做选择互斥、布局和已有选择保留，不用关键词推断用户意图。
-- 动态候选合同固定返回 35 项，即七个维度各五项，并在星图中同时展示；每项包含稳定类别、2～48 字的具体标签、解释和匹配度，ID 与标签必须唯一。生成与组合接口必须使用相同的标签长度合同，避免候选可展示但无法确认。
-- 桌面星图允许具体标签自动换行，布局碰撞尺寸必须与实际渲染宽度一致；优先随机分散，剩余项通过确定性空位扫描放置。不得在找不到随机位置时直接使用未经碰撞校验的回退坐标。
-- 候选必须兼容当前题材基底、主推进模式、副推进模式和已有想法。缺失上下文可以补足，但每个选项仍应是能落到人物、场景、能力、事件、目标、对手或关系上的具体素材，不能退化成“命运、真相、牺牲、所有人都在说谎”一类可套用于多数故事的主题句。
-- 用户从热门题材雷达带入市场简报时，先使用简报引用的统一题材基底与推进模式补足尚未选择的固定创作基础，再让星图同时遵守市场影响档位；市场信号只提供读者需求和差异化机会，不得复刻榜单作品的专有素材或书名。
-- 金手指 / 核心优势应说明主角能做什么，并在解释中给出触发条件、边界、成长方向或代价。现实题材可以使用专业能力、信息差、身份资源或稀缺关系，不强行添加超自然系统。
-- 首章爆点必须能在第一章实际发生；前期目标应指向前 10～30 章可兑现的结果；核心阻力应有明确行动能力；关键关系应写清双方身份与捆绑方式。
-- 最终组合合同接收用户真实选择和固定开书上下文，输出 45～220 字的单段起始想法。AI 必须把元素整理成因果关系，不能机械拼接标签。
-- 结构化失败时只允许携带原始业务上下文进行一次受控重试；传输错误直接上抛，不使用脱离上下文的通用修复补造创意内容。
-- 星图只负责起始想法，不新增自动导演运行阶段、恢复检查点或任务投影阶段。组合结果写回已有想法输入，再沿原创建流程继续。
+- The constellation always has seven dimensions: protagonist opening, genre stage, golden finger / core advantage, first-chapter hook, early goal, core resistance, key relationship.
+- At most one item per dimension. The frontend only does exclusive selection, layout, and keeping existing selections. It does not infer user intent with keywords.
+- The dynamic candidate contract always returns 35 items, five per dimension, all shown at once. Each item has a stable category, a 2–48 character concrete label, an explanation, and a match score. IDs and labels must be unique. Generate and combine APIs must use the same label-length contract so a candidate can be shown and then confirmed.
+- The desktop constellation may wrap concrete labels. Collision size must match the actual rendered width. Prefer random scatter; remaining items are placed by a deterministic empty-slot scan. Do not use an unchecked fallback coordinate when a random position cannot be found.
+- Candidates must fit the current genre base, primary progression mode, secondary progression mode, and existing idea. Missing context may be filled, but each option must still land on a person, scene, ability, event, goal, opponent, or relationship. It must not collapse into a theme sentence that fits most stories, such as “fate, truth, sacrifice, everyone is lying”.
+- When a user brings a market brief from Market Radar, first fill unselected fixed creation foundations from the brief’s unified genre base and progression modes, then make the constellation also obey the market-influence band. Market signals only supply reader demand and differentiation. They must not copy proprietary material or titles from ranked works.
+- Golden finger / core advantage should say what the protagonist can do, and the explanation should give a trigger, a boundary, a growth direction, or a cost. Realistic genres may use professional skill, information gap, identity resource, or a scarce relationship. Do not force a supernatural system.
+- The first-chapter hook must be able to happen in chapter one. The early goal should point at a result payable in the first 10–30 chapters. Core resistance should have a clear capacity to act. The key relationship should name both sides and how they are bound.
+- The final combination contract takes the user’s real selections and the fixed opening context and outputs a single 45–220 character starting idea. AI must arrange the elements as cause and effect, not mechanically concatenate labels.
+- On structured failure, only one controlled retry with the original business context is allowed. Transport errors are thrown. Do not invent creative content with a context-free generic repair.
+- The constellation only owns the starting idea. It does not add an Auto-Director runtime stage, recovery checkpoint, or task-projection stage. The combination writes back into the existing idea input and continues along the original create flow.
 
 ## Examples
 
-- 用户已选择都市职场与悬念博弈：主角开局可以是“被夺项目的底层策划”，核心优势可以是“看见合同隐藏代价”，首章爆点可以是“庆功宴上未婚妻失踪”；不能把题材改成仙侠或只返回“所有人活在谎言里”。
-- 用户只选择一项金手指：组合 Prompt 可以轻量补足主角身份、首章行动和前期目标，使结果可直接开书，但不能压过该能力另造复杂主线。
+- The user already chose urban workplace plus suspense contest: the protagonist opening can be “a junior planner whose project was stolen”, the core advantage “seeing hidden costs in a contract”, the first-chapter hook “the fiancée vanishes at the celebration banquet”. Do not change the genre into xianxia or return only “everyone lives in a lie”.
+- The user selected only one golden finger: the combination prompt may lightly fill protagonist identity, first-chapter action, and early goal so the result can open a book, but it must not override that ability and invent a complex main plot.
 
 ## Failure Modes
 
-- 七类数量不齐或类别重复：检查结构化 Schema、示例和模型输出预算，不在 service 或前端补齐虚构选项。
-- 候选结构正确但偏离题材或推进方式：检查开书上下文装配，并使用原始上下文重试；不要让无业务上下文的 JSON repair 重写创意。
-- 页面出现固定抽象词条且“换一组”没有 LLM 请求：检查创建页 controller 是否绕过 `/idea-constellation/options` 使用静态数组。正确行为是展示生成态，失败时保留重试入口，不提供静态创意 fallback。
-- 组合结果只是标签串联：调整组合 Prompt 的因果约束或语义重试条件，不在前端用模板拼句。
-- 刷新候选后已选择内容消失：检查前端候选轮换与选择保留规则；这属于确定性状态处理，不应交给 AI 判断。
-- 星图被加入恢复阶段或任务进度：撤回阶段扩张。它是创建页中的可选构思工具，不是独立生产阶段。
+- The seven categories are incomplete or a category repeats: check the structured schema, examples, and model output budget. Do not invent options in the service or frontend.
+- Candidate structure is correct but it drifts from genre or progression: check opening-context assembly and retry with the original context. Do not let context-free JSON repair rewrite the creative work.
+- The page shows fixed abstract terms and “another set” makes no LLM request: check whether the create-page controller bypassed `/idea-constellation/options` with a static array. Correct behavior is a generating state, a retry entry on failure, and no static creative fallback.
+- Combination output is only concatenated labels: tighten the combination prompt’s causal constraint or semantic retry. Do not template-join sentences on the frontend.
+- Selected content disappears after refreshing candidates: check frontend candidate rotation and selection-keep rules. That is deterministic state handling, not an AI judgment.
+- The constellation is added as a recovery stage or task-progress stage: revert the stage expansion. It is an optional ideation tool on the create page, not an independent production stage.
 
 ## Related Modules
 
@@ -47,6 +47,6 @@
 
 ## Source Documents
 
-- [Prompt Registry 与结构化输出](../prompts/prompt-registry-and-structured-output.md)
-- [自动导演新增阶段检查清单](./auto-director-stage-checklist.md)
-- [热门题材雷达与自动导演市场简报](./market-radar-to-auto-director.md)
+- [Prompt Registry and structured output](../prompts/prompt-registry-and-structured-output.md)
+- [Auto-Director new-stage checklist](./auto-director-stage-checklist.md)
+- [Market Radar and Auto-Director market brief](./market-radar-to-auto-director.md)

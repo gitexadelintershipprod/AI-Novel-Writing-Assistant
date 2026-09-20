@@ -1,40 +1,40 @@
-# LLM 实况执行与任务可见性
+# LLM live execution and task visibility
 
 ## Background
 
-小说规划、章节生成和修复常在模型完整返回后才出现页面变化。长输出期间，用户无法区分任务仍在生成、正在校验，还是已经失去响应。
+Novel planning, chapter generation, and repair often change the page only after the model has fully returned. During a long output, the user cannot tell whether the task is still generating, currently validating, or already unresponsive.
 
 ## Decision
 
-LLM 调用采用“服务端消费流 + 全局创作实况订阅”的双轨方式：服务端持续读取模型流并累积完整结果；前端从所有页面都可打开的顶部“AI 实况”订阅临时事件。流结束后，调用方继续执行既有的结构化解析、语义校验、修复、业务应用和持久化流程。
+LLM calls use a dual track of “server consumes the stream + global creation live subscription”: the server keeps reading the model stream and accumulating the complete result; the frontend subscribes to temporary events from the top “AI Live” surface, which can be opened from every page. After the stream ends, the caller continues the existing structured parse, semantic validation, repair, business apply, and persistence flow.
 
 ## Current Rule
 
-1. 已注册 Prompt 的文本和结构化调用必须优先使用模型 `stream`，不得因为页面未订阅而退回一次性 `invoke`。
-2. 服务端是流的唯一消费者。浏览器仅订阅事件；页面关闭、切换任务或 SSE 断开不能中断后台任务。
-3. 实况事件只表达过程：`requesting`、`streaming`、`validating`、`repairing`、`completed`、`failed` 等。它们不替代统一任务状态。
-4. `output_delta` 是未校验预览。只有原有校验、修复和保存链路完成后的结果才可进入小说资产、章节正文或任务成功状态。
-5. 结构化输出进入 JSON 修复时，沿用同一会话并显示 `repairing`；不能在修复阶段重新创建无关联的前端流。
-6. 顶部“AI 实况”默认订阅当前服务中的生成会话，也可按 `taskId`、交互 ID 过滤；完成后短期保留，以支持面板重连后的快照恢复；不作为长期日志或内容存储。
-7. 任务中心是运行记录与恢复查询入口，不是正常创作时的实时进度入口。不要要求用户为了确认 AI 是否仍在生成而离开当前页面。
-8. 实况窗口是无背景遮罩、可拖动的终端风格悬浮日志窗。打开时必须在布局完成后定位到最新输出；只有用户停留在日志底部时才自动跟随新内容，用户向上阅读后必须保留当前阅读位置，并提供“回到最新输出”。
-9. 实况窗口按一次 LLM 调用分组显示。新调用开始时，必须展开并聚焦最新调用；此前已完成、失败或取消的调用应自动收起，用户仍可手动展开查看预览。
-10. “清空前台”只清除当前浏览器窗口已显示的调用会话，不得删除服务端临时会话、业务任务、保存结果或任务中心运行记录。清空后仅展示新开始的调用。
-11. 自动导演、简易章节书架等长时运行主界面应提供按 `taskId` 订阅的就地实况入口；检测到当前任务的新模型会话时可以自动打开一次，用户关闭同一会话后不得因后续片段重复弹出。
-12. 自动导演各规划阶段调用 Prompt 时必须沿调用链传递同一个导演任务 ID，并补充小说、阶段和步骤上下文。候选、故事宏观、角色、卷规划与章节生产不能因为跨服务调用而丢失实况归属。
+1. Registered Prompt text and structured calls must prefer the model `stream`. Do not fall back to one-shot `invoke` because no page is subscribed.
+2. The server is the stream’s only consumer. The browser only subscribes to events. Closing the page, switching tasks, or an SSE disconnect must not interrupt the background task.
+3. Live events only express process: `requesting`, `streaming`, `validating`, `repairing`, `completed`, `failed`, and similar. They do not replace unified task status.
+4. `output_delta` is an unverified preview. Only results that have finished the original validation, repair, and save chain may enter novel assets, chapter prose, or task-success state.
+5. When structured output enters JSON repair, keep the same session and show `repairing`. Do not recreate an unrelated frontend stream during repair.
+6. Top “AI Live” by default subscribes to generation sessions in the current service, and may also filter by `taskId` or interaction ID. After completion it is kept briefly so a panel reconnect can restore a snapshot. It is not long-term log or content storage.
+7. Task Center is the run-record and recovery-query entry, not the live-progress entry during ordinary creation. Do not require the user to leave the current page just to confirm that AI is still generating.
+8. The live window is a terminal-style floating log with no background overlay, and it is draggable. When opened it must locate to the latest output after layout completes. Auto-follow new content only while the user stays at the log bottom. After the user reads upward, keep the current reading position and offer “Back to latest output”.
+9. The live window groups display by one LLM call. When a new call starts, expand and focus the latest call. Previously completed, failed, or cancelled calls should auto-collapse; the user may still expand them to view the preview.
+10. “Clear foreground” only clears call sessions already shown in the current browser window. It must not delete server temporary sessions, business tasks, saved results, or Task Center run records. After clear, only newly started calls are shown.
+11. Long-running main surfaces such as Auto-Director and the simple chapter shelf should provide an in-place live entry subscribed by `taskId`. Detecting a new model session for the current task may auto-open once. After the user closes that same session, later fragments must not pop it open again.
+12. When Auto-Director planning stages call Prompts, they must pass the same director task ID down the call chain, plus novel, stage, and step context. Candidates, story macro, characters, volume planning, and chapter production must not lose live ownership because of cross-service calls.
 
 ## Failure Modes
 
-- SSE 断开：只影响可视化订阅，服务端继续消费模型流和执行后续逻辑。
-- 模型流失败：会话发出失败事件，原调用仍按既有错误处理和任务恢复规则处理。
-- 结构化预览看似完整但校验失败：界面必须显示“正在检查/正在修复”，不得把预览误标为已保存正文。
-- 无任务上下文的内部调用：仍可使用流式执行；全局实况面板可以显示该会话，但不应把它伪装成可恢复的业务任务。
-- 当前任务正在调用模型但就地实况为空：先检查 Prompt 调用元数据中的 `taskId` 是否在候选、规划服务和章节服务之间完整传递，再检查页面是否错误订阅了其他任务；不要用全局会话冒充当前任务的输出。
+- SSE disconnect: only visualization subscription is affected. The server keeps consuming the model stream and running later logic.
+- Model stream fails: the session emits a failure event. The original call still follows existing error handling and task-recovery rules.
+- A structured preview looks complete but validation fails: the UI must show “checking / repairing”. Do not mark the preview as saved prose.
+- Internal calls with no task context: streaming execution may still be used. The global live panel may show that session, but it must not be disguised as a recoverable business task.
+- The current task is calling a model but in-place live is empty: first check whether `taskId` in Prompt-call metadata was passed completely among candidate, planning, and chapter services, then whether the page subscribed to another task by mistake. Do not use a global session to impersonate the current task’s output.
 
 ## Related Modules
 
-- `server/src/platform/llm/live/`：会话代理、事件契约和 SSE。
-- `server/src/llm/structuredInvoke.ts`：结构化流、校验与修复衔接。
-- `server/src/prompting/core/promptRunner.ts`：注册 Prompt 的文本/结构化执行入口。
-- `client/src/hooks/useLlmLiveFeed.ts`：SSE 消费与批量状态更新。
-- `client/src/components/liveExecution/LiveExecutionDialog.tsx`：所有页面均可打开的用户可见实况入口。
+- `server/src/platform/llm/live/`: session proxy, event contract, and SSE.
+- `server/src/llm/structuredInvoke.ts`: structured stream, validation, and repair join.
+- `server/src/prompting/core/promptRunner.ts`: text/structured execution entry for registered Prompts.
+- `client/src/hooks/useLlmLiveFeed.ts`: SSE consumption and batched state updates.
+- `client/src/components/liveExecution/LiveExecutionDialog.tsx`: user-visible live entry openable from every page.

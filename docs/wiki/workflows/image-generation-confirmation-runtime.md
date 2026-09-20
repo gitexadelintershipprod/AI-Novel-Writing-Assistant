@@ -1,57 +1,57 @@
-# 图片生成确认与统一运行时
+# Image generation confirmation and unified runtime
 
 ## Background
 
-图片生成通常会消耗真实模型额度，并且输入不只是一段 prompt：角色三视图、表情稿、资产图、场景设定图、首帧图等入口还会携带参考图、尺寸、provider、负面提示词和业务状态写回规则。早期各入口直接在按钮点击后调用生成接口，用户无法在扣费前确认模型实际收到的素材，开发者也容易在不同服务里重复实现状态机、落盘、历史归档和错误写回。
+Image generation usually spends real model quota, and the input is more than a prompt: character sheets, expression sheets, asset images, scene concept art, and keyframes also carry reference images, size, provider, negative prompts, and business-state write-back rules. Early entries called the generate API directly on button click. Users could not confirm what the model would actually receive before being charged, and developers duplicated state machines, disk writes, history archival, and error write-back across services.
 
-对新手用户来说，生图失败或角色漂移时最需要看到的是“这一次到底发了什么”。因此所有用户手动触发的单次图片生成，都必须先展示确认弹窗，让用户在生成前看见 prompt、参考素材和参数，并允许做一次性调整。
+When generation fails or a character drifts, beginners most need to see what this request actually sent. Every user-triggered single image generation must therefore show a confirmation dialog first, so the user can see prompt, reference material, and parameters before generate, and make one-time adjustments.
 
 ## Decision
 
-用户手动触发的单次图片生成统一采用 `prepare -> ImageGenerationConfirmDialog -> generate(overrides)` 流程。后端入口必须先构建一份生成上下文，`prepare` 返回这份上下文的可展示快照，`generate` 使用同一类上下文并把弹窗中的一次性覆盖参数传给统一图片运行时。
+User-triggered single image generation uses a unified `prepare -> ImageGenerationConfirmDialog -> generate(overrides)` flow. Backend entries must first build a generation context. `prepare` returns a displayable snapshot of that context. `generate` uses the same class of context and passes one-time override parameters from the dialog into the unified image runtime.
 
-图片生成服务应优先通过 `server/src/services/image/runtime/` 的 `runImageGeneration` 执行，不再在业务服务里散写 provider 校验、模型解析、生成中状态、图片下载落盘、扩展名清理、成功/失败状态和历史归档。
+Image generation services should prefer `runImageGeneration` in `server/src/services/image/runtime/` rather than scattering provider checks, model resolution, generating state, image download/persist, extension cleanup, success/failure state, and history archival inside business services.
 
 ## Current Rule
 
-- 用户手动点击“生成图片 / 重生成 / 重抽 / 生成首帧 / 生成角色设计稿”等单次图片操作前，必须打开 `ImageGenerationConfirmDialog`。
-- 弹窗展示的 `prompt`、`negativePrompt`、`referenceImages`、`provider` 和 `size` 必须来自后端 `prepare` 接口，不允许前端自己拼接最终生图 prompt。
-- 弹窗确认后只把本次临时修改作为 `ImageGenerationOverrides` 传给 `generate`，不直接改写角色、场景、项目或镜头的长期配置。
-- 弹窗中的参考素材可以被用户临时移除。移除只影响本次生成实际发送给图片模型的 `refImagePaths/refImages` 和成功后记录的 `referenceImages`，不删除原始图片、不改变角色/场景/镜头素材状态。
-- 弹窗中的 Prompt 解释与 Prompt 优化必须通过后端 LLM 能力完成，并使用 `server/src/prompting/` 下注册的 PromptAsset；前端只展示结果或回填当前 textarea，不在前端写固定规则解释 prompt。
-- Prompt 优化只回填本次确认弹窗里的正向 prompt 草稿。用户仍需点击确认生成才会发起图片任务，优化结果不自动写回角色、场景、镜头、项目配置或其他长期状态。
-- Prompt 优化入口应允许用户输入自然语言优化要求，例如希望强化的画风、氛围、镜头或保留项；后端 PromptAsset 应优先遵循这些要求，但不得覆盖角色身份、参考图用途、性别锁、无文字/无水印等关键约束。
-- 后端服务应把 prompt、参考图路径、参考图展示元数据、尺寸、负面提示词和 adapter 组装在同一个 generation context 中，避免 `prepare` 和 `generate` 两套逻辑漂移。
-- `runImageGeneration` 是业务表 JSON 状态机图片生成的默认执行入口。业务服务只负责提供 `ImageTargetAdapter`、prompt、参考图和额外 done 状态。
-- 使用 `ImageGenerationTask` 两表模型的入口应保持 `ImageGenerationService` 作为任务创建、查询、资产管理和队列调度 facade；真实执行、取消检查、provider 调用、资产落库、任务重试和 pending 快照图片回填由 `ImageGenerationTaskExecutor` 承担，避免任务执行细节重新堆回 facade。
-- 成功生成后，如果实际使用了可追溯参考素材，应把 `referenceImages` 写入业务状态字段，供前端展示“本次生图使用的参考素材”。
-- 两表模型的参考素材应保存为同 owner 的 `ImageAsset` id；任务执行时解析为本地文件路径或可用 URL 发送给 provider，并在生成资产 metadata 中记录实际使用的 reference asset ids。
-- 格子图这类会临时合成雪碧图的入口，状态中记录雪碧图的组成素材，不持久化临时雪碧图本身；实际 provider 请求仍可使用临时本地文件，并在请求完成后清理。
-- 格子图 prompt 必须防止命名角色参考图扩散到群众人物：如果画面存在群众、路人、围观者、弟子群、士兵群或其他背景人物，应明确要求他们在年龄、脸型、发型、服饰颜色、体型和站姿上有差异，并禁止 repeated identical faces / cloned faces。
-- 自动批量任务可以继续直接调用后端统一运行时，不逐项弹出前端确认。批量任务的前置确认应放在批量任务创建/成本估算/目标范围确认层，而不是阻塞每张图。
+- Before the user clicks a single-image action such as Generate image / Regenerate / Redraw / Generate keyframe / Generate character design, the UI must open `ImageGenerationConfirmDialog`.
+- The dialog's `prompt`, `negativePrompt`, `referenceImages`, `provider`, and `size` must come from the backend `prepare` API. The frontend must not assemble the final image prompt itself.
+- After confirm, only this attempt's temporary edits go to `generate` as `ImageGenerationOverrides`. Do not rewrite long-lived character, scene, project, or shot configuration.
+- The user may temporarily remove reference material in the dialog. Removal affects only `refImagePaths/refImages` actually sent to the image model this time and the `referenceImages` recorded on success. It does not delete original images or change character/scene/shot asset state.
+- Prompt explanation and prompt optimization in the dialog must run through backend LLM capability and a PromptAsset registered under `server/src/prompting/`. The frontend only displays the result or fills the current textarea. Do not explain prompts with fixed frontend rules.
+- Prompt optimization only fills the positive prompt draft inside this confirmation dialog. The user still must click confirm generate to start the image task. Optimization results must not auto-write back to character, scene, shot, project config, or other long-lived state.
+- The optimize entry should let the user type a natural-language request, such as style, mood, camera, or items to keep. The backend PromptAsset should prefer those requests, but must not override character identity, reference-image purpose, gender lock, or no-text / no-watermark constraints.
+- Backend services should assemble prompt, reference paths, reference display metadata, size, negative prompt, and adapter in one generation context, so `prepare` and `generate` do not drift.
+- `runImageGeneration` is the default execution entry for business-table JSON state-machine image generation. The business service only supplies `ImageTargetAdapter`, prompt, reference images, and extra done state.
+- Entries that use the two-table `ImageGenerationTask` model should keep `ImageGenerationService` as the facade for task create, query, asset management, and queue dispatch. Real execution, cancel checks, provider calls, asset persist, task retry, and pending-snapshot image backfill belong to `ImageGenerationTaskExecutor`, so execution details do not pile back into the facade.
+- After a successful generate, if traceable reference material was actually used, write `referenceImages` into the business state field so the frontend can show "reference material used for this generate".
+- Two-table-model reference material should persist as same-owner `ImageAsset` ids. At task execution, resolve them to local file paths or usable URLs for the provider, and record the actual reference asset ids in generated-asset metadata.
+- For grid images that temporarily compose a sprite sheet, persist the sprite's constituent assets in state, not the temporary sprite itself. The provider request may still use a temporary local file, cleaned up after the request.
+- Grid-image prompts must prevent named-character reference faces from spreading onto crowd figures. If the frame has a crowd, passers-by, onlookers, disciple groups, soldier groups, or other background people, require variation in age, face shape, hairstyle, clothing color, body type, and pose, and forbid repeated identical faces / cloned faces.
+- Automatic batch jobs may keep calling the backend unified runtime directly without a frontend confirm per item. Batch confirmation belongs at batch-job create / cost estimate / target-range confirmation, not blocking every image.
 
 ## Examples
 
-- 漫画角色三视图、表情稿、角色资产、场景设定图和单格图，均应有对应的 `prepare*` API，前端通过 `useImageGenerationFlow` 打开统一弹窗。
-- 短剧角色设计稿和镜头首帧图也属于图片生成入口，必须展示即将发送的图片参数；镜头首帧如启用角色参考图，应在弹窗中列出这些角色设计稿。
-- 小说封面等使用任务表模型的图片生成入口，如果后续迁入统一业务表状态机，应同步补上 prepare 快照；在迁移前也不得新增绕过确认的手动生图入口。
-- 用户看不懂当前 prompt 时，可以在确认弹窗中触发解释；用户希望降低跑偏概率时，可以触发优化。两者都属于生图前辅助决策，不替代最终确认。
-- 用户对优化方向有自己的判断时，应把自然语言要求传给优化动作，而不是让前端拼接固定片段；LLM 负责把用户要求融入可执行 prompt。
-- 用户想排查某张参考图是否导致跑偏时，可以在确认弹窗中临时移除该素材后再生成；后端必须同时过滤真实发送的本地文件/URL 和写回状态的参考素材元数据。
-- 格子图中如果群众角色长相过度一致，优先检查 prompt 中是否把命名角色参考图限定到对应角色，并确认群众人物已有差异化约束；后续若仍不稳定，再把群众升级为结构化 extras。
+- Comic character sheets, expression sheets, character assets, scene concept art, and single panels should each have a matching `prepare*` API. The frontend opens the shared dialog through `useImageGenerationFlow`.
+- Short-drama character designs and shot keyframes are also image-generation entries and must show the image parameters about to be sent. If a shot keyframe enables character reference images, list those character designs in the dialog.
+- Novel-cover and other task-table image entries should add a prepare snapshot if they later move onto the unified business-table state machine. Until then, do not add a new manual generate entry that skips confirmation.
+- If the user cannot read the current prompt, they can trigger explain in the confirm dialog. If they want a lower drift risk, they can trigger optimize. Both are pre-generate decision aids, not a substitute for final confirm.
+- If the user has their own optimization direction, pass the natural-language request to the optimize action instead of concatenating fixed fragments on the frontend. The LLM is responsible for folding the request into an executable prompt.
+- If the user wants to test whether one reference image caused drift, they can temporarily remove it in the dialog and generate again. The backend must filter both the local files/URLs actually sent and the reference metadata written back to state.
+- If crowd faces in a grid image look too alike, first check whether the prompt limited named-character references to the matching characters, and whether crowd figures already have variation constraints. Only if that remains unstable, promote the crowd into structured extras.
 
 ## Failure Modes
 
-- 只在前端展示“推荐 prompt”，但后端生成时重新拼接另一份 prompt，会让用户确认的信息与实际发送内容不一致。
-- `prepare` 使用数据库状态判断有参考图，而 `generate` 使用磁盘文件判断，可能出现弹窗显示有图但实际未发送。关键入口应尽量在 prepare 阶段用与 generate 相同的解析方式确认素材可用性。
-- 生成成功后不写入 `referenceImages`，前端只能看到图片和 prompt，无法回溯角色、资产或场景参考素材。
-- 只在前端隐藏参考素材但后端仍发送原图，会让确认弹窗失去可信度；临时移除必须通过 overrides 传到后端，并在统一运行时调用前完成过滤。
-- 在前端用固定文案或关键词规则解释 prompt，会让用户误以为系统理解了图片约束；解释和优化必须交给 LLM PromptAsset，并接受结构化输出校验。
-- Prompt 优化如果自动保存到角色或场景配置，会把一次性试验误写成长设定；除非另有明确保存入口，确认弹窗只能修改本次生成参数。
-- 格子图只给命名角色做外貌锚定时，图片模型可能把主角参考脸复制给群众人物；群众差异化约束是格子图 prompt 的基础保护，不应由用户每次手写。
-- 在业务服务里直接调用 `generateImagesByProvider`，容易漏掉 generating/error 状态、历史归档、旧扩展名清理或 provider 支持校验。
-- 在 `ImageGenerationService` facade 里继续堆任务执行逻辑，会让创建任务、队列调度、取消恢复、provider 调用和资产写入混在一个文件；新增执行规则应优先进入 `ImageGenerationTaskExecutor`。
-- 批量任务如果逐图等待前端弹窗，会破坏自动化生产链；批量确认和单次确认是不同层级，不能混用。
+- Showing a "recommended prompt" on the frontend while the backend concatenates a different prompt at generate time makes confirmed information diverge from what is sent.
+- If `prepare` uses database state to decide that a reference image exists, while `generate` uses disk files, the dialog can show an image that is never sent. Critical entries should confirm material availability in prepare with the same resolution path generate uses.
+- If success does not write `referenceImages`, the frontend only sees the image and prompt and cannot trace character, asset, or scene references.
+- Hiding a reference on the frontend while the backend still sends the original image makes the confirm dialog untrustworthy. Temporary removal must reach the backend as overrides and be filtered before the unified runtime call.
+- Explaining prompts with fixed frontend copy or keyword rules makes users think the system understood image constraints. Explain and optimize must go through an LLM PromptAsset and structured-output validation.
+- If prompt optimization auto-saves into character or scene config, a one-off experiment becomes long-lived setting. Unless there is a separate explicit save entry, the confirm dialog may only change this generate's parameters.
+- If a grid image only appearance-anchors named characters, the image model may copy the lead's reference face onto crowd figures. Crowd variation constraints are baseline protection in the grid prompt and should not be handwritten by the user each time.
+- Calling `generateImagesByProvider` directly from a business service easily misses generating/error state, history archival, old-extension cleanup, or provider support checks.
+- Piling task-execution logic into the `ImageGenerationService` facade mixes create, queue dispatch, cancel/resume, provider calls, and asset writes in one file. New execution rules should go into `ImageGenerationTaskExecutor` first.
+- If a batch job waits for a frontend dialog per image, the automated production chain breaks. Batch confirmation and single confirmation are different layers and must not be mixed.
 
 ## Related Modules
 

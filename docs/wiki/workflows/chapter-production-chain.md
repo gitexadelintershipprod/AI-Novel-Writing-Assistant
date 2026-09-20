@@ -1,158 +1,156 @@
-# 章节生产链路
+# Chapter production chain
 
-## 背景
+## Background
 
-章节生产曾经把章节合同、正文生成、AI 检测、修文、轻校验、角色动态、状态快照、角色资源、伏笔账本等能力串进同一条热路径。能力本身有价值，但全部同步执行会导致用户等待变长、LLM 调用重复、修复循环和账本重复同步。
+Chapter production once chained chapter contracts, prose generation, AI detection, rewrite, light validation, character dynamics, state snapshots, character resources, and payoff-ledger work onto the same hot path. Those capabilities are valuable, but running them all synchronously lengthens user wait, duplicates LLM calls, creates repair loops, and repeats ledger sync.
 
-长篇小说主链路的目标是持续写完整本书。默认路径必须先产出可读正文，再在正文达到稳定接收结果后等待一次统一章节资产 delta 抽取；高成本的全量伏笔对账仍按风险、周期或 strict 模式条件触发。
+The long-novel main path’s goal is to keep writing the whole book. The default path must first produce readable prose, then wait for one unified chapter-asset delta extract after the prose reaches a stable acceptance result. Costly full payoff reconciliation still triggers by risk, period, or strict-mode conditions.
 
-## 决策
+## Decision
 
-章节生产采用双通道：
+Chapter production uses two channels:
 
 ```text
-轻量预检 -> 整章正文生成 -> 接收闸门 -> 可选局部修文
+Light precheck -> Whole-chapter prose generation -> Acceptance gate -> Optional local rewrite
                                       |
                                       v
-                    时间线终态提交 -> 异步资产回灌通道
+                    Timeline finalization -> Async asset backfill channel
 ```
 
-正文热路径只负责尽快生成、判断、保存和局部修复章节。章节稳定后由 `artifact_delta` 通道一次性回灌摘要、硬事实、状态快照、角色资源、关系动态、信息边界和伏笔 delta；全量伏笔校准保留为条件性后台对账。
+The prose hot path only generates, judges, saves, and locally repairs the chapter as quickly as possible. After the chapter is stable, the `artifact_delta` channel backfills summary, hard facts, state snapshot, character resources, relation dynamics, information boundaries, and payoff deltas in one pass. Full payoff calibration remains a conditional background reconciliation.
 
-## 首章关键路径
+## First-chapter critical path
 
-自动导演确认新书方向后，正文前同步等待的资产限定为：精简故事基础、开篇世界切片、核心角色、3～5 章路线和第 1 章执行合同。完整世界、非开篇角色资料、心智快照、远期卷规划和第 2 章以后的完整合同都不是首章前置条件。
+After Auto-Director confirms a new-book direction, the only assets that wait synchronously before prose are: a slim story foundation, an opening world slice, core characters, a 3–5 chapter route, and the chapter 1 execution contract. Full world, non-opening character profiles, mind snapshots, far-future volume planning, and complete contracts from chapter 2 onward are not first-chapter preconditions.
 
-首章正文稳定保存后，才允许触发角色等延迟增强。正文生成、审校、修复、Fact Ledger 提交和下一章 JIT 的优先级始终高于增强任务；增强失败只形成资料待补齐状态。下一章合同可以在当前章落库后预取，但正式执行仍必须依据最新 Fact Ledger 重新确认可用性。
+Only after first-chapter prose is saved stably may deferred character enhancement start. Prose generation, audit, repair, Fact Ledger commit, and next-chapter JIT always outrank enhancement tasks. Enhancement failure only becomes a profile-to-complete state. The next-chapter contract may be prefetched after the current chapter lands, but formal execution must still reconfirm availability from the latest Fact Ledger.
 
-## 当前规则
+## Current Rule
 
-- 高优先级硬约束：控制入口可以不同，但正文生成与正文修复的业务执行链必须唯一；批量执行、自动导演、手动单章生成、手动单章修复不得各自维护独立实现。
-- 章节生产链的正文工作版本和双状态字段只能由 `ChapterLifecycleService` 落库。writer、repair、pipeline adapter、接收闸门和资产同步不得直接更新 `Chapter.content`、`generationState` 或 `chapterStatus`；规划创建、用户显式编辑、版本恢复和下游重置按各自模块边界处理。
-- 章节唯一执行链定义如下：
-  - 控制入口统一经 `novelProductionOrchestrator`。
-  - 手动单章生成、批量执行与自动导演的章节生产统一落到 `ChapterExecutionStageRunner`。
-  - 手动单章修复与书级重规划统一落到 `quality_repair` stage；其中会改正文的修复入口必须委托给 `ChapterRuntimeCoordinator`。
-  - 正文 writer、接收闸门、patch repair、heavy repair、保存正文、资产同步、复审和状态推进必须复用同一套 runtime 规则，不允许 route、旧 service 或导演分支各自再维护第二套正文执行实现。
-- `NovelGenerationService.createChapterStream`、`NovelService.createRepairStream`、`startPipelineJob / resumePipelineJob` 只是不同控制入口；它们的业务执行面必须继续汇入同一 coordinator，而不是按入口复制 writer 或修文逻辑。
-- 默认 writer 继续整章一次性生成，不把 sceneCards、章节合同或分场景多轮写作重新接入正文热路径。
-- writer 仍然整章一次性生成，不按场景多轮拼接正文；但 `sceneCards` 顶层保存的 `ReaderExperienceContract` 会进入默认正文、验收和修复上下文，场景卡本身继续作为规划、诊断和局部修复辅助资产。
-- 正文生成前只做最低可写性检查：章节存在、人物可用、上下文包可组装、任务目标可解释。
-- 生成后用一次结构化接收闸门判断是否可继续、是否需要局部修文、是否需要人工确认。
-- 接收闸门通过后、构建运行包前，会对最终正文执行一次确定性正文自然度/退化检测。该检测只做本地文本规则检查，覆盖 AI 自述、占位符、工程词泄漏、截断、复读、破折号/省略号、否定翻转句、碎句和长段落等风险；它不调用 LLM，也不改变正文。
-- 正文自然度/退化检测输出统一进入 `mode_fit` 审计报告，issue code 使用 `prose_*` 前缀。`high/critical` 视为本章阻塞审计问题并复用现有 patch repair / heavy repair 链路；`medium/low` 只作为提示和后续局部优化依据，不触发全章重写。
-- `prose_*` 问题默认属于本章局部质量问题。自动修复耗尽后，如果正文仍可读，应登记 `defer_and_continue` 质量债并继续剩余章节；不得仅因为单章正文自然度问题写入 `replanAlertDetails`、`PIPELINE_REPLAN_REQUIRED` 或全局自动导演重规划。
-- 正文接收裁决只等待 `acceptance`。Timeline 不属于 writer required context，也不参与“正文是否可接收”的质量判断；接收结论确定后，统一终态入口必须为当前 content hash 写入 `stable` 或 `degraded` timeline finalization checkpoint，才能释放章节状态。未启用 Timeline 时不得生成“缺少 timeline context”的正文质量告警，而应提交最小降级锚点。
-- `acceptance` 门禁必须按同章、同正文 content hash、同模型请求写入持久化幂等缓存。任务取消、失败或 worker 重启后，如果正文未变化，应优先复用成功结果，不能重新触发相同接收评估。
-- 门禁缓存只能保存可复用的成功结果。`acceptance_gate_unavailable` 等临时系统失败不得写成长期成功缓存；这类结果应保留为当前运行风险，允许后续重试。
-- 任何会调用 LLM 的后置抽取或资产回灌，都必须在调用模型前抢占持久化 checkpoint，并把状态标记为 `running`。如果同章、同正文 content hash、同 artifactType 和 syncMode 已有 `running` 或 `succeeded` checkpoint，后续入口必须跳过本次 LLM 调用；失败时把 `running` 标记为 `failed`，允许后续重试。仅依赖服务实例内存锁不能满足任务重启、并发后台入口或上一章兜底补跑场景。
-- `artifact_delta` 是章节后置统一抽取的主所有者。`ChapterArtifactDeltaService` 的一次低温结构化调用负责产出 `summary`、`concreteFacts`、`stateDeltas`、`characterResourceDeltas`、`payoffDeltas`、`relationDynamics`、`factionUpdates`、`characterCandidates`、`characterKnowledgeStates` 和 `syncPlan`。
-- `ChapterContentFinalizationService` 在章节无需修复且正文稳定后等待 `artifact_delta` 完成，再允许后续章节组装读取新事实、状态、资源、伏笔和角色动态。手动修复完成、自动产线最终保留稿也必须通过同一条 awaited artifact sync；不得再额外同步调用 `NovelChapterSummaryService` 作为定稿主链路的一部分。
-- `NovelChapterSummaryService` 只保留给手动重新生成摘要或 UI 入口。`CharacterDynamicsMutationService.syncChapterDraftDynamics` 只作为 `artifact_delta` 未执行或失败时的手动运维兜底；`chapter:drafted -> character.chapterDraftSync` 自动 side-effect 链路已退役，不应重新接入常规章节事件，否则只会在 awaited artifact delta 后入队空跑。
-- Timeline 服务不直接修改正文，也不决定正文是否可接收。它负责在最终正文版本确定后提交时间锚点、事件、钩子和幂等检查点；稳定抽取失败时提交最小降级结果，使可用正文仍能继续全书生产。
-- 当前章的钩子承接由 `ReaderExperienceContract.inheritedHookResponsibilities` 负责；已发生事实由 Novel Fact Ledger 负责；长期伏笔窗口由 Payoff Ledger 负责。
-- `ChapterTimelineFinalizationService` 只允许由 `ChapterContentFinalizationService` 调用。手动生成、批量执行、自动导演和手动修复都必须通过这个统一终态入口，不得各自补写 Timeline，也不得在 route、director 或旧 service 中直接调用。
-- writer prompt 必须包含原始 `chapter.taskSheet`、`reader_experience` 和上一章实际正文尾段。任务单负责执行职责，读者体验合同负责本章回报、主动性、转折、净变化和钩子责任，上一章尾段负责约束开场承接；三者不能被旧摘要挤掉。
-- 续写模式下，writer prompt 必须包含 `continuation_constraints` required context。该块只提炼前作承接约束，例如来源、角色当前状态、终局摘要、关键事实和未完线索；它不能携带大段原文，也不能替代结构规划阶段的参考注入。
-- 续写小说绑定已成功的拆书分析时，章节续写上下文优先消费结构化小节，尤其是 `character_system`、`timeline` 和 `plot_structure`。只有没有可用拆书分析或分析读取失败时，才退回站内小说 / 知识库原文的有限摘要切片。
-- 规划期参考注入必须内部兜底。`buildReferenceForStage` 读取小说绑定、拆书分析或知识库内容失败时，只记录 warning 并返回空参考文本，不能让开书、规划、卷章拆分或角色规划调用方因为参考资料异常而中断主链路。
-- heavy repair 不能传空 RAG/连续性上下文。修复上下文至少要压缩注入最近章节摘要、上一章尾段、关键 open conflicts、角色硬事实和资源事实，避免修复后引入新的连续性矛盾。
-- 角色硬事实属于生成前必需约束。writer 必须收到 `character_hard_facts` required context，用于约束角色身份、阵营、立场、境界/战力、当前位置、可出场状态和禁止误写项。
-- `participant_subset` 只提供参与角色的软性简介和当前行为提示，不能替代 `character_hard_facts`。在 token 压力下可以压缩软信息，但不能裁掉角色硬事实。
-- `character_hard_facts` 进入 writer 前会按章节参与者、当前高风险角色和动态导向做子集筛选，避免把整本角色硬事实全量塞进正文上下文。
-- 角色信息边界属于 `artifact_delta` 的连续性资产。若本章形成明显信息差，应记录主要角色在章节结束时确认知晓和仍不知道的关键事实，避免后续章节让角色提前知道未见证、未被告知或被刻意隐瞒的信息。
+- High-priority hard constraint: control entries may differ, but the business execution chain for prose generation and prose repair must be unique. Batch execution, Auto-Director, manual single-chapter generation, and manual single-chapter repair must not each keep an independent implementation.
+- The chapter production chain’s prose working version and dual-status fields may only be persisted by `ChapterLifecycleService`. Writer, repair, pipeline adapter, acceptance gate, and asset sync must not update `Chapter.content`, `generationState`, or `chapterStatus` directly. Planning create, explicit user edit, version restore, and downstream reset stay inside their own module boundaries.
+- The unique chapter execution chain is:
+  - Control entries unify through `novelProductionOrchestrator`.
+  - Manual single-chapter generation, batch execution, and Auto-Director chapter production all land on `ChapterExecutionStageRunner`.
+  - Manual single-chapter repair and book-level replan land on the `quality_repair` stage. Repair entries that change prose must delegate to `ChapterRuntimeCoordinator`.
+  - Prose writer, acceptance gate, patch repair, heavy repair, save prose, asset sync, re-audit, and state advance must reuse the same runtime rules. Routes, old services, or director branches must not keep a second prose-execution implementation.
+- `NovelGenerationService.createChapterStream`, `NovelService.createRepairStream`, and `startPipelineJob / resumePipelineJob` are different control entries. Their business execution plane must still join the same coordinator, not copy writer or rewrite logic per entry.
+- The default writer still generates the whole chapter in one shot. It does not reconnect sceneCards, chapter contracts, or multi-round per-scene writing onto the prose hot path.
+- The writer still generates the whole chapter in one shot and does not stitch prose by scene. The top-level `ReaderExperienceContract` stored on `sceneCards` does enter default prose, acceptance, and repair context. Scene cards themselves remain planning, diagnostic, and local-repair auxiliary assets.
+- Before prose generation, do only the minimum writability checks: the chapter exists, characters are usable, the context pack can be assembled, and the task goal is interpretable.
+- After generation, one structured acceptance gate decides whether to continue, whether local rewrite is needed, and whether human confirmation is needed.
+- After the acceptance gate passes and before the run pack is built, run one deterministic prose-naturalness / degeneration check on the final prose. That check is local text-rule only: AI self-narration, placeholders, engineering-term leaks, truncation, repetition, dash/ellipsis issues, negated flip sentences, fragments, and long paragraphs. It does not call an LLM and does not change the prose.
+- Prose-naturalness / degeneration output enters the `mode_fit` audit report, with issue codes prefixed `prose_*`. `high/critical` are treated as this chapter’s blocking audit issues and reuse the existing patch repair / heavy repair chain. `medium/low` are only hints and later local-optimization basis; they do not trigger a whole-chapter rewrite.
+- `prose_*` issues default to this chapter’s local quality problems. After automatic repair is exhausted, if the prose is still readable, register `defer_and_continue` quality debt and continue remaining chapters. Do not write `replanAlertDetails`, `PIPELINE_REPLAN_REQUIRED`, or a global Auto-Director replan only because of one chapter’s prose naturalness.
+- Prose acceptance waits only for `acceptance`. Timeline is not writer required context and does not participate in “is this prose acceptable” quality judgment. After the acceptance conclusion is set, the unified finalization entry must write a `stable` or `degraded` timeline finalization checkpoint for the current content hash before releasing chapter state. When Timeline is not enabled, do not emit a “missing timeline context” prose-quality warning; submit a minimal degraded anchor instead.
+- The `acceptance` gate must write a persisted idempotent cache keyed by same chapter, same prose content hash, and same model request. After task cancel, failure, or worker restart, if the prose has not changed, reuse the successful result first. Do not retrigger the same acceptance evaluation.
+- The gate cache may store only reusable successful results. Temporary system failures such as `acceptance_gate_unavailable` must not be written as long-lived success cache. Those results stay as current-run risk and allow later retry.
+- Any post extract or asset backfill that will call an LLM must preempt a persisted checkpoint before the model call and mark status `running`. If the same chapter, same prose content hash, same artifactType, and syncMode already have a `running` or `succeeded` checkpoint, later entries must skip this LLM call. On failure, mark `running` as `failed` so later retry is allowed. An in-process memory lock is not enough for task restart, concurrent background entries, or previous-chapter catch-up runs.
+- `artifact_delta` is the primary owner of unified post-chapter extract. One low-temperature structured call in `ChapterArtifactDeltaService` produces `summary`, `concreteFacts`, `stateDeltas`, `characterResourceDeltas`, `payoffDeltas`, `relationDynamics`, `factionUpdates`, `characterCandidates`, `characterKnowledgeStates`, and `syncPlan`.
+- `ChapterContentFinalizationService` waits for `artifact_delta` to finish after the chapter needs no repair and the prose is stable, then later chapters may assemble the new facts, state, resources, payoffs, and character dynamics. Completed manual repair and the automatic pipeline’s final kept draft must also go through the same awaited artifact sync. Do not extra-synchronously call `NovelChapterSummaryService` as part of the finalization main path.
+- `NovelChapterSummaryService` is kept only for manual summary regeneration or UI entries. `CharacterDynamicsMutationService.syncChapterDraftDynamics` is only a manual ops fallback when `artifact_delta` was not run or failed. The `chapter:drafted -> character.chapterDraftSync` automatic side-effect path is retired and should not be reattached to ordinary chapter events, or it will enqueue empty runs after awaited artifact delta.
+- The Timeline service does not directly change prose and does not decide whether prose is acceptable. After the final prose version is set, it commits time anchors, events, hooks, and idempotent checkpoints. If stable extract fails, it commits a minimal degraded result so usable prose can still continue whole-book production.
+- Current-chapter hook handoff is owned by `ReaderExperienceContract.inheritedHookResponsibilities`. Occurred facts are owned by the Novel Fact Ledger. Long-horizon payoff windows are owned by the Payoff Ledger.
+- `ChapterTimelineFinalizationService` may be called only by `ChapterContentFinalizationService`. Manual generation, batch execution, Auto-Director, and manual repair must all go through this unified finalization entry. They must not each patch Timeline, and must not call it directly from a route, director, or old service.
+- The writer prompt must include the original `chapter.taskSheet`, `reader_experience`, and the previous chapter’s actual closing prose. The task sheet owns execution duties, the reader-experience contract owns this chapter’s payoff, agency, turn, net change, and hook responsibility, and the previous chapter’s closing prose constrains opening handoff. None of the three may be crowded out by an old summary.
+- In continuation mode, the writer prompt must include the `continuation_constraints` required context. That block only extracts prior-work handoff constraints such as source, current character state, ending summary, key facts, and unfinished threads. It must not carry long original text, and must not replace reference injection in the structure-planning stage.
+- When a continuation novel is bound to a succeeded book analysis, chapter continuation context prefers structured sections, especially `character_system`, `timeline`, and `plot_structure`. Only when no usable book analysis exists or analysis read fails should the path fall back to limited summary slices of in-app novel / knowledge-base original text.
+- Planning-stage reference injection must degrade internally. If `buildReferenceForStage` fails to read novel bindings, book analysis, or knowledge-base content, only log a warning and return empty reference text. Opening, planning, volume/chapter split, or character-planning callers must not abort the main path because reference material failed.
+- Heavy repair must not pass empty RAG / continuity context. Repair context must at least inject compressed recent chapter summaries, the previous chapter’s closing prose, key open conflicts, character hard facts, and resource facts, so repair does not introduce new continuity contradictions.
+- Character hard facts are required constraints before generation. The writer must receive `character_hard_facts` required context to constrain identity, faction, stance, realm / combat power, current location, appearance availability, and forbidden miswrites.
+- `participant_subset` only provides soft bios and current-behavior hints for participating characters. It cannot replace `character_hard_facts`. Soft information may be compressed under token pressure; character hard facts must not be cut.
+- Before `character_hard_facts` enter the writer, they are subset-filtered by chapter participants, current high-risk characters, and dynamics direction, so the whole book’s hard facts are not dumped into prose context.
+- Character information boundaries are continuity assets of `artifact_delta`. If this chapter creates a clear information gap, record which key facts main characters know and still do not know at chapter end, so later chapters do not let a character know something they did not witness, were not told, or were deliberately kept from.
+- Faction, identity, and realm errors should first be traced to the character library and `character_hard_facts` context, not only attributed to timeline or quality audit.
+- Audit and repair still detect character conflicts after generation, but they are a backstop. They should not be the primary character-fact source at prose generation time.
+- After chapter prose is written, the post gate records a unified trace: chapter, stage, blocking, content hash, duration, and prompt asset key, used to separate writer time from audit time.
+- The chapter-execution page’s frontend projection uses three-column duties: the left column only switches chapters and shows queue status, the middle only hosts prose reading and necessary prose actions, the right hosts the chapter sidebar and AI execution console.
+- The simple-creation shelf is a read-only reading entry: as long as `Chapter.content` is persisted, the user may view the current version. `chapterStatus` / `generationState` still mark “generating, auditing/repairing, or completed”. Non-complete prose must clearly warn that it may still update. Do not project already saved content as empty because status has not closed.
+- The right chapter sidebar further splits into `Chapter overview / Timeline / Character dynamics / Resource risk`. `Chapter overview` only holds current chapter status, word count, goal, pending issues, and update time. It does not mix in timeline constraints. Timeline only shows time anchors, previous-chapter hooks, planned advance, forbidden-early events, and check results.
+- The right sidebar must not add write flows. Timeline comes from the chapter timeline API. Check summaries prefer the runtime package or the latest `TimelineCheckReport`. Character dynamics come from state snapshots. Resources and risk come from existing resource context and runtime risk summaries.
+- Desktop left/middle/right columns should stay a same-height workspace and scroll independently inside each column. Mobile should collapse into grouped regions, keeping prose reading and chapter actions first.
+- The right column only shows constraints, state, diagnostics, and execution actions that affect later writing. It should not repeat the full prose of the middle column.
+- Task sheet, scene breakdown, quality report, repair records, context, and issue diagnostics belong to right-side material diagnosis. The middle keeps only the prose card and necessary prose actions, so summary and diagnostic layers do not keep occupying reading space.
+- The chapter hot path must maintain a unified chapter obligation contract: `mustHitNow`, `mustPreserve`, `requiredPayoffTouches`, `requiredCharacterAppearances`, `requiredGoalChanges`, `canDefer`, `forbiddenCrossings`. Writer, acceptance gate, local repair, and replan judgment should all consume the same contract, so planning, writing, and audit do not each interpret chapter duty.
+- Chapter repair, review, and context assembly must tolerate chapter-writing context in old run records. If old `chapterWriteContext` lacks the newer `obligationContract`, runtime should fill an empty contract instead of crashing the repair flow. After fill, the current chapter task, character duties, payoff ledger, and resource state still reorganize review and repair context.
+- Task details, chapter fact checks, and runtime projections must be read-only. `recover` only returns a recoverable location and reason. It must not write recovery events during polling or snapshot reads. Otherwise a page refresh will mis-record “recoverable state” as “executing again” and create a false payoff-sync impression.
+- Readiness, completion, and resume location for chapter-execution steps must prefer real artifact facts: `Chapter.content`, `AuditReport / QualityReport`, blocking issues, `StoryStateSnapshot / CanonicalStateVersion`, and authoritative approval state. `task.status`, `chapterStatus`, and `state.chapterProgress` are only projection or diagnostic hints. They cannot decide whether a chapter is generated, needs repair, or may enter the next chapter.
+- If task status and chapter facts conflict, chapter facts win: prose exists but an old task failed, continue from real progress; old `chapterStatus=needs_repair` but blocking issues are closed, do not keep entering repair; old `chapterStatus=completed` but prose is missing, do not treat it as complete.
+- Structured reminders in chapter obligation context must not crowd out high-risk resources and overdue payoffs. Review and repair context should keep unavailable resources, resources needing confirmation, and urgent/overdue payoff signals, so AI rewrite does not keep using dead props or ignore pressure that must be paid off.
+- Chapter audit and rewrite context must keep both `chapter_boundary` and `structure_obligations`. `chapter_boundary` owns this chapter’s entry state, end state, next-chapter entry, forbidden crossings, and protected reveals. `structure_obligations` owns what this chapter must advance, must keep, character appearances, goal changes, payoff delivery, and resource risk. If the audit prompt lacks those two context classes, it cannot judge “did the prose cross a boundary” or “did the task pay off”. Fix Context Broker / fallback blocks; do not lower the audit bar.
+- The acceptance gate must emit unmet obligations as structured `missingObligations` with `repairability`: local omissions use `patchable_obligation_gap`, whole-chapter adjustment uses `rewrite_needed`, and duty mismatch with neighboring-chapter arrangement uses `plan_misalignment`.
+- `missingObligations` must distinguish hard blocks from quality debt. Gaps in `must_hit_now` and `forbidden_crossing` block the current chapter and enter repair. Payoff, character-appearance, or goal-change gaps that only affect later follow-up should prefer `continue_with_risk`, so the chapter chain keeps moving and followable problems are not amplified into repeated patches.
+- Automatic rewrite defaults to at most once. After failure, record needs-repair state or a repair ticket. Do not enter infinite retry.
+- Local patch repair is a light-repair-first policy, not the chapter task’s only repair path. When patch-plan schema validation fails, `targetExcerpt` is not unique, `targetExcerpt` is too short, the target span is missing, or the patch is invalid, convert to a recoverable local-repair failure and let the upper quality chain escalate to whole-chapter light repair or record needs-repair. Do not let the Auto-Director task fail on the raw Zod error.
+- `acceptance_gate_unavailable` or “chapter acceptance judgment unavailable” is an audit-system risk, not a replaceable span in the prose. If the current pending issues are only that kind of risk, batch chapter production should keep the current prose and record recheck debt, waiting for re-audit or human review. Do not call the local patch prompt, and do not rewrite prose for a system risk.
+- Every repair entry that changes prose follows the same repair rule: try patch repair first; if patch repair fails for schema, locating, hit ambiguity, or invalid patch, auto-escalate once to `heavy_repair` only. Do not launch a second patch LLM round such as “loose anchor” between the two. After success, go through save prose, asset sync, re-audit, and state update together. After failure, manual repair returns a real failure; batch execution and Auto-Director record quality debt or a recoverable failure and continue later chapters.
+- Patch repair’s `targetExcerpt` must be a uniquely locatable original span in the prose. `replacement` is the content after replacement. Deleting a duplicate span may use an empty-string `replacement`, but unique location and an actual prose change are still required.
+- When existing prose enters re-audit or quality repair, do not first re-save the same prose as `drafted/generating`. If the prose has not changed, only audit, do necessary repair, and run final asset sync, so UI update time, RAG queues, and chapter status are not refreshed for no reason.
+- The chapter-execution queue may remove a not-yet-started manual blank chapter: it must still be `planned/unplanned`, with no prose, goal, task sheet, scene cards, repair records, or risk marks. The delete entry and the server must use the same rule. Any chapter that has entered planning, writing, audit, or repair must not be deleted from this entry, to protect generated content and downstream facts.
+- Auto-Director’s quality-loop budget must actually change the next repair mode: after the same failure signature has already tried local repair, the next chapter-pipeline round must switch to `heavy_repair`. Do not keep hard-coding `light_repair`.
+- Chapter-execution failure semantics must distinguish: prose not generated is `draft_generation_failed`; prose generated but this chapter’s obligations unpaid is `draft_obligation_unmet`; blocking issues remain after automatic repair is `draft_repair_exhausted`; neighboring-chapter plan needs adjustment is `replan_required`. UI and task details should show the real root cause, not flatten all of these into `chapter.draft.write did not meet its completion criteria`.
+- Quality-loop projection must distinguish blocking errors from non-blocking quality debt. A chapter with `terminalAction=defer_and_continue` that is not `replan_required` / `recommendedAction=replan` / `blockingObligations` may only appear as a weak “quality debt already recorded” hint. It must not drive main status into “error needs handling” or create a repair ticket. `local_patch_plan` / `continue_with_warning` may only enter the quality-debt or local-repair-guidance channel. They must not write `replanAlertDetails` or `PIPELINE_REPLAN_REQUIRED`. `replan_required` is still a blocking replan even when it also carries `defer_and_continue`.
+- Non-blocking quality debt with usable prose should complete degraded finalization in persisted state (`generationState=approved`, `chapterStatus=completed`) and keep quality-debt risk marks for later recovery. The reading shelf projects leftover records of that kind as “Saved · pending optimization”, not “Auditing / repairing”. Only structured `replan_required` shows as “Waiting for replan”.
+- `urgentPayoffs`, `overduePayoffs`, `ledgerSummary.urgentCount / overdueCount`, and `nextAction=advance_payoff` are chapter-duty or quality-debt signals. They may enter writing context, the acceptance gate, and later quality recovery. They must not alone trigger a global replan, or the system will mistake “this chapter should advance a payoff” for “the whole-book plan is already misaligned”.
+- `replanRecommendation` must carry action and scope: `continue_with_warning` means record a hint and continue; `local_patch_plan + local_window` means automatically replan the unfinished window after the current chapter and continue; `stop_for_replan + global_book` is what pauses the batch pipeline. Callers must not stop chapter execution just because `recommended=true` or because of an old action name.
+- Manual chapter audit only returns structured `qualityAssessment` and `replanRecommendation`, and writes the assessment as recoverable chapter state. It must not call the planner inside the audit request to rewrite the chapter window. Book-level replan is entered only when the user explicitly clicks replan. Automatic production may pause only when `ChapterQualityClosure` consumes an explicit `stop_for_replan + global_book`.
+- If manual audit reaches an explicit replan conclusion, keep the current prose, write `recommendedAction=replan` into `riskFlags.qualityLoop`, and land on `generationState=reviewed + chapterStatus=needs_repair`. Those fields are a chapter checkpoint waiting for human confirmation. They do not mean prose is lost or the whole-book task has already failed.
+- After entering `replan_required`, recovery only rewrites the chapter-plan window. It does not rewrite saved prose. After replan completes, the chapter-execution range must be relocated from real prose facts to the first ungenerated chapter. Do not keep advancing an old failed task’s single-chapter range, and do not implement “continue” as skipping the same plan mismatch once per chapter.
+- Overdue payoffs, regardless of overdue distance, whether they sit in the current window, or whether they are cited by the current chapter goal, may only output `continue_with_warning`. Only structured `nextAction=replan`, human force, or chapter acceptance confirming `plan_misalignment` may output `stop_for_replan`. High/critical audit issues output `local_patch_plan` and must not stop remaining chapters.
+- An overdue payoff with no explicit target window is only ledger-risk follow-up. Do not derive overdue distance from `lastTouchedChapterOrder` or `firstSeenChapterOrder`, and do not anchor an old chapter to trigger `stop_for_replan`. If payoff-ledger sync sees AI output an overdue with no `targetStartChapterOrder`, `targetEndChapterOrder`, `payoffChapterOrder`, or `payoffChapterId`, degrade it to `pending_payoff` and keep the `payoff_missing_progress` risk signal.
+- `mustAdvance` in the chapter writing contract may store only plot-advance items. System audit labels such as `acceptance_gate_unavailable`, `missing_must_hit`, and `mode_fit/acceptance_gate_unavailable` may only enter audit, repair, or diagnosis. They must not be written into the task sheet’s “must advance” or sceneCards `mustAdvance`.
+- When `autoReview=false`, prose may still be saved and enter async asset backfill. Auto-Director’s `chapter.quality.review` fact check should read the execution plan and treat “this round does not run auto-audit” as an explainable skip fact. In that case a completed-prose batch must not fail because `AuditReport` / `QualityReport` count is 0.
+- When the same chapter’s prose content hash has not changed, do not rerun state snapshot, character resource, payoff ledger, or character-dynamics sync.
+- When planning already has `taskSheet` and `sceneCards` and there is no new user guidance, chapter execution-contract refinement should reuse existing planning and not recall `novel.volume.chapter_execution_contract`. Regeneration with guidance may still overwrite old results.
+- Planning-state conflict-intensity anchoring belongs only to the volume-workspace contract: when `VolumeChapterPlan.conflictLevelSource = "user"` and `conflictLevel` is numeric, chapter split, chapter refinement, and replan must treat it as a user fixed point. Execution-state `Chapter` still receives only the numeric `conflictLevel` and does not store the anchor source. Releasing the anchor must be an explicit hand-back from a user entry: the request carries the same current `conflictLevel` and `conflictLevelSource = "ai"`, and only then may persistence drop from `user` back to `ai`. If AI generation or replan passes a different number, keep the original user anchor. Do not silently overwrite it.
+- Any data backfill, sync, extract, or index refresh must wait until the chapter has entered a stable terminal state. While the chapter is still in repair, rewrite, or rollback, only keep the prose and necessary audit results. Do not hang those actions back onto the hot path early. Timeline finalization is the state-close step before the next chapter, not a background asset backfill that can be delayed at will.
+- Asset sync modes:
+  - `adaptive`: default. Key assets sync asynchronously. High-risk or period nodes trigger full payoff calibration.
+  - `deferred`: fast prose. Asset sync may be delayed for batch processing.
+  - `strict`: wait for necessary asset sync before continuing to the next chapter.
 
-- 角色信息边界属于章节后置抽取的连续性资产。若本章形成明显信息差，应记录主要角色在章节结束时确认知晓和仍不知道的关键事实，避免后续章节让角色提前知道未见证、未被告知或被刻意隐瞒的信息。
-- 角色阵营、身份、境界错误应优先排查角色库和 `character_hard_facts` 上下文，而不是只归因于时间线或质量审计。
-- 审计和修复仍然负责生成后检测角色冲突，但它们是后置保险，不应作为正文生成时的主要角色事实来源。
-- 章节正文写完后，后置门禁会记录统一 trace：章节、阶段、阻断性、内容 hash、时长和 prompt asset key，用于区分 writer 本身耗时与审校耗时。
-- 章节执行页的前端投影采用三栏职责：左侧只负责切章和查看队列状态，中间只承接正文阅读和必要正文操作，右侧承接章节侧栏和 AI 执行台。
-- 简易创作书架是只读阅读入口：只要 `Chapter.content` 已经持久化，就允许用户查看当前版本；`chapterStatus` / `generationState` 仍用于标记“生成中、审校修复中或已完成”，非完成状态的正文必须明确提示可能继续更新，不能因为状态尚未收口而把已保存内容投影为空。
-- 右侧章节侧栏再细分为 `本章概览 / 时间线 / 角色动态 / 资源风险`。`本章概览` 只放当前章节状态、字数、目标、待处理问题和更新时间，不混入时间线约束；时间线只展示时间锚点、上一章钩子、计划推进、禁止提前发生事项和检测结果。
-- 右侧侧栏不得新增写入流程。时间线来自章节时间线接口，检测摘要优先使用 runtime package 或最新 `TimelineCheckReport`，角色动态来自状态快照，资源与风险来自现有资源上下文和运行时风险摘要。
-- 桌面端左中右三栏应保持同高工作区，并在各自栏内独立滚动；移动端应折叠成分组区域，优先保留正文阅读和章节操作空间。
-- 右侧栏只展示会影响后续写作的约束、状态、诊断和执行操作，不应重复中间正文区的完整正文。
-- 任务单、场景拆解、质量报告、修复记录、上下文与问题诊断属于右侧资料诊断；中间区只保留正文卡和必要正文操作，避免摘要层和诊断层反复占据正文阅读空间。
-- 章节热路径必须维护统一的章节义务合同：`mustHitNow`、`mustPreserve`、`requiredPayoffTouches`、`requiredCharacterAppearances`、`requiredGoalChanges`、`canDefer`、`forbiddenCrossings`。writer、接收闸门、局部修复和重规划判断都应消费同一份合同，避免规划、写作和审核各自解释章节职责。
-- 章节修复、审阅和上下文组装必须兼容旧运行记录中的章节写作上下文。旧 `chapterWriteContext` 如果缺少新增的 `obligationContract`，运行时应补齐空合同，而不是让修复流崩溃；补齐后仍由当前章节任务、角色职责、伏笔账本和资源状态重新组织审阅与修复上下文。
-- 任务详情、章节事实检查和运行态投影必须只读；`recover` 只负责返回可恢复位置和理由，不得在轮询或快照读取时写入恢复事件。否则页面刷新会把“可恢复状态”误记成“正在再次执行”，并制造重复的伏笔同步假象。
-- 章节执行步骤的就绪性、完成度和断点续跑位置必须优先读取真实产物事实：`Chapter.content`、`AuditReport / QualityReport`、阻塞 issue、`StoryStateSnapshot / CanonicalStateVersion` 和权威审批状态。`task.status`、`chapterStatus`、`state.chapterProgress` 只能作为投影或诊断提示，不能决定章节是否已生成、是否需要修复、是否可以进入下一章。
-- 如果任务状态和章节事实冲突，以章节事实为准：有正文但旧任务失败时允许从真实进度继续；旧 `chapterStatus=needs_repair` 但阻塞 issue 已关闭时不能反复进入修复；旧 `chapterStatus=completed` 但正文缺失时不能视为完成。
-- 章节义务上下文的结构化提醒不能挤掉高风险资源和逾期伏笔。审阅与修复上下文应保留资源不可用、资源需确认、urgent/overdue payoff 等关键信号，防止 AI 修文在缺少约束的情况下继续使用失效道具或忽略必须兑现的压力。
-- 章节审校和修文上下文必须同时保留 `chapter_boundary` 与 `structure_obligations`。`chapter_boundary` 负责本章进入状态、结束状态、下一章入口、禁止越界和受保护揭露；`structure_obligations` 负责本章必须推进、必须保留、角色出场、目标变化、伏笔兑现和资源风险。审校 prompt 如果缺少这两类上下文，会无法判断“正文是否越界”或“任务是否兑现”，应修 Context Broker / fallback blocks，而不是降低审校标准。
-- 接收闸门必须把未兑现义务输出为结构化 `missingObligations`，并给出 `repairability`：局部漏写用 `patchable_obligation_gap`，需要整章调整用 `rewrite_needed`，章节职责与邻章安排失配才用 `plan_misalignment`。
-- `missingObligations` 需要区分硬阻断与质量债务。`must_hit_now` 和 `forbidden_crossing` 缺口会阻断当前章并进入修复；只影响后续跟进的 payoff、角色露面或目标变化缺口，应优先记录为 `continue_with_risk`，让章节链继续推进，避免把可跟进问题放大成重复 patch。
-- 自动修文默认最多一次；失败后记录待修状态或 repair ticket，不进入无限重试。
-- 局部 patch repair 是轻修优先策略，不是章节任务的唯一修复路径。补丁计划 Schema 校验失败、targetExcerpt 不唯一、targetExcerpt 太短、目标片段缺失或补丁无效时，应转为可恢复的局部修复失败，由上层质量链路升级到整章轻修或记录待修状态，不能直接让自动导演任务以原始 Zod 错误失败。
-- `acceptance_gate_unavailable` 或“章节接收判断不可用”属于审校系统风险，不代表正文中存在可替换片段。若当前待处理问题只包含这类风险，批量章节生产应保留当前正文并记录复查债务，等待重新审校或人工复查；不得调用局部 patch prompt，也不得为了系统风险改写正文。
-- 所有会改正文的修复入口统一遵循同一条修复规则：先尝试 patch repair；patch repair 因 Schema、定位、命中歧义或补丁无效失败时，只允许自动升级一次 `heavy_repair`，不得在两者之间再发起“宽松锚点”等第二轮 patch LLM；成功后统一走保存正文、资产同步、复审与状态更新；失败后手动修复返回真实失败，批量执行与自动导演记录质量债务或 recoverable failure 后继续后续章节。
-- patch repair 的 `targetExcerpt` 必须是正文中唯一可定位的原文片段；`replacement` 表示替换后的内容。删除重复片段时允许 `replacement` 为空字符串，但仍必须满足唯一定位和产生正文变化。
-- 已有正文进入复审或质量修复时，不应先把同一份正文重新保存为 `drafted/generating`。正文未变化时只做审校、必要修复和最终资产同步，避免 UI 更新时间、RAG 队列和章节状态被无意义刷新。
-- 章节执行队列允许移除尚未开始的手动空白章节：它必须仍为 `planned/unplanned`，且没有正文、目标、任务单、场景卡、修复记录或风险标记。删除入口与服务端必须使用同一规则；任何已进入规划、写作、审校或修复链路的章节都不得从此入口删除，以保护已生成内容和下游事实。
-- 自动导演的质量循环预算必须真正影响下一轮修复方式：同一失败签名已经尝试过局部修复后，下一轮章节管线要切到 `heavy_repair`，不能继续硬编码 `light_repair`。
-- 章节执行失败语义必须区分：正文未生成是 `draft_generation_failed`；正文已生成但未兑现本章义务是 `draft_obligation_unmet`；自动修复后仍有阻塞问题是 `draft_repair_exhausted`；需要调整邻章计划是 `replan_required`。UI 和任务详情应展示真实根因，不再把这些情况统一压成 `chapter.draft.write 未满足其完成标准。`
-- 质量闭环投影必须区分阻塞错误和非阻塞质量债务。`terminalAction=defer_and_continue` 且不是 `replan_required` / `recommendedAction=replan` / `blockingObligations` 的章节，只能作为“已记录质量债务”弱提示，不得驱动主状态进入“出错需处理”或生成 repair ticket；`local_patch_plan` / `continue_with_warning` 只能进入质量债务或局部修复建议通道，不得写入 `replanAlertDetails` 或 `PIPELINE_REPLAN_REQUIRED`；`replan_required` 即使同时带有 `defer_and_continue`，也仍是阻塞重规划。
-- 有可用正文的非阻塞质量债，在持久化状态上应完成降级定稿（`generationState=approved`、`chapterStatus=completed`），并保留质量债风险标记用于后续回收；阅读书架把历史遗留的同类记录投影为“已保存 · 待优化”，不能显示成“审校修复中”。只有结构化 `replan_required` 才显示为“等待重规划”。
-- `urgentPayoffs`、`overduePayoffs`、`ledgerSummary.urgentCount / overdueCount` 和 `nextAction=advance_payoff` 都是章节职责或质量债信号。它们可以进入写作上下文、接收闸门和后续质量回收，但不能单独触发全局重规划，否则系统会把“本章应该推进 payoff”误判成“整本计划已经失配”。
-- `replanRecommendation` 必须携带动作与作用域：`continue_with_warning` 表示只记录提示并继续；`local_patch_plan + local_window` 表示自动重规划当前章之后的未完成窗口并继续；`stop_for_replan + global_book` 才表示需要暂停批量流水线。调用方不得只看 `recommended=true` 或旧的动作名称就停止章节执行。
-- 人工章节审校只负责返回结构化 `qualityAssessment` 与 `replanRecommendation`，并把评估写成可恢复的章节状态。它不得在审校请求内直接调用规划器改写章节窗口；用户显式点击重规划时才进入书级重规划入口，自动生产则只允许 `ChapterQualityClosure` 消费明确的 `stop_for_replan + global_book` 并暂停。
-- 人工审校若得到明确重规划结论，应保留当前正文，把 `recommendedAction=replan` 写入 `riskFlags.qualityLoop`，并落到 `generationState=reviewed + chapterStatus=needs_repair`。这组字段是等待人工确认的章节检查点，不代表正文丢失或整本任务已经失败。
-- 明确进入 `replan_required` 后，恢复动作只改写章节计划窗口，不重写已保存正文。重规划完成后，章节执行范围必须依据真实正文事实重新定位到第一个未生成章节；不得沿用旧失败任务的单章范围反复推进，也不得把“继续”实现成每章跳过一次相同的计划失配。
-- 逾期 payoff 无论逾期距离、是否落在当前窗口、是否被当前章目标引用，都只能输出 `continue_with_warning`。只有结构化 `nextAction=replan`、人工强制或章节验收确认 `plan_misalignment` 才能输出 `stop_for_replan`；高/严重审计问题输出 `local_patch_plan`，不得停止剩余章节。
-- 无明确目标窗口的 overdue payoff 只能作为账本风险跟进，不能用 `lastTouchedChapterOrder` 或 `firstSeenChapterOrder` 推导逾期距离，也不能锚定旧章节触发 `stop_for_replan`。伏笔账本同步若发现 AI 输出了无 `targetStartChapterOrder`、`targetEndChapterOrder`、`payoffChapterOrder`、`payoffChapterId` 的 overdue，应降级为 `pending_payoff` 并保留 `payoff_missing_progress` 风险信号。
-- 章节创作合同中的 `mustAdvance` 只能保存剧情推进项。`acceptance_gate_unavailable`、`missing_must_hit`、`mode_fit/acceptance_gate_unavailable` 等系统审计标签只能进入审计、修复或诊断通道，不得写入任务单“必须推进”或 sceneCards 的 `mustAdvance`。
-- `autoReview=false` 时仍可保存正文并进入异步资产回灌。自动导演的 `chapter.quality.review` 事实检查应读取执行计划，把本轮不执行自动审校视为可解释的跳过事实；此时不能因为 `AuditReport` / `QualityReport` 数量为 0 而让已完成正文的批次失败。
-- 同一章正文 content hash 未变化时，不重复跑状态快照、角色资源、伏笔账本和角色动态同步。
-- 同一章规划已经有 `taskSheet` 和 `sceneCards`，且没有新的用户 guidance 时，章节执行合同细化应复用已有规划，不重复调用 `novel.volume.chapter_execution_contract`。带 guidance 的重生成仍允许覆盖旧结果。
-- 规划态冲突强度锚定只属于卷工作区合同：`VolumeChapterPlan.conflictLevelSource = "user"` 且 `conflictLevel` 为数值时，拆章、章节细化和重规划必须把它当作用户固定点；执行态 `Chapter` 仍只接收 `conflictLevel` 数值，不保存锚定来源。解除锚定必须是用户入口发出的明确交还语义：请求携带当前相同 `conflictLevel` 且 `conflictLevelSource = "ai"`，持久层才允许从 `user` 降回 `ai`。AI 生成或重规划传入不同数值时必须保留原用户锚定，不能静默覆盖。
-- 任何数据回填、同步、抽取或索引刷新，都必须等章节进入稳定终态后再执行；章节仍处于修复、重写或回退过程中时，只允许保留正文与必要审校结果，不能提前把这类动作挂回热路径。timeline finalization 是进入下一章前的状态闭合步骤，不属于可随意延后的后台资产回灌。
-- 资产同步模式：
-  - `adaptive`：默认模式，关键资产异步同步，高风险或周期节点触发全量伏笔校准。
-  - `deferred`：快速产文，资产同步可延后批处理。
-  - `strict`：等待必要资产同步后再继续下一章。
+## Examples
 
-## 示例
+Recommended:
 
-推荐做法：
+- With no sceneCards, allow prose generation as long as chapter goal and context are enough.
+- After the acceptance gate outputs repair directives, do only one local patch repair.
+- Automatic repair from the acceptance gate allows only one automatic retry. If it still fails, the chapter enters a “did not pass, but production continues” terminal. Do not keep conflicting passed and needs-repair states at once.
+- Payoffs write a delta per chapter by default. Only high risk, volume end, period nodes, or strict mode trigger full reconciliation.
+- Background asset backfill consumes only completed stable snapshots. It does not pull the main path back, and does not rerun the prose chain because of the same chapter’s terminal quality warnings.
+- When skipping a chapter, first commit a degraded timeline, then enter the next chapter. Do not treat skip as a shortcut around timeline.
 
-- 无 sceneCards 时，只要章节目标和上下文足够，允许生成正文。
-- 接收闸门输出 repair directives 后，只做一次局部 patch repair。
-- 接收闸门的自动修复只允许一次自动重试；仍未通过时，章节进入“未通过但继续生产”的终态，不再同时保留互相冲突的通过态与待修态。
-- 伏笔每章默认写 delta，只有高风险、卷尾、周期节点或 strict 模式触发全量对账。
-- 背景资产回灌只消费已完成的稳定快照，不回拉主链，不因为同章的终态质量告警反复重跑正文链路。
-- 跳过章节时，先提交 degraded timeline，再进入下一章；不能把跳过当成绕过 timeline 的捷径。
+Forbidden:
 
-禁止做法：
+- Forcing every chapter to rebuild a contract before generating prose just because chapter-contract capability exists.
+- Defaulting after generation to chain AI-taste detection, light audit, state extract, character-resource extract, payoff sync, and other multiple LLM calls.
+- Failing or truncating prose just because length slightly exceeds the target.
+- Adding independent writer, patch repair, or full rewrite implementations for manual single-chapter repair, batch execution, Auto-Director, or Creative Hub.
+- Exposing patch repair’s raw technical errors as a new flow branch, for example terminating manual repair on `targetExcerpt too_small` instead of handing it to the unified quality chain to escalate once to full-text repair.
 
-- 因为有章节合同功能，就强制每章默认先重建合同再生成正文。
-- 生成后默认串联 AI 味检测、轻审校、状态抽取、角色资源抽取、伏笔同步等多次 LLM 调用。
-- 长度略超目标就直接失败或截断正文。
-- 给手动单章修复、批量执行、自动导演或 Creative Hub 分别新增独立的 writer、patch repair 或 full rewrite 实现。
-- 把 patch repair 的原始技术错误直接暴露成新的流程分支，例如 `targetExcerpt too_small` 直接终止手动修复，而不是交给统一质量链升级一次全文修复。
+## Failure Modes
 
-## 失败模式
+- Abnormal time to generate one chapter: check whether multiple LLM post-processes were stuffed back onto the hot path.
+- Repeated ledger sync or repeated timeline / artifact-delta extract for the same chapter: check whether the content-hash checkpoint completed `running` preemption before the LLM call, rather than writing `succeeded` only after a successful call.
+- Repair loops: check whether automatic rewrite count is limited, whether failure lands on a continuable production terminal, and whether Auto-Director quality budget has already escalated from local repair to whole-chapter repair or replan.
+- Prose shows AI self-narration, placeholders, engineering terms, or obvious truncation: first check whether the runtime package’s `audit.openIssues` contains `prose_*` codes. If there are only `prose_*` issues and no `replan_required`, neighboring-plan mismatch, or unusable prose, use this chapter’s repair or quality debt. Do not pause whole-book Auto-Director.
+- Frequent `chapter.draft.write did not meet its completion criteria`: first check the runtime package’s `failureClassification` and `obligationCoverage`. If the root cause is `draft_obligation_unmet`, prefer the acceptance gate’s missing obligations and patch repair. If it is `replan_required`, check whether one chapter is overloaded or neighboring-chapter division is mismatched.
+- Chapters keep asking for replan: check whether `rolling_window_review` reasons come only from pre-generation urgent payoffs or `advance_payoff`. If the audit score can pass, and prose and artifact delta already show progress, but the runtime package still recommends replan, the replan recommendation read pre-write state rather than post-write failure evidence.
+- Auto-Director stuck on early payoffs at high chapter counts: check whether synonymous duplicate ledger items were created by AI full reconciliation as `overdue` with no target window. The correct behavior is for sync post-processing to reuse an unfinished same-name canonical ledgerKey, and to degrade overdue with no explicit window to pending-progress risk, so an old `lastTouchedChapterOrder` is not anchored into a replan window tens of chapters wide.
+- The page looks like it “keeps updating”: first distinguish whether the backend actually produced new prose. If chapter prose did not change but `updatedAt`, RAG jobs, or task heartbeat keep refreshing, check whether an existing-prose re-audit was re-saved as a draft.
+- Prose is already readable but the UI shows failure: check whether prose status, asset-backfill status, and ledger-calibration status were mixed into one status.
+- Chapters 3–8 all show “suggested patch repair / quality needs repair”: first check whether `riskFlags.qualityLoop` is `defer_and_continue` quality debt. If there is no `replan_required`, `recommendedAction=replan`, or `blockingObligations`, the main UI and AI cockpit must not show it as a blocking error.
+- After auto-audit is turned off, the task stops at `chapter.quality.review facts are not complete yet`: first check whether `autoExecution.autoReview`, `autoExecutionPlan.autoReview`, and `directorInput.autoExecutionPlan.autoReview` in the runtime seed payload were passed into the fact check. If those fields are `false`, the quality-review step should output `reviewSkipped=true` and continue later state commit.
+- Future-plot leak in a chapter: first check whether chapter boundary, protected secrets, the fact ledger, and `reader_experience` entered the writer prompt. Do not treat Timeline as the default write-chapter fact source.
+- The next chapter does not pick up the old hook: check whether neighboring-chapter refinement wrote the duty into `inheritedHookResponsibilities`, and whether writer / acceptance / repair consume the same `reader_experience` block.
+- Reader payoff or hook duty is lost after repair: check whether repair context kept the original contract and already established `readerValue`. Do not cover the original problem by adding a large new event.
+- Later chapters disconnect after a skip: check whether the fact ledger, artifact delta, previous chapter’s actual closing prose, and the next chapter’s reader-experience contract were updated.
+- The same post check keeps repeating: check whether the same chapter and content hash already hit the acceptance-gate cache and the post asset-sync checkpoint.
+- Faction, identity, realm, or current-state errors: first check whether the character library already has hard facts, then whether `GenerationContextPackage.characterHardFacts` and `character_hard_facts` in the writer prompt exist. If hard facts are missing, fix the character-prep chain first. If hard facts exist but did not enter the writer, fix context assembly. If they entered and were still violated, then check audit and repair.
+- Continuation does not pick up prior-work state: first check whether the novel is continuation mode, whether `NovelContinuationService.buildChapterContextPack` returns an enabled pack, and whether writer blocks include required `continuation_constraints`. If a book analysis is bound, also check whether the analysis succeeded and whether structured sections contain character / timeline / plot-structure content.
+- Planning-stage opening fails because reference material is abnormal: this is a reference-injection fallback gap. Failed reference reads should degrade to empty reference text and must not bubble as a planning-stage failure. First check `buildReferenceForStage` warning logs and return value.
 
-- 一章生成耗时异常：检查是否又把多个 LLM 后处理塞回热路径。
-- 同一章重复同步账本或重复 timeline / artifact delta 抽取：检查 content hash checkpoint 是否在 LLM 调用前完成 `running` 抢占，而不是只在调用成功后写 `succeeded`。
-- 修复循环：检查自动修文次数是否被限制，失败是否落到可继续生产的终态，并确认自动导演质量预算是否已经从局部修复升级到整章修复或重规划。
-- 正文出现 AI 自述、占位符、工程词或明显截断：优先检查 runtime package 的 `audit.openIssues` 是否包含 `prose_*` code。若只有 `prose_*` 且没有 `replan_required`、邻章计划失配或不可用正文，应走本章修复或质量债，不应暂停整本自动导演。
-- `chapter.draft.write 未满足其完成标准` 高频出现：先查 runtime package 的 `failureClassification` 和 `obligationCoverage`。如果 root cause 是 `draft_obligation_unmet`，应优先检查接收闸门输出的缺失义务和 patch repair；如果是 `replan_required`，检查是否存在单章职责过载或邻章分工失配。
-- 章节反复要求重规划：检查 `rolling_window_review` 的原因是否只来自生成前的紧急 payoff 或 `advance_payoff`。如果审计分数可通过、正文和 artifact delta 已经体现推进，但 runtime package 仍推荐重规划，说明重规划推荐读取了写前状态而不是写后失败证据。
-- 自动导演在高章节数被早期 payoff 卡住：检查是否存在同义重复账本项被 AI 全量对账新建为无目标窗口的 `overdue`。正确行为是同步后处理复用未完成的同名 canonical ledgerKey，并把无明确窗口的 overdue 降级为待推进风险，避免把旧 `lastTouchedChapterOrder` 锚成跨几十章的重规划窗口。
-- 页面看起来反复“更新”：先区分后端是否真的产生新正文。若章节正文未变但 `updatedAt`、RAG job 或任务 heartbeat 持续刷新，检查已有正文复审是否被重新保存为草稿。
-- 正文已经可读但 UI 显示失败：检查正文状态、资产回灌状态和账本校准状态是否被混为一个状态。
-- 第 3-8 章这类章节都显示“建议补写修复 / 质量需修复”：先检查 `riskFlags.qualityLoop` 是否是 `defer_and_continue` 质量债务。若没有 `replan_required`、`recommendedAction=replan` 或 `blockingObligations`，主界面和 AI 驾驶舱不得把它显示为阻塞错误。
-- 关闭自动审校后任务停在 `chapter.quality.review facts are not complete yet`：优先检查运行态 seed payload 中的 `autoExecution.autoReview`、`autoExecutionPlan.autoReview` 和 `directorInput.autoExecutionPlan.autoReview` 是否传入事实检查。若这些字段为 `false`，质量审校步骤应输出 `reviewSkipped=true` 并继续后续状态提交。
-- 章节出现未来剧情泄漏：优先检查章节边界、protected secrets、事实账本和 `reader_experience` 是否进入 writer prompt，不要把 Timeline 当成默认写章事实来源。
-- 下一章没有承接旧钩子：检查相邻章细化是否把责任写入 `inheritedHookResponsibilities`，以及 writer / acceptance / repair 是否消费同一个 `reader_experience` block。
-- 修复后读者回报或钩子责任丢失：检查修复上下文是否保留原合同及已经成立的 `readerValue`，不要通过新增大事件掩盖原问题。
-- 跳过后后续章节脱节：检查事实账本、artifact delta、上一章实际尾段和下一章读者体验合同是否已更新。
-- 章节反复重复相同后置检测：检查同章同内容 hash 是否已经命中 acceptance 门禁缓存及后置资产同步 checkpoint。
-- 章节出现阵营、身份、境界或当前状态错误：优先检查角色库是否已有硬事实，再检查 `GenerationContextPackage.characterHardFacts` 和 writer prompt 中的 `character_hard_facts` 是否存在。如果硬事实缺失，先修角色准备链路；如果硬事实已存在但未进入 writer，修上下文组装；如果已进入仍被违背，再查审计和修复链路。
-- 续写没有承接前作状态：优先检查小说是否为 continuation 模式、`NovelContinuationService.buildChapterContextPack` 是否返回 enabled pack、writer blocks 中是否存在 required `continuation_constraints`。若已绑定拆书分析，还要检查分析是否为 succeeded、结构化小节是否包含人物 / 时间线 / 剧情结构内容。
-- 规划期开书因为参考资料异常失败：这属于参考注入兜底缺口。参考资料读取失败应降级为空参考文本，不得冒泡为规划阶段失败；先检查 `buildReferenceForStage` 的 warning 日志和返回值。
-
-## 相关模块
+## Related Modules
 
 - `server/src/services/novel/runtime/ChapterRuntimeCoordinator.ts`
 - `server/src/services/novel/runtime/repair/`
@@ -165,23 +163,23 @@
 - `client/src/pages/novels/components/ChapterExecutionResultPanel.tsx`
 - `client/src/pages/novels/components/chapterInsights/`
 
-## 来源文档
+## Source Documents
 
-- [正文产出链路瘦身与资产回灌优化计划](../../plans/chapter-output-pipeline-optimization-plan.md)
-- [仿写能力与生成链路加固方案](../../plans/imitation-writing-and-chain-hardening-plan.md)
-- [README 最新更新](../../../README.md)
-- [版本更新说明](../../releases/release-notes.md)
+- [Prose-output pipeline slimming and asset-backfill plan](../../plans/chapter-output-pipeline-optimization-plan.md)
+- [Imitation-writing capability and generation-chain hardening](../../plans/imitation-writing-and-chain-hardening-plan.md)
+- [README latest updates](../../../README.md)
+- [Release notes](../../releases/release-notes.md)
 
-## 普通末章与全书终章
+## Ordinary endings vs full-book finales
 
-连载作品的末章可以保留下一阶段牵引；紧凑全书的终章必须完成结局合同，不创建必须续写的新主线，也不要求下一 beat 钩子。章节列表 Prompt 通过结构化完成配置区分两种合同，不能靠标题或正文关键词判断是否结局。
+A serial work’s last chapter may keep a pull into the next stage. A compact full book’s finale must complete the ending contract. It must not create a new main line that must be continued, and it does not require a next-beat hook. The chapter-list Prompt distinguishes the two contracts through structured completion config. It must not judge an ending from title or prose keywords.
 
-达到目标章节数后，紧凑作品只允许追加最多 5 章收尾，追加内容应围绕未解决的主冲突、关系变化、核心伏笔和主题落点。超过预算仍未完成时进入明确恢复状态，不覆盖已保存正文。
+After the target chapter count is reached, a compact work may append at most 5 wrap-up chapters. Appended content should center unresolved main conflict, relationship change, core foreshadowing, and thematic landing. If the budget is exceeded and the ending is still unfinished, enter an explicit recovery state. Do not overwrite saved prose.
 
-## 自动导演失败处理
+## Auto-Director failure handling
 
-自动导演与手动审校的完成标准不同：自动导演首先保证章节连续产出。正文已保存时，审校未通过、自然度检测或伏笔推进不足应进入一次自动修复；修复仍有普通质量债时，以 `defer_and_continue` 记录并继续下一章。质量闭环的终端动作优先于单次推荐动作，不能同时记录“继续生产”和“全局重规划”两个互相冲突的状态。
+Auto-Director and manual audit have different completion bars. Auto-Director first guarantees continuous chapter output. When prose is already saved, failed audit, naturalness detection, or insufficient payoff progress should enter one automatic repair. If ordinary quality debt remains after repair, record `defer_and_continue` and continue to the next chapter. The quality loop’s terminal action outranks a single recommended action. Do not record the conflicting states “continue production” and “global replan” at the same time.
 
-运行时异常由当前章节自动重试，默认最多两轮。每次重试复用同一章的事实、写作合同和任务游标；如果章节合同缺失或结构不完整，先由 JIT 规划重新补齐，再重新执行正文。只有连续重试后仍没有可用正文，或触发明确 `replan_required`、数据安全错误时，才暂停并生成可恢复检查点。
+Runtime exceptions are retried automatically by the current chapter, by default at most two rounds. Each retry reuses the same chapter’s facts, writing contract, and task cursor. If the chapter contract is missing or structurally incomplete, JIT planning fills it first, then prose runs again. Pause and create a recoverable checkpoint only when there is still no usable prose after consecutive retries, or when explicit `replan_required` or a data-safety error is triggered.
 
-回报窗口尚未结束时，账本只能提供当前章的推进提示；不得将 `overdue` 或内部风险代码注入 `mustAdvance`。这样可以避免第一章因尚未兑现远期回报而提前中断整本自动创作。
+While a payoff window has not ended, the ledger may only provide this chapter’s progress hint. Do not inject `overdue` or internal risk codes into `mustAdvance`. That keeps chapter 1 from aborting whole-book automatic writing early because a far-future payoff is not yet delivered.

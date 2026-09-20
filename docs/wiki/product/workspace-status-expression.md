@@ -1,48 +1,48 @@
-# 工作台状态表达与下一步合同
+# Workspace status expression and next-step contract
 
-## 背景
+## Background
 
-任务中心、导演跟进、拆书和 Creative Hub 同时呈现运行进度、人工确认、局部质量债和真正的中断。对写作新手而言，这些状态如果只显示内部枚举或统一使用红色警告，很容易把“需要点一下继续”“某章可以稍后修”和“整本规划必须停止”理解成同一种故障。
+Task Center, director follow-up, book analysis, and Creative Hub all present runtime progress, human confirmation, local quality debt, and true interruption. For a writing beginner, showing only internal enums or using the same red warning for everything makes “tap once to continue”, “this chapter can be fixed later”, and “whole-book planning must stop” look like the same failure.
 
-页面状态表达的目标不是翻译技术状态，而是回答四个问题：当前处理什么对象、进行到哪个阶段、是否影响继续创作、用户唯一应该做什么。
+Page status expression is not a translation of technical states. It answers four questions: what object is being handled, which stage it is in, whether it affects continuing creation, and the single action the user should take.
 
-## 决策
+## Decision
 
-工作台先根据后端已有结构化状态生成页面展示模型，再把结果交给无业务状态的展示组件。展示组件只负责语义颜色、层级和可访问性，不得通过错误文案、关键词或资源 ID 猜测业务影响。
+The workspace first builds a page display model from structured backend state, then hands the result to presentational components that have no business state. Those components own semantic color, hierarchy, and accessibility. They must not guess business impact from error copy, keywords, or resource IDs.
 
-全局停止必须来自明确的重规划、人工恢复、不可用内容、运行时安全或数据完整性信号。章节级质量债、局部修复建议和普通待确认节点不能仅凭“失败”“告警”外观升级为整本阻塞。
+A global stop must come from an explicit replan, human recovery, unusable content, runtime safety, or data-integrity signal. Chapter-level quality debt, local repair guidance, and ordinary pending-confirm nodes must not be promoted to whole-book blocking just because they look like “failed” or “alert”.
 
-## 当前规则
+## Current Rule
 
-- `replan_required`、人工恢复和真实任务失败属于必须处理。只有明确重规划信号可以描述为整本生产需要停止；其他失败只说明对应任务或来源流程的影响。
-- `PIPELINE_QUALITY_REVIEW`、局部标题提醒和结构化质量债属于质量提醒。它们可以进入后续修复清单，但不得写成全书失败。
-- 候选确认、等待审批、章节批次待继续属于待操作。它们需要用户动作，但不是系统故障。
-- 排队、运行、完成、替代和取消属于普通进度或历史状态；取消记录只有在存在明确恢复要求时才提升等级。
-- 页面推荐动作按“读取失败与必须处理 → 待操作 → 可继续的质量提醒 → 正在执行 → 普通完成”收敛为一个主动作。次级操作必须说明执行后果。
-- Loading、Error、Empty 和 Retry 必须分别表达，查询失败不得伪装成空列表，旧详情不得在新对象加载失败时继续展示。
-- 工作台页头展示用户能识别的对象名称、阶段和状态。原始资源 ID、Run、Checkpoint、模型路由等技术信息默认进入折叠运行信息。
-- 语义色只承载辅助层级，状态标签必须同时提供文字；待操作与质量提醒不能只靠颜色区分。
-- 历史文案兼容只能帮助打开既有修复入口，不能决定任务严重度；阻塞、质量提醒和待操作必须由结构化状态或代码决定。
-- Creative Hub 的推荐顺序是读取/创建失败、待确认、运行中、结构化失败恢复、开书信息补齐、AI 回合建议、选择小说、生产入口。无线程或当前线程未成功装载时，主创作动作必须禁用，线程创建、重试和切换仍作为恢复通道保留。
-- 工具名、错误代码、资源 ID 和运行标识属于诊断信息，不得代替面向用户的动作标题或影响说明；需要保留时放进可展开详情。
+- `replan_required`, human recovery, and a real task failure must be handled. Only an explicit replan signal may be described as whole-book production needing to stop. Other failures describe impact on that task or source flow only.
+- `PIPELINE_QUALITY_REVIEW`, local title reminders, and structured quality debt are quality reminders. They may enter a later repair list. They must not be written as whole-book failure.
+- Candidate confirm, waiting for approval, and a chapter batch waiting to continue are pending actions. They need a user action. They are not system faults.
+- Queued, running, completed, superseded, and canceled are ordinary progress or history. A canceled record is promoted only when there is an explicit recovery requirement.
+- Page recommended actions collapse to one primary action in this order: read failures and must-handle → pending action → continuable quality reminder → in progress → ordinary completion. Secondary actions must state the effect of executing them.
+- Loading, Error, Empty, and Retry must be expressed separately. A query failure must not masquerade as an empty list. Old detail must not keep showing when a new object fails to load.
+- The workspace header shows a user-recognizable object name, stage, and status. Raw resource IDs, run, checkpoint, and model routing stay in collapsed runtime information by default.
+- Semantic color is only an auxiliary layer. Status labels must also provide text. Pending action and quality reminder must not be distinguished by color alone.
+- Historical copy compatibility may help open an existing repair entry. It must not decide task severity. Blocking, quality reminder, and pending action must come from structured state or code.
+- Creative Hub’s recommendation order is: read/create failure, pending confirm, running, structured-failure recovery, opening-info completion, AI-turn suggestion, select novel, production entry. If there is no thread, or the current thread did not load successfully, the main creation action must be disabled. Thread create, retry, and switch stay as recovery channels.
+- Tool names, error codes, resource IDs, and run identifiers are diagnostic. They must not replace user-facing action titles or impact copy. Keep them in expandable detail when they are needed.
 
-## 示例
+## Examples
 
-- “第 12 章存在局部标题重复”显示为“质量提醒，可继续后续章节”，主动作进入局部修复。
-- “等待确认书级方向”显示为“待操作”，主动作进入候选确认，不显示“任务失败”。
-- “邻近章节计划明确要求重规划”显示为“需要重规划”，并说明后续章节在确认前停止。
-- 任务概览读取失败时显示重新读取；列表为空只用于查询成功且确实没有记录的情况。
-- 切换 Creative Hub 线程时先清空旧消息；新线程读取失败时显示重新读取和线程切换入口，不继续展示上一线程内容。
+- “Chapter 12 has a local duplicate title” displays as “quality reminder; later chapters can continue”. The primary action enters local repair.
+- “Waiting to confirm the book-level direction” displays as “pending action”. The primary action enters candidate confirm. Do not show “task failed”.
+- “The neighboring chapter plan explicitly requires replan” displays as “replan required”, and says later chapters stop until confirm.
+- When the task overview fails to load, show reload. An empty list is only for a successful query that truly has no records.
+- When switching Creative Hub threads, clear old messages first. If the new thread fails to load, show reload and thread-switch entries. Do not keep showing the previous thread.
 
-## 失败模式
+## Failure Modes
 
-- 所有 `failed` 外观都写成“全书阻塞”：检查是否忽略了结构化质量债代码或既有局部提醒合同。
-- 等待审批使用危险色：检查页面展示模型是否把“需要操作”和“发生故障”合并。
-- 任务列表显示为空但实际是请求失败：检查查询错误是否被默认空数组吞掉。
-- 点击动作后用户不知道会发生什么：为动作补充写入范围、是否改变任务状态以及已保存内容是否保留。
-- 展示组件开始读取任务枚举或匹配错误字符串：把判断移回页面或业务 ViewModel，并保持组件无业务状态。
+- Every `failed` appearance is written as “whole-book blocked”: check whether structured quality-debt codes or existing local-reminder contracts were ignored.
+- Waiting for approval uses a danger color: check whether the page display model merged “needs action” with “fault occurred”.
+- The task list looks empty but the request failed: check whether the query error was swallowed by a default empty array.
+- After clicking an action, the user does not know what will happen: add write scope, whether task status changes, and whether saved content is kept.
+- A presentational component starts reading task enums or matching error strings: move the judgment back to the page or business view model, and keep the component free of business state.
 
-## 相关模块
+## Related Modules
 
 - `client/src/components/workspace/`
 - `client/src/components/taskQueue/`
@@ -53,8 +53,8 @@
 - `shared/types/task.ts`
 - `shared/types/autoDirectorFollowUp.ts`
 
-## 来源文档
+## Source Documents
 
-- [新手优先与整本小说完成原则](./beginner-first-novel-completion.md)
-- [自动导演 Runtime 与恢复边界](../workflows/auto-director-runtime.md)
-- [产品页面 DESIGN 分批优化方案](../../plans/product-ui-design-rollout-plan.md)
+- [Beginner-first full-novel completion](./beginner-first-novel-completion.md)
+- [Auto-Director runtime and recovery](../workflows/auto-director-runtime.md)
+- [Product page DESIGN rollout plan](../../plans/product-ui-design-rollout-plan.md)

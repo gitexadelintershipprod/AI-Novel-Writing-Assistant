@@ -1,38 +1,38 @@
-# 通用角色主体与跨来源角色对话
+# Universal character subjects and cross-source conversation
 
 ## Background
 
-项目中的小说角色、基础角色库和拆书角色都需要被作者理解与交谈，但它们的事实来源不同。若为每一种角色单独实现聊天、上下文和记忆，角色能力会重复扩张；若把它们强行合并为同一份正史资料，又会让原文证据、跨书模板和小说运行状态互相污染。
+Novel characters, base-library characters, and book-analysis characters all need to be understood and spoken with by the author, but their fact sources differ. Implementing chat, context, and memory separately for each kind of character would duplicate capability growth. Forcing them into one canonical profile would let source evidence, cross-book templates, and novel runtime state contaminate each other.
 
 ## Decision
 
-角色对话统一通过 `CharacterSubjectRef` 与 `CharacterSubjectProjection` 接入，统一的是交互协议，不是领域事实表。每个来源 Adapter 负责把已授权的来源资料投影为身份、当前语境、硬边界、主观状态、证据和交互策略；会话模块不直接把不同来源的数据混写。
+Character conversation is unified through `CharacterSubjectRef` and `CharacterSubjectProjection`. What is unified is the interaction protocol, not a shared domain fact table. Each source Adapter projects authorized source material into identity, current context, hard bounds, subjective state, evidence, and interaction policy. The session module must not mix-write data from different sources.
 
-| 主体来源 | 交互策略 | 可以影响的范围 |
+| Subject source | Interaction policy | What it may affect |
 | --- | --- | --- |
-| 小说角色 | `novel_influence` | 作者确认后，作为有限章节窗口内的软性正文引导。 |
-| 基础角色库 | `read_only` | 仅帮助理解稳定人格；不修改模板或任何小说。 |
-| 拆书角色 | `evidence_interview` | 仅帮助理解原文人物；不修改原文、拆书结论或小说正文。 |
+| Novel character | `novel_influence` | After author confirmation, soft prose guidance inside a limited chapter window. |
+| Base character library | `read_only` | Helps understand a stable personality only. Must not modify the template or any novel. |
+| Book-analysis character | `evidence_interview` | Helps understand the source-work person only. Must not modify the source text, analysis conclusions, or novel prose. |
 
-`drama_character` 保留为协议扩展位，在没有明确项目上下文和写入边界前不开放入口。
+`drama_character` is reserved as a protocol extension slot. Do not open an entry until there is an explicit project context and write boundary.
 
 ## Current Rule
 
-- 通用会话记录角色主体引用、作用域、来源快照、交互策略、章节锚点、回合证据与不确定性说明。
-- 拆书角色必须选择章节锚点；只允许读取带章节编号且不晚于该锚点的证据。证据不足时角色应说明无法确认，不得补写原作秘密、动机或后续情节。
-- 拆书角色的外形快照属于逐章原文证据：当基础角色档案缺少可靠章节锚点时，可作为访谈的锚点与证据来源；快照必须带证据，不能仅凭生成图片或摘要进入访谈。
-- 基础角色与拆书角色的会话历史可以保存，但对话本身不构成模板更新、角色同步或状态提案。
-- 小说角色沿用既有的影响确认、正文注入和 `artifact_delta` 承接链。其他主体不得生成 `influenceDraft`。
-- 同名角色不自动视为同一角色；跨书、角色库和拆书来源的会话记忆必须按主体作用域隔离。
-- 旧小说角色对话会话通过幂等镜像映射到通用会话，保留原记录和影响链，迁移不删除历史表。
+- The shared session records subject reference, scope, source snapshot, interaction policy, chapter anchor, turn evidence, and uncertainty notes.
+- Book-analysis characters must choose a chapter anchor. They may only read evidence that has a chapter number and is not later than that anchor. When evidence is insufficient, the character should say they cannot confirm. They must not invent source-work secrets, motives, or later plot.
+- Appearance snapshots for book-analysis characters are chapter-by-chapter source evidence. When the base character file lacks a reliable chapter anchor, a snapshot may serve as interview anchor and evidence source. Snapshots must carry evidence; generated images or summaries alone must not enter the interview.
+- Session history for base-library and book-analysis characters may be saved, but the dialogue itself is not a template update, character sync, or state proposal.
+- Novel characters keep the existing influence confirmation, prose injection, and `artifact_delta` uptake chain. Other subjects must not produce `influenceDraft`.
+- Same-named characters are not automatically the same character. Session memory across books, the character library, and book analysis must be isolated by subject scope.
+- Old novel character dialogue sessions map onto shared sessions through an idempotent mirror, keeping original records and the influence chain. Migration does not delete historical tables.
 
 ## Failure Modes
 
-- 把拆书角色的推断写回原文或新小说正史，会破坏来源边界。
-- 让基础角色对话自动更新模板，会把一次探索误当成稳定设定。
-- 让拆书角色使用锚点后的证据，会向作者泄露后续剧情。
-- 让非小说主体的对话进入 writer 上下文，会把研究与模板资料污染当前章节。
-- 按角色姓名共享会话或记忆，会误合并不同作品中的同名人物。
+- Writing book-analysis inferences back into the source text or a new novel's canonical history breaks the source boundary.
+- Letting base-library dialogue auto-update a template treats one exploration as stable setting.
+- Letting a book-analysis character use post-anchor evidence leaks later plot to the author.
+- Letting non-novel subject dialogue enter writer context pollutes the current chapter with research and template material.
+- Sharing sessions or memory by character name falsely merges same-named people from different works.
 
 ## Related Modules
 
@@ -44,6 +44,6 @@
 
 ## Source Documents
 
-- [角色对话层：以角色主体性承接作者意图](./character-dialogue-layer.md)
-- [拆书工作流](./book-analysis-workflow.md)
-- [叙事引擎工作台长期蓝图](../product/narrative-engine-studio.md)
+- [Character dialogue layer](./character-dialogue-layer.md)
+- [Book analysis workflow](./book-analysis-workflow.md)
+- [Narrative engine studio](../product/narrative-engine-studio.md)

@@ -1,224 +1,224 @@
-# 懒规划（JIT task sheet）重构（Phase 1）
+# Lazy planning (JIT task sheet) refactor (Phase 1)
 
-## 背景
+## Background
 
-### 问题
+### Problem
 
-原有流程要求在执行任何章节前，必须先为所有 N 章预生成 task sheet（`chapter_detail_bundle` 步骤），并将它们全量同步到执行区（`chapter_sync` 步骤），才能通过门控开始写章。这引入了两个系统性缺陷：
+The old flow required every one of N chapters to pre-generate a task sheet (`chapter_detail_bundle`) and fully sync them into the execution zone (`chapter_sync`) before any chapter could execute. That introduced two systemic defects:
 
-| 缺陷 | 描述 |
+| Defect | Description |
 |------|------|
-| **缺陷1：全量拆章门控** | 100 章的小说必须等所有 task sheet 生成完毕才能开始执行，延迟巨大 |
-| **缺陷2：task sheet 与正文脱节** | task sheet 在"规划期"生成，不知道已经写了哪些章节的事实，义务设计可能与实际前文矛盾 |
+| **Defect 1: Full chapter-split gate** | A 100-chapter novel had to wait until every task sheet was generated before execution could start. Latency was huge. |
+| **Defect 2: Task sheet drifted from prose** | Task sheets were generated in the “planning period” and did not know which chapter facts had already been written, so obligations could contradict actual prior prose. |
 
-### 解决方案
+### Solution
 
-**懒规划（Lazy Planning / JIT）**：把 task sheet 从"规划阶段全量预生成"改为"执行前即时生成（Just-In-Time）"，并将已发生事实（Fact Ledger）注入到生成上下文，从根本上解决义务不可达（根因 D）问题。
+**Lazy planning (JIT)**: move task sheets from “full pre-generation in the planning stage” to “just-in-time generation before execution”, and inject occurred facts (Fact Ledger) into generation context. That is the direct fix for unreachable obligations (root cause D).
 
-快速启动把懒规划扩展为“滚动路线窗口 + 下一章执行合同”：系统始终保证未来至少 3 章、目标 5 章的简略路线，但只为下一章准备完整 task sheet、scene cards、字数和避坑约束。路线回答“接下来往哪里走”，执行合同回答“下一章具体怎么写”，两者不能混成整卷全量细化。
-
----
-
-## 架构变化
-
-### 旧流程
-
-```
-structured_outline 阶段（串行，全量）
-  beat_sheet → chapter_list → chapter_detail_bundle（N 章逐一）→ chapter_sync（全量）
-        ↓ 门控：syncedChapterCount >= plannedChapterCount（N/N 全部 task sheet）
-chapter_execution 阶段
-  第 1 章：GenerationContextAssembler.assemble → plannerService.ensureChapterPlan → 写章
-  第 2 章：...
-```
-
-### 新流程（full_book_autopilot 模式）
-
-```
-structured_outline 阶段（跳过 chapter_detail_bundle）
-  beat_sheet → chapter_list → ✗chapter_detail_bundle（已跳过）→ chapter_sync（仅同步章节标题）
-        ↓ 门控：syncedChapterCount >= plannedChapterCount（章节记录在 DB 中即通过）
-chapter_execution 阶段
-  第 1 章：JIT 生成 task sheet（factLedger 为空，生成基础 task sheet）
-           → plannerService.ensureChapterPlan → 写章 → 落库
-           → ChapterContentFinalizationService 写入 factLedger（第 1 章事实）
-  第 2 章：JIT 生成 task sheet（factLedger 含第 1 章事实）
-           → plannerService.ensureChapterPlan → 写章 → ...
-```
+Fast start extends lazy planning into “rolling route window + next-chapter execution contract”: the system always keeps at least 3, target 5, brief future-chapter routes, but prepares a full task sheet, scene cards, word count, and pitfall constraints only for the next chapter. The route answers “where we go next”. The execution contract answers “how the next chapter is actually written”. The two must not be mixed into full-volume refinement.
 
 ---
 
-## 关键组件
+## Architecture Change
+
+### Old flow
+
+```
+structured_outline stage (serial, full)
+  beat_sheet → chapter_list → chapter_detail_bundle (one by one for N chapters) → chapter_sync (full)
+        ↓ gate: syncedChapterCount >= plannedChapterCount (N/N all task sheets)
+chapter_execution stage
+  Chapter 1: GenerationContextAssembler.assemble → plannerService.ensureChapterPlan → write chapter
+  Chapter 2: ...
+```
+
+### New flow (`full_book_autopilot` mode)
+
+```
+structured_outline stage (skip chapter_detail_bundle)
+  beat_sheet → chapter_list → ✗chapter_detail_bundle (skipped) → chapter_sync (chapter titles only)
+        ↓ gate: syncedChapterCount >= plannedChapterCount (passes once chapter rows exist in DB)
+chapter_execution stage
+  Chapter 1: JIT-generate task sheet (factLedger empty, generate a base task sheet)
+           → plannerService.ensureChapterPlan → write chapter → persist
+           → ChapterContentFinalizationService writes factLedger (chapter 1 facts)
+  Chapter 2: JIT-generate task sheet (factLedger includes chapter 1 facts)
+           → plannerService.ensureChapterPlan → write chapter → ...
+```
+
+---
+
+## Key Components
 
 ### ChapterPlanJITService
 
-**文件**：`server/src/services/novel/planning/ChapterPlanJITService.ts`
+**File**: `server/src/services/novel/planning/ChapterPlanJITService.ts`
 
-`ChapterPlanJITService` 在自动成书模式下先调用 `ChapterRouteWindowService` 检查路线窗口，再细化当前章。未写路线少于 3 章时补齐到目标 5 章；补齐按节拍块增量生成并复用现有卷文档与章节同步，不重建已完成路线，也不触发无变化的 Payoff Ledger 同步。
+In automatic book-completion mode, `ChapterPlanJITService` first calls `ChapterRouteWindowService` to check the route window, then refines the current chapter. If fewer than 3 unwritten route chapters remain, it fills to the target of 5. Fill is incremental by beat block and reuses existing volume documents and chapter sync. It does not rebuild completed routes, and does not trigger no-op Payoff Ledger sync.
 
-核心方法：`ensureExecutionReady(novelId, chapterId)`
+Core method: `ensureExecutionReady(novelId, chapterId)`
 
-| 场景 | 行为 |
+| Scenario | Behavior |
 |------|------|
-| task sheet 存在 + factLedger < 3 条 | 跳过（旧小说 / 首章，保留已有 task sheet） |
-| task sheet 存在 + factLedger ≥ 3 条 | 重新生成，将事实注入为 `guidance` |
-| task sheet 缺失 | 生成（含 factLedger guidance，若有） |
+| Task sheet exists + factLedger < 3 entries | Skip (old novel / first chapter; keep the existing task sheet) |
+| Task sheet exists + factLedger ≥ 3 entries | Regenerate, injecting facts as `guidance` |
+| Task sheet missing | Generate (with factLedger `guidance` when present) |
 
-**依赖注入**（通过 `ChapterPlanJITDeps`）：
-- `ensureChapterExecutionContract`：委托给 `NovelVolumeService.ensureChapterExecutionContract`
+**Dependency injection** (through `ChapterPlanJITDeps`):
+- `ensureChapterExecutionContract`: delegates to `NovelVolumeService.ensureChapterExecutionContract`
 
-**Fact Ledger 注入格式**（`guidance` 字段）：
+**Fact Ledger injection format** (`guidance` field):
 ```
-【已发生事实 / Fact Ledger — 请将以下事实纳入 task sheet 设计，避免重复或矛盾】
-已完成目标：
-  - [第N章] ...
-已揭示信息：
-  - [第N章] ...
-近期状态变化：
-  - [第N章] ...
+[Occurred facts / Fact Ledger — include the following facts in the task sheet design; avoid repetition or contradiction]
+Completed goals:
+  - [Chapter N] ...
+Revealed information:
+  - [Chapter N] ...
+Recent state changes:
+  - [Chapter N] ...
 ```
 
-### 结构化大纲阶段改造
+### Structured-outline stage change
 
-**文件**：`server/src/services/novel/director/phases/novelDirectorStructuredOutlinePhase.ts`
+**File**: `server/src/services/novel/director/phases/novelDirectorStructuredOutlinePhase.ts`
 
-变更：
-1. `chapter_detail_bundle` 步骤：当 `isFullBookAutopilotRunMode(request.runMode)` 时直接 `break`，跳过全量 task sheet 预生成
-2. `missingExecutionContextOrders` 检查：JIT 模式下章节没有 task sheet 是预期状态，条件跳过检查
+Changes:
+1. `chapter_detail_bundle` step: when `isFullBookAutopilotRunMode(request.runMode)`, `break` immediately and skip full task-sheet pre-generation.
+2. `missingExecutionContextOrders` check: in JIT mode, a chapter without a task sheet is expected state, so the check is conditionally skipped.
 
-### 执行入口接入
+### Execution-entry wiring
 
-**文件**：`server/src/services/novel/runtime/GenerationContextAssembler.ts`
+**File**: `server/src/services/novel/runtime/GenerationContextAssembler.ts`
 
-在 `plannerService.ensureChapterPlan` 之前插入：
+Insert before `plannerService.ensureChapterPlan`:
 ```typescript
 if (request.controlPolicy?.advanceMode === "full_book_autopilot") {
   await this.chapterPlanJITService.ensureExecutionReady(novelId, chapterId);
 }
 ```
 
-`ensureChapterPlan` 通过 `buildChapterExecutionContractHash` 检测到 task sheet 变化后，自然重算执行计划。
+After `ensureChapterPlan` detects a task-sheet change through `buildChapterExecutionContractHash`, it naturally recomputes the execution plan.
 
 ---
 
-## 兼容性
+## Compatibility
 
-| 场景 | 行为 |
+| Scenario | Behavior |
 |------|------|
-| 旧小说（已有 task sheet，factLedger 为空） | factLedger < 3 条 → 跳过 JIT，保留已有 task sheet |
-| 旧小说（已有 task sheet，factLedger 有数据） | 重新生成，纳入已发生事实 |
-| 手动单章模式（manual / co_pilot） | `advanceMode ≠ full_book_autopilot` → 不触发 JIT |
-| 全书 autopilot，章节缺少 task sheet | JIT 即时生成 |
+| Old novel (task sheet exists, factLedger empty) | factLedger < 3 entries → skip JIT, keep existing task sheet |
+| Old novel (task sheet exists, factLedger has data) | Regenerate, incorporating occurred facts |
+| Manual single-chapter mode (`manual` / `co_pilot`) | `advanceMode ≠ full_book_autopilot` → JIT does not run |
+| Full-book autopilot, chapter missing a task sheet | JIT generates immediately |
 
 ---
 
-## 门控逻辑
+## Gate Logic
 
-门控（`createChapterExecutionContractSyncModule`）的完成条件 `syncedChapterCount >= plannedChapterCount` **不需要修改**。
+The completion condition on the gate (`createChapterExecutionContractSyncModule`), `syncedChapterCount >= plannedChapterCount`, **does not need to change**.
 
-原因：`chapter_sync` 步骤（结构化大纲阶段末尾）通过 `syncVolumeChaptersWithOptions` 将所有章节写入执行区 DB（即使没有 task sheet），`syncedChapterCount` 随即等于 `plannedChapterCount`，门控自然通过。
+Reason: the `chapter_sync` step (end of structured outline) writes every chapter into the execution-zone DB through `syncVolumeChaptersWithOptions` even without a task sheet, so `syncedChapterCount` immediately equals `plannedChapterCount` and the gate passes.
 
-同步边界必须允许 `full_book_autopilot` 把只有标题、摘要或部分执行字段的章节先写入正式章节区。部分 `taskSheet` 或 `sceneCards` 不能被误判为“完整合同已生成”并在同步阶段阻断任务；当前章进入正文执行前，`ChapterPlanJITService` 会调用统一的执行合同生成器补齐字段、通过质量校验并保存。非 JIT 的手动同步与普通执行路径仍保留完整合同门禁。
+The sync boundary must allow `full_book_autopilot` to write chapters that only have titles, summaries, or partial execution fields into the formal chapter zone first. A partial `taskSheet` or `sceneCards` must not be mistaken for “full contract already generated” and block the task at sync. Before the current chapter enters prose execution, `ChapterPlanJITService` calls the unified execution-contract generator to fill fields, pass quality checks, and save. Non-JIT manual sync and ordinary execution paths still keep the full-contract gate.
 
 ---
 
-## 自动执行范围预检
+## Auto-execution scope precheck
 
-`full_book_autopilot` 的 `chapter_batch_ready` 表示章节列表已经同步到执行区，并且每章至少有可供 JIT 使用的执行种子（例如 `Chapter.expectation`），不表示所有章节都已经拥有完整 task sheet / scene cards。
+`full_book_autopilot` `chapter_batch_ready` means the chapter list is synced into the execution zone and each chapter has at least an execution seed JIT can use (for example `Chapter.expectation`). It does not mean every chapter already has a full task sheet / scene cards.
 
-因此自动执行启动、轮询和 takeover/recovery 的范围预检必须区分两类路径：
+Therefore auto-execution start, polling, and takeover/recovery scope prechecks must distinguish two paths:
 
-| 路径 | 预检要求 |
+| Path | Precheck requirement |
 |------|----------|
-| `full_book_autopilot` | 目标范围内章节必须存在，并具备可触发 JIT 的执行种子；缺少完整 task sheet 属于预期状态，由 `GenerationContextAssembler` 在写章前即时补齐 |
-| 普通 `auto_to_execution`、手动章节范围、非 JIT 路径 | 目标范围内章节必须已有完整执行契约；缺少 task sheet / scene cards / 字数与冲突揭示等细化字段时，应回到节奏 / 拆章补齐 |
+| `full_book_autopilot` | Chapters in the target range must exist and have an execution seed that can trigger JIT. Missing a full task sheet is expected. `GenerationContextAssembler` fills it just in time before writing. |
+| Ordinary `auto_to_execution`, manual chapter range, non-JIT paths | Chapters in the target range must already have a full execution contract. Missing task sheet / scene cards / word-count and conflict-reveal refinement fields should return to beat / chapter-split fill. |
 
-失败模式：如果自动执行范围预检仍按普通路径要求完整 task sheet，`full_book_autopilot` 会在 JIT 触发前被 `runFromReady` 拦截，出现“缺少完整章节细化”的失败；这不是章节数据丢失，而是预检层与 JIT 契约不一致。
+Failure mode: if auto-execution scope precheck still requires a full task sheet on the ordinary path, `full_book_autopilot` is intercepted by `runFromReady` before JIT runs, producing “missing full chapter refinement”. That is not lost chapter data; it is a precheck layer that disagrees with the JIT contract.
 
-相关模块：
+Related Modules:
 - `server/src/services/novel/director/automation/novelDirectorAutoExecutionScopeRuntime.ts`
 - `server/src/services/novel/director/automation/novelDirectorAutoExecutionRuntimePreparation.ts`
 - `server/src/services/novel/director/runtime/novelDirectorTakeoverRuntime.ts`
 
 ---
 
-## 质量修复闭环子项（1.D）
+## Quality-repair closed-loop sub-items (1.D)
 
-### 根因A — 修复器传入结构化义务信息
+### Root cause A — repairer receives structured obligation information
 
-**文件**：`server/src/services/novel/runtime/repair/chapterRepairRuntime.ts`
+**File**: `server/src/services/novel/runtime/repair/chapterRepairRuntime.ts`
 
-新增 `buildRepairIssuesPayload(issues, runtimePackage)`：
-- 在 `ReviewIssue[]` 之外，追加 `missingObligations`（kind/summary/evidence）和 `blockingIssueCodes`
-- 两处重写路径（patch 失败升级 + 强制重写）均使用结构化 JSON，修复器可据此定向补写义务
+Added `buildRepairIssuesPayload(issues, runtimePackage)`:
+- Besides `ReviewIssue[]`, append `missingObligations` (kind/summary/evidence) and `blockingIssueCodes`
+- Both rewrite paths (patch-failure escalate + forced rewrite) use structured JSON so the repairer can patch obligations directionally
 
-### 根因B — patchRepair 预算提升 + 宽松锚点重试
+### Root cause B — patchRepair budget raised + loose-anchor retry
 
-**文件**：`DirectorQualityLoopBudgetLedgerService.ts`
+**File**: `DirectorQualityLoopBudgetLedgerService.ts`
 - `DIRECTOR_QUALITY_LOOP_BUDGET_LIMITS.patchRepair`: 1 → 2
 
-**文件**：`chapterRepairRuntime.ts`（patch 失败 catch 块）
-- 首次 `ChapterPatchRepairFailedError` → 用 `continuity_only` 模式重试一次（宽松锚点）
-- 宽松重试成功 → 返回 patch 结果
-- 宽松重试仍失败 → 升级 `heavy_repair`
+**File**: `chapterRepairRuntime.ts` (patch-failure catch block)
+- First `ChapterPatchRepairFailedError` → retry once in `continuity_only` mode (loose anchor)
+- Loose retry succeeds → return the patch result
+- Loose retry still fails → escalate `heavy_repair`
 
-### 根因E — issueSignature 拆分 length/content 分别计预算
+### Root cause E — `issueSignature` splits length/content budget
 
-**文件**：`DirectorQualityLoopBudgetLedgerService.ts`
-- 新增 `classifyIssueNoticeCode(noticeCode)` → 返回 `"length"` 或 `"content"`
-- `buildDirectorQualityLoopIssueSignature` 在签名头部加入 class 前缀
-- 长度类问题（`LENGTH_*`）与内容类问题获得独立预算计数器，避免补丁修好长度后内容问题被误算重复
+**File**: `DirectorQualityLoopBudgetLedgerService.ts`
+- Added `classifyIssueNoticeCode(noticeCode)` → returns `"length"` or `"content"`
+- `buildDirectorQualityLoopIssueSignature` prefixes the signature with the class
+- Length issues (`LENGTH_*`) and content issues get independent budget counters, so a length patch does not make a later content issue look like a duplicate
 
 ---
 
-## 上下文分层缓存（Phase 2）
+## Layered context cache (Phase 2)
 
 ### BatchContextCache
 
-**文件**：`server/src/services/novel/runtime/BatchContextCache.ts`（新建）
+**File**: `server/src/services/novel/runtime/BatchContextCache.ts` (new)
 
-- 进程内 singleton，按 `novelId` 缓存完整的 novel Prisma 查询结果（含 world/characters/storyMacroPlan/volumePlans）
-- TTL = 30 分钟，最多缓存 8 个 novelId
-- 失效：订阅 `character:changed` / `volume:updated` / `outline:revised` / `pipeline:completed` 事件自动失效
+- In-process singleton. Caches the full novel Prisma query result (including world/characters/storyMacroPlan/volumePlans) by `novelId`
+- TTL = 30 minutes, at most 8 novelIds
+- Invalidation: subscribe to `character:changed` / `volume:updated` / `outline:revised` / `pipeline:completed` and invalidate automatically
 
-### GenerationContextAssembler 重构
+### GenerationContextAssembler refactor
 
-**文件**：`server/src/services/novel/runtime/GenerationContextAssembler.ts`
+**File**: `server/src/services/novel/runtime/GenerationContextAssembler.ts`
 
-1. **稳定层缓存**：将 novel 大查询替换为 `batchContextCache.getNovelRow(novelId)`，每章节省 10+ 并行子查询
-2. **移除 timelineContext**（缺陷5）：删除 `timelineContextService.buildForChapter` 调用，`timelineContext: null`；`ChapterQualityGateService` 对 null 有防御
-3. **合并双 contextPackage**（缺陷6）：用 `sharedFields` 对象一次性组装共享字段，最终 `contextPackage = { ...sharedFields, ragContext, chapterMission, chapterWriteContext, chapterReviewContext, chapterRepairContext }`；消除 ~30 个字段两遍手抄
-
----
-
-## N+1 章执行预取（Phase 3）
-
-**文件**：`server/src/services/novel/novelCorePipelineService.ts`
-
-- 在每章 `runPipelineChapter` 完成后（factLedger 已写入），**非阻塞**触发下一章（N+1）的 JIT task sheet 预取
-- 预取失败不得阻断当前生产。下一章正式执行时会再次保证路线窗口和执行合同；只有明确重规划或无可用章节路线时才进入可恢复失败。
-- Pipeline 的执行队列可以在章节边界追加滚动生成的新章节，不能把任务启动时查询到的章节数组视为整本书固定范围。
-- 仅在 `advanceMode === "full_book_autopilot"` 时启用
-- 预取失败不影响流水线，下一章正式组装时会自动重试
-- 配合 `BatchContextCache`：novel 稳定层已缓存，预取仅需生成 task sheet，组装近乎瞬时
+1. **Stable-layer cache**: replace the large novel query with `batchContextCache.getNovelRow(novelId)`, saving 10+ parallel subqueries per chapter
+2. **Remove `timelineContext`** (defect 5): delete the `timelineContextService.buildForChapter` call, `timelineContext: null`; `ChapterQualityGateService` already defends against null
+3. **Merge dual `contextPackage`** (defect 6): assemble shared fields once in a `sharedFields` object, then `contextPackage = { ...sharedFields, ragContext, chapterMission, chapterWriteContext, chapterReviewContext, chapterRepairContext }`; remove ~30 fields copied twice by hand
 
 ---
 
-## 相关文件
+## N+1 chapter execution prefetch (Phase 3)
 
-- `server/src/services/novel/planning/ChapterPlanJITService.ts`（新建）
-- `server/src/services/novel/runtime/BatchContextCache.ts`（新建）
-- `server/src/services/novel/director/phases/novelDirectorStructuredOutlinePhase.ts`（改造）
-- `server/src/services/novel/runtime/GenerationContextAssembler.ts`（JIT 接入 + 缓存 + 合并）
-- `server/src/services/novel/runtime/repair/chapterRepairRuntime.ts`（结构化义务 + 宽松锚点重试）
-- `server/src/services/novel/director/runtime/DirectorQualityLoopBudgetLedgerService.ts`（预算提升 + 签名拆分）
-- `server/src/services/novel/novelCorePipelineService.ts`（N+1 预取）
-- `server/src/services/novel/fact/NovelFactService.ts`（factLedger 数据源，PR-A 已就绪）
+**File**: `server/src/services/novel/novelCorePipelineService.ts`
 
-## 与四阶段优化方案的关系
+- After each chapter’s `runPipelineChapter` completes (factLedger already written), **non-blocking** trigger JIT task-sheet prefetch for the next chapter (N+1)
+- Prefetch failure must not block current production. Formal execution of the next chapter will again guarantee the route window and execution contract. Enter recoverable failure only on explicit replan or when no usable chapter route exists.
+- The pipeline execution queue may append rolling newly generated chapters at chapter boundaries. The chapter array queried at task start must not be treated as a fixed whole-book range.
+- Enabled only when `advanceMode === "full_book_autopilot"`
+- Prefetch failure does not affect the pipeline; the next chapter’s formal assemble retries automatically
+- Combined with `BatchContextCache`: the novel stable layer is already cached, so prefetch only needs to generate a task sheet and assemble is nearly instant
 
-本改动实施方案文档 `.claude/plan/novel-generation-pipeline-optimization.md` 阶段一（懒规划重构）、阶段二（上下文分层缓存）、阶段三（N+1 预取），以及 1.D 质量修复闭环子项（根因 A/B/E）的全量实施。
+---
 
-## 紧凑作品的滚动窗口
+## Related Modules
 
-紧凑作品的路线窗口仍由 JIT 服务按当前事实即时补齐，但会携带完成预算：剩余 8 章以内进入收束规划，剩余 3 章以内使用终章倒计时上下文。收束规划只能读取既有结局合同、事实账本和未兑现回报，不再扩展新的远期主线；预取失败不阻断当前正文。
+- `server/src/services/novel/planning/ChapterPlanJITService.ts` (new)
+- `server/src/services/novel/runtime/BatchContextCache.ts` (new)
+- `server/src/services/novel/director/phases/novelDirectorStructuredOutlinePhase.ts` (changed)
+- `server/src/services/novel/runtime/GenerationContextAssembler.ts` (JIT wiring + cache + merge)
+- `server/src/services/novel/runtime/repair/chapterRepairRuntime.ts` (structured obligations + loose-anchor retry)
+- `server/src/services/novel/director/runtime/DirectorQualityLoopBudgetLedgerService.ts` (budget raise + signature split)
+- `server/src/services/novel/novelCorePipelineService.ts` (N+1 prefetch)
+- `server/src/services/novel/fact/NovelFactService.ts` (factLedger data source; PR-A already ready)
+
+## Relationship to the four-phase optimization plan
+
+This change implements phase one (lazy-planning refactor), phase two (layered context cache), phase three (N+1 prefetch), and the 1.D quality-repair closed-loop sub-items (root causes A/B/E) from `.claude/plan/novel-generation-pipeline-optimization.md`.
+
+## Rolling window for compact books
+
+A compact book’s route window is still filled just in time by the JIT service from current facts, but it carries a completion budget: with 8 or fewer chapters remaining, enter wrap-up planning; with 3 or fewer remaining, use finale-countdown context. Wrap-up planning may only read the existing ending contract, fact ledger, and unpaid payoffs. It must not expand a new far-future main line. Prefetch failure does not block current prose.

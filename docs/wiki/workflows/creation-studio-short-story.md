@@ -1,95 +1,95 @@
-# 创作意图平台与短篇闭环
+# Creation Studio and short-story closed loop
 
-## 背景
+## Background
 
-长篇自动导演擅长完成复杂的分阶段生产，但把它直接作为所有创作的入口，会让用户先理解题材、结构、设置和生产阶段，再表达真正想写的内容。短篇又需要更快的完整交付、连续阅读和低成本修改，不能简单缩短长篇章节链。
+Long-form Auto-Director is good at staged production, but using it as the entry for every creation forces the user to understand genre, structure, setup, and production stages before they can say what they actually want to write. Short stories also need faster complete delivery, continuous reading, and low-cost revision. They cannot be a shortened long-form chapter chain.
 
-创作工作室因此承担“用户想法到正式生产链”的桥接职责：用户先表达想法，AI 解释并推荐作品规模，用户只确认方向，后台再选择短篇生产链或现有长篇自动导演。
+Creation Studio therefore bridges "user idea" to a formal production chain: the user expresses an idea, AI interprets and recommends work scale, the user only confirms a direction, then the backend chooses the short-story production chain or existing long-form Auto-Director.
 
-## 决策
+## Decision
 
-- `NarrativeForm` 表示作品形态：`short_story` 或 `long_novel`。
-- `creationExperience` 只控制现有长篇的简易/专业体验，不参与短篇路由。
-- `creation_studio` 是独立 workflow lane。lane 的展示、恢复与能力通过描述注册表维护，不继续扩展针对 `auto_director` 的二元判断。
-- AI 通过结构化 Prompt 合同解释意图、推荐形态与目标字数、生成两个差异方向。确定性代码只校验范围和结构，不通过关键词或正则判断作品规模。
-- 短篇使用独立正式生产链；长篇确认后交接现有自动导演，不复制长篇生产能力。
+- `NarrativeForm` is the work shape: `short_story` or `long_novel`.
+- `creationExperience` only controls simple/professional experience for existing long-form work. It does not participate in short-story routing.
+- `creation_studio` is an independent workflow lane. Lane display, recovery, and capability are maintained through a description registry. Do not keep extending binary checks against `auto_director`.
+- AI interprets intent, recommends form and target length, and produces two differentiated directions through a structured Prompt contract. Deterministic code only validates range and structure. It does not judge work scale with keywords or regex.
+- Short stories use an independent formal production chain. Long-form confirmation hands off to existing Auto-Director. Do not copy long-form production capability.
 
-## 当前工作流
+## Current Rule
 
 ```mermaid
 flowchart LR
-  A["输入一个想法"] --> B["AI 理解并推荐规模"]
-  B --> C["选择一个方向"]
-  C -->|短篇| D["规划 2～8 个内部片段"]
-  D --> E["顺序生成并持久化"]
-  E --> F["一次全篇审校"]
-  F --> G["最多一次必要修复"]
-  G --> H["连续作品工作室"]
-  C -->|长篇| I["交接自动导演"]
-  H --> J["修改、导出或发展成长篇"]
+  A["Enter an idea"] --> B["AI interprets and recommends scale"]
+  B --> C["Choose a direction"]
+  C -->|short story| D["Plan 2 to 8 internal segments"]
+  D --> E["Generate sequentially and persist"]
+  E --> F["One full-piece review"]
+  F --> G["At most one necessary repair"]
+  G --> H["Continuous-work studio"]
+  C -->|long novel| I["Hand off to Auto-Director"]
+  H --> J["Revise, export, or grow into a long novel"]
 ```
 
-用户采用推荐值时，从想法到开始生产只有“提交想法、确认方向”两个必需动作。用户调整作品形态或字数后，AI 必须重新适配两个方向，避免用原方向硬套新的规模。
+When the user accepts recommended values, idea-to-production needs only two required actions: submit idea, confirm direction. After the user changes form or length, AI must re-adapt both directions. Do not force the old directions onto the new scale.
 
-首页和小说列表把“自动导演写长篇”与“创作短篇”作为并列入口。短篇入口显式传入 `short_story` 偏好，让 AI 围绕短篇规模整理方向；自动导演入口仍进入原有长篇开书流程。入口继续受创作工作室功能开关控制，可在预发布验收期间整体关闭短篇入口。
+Home and the novel list treat "Auto-Director for a long novel" and "create a short story" as parallel entries. The short-story entry explicitly passes a `short_story` preference so AI organizes directions around short-story scale. The Auto-Director entry still enters the existing long-form opening flow. Entries remain behind the Creation Studio feature switch and can be turned off together during pre-release acceptance.
 
-创作工作室初始状态使用编辑式创作画布，不使用多层表单卡片或无功能装饰。首屏只突出想法输入与“生成创作方向”，字符计数按需出现，完整设置保持为次要入口。
+Creation Studio's initial state uses an editor-style creation canvas, not stacked form cards or decorative chrome. The first screen emphasizes idea input and Generate creation directions. Character counts appear on demand. Full settings stay a secondary entry.
 
-## 意图版本合同
+## Intent Version Contract
 
-- `NovelIntentVersion.originalExpression` 保存用户原始表达。
-- `structuredIntentJson` 保存 AI 的完整结构化理解。
-- `impactScopeJson` 保存方向选择或修改影响范围。
-- 同一作品只有一个生效意图版本；自然语言修改先创建待确认版本，用户确认后才切换生效状态。
-- 确认创作方向使用稳定幂等键和 `CreationStudioConfirmation`。重复请求复用同一作品与生产任务，不能创建第二条链。
+- `NovelIntentVersion.originalExpression` stores the user's original expression.
+- `structuredIntentJson` stores AI's full structured understanding.
+- `impactScopeJson` stores direction choice or revision impact scope.
+- A work has only one active intent version. Natural-language revisions first create a pending version. The active state switches only after user confirmation.
+- Confirming a creation direction uses a stable idempotency key and `CreationStudioConfirmation`. Repeat requests reuse the same work and production task. They must not create a second chain.
 
-## 短篇生产规则
+## Short-Story Production Rules
 
-- 首期目标字数为 3,000～30,000 字，AI 决定 2～8 个内部片段。
-- 产品中的“短篇”默认指篇幅更短、一次读完且完整收束的中文网络小说，不是散文、纯文学小品、故事梗概或影视分场。题材可以克制或细腻，但必须保持网文的即时钩子、主动目标、持续推进、题材回报和明确结局。
-- 新计划使用 schemaVersion 2。每个内部片段除起止状态外，还必须提供开篇钩子、即时目标、2～6 个因果推进节拍、题材回报和结尾牵引，避免正文生成只收到抽象的“片段目的”。
-- 正文按手机阅读节奏组织，以具体场景、动作、选择和自然对话推进。第一片段前 300～500 字进入压力、异常、冲突或决定点；不能用长段景物、梦境、身世说明或世界设定慢热开场。
-- 网文回报按题材选择，可以是破局、反击、真相、身份变化、关系兑现或情绪释放，不把所有作品机械写成打脸爽文。
-- 片段是后台恢复游标，不是面向读者的章节。前端和导出只呈现连续正文。
-- 生成顺序固定为计划、逐段写作、全篇审校、最多一次修复。
-- 已完成片段直接复用；失败从当前片段继续。异常退出留下的 `generating` 状态只有超过租期后才能回收，防止并发重复写入。
-- 普通质量问题作为质量债完成交付。只有明确要求重规划、没有可用正文、运行时安全或数据完整性问题才停止任务。
-- 全篇审校必须检查钩子、主角行动、场景推进、反转与回报、段落可读性和结局兑现；空泛抒情、梗概化、超长密集段落或碎句滥用属于可修复问题，不应被误判为高级文风。
+- First-phase target length is 3,000–30,000 words. AI decides 2–8 internal segments.
+- In this product, a short story is shorter web fiction that can be read in one sitting and fully resolves. It is not an essay, literary sketch, synopsis, or screenplay breakdown. Subject matter can be restrained or lyrical, but it must keep web-fiction immediate hooks, active goals, ongoing propulsion, genre payoff, and a clear ending.
+- New plans use schemaVersion 2. Besides start/end state, each internal segment must also provide an opening hook, immediate goal, 2–6 causal propulsion beats, genre payoff, and ending pull, so prose generation does not receive only an abstract "segment purpose".
+- Prose is organized for phone reading and advances through concrete scenes, action, choices, and natural dialogue. The first 300–500 words of segment one enter pressure, anomaly, conflict, or a decision point. Do not open with long scenery, dreams, origin exposition, or world-setting slow burn.
+- Web-fiction payoff is chosen by genre: breakthrough, counterattack, revelation, identity change, relationship fulfillment, or emotional release. Do not mechanically write every work as face-slapping power fantasy.
+- Segments are backend recovery cursors, not reader-facing chapters. Frontend and export present continuous prose only.
+- Generation order is fixed: plan, write segment by segment, full-piece review, at most one repair.
+- Completed segments are reused directly. Failure continues from the current segment. A leftover `generating` state after abnormal exit may be reclaimed only after the lease expires, to prevent concurrent double writes.
+- Ordinary quality problems complete delivery as quality debt. Stop the task only for explicit replan required, no usable prose, or runtime safety / data-integrity failure.
+- Full-piece review must check hook, protagonist action, scene propulsion, reversal and payoff, paragraph readability, and ending fulfillment. Vague lyricism, synopsis-like prose, oversized dense paragraphs, or fragment abuse are repairable problems and must not be misread as advanced style.
 
-## 编辑与修改保护
+## Edit And Rewrite Protection
 
-- 直接编辑按内部片段保存，使用 `expectedVersion` 做乐观并发校验。
-- 每次人工保存或确认 AI 重写前先建立正文快照。
-- 自动修复和失败恢复不能覆盖带有人工编辑标记的片段。
-- 自然语言修改先展示 AI 理解、影响片段、是否改变结尾/规模/核心意图，以及局部修复、下游重写或全篇重规划建议。
-- 所有涉及已完成正文的 AI 重写都必须由用户显式确认。
+- Direct edits save by internal segment and use `expectedVersion` for optimistic concurrency.
+- Create a prose snapshot before every manual save or confirmed AI rewrite.
+- Auto repair and failure recovery must not overwrite segments marked as user-edited.
+- Natural-language revision first shows AI understanding, affected segments, whether ending / scale / core intent change, and a recommendation among local repair, downstream rewrite, or full replan.
+- Every AI rewrite of completed prose requires explicit user confirmation.
 
-## 恢复与路由
+## Recovery And Routing
 
-- 方向确认前恢复到 `/create?taskId=...`。
-- 短篇创建后恢复到 `/novels/:id/story`。
-- 长篇任务继续使用自动导演恢复入口。
-- 服务启动时恢复排队中或运行中的短篇任务；失败任务可从作品页显式继续。
-- 显式 `replan_required` 不得被普通重试清除，必须先让用户确认新的创作方向。
+- Before direction confirmation, recover to `/create?taskId=...`.
+- After short-story create, recover to `/novels/:id/story`.
+- Long-form tasks keep using Auto-Director recovery entries.
+- On service start, resume queued or running short-story tasks. Failed tasks can continue explicitly from the work page.
+- Explicit `replan_required` must not be cleared by ordinary retry. The user must first confirm a new creation direction.
 
-## 短篇发展成长篇
+## Promote Short Story To Long Novel
 
-“发展成长篇”创建新的创作任务，继承短篇的有效意图、核心人物、冲突、结尾承诺和成稿摘要。用户重新确认长篇方向后创建新的 `long_novel`，并交接自动导演。原短篇保持不变，新长篇通过 `derivedFromNovelId` 记录来源。
+"Grow into a long novel" creates a new creation task that inherits the short story's active intent, core characters, conflict, ending promise, and finished-draft summary. After the user reconfirms a long-form direction, a new `long_novel` is created and handed to Auto-Director. The original short story stays unchanged. The new long novel records origin through `derivedFromNovelId`.
 
-## Creative Hub 边界
+## Creative Hub Boundary
 
-Creative Hub 可以理解“把这个想法写成短篇”等目标，并引导或发起创作工作室任务；它不能在聊天请求中直接执行短篇计划、分段写作、全篇审校、修复或正文重写。这些重型动作必须进入正式 workflow、Prompt Registry 和任务投影。
+Creative Hub can understand goals such as "write this idea as a short story" and guide or start a Creation Studio task. It must not execute short-story planning, segmented writing, full-piece review, repair, or prose rewrite inside a chat request. Those heavy actions must enter a formal workflow, Prompt Registry, and task projection.
 
-## 失败模式
+## Failure Modes
 
-- 重试确认后出现两部作品：检查客户端是否复用稳定幂等键，以及确认记录唯一约束是否生效。
-- 刷新后从头重写：检查计划和片段是否持久化、已完成片段是否被当成 pending。
-- 人工正文被覆盖：检查 `userEditedAt`、快照和写入条件是否同时生效。
-- 普通审校问题阻断整篇：检查是否错误映射成 `replan_required` 或失败任务。
-- 短篇导出出现片段标题：检查导出是否使用连续正文，而不是复用长篇章节格式。
-- Creative Hub 能写短篇但任务中心无记录：说明绕过了正式工作流，必须收回到创作工作室。
+- Retry confirm creates two works: check whether the client reused a stable idempotency key, and whether the confirmation unique constraint is in effect.
+- Refresh rewrites from scratch: check whether plan and segments persisted, and whether completed segments were treated as pending.
+- Manual prose is overwritten: check whether `userEditedAt`, snapshots, and write conditions all take effect together.
+- Ordinary review issues stop the whole piece: check whether they were wrongly mapped to `replan_required` or a failed task.
+- Short-story export shows segment titles: check whether export uses continuous prose instead of reusing long-form chapter format.
+- Creative Hub can write a short story but Task Center has no record: the formal workflow was bypassed. Pull it back into Creation Studio.
 
-## 相关模块
+## Related Modules
 
 - `server/src/modules/novel/creation-studio/`
 - `server/src/modules/novel/short-story/`
@@ -99,7 +99,7 @@ Creative Hub 可以理解“把这个想法写成短篇”等目标，并引导�
 - `client/src/pages/creationStudio/`
 - `client/src/pages/shortStory/`
 
-## 来源文档
+## Source Documents
 
-- [Creative Hub 边界](creative-hub-boundary.md)
-- [新手优先与整本小说完成原则](../product/beginner-first-novel-completion.md)
+- [Creative Hub boundary](creative-hub-boundary.md)
+- [Beginner-first full-novel completion](../product/beginner-first-novel-completion.md)

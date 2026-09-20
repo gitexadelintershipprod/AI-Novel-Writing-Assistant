@@ -1,32 +1,29 @@
-# 事实账本（Novel Fact Ledger）
+# Novel fact ledger
 
-## 背景
+## Background
 
-当前 timeline 模块对写章的介入效果有限（见 [timeline 诊断](../prompts/novel-generation-quality-guards.md)），
-且其功能与 PayoffLedger、ChapterMission、ObligationContract 等模块大量重叠。
+The current timeline module has limited effect on chapter writing (see [timeline diagnosis](../prompts/novel-generation-quality-guards.md)), and its duty overlaps heavily with PayoffLedger, ChapterMission, and ObligationContract.
 
-事实账本是对 timeline 写章介入的替代方案：用一个极简的"已发生不可逆事实列表"
-防止 LLM 在后续章节重复写出已发生的事件。事实账本只记录已经被验收或正文观测确认的事实，
-不能把写前计划、章节义务或伏笔指令本身当成已经发生的事实。
+The fact ledger is the replacement for timeline’s intervention in chapter writing: a minimal “already-happened irreversible facts” list that stops the LLM from rewriting events that already occurred in later chapters. The fact ledger only records facts confirmed by acceptance or prose observation. It must not treat a pre-write plan, chapter obligation, or payoff instruction itself as a fact that already happened.
 
-## 核心原则
+## Core principle
 
-> 事实由验收覆盖或正文观测确认后写入，不由写前指令直接推断。
+> Facts are written after acceptance coverage or prose observation confirms them. They are not inferred directly from pre-write instructions.
 
-- `mustHitNow` 只在章节接收闸门确认覆盖后写入 `completed`
-- 接收闸门不可用时不写入义务事实，因为系统没有核实正文是否兑现
-- `payoffDirectives` 是给作者的写前指令，不是“已揭示”观测；不得直接写入 `revealed`
-- 正文即兴硬事实可由章节摘要的 `concreteFacts[]` 观测结果写入
-- 幂等写入，不产生重复条目
+- `mustHitNow` is written as `completed` only after the chapter-acceptance gate confirms coverage.
+- When the acceptance gate is unavailable, do not write obligation facts, because the system has not verified that the prose paid them.
+- `payoffDirectives` are pre-write instructions for the author, not a “revealed” observation. Do not write them as `revealed` directly.
+- Improvised hard facts in the prose may be written from chapter-summary `concreteFacts[]` observations.
+- Writes are idempotent and do not create duplicate entries.
 
-## 数据模型
+## Data model
 
 ```prisma
 model NovelFactEntry {
   id           String   @id @default(cuid())
   novelId      String
-  chapterOrder Int      // 事实发生在第几章
-  text         String   // 一两句话描述，如"第7章已完成：陈建国取得个体户执照"
+  chapterOrder Int      // which chapter the fact happened in
+  text         String   // one or two sentences, e.g. "Chapter 7 completed: Chen Jianguo obtained a sole-proprietor license"
   category     String   // completed | revealed | state_changed
   source       String   // auto | manual
   novel        Novel    @relation(...)
@@ -34,95 +31,97 @@ model NovelFactEntry {
 }
 ```
 
-category 说明：
-- `completed`：过程性目标已完成（证件、合同、任务）
-- `revealed`：信息已揭示（身份、秘密、真相）
-- `state_changed`：不可逆状态变化（人物死亡、关系破裂）
+Category:
 
-## 升级兼容
+- `completed`: a process goal is done (papers, contract, mission)
+- `revealed`: information is revealed (identity, secret, truth)
+- `state_changed`: an irreversible state change (a death, a broken relationship)
 
-事实账本属于章节生成的必经读取链路。发布该能力时，`NovelFactEntry` 必须同时具备 PostgreSQL 与桌面 SQLite 的 Prisma 迁移；桌面端会在本地服务启动前执行 SQLite 迁移，已有作品库也必须能补建该表和索引。不得只更新 Prisma schema，否则升级后的旧数据库会在章节生成时因缺表中断。
+## Upgrade compatibility
 
-## 写入路径
+The fact ledger sits on the required read path for chapter generation. Shipping this capability requires Prisma migrations for `NovelFactEntry` on both PostgreSQL and desktop SQLite. The desktop app runs SQLite migrations before the local server starts, and existing libraries must be able to create the table and indexes. Do not only update the Prisma schema, or an upgraded old database will abort chapter generation because the table is missing.
 
-**触发时机**：章节接收通过后（`ChapterContentFinalizationService.finalizeChapterContent`）。
-义务事实写入会先于章节摘要执行并被 `await`，保证下一章 JIT 组装前账本已就绪；
-写入失败只记录告警，不阻断章节定稿。
+## Write path
 
-**数据来源**：
+**Trigger:** after chapter acceptance passes (`ChapterContentFinalizationService.finalizeChapterContent`).
+Obligation-fact writes run before the chapter summary and are `await`ed, so the ledger is ready before the next chapter’s JIT assembly.
+Write failure only logs a warning and does not block chapter finalization.
 
-| 来源 | category | 示例 |
+**Sources:**
+
+| Source | category | Example |
 |------|----------|------|
-| `obligationContract.mustHitNow` 中被 `obligationCoverage` 确认为已覆盖的条目 | `completed` | "第7章已完成：取得个体户执照" |
-| 章节摘要 / 正文观测抽取出的硬事实 `concreteFacts[]` | `completed` / `revealed` / `state_changed` | "主角承诺三日内交付第一批样品" |
+| `obligationContract.mustHitNow` items that `obligationCoverage` confirmed as covered | `completed` | "Chapter 7 completed: obtained a sole-proprietor license" |
+| Hard facts extracted by chapter summary / prose observation `concreteFacts[]` | `completed` / `revealed` / `state_changed` | "The protagonist promised to deliver the first samples within three days" |
 
-### 验收覆盖过滤规则
+### Acceptance-coverage filter
 
-- `obligationCoverage.status === "satisfied"`：放行全部非空 `mustHitNow`。
-- `obligationCoverage.status === "partial"`：只剔除 `missing.kind === "must_hit_now"` 能匹配到的义务；匹配使用去空白标点后的双向包含和字符 n-gram 相似度。
-- `missing.kind === "must_hit_now"` 无法匹配回原文时，按保守原则剔除相似度最高的一项，并写入结构化告警。
-- `obligationCoverage.status === "unmet"`：跳过全部 `mustHitNow` 写入。
-- `riskTags` 含 `acceptance_gate_unavailable`：跳过全部 `mustHitNow` 写入。
+- `obligationCoverage.status === "satisfied"`: admit every non-empty `mustHitNow`.
+- `obligationCoverage.status === "partial"`: drop only obligations that `missing.kind === "must_hit_now"` can match. Matching uses bidirectional containment after stripping whitespace/punctuation, plus character n-gram similarity.
+- When `missing.kind === "must_hit_now"` cannot match back to the original text, conservatively drop the highest-similarity item and write a structured warning.
+- `obligationCoverage.status === "unmet"`: skip every `mustHitNow` write.
+- `riskTags` contains `acceptance_gate_unavailable`: skip every `mustHitNow` write.
 
-被剔除的义务不会重复写入事实账本；它们已经通过接收闸门的 missing obligation 进入 review issue / quality debt 流。
-终稿服务会为剔除项记录结构化日志，并通过 `continue_with_risk` director event 让任务中心可见。
+Dropped obligations are not written again into the fact ledger. They already entered the review-issue / quality-debt flow through the acceptance gate’s missing obligation.
+Finalization records structured logs for dropped items and makes them visible in Task Center through a `continue_with_risk` director event.
 
-手动写入：`NovelFactService.addManualFact()`（供未来 Agent 工具调用）。
+Manual write: `NovelFactService.addManualFact()` (for a future agent tool).
 
-## 读取路径
+## Read path
 
-**触发时机**：`GenerationContextAssembler.buildForChapter` 组装章节写作上下文时。
+**Trigger:** when `GenerationContextAssembler.buildForChapter` assembles chapter-writing context.
 
-**查询策略**：
-- `completed` + `revealed`：全量返回（不限章节距离，里程碑性事实）
-- `state_changed`：只返回最近 15 章内的条目
+**Query:**
 
-**注入位置**：`ChapterWriteContext.completedMilestones: string[]`
+- `completed` + `revealed`: return all (no chapter-distance cap; these are milestone facts)
+- `state_changed`: only entries from the last 15 chapters
 
-渲染效果（`chapter_mission` block 中）：
+**Injection:** `ChapterWriteContext.completedMilestones: string[]`
+
+Render in the `chapter_mission` block:
+
 ```
 Already completed — do NOT re-pursue or re-trigger
-- 第7章已完成：取得个体户执照
-- 第12章已完全揭示：幕后主使身份
+- Chapter 7 completed: obtained a sole-proprietor license
+- Chapter 12 fully revealed: the identity of the hidden mastermind
 ```
 
-## 与 timeline 的边界
+## Boundary with timeline
 
-事实账本**不替代** timeline 的前端时间轴展示功能（`StoryTimelineEvent` 表保留）。
-只替代 timeline 对写章上下文的介入（`timeline_context` block 在 PR-B 中从 requiredGroups 移除）。
+The fact ledger **does not replace** the frontend timeline (`StoryTimelineEvent` stays).
+It only replaces timeline’s intervention in writing context (`timeline_context` was removed from requiredGroups in PR-B).
 
-事实账本不承担当前章的读者回报、主角欲望、场景转折或钩子承接责任。这些写前执行目标由 `ReaderExperienceContract` 负责；事实账本只在正文验收或观测确认后记录已经发生的不可逆事实。
+The fact ledger does not own this chapter’s reader payoff, protagonist desire, scene turn, or hook continuation. Those pre-write execution goals belong to `ReaderExperienceContract`. The fact ledger only records irreversible facts after prose acceptance or observation confirms them.
 
-## 相关模块
+## Related Modules
 
-- `server/src/services/novel/fact/NovelFactService.ts`（读写服务）
-- `server/src/services/novel/fact/factLedgerFilter.ts`（验收覆盖过滤）
-- `server/src/services/novel/runtime/ChapterContentFinalizationService.ts`（写入触发）
-- `server/src/services/novel/runtime/GenerationContextAssembler.ts`（读取注入）
-- `server/src/prisma/schema.prisma`（NovelFactEntry 模型）
-- `server/src/prisma/migrations/` 与 `server/src/prisma/migrations.sqlite/`（事实账本升级迁移）
-- `shared/types/chapterRuntime.ts`（completedMilestones 字段，已有）
+- `server/src/services/novel/fact/NovelFactService.ts` (read/write)
+- `server/src/services/novel/fact/factLedgerFilter.ts` (acceptance-coverage filter)
+- `server/src/services/novel/runtime/ChapterContentFinalizationService.ts` (write trigger)
+- `server/src/services/novel/runtime/GenerationContextAssembler.ts` (read injection)
+- `server/src/prisma/schema.prisma` (`NovelFactEntry` model)
+- `server/src/prisma/migrations/` and `server/src/prisma/migrations.sqlite/` (fact-ledger upgrade migrations)
+- `shared/types/chapterRuntime.ts` (`completedMilestones` field, already present)
 
-## 后续边界
+## Later boundary
 
-`revealed` 类事实应来自 payoff ledger 状态迁移、timeline gate 的 resolved hook，或正文观测抽取结果。
-如果未来接收闸门 schema 增加 `missingObligations[].sourceText`，`factLedgerFilter` 应优先使用精确源文本匹配，
-并把相似度匹配降级为兼容旧缓存的兜底。
+`revealed` facts should come from payoff-ledger status migration, a timeline-gate resolved hook, or prose-observation extraction.
+If a later acceptance-gate schema adds `missingObligations[].sourceText`, `factLedgerFilter` should prefer exact source-text matching and demote similarity matching to a fallback for old caches.
 
-## PR-B 变更记录（已完成）
+## PR-B change record (done)
 
-PR-B 目标：从写章路径彻底移除 timeline 干预，写章上下文不再有 `timeline_context` block。
+PR-B goal: remove timeline intervention from the writing path entirely. Writing context no longer has a `timeline_context` block.
 
-已修改文件：
+Files changed:
 
-| 文件 | 变更内容 |
+| File | Change |
 |------|---------|
-| `chapterWriter.prompts.ts` | `requiredGroups` / `preferredGroups` / `contextRequirements` 移除 `timeline_context` |
-| `ChapterContentFinalizationService.ts` | 移除 `timelineFinalizer` 依赖及 finalize 调用 |
-| `ChapterStreamGenerationOrchestrator.ts` | 移除 `timelineFinalizer` 依赖及 `ensurePreviousChapterTimelineFinalized` 调用和方法 |
-| `ChapterPipelineRuntimeAdapter.ts` | 移除 `timelineFinalizer` 依赖及 `finalizeChapterTimeline` callback |
-| `ChapterRuntimeCoordinator.ts` | 移除 `timelineFinalizer` 可选依赖及向所有子服务的注入 |
-| `ChapterRepairStreamRuntime.ts` | 移除 `timelineFinalizer` 可选依赖及修复通过后的 finalize 调用 |
-| `chapterRuntimePipeline.ts` | 移除 `finalizeChapterTimeline?` 接口定义及两处调用点，移除 `shouldFinalizeDegradedForDeferredQualityDebt` 函数 |
+| `chapterWriter.prompts.ts` | Removed `timeline_context` from `requiredGroups` / `preferredGroups` / `contextRequirements` |
+| `ChapterContentFinalizationService.ts` | Removed `timelineFinalizer` dependency and finalize call |
+| `ChapterStreamGenerationOrchestrator.ts` | Removed `timelineFinalizer` dependency and `ensurePreviousChapterTimelineFinalized` |
+| `ChapterPipelineRuntimeAdapter.ts` | Removed `timelineFinalizer` dependency and `finalizeChapterTimeline` callback |
+| `ChapterRuntimeCoordinator.ts` | Removed optional `timelineFinalizer` and injection into child services |
+| `ChapterRepairStreamRuntime.ts` | Removed optional `timelineFinalizer` and the finalize call after a successful repair |
+| `chapterRuntimePipeline.ts` | Removed `finalizeChapterTimeline?` from the interface and two call sites, and `shouldFinalizeDegradedForDeferredQualityDebt` |
 
-> `ChapterTimelineFinalizationService` 本身及 `StoryTimelineEvent` 表保留，前端时间轴展示功能不受影响。
+> `ChapterTimelineFinalizationService` itself and the `StoryTimelineEvent` table stay. Frontend timeline display is unaffected.

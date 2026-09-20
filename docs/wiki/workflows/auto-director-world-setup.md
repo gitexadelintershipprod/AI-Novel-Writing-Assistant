@@ -1,35 +1,35 @@
-# 自动导演本书世界准备
+# Auto-Director book-world setup
 
 ## Background
 
-自动导演的主目标是帮助新手从书级方向进入可开写状态。世界观不是所有题材都必需，但在玄幻、科幻、悬疑、克苏鲁等强设定项目中，角色、势力、地点和冲突需要在同一套世界约束下生成。若角色准备早于世界准备，角色会缺少阵营、舞台、规则边界，后续章节再补世界时容易出现设定漂移。
+Auto-Director’s main goal is to help a beginner move from a book-level direction into a state that can start writing. A world is not required for every genre, but in high-setting projects such as xianxia, science fiction, mystery, and cosmic horror, characters, factions, locations, and conflict need to generate under one world constraint. If character prep runs before world prep, characters lack camp, stage, and rule boundaries, and later chapters that add a world tend to drift.
 
 ## Decision
 
-自动导演规划链固定为：
+The Auto-Director planning chain is fixed:
 
-`Story Macro -> Book Contract -> 本书世界准备 -> 角色准备 -> 分卷策略 -> 章节任务单`
+`Story Macro -> Book Contract -> book-world setup -> character prep -> volume strategy -> chapter task sheet`
 
-本书世界准备放在 Book Contract 之后，因为世界应服从整书商业承诺、读者预期和不可违背约束；放在角色准备之前，因为角色阵容需要先读取世界门面中的势力、地点、硬规则和禁用组合。
+Book-world setup sits after Book Contract because the world should obey the whole-book commercial promise, reader expectation, and inviolable constraints. It sits before character prep because the cast needs to read factions, locations, hard rules, and forbidden combinations from the world facade first.
 
 ## Current Rule
 
-- 用户选择参考世界样本时，自动导演沿用该 `worldId`，通过 `WorldContextGateway` 确保本书世界实例和角色用途 `StoryWorldSlice` 可用。
-- 用户未选择参考世界样本时，默认根据宏观规划与书级约定自动生成本书 `NovelWorld`，不保存到外部世界库。
-- 用户选择“暂不使用世界观”时，`world_setup` 作为 no-op 完成，后续 Gateway 继续允许返回 `null`。
-- `worldSetupMode=skip` 必须同时作用于恢复起点判断和 Pipeline 顺序执行。即使任务从 `story_macro` 或 `book_contract` 恢复后继续向后推进，也不得再执行 `book.world.prepare`；否则会把用户明确跳过世界观的选择重新变成强制世界准备。
-- 从角色准备或后续阶段恢复时，如果世界准备未完成且未选择跳过，安全起点回退到 `world_setup`。
-- 自动导演只依赖 `WorldContextGateway`，不直接调用旧的小说世界生成入口，也不把自动生成结果推入外部世界库。
-- `world_setup` 是独立的正式工作流阶段，页面恢复目标为 `world`。流程导航固定显示在“故事宏观规划”和“角色准备”之间；世界观生成、AI 检查、完善、重新生成与保存确认都只读写该阶段的本书世界观资产。
-- 逐步查看模式在 `book.world.prepare` 完成后写入 `step_review_required`，当前阶段、当前项和恢复 Tab 都必须为 `world_setup/world`。审查上下文读取世界观资产及其来源数据，不得借用角色准备上下文。
-- 自动继续模式不在世界观步骤额外停顿；完成世界准备后直接进入角色准备。选择“暂不使用世界观”时，此阶段作为已完成的空步骤显示，角色准备继续使用轻设定路径。
-- 历史任务不做数据迁移。投影与接管按“显式 `world_setup` 阶段或世界观步骤 ID 优先；已绑定本书世界观视为完成；未绑定且尚未完成角色阶段时回到世界观准备”的顺序推断。
+- When the user picks a reference world sample, Auto-Director keeps that `worldId` and uses `WorldContextGateway` so the book-world instance and the character-use `StoryWorldSlice` are available.
+- When the user does not pick a reference world sample, default to generating this book’s `NovelWorld` from the macro plan and book contract. Do not save it to the external world library.
+- When the user chooses “do not use a world for now”, `world_setup` completes as a no-op. Later Gateway calls may still return `null`.
+- `worldSetupMode=skip` must apply both to recovery-start judgment and sequential Pipeline execution. Even when a task resumes from `story_macro` or `book_contract` and continues forward, it must not run `book.world.prepare` again; that would turn an explicit skip back into forced world prep.
+- When recovering from character prep or a later stage, if world prep is incomplete and skip was not chosen, the safe start falls back to `world_setup`.
+- Auto-Director depends only on `WorldContextGateway`. It does not call the old novel-world generation entry, and it does not push auto-generated results into the external world library.
+- `world_setup` is an independent formal workflow stage. The page recovery target is `world`. Flow navigation is fixed between “story macro planning” and “character prep”. World generation, AI check, refine, regenerate, and save-confirm only read and write this stage’s book-world asset.
+- Step-review mode writes `step_review_required` after `book.world.prepare` completes. Current stage, current item, and recovery tab must all be `world_setup/world`. Review context reads the world asset and its source data. It must not borrow character-prep context.
+- Auto-continue mode does not extra-pause on the world step; after world prep it goes straight into character prep. Choosing “do not use a world for now” shows this stage as a completed empty step, and character prep keeps the light-setting path.
+- Historical tasks are not migrated. Projection and takeover infer in this order: explicit `world_setup` stage or world-step id first; a bound book world counts as complete; unbound and character stage not yet complete returns to world prep.
 
 ## Failure Modes
 
-- 如果恢复逻辑只检查故事宏观规划、Book Contract 和角色数量，可能会从 `character_setup` 跳过世界准备，导致强设定项目的角色生成缺少世界约束。
-- 如果自动生成世界默认保存到世界库，会把一次性书内设定污染为通用世界样本，并引入不必要的同步语义。
-- 如果角色准备直接读取旧扁平字段，会绕过本书世界 slice，导致导入世界、生成世界和跳过世界三种路径行为不一致。
+- If recovery only checks story macro, Book Contract, and character count, it can skip world prep from `character_setup`, so character generation on a high-setting project lacks world constraints.
+- If auto-generated worlds default into the world library, one-off in-book settings pollute generic world samples and add unnecessary sync semantics.
+- If character prep reads old flat fields directly, it bypasses the book-world slice, so import-world, generate-world, and skip-world paths behave inconsistently.
 
 ## Related Modules
 

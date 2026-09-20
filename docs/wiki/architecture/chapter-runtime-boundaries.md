@@ -1,37 +1,37 @@
-# 章节 Runtime 边界
+# Chapter runtime boundaries
 
-## 背景
+## Background
 
-章节正文生成链路同时承担流式生成、空稿重试、正文接收门禁、时间线检测、终稿定稿、资产同步和 pipeline 批量适配。`ChapterRuntimeCoordinator` 作为单文件承载这些职责时，任一入口都容易绕开统一链路，导致手动生成、自动导演和 pipeline 的行为分叉。
+The chapter-text generation chain simultaneously owns streaming generation, empty-draft retry, chapter-text acceptance gates, timeline detection, final-draft finalization, asset sync, and pipeline batch adaptation. When `ChapterRuntimeCoordinator` carried those responsibilities as a single file, any entrypoint could bypass the unified chain, so manual generation, Auto-Director, and pipeline behavior forked.
 
-Phase 5 后，`ChapterRuntimeCoordinator` 只保留稳定门面和 3 个公开入口，具体执行由 runtime 内部子模块承接。外部调用方不应感知这些内部拆分。
+After Phase 5, `ChapterRuntimeCoordinator` keeps only the stable facade and three public entrypoints. Concrete execution is owned by runtime internal submodules. External callers should not see that internal split.
 
-## 当前规则
+## Current Rule
 
-- 外部入口只能依赖 `ChapterRuntimeCoordinator` 的 `createChapterStream`、`createRepairStream`、`runPipelineChapter`。
-- `ChapterStreamGenerationOrchestrator` 拥有手动生成流、空稿重试、SSE 状态和运行前事实门禁。
-- `ChapterQualityGateService` 拥有 acceptance 与 timeline 双门禁、cache key 和门禁 trace。
-- `ChapterContentFinalizationService` 拥有终稿定稿、runtime package 组装、章节状态推进、timeline finalization 和延迟资产同步。
-- `ChapterContentFinalizationService` 必须先完成当前正文版本的 timeline finalization，再推进章节状态或发出 `chapter:finalized`。正文通过接收闸门时提交 `stable`；正文可用但仍有局部质量债时提交 `degraded`，后续修复稿以新的 content hash 再升级为 `stable`。
-- Timeline 抽取不参与正文接收裁决。`acceptance` 先给出正文质量结论，timeline finalization 再对最终正文做幂等提交；抽取或稳定提交失败时由 Timeline 服务内部降级，只有检查点本身无法落盘这类数据完整性问题才阻止章节状态继续推进。
-- `runtime/lifecycle/ChapterLifecycleService` 是章节生产链中 `content`、`generationState` 和 `chapterStatus` 的唯一持久化写入口。生成、审校、修复和资产服务只决定业务状态并委托它落库，不得各自直接更新 Chapter 生命周期字段。
-- `ChapterPipelineRuntimeAdapter` 只负责把 pipeline hooks 适配到统一章节 runtime，不复制 writer、门禁或定稿逻辑。
-- `chapterRuntimePackageBuilders.ts` 只放无 IO 构建函数，不允许引入 Prisma、route、director 或服务单例。
-- `shared/types/chapterRuntime.ts` 是共享运行时合同的稳定门面；样式、动态角色、Payoff 和质量结果 Schema 分别归属 `shared/types/chapterRuntime/` 下的领域文件，外部仍从原门面路径导入。
-- 共享 Schema 子模块只允许包含 Zod 合同和推导类型。跨域 `chapterRuntimePackageSchema` 继续留在门面中负责装配，避免子模块反向依赖门面形成初始化循环。
-- `ChapterRepairStreamRuntime` 仍是修复流实现边界，暂不在 Phase 5 拆分；门面只继续委托它。
+- External entrypoints may depend only on `ChapterRuntimeCoordinator`'s `createChapterStream`, `createRepairStream`, and `runPipelineChapter`.
+- `ChapterStreamGenerationOrchestrator` owns the manual generation stream, empty-draft retry, SSE status, and pre-run fact gates.
+- `ChapterQualityGateService` owns the dual acceptance and timeline gates, cache keys, and gate traces.
+- `ChapterContentFinalizationService` owns final-draft finalization, runtime-package assembly, chapter-state advancement, timeline finalization, and deferred asset sync.
+- `ChapterContentFinalizationService` must finish timeline finalization for the current chapter-text version before advancing chapter state or emitting `chapter:finalized`. Submit `stable` when the text passes the acceptance gate. Submit `degraded` when the text is usable but still has local quality debt; a later repair draft upgrades to `stable` with a new content hash.
+- Timeline extraction does not participate in chapter-text acceptance. `acceptance` first produces the chapter-text quality conclusion; timeline finalization then commits the final text idempotently. Extraction or stable-commit failures degrade inside the Timeline service. Only data-integrity problems such as the checkpoint itself failing to persist may stop chapter-state advancement.
+- `runtime/lifecycle/ChapterLifecycleService` is the only persistence write entrypoint for `content`, `generationState`, and `chapterStatus` on the chapter production chain. Generation, review, repair, and asset services decide business state and delegate persistence to it. They must not each update Chapter lifecycle fields directly.
+- `ChapterPipelineRuntimeAdapter` only adapts pipeline hooks onto the unified chapter runtime. It does not copy writer, gate, or finalization logic.
+- `chapterRuntimePackageBuilders.ts` holds IO-free builder functions only. It must not import Prisma, routes, director, or service singletons.
+- `shared/types/chapterRuntime.ts` is the stable facade for the shared runtime contract. Style, dynamic character, Payoff, and quality-result schemas each live in domain files under `shared/types/chapterRuntime/`. External callers still import from the original facade path.
+- Shared schema submodules may contain only Zod contracts and inferred types. The cross-domain `chapterRuntimePackageSchema` stays on the facade so it can assemble those pieces. Submodules must not depend back on the facade, which would create an initialization cycle.
+- `ChapterRepairStreamRuntime` remains the repair-stream implementation boundary and was not split in Phase 5. The facade continues to delegate to it.
 
-## 失败模式
+## Failure Modes
 
-- route、director 或旧 service 直接 import `ChapterQualityGateService` / `ChapterContentFinalizationService`，说明外部开始深链到 runtime 内部。
-- runtime package builder 引入数据库或服务单例，说明纯函数构建层重新混入 IO。
-- pipeline adapter 复制生成或定稿逻辑，说明批量执行路径重新分叉。
-- 章节状态已进入 `pending_review`、`needs_repair` 或完成事件已发出，但当前 content hash 没有 `timeline_finalization/stable|degraded` 成功检查点，说明终态边界被绕过。
-- Runtime 内除 `ChapterLifecycleService` 外再次出现 `prisma.chapter.update` 生命周期写入，说明状态所有权重新分叉。
-- coordinator 重新增长到 700 行以上，说明门面再次吸收了内部职责。
-- 服务端或客户端开始深层导入 `shared/types/chapterRuntime/*`，说明兼容门面被绕开，未来 Schema 重组会扩散到业务模块。
+- A route, director, or old service imports `ChapterQualityGateService` / `ChapterContentFinalizationService` directly: the outside has started deep-linking into runtime internals.
+- A runtime package builder imports a database or service singleton: the pure-function builder layer has mixed IO back in.
+- The pipeline adapter copies generation or finalization logic: the batch-execution path has forked again.
+- Chapter state has already entered `pending_review` or `needs_repair`, or a completion event has already been emitted, but the current content hash has no successful `timeline_finalization/stable|degraded` checkpoint: the terminal-state boundary was bypassed.
+- Runtime code other than `ChapterLifecycleService` performs `prisma.chapter.update` lifecycle writes again: lifecycle-state ownership has forked.
+- The coordinator grows past 700 lines again: the facade has re-absorbed internal responsibilities.
+- Server or client code starts deep-importing `shared/types/chapterRuntime/*`: the compatibility facade was bypassed, so a future schema reshuffle will spread into business modules.
 
-## 相关模块
+## Related Modules
 
 - `server/src/services/novel/runtime/ChapterRuntimeCoordinator.ts`
 - `server/src/services/novel/runtime/ChapterStreamGenerationOrchestrator.ts`

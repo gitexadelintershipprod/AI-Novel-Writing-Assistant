@@ -1,96 +1,96 @@
-# 平台写法配置与正文 Prompt 可编辑合同
+# Platform writing profiles and the editable prose-prompt contract
 
-## 背景
+## Background
 
-“男频 / 女频 / 大众”只能表达大致读者倾向，不能代替具体平台的阅读场景和内容节奏。同一题材投向不同平台时，开篇进入冲突的速度、信息解释量、段落长度、对话占比、爽点密度、关系线权重、单章回报和结尾牵引都可能不同。
+“Male-oriented / female-oriented / general” can only express a rough reader lean. They cannot replace a concrete platform’s reading scene and content pacing. The same genre aimed at different platforms can differ in how fast the opening enters conflict, how much information is explained, paragraph length, dialogue share, payoff density, relationship-line weight, per-chapter return, and ending pull.
 
-只使用一套通用正文 Prompt，容易得到“结构正确但不像目标平台作品”的成稿；为每个平台复制一整套独立 Prompt，又会造成连续性、安全边界、正文合同和修复规则逐渐漂移。
+One generic prose prompt easily produces drafts that are “structurally correct but unlike the target platform”. Copying a whole independent prompt set per platform lets continuity, safety bounds, the prose contract, and repair rules drift over time.
 
-## 决策
+## Decision
 
-正文生产采用“统一生产合同 + 作品形态合同 + 平台写法配置 + 本书写法 + 当前任务上下文”的分层结构。
+Prose production uses a layered structure: unified production contract + work-form contract + platform writing profile + this-book writing style + current mission context.
 
-平台差异应主要沉淀为可版本化、可预览、可测试的平台写法配置，不在 service 中通过平台字符串堆叠分支，也不复制整套正文生产链。只有当平台要求改变作品形态、输出结构或生产工作流时，才拆分独立 PromptAsset。
+Platform differences should mainly land as versioned, previewable, testable platform writing profiles. Do not stack branches in the service from platform strings, and do not copy the whole prose production chain. Split an independent PromptAsset only when the platform requires a different work form, output structure, or production workflow.
 
-所有新增产品 Prompt 默认先进入 Prompt Registry 和提示词管理目录。涉及小说、短篇或其他叙事正文生成的 Prompt，必须同时支持基础编辑与高级模板编辑。
+All new product prompts default into the Prompt Registry and the prompt-management catalog first. Prompts that generate novel, short-story, or other narrative prose must support both basic editing and advanced template editing.
 
-## 当前规则
+## Current Rule
 
-### 提示词管理
+### Prompt management
 
-- 新增产品 Prompt 的交付标准不止是“代码中已注册”。它必须能在提示词管理中被检索、查看版本、预览实际上下文并执行受控测试；不满足这些条件时，不能视为完成纳管。
-- 审校、规划、抽取等高风险结构化 Prompt 可以只开放安全槽位，schema、contextPolicy、required context、postValidate、repair 和审批边界保持只读。
-- 正文生成 Prompt 必须提供两级编辑能力：
-  - **基础编辑**：开放语气、节奏、段落、对话、描写、钩子和禁用倾向等低风险槽位。
-  - **高级编辑**：允许在明确的作品范围内编辑 System / Human 模板，支持上下文 token 插入、预览、测试、版本说明、保存新版本、回滚和恢复官方模板。
-- 高级模板不能移除正文所需的角色硬事实、章节或片段任务、连续性、世界规则、平台写法和风格合同。模板未显式引用 required context 时，运行时必须追加保底上下文。
-- 正文 Prompt 的高级编辑能力不能继续依赖前端判断某一个固定 Prompt ID。PromptAsset 或提示词目录投影应声明 `proseGeneration`、`slotEditable`、`advancedTemplate`、允许作用域和 required context 等能力，由工作台按能力渲染。
-- `novel.chapter.writer` 与 `novel.short_story.segment.write` 都属于正文生成 Prompt，应遵守同一编辑合同。短篇内部片段虽然前台不展示为章节，仍然是连续正文的生成单元，不能被排除在正文 Prompt 管理之外。
+- Delivery of a new product prompt is more than “registered in code”. It must be searchable in prompt management, show versions, preview real context, and run a controlled test. Until those conditions are met, it is not onboarded.
+- High-risk structured prompts such as review, planning, and extraction may open only safe slots. Schema, contextPolicy, required context, postValidate, repair, and approval bounds stay read-only.
+- Prose-generation prompts must provide two edit levels:
+  - **Basic editing**: open low-risk slots such as tone, pacing, paragraphs, dialogue, description, hooks, and forbidden leans.
+  - **Advanced editing**: allow System / Human template editing in an explicit work scope, with context-token insert, preview, test, version notes, save new version, rollback, and restore official template.
+- Advanced templates cannot remove the character hard facts, chapter or segment mission, continuity, world rules, platform writing, and style contract that prose needs. If the template does not explicitly reference required context, runtime must append fallback context.
+- Advanced editing for prose prompts must not keep depending on the frontend recognizing one fixed Prompt ID. The PromptAsset or prompt-catalog projection should declare capabilities such as `proseGeneration`, `slotEditable`, `advancedTemplate`, allowed scopes, and required context. The workbench renders from those capabilities.
+- `novel.chapter.writer` and `novel.short_story.segment.write` are both prose-generation prompts and should obey the same edit contract. Short-story internal segments are not shown as chapters in the UI, but they are still generation units of continuous prose and must not be excluded from prose-prompt management.
 
-### 平台写法配置
+### Platform writing profiles
 
-- “读者频道”和“目标平台”是两个不同维度。读者频道描述核心读者与情绪重心；目标平台描述阅读场景、商业模式、内容包装和节奏惯例。两者都允许 AI 推荐，也允许用户覆盖。
-- 平台推荐必须通过注册的 AI 结构化理解完成，并返回推荐平台写法、适配理由、主要变化和备选项；不得根据题材关键词或平台名称做硬编码路由。
-- 平台写法配置至少应描述：
-  - 开篇多少字进入压力、异常、欲望或冲突；
-  - 信息解释量与世界观展开速度；
-  - 场景切换、冲突和回报的推荐密度；
-  - 对话、动作、心理和环境描写的相对权重；
-  - 手机阅读段落长度和句式倾向；
-  - 关系线、情绪线、成长线或谜题线的优先级；
-  - 单章或短篇片段的阶段兑现；
-  - 章末牵引或完整短篇结尾的要求；
-  - 需要避免的常见平台错配写法。
-- 平台写法配置只控制表达与读者体验，不能改写人物硬事实、世界规则、已确认情节、章节责任或短篇结局承诺。
-- 用户选择高级模板时，平台写法仍是正式上下文。用户可以通过明确 token 调整其摆放和表达，但不能在无提示的情况下让平台合同消失。
-- 不以模仿具体作者或复刻受保护文本为目标。平台配置描述可观察的内容机制和阅读体验，不保存作者原文，不要求模型复制独特文风。
+- “Reader channel” and “target platform” are different dimensions. Reader channel describes core readers and emotional center of gravity. Target platform describes reading scene, business model, content packaging, and pacing convention. Both allow AI recommendation and user override.
+- Platform recommendation must complete through registered AI structured understanding, and return the recommended platform writing profile, adaptation reason, main changes, and alternatives. Hard-coded routing from genre keywords or platform names is not allowed.
+- A platform writing profile should at least describe:
+  - how many words into the opening before pressure, anomaly, desire, or conflict;
+  - information-explanation volume and world-view unfold speed;
+  - recommended density of scene switches, conflict, and payoff;
+  - relative weight of dialogue, action, interiority, and environment description;
+  - mobile-reading paragraph length and sentence lean;
+  - priority of relationship, emotion, growth, or mystery lines;
+  - stage payoff for a chapter or short-story segment;
+  - end-of-chapter pull or a complete short-story ending;
+  - common platform-mismatch writing to avoid.
+- Platform writing profiles only control expression and reader experience. They cannot rewrite character hard facts, world rules, confirmed plot, chapter duty, or the short-story ending promise.
+- When the user chooses an advanced template, platform writing is still formal context. The user may adjust placement and expression through explicit tokens, but the platform contract must not disappear without a signal.
+- The goal is not to imitate a specific author or reproduce protected text. Platform profiles describe observable content mechanics and reading experience. They do not store author originals and do not ask the model to copy a distinctive style.
 
-## 推荐装配顺序
+## Recommended assembly order
 
-1. 统一正文生产合同：事实保护、连续性、安全边界和输出形态。
-2. 作品形态合同：长篇连载章节或连续短篇片段。
-3. 平台写法配置：目标平台对应的节奏、回报、段落和牵引规则。
-4. 本书写法：题材气质、叙事视角、用户确认偏好和写法资产。
-5. 当前任务：章节 / 片段目标、前文交接、必须推进与必须保留。
-6. 用户模板覆盖：在上述 required context 仍可用的前提下决定最终消息组织。
+1. Unified prose production contract: fact protection, continuity, safety bounds, and output shape.
+2. Work-form contract: long-form serial chapter or continuous short-story segment.
+3. Platform writing profile: pacing, payoff, paragraph, and pull rules for the target platform.
+4. This-book writing style: genre temperament, narrative point of view, user-confirmed preferences, and writing assets.
+5. Current mission: chapter / segment goal, previous-text handoff, what must advance, and what must be kept.
+6. User template override: final message organization, while the required context above remains available.
 
-平台配置与本书写法冲突时，先保护事实与任务合同，再由 AI 在平台体验和本书气质之间给出可解释的适配结果。不能用固定优先级悄悄抹掉用户确认的写法。
+When a platform profile conflicts with this-book writing style, protect facts and the mission contract first, then let AI produce an explainable adaptation between platform experience and this-book temperament. Do not quietly erase a user-confirmed writing style with a fixed priority.
 
-## 首期平台与适用范围
+## First platforms and scope
 
-- 番茄免费网文：长篇、短篇；强调快速入戏、移动端短段落、高冲突和明确回报。
-- 起点男频：长篇；强调成长目标、资源与能力变化、稳定升级和伏笔兑现。
-- 晋江女频：长篇；强调人物关系、情绪因果、角色声音和关系状态变化。
-- 知乎短故事：短篇；强调高概念开场、信息差、连续揭示和完整结局。
+- Fanqie free web novel: long form and short form; fast entry, mobile short paragraphs, high conflict, and clear payoff.
+- Qidian male-oriented: long form; growth goals, resource and ability change, stable upgrade, and setup payoff.
+- Jinjiang female-oriented: long form; character relations, emotional causality, character voice, and relation-state change.
+- Zhihu short stories: short form; high-concept opening, information gap, continuous reveal, and a complete ending.
 
-没有选择平台时，由注册的结构化 AI Prompt 推荐并说明原因；用户只需采用或切换。平台支持范围属于确定性校验，平台选择本身不得由关键词或题材正则完成。
+When no platform is chosen, a registered structured AI prompt recommends one and explains why. The user only adopts or switches. Platform support range is deterministic validation. Platform choice itself must not be done with keywords or genre regex.
 
-## 版本与作品快照
+## Versioning and work snapshots
 
-- 官方平台写法保存在代码注册表，作为可恢复的可信基线。
-- 自定义平台写法每次保存创建不可变版本；启用历史版本只切换 active version，恢复官方写法不删除历史。
-- 小说确认平台时必须保存平台 key、配置版本和完整指导快照。全局平台配置后续升级不得静默改变已有作品。
-- 现有作品切换平台只影响后续规划、正文、审校、修复和 AI 修改，不自动重写已经完成的正文。
-- 有正在运行或等待确认的生产任务时禁止切换，避免同一任务混用两套平台合同。
-- 旧小说没有平台快照时继续使用通用中文商业网文合同，不能被迁移脚本强行归类。
+- Official platform writing lives in the code registry as a recoverable trusted baseline.
+- Each save of a custom platform writing profile creates an immutable version. Enabling a historical version only switches the active version. Restoring official writing does not delete history.
+- When a novel confirms a platform, it must save the platform key, configuration version, and a full guidance snapshot. Later upgrades to the global platform configuration must not silently change existing works.
+- Switching platform on an existing work only affects later planning, prose, review, repair, and AI revision. It does not automatically rewrite already-finished prose.
+- Switching is forbidden while a production task is running or waiting for confirm, so one task does not mix two platform contracts.
+- Old novels without a platform snapshot keep using the generic commercial web-novel contract. A migration script must not force-classify them.
 
-## 正文上下文合同
+## Prose context contract
 
-- 长篇章节正文必须包含 `writing_platform` required context，并与书级合约、章节任务、读者体验、人物硬事实、义务合约和风格合同共同装配。
-- 短篇正文必须包含 `creation_intent`、`short_story_plan`、`short_story_continuity`、`writing_platform`、`book_style` 五个 required context。
-- 短篇高级模板可以重新排列上述上下文，但结构化运行时始终在模板编译后追加输出合同，并由 Schema 强制要求 `content` 与 `continuitySummary`。
-- Prompt Workbench 选择短篇小说时，预览使用一个内部片段装配真实上下文；内部片段只用于技术预览，普通短篇工作室仍显示连续作品。
+- Long-form chapter prose must include `writing_platform` required context, assembled together with the book contract, chapter mission, reader experience, character hard facts, obligation contract, and style contract.
+- Short-story prose must include five required contexts: `creation_intent`, `short_story_plan`, `short_story_continuity`, `writing_platform`, and `book_style`.
+- A short-story advanced template may reorder that context, but structured runtime always appends the output contract after template compile, and the schema still requires `content` and `continuitySummary`.
+- When Prompt Workbench selects a short story, preview uses one internal segment to assemble real context. Internal segments are only for technical preview. Ordinary short-story studio still shows a continuous work.
 
-## 失败模式
+## Failure Modes
 
-- 成稿结构完整但“不像想要的平台”：检查平台写法是否进入正文运行上下文，以及评测是否只验证 schema 和字数、没有验证平台体验。
-- 为新平台复制整套 writer service：会让事实保护、连续性和修复链漂移，应优先新增平台写法配置与评测样例。
-- 只增加平台下拉框：如果正文 Prompt、计划、审校和修复都没有消费平台合同，选择只是一项无效设置。
-- 用“男频 / 女频”代替平台：同一读者频道在不同平台仍可能有完全不同的节奏、篇幅和回报结构。
-- 高级模板启用后平台风格消失：检查平台上下文是否属于 required context，以及模板缺失 token 时是否有运行时保底追加。
-- 新正文 Prompt 出现在 Registry 但不能编辑：说明只完成了调用治理，没有完成面向用户的提示词管理合同。
+- The draft is structurally complete but “does not feel like the wanted platform”: check whether the platform writing profile entered the prose runtime context, and whether evaluation only verified schema and length without verifying platform experience.
+- Copying a whole writer service for a new platform: fact protection, continuity, and the repair chain will drift. Prefer adding a platform writing profile and evaluation samples.
+- Only adding a platform dropdown: if the prose prompt, plan, review, and repair never consume the platform contract, the choice is a dead setting.
+- Using “male-oriented / female-oriented” instead of a platform: the same reader channel can still have completely different pacing, length, and payoff structure on different platforms.
+- Platform style disappears after an advanced template is enabled: check whether platform context is required context, and whether runtime appends a fallback when the template is missing the token.
+- A new prose prompt appears in the Registry but cannot be edited: call governance is done, but the user-facing prompt-management contract is not.
 
-## 相关模块
+## Related Modules
 
 - `server/src/prompting/`
 - `server/src/prompting/core/promptTypes.ts`
@@ -100,7 +100,7 @@
 - `client/src/pages/promptWorkbench/`
 - `shared/types/novelDirector.ts`
 
-## 来源文档
+## Source Documents
 
-- [Prompt Registry 与结构化输出](./prompt-registry-and-structured-output.md)
-- [新手优先与整本小说完成原则](../product/beginner-first-novel-completion.md)
+- [Prompt Registry and structured output](./prompt-registry-and-structured-output.md)
+- [Beginner-first full-novel completion](../product/beginner-first-novel-completion.md)

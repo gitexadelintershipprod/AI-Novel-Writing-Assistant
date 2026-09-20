@@ -1,40 +1,40 @@
-# 世界骨架生成流程
+# World skeleton generation
 
 ## Background
 
-世界库的默认创建流程面向写作新手。旧流程以分层字段和表单式补全为主，用户需要理解 `background`、`geography`、`factions` 等字段职责，才能判断一个世界是否可用于小说创作。这会增加认知负担，也会导致世界设定在势力、地点、关系和开局入口上承载不足。
+The default world-library creation flow is for writing beginners. The old flow was layered fields and form-style completion. Users had to understand the jobs of `background`, `geography`, `factions`, and similar fields before they could tell whether a world was usable for a novel. That raises cognitive load, and it leaves worlds under-specified on factions, locations, relations, and opening entries.
 
 ## Decision
 
-默认世界生成流程以“世界骨架”为主产物，而不是旧式扁平字段草稿。流程为：
+The default world generation flow produces a world skeleton, not the old flat field draft. The flow is:
 
-`世界意图 -> 世界规模 -> 骨架预览 -> 保存世界`
+`world intent -> world scale -> skeleton preview -> save world`
 
-骨架生成直接产出结构化世界数据，包含核心规则、阵营、具体势力、关键地点、势力关系、地点连接、故事入口和完整度诊断。旧扁平字段只作为兼容展示，由结构化数据派生。
+Skeleton generation returns structured world data: core rules, camps, concrete factions, key locations, faction relations, location connections, story entries, and completeness diagnostics. Old flat fields are compatibility display only, derived from the structured data.
 
 ## Current Rule
 
-- 默认入口使用 `world.skeleton.generate@v2`。
-- 用户可选择 `轻量舞台`、`标准长篇`、`复杂群像` 三个规模预设。
-- 用户可微调核心规则、阵营方向、具体势力、关键地点、关系/冲突、故事入口数量。
-- 单次生成只返回可引用的骨架卡片，不生成世界设定正文；说明使用短句，整体文本量控制在约 3,200 个汉字内。规模变大时优先增加条目，不增加单条篇幅。
-- 骨架调用最多等待两分钟，并为完整输出预留固定 token 预算。结构化 JSON 被截断、格式失效或不满足骨架契约时，不对同一大输出反复修复或重试，也不会保存半成品。
-- 这类失败会明确提示用户缩小世界规模后重试；持续失败时再切换模型。保存世界后仍可在世界手册按层补充细节。
-- 生成结果必须满足数量约束，特别是势力和地点数量不能少于用户要求。
-- 地点必须具备地图可绘制信息，包括相对坐标、方位、风险、控制势力和故事作用。
-- 势力关系和地点连接必须进入结构化关系，不依赖后续可视化临时猜测。
-- 分层生成仍保留为世界手册中的补洞和局部重写能力，不作为默认创建主流程。
-- 对已有可信骨架的世界，六层整理必须从结构化骨架派生中文写作摘要，不能重新调用旧分层 Prompt 生成第二套世界内容。
-- `metadata.seededFrom=legacy-text` 的结构只表示旧字段反推结果，不能作为覆盖六层摘要的可信主源，避免旧字段中的 JSON 文本或脏数据反向污染世界骨架。
+- The default entry uses `world.skeleton.generate@v2`.
+- Users can choose three scale presets: `light`, `standard`, and `epic`.
+- Users can fine-tune counts for core rules, camp directions, concrete factions, key locations, relations/conflicts, and story entries.
+- One generation returns only referenceable skeleton cards, not world-setting prose. Use short sentences and keep the overall text budget around 3,200 characters. When scale grows, add more entries instead of lengthening each entry.
+- Skeleton calls wait at most two minutes and reserve a fixed token budget for a complete output. If structured JSON is truncated, malformed, or fails the skeleton contract, do not repeatedly repair or retry the same large output, and do not save a half-built world.
+- Those failures must tell the user to retry at a smaller world scale; only switch models after continued failure. After the world is saved, the world handbook can still add detail by layer.
+- Results must meet quantity constraints, especially faction and location counts requested by the user.
+- Locations must include map-drawable information: relative coordinates, direction, risk, controlling faction, and story role.
+- Faction relations and location connections must land in structured relations. Later visualization must not guess them.
+- Layered generation remains a hole-filling and local-rewrite capability in the world handbook. It is not the default creation path.
+- For a world that already has a trusted skeleton, six-layer organization must derive writing summaries from the structured skeleton. It must not call the old layered prompt to generate a second set of world content.
+- Structure with `metadata.seededFrom=legacy-text` only means a reverse-inference from old fields. It is not a trusted primary source that may overwrite six-layer summaries. That prevents JSON text or dirty data in old fields from contaminating the world skeleton.
 
 ## Failure Modes
 
-- 如果 Prompt 只返回旧字段或百科式段落，说明调用错了旧 `world.draft.generate@v1`。
-- 如果模型输出在 JSON 中途结束或生成时间超过两分钟，当前请求必须结束并显示可重试提示；不要让界面继续保持“生成中”，也不要尝试持久化残缺结构。
-- 如果势力数量、地点数量不符合用户设置，应修 Prompt schema 或 postValidate，而不是在前端隐藏缺口。
-- 如果地图只能环形排布，优先检查 `locations` 是否缺少 `x/y/directionHint`，以及 `relations.locationConnections` 是否为空。
-- 如果 RAG 混入无关知识库内容，应检查世界生成调用是否只传入用户明确选择的参考上下文。
-- 如果点击“重新整理六层摘要”后出现 JSON、括号残片、异常势力名或地点数骤降，优先检查 `structureJson.metadata.seededFrom` 是否被旧分层流程改成 `legacy-text`；应从可信快照或骨架源恢复，而不是继续基于污染结构生成。
+- If the prompt returns only old fields or encyclopedia paragraphs, the call used the old `world.draft.generate@v1`.
+- If model output stops mid-JSON or generation exceeds two minutes, end the current request and show a retryable message. Do not leave the UI in “generating”, and do not persist a broken structure.
+- If faction or location counts miss the user setting, fix the prompt schema or `postValidate`. Do not hide the gap in the frontend.
+- If the map can only lay out in a ring, first check whether `locations` lack `x/y/directionHint`, and whether `relations.locationConnections` is empty.
+- If RAG mixes in unrelated knowledge-base content, check that world generation received only the reference context the user explicitly selected.
+- If “rebuild six-layer summaries” produces JSON, leftover brackets, odd faction names, or a sudden drop in location count, first check whether `structureJson.metadata.seededFrom` was changed to `legacy-text` by the old layered flow. Restore from a trusted snapshot or the skeleton source instead of generating from the contaminated structure.
 
 ## Related Modules
 

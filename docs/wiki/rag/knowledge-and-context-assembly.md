@@ -1,86 +1,86 @@
-# 知识库与上下文组装
+# Knowledge base and context assembly
 
-## 背景
+## Background
 
-长篇小说生产需要长期记忆：世界观、角色、拆书结果、知识库文档、写法资产、章节历史和连续性状态都可能影响后续规划与正文。早期如果每个模块各自上传、索引、检索或拼接上下文，会造成重复向量化、检索范围不一致和 prompt 输入不可审计。
+Long-novel production needs long-term memory: world view, characters, book-analysis results, knowledge documents, writing assets, chapter history, and continuity state can all affect later planning and prose. If every module uploads, indexes, retrieves, or concatenates context on its own, vectorization is duplicated, retrieval scope diverges, and prompt input cannot be audited.
 
-知识库和 Context Broker 的目标是让资料成为可复用资产，并让每次 AI 调用明确知道自己使用了哪些上下文、丢弃了哪些上下文、为什么丢弃。
+The knowledge base and Context Broker exist so materials become reusable assets, and so every AI call knows which context it used, which context it dropped, and why.
 
-## 决策
+## Decision
 
-知识库文档是长期资料资产，不是一次性上传输入。RAG 检索、绑定资料和上下文组装应通过统一服务和 Context Resolver 处理，Prompt 模板不直接查数据库。
+Knowledge documents are long-lived material assets, not one-shot upload input. RAG retrieval, bound materials, and context assembly go through unified services and Context Resolvers. Prompt templates do not query the database directly.
 
-默认检索规则遵循“显式选择优先、绑定资料次之、全局启用文档兜底”，同时保留业务实体自身的内部上下文。若业务调用显式限定 `ownerTypes`，检索服务必须尊重该范围；未包含 `knowledge_document` 时，不得自动混入知识库文档。
+Default retrieval follows “explicit selection first, bound materials second, globally enabled documents as fallback”, while keeping each business entity’s own internal context. If a business call explicitly limits `ownerTypes`, retrieval must respect that scope. When `knowledge_document` is not included, knowledge documents must not be mixed in automatically.
 
-## 当前规则
+## Current Rule
 
-- `知识库` 是向量化资料的独立管理入口，负责文档、版本、索引任务、健康状态和 Embedding/RAG 配置。
-- 文本文件解码必须先信任 BOM；无 BOM 且字节序列是合法 UTF-8 时，必须直接按 UTF-8 读取，只有 UTF-8 校验失败后才能对 GB18030、GBK、Big5 或 UTF-16 等旧编码评分。不能让 UTF-16 产生的伪 CJK 字符数量覆盖合法 UTF-8 判断。
-- 本地 Docker 栈必须同时启动持久化 Qdrant 服务，API 容器通过 Compose 服务名 `http://qdrant:6333` 访问。容器内的 `127.0.0.1` 只指向 API 容器自身，不能作为跨容器 Qdrant 地址。
-- 上传资料应形成 `KnowledgeDocument` 和版本概念；在线检索只针对当前激活版本。
-- 归档知识文档是可恢复状态，不删除 `KnowledgeDocumentVersion` 原文；归档会移出默认检索、资料选择和拆书入口，并在 RAG 已启用时排队清理已有分块。
-- 文档上传、版本切换、归档恢复和手动重建，只有 RAG 已启用时才能标记为 `queued` 并创建索引任务；RAG 关闭时统一保留 `idle`，不得制造没有消费者的永久排队状态。启用 RAG 后可由用户发起重建索引。
-- 小说或世界观存在绑定知识文档时，相关生成链路优先使用绑定文档。
-- 用户显式传入 `knowledgeDocumentIds` 时，只检索这些文档。
-- 没有显式选择且没有绑定时，可搜索所有启用知识库文档。
-- 业务调用显式传入 `ownerTypes` 时，`ownerTypes` 是硬范围。只有未传 `ownerTypes`、显式包含 `knowledge_document`，或显式传入 `knowledgeDocumentIds` 时，知识库文档才参与检索。
-- 小说/世界观自身的 RAG 内容仍保留，并与知识库检索结果融合排序。
-- 拆书发布文档可以携带结构化预分块 `preChunks`。这些分块必须把 `structuredData` 里的题材、卖点、目标读者、优势、短板、人物功能和章节锚点转成统一 facet，字段名只能使用 `genreTags / sellingPointTags / targetReaders / strengths / weaknesses / characterRole / chapterAnchor`。
-- `KnowledgeChunk.metadataJson` 记录 facet 和 anchor 原始结构；`KnowledgeChunk.facetKeys` 记录可过滤的 `|key=value|` 文本；`KnowledgeChunk.chapterAnchor` 记录章节序号字符串。Qdrant payload 与本地 chunk 元数据必须使用同一组 facet 字段名，避免向量过滤和关键词过滤分叉。
-- 下游需要按拆书维度精确召回时，应优先调用 `HybridRetrievalService.retrieveByFacet({ query, facets, ...scope })`，而不是在各业务服务里手写 `facetKeys` 过滤条件。facet 命中为空时，检索服务保留无 facet 回退，避免历史 chunk 因缺少 facet 而完全不可召回。
-- `HybridRetrievalService.retrieve({ facets })` 应同时把 facet 过滤传给向量检索和关键词检索。老 chunk 没有 facet 时，带 facet 的检索可能为空；此时必须回退到无 facet 过滤的召回，保证旧资料不会被完全屏蔽。
-- RAG 召回应按采样率写入 `RagRetrievalTrace`，用于后续诊断召回质量。trace 只保存 query digest、按配置截断的 query preview、检索范围、候选数量、最终 hits 摘要、各阶段耗时和 fallback / reranker 标记；hits 只能保存 chunkId、rank、score、owner，不保存 chunk 正文。
-- 召回 trace 的 query 持久化由 `RAG_RETRIEVAL_TRACE_QUERY_PERSIST_MODE` 控制，生产环境可切到 `digest_only` 降低原文泄露风险。采样率由 `RAG_RETRIEVAL_TRACE_SAMPLE_RATE` 控制，保留周期由 `RAG_RETRIEVAL_TRACE_RETENTION_DAYS` 控制，过期数据由 `RagRetrievalTraceRetention` 清理。
-- RAG 检索顺序是：向量召回与关键词召回并行、RRF 融合、可选 reranker 重排、可选叙事距离衰减、截取 finalTopK。reranker 只能是增强阶段，不能成为基础召回的硬依赖；外部 endpoint 超时或失败时必须 fail-open，继续使用融合结果。
-- reranker 默认关闭，启用条件由 `RAG_RERANKER_ENABLED`、`RAG_RERANKER_ENDPOINT`、`RAG_RERANKER_MODEL`、`RAG_RERANKER_TIMEOUT_MS` 和候选数量配置控制。默认候选数量按 `min(max(finalTopK * 5, 30), 80)` 计算，避免把所有候选都送入交叉编码器。
-- reranker trace 必须记录 `rerankerUsed`、`rerankerMs`、输入候选数、输出候选数和失败摘要。`rerankerUsed=false` 只能说明本次未使用或 fail-open，不能直接解释为基础检索失败。
-- 上下文化检索默认关闭。开启后，索引阶段为每个 chunk 生成 `contextPrefix`，并构造 `searchText = contextPrefix + chunkText` 用于 embedding；原始 `chunkText` 仍作为返回正文和用户可读证据。
-- `contextPrefix` 必须通过 Prompt Registry 中的结构化 prompt 生成，RAG service 不得内联业务 prompt。前缀只补足小说、世界、章节、角色、知识文档标题、事实类型等检索定位信息，不得添加输入资料中不存在的新剧情事实。
-- 第一版上下文化信息不改数据库表结构：`contextPrefix / contextVersion / contextSourceHash / searchText` 写入 Qdrant payload，并同步放入 `KnowledgeChunk.metadataJson`。关键词检索可在 `chunkText` 与 `metadataJson` 中查找查询词；启用上下文化后需要重建索引才会生效。
-- RAG 质量改动必须有固定评测集做前后对比。评测至少覆盖角色事实、世界规则、章节连续性、风格设定和知识文档五类查询，输出 Hit@K、MRR、Context Precision、Context Recall 和 reranker 平均耗时。
-- Prompt 模板只声明需要哪些上下文；Context Broker / Resolver 负责读取、预算、过滤、摘要和组装。
-- RAG 与上下文组装的失败要在 preview 或 trace 中可解释，不能静默丢 required context。
+- Knowledge base is the independent management entry for vectorized materials. It owns documents, versions, index jobs, health, and Embedding/RAG configuration.
+- Text-file decoding must trust BOM first. With no BOM, if the byte sequence is valid UTF-8, it must be read as UTF-8. Only after UTF-8 validation fails may older encodings such as GB18030, GBK, Big5, or UTF-16 be scored. Pseudo-CJK character counts produced by UTF-16 must not override a valid UTF-8 judgment.
+- The local Docker stack must start a persistent Qdrant service. The API container reaches it through the Compose service name `http://qdrant:6333`. `127.0.0.1` inside the container points only at the API container itself and cannot be used as a cross-container Qdrant address.
+- Uploaded materials should become a `KnowledgeDocument` and a version concept. Online retrieval uses only the currently active version.
+- An archived knowledge document is a recoverable state. It does not delete `KnowledgeDocumentVersion` source text. Archive removes it from default retrieval, material selection, and the book-analysis entry, and queues cleanup of existing chunks when RAG is enabled.
+- Document upload, version switch, archive restore, and manual rebuild may be marked `queued` and create an index job only when RAG is enabled. When RAG is off, keep `idle`. Do not create a permanent queued state with no consumer. After RAG is enabled, the user may start a rebuild.
+- When a novel or world view has bound knowledge documents, related generation chains prefer those bound documents.
+- When the user explicitly passes `knowledgeDocumentIds`, retrieve only those documents.
+- With no explicit selection and no binding, all enabled knowledge documents may be searched.
+- When a business call explicitly passes `ownerTypes`, `ownerTypes` is a hard scope. Knowledge documents join retrieval only when `ownerTypes` is omitted, explicitly includes `knowledge_document`, or `knowledgeDocumentIds` is passed explicitly.
+- Novel/world RAG content is still kept and fused-ranked with knowledge-base retrieval results.
+- Book-analysis published documents may carry structured `preChunks`. Those chunks must turn genre, selling points, target readers, strengths, weaknesses, character function, and chapter anchors in `structuredData` into unified facets. Field names may only be `genreTags / sellingPointTags / targetReaders / strengths / weaknesses / characterRole / chapterAnchor`.
+- `KnowledgeChunk.metadataJson` records the original facet and anchor structure; `KnowledgeChunk.facetKeys` records filterable `|key=value|` text; `KnowledgeChunk.chapterAnchor` records the chapter-order string. Qdrant payload and local chunk metadata must use the same facet field names, so vector filters and keyword filters do not diverge.
+- When downstream needs exact recall by a book-analysis dimension, prefer `HybridRetrievalService.retrieveByFacet({ query, facets, ...scope })` instead of handwriting `facetKeys` filters in each business service. When facet hits are empty, retrieval keeps a no-facet fallback so historical chunks without facets are not completely unrecallable.
+- `HybridRetrievalService.retrieve({ facets })` should pass facet filters to both vector retrieval and keyword retrieval. Old chunks without facets may yield empty facet retrieval; then it must fall back to recall without facet filters so old materials are not fully blocked.
+- RAG recall should write `RagRetrievalTrace` at a sample rate for later recall-quality diagnosis. A trace only stores query digest, a config-truncated query preview, retrieval scope, candidate count, a final-hits summary, per-stage timings, and fallback / reranker marks. Hits may only store chunkId, rank, score, and owner, not chunk body.
+- Query persistence on recall traces is controlled by `RAG_RETRIEVAL_TRACE_QUERY_PERSIST_MODE`. Production may switch to `digest_only` to lower source-text leak risk. Sample rate is `RAG_RETRIEVAL_TRACE_SAMPLE_RATE`. Retention is `RAG_RETRIEVAL_TRACE_RETENTION_DAYS`. Expired data is cleaned by `RagRetrievalTraceRetention`.
+- RAG retrieval order is: vector recall and keyword recall in parallel, RRF fusion, optional reranker, optional narrative-distance decay, then clip to finalTopK. Reranker can only be an enhancement stage. It cannot become a hard dependency of base recall. External endpoint timeout or failure must fail-open and keep using the fused result.
+- Reranker is off by default. Enablement is controlled by `RAG_RERANKER_ENABLED`, `RAG_RERANKER_ENDPOINT`, `RAG_RERANKER_MODEL`, `RAG_RERANKER_TIMEOUT_MS`, and candidate-count configuration. Default candidate count is `min(max(finalTopK * 5, 30), 80)`, so not every candidate is sent to a cross-encoder.
+- Reranker traces must record `rerankerUsed`, `rerankerMs`, input candidate count, output candidate count, and a failure summary. `rerankerUsed=false` only means this call did not use it or fail-opened. It cannot be read directly as a base-retrieval failure.
+- Contextualized retrieval is off by default. When on, indexing generates a `contextPrefix` for each chunk and builds `searchText = contextPrefix + chunkText` for embedding. Original `chunkText` remains the returned body and user-readable evidence.
+- `contextPrefix` must be generated by a structured prompt in the Prompt Registry. The RAG service must not inline a business prompt. The prefix only supplies retrieval-location information such as novel, world, chapter, character, knowledge-document title, and fact type. It must not add new plot facts that are not in the input material.
+- Version-one contextual information does not change the database table shape: `contextPrefix / contextVersion / contextSourceHash / searchText` go into the Qdrant payload and are also placed in `KnowledgeChunk.metadataJson`. Keyword retrieval may look up query terms in `chunkText` and `metadataJson`. After contextualization is enabled, a rebuild is required before it takes effect.
+- RAG quality changes must have a fixed evaluation set for before/after comparison. Evaluation should cover at least character facts, world rules, chapter continuity, style settings, and knowledge documents, and output Hit@K, MRR, Context Precision, Context Recall, and average reranker latency.
+- Prompt templates only declare which context they need. Context Broker / Resolver owns read, budget, filter, summarize, and assemble.
+- RAG and context-assembly failures must be explainable in preview or trace. Required context must not be dropped silently.
 
-## 知识库入口的产品表达
+## Product expression of the knowledge-base entry
 
-知识库面向作者时应表达为“可复用的创作资料书架”，而不是要求用户持续操作的索引控制台。首屏优先帮助用户识别资料内容、当前可用性以及如何继续用于创作；健康状态正常时使用轻量摘要，不重复展示操作建议。
+To authors, the knowledge base should read as a reusable bookshelf of creation materials, not an index console they must keep operating. The first screen should help them recognize what the material is, whether it is currently usable, and how to keep using it in creation. When health is normal, use a light summary. Do not repeat operational advice.
 
-索引进度、失败原因和需要用户处理的异常必须就近可见。召回测试、重建索引、启停、归档等维护能力应完整保留，但在正常状态下按需展开；Embedding、RAG 配置和任务诊断继续放在独立页签，不能压过资料浏览与创作入口。
+Index progress, failure reasons, and exceptions that need user handling must be visible nearby. Maintenance such as recall test, rebuild index, start/stop, and archive should stay complete, but expand on demand in the normal state. Embedding, RAG configuration, and job diagnosis stay on separate tabs and must not overpower material browsing and the creation entry.
 
-## 示例
+## Examples
 
-推荐做法：
+Recommended:
 
-- 世界观向导允许直传 txt，也允许选择已有知识库文档；创建后把选择写入世界绑定。
-- 小说生成时读取小说绑定知识文档、内部世界观和章节历史，再按预算组装上下文块。
-- Prompt Preview 展示选中块、丢弃块、缺失 required group 和 resolver error。
+- The world-view wizard allows a direct txt upload and also allows choosing an existing knowledge document; after create, write the choice into the world binding.
+- Novel generation reads bound knowledge documents, internal world view, and chapter history, then assembles context blocks to budget.
+- Prompt Preview shows selected blocks, dropped blocks, missing required groups, and resolver errors.
 
-禁止做法：
+Forbidden:
 
-- 每个生成服务单独拼“如果有文档就搜文档，否则搜全局”的规则。
-- PromptAsset 的 `render()` 内直接查数据库。
-- 上传同一资料后让多个模块各自保存一份不可追踪文本。
+- Each generation service assembling its own “search documents if present, otherwise search global” rule.
+- Querying the database directly inside a PromptAsset `render()`.
+- After uploading the same material, letting several modules each save an untraceable copy of the text.
 
-## 失败模式
+## Failure Modes
 
-- 检索结果不符合当前小说：检查是否有显式文档筛选或小说/世界绑定覆盖了全局默认。
-- `.txt` 预览出现大量无意义 CJK 字符且字符数接近源文件一半：对比源文件和激活版本字符数，并检查客户端是否把合法 UTF-8 误判为 UTF-16。
-- 索引任务报 `fetch failed` 且 Embedding 健康：单独检查 Qdrant health、容器是否运行，以及 API 看到的 `qdrantUrl` 是否使用可达的服务名而不是容器内 loopback。
-- 世界观分层生成混入无关小说文档：检查调用方是否只需要 `world` / `world_library_item`，以及 RAG 服务是否错误忽略了显式 `ownerTypes` 范围。
-- Prompt 输入过大：检查 Context Broker 的预算、摘要和 dropped block 记录。
-- 知识库健康正常但生成没引用资料：检查 resolver 是否接入当前 workflow、prompt 是否声明 context requirement。
-- 旧版本内容仍被检索：检查激活版本和 chunk rebuild 是否对齐。
-- 归档文档恢复后无法召回：检查恢复动作是否把索引状态置为 `queued`，以及对应重建任务是否成功完成。
-- facet 检索完全无结果：先检查发布时的 `preChunks` 是否进入 RAG job payload，再检查 `KnowledgeChunk.facetKeys` 和 Qdrant payload 是否都写入同一 facet 字段；如果是历史 chunk 没有 facet，应确认检索服务触发无 facet 回退。
-- 拆书发布后结构化结论召回不准：检查 `bookAnalysis.publish.facets` 的字段映射是否把结构化字段映射到正确 facet，不要在消费方临时发明新的 facet 名。
-- 召回质量难以复盘：检查 `RAG_RETRIEVAL_TRACE_SAMPLE_RATE` 是否为 0、`RagRetrievalTrace` 是否有近期记录、`timingsJson` 是否包含 vector / keyword / fusion / reranker / decay / total 六项，以及 facet 命中为空时 `fallbackTriggered` 是否写为 true。
-- trace 中 `rerankerMs` 恒为 0、`rerankerUsed` 恒为 false：检查 reranker 是否启用、endpoint 是否为空、候选是否为空；如果 `scopeJson.rerankerError` 有值，说明本次已按 fail-open 使用融合结果。
-- 开启上下文化后召回没有变化：检查索引是否已重建、Qdrant payload 是否含 `contextPrefix/searchText`、`KnowledgeChunk.metadataJson` 是否含相同字段，以及 `contextVersion` 是否与当前配置一致。
-- 上下文前缀引入错误事实：检查 `rag.contextual_chunk.prefix@v1` 的 prompt 输出和输入 metadata，前缀只能归纳定位，不能新增设定；必要时提高评测集中对应查询的覆盖。
-- reranker 提升不稳定：先用固定评测集比较启用前后的 Hit@K / MRR，再检查候选数量是否过小、候选中是否已经缺少正确 chunk；不要用 reranker 掩盖基础召回范围错误。
-- 历史 trace 数据无限增长：检查服务启动时是否调用了 `ragRetrievalTraceRetention.start()`，以及 `RAG_RETRIEVAL_TRACE_RETENTION_DAYS` 是否设置合理。
+- Retrieval does not match the current novel: check whether explicit document filters or novel/world bindings overrode the global default.
+- `.txt` preview shows a large amount of meaningless CJK and the character count is close to half of the source file: compare source-file and active-version character counts, and check whether the client misread valid UTF-8 as UTF-16.
+- Index jobs report `fetch failed` while Embedding is healthy: separately check Qdrant health, whether the container is running, and whether the `qdrantUrl` the API sees uses a reachable service name rather than in-container loopback.
+- World-view layered generation mixes in unrelated novel documents: check whether the caller only needed `world` / `world_library_item`, and whether the RAG service wrongly ignored an explicit `ownerTypes` scope.
+- Prompt input is too large: check Context Broker budget, summaries, and dropped-block records.
+- Knowledge-base health is normal but generation did not cite materials: check whether the resolver is wired into the current workflow, and whether the prompt declared a context requirement.
+- Old-version content is still retrieved: check whether the active version and chunk rebuild are aligned.
+- An archived document cannot be recalled after restore: check whether restore set index status to `queued`, and whether the matching rebuild job completed.
+- Facet retrieval is completely empty: first check whether published `preChunks` entered the RAG job payload, then check whether `KnowledgeChunk.facetKeys` and the Qdrant payload both wrote the same facet fields. If historical chunks have no facets, confirm retrieval triggered the no-facet fallback.
+- Structured conclusions recall poorly after book-analysis publish: check whether `bookAnalysis.publish.facets` mapped structured fields onto the correct facets. Do not invent new facet names at the consumer.
+- Recall quality is hard to reconstruct: check whether `RAG_RETRIEVAL_TRACE_SAMPLE_RATE` is 0, whether `RagRetrievalTrace` has recent records, whether `timingsJson` includes the six items vector / keyword / fusion / reranker / decay / total, and whether `fallbackTriggered` is true when facet hits are empty.
+- Trace `rerankerMs` is always 0 and `rerankerUsed` is always false: check whether reranker is enabled, whether the endpoint is empty, and whether candidates are empty. If `scopeJson.rerankerError` has a value, this call already used the fused result by fail-open.
+- Recall does not change after contextualization is turned on: check whether the index was rebuilt, whether the Qdrant payload contains `contextPrefix/searchText`, whether `KnowledgeChunk.metadataJson` contains the same fields, and whether `contextVersion` matches the current configuration.
+- Context prefixes introduce wrong facts: check the prompt output and input metadata of `rag.contextual_chunk.prefix@v1`. Prefixes may only summarize location, not add setting. Raise coverage of the matching queries in the evaluation set if needed.
+- Reranker gains are unstable: first compare Hit@K / MRR on a fixed evaluation set with reranker on and off, then check whether candidate count is too small or the correct chunk is already missing from candidates. Do not use reranker to hide a wrong base-recall scope.
+- Historical trace data grows without bound: check whether `ragRetrievalTraceRetention.start()` runs at service start, and whether `RAG_RETRIEVAL_TRACE_RETENTION_DAYS` is a reasonable value.
 
-## 相关模块
+## Related Modules
 
 - `server/src/services/rag/`
 - `server/src/services/knowledge/`
@@ -91,8 +91,8 @@
 - `client/src/pages/worlds/`
 - `client/src/pages/novels/`
 
-## 来源文档
+## Source Documents
 
-- [知识库与向量化管理模块改造历史方案](../../archive/outdated/knowledge-module-plan-implemented-reference.md)
-- [提示词工作台、上下文装配与统一步骤运行时方案](../../plans/prompt-workbench-context-and-step-runtime-plan.md)
-- [README 当前能力说明](../../../README.md)
+- [Knowledge-base and vectorization module historical plan](../../archive/outdated/knowledge-module-plan-implemented-reference.md)
+- [Prompt workbench, context assembly, and unified step-runtime plan](../../plans/prompt-workbench-context-and-step-runtime-plan.md)
+- [README current capabilities](../../../README.md)

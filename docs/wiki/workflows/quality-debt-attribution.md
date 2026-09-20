@@ -1,31 +1,31 @@
-# 质量债务根因归因（Phase 0）
+# Quality-debt root-cause attribution (Phase 0)
 
-## 背景
+## Background
 
-章节在 `defer_and_continue` 路径结束时（修复一次仍未通过质量门），系统需要知道失败的真正原因，才能有针对性地优化。Phase 0 在此路径埋入结构化归因数据，供聚合工具统计根因分布，为后续四阶段优化方案提供数据驱动的决策依据。
+When a chapter ends on the `defer_and_continue` path (one repair still did not pass the quality gate), the system needs the real failure reason so later optimization can be targeted. Phase 0 embeds structured attribution data on this path so aggregation tools can count root-cause distribution and give the later four-phase optimization plan data-driven priority.
 
-## 根因分类
+## Root-cause classes
 
-| 代码 | 名称 | 描述 | 关键证据 |
+| Code | Name | Description | Key evidence |
 |------|------|------|----------|
-| **A** | 开环修复 | 修复器收到的是压扁文本，未拿到结构化义务信息，重评同一义务再次失败 | `sameObligationRepeated = true`（首次 = 二次 issue codes 完全一致） |
-| **B** | patch 锚点失配 | `ChapterPatchRepairService` 要求精确锚定原文片段，锚点失配后升级为 heavy_repair，而预算只有 1 次 | `patchAnchorFailed = true` |
-| **D** | 义务不可达 | 预生成 task sheet 中的义务与实际前文矛盾，章节级修复永远无法满足 | `planMisaligned = true`（`failureClassification.code = draft_obligation_unmet / replan_required`） |
-| **E** | 签名漂移 | 首次失败是 length 类问题，修复后浮出 content 类问题，issueSignature 相同导致预算被耗尽 | `lengthVsContentDrift = true` |
+| **A** | Open-loop repair | The repairer received flattened text, not structured obligation information, so re-evaluating the same obligation failed again | `sameObligationRepeated = true` (first = second issue codes identical) |
+| **B** | Patch-anchor mismatch | `ChapterPatchRepairService` requires an exact original-text anchor. After the anchor misses, the path escalates to heavy_repair, and the budget is only 1 | `patchAnchorFailed = true` |
+| **D** | Unreachable obligation | Obligations in a pre-generated task sheet contradict actual prior prose, so chapter-level repair can never satisfy them | `planMisaligned = true` (`failureClassification.code = draft_obligation_unmet / replan_required`) |
+| **E** | Signature drift | The first failure was a length issue; after repair a content issue surfaces; the same issueSignature exhausts the budget | `lengthVsContentDrift = true` |
 
-## 数据模型
+## Data Model
 
 ```ts
 interface QualityDebtAttribution {
-  firstFailureIssueCodes: string[];           // 首次验收失败 issue code 列表
-  secondFailureIssueCodes: string[];          // 修复后二次失败 issue code 列表
+  firstFailureIssueCodes: string[];           // issue codes from the first acceptance failure
+  secondFailureIssueCodes: string[];          // issue codes from the post-repair second failure
   firstFailureClassificationCode: string | null; // failureClassification.code
-  patchAnchorFailed: boolean;                 // patch 升级为 heavy（根因 B）
-  sameObligationRepeated: boolean;            // 同义务重复失败（根因 A）
-  planMisaligned: boolean;                    // 义务不可达（根因 D）
-  lengthVsContentDrift: boolean;              // 签名漂移（根因 E）
-  missingObligationKinds: string[];           // 首次失败缺失的义务种类
-  budgetActionsConsumed?: string[];           // Director 预算操作（外层写入）
+  patchAnchorFailed: boolean;                 // patch escalated to heavy (root cause B)
+  sameObligationRepeated: boolean;            // same obligation failed twice (root cause A)
+  planMisaligned: boolean;                    // unreachable obligation (root cause D)
+  lengthVsContentDrift: boolean;              // signature drift (root cause E)
+  missingObligationKinds: string[];           // obligation kinds missing on first failure
+  budgetActionsConsumed?: string[];           // Director budget actions (written by the outer layer)
   degradedProposalRouting?: {
     contentProvenance: "debt";
     routedToPendingReview: true;
@@ -35,50 +35,50 @@ interface QualityDebtAttribution {
 }
 ```
 
-## 质量债务来源路由规则
+## Quality-debt source routing
 
-章节正文在质量门未通过但仍被保留继续执行时，最终正文的资产同步必须携带 `contentProvenance = "debt"`。该标记不改变章节重试、暂停或继续生成的控制流，只影响后续资产提取出来的状态提案如何入账。
+When chapter prose does not pass the quality gate but is kept so execution can continue, final-prose asset sync must carry `contentProvenance = "debt"`. That mark does not change chapter retry, pause, or continue-generation control flow. It only affects how later extracted state proposals are booked.
 
-当前规则：
+Current Rule:
 
-- `contentProvenance = "confirmed"`：正常通过质量门或关闭自动审校的正文，沿用原有自动提交与待审分流规则。
-- `contentProvenance = "debt"`：章节内容可继续用于后续自动生成，但从该正文提取出的角色状态、角色资源等提案统一带 `sourceQuality = "debt"` 和 `source_quality:debt` 校验标记。
-- 带债务来源的提案不得走自动提交白名单，即使原本是低风险 `character_state_update` 或后台提取出的中风险 `character_resource_update`，也必须进入 `pending_review`。
-- malformed 提案仍然拒绝入库，例如缺少 `summary`、缺少角色 ID、角色资源 payload 无效或没有证据时，不因为 debt 来源而进入待审。
+- `contentProvenance = "confirmed"`: prose that passed the quality gate normally, or that skipped auto-audit, keeps the original auto-commit and pending-review split.
+- `contentProvenance = "debt"`: chapter content may still be used for later automatic generation, but character-state, character-resource, and similar proposals extracted from that prose all carry `sourceQuality = "debt"` and a `source_quality:debt` validation mark.
+- Debt-sourced proposals must not take the auto-commit whitelist. Even a normally low-risk `character_state_update`, or a medium-risk `character_resource_update` extracted in the background, must enter `pending_review`.
+- Malformed proposals are still rejected from storage. Missing `summary`, missing character ID, invalid character-resource payload, or missing evidence does not enter pending review just because the source is debt.
 
-这样做的目标是把“自动生成不断链”和“硬事实不喂错”分开：章节可以继续生成，但未确认的状态/资源变化不会直接污染角色硬事实、资源账本和后续章节上下文。
+The goal is to separate “automatic generation does not break the chain” from “hard facts are not fed wrong”: chapters can keep generating, but unconfirmed state/resource changes do not directly pollute character hard facts, the resource ledger, and later chapter context.
 
-待审角色状态提案会在写作上下文中以软约束方式出现。`currentState`、`currentGoal` 如果来自待确认提案，prompt 会提示“如与最新剧情冲突可按合理逻辑调整”；`currentLocation` 仍保持硬事实处理，除非后续补齐位置字段的待审来源回写机制。
+Pending character-state proposals appear in writing context as soft constraints. If `currentState` or `currentGoal` come from a pending proposal, the prompt hints that they may be adjusted when they conflict with the latest plot. `currentLocation` stays a hard fact unless a later pending-source write-back for location fields is added.
 
-## 写入路径
+## Write Path
 
-**触发时机**：`chapterRuntimePipeline.runPipelineChapterWithRuntime` 函数末尾，章节最终未通过时构建归因对象，写入 `PipelineRuntimeResult.qualityDebtAttribution`。
+**Trigger**: at the end of `chapterRuntimePipeline.runPipelineChapterWithRuntime`, when the chapter finally does not pass, build the attribution object and write `PipelineRuntimeResult.qualityDebtAttribution`.
 
-**存储位置**：`chapter.riskFlags` JSON 的 `qualityLoop.qualityDebtAttribution` 节点，与已有的 `qualityLoop` 质量闭环数据合并存储。
+**Storage**: the `qualityLoop.qualityDebtAttribution` node in `chapter.riskFlags` JSON, merged with existing `qualityLoop` quality-loop data.
 
-**触发链路**：
+**Trigger chain**:
 
 ```
 chapterRuntimePipeline.ts
-  → runPipelineChapterWithRuntime 收集首次/二次失败信息
-  → syncFinalChapterArtifacts 透传 contentProvenance
+  → runPipelineChapterWithRuntime collects first/second failure information
+  → syncFinalChapterArtifacts passes contentProvenance through
       ↓
 ChapterArtifactBackgroundSyncService.ts
   → ChapterArtifactDeltaService.syncChapterArtifacts
       ↓
 StateCommitService / CharacterResourceValidationService
-  → debt 来源提案绕开自动提交并进入 pending_review
+  → debt-sourced proposals skip auto-commit and enter pending_review
       ↓
 GenerationContextAssembler / chapterLayeredContext
-  → 待审 currentState/currentGoal 以软约束进入写作 prompt
+  → pending currentState/currentGoal enter the writing prompt as soft constraints
 ```
 
-归因数据写入链路：
+Attribution write chain:
 
 ```
 chapterRuntimePipeline.ts
-  → runPipelineChapterWithRuntime 收集首次/二次失败信息
-  → buildQualityDebtAttribution 推断根因标签
+  → runPipelineChapterWithRuntime collects first/second failure information
+  → buildQualityDebtAttribution infers root-cause labels
   → PipelineRuntimeResult.qualityDebtAttribution
       ↓
 novelCorePipelineService.ts
@@ -88,39 +88,39 @@ ChapterQualityLoopService.ts
   → serializeRiskFlags → chapter.riskFlags (JSON)
 ```
 
-## 读取路径
+## Read Path
 
-**Agent 工具**：`analyze_quality_debt_attribution`
+**Agent tool**: `analyze_quality_debt_attribution`
 
-- 输入：novelId（必填）、startOrder、endOrder（可选）
-- 功能：扫描指定章节范围内所有 `terminalAction = defer_and_continue` 的章节，提取 `qualityDebtAttribution` 数据并聚合
-- 输出：
-  - 根因 A/B/D/E 占比（0~1）
-  - Top 5 失败 issue code
-  - Top 3 缺失义务种类
-  - 每章归因明细
-  - 决策建议（哪个阶段优先）
+- Input: novelId (required), startOrder, endOrder (optional)
+- Behavior: scan all chapters in the given range whose `terminalAction = defer_and_continue`, extract `qualityDebtAttribution`, and aggregate
+- Output:
+  - Root-cause A/B/D/E share (0–1)
+  - Top 5 failure issue codes
+  - Top 3 missing obligation kinds
+  - Per-chapter attribution detail
+  - Decision suggestion (which phase to prioritize)
 
-## 决策门（Phase 0 结论）
+## Decision gate (Phase 0 conclusion)
 
-根据工具输出的根因占比决定后续优化侧重：
+Use the tool’s root-cause shares to decide later optimization emphasis:
 
-| 主导根因 | 建议 |
+| Dominant root cause | Suggestion |
 |----------|------|
-| **D 主导** | 阶段一（懒规划）优先，JIT task sheet 直接消解义务不可达 |
-| **A/B 主导** | 先做阶段一的修复闭环子项（1.D），再做懒规划主体 |
-| **E 主导** | 拆分 length/content issueSignature 分别计预算 |
+| **D dominant** | Prioritize phase one (lazy planning). JIT task sheets directly dissolve unreachable obligations |
+| **A/B dominant** | First do phase one’s repair closed-loop sub-item (1.D), then the lazy-planning main body |
+| **E dominant** | Split length/content `issueSignature` and count budgets separately |
 
-## 相关文件
+## Related Modules
 
-- `server/src/services/novel/runtime/chapterRuntimePipeline.ts`（归因采集 + `QualityDebtAttribution` 接口）
-- `server/src/services/novel/quality/ChapterQualityLoopService.ts`（归因存储）
-- `server/src/services/novel/novelCorePipelineService.ts`（归因透传）
-- `server/src/agents/tools/bookAnalysisTools.ts`（`analyze_quality_debt_attribution` 工具实现）
-- `server/src/agents/tools/bookAnalysisToolSchemas.ts`（工具 Schema 定义）
+- `server/src/services/novel/runtime/chapterRuntimePipeline.ts` (attribution collection + `QualityDebtAttribution` interface)
+- `server/src/services/novel/quality/ChapterQualityLoopService.ts` (attribution storage)
+- `server/src/services/novel/novelCorePipelineService.ts` (attribution pass-through)
+- `server/src/agents/tools/bookAnalysisTools.ts` (`analyze_quality_debt_attribution` tool implementation)
+- `server/src/agents/tools/bookAnalysisToolSchemas.ts` (tool schema)
 
-## 与四阶段优化方案的关系
+## Relationship to the four-phase optimization plan
 
-Phase 0 是"先做后看"的诊断层，不修改生成逻辑，仅在现有失败路径埋点。其输出数据驱动阶段一（懒规划）的实施优先级，避免在错误根因上投入大改造。
+Phase 0 is a “instrument first, then look” diagnostic layer. It does not change generation logic; it only instruments the existing failure path. Its output drives phase-one (lazy planning) implementation priority, so a large rebuild is not spent on the wrong root cause.
 
-相关方案文档：`.claude/plan/novel-generation-pipeline-optimization.md`
+Related plan document: `.claude/plan/novel-generation-pipeline-optimization.md`

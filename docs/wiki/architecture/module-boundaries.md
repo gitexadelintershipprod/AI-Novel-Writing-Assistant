@@ -1,76 +1,76 @@
-# 模块边界与文档治理
+# Module boundaries and documentation governance
 
-## 背景
+## Background
 
-项目已经从单一写作助手扩展为包含 Web 前端、Express/Prisma 后端、桌面宿主、共享类型、Prompt Registry、自动导演、RAG、任务中心和章节生产链路的 monorepo。功能累积后，重复问题通常不是缺少代码，而是模块边界、状态事实源和文档职责不清。
+The project has grown from a single writing assistant into a monorepo that includes a Web frontend, an Express/Prisma backend, a desktop host, shared types, Prompt Registry, Auto-Director, RAG, Task Center, and the chapter production chain. After that accumulation, the recurring problem is usually not missing code. It is unclear module boundaries, unclear sources of truth, and unclear documentation ownership.
 
-如果继续把规则只写在计划文档或阶段检查点里，未来开发者和 AI Agent 会反复重新判断同一类问题：一个能力应该归哪个模块、能不能直接调用旧 service、应该写 release notes 还是 Wiki、长文件是否必须拆分。
+If the rules stay only in plan documents or phase checkpoints, future developers and AI agents will keep re-deciding the same questions: which module owns a capability, whether an old service may be called directly, whether a change belongs in release notes or the wiki, and whether a long file must be split.
 
-## 决策
+## Decision
 
-Wiki 记录稳定规则，计划和检查点保留历史语境。模块治理以“小说生产主链路”为核心：setup、planning、production、director、characters、state、export 等业务模块应逐步拥有清晰入口；横切基础设施应收敛到 prompting、RAG、LLM、db、runtime、events 等平台能力。
+The wiki records stable rules. Plans and checkpoints keep historical context. Module governance is organized around the novel-production main chain: business modules such as setup, planning, production, director, characters, state, and export should gradually own clear entrypoints. Cross-cutting infrastructure should converge into platform capabilities such as prompting, RAG, LLM, db, runtime, and events.
 
-长文件拆分不是为了行数本身，而是为了把业务规则、应用编排、外部适配和 HTTP/API 映射分开。目录过密时，应建立有责任边界的下级模块，而不是继续堆同级文件。
+Long-file splits are not about line count for its own sake. They exist to separate business rules, application orchestration, external adapters, and HTTP/API mapping. When a directory becomes dense, add a lower-level module with a real responsibility boundary instead of stacking more peer files.
 
-## 当前规则
+## Current Rule
 
-- 根目录只保留入口说明、协作规则、路线图和工具链配置；长期知识进入 `docs/wiki/`。
-- `docs/plans/` 保留执行方案，`docs/checkpoints/` 保留阶段记录，`docs/design/` 保留模块设计，`docs/releases/` 保留用户可见变化。
-- 单个源码文件接近 1200 行时应评估职责；1000 到 1300 行之间可在职责仍清晰时保持内聚，超过 1300 行后继续扩展前必须拆分。
-- 高密度目录新增能力前应先判断是否需要下级责任目录。
-- 高优先级硬约束：控制入口可以不同，但正文生成与正文修复的业务执行链必须唯一；批量执行、自动导演、手动单章生成、手动单章修复不得各自维护独立实现。
-- 任何新增的“会改正文”的入口，必须汇入 `novelProductionOrchestrator + stage runner + ChapterRuntimeCoordinator`。允许保留不同 transport、route、job 或前端流式形态，但不允许绕开统一 runtime 直接拥有 writer、patch repair、heavy repair、正文保存、资产同步或复审状态推进逻辑。
-- `route`、`director`、`creative hub`、旧 `NovelCoreReviewService` 或其他 legacy service 都不能直接持有正文生成/修复实现；它们只能作为控制入口或薄门面，把执行委托给统一章节主链。
-- 任何会改变章节正文的入口都必须触发最终 timeline finalization。模块边界顺序固定为：正文执行 runtime 产出最终正文，`ChapterTimelineFinalizationService` 基于最终正文写入 timeline checkpoint，随后才允许进入下一章、后台批次或自动导演继续步骤。
-- `ChapterTimelineFinalizationService` 是 timeline 提交的应用服务边界。`routes`、`director`、`creative hub`、旧 review service、repair helper 和前端投影都不得直接拼接 `ChapterTimeAnchor`、`StoryTimelineEvent`、`TimelineHook` 或 `ChapterArtifactSyncCheckpoint` 写入规则。
-- timeline 模块拥有事件、hook、时间锚点、约束、检测和提交 repository；章节 runtime 只通过 timeline 模块 facade 与 finalization service 协作。writer prompt 可以消费时间线上下文，但不能自己关闭 hook 或写 timeline 表。
-- 修复路径和跳过路径不能绕过 finalization。修复通过后由修复 runtime 调用 finalization；最大修复次数耗尽但允许继续时，由批量/自动导演路径提交 degraded finalization；`replan_required` 仍保持阻塞，不用 degraded skip 吞掉。
-- `server/src/services/novel/workflow/` 应只对外暴露 workflow 门面，内部继续向 `store`、`healing`、`projection`、`application` 收敛，外部模块不要深链到内部实现。
-- checkpoint 恢复数据应通过共享 helper 组装，避免 `healing` 和 `application` 各自复制恢复逻辑。
-- `server/src/services/novel/director` 应继续向 `commands`、`runtime`、`state`、`automation`、`projections`、`recovery`、`phases` 等责任边界收敛。
-- `server/src/services/novel/director/` 根目录只保留稳定门面和兼容桥接。命令执行进入 `commands/`，任务状态进入 `state/`，事实摘要/运行投影/展示快照进入 `projections/`，恢复与回填进入 `recovery/`，阶段节点与阶段策略进入 `phases/`，接管/确认/候选/运行编排进入 `runtime/`，HTTP 映射进入 `http/`。
-- `server/src/routes/` 只保留尚未迁移的传统 HTTP 入口。小说主链、自动导演、小说导出和世界设定的 HTTP 映射必须进入对应业务模块的 `http/` 目录，并由 `app.ts` 直接挂载模块入口；不要在 `routes/` 根目录保留 re-export shim。
-- 小说业务应用入口应通过 `server/src/services/novel/application/` 的 capability 层组合。`NovelService` 只作为兼容 facade，路由和后台服务不得重新依赖完整 God Object。
-- `ChapterRuntimeCoordinator` 是章节 runtime 的外部稳定门面；流编排、质量门禁、终稿定稿、pipeline 适配和 runtime package 构建只能在 `server/src/services/novel/runtime/` 内部模块中协作，外部不得深链到这些内部服务。
-- 新增业务能力优先通过模块门面或 `index.ts` 暴露，不从外部深链到其他模块内部文件。
-- 涉及自动导演、章节执行、Prompt、RAG、任务状态或前端投影的边界变化，应同步更新 Wiki 或模块 README。
-- 创作中枢是查询、诊断、执行记录和导航边界，不是小说生产器：服务端使用显式只读工具 allowlist，并按整个 action 拦截越界调用；`preview_pipeline_run`、`diff_chapter_patch` 等可能产生执行前置副作用的工具也不得放行。诊断分析使用空 `workflowTaskId`，不把查询写入导演任务分析记录。小说创建、资产生成、正文写入、补丁、整本流水线、恢复、重试、取消和自动导演命令必须从正式工作流进入。
-- 完整 Agent 驱动小说应用保留在独立仓库 `https://github.com/ExplosiveCoderflome/ani-book-agent`。它拥有自己的 Agent Runtime、Markdown/YAML 创作工件和运行记录，不与主项目共享运行权威；创作中枢页面只提供跨设备可用的克隆与启动提示，不展示开发者机器路径。
-- 任何数据回填、同步、抽取或索引刷新，必须只消费章节的稳定快照；在章节仍可能继续修复、重写或回退时，不允许把这类动作挂在热路径里。
-- 任务快照、事实检查和恢复建议生成必须保持只读；`recover` 可以返回可恢复位置，但不能在轮询、预览或投影读取时写入 `run_resumed`、恢复提示或其他状态事件。需要记录恢复动作时，必须由显式执行/恢复流程来写入，而不是由读路径顺手写入。
-- `novelEventBus` 只允许承载轻量领域通知。角色动力学同步、流水线快照、RAG 重索引、状态重算等重副作用必须进入持久队列或已有专用队列；事件 handler 不得直接执行这些服务。
-- 小说导出属于独立业务模块：`server/src/modules/export/` 只负责读取现有小说生产数据、转换导出 DTO、生成 TXT/Markdown/JSON 内容和导出文件名。它不拥有小说、章节、角色、时间线或质量修复事实源，也不在导出过程中写回生产状态。
-- 时间线约束层属于独立业务模块：`server/src/modules/timeline/` 只管理时间线事件、章节时间锚点、钩子、约束和检测报告。它不替代 `StoryStateSnapshot`、`ConsistencyFact` 或 `CharacterTimeline`，也不直接调用章节 writer 改正文。
-- 章节生成、Prompt Registry 和任务中心只能通过时间线模块 facade 获取时间线上下文或检测报告，不应在 writer、route 或 UI 中直接拼接 timeline 表查询规则。
+- The repository root keeps only entry explanations, collaboration rules, the roadmap, and toolchain configuration. Durable knowledge lives in `docs/wiki/`.
+- `docs/plans/` keeps execution plans, `docs/checkpoints/` keeps phase records, `docs/design/` keeps module designs, and `docs/releases/` keeps user-visible changes.
+- Evaluate a source file's responsibilities when it approaches 1,200 lines. 1,000 to 1,300 lines is acceptable while cohesion stays clear. Past 1,300 lines, split before expanding the feature.
+- Before adding capability to a high-density directory, decide whether a lower-level ownership directory is required.
+- Highest-priority hard constraint: control entrypoints may differ, but the business execution chain for chapter-text generation and chapter-text repair must be unique. Batch execution, Auto-Director, manual single-chapter generation, and manual single-chapter repair must not each maintain a separate implementation.
+- Any new entrypoint that "will rewrite chapter text" must join `novelProductionOrchestrator + stage runner + ChapterRuntimeCoordinator`. Different transports, routes, jobs, or frontend streaming shapes are allowed. Bypassing the unified runtime to own writer, patch repair, heavy repair, chapter-text persistence, asset sync, or review-state advancement logic is not.
+- A `route`, `director`, Creative Hub, old `NovelCoreReviewService`, or other legacy service must not hold chapter-text generation or repair implementations. They may only be control entrypoints or thin facades that delegate execution to the unified chapter main chain.
+- Every entrypoint that changes chapter text must trigger final timeline finalization. The module-boundary order is fixed: the chapter-text runtime produces the final text, `ChapterTimelineFinalizationService` writes the timeline checkpoint from that final text, and only then may the next chapter, a background batch, or an Auto-Director continuation step proceed.
+- `ChapterTimelineFinalizationService` is the application-service boundary for timeline commits. `routes`, `director`, Creative Hub, old review services, repair helpers, and frontend projections must not assemble `ChapterTimeAnchor`, `StoryTimelineEvent`, `TimelineHook`, or `ChapterArtifactSyncCheckpoint` write rules themselves.
+- The timeline module owns events, hooks, time anchors, constraints, detection, and the commit repository. Chapter runtime collaborates with the timeline module only through the timeline facade and the finalization service. Writer prompts may consume timeline context, but they must not close hooks or write timeline tables themselves.
+- Repair paths and skip paths must not bypass finalization. After a successful repair, the repair runtime calls finalization. When the maximum repair count is exhausted but continuation is allowed, the batch / Auto-Director path submits degraded finalization. `replan_required` remains blocking; a degraded skip must not swallow it.
+- `server/src/services/novel/workflow/` should expose only workflow facades. Internals continue to converge into `store`, `healing`, `projection`, and `application`. Outside modules must not deep-link into internal implementations.
+- Checkpoint recovery data should be assembled through shared helpers so `healing` and `application` do not each copy recovery logic.
+- `server/src/services/novel/director` should continue to converge into ownership boundaries such as `commands`, `runtime`, `state`, `automation`, `projections`, `recovery`, and `phases`.
+- The `server/src/services/novel/director/` root keeps only stable facades and compatibility bridges. Command execution goes in `commands/`, task state in `state/`, fact summaries / run projections / display snapshots in `projections/`, recovery and backfill in `recovery/`, phase nodes and phase policy in `phases/`, takeover / confirmation / candidates / run orchestration in `runtime/`, and HTTP mapping in `http/`.
+- `server/src/routes/` keeps only traditional HTTP entrypoints that have not yet been migrated. HTTP mapping for the novel main chain, Auto-Director, novel export, and world setup must live in the matching business module's `http/` directory and be mounted directly from `app.ts`. Do not keep re-export shims in the `routes/` root.
+- Novel business application entrypoints should be composed through the capability layer in `server/src/services/novel/application/`. `NovelService` is only a compatibility facade. Routes and background services must not re-depend on the full God Object.
+- `ChapterRuntimeCoordinator` is the stable external facade for chapter runtime. Stream orchestration, quality gates, final-draft finalization, pipeline adapters, and runtime package construction may collaborate only inside `server/src/services/novel/runtime/`. Outside modules must not deep-link those internal services.
+- New business capabilities should be exposed through a module facade or `index.ts`. Do not deep-link into another module's internal files from outside.
+- Boundary changes that touch Auto-Director, chapter execution, Prompt, RAG, task state, or frontend projection should update the wiki or the module README in the same change.
+- Creative Hub is a query, diagnosis, execution-record, and navigation boundary, not a novel producer. The server uses an explicit read-only tool allowlist and blocks out-of-bound calls for the whole action. Tools that can create execution-side effects, including `preview_pipeline_run` and `diff_chapter_patch`, must not be allowed. Diagnostic analysis uses an empty `workflowTaskId` and must not write queries into Auto-Director task analysis records. Novel creation, asset generation, chapter-text writes, patches, full-book pipelines, recovery, retry, cancel, and Auto-Director commands must enter through official workflows.
+- The full agent-driven novel application stays in a separate repository: `https://github.com/ExplosiveCoderflome/ani-book-agent`. It owns its own Agent Runtime, Markdown/YAML creative artifacts, and run records, and it does not share runtime authority with this project. The Creative Hub page only provides clone and launch hints that work across devices; it must not display developer-machine paths.
+- Any data backfill, sync, extraction, or index refresh must consume only stable chapter snapshots. While a chapter may still be repaired, rewritten, or rolled back, those actions must not hang off the hot path.
+- Task snapshots, fact checks, and recovery-suggestion generation must stay read-only. `recover` may return a recoverable position, but polling, preview, or projection reads must not write `run_resumed`, recovery hints, or other state events. When a recovery action needs to be recorded, an explicit execute / recover flow must write it. The read path must not write it as a side effect.
+- `novelEventBus` may carry only lightweight domain notifications. Heavy side effects such as character-dynamics sync, pipeline snapshots, RAG reindexing, and state recomputation must enter a durable queue or an existing dedicated queue. Event handlers must not run those services directly.
+- Novel export is an independent business module. `server/src/modules/export/` only reads existing novel-production data, converts export DTOs, and generates TXT/Markdown/JSON content and export filenames. It does not own the source of truth for novels, chapters, characters, timeline, or quality repair, and it does not write production state back during export.
+- The timeline constraint layer is an independent business module. `server/src/modules/timeline/` only manages timeline events, chapter time anchors, hooks, constraints, and detection reports. It does not replace `StoryStateSnapshot`, `ConsistencyFact`, or `CharacterTimeline`, and it does not call the chapter writer to rewrite chapter text.
+- Chapter generation, Prompt Registry, and Task Center may obtain timeline context or detection reports only through the timeline module facade. Writer, route, or UI code should not assemble timeline-table query rules directly.
 
-## 示例
+## Examples
 
-推荐做法：
+Recommended:
 
-- 自动导演新增可执行命令时，先确定它属于 command、runtime、automation、recovery 还是 projection，再放入对应模块。
-- 章节生产链路新增质量检查时，先判断它属于热路径接收闸门、局部修复还是异步资产回灌。
-- 章节生产新增时间线规则时，应先进入 timeline 模块的 policy、context、checker 或 extractor，而不是散落到 writer prompt 或章节服务分支里。
-- 章节生产新增正文写入或正文修复入口时，应先接入 `ChapterRuntimeCoordinator`，再复用 `ChapterTimelineFinalizationService`；不能先写正文再由调用方自行决定是否补 timeline。
-- 新文档如果解释长期规则，进入 `docs/wiki/`；如果只是某阶段实施清单，进入 `docs/plans/` 或 `docs/checkpoints/`。
+- When Auto-Director adds an executable command, decide first whether it belongs to command, runtime, automation, recovery, or projection, then place it in that module.
+- When the chapter production chain adds a quality check, decide first whether it is a hot-path acceptance gate, a local repair, or asynchronous asset backfill.
+- When chapter production adds a timeline rule, put it in the timeline module's policy, context, checker, or extractor first. Do not scatter it into writer prompts or chapter-service branches.
+- When chapter production adds a chapter-text write or repair entrypoint, connect it to `ChapterRuntimeCoordinator` first, then reuse `ChapterTimelineFinalizationService`. Do not write chapter text and then let the caller decide whether to backfill timeline.
+- If a new document explains a long-lived rule, put it in `docs/wiki/`. If it is only a phase implementation checklist, put it in `docs/plans/` or `docs/checkpoints/`.
 
-禁止或不推荐做法：
+Forbidden or discouraged:
 
-- 在 `services/novel/director` 根目录继续添加多个 `novelDirector*` 同级文件来承载新子系统。
-- 用 `helper`、`utils`、`shared` 这类泛名文件承载业务策略。
-- 把 release notes 复制到 Wiki，或把 Wiki 写成一次提交的改动列表。
-- 为了赶进度，在 `routes/`、`director/`、`creative hub/` 或旧 service 里复制一份章节 writer / repair pipeline，再让不同入口分别维护。
-- 在 director、route 或 repair helper 中直接 `upsert ChapterTimeAnchor`、`create StoryTimelineEvent` 或 `update TimelineHook`，绕过 finalization service。
+- Keep adding peer `novelDirector*` files in the `services/novel/director` root to host new subsystems.
+- Put business policy in generically named `helper`, `utils`, or `shared` files.
+- Copy release notes into the wiki, or write the wiki as a per-commit change list.
+- Duplicate a chapter writer / repair pipeline in `routes/`, `director/`, Creative Hub, or an old service so different entrypoints can maintain their own copies.
+- Directly `upsert ChapterTimeAnchor`, `create StoryTimelineEvent`, or `update TimelineHook` inside director, route, or repair helpers, bypassing the finalization service.
 
-## 失败模式
+## Failure Modes
 
-- 同一个状态在 task、runtime、seed payload、前端缓存中各自推断，导致 UI 展示和实际运行不一致。
-- 一个旧 service 同时处理 HTTP 语义、工作流编排、数据库写入和 Prompt 输入拼装，后续修复只能继续加分支。
-- 文档只留在阶段计划里，稳定规则难以被未来任务复用。
-- 下一章上下文依赖的 timeline、hook、上一章尾段或任务单缺失：先查模块边界是否被绕过，尤其是正文写入后是否没有进入 `ChapterTimelineFinalizationService`。
+- The same state is inferred separately in task, runtime, seed payload, and frontend cache, so the UI and the actual run disagree.
+- One old service handles HTTP semantics, workflow orchestration, database writes, and prompt-input assembly at once, so later fixes can only add more branches.
+- Documentation stays in a phase plan, so stable rules are hard for later tasks to reuse.
+- The next chapter's required timeline, hook, previous-chapter tail, or task sheet is missing: first check whether a module boundary was bypassed, especially whether chapter-text writes never entered `ChapterTimelineFinalizationService`.
 
-排查时先找事实源和模块入口，再判断是否是边界缺失导致的重复实现。
+When diagnosing, find the source of truth and the module entrypoint first, then decide whether a missing boundary caused a duplicated implementation.
 
-## 相关模块
+## Related Modules
 
 - `server/src/services/novel/director/`
 - `server/src/services/novel/workflow/`
@@ -85,12 +85,12 @@ Wiki 记录稳定规则，计划和检查点保留历史语境。模块治理以
 - `shared/`
 - `docs/`
 
-## 来源文档
+## Source Documents
 
-- [Docs 管理约定](../../README.md)
-- [自动导演执行面隔离与 API 保活计划](../../plans/auto-director-execution-plane-isolation-plan.md)
-- [导演模式模块化与状态治理改造清单](../../plans/director-mode-module-state-refactor-checklist.md)
-- [Novel Director 子系统](../../../server/src/services/novel/director/README.md)
-- [Novel 应用能力层边界](./novel-application-services.md)
-- [章节 Runtime 边界](./chapter-runtime-boundaries.md)
-- [事件副作用边界](./event-side-effect-boundaries.md)
+- [Docs management conventions](../../README.md)
+- [Auto-Director execution-plane isolation and API keep-alive plan](../../plans/auto-director-execution-plane-isolation-plan.md)
+- [Director-mode modularization and state-governance refactor checklist](../../plans/director-mode-module-state-refactor-checklist.md)
+- [Novel Director subsystem](../../../server/src/services/novel/director/README.md)
+- [Novel application capability-layer boundary](./novel-application-services.md)
+- [Chapter runtime boundaries](./chapter-runtime-boundaries.md)
+- [Event side-effect boundaries](./event-side-effect-boundaries.md)

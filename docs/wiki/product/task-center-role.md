@@ -1,27 +1,27 @@
-# 运行记录与 AI 创作实况的产品边界
+# Runtime records and the AI live-creation boundary
 
 ## Background
 
-新手在写作页面等待长篇生成时，需要立即知道 AI 是否仍在工作、正在生成什么、是否进入检查或修复。要求用户跳到“任务中心”才能确认进度，会打断当前创作上下文，也会把正常等待误解为后台故障。
+When beginners wait for long-form generation on a writing page, they need to know immediately whether AI is still working, what it is generating, and whether it has entered check or repair. Sending them to Task Center just to confirm progress breaks the current creation context and makes ordinary waiting look like a background failure.
 
 ## Decision
 
-实时过程属于创作主界面能力：所有页面顶部提供“AI 实况”入口，打开同一份全局生成面板。原任务中心在产品中改称“运行记录”，承担历史追溯、异常查询、恢复位置和归档管理。
+Live process belongs on the main creation surface: every page’s top bar exposes an AI Live entry that opens the same global generation panel. The former Task Center is named Runtime records in the product. It owns history, exception lookup, recovery location, and archive management.
 
 ## Current Rule
 
-1. 正常生成、规划、正文写作和修复过程中，用户不需要进入运行记录；顶部“AI 实况”应直接显示返回片段与生成阶段。
-2. “AI 实况”只展示临时、未校验的过程内容，不能代替最终小说内容、任务结果或恢复决策。
-3. 运行记录保留统一任务的来源、步骤、异常、取消、归档和恢复信息，供用户在确有问题或需要追溯时按需查询。
-4. 新手引导、普通按钮和页面文案应优先引导用户留在当前创作现场；除异常、恢复或历史查询外，不要把“打开运行记录”作为正常下一步。
-5. 自动导演与章节质量债的主入口仍属于小说工作台和导演跟进；运行记录只提供事实查询与来源跳转，不重新裁决创作主状态。
-6. 运行记录默认采用任务收件箱心智：先展示需要处理、等待操作和正在推进的任务，再展示当前动作与可执行入口。模型、Token、心跳、完整时间、检查点和细分步骤属于诊断信息，应在选中任务后按需展开，不能长期铺在列表中迫使新手读取内部运行字段。
+1. During ordinary generation, planning, prose writing, and repair, the user does not need Runtime records. The top AI Live entry should show returning fragments and the generation stage directly.
+2. AI Live shows only temporary, unverified process content. It cannot replace final novel content, task results, or recovery decisions.
+3. Runtime records keep unified-task source, steps, exceptions, cancel, archive, and recovery information for on-demand lookup when something is wrong or history is needed.
+4. Beginner guidance, ordinary buttons, and page copy should keep the user in the current creation scene. Do not make “open Runtime records” the normal next step except for exceptions, recovery, or history lookup.
+5. The main entries for Auto-Director and chapter quality debt still belong to the novel workspace and director follow-up. Runtime records only provide factual lookup and source jumps. They do not re-adjudicate the main creation status.
+6. Runtime records default to a task-inbox mental model: show tasks that need handling, are waiting for action, or are in progress first, then the current action and executable entries. Model, token, heartbeat, full timestamps, checkpoints, and fine-grained steps are diagnostic. Expand them after a task is selected. Do not keep them laid out in the list so beginners have to read internal runtime fields.
 
 ## Failure Modes
 
-- 用运行记录的轮询状态替代当前页面的创作反馈：用户会离开当前创作步骤并误以为普通生成需要人工处理。
-- 把实况预览当作已保存正文：必须继续显示检查与保存阶段，且最终结果仍以原业务页面的资产状态为准。
-- 为了简化入口而隐藏失败与恢复信息：运行记录仍需可达，并保留稳定的来源与恢复路径。
+- Using Runtime records polling as a substitute for in-page creation feedback: the user leaves the current creation step and thinks ordinary generation needs manual handling.
+- Treating the live preview as saved prose: keep showing check and save stages, and keep the original business page’s asset state as the final result.
+- Hiding failure and recovery to simplify the entry: Runtime records must stay reachable, with stable source and recovery paths.
 
 ## Related Modules
 

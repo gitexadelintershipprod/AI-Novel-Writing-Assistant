@@ -1,57 +1,57 @@
-# 自动导演：角色候选自动确认
+# Auto-Director: auto-confirm character candidates
 
-## 背景
+## Background
 
-章节生成完成后，`ChapterArtifactDeltaService` 会从生成内容中提取新出现的角色，以 `status: "pending"` 写入 `characterCandidate` 表。这些候选角色会以「只读占位符」的形式注入后续章节的 prompt（`pendingCandidateGuards`），并明确标注"在 repair flow 以外不得注入生成"。
+After chapter generation finishes, `ChapterArtifactDeltaService` extracts newly appearing characters and writes them to the `characterCandidate` table with `status: "pending"`. Those candidates are injected into later chapter prompts as read-only placeholders (`pendingCandidateGuards`), explicitly labeled “must not be injected into generation outside the repair flow”.
 
-在手动模式下，用户通过 UI 主动确认候选角色，确认后角色进入正式名册，`rebuildDynamics` 重建动态关系图。
+In manual mode, the user confirms candidates in the UI. After confirm, the character enters the formal roster and `rebuildDynamics` rebuilds the dynamics graph.
 
-**问题**：全自动导演模式（`runMode: full_book_autopilot`）下，没有任何自动确认机制。候选角色长期停留在 `pending` 状态，后续章节生成时该角色始终以「只读临时标签」而非「正式角色」身份存在于 prompt 上下文，导致：
+**Problem:** full Auto-Director mode (`runMode: full_book_autopilot`) has no auto-confirm. Candidates stay `pending`, so later chapters always see the character as a read-only temporary tag instead of a formal character. That means:
 
-- AI 无法为该角色写入个性、动机、成长弧
-- 角色在多章节中出现时缺乏一致性锚点
-- `rebuildDynamics` 不会将候选角色纳入卷级投影，动态关系图残缺
+- AI cannot write personality, motive, or a growth arc for that character
+- The character lacks a consistency anchor across chapters
+- `rebuildDynamics` does not include candidates in the volume projection, so the dynamics graph is incomplete
 
-## 决策
+## Decision
 
-在 `NovelDirectorAutoExecutionRuntime.runFromReady` 的自动执行循环中，每当一个 pipeline job 成功且仍有剩余章节需要执行时，在推进下一章之前自动确认所有 `pending` 候选角色。
+In the auto-execution loop of `NovelDirectorAutoExecutionRuntime.runFromReady`, whenever a pipeline job succeeds and remaining chapters still need to run, auto-confirm every `pending` candidate before advancing to the next chapter.
 
-错误用 `.catch(() => null)` 吞掉，不阻断主流程——候选确认失败不应让整个自动成书中止。
+Swallow errors with `.catch(() => null)` and do not block the main flow. Candidate-confirm failure must not stop whole-book auto-creation.
 
-## 当前规则
+## Current Rule
 
-### 触发时机
+### Trigger
 
-`job.status === "succeeded"` 且 `autoExecution.remainingChapterCount > 0` 时（即"本批次完成，循环继续"分支），调用 `autoConfirmPendingCandidates`，然后才 `continue autoExecutionLoop`。
+When `job.status === "succeeded"` and `autoExecution.remainingChapterCount > 0` (the “this batch finished, loop continues” branch), call `autoConfirmPendingCandidates`, then `continue autoExecutionLoop`.
 
-### 自动确认策略
+### Auto-confirm policy
 
-- 使用候选自身字段：`proposedName` → 角色名，`proposedRole` → 角色类型（默认 `"新角色"`），`summary` → 人物背景
-- `castRole` 不设置（null）——保守默认，不强行判定主配角层级
-- 多个候选批量创建角色后，只调一次 `rebuildDynamics`，避免 N 次重建
+- Use the candidate’s own fields: `proposedName` → character name, `proposedRole` → role type (default `"New character"`; English is canonical on write; Chinese `"新角色"` is a dual-read alias for old rows only), `summary` → background
+- Leave `castRole` unset (`null`) — a conservative default; do not force lead/support rank
+- After creating characters from several candidates, call `rebuildDynamics` once, not N times
 
-### 关键文件
+### Key files
 
-| 文件 | 职责 |
+| File | Duty |
 |------|------|
-| `CharacterDynamicsMutationService.autoConfirmPendingCandidates()` | 批量确认逻辑，单次 rebuildDynamics |
-| `CharacterDynamicsService.autoConfirmPendingCandidates()` | facade 委托 |
-| `novelDirectorAutoExecutionRuntimePorts.ts` | `autoConfirmPendingCandidates?` 可选端口 |
-| `novelDirectorAutoExecutionRuntime.ts` | 注入调用点（pipeline succeeded 分支） |
-| `NovelDirectorService.ts` | 接入点（生产路径） |
-| `DirectorCoreStepModuleRuntime.ts` | 接入点（全书自动成书路径） |
+| `CharacterDynamicsMutationService.autoConfirmPendingCandidates()` | Batch confirm, single rebuildDynamics |
+| `CharacterDynamicsService.autoConfirmPendingCandidates()` | Facade delegate |
+| `novelDirectorAutoExecutionRuntimePorts.ts` | Optional `autoConfirmPendingCandidates?` port |
+| `novelDirectorAutoExecutionRuntime.ts` | Injection call site (pipeline succeeded branch) |
+| `NovelDirectorService.ts` | Wiring (production path) |
+| `DirectorCoreStepModuleRuntime.ts` | Wiring (full-book auto-creation path) |
 
-### 可选端口设计
+### Optional port
 
-`autoConfirmPendingCandidates` 作为可选依赖注入 `NovelDirectorAutoExecutionRuntimeDeps`，测试环境或非自动成书流程可不注入，不影响现有行为。
+`autoConfirmPendingCandidates` is an optional dependency on `NovelDirectorAutoExecutionRuntimeDeps`. Tests or non-auto-creation flows may omit it without changing existing behavior.
 
-## 失败模式
+## Failure Modes
 
-- **候选 `proposedName` 重复**：`createCharacter` 不做去重，可能产生同名角色。容忍度：概率低（同一本书通常不会同名候选），且下一章生成前 `rebuildDynamics` 会将重复角色合并进动态图。
-- **rebuildDynamics 失败**：整个 `autoConfirmPendingCandidates` 被 `.catch(() => null)` 吞掉，候选保持 `pending`，后续章节继续以只读模式注入。不会崩溃，但问题不解决。如果持续失败应查看 `rebuildDynamics` 的 LLM 调用链。
+- **Duplicate `proposedName`:** `createCharacter` does not de-dupe, so same-name characters can appear. Tolerance: low probability (one book rarely has same-name candidates), and `rebuildDynamics` before the next chapter merges duplicates into the dynamics graph.
+- **`rebuildDynamics` fails:** the whole `autoConfirmPendingCandidates` is swallowed by `.catch(() => null)`. Candidates stay `pending` and later chapters keep the read-only injection. No crash, but the problem is unsolved. Persistent failure should inspect the `rebuildDynamics` LLM call chain.
 
-## 关联模块
+## Related Modules
 
-- `server/src/services/novel/runtime/ChapterArtifactDeltaService.ts` — 候选的来源，章节完成后写入 pending 候选
-- `server/src/prompting/prompts/novel/chapterLayeredContextShared.ts` — `buildPendingCandidateGuardText()`，将 pending 候选注入 prompt 作只读占位
-- `server/src/services/novel/director/automation/novelDirectorAutoExecutionRuntime.ts` — 调用点
+- `server/src/services/novel/runtime/ChapterArtifactDeltaService.ts` — candidate source; writes pending candidates after a chapter finishes
+- `server/src/prompting/prompts/novel/chapterLayeredContextShared.ts` — `buildPendingCandidateGuardText()`, injects pending candidates as read-only placeholders
+- `server/src/services/novel/director/automation/novelDirectorAutoExecutionRuntime.ts` — call site
