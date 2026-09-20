@@ -189,7 +189,7 @@ export async function recordQualityRepairCheckpoint(
     stage: "quality_repair",
     checkpointType: input.checkpointType,
     itemLabel: input.checkpointType === "replan_required"
-      ? `${scopeLabel}Pending processing of re-planning suggestions`
+      ? `${scopeLabel} is waiting on replan suggestions`
       : buildDirectorAutoExecutionPausedLabel(checkpointState),
     checkpointSummary: buildDirectorAutoExecutionPausedSummary({
       scopeLabel,

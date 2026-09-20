@@ -60,7 +60,11 @@ function hasPersistedChapterContent(chapter: Pick<TakeoverChapterRow, "content">
 }
 
 function isNoChaptersToGenerateFailure(message: string | null | undefined): boolean {
-  return typeof message === "string" && message.includes("There are no chapters to generate in the selected range");
+  return typeof message === "string"
+    && (
+      message.includes("There are no chapters to generate in the selected range")
+      || message.includes("指定区间内没有可生成的章节")
+    );
 }
 
 function isPendingAutoExecutionChapter(chapter: TakeoverChapterRow): boolean {
@@ -197,9 +201,9 @@ function hasExecutableChapterPlanningContext(chapter: TakeoverChapterRow, allowL
 }
 
 /**
- * 解析「生效Automatic execution plan」对应的目标章节序集合（取自执行区持久化章节）。
- * book = 全部章节；volume = 该卷序范围；chapter_range = [start,end]。
- * 与 novelDirectorAutoExecutionScopeRuntime 的范围解析保持一致。
+ * Resolve the target chapter-order set for the effective auto-execution plan (from persisted execution-area chapters).
+ * book = all chapters; volume = that volume's order range; chapter_range = [start, end].
+ * Keep this aligned with novelDirectorAutoExecutionScopeRuntime range resolution.
  */
 function resolveTargetOrdersForAutoExecutionRange(input: {
   chapterRows: TakeoverChapterRow[];
@@ -230,10 +234,10 @@ function resolveTargetOrdersForAutoExecutionRange(input: {
 }
 
 /**
- * 计算目标Automatic execution scope内「仍缺少完整章节细化」的章节序：
- * 未处理（未写 / 待修）且缺少完整执行契约的持久化章节。
- * 与 scope runtime 的 findMissingExecutionContextOrders 同语义——
- * 这些正是会让 runFromReady 直接抛「缺少完整章节细化」并卡死的章节。
+ * Chapter orders inside the target auto-execution scope that still lack complete chapter detail:
+ * unprocessed (unwritten / needs repair) persisted chapters without a complete execution contract.
+ * Same meaning as findMissingExecutionContextOrders in the scope runtime —
+ * these are the chapters that make runFromReady throw "missing complete chapter detail" and stall.
  */
 function computeMissingExecutionContractOrders(input: {
   chapterRows: TakeoverChapterRow[];

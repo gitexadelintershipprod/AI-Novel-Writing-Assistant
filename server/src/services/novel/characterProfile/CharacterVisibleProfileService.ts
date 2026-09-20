@@ -40,7 +40,7 @@ const FIELD_LABELS: Record<CharacterVisibleProfileField, string> = {
   presenceImpression: "First impression",
 };
 
-const GENERIC_VISIBLE_PROFILE_PATTERN = /^(暂无|待补全|无|未知|很好看|很漂亮|气质很好|气质独特|很有辨识度|身材匀称|清冷|温柔|帅气|美丽|普通|不详)$/;
+const GENERIC_VISIBLE_PROFILE_PATTERN = /^(暂无|待补全|无|未知|很好看|很漂亮|气质很好|气质独特|很有辨识度|身材匀称|清冷|温柔|帅气|美丽|普通|不详|none|n\/a|tbd|unknown|to be completed|looks good|beautiful|handsome|ordinary)$/i;
 
 type CharacterRow = {
   id: string;
@@ -118,23 +118,23 @@ export function pickApplicableVisibleProfileFields(input: {
 
 function buildCharacterProfileText(character: CharacterRow): string {
   return [
-    `姓名：${character.name}`,
-    `定位：${character.role}`,
-    character.gender ? `性别：${character.gender}` : "",
-    character.castRole ? `阵容功能：${character.castRole}` : "",
-    character.storyFunction ? `Story function:${character.storyFunction}` : "",
-    character.relationToProtagonist ? `Relationship with the protagonist:${character.relationToProtagonist}` : "",
-    character.personality ? `性格：${compactText(character.personality, 180)}` : "",
-    character.background ? `背景：${compactText(character.background, 180)}` : "",
-    character.development ? `成长弧：${compactText(character.development, 180)}` : "",
-    character.outerGoal ? `External goals:${compactText(character.outerGoal, 120)}` : "",
-    character.innerNeed ? `Inner need：${compactText(character.innerNeed, 120)}` : "",
-    character.fear ? `恐惧：${compactText(character.fear, 100)}` : "",
-    character.wound ? `伤口：${compactText(character.wound, 100)}` : "",
-    character.misbelief ? `False belief:${compactText(character.misbelief, 100)}` : "",
-    character.secret ? `隐藏秘密：${compactText(character.secret, 100)}` : "",
-    character.moralLine ? `moral bottom line：${compactText(character.moralLine, 100)}` : "",
-    character.firstImpression ? `首次印象：${compactText(character.firstImpression, 120)}` : "",
+    `Name: ${character.name}`,
+    `Role: ${character.role}`,
+    character.gender ? `Gender: ${character.gender}` : "",
+    character.castRole ? `Cast function: ${character.castRole}` : "",
+    character.storyFunction ? `Story function: ${character.storyFunction}` : "",
+    character.relationToProtagonist ? `Relationship with the protagonist: ${character.relationToProtagonist}` : "",
+    character.personality ? `Personality: ${compactText(character.personality, 180)}` : "",
+    character.background ? `Background: ${compactText(character.background, 180)}` : "",
+    character.development ? `Growth arc: ${compactText(character.development, 180)}` : "",
+    character.outerGoal ? `External goals: ${compactText(character.outerGoal, 120)}` : "",
+    character.innerNeed ? `Inner need: ${compactText(character.innerNeed, 120)}` : "",
+    character.fear ? `Fear: ${compactText(character.fear, 100)}` : "",
+    character.wound ? `Wound: ${compactText(character.wound, 100)}` : "",
+    character.misbelief ? `False belief: ${compactText(character.misbelief, 100)}` : "",
+    character.secret ? `Hidden secret: ${compactText(character.secret, 100)}` : "",
+    character.moralLine ? `Moral line: ${compactText(character.moralLine, 100)}` : "",
+    character.firstImpression ? `First impression: ${compactText(character.firstImpression, 120)}` : "",
   ].filter(Boolean).join("\n");
 }
 
@@ -142,7 +142,7 @@ function buildExistingVisibleProfileText(character: CharacterRow): string {
   return VISIBLE_PROFILE_FIELDS
     .map((field) => {
       const text = normalizeVisibleProfileText(character[field]);
-      return text ? `${FIELD_LABELS[field]}：${text}` : "";
+      return text ? `${FIELD_LABELS[field]}: ${text}` : "";
     })
     .filter(Boolean)
     .join("\n");
@@ -163,13 +163,13 @@ function extractBookContractText(bookContract: {
   }
   return [
     bookContract.readingPromise ? `Read the pledge:${bookContract.readingPromise}` : "",
-    bookContract.protagonistFantasy ? `主角爽感：${bookContract.protagonistFantasy}` : "",
+    bookContract.protagonistFantasy ? `Protagonist payoff: ${bookContract.protagonistFantasy}` : "",
     bookContract.coreSellingPoint ? `Core selling points:${bookContract.coreSellingPoint}` : "",
     bookContract.relationshipMainline ? `Main line of relationship:${bookContract.relationshipMainline}` : "",
     bookContract.escalationLadder ? `Upgrade ladder:${bookContract.escalationLadder}` : "",
-    bookContract.chapter3Payoff ? `3章兑现：${bookContract.chapter3Payoff}` : "",
-    bookContract.chapter10Payoff ? `10章兑现：${bookContract.chapter10Payoff}` : "",
-    bookContract.chapter30Payoff ? `30章兑现：${bookContract.chapter30Payoff}` : "",
+    bookContract.chapter3Payoff ? `Chapter 3 payoff: ${bookContract.chapter3Payoff}` : "",
+    bookContract.chapter10Payoff ? `Chapter 10 payoff: ${bookContract.chapter10Payoff}` : "",
+    bookContract.chapter30Payoff ? `Chapter 30 payoff: ${bookContract.chapter30Payoff}` : "",
   ].filter(Boolean).join("\n");
 }
 
@@ -220,9 +220,9 @@ export class CharacterVisibleProfileService {
       .map((relation) => [
         `${relation.sourceCharacter.name} -> ${relation.targetCharacter.name}`,
         relation.surfaceRelation,
-        relation.hiddenTension ? `暗线：${relation.hiddenTension}` : "",
-        relation.conflictSource ? `冲突：${relation.conflictSource}` : "",
-      ].filter(Boolean).join("；"))
+        relation.hiddenTension ? `Hidden tension: ${relation.hiddenTension}` : "",
+        relation.conflictSource ? `Conflict: ${relation.conflictSource}` : "",
+      ].filter(Boolean).join("; "))
       .join("\n");
 
     const storyModeBlock = buildStoryModePromptBlock({
@@ -246,14 +246,14 @@ export class CharacterVisibleProfileService {
         bookContractText: compactText(extractBookContractText(novel.bookContract), 1_200),
         worldContextText: compactText(worldContext?.promptBlock, 1_600),
         bibleText: compactText([
-          novel.bible?.mainPromise ? `main line commitment：${novel.bible.mainPromise}` : "",
+          novel.bible?.mainPromise ? `main line commitment: ${novel.bible.mainPromise}` : "",
           novel.bible?.coreSetting ? `Core settings:${novel.bible.coreSetting}` : "",
-          novel.bible?.characterArcs ? `角色成长：${novel.bible.characterArcs}` : "",
+          novel.bible?.characterArcs ? `Character growth: ${novel.bible.characterArcs}` : "",
         ].filter(Boolean).join("\n"), 1_000),
         storyMacroText: compactText([
           novel.storyMacroPlan?.storyInput ? `Story input:${novel.storyMacroPlan.storyInput}` : "",
-          novel.storyMacroPlan?.decompositionJson ? `拆解：${compactText(novel.storyMacroPlan.decompositionJson, 500)}` : "",
-          novel.storyMacroPlan?.constraintEngineJson ? `约束：${compactText(novel.storyMacroPlan.constraintEngineJson, 500)}` : "",
+          novel.storyMacroPlan?.decompositionJson ? `Decomposition: ${compactText(novel.storyMacroPlan.decompositionJson, 500)}` : "",
+          novel.storyMacroPlan?.constraintEngineJson ? `Constraints: ${compactText(novel.storyMacroPlan.constraintEngineJson, 500)}` : "",
         ].filter(Boolean).join("\n"), 1_200),
         characterName: character.name,
         characterRole: character.role,
@@ -294,7 +294,7 @@ export class CharacterVisibleProfileService {
         characterId,
         characterName: character.name,
         fields: {},
-        skippedFields: Object.fromEntries(VISIBLE_PROFILE_FIELDS.map((field) => [field, "AI 把握较低"])) as Partial<Record<CharacterVisibleProfileField, string>>,
+        skippedFields: Object.fromEntries(VISIBLE_PROFILE_FIELDS.map((field) => [field, "AI confidence is low"])) as Partial<Record<CharacterVisibleProfileField, string>>,
         confidence: output.confidence,
         warnings,
         hasApplicableChanges: false,

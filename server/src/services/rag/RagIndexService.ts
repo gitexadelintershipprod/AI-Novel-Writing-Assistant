@@ -570,7 +570,7 @@ export class RagIndexService {
           if (!isKnowledgeDoc) {
             return { chunkText };
           }
-          // 知识库文档：自动从 chunk 正文抽取章节锚点和角色名，填充 facets
+          // Knowledge-base documents: extract chapter anchors and character names from chunk text into facets
           const chapterAnchors = extractChapterAnchorFromChunk(chunkText);
           const characterRoles = candidateNames.length > 0
             ? extractCharacterRolesFromChunk(chunkText, candidateNames)
@@ -730,8 +730,8 @@ export class RagIndexService {
       embeddingSettings.embeddingModel,
     );
 
-    // Knowledge base documentation索引时，预加载角色候选名用于 chunk facet 自动提取
-    // KnowledgeDocument 没有直接 novelId，取该租户下所有角色名做关键词匹配（数量有限，代价可忽略）
+    // When indexing a knowledge document, preload candidate character names for automatic chunk-facet extraction.
+    // KnowledgeDocument has no direct novelId, so match keywords against all character names for this tenant (bounded count; cost is negligible).
     let knownCharacterNames: string[] = [];
     if (ownerType === "knowledge_document") {
       const chars = await prisma.character.findMany({
@@ -817,7 +817,7 @@ export class RagIndexService {
     await this.assertJobNotCancelled(jobId);
     await this.vectorStoreService.ensureCollection(vectorSize);
 
-    // 读取旧 chunk id，但先不删除 — 保持旧数据可检索直到新数据写入完成
+    // Read old chunk ids, but do not delete yet — keep old data searchable until new data is written
     const oldChunks = await prisma.knowledgeChunk.findMany({
       where: { tenantId, ownerType, ownerId },
       select: { id: true },
@@ -837,7 +837,7 @@ export class RagIndexService {
     });
     await this.assertJobNotCancelled(jobId);
 
-    // Phase 3.1: 先写新分块到 Qdrant + DB，成功后再删旧分块，消除可见性空窗
+    // Phase 3.1: write new chunks to Qdrant + DB first, then delete old chunks, to avoid a visibility gap
     const newPoints = candidates.map((item, index) => ({
       id: item.id,
       vector: embedding.vectors[index],
@@ -862,15 +862,15 @@ export class RagIndexService {
       },
     }));
 
-    // 1. Qdrant 写入新分块
+    // 1. Write new chunks to Qdrant
     try {
       await this.vectorStoreService.upsertPoints(newPoints);
     } catch (error) {
-      // 新分块写入失败，旧分块仍在，直接抛出
+      // New-chunk write failed; old chunks remain, so rethrow
       throw error;
     }
 
-    // 2. DB 写入新分块元数据
+    // 2. Write new chunk metadata to the DB
     try {
       await this.updateJobProgress(jobId, {
         stage: "writing_metadata",
@@ -906,12 +906,12 @@ export class RagIndexService {
         })),
       });
     } catch (error) {
-      // DB 写入失败，回滚：删除刚写的新 Qdrant 分块
+      // DB write failed; roll back by deleting the new Qdrant chunks just written
       await this.vectorStoreService.deletePoints(candidates.map((item) => item.id)).catch(() => {});
       throw error;
     }
 
-    // 3. 新分块全部就位，安全删除旧分块
+    // 3. New chunks are in place; now it is safe to delete old chunks
     if (oldIds.length > 0) {
       await this.updateJobProgress(jobId, {
         stage: "deleting_existing",

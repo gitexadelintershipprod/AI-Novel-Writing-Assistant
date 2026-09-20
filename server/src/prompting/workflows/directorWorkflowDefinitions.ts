@@ -9,7 +9,7 @@ export const directorWorkflowDefinitions: WorkflowDefinition[] = [
     resolve: ({ plannerInput }) => [{
       agent: "Planner",
       tool: "analyze_director_workspace",
-      reason: "通过Auto-Director运行时分析当前Novel workspace",
+      reason: "Analyze the current novel workspace through Auto-Director runtime",
       input: { novelId: plannerInput.novelId },
       keyPrefix: "director_workspace_analysis",
     }],
@@ -22,7 +22,7 @@ export const directorWorkflowDefinitions: WorkflowDefinition[] = [
     resolve: ({ plannerInput }) => [{
       agent: "Planner",
       tool: "get_director_run_status",
-      reason: "读取Auto-DirectorRunning status",
+      reason: "Read Auto-Director running status",
       input: { novelId: plannerInput.novelId },
       keyPrefix: "director_run_status",
     }],
@@ -35,7 +35,7 @@ export const directorWorkflowDefinitions: WorkflowDefinition[] = [
     resolve: ({ plannerInput }) => [{
       agent: "Planner",
       tool: "explain_director_next_action",
-      reason: "解释current novel的Auto-DirectorSuggestions for next steps",
+      reason: "Explain Auto-Director's next-step suggestions for the current novel",
       input: { novelId: plannerInput.novelId },
       keyPrefix: "director_next_action",
     }],
@@ -74,7 +74,7 @@ export const directorWorkflowDefinitions: WorkflowDefinition[] = [
     resolve: ({ intent, plannerInput }) => [{
       agent: "Planner",
       tool: "switch_director_policy",
-      reason: "切换Auto-Director推进策略",
+      reason: "Switch the Auto-Director advancement policy",
       input: {
         novelId: plannerInput.novelId,
         mode: intent.directorPolicyMode ?? "run_next_step",
@@ -97,7 +97,7 @@ export const directorWorkflowDefinitions: WorkflowDefinition[] = [
     resolve: ({ intent, plannerInput }) => [{
       agent: "Planner",
       tool: "evaluate_manual_edit_impact",
-      reason: "评估手动编辑对Auto-Director后续推进的影响",
+      reason: "Evaluate how a manual edit affects later Auto-Director progress",
       input: {
         novelId: plannerInput.novelId,
         ...(intent.chapterSelectors.chapterId ? { chapterId: intent.chapterSelectors.chapterId } : {}),

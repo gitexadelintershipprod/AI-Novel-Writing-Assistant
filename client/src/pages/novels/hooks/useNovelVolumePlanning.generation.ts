@@ -343,8 +343,8 @@ export function useVolumeGenerationMutation({
       const label = detailModeLabel(payload.detailMode ?? "purpose");
       setStructuredMessage(
         result.autoSyncedToChapterExecution
-          ? `${label}AI correction has been completed and automatically saved, and the chapter execution area has also been automatically synchronized with the latest content.`
-          : `${label}AI fixes completed and automatically saved.`,
+          ? `${label}: AI correction finished and was saved. The chapter execution area now has the latest content.`
+          : `${label}: AI repair finished and was saved.`,
       );
     },
     onError: async (error, payload, context) => {

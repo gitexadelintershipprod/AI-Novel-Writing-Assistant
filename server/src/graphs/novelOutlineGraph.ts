@@ -31,11 +31,11 @@ async function analyzeTheme(state: NovelOutlineGraphState, llm: BaseChatModel) {
     const result = await llm.invoke([
       new SystemMessage("You are a novel-theme analyst. Extract the theme and intent."),
       new HumanMessage(
-        `标题：${state.novelTitle}
-简介：${state.novelDescription}
-类型：${state.genre}
-角色：${state.characters.join("、") || "暂无"}
-请输出主题分析。`,
+        `Title: ${state.novelTitle}
+Synopsis: ${state.novelDescription}
+Genre: ${state.genre}
+Characters: ${state.characters.join(", ") || "none"}
+Output a theme analysis.`,
       ),
     ]);
     const text = typeof result.content === "string" ? result.content : JSON.stringify(result.content);
@@ -50,9 +50,9 @@ async function designConflicts(state: NovelOutlineGraphState, llm: BaseChatModel
     const result = await llm.invoke([
       new SystemMessage("You are a conflict-design expert. Output 3-5 core conflicts."),
       new HumanMessage(
-        `主题分析：
+        `Theme analysis:
 ${state.themeAnalysis}
-请设计冲突节点与转折点。`,
+Design conflict nodes and turning points.`,
       ),
     ]);
     const text = typeof result.content === "string" ? result.content : JSON.stringify(result.content);
@@ -67,13 +67,13 @@ async function generateOutline(state: NovelOutlineGraphState, llm: BaseChatModel
     const result = await llm.invoke([
       new SystemMessage("You are a novel planner. Generate a complete story direction."),
       new HumanMessage(
-        `主题分析：
+        `Theme analysis:
 ${state.themeAnalysis}
 
-冲突设计：
+Conflict design:
 ${state.conflictDesign}
 
-请输出完整Story direction。`,
+Output a complete story direction.`,
       ),
     ]);
     const text = typeof result.content === "string" ? result.content : JSON.stringify(result.content);
@@ -88,9 +88,9 @@ async function structureOutline(state: NovelOutlineGraphState, llm: BaseChatMode
     const result = await llm.invoke([
       new SystemMessage("Convert the novel outline into a JSON chapter plan."),
       new HumanMessage(
-        `小说大纲：
+        `Novel outline:
 ${state.outline}
-仅输出 JSON 数组。`,
+Output a JSON array only.`,
       ),
     ]);
     const text = typeof result.content === "string" ? result.content : JSON.stringify(result.content);

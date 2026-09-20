@@ -11,8 +11,8 @@ interface LLMGenerateOptions {
   model?: string;
   temperature?: number;
   /**
-   * 正文覆盖：定稿流程接入时传入刚定稿的 finalContent，
-   * 避免依赖"正文是否已落库"的时序（DB 中可能尚未写入）。
+   * Prose override: when the finalization flow is attached, pass the just-finalized finalContent
+   * so the summary does not depend on whether the prose has already been persisted (the DB row may still be empty).
    */
   contentOverride?: string;
 }
@@ -53,7 +53,7 @@ function fallbackSummary(content: string): string {
 }
 
 function joinFacts(items: string[], max = 3): string {
-  return Array.from(new Set(items)).slice(0, max).join("；");
+  return Array.from(new Set(items)).slice(0, max).join("; ");
 }
 
 export class NovelChapterSummaryService {
@@ -138,13 +138,13 @@ export class NovelChapterSummaryService {
       });
     });
 
-    // 桥接 Fact Ledger：将正文即兴产生的硬事实写入事实账本，
-    // 供后续章节 JIT task sheet 通过 completedMilestones 消费，防止后文改写本章设定。
+    // Bridge the fact ledger: write hard facts the prose produced on the fly
+    // so later JIT task sheets can consume them via completedMilestones and not rewrite this chapter's setup.
     if (concreteFacts.length > 0) {
       try {
         await novelFactService.writeFacts(novelId, chapter.order, concreteFacts);
       } catch (error) {
-        // 事实写入失败不应阻断摘要生成主流程
+        // Fact-ledger write failure must not block the main summary flow.
         console.warn("[chapter-summary] concreteFacts ledger write failed", {
           novelId,
           chapterId,

@@ -1,8 +1,8 @@
 /**
- * 短剧内容源端口（re-export + drama 专用别名）
+ * Short-drama content-source port (re-export + drama-specific alias).
  *
- * drama 内部代码继续从此路径 import，外部不感知迁移。
- * 新模块（comic）请直接 import services/adaptation/source/SourceContentPort。
+ * Drama internal code keeps importing from this path; callers outside drama do not see the move.
+ * New modules (comic) should import services/adaptation/source/SourceContentPort directly.
  */
 export type { SourceContentPort } from "../../adaptation/source/SourceContentPort";
 export {

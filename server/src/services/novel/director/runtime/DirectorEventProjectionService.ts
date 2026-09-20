@@ -123,10 +123,10 @@ function buildHeadline(input: {
 }): string {
   const label = input.step?.label?.trim() || input.event?.summary?.trim() || "Syncing Auto-Director progress";
   if (input.status === "waiting_approval") {
-    return `Waiting for confirmation：${label}`;
+    return `Waiting for confirmation: ${label}`;
   }
   if (input.status === "blocked") {
-    return `Pause processing：${label}`;
+    return `Pause processing: ${label}`;
   }
   if (input.status === "failed") {
     return `Failed: ${label}`;
@@ -148,7 +148,7 @@ function buildDetail(input: {
 }): string | null {
   if (input.status === "running") {
     const eventSummary = input.event?.summary?.trim();
-    return eventSummary ? `recent developments：${eventSummary}` : "The system is processing this step and will write new progress when it finishes.";
+    return eventSummary ? `Recent developments: ${eventSummary}` : "The system is processing this step and will write new progress when it finishes.";
   }
   if (input.status === "waiting_approval" || input.status === "blocked" || input.status === "failed") {
     return input.blockedReason;

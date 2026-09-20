@@ -406,7 +406,7 @@ router.get("/characters/:charId/sheet", validate({ params: charIdParams }), asyn
   } catch (err) { next(err); }
 });
 
-// AI 协助重写"appearance anchor"——返回建议给前端审阅，不直接保存
+// AI-assisted rewrite of the appearance anchor — returns a suggestion for frontend review, does not save.
 router.post(
   "/characters/:charId/visual-anchor/rewrite",
   validate({
@@ -429,7 +429,7 @@ router.post(
   },
 );
 
-// 更新角色性别（生图链路的 GENDER LOCK 来源）
+// Update character gender (source of GENDER LOCK for the image-generation chain).
 router.patch(
   "/characters/:charId/gender",
   validate({
@@ -446,8 +446,8 @@ router.patch(
   },
 );
 
-// 更新角色"appearance anchor"—— 所有生图链路的源头
-// appearance：主外貌；faceShapeOverride：脸型强覆盖（与 appearance 冲突时高优先级）
+// Update the character appearance anchor — source of truth for every image-generation path.
+// appearance: main look; faceShapeOverride: hard face-shape override (higher priority when it conflicts with appearance).
 router.patch(
   "/characters/:charId/visual-anchor",
   validate({
@@ -515,7 +515,7 @@ router.get("/characters/:charId/expressions", validate({ params: charIdParams })
   } catch (err) { next(err); }
 });
 
-// 设计稿图片文件（供 <img src> 直接访问）
+// Design-sheet image file (direct <img src> access).
 router.get("/character-images/:charId/sheet", validate({ params: charIdParams }), async (req, res, next) => {
   try {
     const { charId } = req.params as z.infer<typeof charIdParams>;
@@ -622,7 +622,7 @@ router.get("/panels/:panelId/image", validate({ params: panelIdParams }), async 
   } catch (err) { next(err); }
 });
 
-// 图片文件服务（供前端 <img src> 使用）
+// Image file serving (for frontend <img src>).
 router.get("/panel-images/:panelId/panel", validate({ params: panelIdParams }), async (req, res, next) => {
   try {
     const { panelId } = req.params as z.infer<typeof panelIdParams>;
@@ -846,7 +846,7 @@ const updateAssetSchema = z.object({
   assetType: z.enum(["costume", "weapon", "item", "vehicle", "ability", "other"]).optional(),
 });
 
-// 列出某角色所有资产
+// List all assets for a character.
 router.get("/characters/:charId/assets", validate({ params: charIdParams }), async (req, res, next) => {
   try {
     const { charId } = req.params as z.infer<typeof charIdParams>;
@@ -855,7 +855,7 @@ router.get("/characters/:charId/assets", validate({ params: charIdParams }), asy
   } catch (err) { next(err); }
 });
 
-// 列出项目所有资产
+// List all assets in a project.
 router.get("/projects/:id/character-assets", validate({ params: idParams }), async (req, res, next) => {
   try {
     const { id } = req.params as z.infer<typeof idParams>;
@@ -864,7 +864,7 @@ router.get("/projects/:id/character-assets", validate({ params: idParams }), asy
   } catch (err) { next(err); }
 });
 
-// 创建资产
+// Create an asset.
 router.post("/character-assets", validate({ body: createAssetSchema }), async (req, res, next) => {
   try {
     const body = req.body as z.infer<typeof createAssetSchema>;
@@ -873,7 +873,7 @@ router.post("/character-assets", validate({ body: createAssetSchema }), async (r
   } catch (err) { next(err); }
 });
 
-// 更新资产元信息
+// Update asset metadata.
 router.patch("/character-assets/:assetId", validate({ params: assetIdParams, body: updateAssetSchema }), async (req, res, next) => {
   try {
     const { assetId } = req.params as z.infer<typeof assetIdParams>;
@@ -883,7 +883,7 @@ router.patch("/character-assets/:assetId", validate({ params: assetIdParams, bod
   } catch (err) { next(err); }
 });
 
-// 删除资产
+// Delete an asset.
 router.delete("/character-assets/:assetId", validate({ params: assetIdParams }), async (req, res, next) => {
   try {
     const { assetId } = req.params as z.infer<typeof assetIdParams>;
@@ -892,8 +892,8 @@ router.delete("/character-assets/:assetId", validate({ params: assetIdParams }),
   } catch (err) { next(err); }
 });
 
-// AI generated资产图
-// 预览即将发送的素材（不消耗 token）
+// AI-generated asset image.
+// Preview the material that will be sent (does not consume tokens).
 router.post("/character-assets/:assetId/prepare-image", validate({ params: assetIdParams }), async (req, res, next) => {
   try {
     const { assetId } = req.params as z.infer<typeof assetIdParams>;
@@ -924,7 +924,7 @@ router.post("/character-assets/:assetId/generate-image", validate({ params: asse
   } catch (err) { next(err); }
 });
 
-// 上传资产图（Content-Type: image/* 直传，body 为原始二进制）
+// Upload an asset image (Content-Type: image/* raw body).
 router.post(
   "/character-assets/:assetId/upload-image",
   validate({ params: assetIdParams }),
@@ -942,7 +942,7 @@ router.post(
   },
 );
 
-// 服务资产图文件
+// Serve an asset image file.
 router.get("/character-assets/:assetId/image", validate({ params: assetIdParams }), async (req, res, next) => {
   try {
     const { assetId } = req.params as z.infer<typeof assetIdParams>;
@@ -979,7 +979,7 @@ const updateSceneSchema = z.object({
   sortOrder: z.coerce.number().int().min(0).optional(),
 });
 
-// 列出项目所有场景
+// List all scenes in a project.
 router.get("/projects/:id/scenes", validate({ params: idParams }), async (req, res, next) => {
   try {
     const { id } = req.params as z.infer<typeof idParams>;
@@ -988,7 +988,7 @@ router.get("/projects/:id/scenes", validate({ params: idParams }), async (req, r
   } catch (err) { next(err); }
 });
 
-// 创建场景
+// Create a scene.
 router.post("/scenes", validate({ body: createSceneSchema }), async (req, res, next) => {
   try {
     const body = req.body as z.infer<typeof createSceneSchema>;
@@ -997,7 +997,7 @@ router.post("/scenes", validate({ body: createSceneSchema }), async (req, res, n
   } catch (err) { next(err); }
 });
 
-// 更新场景（名称/类型/bible）
+// Update a scene (name / type / bible).
 router.patch("/scenes/:sceneId", validate({ params: sceneIdParams, body: updateSceneSchema }), async (req, res, next) => {
   try {
     const { sceneId } = req.params as z.infer<typeof sceneIdParams>;
@@ -1042,7 +1042,7 @@ router.post("/scenes/:sceneId/generate-image", validate({ params: sceneIdParams,
   } catch (err) { next(err); }
 });
 
-// 上传scene setting diagram（Content-Type: image/* 直传）
+// Upload scene setting art (Content-Type: image/* raw body).
 router.post("/scenes/:sceneId/upload-image", validate({ params: sceneIdParams }), async (req, res, next) => {
   try {
     const { sceneId } = req.params as z.infer<typeof sceneIdParams>;
@@ -1056,7 +1056,7 @@ router.post("/scenes/:sceneId/upload-image", validate({ params: sceneIdParams })
   } catch (err) { next(err); }
 });
 
-// 服务场景图文件
+// Serve a scene image file.
 router.get("/scenes/:sceneId/image", validate({ params: sceneIdParams }), async (req, res, next) => {
   try {
     const { sceneId } = req.params as z.infer<typeof sceneIdParams>;

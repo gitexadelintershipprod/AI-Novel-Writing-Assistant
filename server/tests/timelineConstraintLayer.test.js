@@ -486,8 +486,8 @@ test("TimelinePromptAdapter emits required block with empty context", () => {
     knownStateChanges: [],
   })); 
 
-  assert.match(output, /【时间线约束】/);
-  assert.match(output, /【可延后承接的钩子】\n- 无/);
+  assert.match(output, /\[Timeline constraints\]/);
+  assert.match(output, /\[Hooks that can wait\]\n- none/);
 });
 
 test("StoryTimelineService closes hooks by extractor hook ids and saves chapter time anchor", async () => {

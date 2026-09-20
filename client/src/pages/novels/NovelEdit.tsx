@@ -1765,14 +1765,14 @@ export default function NovelEdit() {
           : automationActionText
             ? automationActionText
           : mode === "running" && task.checkpointType === "chapter_batch_ready" && task.currentItemLabel?.includes("Suspended")
-            ? `Continuing automatic execution${autoExecutionScopeLabel}`
+            ? `Continuing automatic execution of ${autoExecutionScopeLabel}`
             : task.currentItemLabel ?? null,
       checkpointLabel: consistencyIssue
         ? "Director products to be completed"
         : task.pendingManualRecovery
           ? "Waiting for recovery"
         : mode === "running" && task.checkpointType === "chapter_batch_ready"
-          ? `${autoExecutionScopeLabel}Automatically executing`
+          ? `${autoExecutionScopeLabel} is running automatically`
           : formatTakeoverCheckpoint(task.checkpointType, task),
       taskId: task.id,
       actions,

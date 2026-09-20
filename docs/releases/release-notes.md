@@ -7,7 +7,7 @@ This file is the complete user-visible update history. The root [README.md](../.
 ### 2026-09-20
 
 - Buttons, errors, task names, world templates, character roles, and public help pages now come from English source text, not only an on-screen translation overlay. Auto-Director, Task Center, and export headings stay readable even in native browser dialogs and notifications.
-- Remaining system messages, Creative Hub summaries, and image-generation prompts now use English control text. Generated fiction stays Georgian. Older saved Chinese protocol values are still understood.
+- Remaining system messages, Creative Hub summaries, Auto-Director progress titles, and image-generation prompts now use English control text. Generated fiction stays Georgian. Older saved Chinese protocol values are still understood.
 - Older books keep working: saved role names, world types, and beat labels are still understood, while new saves use English protocol values. Your novel text, knowledge files, and Georgian chapter output are unchanged.
 
 ### 2026-09-17

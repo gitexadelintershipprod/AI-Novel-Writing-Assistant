@@ -1,8 +1,8 @@
 /**
- * 项目级视觉资源协议。
+ * Project-level visual-asset protocol.
  *
- * 资源库只索引文件与来源信息，不拥有或复制业务模块的原始事实与文件。
- * 调用方保存 assetId 以便追溯，url 则用于立即展示或作为生图参考图。
+ * The library only indexes files and source information. It does not own or copy another module's original facts or files.
+ * Callers store assetId for provenance. url is for immediate display or as an image-generation reference.
  */
 export const VISUAL_ASSET_KINDS = [
   "character",

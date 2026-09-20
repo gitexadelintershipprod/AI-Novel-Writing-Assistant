@@ -64,7 +64,7 @@ function buildSourceRangeLabel(input: {
   if (input.startChapterIndex === input.endChapterIndex) {
     return `Chapter ${input.startChapterIndex + 1}: ${input.startTitle}`;
   }
-  return `Chapters ${input.startChapterIndex + 1}–${input.endChapterIndex + 1}：${input.startTitle} 至 ${input.endTitle}`;
+  return `Chapters ${input.startChapterIndex + 1}–${input.endChapterIndex + 1}: ${input.startTitle} to ${input.endTitle}`;
 }
 
 export class BookAnalysisCommandService {

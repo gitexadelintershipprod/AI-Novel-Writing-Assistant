@@ -1,7 +1,7 @@
 /**
- * 生图确认弹窗触发 hook
+ * Hook that opens the image-generation confirm dialog.
  *
- * 使用方式：
+ * Usage:
  *   const flow = useImageGenerationFlow();
  *   <button onClick={() => flow.start({
  *     prepare: () => prepareCharacterAssetImage(asset.id, provider),
@@ -10,7 +10,7 @@
  *   })}>AI generated pictures</button>
  *   <ImageGenerationConfirmDialog {...flow.dialogProps} />
  *
- * 流程：start → prepare 拿预览 → 弹窗 → 用户 confirm/取消 → 取消时 generate
+ * Flow: start → prepare preview → dialog → user confirm/cancel → generate on confirm
  */
 import { useState } from "react";
 
@@ -29,7 +29,7 @@ export function useImageGenerationFlow() {
   const [preview, setPreview] = useState<ImageGenerationPreview | null>(null);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  // 当前活跃的 generate 闭包（弹窗 confirm 时调用）
+  // Active generate closure (called when the dialog confirms)
   const [activeGenerate, setActiveGenerate] = useState<((o: ImageGenerationOverrides) => Promise<void>) | null>(null);
 
   const start = async <TResult>({ prepare, generate, onSuccess, onError }: StartOptions<TResult>) => {
@@ -40,7 +40,7 @@ export function useImageGenerationFlow() {
       const p = await prepare();
       setPreview(p);
       setLoading(false);
-      // 闭包绑定本次 generate
+      // Bind this generate call into the closure
       setActiveGenerate(() => async (overrides: ImageGenerationOverrides) => {
         setSubmitting(true);
         try {

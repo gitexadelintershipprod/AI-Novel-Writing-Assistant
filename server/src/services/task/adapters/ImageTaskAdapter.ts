@@ -26,7 +26,7 @@ function buildImageTaskPresentation(row: {
     const title = row.novel?.title?.trim() || `Novel ${row.novelId.slice(0, 8)}`;
     const route = `/novels/${row.novelId}/edit?stage=basic`;
     return {
-      title: `novel cover：${title}`,
+      title: `novel cover: ${title}`,
       ownerId: row.novelId,
       ownerLabel: title,
       sourceRoute: route,

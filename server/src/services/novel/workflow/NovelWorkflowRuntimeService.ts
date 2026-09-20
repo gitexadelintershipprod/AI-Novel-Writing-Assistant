@@ -45,7 +45,7 @@ export class NovelWorkflowRuntimeService {
           continue;
         }
         const message = error instanceof Error ? error.message : "The Auto-Director task failed to recover after the service restart.";
-        await this.workflowService.markTaskFailed(row.id, `Recovery after restart failed：${message}`);
+        await this.workflowService.markTaskFailed(row.id, `Recovery after restart failed: ${message}`);
       }
     }
   }

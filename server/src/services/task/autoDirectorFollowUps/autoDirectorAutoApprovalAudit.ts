@@ -79,7 +79,7 @@ function buildSummary(input: {
   const checkpointSummary = input.checkpointSummary?.trim();
   if (input.checkpointType === "replan_required") {
     if (checkpointSummary) {
-      return `AI recorded a replan reminder and continued.${checkpointSummary}`;
+      return `AI recorded a replan reminder and continued. ${checkpointSummary}`;
     }
     return "AI recorded a replan reminder and continued.";
   }

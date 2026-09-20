@@ -7,8 +7,8 @@ import { comicFactExtractionPrompt } from "../../prompting/prompts/comic/comic.p
 
 export class ComicFactService {
   /**
-   * 从已生成的分格脚本中提取跨话事实，异步写入 ComicFact。
-   * 设计为 fire-and-forget，不阻塞脚本生成响应。
+   * Extract cross-episode facts from a generated panel script and write ComicFact asynchronously.
+   * Designed as fire-and-forget so it does not block the script-generation response.
    */
   async extractAndSave(
     episodeId: string,
@@ -26,7 +26,7 @@ export class ComicFactService {
       });
       if (!episode || episode.panels.length === 0) return;
 
-      // 构建本话分格摘要（action + 首条对白），控制在 2000 字内
+      // Build this episode's panel digest (action + first line of dialogue), capped at 2000 characters.
       const panelSummary = episode.panels
         .map((p) => {
           let line = `Panel ${p.order} [${p.panelType}]: ${p.action}`;
@@ -75,7 +75,7 @@ export class ComicFactService {
 
       console.log(`[comic.fact] extracted ${newFacts.length} facts for episode=${episodeId} order=${episode.order}`);
     } catch (err) {
-      // 事实提取失败不影响主流程
+      // Fact extraction failure must not affect the main flow.
       console.warn(`[comic.fact] extraction failed for episode=${episodeId}:`, err);
     }
   }

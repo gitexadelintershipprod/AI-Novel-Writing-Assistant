@@ -20,17 +20,17 @@ export interface NovelFactEntry {
 }
 
 /**
- * 事实账本服务
+ * Fact-ledger service.
  *
- * 记录小说中已发生的不可逆事实（过程性目标完成、信息揭示、status change），
- * 供写章上下文消费，防止 LLM 重复写出已发生的事件。
+ * Records irreversible facts that already happened in the novel (process goals completed, information revealed, status changes)
+ * so chapter-write context can consume them and the LLM does not rewrite events that already occurred.
  *
- * 写入方：ChapterContentFinalizationService（章节接收后自动写入）
- * 读取方：GenerationContextAssembler（填充 completedMilestones 字段）
+ * Writer: ChapterContentFinalizationService (auto-write after chapter acceptance)
+ * Reader: GenerationContextAssembler (fills completedMilestones)
  */
 export class NovelFactService {
   /**
-   * 批量写入事实条目。幂等设计：同一 novelId+chapterOrder+text 组合不重复插入。
+   * Batch-write fact entries. Idempotent: the same novelId+chapterOrder+text combination is not inserted twice.
    */
   async writeFacts(
     novelId: string,
@@ -40,7 +40,7 @@ export class NovelFactService {
     if (items.length === 0) {
       return;
     }
-    // 查出已存在的 text，避免重复
+    // Load existing text values to avoid duplicates.
     const existing = await prisma.novelFactEntry.findMany({
       where: { novelId, chapterOrder },
       select: { text: true },
@@ -62,10 +62,10 @@ export class NovelFactService {
   }
 
   /**
-   * 读取Current chapter之前的所有事实，用于填充写章上下文。
+   * Read all facts before the current chapter for chapter-write context.
    *
-   * - completed/revealed：全量返回（里程碑性事实，不限距离）
-   * - state_changed：只返回最近 recentChaptersWindow 章内的条目
+   * - completed/revealed: return the full set (milestone facts, no distance limit)
+   * - state_changed: return only entries inside the recentChaptersWindow
    */
   async listForChapter(input: {
     novelId: string;
@@ -96,7 +96,7 @@ export class NovelFactService {
   }
 
   /**
-   * 手动写入单条事实（供 Agent Tool call）
+   * Manually write a single fact (for Agent tool calls).
    */
   async addManualFact(input: {
     novelId: string;

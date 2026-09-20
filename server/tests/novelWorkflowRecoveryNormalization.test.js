@@ -53,8 +53,8 @@ test("healHistoricalAutoDirectorRecoveryFailure restores legacy restart failures
     assert.equal(healed, true);
 
     assert.equal(currentRow.status, "waiting_approval");
-    assert.equal(currentRow.currentStage, "质量修复");
-    assert.equal(currentRow.currentItemLabel, "自动执行已暂停");
+    assert.equal(currentRow.currentStage, "Quality repair");
+    assert.equal(currentRow.currentItemLabel, "Auto-run is paused");
     assert.equal(currentRow.lastError, null);
   } finally {
     prisma.novelWorkflowTask.findUnique = originals.findUnique;
@@ -363,8 +363,8 @@ test("healAutoDirectorTaskState revives chapter_range auto execution tasks that 
 
     assert.equal(healed, true);
     assert.equal(currentRow.status, "running");
-    assert.equal(currentRow.currentStage, "质量修复");
-    assert.match(currentRow.currentItemLabel, /正在自动审校第 1-10 章/);
+    assert.equal(currentRow.currentStage, "Quality repair");
+    assert.match(currentRow.currentItemLabel, /Auto-reviewing/);
     assert.equal(currentRow.checkpointType, null);
     assert.equal(currentRow.lastError, null);
     assert.equal(currentRow.finishedAt, null);

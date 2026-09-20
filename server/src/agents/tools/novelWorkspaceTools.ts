@@ -39,7 +39,7 @@ export const novelWorkspaceToolDefinitions: Partial<
 > = {
   list_novels: {
     name: "list_novels",
-    title: "list novels",
+    title: "List novels",
     description: "List novels in the current system. Filter by title and project status.",
     category: "read",
     riskLevel: "low",
@@ -47,8 +47,8 @@ export const novelWorkspaceToolDefinitions: Partial<
     resourceScopes: ["global", "novel"],
     parserHints: {
       intent: "list_novels",
-      aliases: ["小说列表", "书列表", "novels"],
-      phrases: ["列出当前的小说列表", "当前有多少本小说", "Open the novel workspace"],
+      aliases: ["novel list", "book list", "novels", "小说列表", "书列表", "列出当前的小说列表", "当前有多少本小说"],
+      phrases: ["List the current novels", "How many novels are there now", "Open the novel workspace"],
       requiresNovelContext: false,
       whenToUse: "The user is querying the global novel list, counts, or switchable workspaces.",
       whenNotToUse: "The user has locked a novel and is asking about chapters, characters, or production status.",
@@ -102,8 +102,8 @@ export const novelWorkspaceToolDefinitions: Partial<
     resourceScopes: ["global", "novel"],
     parserHints: {
       intent: "create_novel",
-      aliases: ["Create a novel", "新建小说", "create novel"],
-      phrases: ["Create a novel titled xxx", "新建一本书", "Create a new novel workspace"],
+      aliases: ["Create a novel", "create novel", "新建小说", "新建一本书"],
+      phrases: ["Create a novel titled xxx", "Create a new book", "Create a new novel workspace"],
       requiresNovelContext: false,
       whenToUse: "The user is only creating a new novel.",
       whenNotToUse: "If the user asks to create and start full-book generation immediately, that is closer to produce_novel.",
@@ -154,8 +154,16 @@ export const novelWorkspaceToolDefinitions: Partial<
     resourceScopes: ["global", "novel"],
     parserHints: {
       intent: "select_novel_workspace",
-      aliases: ["切换小说", "选择工作区", "select workspace"],
-      phrases: ["把《xxx》Set as current workspace", "切换到某本小说", "打开this novel的工作区"],
+      aliases: [
+        "switch novel",
+        "select workspace",
+        "切换小说",
+        "选择工作区",
+        "把《xxx》设为当前工作区",
+        "切换到某本小说",
+        "打开这本小说的工作区",
+      ],
+      phrases: ["Set “xxx” as the current workspace", "Switch to a novel", "Open this novel's workspace"],
       requiresNovelContext: false,
       whenToUse: "The user wants to bind a novel as the current writing workspace.",
       whenNotToUse: "The user only wants to view all novels, not switch context.",

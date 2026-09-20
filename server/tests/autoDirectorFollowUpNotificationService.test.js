@@ -215,14 +215,14 @@ test("auto director follow-up notification service delivers approval-required ev
     assert.equal(fetchCalls[0].url, "https://relay.example.test/wecom");
     assert.equal(fetchCalls[0].method, "POST");
     assert.equal(fetchCalls[0].body.msgtype, "markdown");
-    assert.match(fetchCalls[0].body.markdown.content, /自动导演跟进提醒/);
+    assert.match(fetchCalls[0].body.markdown.content, /Auto-Director follow-up/);
     assert.match(fetchCalls[0].body.markdown.content, /前 10 章已准备完成。/);
-    assert.match(fetchCalls[0].body.markdown.content, /\[继续自动执行.*\]\(https:\/\/writer\.example\.test\/api\/auto-director\/channel-callbacks\/wecom\/execute\?/);
+    assert.match(fetchCalls[0].body.markdown.content, /\[Continue automatic execution of 前 10 章\]\(https:\/\/writer\.example\.test\/api\/auto-director\/channel-callbacks\/wecom\/execute\?/);
     assert.match(fetchCalls[0].body.markdown.content, /actionCode=continue_auto_execution/);
     assert.match(fetchCalls[0].body.markdown.content, /callbackId=/);
     assert.match(fetchCalls[0].body.markdown.content, /signature=/);
-    assert.match(fetchCalls[0].body.markdown.content, /\[查看详情\]\(https:\/\/writer\.example\.test\/tasks\?kind=novel_workflow&id=task_chapter_range\)/);
-    assert.match(fetchCalls[0].body.markdown.content, /\[打开跟进中心\]\(https:\/\/writer\.example\.test\/auto-director\/follow-ups\?directorTaskId=task_chapter_range\)/);
+    assert.match(fetchCalls[0].body.markdown.content, /\[View details\]\(https:\/\/writer\.example\.test\/tasks\?kind=novel_workflow&id=task_chapter_range\)/);
+    assert.match(fetchCalls[0].body.markdown.content, /\[Open the follow-up center\]\(https:\/\/writer\.example\.test\/auto-director\/follow-ups\?directorTaskId=task_chapter_range\)/);
 
     assert.equal(notifications.length, 1);
     assert.equal(notifications[0].eventType, "auto_director.approval_required");
@@ -610,8 +610,8 @@ test("auto director follow-up notification service delivers auto-approved events
     assert.equal(fetchCalls[0].body.event.eventType, "auto_director.auto_approved");
     assert.equal(fetchCalls[0].body.event.reason, "auto_approval_completed");
     assert.deepEqual(fetchCalls[0].body.event.actionCandidates, []);
-    assert.equal(fetchCalls[0].body.card.title, "AI 已自动通过并继续推进");
-    assert.equal(fetchCalls[0].body.card.reasonLabel, "最近自动通过");
+    assert.equal(fetchCalls[0].body.card.title, "AI auto-approved and continued");
+    assert.equal(fetchCalls[0].body.card.reasonLabel, "Recently passed automatically");
     assert.deepEqual(
       fetchCalls[0].body.card.actions.map((item) => ({ kind: item.kind, actionCode: item.actionCode })),
       [
@@ -621,9 +621,9 @@ test("auto director follow-up notification service delivers auto-approved events
     );
     assert.equal(fetchCalls[1].url, "https://relay.example.test/wecom");
     assert.equal(fetchCalls[1].body.msgtype, "markdown");
-    assert.match(fetchCalls[1].body.markdown.content, /AI 已自动通过并继续推进/);
+    assert.match(fetchCalls[1].body.markdown.content, /AI auto-approved and continued/);
     assert.match(fetchCalls[1].body.markdown.content, /AI 已自动通过角色准备，并继续推进。/);
-    assert.match(fetchCalls[1].body.markdown.content, /原因：最近自动通过/);
+    assert.match(fetchCalls[1].body.markdown.content, /Reason: Recently passed automatically/);
     assert.doesNotMatch(fetchCalls[1].body.markdown.content, /actionCode=continue_auto_execution/);
     assert.doesNotMatch(fetchCalls[1].body.markdown.content, /callbackId=/);
     assert.equal(notifications.length, 2);
@@ -712,11 +712,11 @@ test("auto director follow-up notification service labels replan reminders witho
     });
 
     assert.equal(fetchCalls.length, 2);
-    assert.equal(fetchCalls[0].body.card.title, "AI 已记录重规划提醒并继续推进");
-    assert.equal(fetchCalls[0].body.card.reasonLabel, "重规划提醒已记录");
-    assert.match(fetchCalls[1].body.markdown.content, /AI 已记录重规划提醒并继续推进/);
+    assert.equal(fetchCalls[0].body.card.title, "AI recorded a replan reminder and continued");
+    assert.equal(fetchCalls[0].body.card.reasonLabel, "The replan reminder was recorded");
+    assert.match(fetchCalls[1].body.markdown.content, /AI recorded a replan reminder and continued/);
     assert.match(fetchCalls[1].body.markdown.content, /AI 已记录重规划提醒，并继续推进。/);
-    assert.doesNotMatch(fetchCalls[1].body.markdown.content, /AI 已自动通过并继续推进/);
+    assert.doesNotMatch(fetchCalls[1].body.markdown.content, /AI auto-approved and continued/);
     assert.equal(notifications.length, 2);
   } finally {
     prisma.autoDirectorFollowUpNotificationLog.create = originals.notificationLogCreate;

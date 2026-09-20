@@ -58,8 +58,8 @@ test("syncAutoDirectorChapterBatchCheckpoint refreshes resume target to the firs
     const seedPayload = JSON.parse(patch.seedPayloadJson);
 
     assert.equal(resumeTarget.chapterId, "chapter-3");
-    assert.equal(patch.currentItemLabel, "第 1-3 章自动执行已暂停");
-    assert.match(patch.checkpointSummary, /当前仍有 1 章待继续/);
+    assert.equal(patch.currentItemLabel, "Chapters 1–3 auto-run is paused");
+    assert.match(patch.checkpointSummary, /1 chapters still remain/);
     assert.equal(seedPayload.autoExecution.remainingChapterCount, 1);
     assert.equal(seedPayload.autoExecution.nextChapterId, "chapter-3");
     assert.equal(seedPayload.autoExecution.nextChapterOrder, 3);
@@ -120,7 +120,7 @@ test("syncAutoDirectorChapterBatchCheckpoint marks workflow completed once all r
 
     assert.equal(patch.status, "succeeded");
     assert.equal(patch.checkpointType, "workflow_completed");
-    assert.equal(patch.currentItemLabel, "第 1-2 章自动执行完成");
+    assert.equal(patch.currentItemLabel, "Chapters 1–2 auto-run finished");
     assert.equal(seedPayload.autoExecution.remainingChapterCount, 0);
     assert.equal(seedPayload.autoExecution.nextChapterId, null);
     assert.equal(patch.lastError, null);
@@ -183,8 +183,8 @@ test("syncAutoDirectorChapterBatchCheckpoint keeps partial beat completion as a 
 
     assert.equal(patch.status, undefined);
     assert.equal(patch.checkpointType, undefined);
-    assert.match(patch.checkpointSummary, /补齐下一段章节规划/);
-    assert.equal(patch.currentItemLabel, "全书正文已完成，等待续拆下一段");
+    assert.match(patch.checkpointSummary, /next chapter-planning segment/);
+    assert.equal(patch.currentItemLabel, "whole book chapter text is done; waiting to split the next segment");
     assert.equal(seedPayload.autoExecution.remainingChapterCount, 0);
     assert.equal(seedPayload.autoExecution.volumeChapterListComplete, false);
   } finally {
@@ -244,7 +244,7 @@ test("syncAutoDirectorChapterBatchCheckpoint keeps repaired chapters without con
     const seedPayload = JSON.parse(patch.seedPayloadJson);
 
     assert.equal(patch.status, undefined);
-    assert.equal(patch.currentItemLabel, "第 1-2 章自动执行已暂停");
+    assert.equal(patch.currentItemLabel, "Chapters 1–2 auto-run is paused");
     assert.equal(resumeTarget.chapterId, "chapter-2");
     assert.equal(seedPayload.autoExecution.remainingChapterCount, 1);
     assert.equal(seedPayload.autoExecution.nextChapterId, "chapter-2");

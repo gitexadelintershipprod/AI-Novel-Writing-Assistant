@@ -160,8 +160,8 @@ function buildManualEditRecommendation(impact: DirectorManualEditImpact): Direct
 }
 
 /**
- * 从 inventory 计算事实型工作区解读，用于进度展示、非 AI 模式和 LLM 结构化解读的兜底。
- * 真正需要策略判断的入口仍可通过 includeAiInterpretation 显式启用注册提示词。
+ * Derive a factual workspace interpretation from inventory for progress display, non-AI mode, and as a fallback for LLM structured interpretation.
+ * Entrypoints that truly need a policy judgment can still enable the registered prompt with includeAiInterpretation.
  */
 export function computeWorkspaceInterpretation(
   inventory: DirectorWorkspaceInventory,

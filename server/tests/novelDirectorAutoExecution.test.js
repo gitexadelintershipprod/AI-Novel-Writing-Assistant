@@ -36,7 +36,7 @@ test("chapter_range can carry a user-selected chapter range", () => {
   assert.equal(buildDirectorAutoExecutionScopeLabel({
     mode: "chapter_range",
     endOrder: 25,
-  }), "第 1-25 章");
+  }), "Chapters 1–25");
 });
 
 test("book auto execution normalizes to full-book scope without chapter bounds", () => {
@@ -47,7 +47,7 @@ test("book auto execution normalizes to full-book scope without chapter bounds",
     artifactSyncMode: "adaptive",
   });
 
-  assert.equal(buildDirectorAutoExecutionScopeLabel({ mode: "book" }), "全书");
+  assert.equal(buildDirectorAutoExecutionScopeLabel({ mode: "book" }), "whole book");
 });
 
 test("resolveDirectorAutoExecutionRange sorts chapters and limits to the selected range", () => {
@@ -223,12 +223,12 @@ test("buildDirectorAutoExecutionScopeLabel supports chapter ranges and volume la
     mode: "chapter_range",
     startOrder: 11,
     endOrder: 20,
-  }), "第 11-20 章");
+  }), "Chapters 11–20");
 
   assert.equal(buildDirectorAutoExecutionScopeLabel({
     mode: "volume",
     volumeOrder: 2,
-  }, null, "中段反扑卷"), "第 2 卷 · 中段反扑卷");
+  }, null, "中段反扑卷"), "Volume 2 · 中段反扑卷");
 });
 
 test("resolveDirectorAutoExecutionWorkflowState maps review and repair into quality repair stage", () => {
@@ -246,7 +246,7 @@ test("resolveDirectorAutoExecutionWorkflowState maps review and repair into qual
   }, range);
   assert.equal(reviewingState.stage, "quality_repair");
   assert.equal(reviewingState.itemKey, "quality_repair");
-  assert.match(reviewingState.itemLabel, /自动审校第 1-10 章/);
+  assert.match(reviewingState.itemLabel, /Auto-reviewing Chapters 1–10/);
 
   const repairingState = resolveDirectorAutoExecutionWorkflowState({
     progress: 0.5,
@@ -255,7 +255,7 @@ test("resolveDirectorAutoExecutionWorkflowState maps review and repair into qual
   }, range);
   assert.equal(repairingState.stage, "quality_repair");
   assert.equal(repairingState.itemKey, "quality_repair");
-  assert.match(repairingState.itemLabel, /自动修复第 1-10 章/);
+  assert.match(repairingState.itemLabel, /Auto-repairing Chapters 1–10/);
 
   const draftingState = resolveDirectorAutoExecutionWorkflowState({
     progress: 0.25,
@@ -264,5 +264,5 @@ test("resolveDirectorAutoExecutionWorkflowState maps review and repair into qual
   }, range);
   assert.equal(draftingState.stage, "chapter_execution");
   assert.equal(draftingState.itemKey, "chapter_execution");
-  assert.match(draftingState.itemLabel, /自动执行第 1-10 章/);
+  assert.match(draftingState.itemLabel, /Auto-running Chapters 1–10/);
 });

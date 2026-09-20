@@ -19,18 +19,18 @@ function joinErrorParts(parts: Array<string | undefined>): string {
 }
 
 const VALIDATION_FIELD_LABELS: Record<string, string> = {
-  id: "项目 ID",
-  field: "字段",
-  provider: "模型提供商",
+  id: "Project ID",
+  field: "Field",
+  provider: "Model provider",
   model: "model",
   temperature: "temperature",
   storyInput: "Story idea input",
   expansion: "Story Engine Prototype",
-  decomposition: "推进与兑现摘要",
+  decomposition: "Progression and payoff summary",
   constraints: "narrative rules",
-  lockedFields: "锁定字段",
+  lockedFields: "Locked fields",
   state: "story status",
-  expanded_premise: "扩展前提",
+  expanded_premise: "Expanded premise",
   protagonist_core: "Protagonist Core",
   conflict_engine: "conflict engine",
   conflict_layers: "conflict layer",
@@ -38,16 +38,16 @@ const VALIDATION_FIELD_LABELS: Record<string, string> = {
   internal: "internal collapse",
   relational: "relationship stress",
   mystery_box: "Core unknown",
-  emotional_line: "情绪线",
+  emotional_line: "Emotional line",
   setpiece_seeds: "high tension scene seeds",
-  tone_reference: "氛围参考",
+  tone_reference: "Tone reference",
   selling_point: "selling point",
   core_conflict: "core conflict",
   main_hook: "main hook",
   progression_loop: "advance cycle",
   growth_path: "growth path",
   major_payoffs: "Key redemption points",
-  ending_flavor: "结局风味",
+  ending_flavor: "Ending flavor",
   currentPhase: "current stage",
   progress: "Progress",
   protagonistState: "Protagonist's current situation",
@@ -57,7 +57,7 @@ function formatValidationPath(path: PropertyKey[]): string {
   return path
     .map((segment) => {
       if (typeof segment === "number") {
-        return `第 ${segment + 1} items`;
+        return `item ${segment + 1}`;
       }
       if (typeof segment === "symbol") {
         return segment.toString();
@@ -87,40 +87,40 @@ function formatZodIssueMessage(issue: ZodIssue): string {
       if (issueRecord.expected === "boolean") {
         return "Must be a boolean.";
       }
-      return issue.message || "类型不正确。";
+      return issue.message || "The type is incorrect.";
     case "invalid_value":
-      return issue.message || "取值不合法。";
+      return issue.message || "The value is not allowed.";
     case "too_small":
       if (origin === "array") {
-        return `至少需要 ${issueRecord.minimum} items。`;
+        return `At least ${issueRecord.minimum} items are required.`;
       }
       if (origin === "string") {
-        return issueRecord.minimum === 1 ? "This cannot be empty." : `至少 ${issueRecord.minimum} 个字符。`;
+        return issueRecord.minimum === 1 ? "This cannot be empty." : `At least ${issueRecord.minimum} characters.`;
       }
       if (origin === "number") {
-        return `不能小于 ${issueRecord.minimum}。`;
+        return `Must be at least ${issueRecord.minimum}.`;
       }
-      return issue.message || "内容过短。";
+      return issue.message || "The content is too short.";
     case "too_big":
       if (origin === "array") {
-        return `最多只能填写 ${issueRecord.maximum} items。`;
+        return `At most ${issueRecord.maximum} items are allowed.`;
       }
       if (origin === "string") {
-        return `不能超过 ${issueRecord.maximum} 个字符。`;
+        return `Must be at most ${issueRecord.maximum} characters.`;
       }
       if (origin === "number") {
-        return `不能大于 ${issueRecord.maximum}。`;
+        return `Must be at most ${issueRecord.maximum}.`;
       }
-      return issue.message || "内容过长。";
+      return issue.message || "The content is too long.";
     default:
-      return issue.message || "格式不正确。";
+      return issue.message || "The format is incorrect.";
   }
 }
 
 function formatValidationIssue(issue: ZodIssue): string {
   const path = formatValidationPath(issue.path);
   const message = formatZodIssueMessage(issue);
-  return path ? `${path}：${message}` : message;
+  return path ? `${path}: ${message}` : message;
 }
 
 function setRequestErrorMessage(
@@ -195,9 +195,9 @@ function formatUpstreamConnectionError(error: unknown): string | null {
   const cause = findConnectionCause(error);
   const target = cause?.host
     ? `${cause.host}${cause.port ? `:${cause.port}` : ""}`
-    : "上游模型服务";
-  const code = cause?.code ? `（${cause.code}）` : "";
-  return `上游模型服务Connection failed：当前服务器无法连接到 ${target}${code}。请检查该提供商的网络连通性，或切换到其它Available models提供商。`;
+    : "the upstream model service";
+  const code = cause?.code ? ` (${cause.code})` : "";
+  return `Upstream model connection failed: this server cannot reach ${target}${code}. Check that provider's network connectivity, or switch to another available model provider.`;
 }
 
 export function errorHandler(

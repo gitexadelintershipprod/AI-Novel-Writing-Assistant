@@ -16,7 +16,7 @@ function clipText(source: string, maxChars: number): string {
   if (normalized.length <= maxChars) {
     return normalized;
   }
-  return `${normalized.slice(0, maxChars).trim()}\n...(已截断)`;
+  return `${normalized.slice(0, maxChars).trim()}\n...(truncated)`;
 }
 
 export async function buildReferenceContext(input: {
@@ -116,7 +116,7 @@ export async function buildReferenceContext(input: {
     const excerpt = version?.content
       ? clipText(version.content, MAX_DOCUMENT_REFERENCE_CHARS)
       : "(This document has no usable content)";
-    return `【知识库】${document.title}（v${version?.versionNumber ?? 0}）\n${excerpt}`;
+    return `[Knowledge base] ${document.title} (v${version?.versionNumber ?? 0})\n${excerpt}`;
   });
 
   const analysisReferences = orderedAnalyses.map((analysis) => {
@@ -132,24 +132,24 @@ export async function buildReferenceContext(input: {
         if (!content) {
           return null;
         }
-        return `- ${section.title}：${clipText(content, MAX_ANALYSIS_SECTION_CHARS)}`;
+        return `- ${section.title}: ${clipText(content, MAX_ANALYSIS_SECTION_CHARS)}`;
       })
       .filter((line): line is string => Boolean(line))
       .slice(0, MAX_ANALYSIS_SECTION_COUNT);
 
     return [
-      `【拆书】${analysis.title}（文档：${analysis.document.title} v${analysis.documentVersion.versionNumber}）`,
-      `摘要：${summary}`,
-      sectionLines.length > 0 ? `小节要点：\n${sectionLines.join("\n")}` : "小节要点：无",
+      `[Book analysis] ${analysis.title} (document: ${analysis.document.title} v${analysis.documentVersion.versionNumber})`,
+      `Summary: ${summary}`,
+      sectionLines.length > 0 ? `Section points:\n${sectionLines.join("\n")}` : "Section points: none",
     ].join("\n");
   });
 
   const sections: string[] = [];
   if (documentReferences.length > 0) {
-    sections.push(`### 知识库参考\n${documentReferences.join("\n\n")}`);
+    sections.push(`### Knowledge-base reference\n${documentReferences.join("\n\n")}`);
   }
   if (analysisReferences.length > 0) {
-    sections.push(`### 拆书参考\n${analysisReferences.join("\n\n")}`);
+    sections.push(`### Book-analysis reference\n${analysisReferences.join("\n\n")}`);
   }
   return clipText(sections.join("\n\n"), MAX_REFERENCE_CONTEXT_CHARS);
 }

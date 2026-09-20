@@ -1,12 +1,12 @@
 /**
- * 图像生成 runtime 工具函数（单一来源）
+ * Image-generation runtime helpers (single source).
  *
- * 替代散落在 4 个 comic service + 2 个 drama service 中的同名重复实现。
+ * Replaces identical copies that were scattered across 4 comic services and 2 drama services.
  */
 import fs from "fs/promises";
 import path from "path";
 
-/** 安全 JSON 解析（解析失败返回 fallback） */
+/** Safe JSON parse (returns fallback on failure). */
 export function safeJsonParse<T>(raw: string | null | undefined, fallback: T): T {
   if (!raw) return fallback;
   try {
@@ -16,7 +16,7 @@ export function safeJsonParse<T>(raw: string | null | undefined, fallback: T): T
   }
 }
 
-/** 把图片 URL（data: 或 http(s):）保存到本地磁盘 */
+/** Save an image URL (data: or http(s):) to local disk. */
 export async function saveImageToDisk(imageUrl: string, destPath: string): Promise<void> {
   await fs.mkdir(path.dirname(destPath), { recursive: true });
   if (imageUrl.startsWith("data:")) {
@@ -29,7 +29,7 @@ export async function saveImageToDisk(imageUrl: string, destPath: string): Promi
   }
 }
 
-/** 根据 URL 推断扩展名（png/jpg/webp）；无法识别时默认 png */
+/** Infer extension from URL (png/jpg/webp); default png when unrecognized. */
 export function inferExtension(imageUrl: string): string {
   if (imageUrl.startsWith("data:image/jpeg")) return "jpg";
   if (imageUrl.startsWith("data:image/webp")) return "webp";
@@ -41,7 +41,7 @@ export function inferExtension(imageUrl: string): string {
   }
 }
 
-/** 标准化错误信息为字符串 */
+/** Normalize an error value to a string. */
 export function describeError(error: unknown): string {
   if (error instanceof Error) return error.message;
   if (typeof error === "string") return error;

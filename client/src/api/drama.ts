@@ -125,9 +125,9 @@ export interface DramaCharacter {
   visualAnchor?: string | null;
   voiceProfile?: string | null;
   relations?: string | null;
-  /** JSON 字符串，解析为 DramaCharacterPortraitData */
+  /** JSON string parsed as DramaCharacterPortraitData */
   portraitData?: string | null;
-  /** JSON 字符串，解析为 DramaCharacterThreeViewItem[] */
+  /** JSON string parsed as DramaCharacterThreeViewItem[] */
   threeViewData?: string | null;
 }
 
@@ -566,7 +566,7 @@ export async function downloadDramaEpisodeExport(id: string, order: number, form
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 角色Image generation
+// Character image generation
 // ─────────────────────────────────────────────────────────────────────────────
 
 export async function getDramaCharacterImageStatus(id: string, characterId: string) {
@@ -576,7 +576,7 @@ export async function getDramaCharacterImageStatus(id: string, characterId: stri
   return data;
 }
 
-/** Generate character design draft（面部特写 + 三视图合图，推荐使用） */
+/** Generate character design draft (facial close-up + three-view composite; preferred). */
 export async function prepareDramaCharacterSheet(
   id: string,
   characterId: string,
@@ -602,7 +602,7 @@ export async function generateDramaCharacterSheet(
   return data;
 }
 
-/** @deprecated 使用 generateDramaCharacterSheet 替代 */
+/** @deprecated Use generateDramaCharacterSheet instead */
 export async function generateDramaCharacterPortrait(
   id: string,
   characterId: string,

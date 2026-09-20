@@ -188,9 +188,9 @@ export function buildImageGenerationRequestBody(input: ImageProviderGenerateInpu
     }
   }
 
-  // 参考图注入（OpenAI images/edits 兼容格式）
-  // grok 暂不支持参考图，静默跳过；其他 provider 按 input_image_url 格式透传，
-  // 若 provider 实际不支持，API 层会返回错误，由上层处理。
+  // Inject reference images (OpenAI images/edits compatible format).
+  // grok does not support reference images yet, so skip silently; other providers pass input_image_url through.
+  // If the provider actually does not support it, the API returns an error for the caller to handle.
   if (input.refImages && input.refImages.length > 0 && input.provider !== "grok") {
     requestBody.input_image_url = input.refImages[0];
   }
@@ -220,8 +220,8 @@ function inferMimeType(filePath: string): string {
 }
 
 /**
- * 当 refImagePaths 存在时，用 multipart/form-data 上传本地文件到 /images/edits。
- * 避免 base64 字符串膨胀（1MB 图片 → 1.33MB base64 字符串 → 占用 Node 堆）。
+ * When refImagePaths exist, upload local files to /images/edits as multipart/form-data.
+ * Avoids base64 bloat (a 1MB image becomes a 1.33MB base64 string and occupies Node heap).
  */
 async function generateWithFileRef(
   input: ImageProviderGenerateInput,
@@ -241,13 +241,13 @@ async function generateWithFileRef(
   if (input.provider !== "grok") {
     form.append("size", input.size);
   }
-  // 将文件以 image 字段上传，OpenAI /images/edits 兼容格式
+  // Upload the file as the image field, OpenAI /images/edits compatible format.
   form.append("image", blob, path.basename(refImagePath));
 
   const response = await fetch(`${baseURL}/images/edits`, {
     method: "POST",
     headers: {
-      // FormData 自动设置 Content-Type: multipart/form-data; boundary=...
+      // FormData sets Content-Type: multipart/form-data; boundary=... automatically.
       ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}),
     },
     body: form,
@@ -288,7 +288,7 @@ export async function generateImagesByProvider(input: ImageProviderGenerateInput
   );
 
   try {
-    // 优先使用本地文件路径（multipart 上传，避免 base64 膨胀）
+    // Prefer local file paths (multipart upload, avoids base64 bloat).
     const refImagePath = input.refImagePaths?.[0];
     if (refImagePath && input.provider !== "grok") {
       return await generateWithFileRef(input, refImagePath, apiKey, baseURL, controller);

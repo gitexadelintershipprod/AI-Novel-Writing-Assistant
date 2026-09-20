@@ -59,7 +59,7 @@ test("director event projection marks approval gates as user action", () => {
   assert.equal(projection.status, "waiting_approval");
   assert.equal(projection.requiresUserAction, true);
   assert.equal(projection.currentNodeKey, "chapter_execution_node");
-  assert.equal(projection.headline, "等待确认：执行章节生成批次");
+  assert.equal(projection.headline, "Waiting for confirmation: 执行章节生成批次");
   assert.equal(projection.detail, "当前策略需要确认后继续。");
   assert.equal(projection.blockedReason, "当前策略需要确认后继续。");
   assert.equal(projection.blockingReason, "当前策略需要确认后继续。");
@@ -152,7 +152,7 @@ test("director event projection keeps latest event first", () => {
 
   assert.equal(projection.status, "completed");
   assert.equal(projection.requiresUserAction, false);
-  assert.equal(projection.headline, "步骤完成：生成书级规划资产");
+  assert.equal(projection.headline, "Step complete: 生成书级规划资产");
   assert.equal(projection.lastEventSummary, "书级规划资产已准备好。");
   assert.equal(projection.recentEvents[0].eventId, "event-new");
 });
@@ -197,7 +197,7 @@ test("director event projection exposes deferred quality debt", () => {
     deferredChapterOrders: [6],
     latestReason: "全书自动成书已暂存重复重规划问题，并继续推进后续章节。",
   });
-  assert.ok(projection.visibleRiskBadges.some((badge) => badge.label === "已暂存质量债"));
+  assert.ok(projection.visibleRiskBadges.some((badge) => badge.label === "Quality debt stored"));
 });
 
 test("director event projection exposes quality budget summary", () => {
@@ -260,8 +260,8 @@ test("director event projection exposes quality budget summary", () => {
     windowReplanUsed: 0,
     deferredCount: 0,
     nextAction: "auto_replan_window",
-    nextActionLabel: "重规划受影响章节",
-    explanation: "质量预算：局部修复 1/1，整章重写 1/1，窗口重规划 0/1；同类问题下一步会重规划受影响章节。",
+    nextActionLabel: "Replan the affected chapters",
+    explanation: "Quality budget: local repair 1/1, full-chapter rewrite 1/1, window replan 0/1; the next step for the same issue is Replan the affected chapters.",
   });
 });
 
@@ -389,12 +389,12 @@ test("director event projection summarizes workspace progress and next action", 
   }));
 
   assert.equal(projection.status, "running");
-  assert.equal(projection.headline, "推进任务：分析小说资产");
-  assert.equal(projection.detail, "最近进展：工作区分析完成。");
-  assert.equal(projection.nextActionLabel, "复查最近章节");
+  assert.equal(projection.headline, "Advancing task: 分析小说资产");
+  assert.equal(projection.detail, "Recent developments: 工作区分析完成。");
+  assert.equal(projection.nextActionLabel, "Review recent chapters");
   assert.equal(projection.recommendedAction.action, "review_recent_chapters");
-  assert.equal(projection.scopeSummary, "工作区：12 章，4 章有正文，1 章待修复，1 类产物待补齐。");
-  assert.equal(projection.progressSummary, "进展：0/1 个步骤完成，2 个产物记录，1 个用户内容受保护，1 个产物需确认，1 个修复任务。");
+  assert.equal(projection.scopeSummary, "Workspace: 12 chapters, 4 chapters with draft text, 1 chapters waiting for repair, 1 artifact types still missing.");
+  assert.equal(projection.progressSummary, "Progress: 0/1 steps complete, 2 product records, 1 user-protected items, 1 artifacts need confirmation, 1 repair tasks.");
   assert.equal(projection.recoveryDecision, "auto_repair_chapter");
   assert.equal(projection.progressBreakdown.planningPercent, 100);
   assert.equal(projection.progressBreakdown.chapterExecutionPercent, 25);
@@ -407,7 +407,7 @@ test("director event projection summarizes workspace progress and next action", 
   assert.equal(projection.progressBreakdown.continuableChapters, 3);
   assert.deepEqual(
     projection.visibleRiskBadges.map((badge) => badge.label),
-    ["受保护正文", "1 章待修复", "1 项需复核", "缺少规划资源"],
+    ["protected text", "1 chapters waiting for repair", "1 items need review", "Missing planning resources"],
   );
 });
 
@@ -442,8 +442,8 @@ test("director event projection keeps heartbeat as latest running progress", () 
   }));
 
   assert.equal(projection.status, "running");
-  assert.equal(projection.headline, "推进任务：正在生成卷战略（已等待 30s）");
-  assert.equal(projection.detail, "最近进展：正在生成卷战略（已等待 30s）");
+  assert.equal(projection.headline, "Advancing task: 正在生成卷战略（已等待 30s）");
+  assert.equal(projection.detail, "Recent developments: 正在生成卷战略（已等待 30s）");
   assert.equal(projection.recentEvents[0].type, "node_heartbeat");
 });
 

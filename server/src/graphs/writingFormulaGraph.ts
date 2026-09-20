@@ -41,9 +41,9 @@ async function extractTechniques(state: WritingFormulaGraphState, llm: BaseChatM
     const result = await llm.invoke([
       new SystemMessage("Extract reproducible writing techniques and summarize them as rules."),
       new HumanMessage(
-        `风格分析：
+        `Style analysis:
 ${state.styleAnalysis}
-关注维度：${state.focusAreas.join(", ")}`,
+Focus dimensions: ${state.focusAreas.join(", ")}`,
       ),
     ]);
     const text = typeof result.content === "string" ? result.content : JSON.stringify(result.content);
@@ -58,13 +58,13 @@ async function buildFormula(state: WritingFormulaGraphState, llm: BaseChatModel)
     const result = await llm.invoke([
       new SystemMessage("Turn the analysis into a Markdown writing-formula document."),
       new HumanMessage(
-        `风格分析：
+        `Style analysis:
 ${state.styleAnalysis}
 
-技巧提取：
+Technique extraction:
 ${state.techniqueExtraction}
 
-请按以下标题组织：
+Organize under these headings:
 ## Overall style positioning
 ## Core writing techniques (with source examples)
 ## Reusable writing formula

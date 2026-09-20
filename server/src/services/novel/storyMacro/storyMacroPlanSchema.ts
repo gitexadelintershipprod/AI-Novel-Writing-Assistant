@@ -206,7 +206,7 @@ export function normalizeConstraints(value: unknown): string[] {
   if (isRecord(value)) {
     const forbidden = normalizeStringArray(value.forbidden, 4);
     const requiredTrends = normalizeStringArray(value.required_trends, 4);
-    return mergeUnique([...requiredTrends, ...forbidden.map((item) => `避免：${item}`)], 8);
+    return mergeUnique([...requiredTrends, ...forbidden.map((item) => `Avoid: ${item}`)], 8);
   }
   return [];
 }

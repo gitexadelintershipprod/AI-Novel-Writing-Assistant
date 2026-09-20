@@ -123,8 +123,8 @@ export function buildObligationCoverage(input: {
     status: input.hasBlockingIssues ? "unmet" : "partial",
     missing: input.missingObligations,
     summary: input.hasBlockingIssues
-      ? `仍有 ${input.missingObligations.length} items章节义务未满足。`
-      : `仍有 ${input.missingObligations.length} items章节义务需要后续回收。`,
+      ? `${input.missingObligations.length} chapter obligations are still unmet.`
+      : `${input.missingObligations.length} chapter obligations still need later recovery.`,
   };
 }
 
@@ -283,7 +283,7 @@ export function buildBoundaryLeakageIssues(input: {
       severity: candidate.severity,
       code: candidate.type,
       description: candidate.type === "protected_reveal"
-        ? "Chapter text疑似提前泄露受保护信息。"
+        ? "The chapter text looks like it leaked protected information too early."
         : "The chapter body looks like it crossed this chapter's bounds. Rewrite or repair must return inside the current chapter contract.",
       evidence: leaked,
       fixSuggestion: candidate.type === "protected_reveal"
@@ -418,7 +418,7 @@ export function buildRuntimePackage(input: BuildRuntimePackageInput): ChapterRun
       ),
       action: hasBlockingIssues ? "local_patch_plan" as const : "continue_with_warning" as const,
       reason: input.contextPackage.ledgerSummary?.overdueCount
-        ? "存在逾期承诺，记录为章节级质量债并继续执行。"
+        ? "There are overdue promises. Record them as chapter-level quality debt and continue."
         : hasBlockingIssues
           ? "Blocking audit issues remain open after generation."
           : "No blocking audit issues were detected.",

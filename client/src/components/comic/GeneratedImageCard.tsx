@@ -30,50 +30,52 @@ const ASPECT_STYLE: Record<NonNullable<GeneratedImageCardProps["aspectRatio"]>, 
 };
 
 export interface GeneratedImageCardProps {
-  /** 当前生成状态（驱动占位/loading/error 显示） */
+  /** Current generation status (drives placeholder / loading / error UI). */
   status: GeneratedImageCardStatus;
-  /** 已就绪时的图片 URL */
+  /** Image URL when ready. */
   imageUrl?: string;
-  /** error 时的可选错误文字（用于 hover 提示） */
+  /** Optional error text on error (shown as a hover title). */
   errorMessage?: string;
 
-  /** 卡片主标题 */
+  /** Card title */
   title: string;
-  /** 卡片副标题 / 描述（line-clamp-2） */
+  /** Card subtitle / description (line-clamp-2) */
   subtitle?: string;
-  /** 类型徽章 { label, className(tailwind 类) } */
+  /** Type badge { label, className (Tailwind classes) } */
   typeBadge?: { label: string; className: string };
 
-  /** 主操作：AI 生图（或重新生成）。不传则不显示。 */
+  /** Primary action: AI generate (or regenerate). Omit to hide. */
   onGenerate?: () => void;
-  /** 次操作：上传图片。不传则不显示。 */
+  /** Secondary action: upload an image. Omit to hide. */
   onUpload?: (file: File) => void;
-  /** 删除操作：hover 时显示。不传则不显示。 */
+  /** Delete action: shown on hover. Omit to hide. */
   onDelete?: () => void;
-  /** 外部 busy 状态（mutation pending）+ generating 状态会一起禁用操作 */
+  /** External busy (mutation pending) plus generating both disable actions. */
   busy?: boolean;
 
-  /** 图片区高度 */
+  /** Image-area height */
   size?: "compact" | "regular" | "large";
-  /** 图片区比例（与 size 冲突时优先 aspectRatio） */
+  /** Image-area aspect ratio (wins over size when both are set). */
   aspectRatio?: "square" | "portrait" | "landscape";
 
-  /** 自定义空态内容 */
+  /** Custom empty-state content */
   emptyHint?: ReactNode;
-  /** 卡片底部自定义内容（如额外操作按钮、提示） */
+  /** Custom footer (extra actions, hints) */
   footer?: ReactNode;
 
-  /** 主按钮文案；默认 idle="AI 生图" / done="重新生成" */
+  /** Primary button label; default idle="AI generated pictures" / done="Regenerate" */
   generateLabel?: string;
-  /** 删除前确认文案；不传则不弹确认 */
+  /** Confirm text before delete; omit to skip the confirm dialog. */
   confirmDeleteText?: string;
 }
 
 /**
- * 通用生图卡片
+ * Shared generated-image card.
  *
- * 设计目标：覆盖character assets、scene setting diagram、表情稿等"业务表 JSON 状态机生图"场景的展示与基础操作。
- * 不覆盖：Three-view main design draft（有特殊微调流程）、格子图（有重抽/导出/弹窗等复杂交互）—— 这些保留独立实现。
+ * Covers display and basic actions for JSON-state-machine image jobs such as
+ * character assets, scene setting sheets, and expression drafts.
+ * Does not cover: three-view main design drafts (custom tweak flow) or panel
+ * grids (redraw / export / extra dialogs) — those stay as dedicated implementations.
  */
 export function GeneratedImageCard({
   status,
@@ -102,13 +104,13 @@ export function GeneratedImageCard({
 
   return (
     <div className="group relative overflow-hidden rounded-lg border bg-background shadow-sm transition-shadow hover:shadow-md">
-      {/* 状态点 */}
+      {/* Status dot */}
       <span
         title={STATUS_TITLE[status]}
         className={`absolute top-1.5 right-1.5 z-10 h-2 w-2 rounded-full ring-2 ring-background ${STATUS_DOT[status]}`}
       />
 
-      {/* 删除按钮：hover 才显示 */}
+      {/* Delete button: visible on hover */}
       {onDelete && (
         <button
           type="button"
@@ -123,7 +125,7 @@ export function GeneratedImageCard({
         </button>
       )}
 
-      {/* 图片区 */}
+      {/* Image area */}
       <div className={`relative flex items-center justify-center bg-gradient-to-br from-muted/30 to-muted/60 ${imageWrapperClass}`}>
         {hasDoneImage ? (
           <img
@@ -152,7 +154,7 @@ export function GeneratedImageCard({
         )}
       </div>
 
-      {/* 信息区 */}
+      {/* Info area */}
       <div className="space-y-1.5 px-2.5 pb-2 pt-2">
         <div className="flex items-center gap-1.5">
           {typeBadge && (
@@ -168,7 +170,7 @@ export function GeneratedImageCard({
           </p>
         )}
 
-        {/* 操作 */}
+        {/* Actions */}
         {(onGenerate || onUpload) && (
           <div className="flex items-center gap-1.5 pt-0.5">
             {onGenerate && (

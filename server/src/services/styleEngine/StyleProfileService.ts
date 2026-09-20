@@ -408,7 +408,7 @@ export class StyleProfileService {
     return this.createManualProfile({
       name: input.name.trim() || normalizedDraft.name,
       description: normalizedDraft.description
-        ?? `${sourceType === "from_knowledge_document" ? "基于Knowledge base original text提取生成" : "基于Text extraction生成"}，保留 ${input.decisions.filter((item) => item.decision === "keep").length} items特征，弱化 ${input.decisions.filter((item) => item.decision === "weaken").length} items特征。`,
+        ?? `${sourceType === "from_knowledge_document" ? "Generated from knowledge-base source text" : "Generated from extracted text"}, keeping ${input.decisions.filter((item) => item.decision === "keep").length} features and weakening ${input.decisions.filter((item) => item.decision === "weaken").length} features.`,
       category: input.category?.trim() || normalizedDraft.category || undefined,
       tags: normalizedDraft.tags,
       applicableGenres: normalizedDraft.applicableGenres,

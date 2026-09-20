@@ -142,7 +142,7 @@ export function NovelProjectCard(props: {
             <span>Project:{formatProgressStatus(props.novel.projectStatus)}</span>
             <span>Main line:{formatProgressStatus(props.novel.storylineStatus)}</span>
             <span>Outline:{formatProgressStatus(props.novel.outlineStatus)}</span>
-            <span>Token：{formatTokenCount(props.novel.tokenUsage?.totalTokens)}</span>
+            <span>Token: {formatTokenCount(props.novel.tokenUsage?.totalTokens)}</span>
           </div>
         </div>
 

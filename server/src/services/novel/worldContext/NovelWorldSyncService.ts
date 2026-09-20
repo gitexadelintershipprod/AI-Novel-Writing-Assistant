@@ -42,8 +42,8 @@ function compactItems(items: Array<string | null | undefined>, fallback: string)
   if (normalized.length === 0) {
     return fallback;
   }
-  const visible = normalized.slice(0, 3).join("、");
-  return normalized.length > 3 ? `${visible} 等 ${normalized.length} items` : visible;
+  const visible = normalized.slice(0, 3).join(", ");
+  return normalized.length > 3 ? `${visible} and ${normalized.length} items total` : visible;
 }
 
 function summarizeProfile(structure: WorldStructuredData): string {
@@ -52,15 +52,15 @@ function summarizeProfile(structure: WorldStructuredData): string {
     structure.profile.tone,
     structure.profile.coreConflict,
     structure.profile.summary,
-  ], "未填写概要");
+  ], "summary not filled in");
 }
 
 function summarizeRules(structure: WorldStructuredData): string {
   return compactItems([
     structure.rules.summary,
     ...structure.rules.axioms.map((rule) => rule.name || rule.summary),
-    ...structure.rules.taboo.map((item) => `禁忌：${item}`),
-  ], "未填写规则");
+    ...structure.rules.taboo.map((item) => `taboo: ${item}`),
+  ], "rules not filled in");
 }
 
 function summarizeRelations(structure: WorldStructuredData): string {
@@ -75,7 +75,7 @@ function summarizeRelations(structure: WorldStructuredData): string {
       const force = forceNameById.get(relation.forceId) ?? relation.forceId;
       return [force, relation.relation, relation.locationId].filter(Boolean).join(" / ");
     }),
-  ], "未填写关系");
+  ], "relations not filled in");
 }
 
 function summarizeSection(structure: WorldStructuredData, section: NovelWorldSyncSection): string {
@@ -85,15 +85,15 @@ function summarizeSection(structure: WorldStructuredData, section: NovelWorldSyn
     case "rules":
       return summarizeRules(structure);
     case "factions":
-      return compactItems(structure.factions.map((item) => item.name), "未填写阵营");
+      return compactItems(structure.factions.map((item) => item.name), "factions not filled in");
     case "forces":
-      return compactItems(structure.forces.map((item) => item.name), "未填写势力");
+      return compactItems(structure.forces.map((item) => item.name), "forces not filled in");
     case "locations":
-      return compactItems(structure.locations.map((item) => item.name), "未填写地点");
+      return compactItems(structure.locations.map((item) => item.name), "locations not filled in");
     case "relations":
       return summarizeRelations(structure);
     default:
-      return "未填写内容";
+      return "content not filled in";
   }
 }
 
@@ -107,12 +107,12 @@ function buildDifferenceSummary(input: {
   const localSummary = summarizeSection(input.localStructure, input.section);
   const librarySummary = summarizeSection(input.libraryStructure, input.section);
   if (input.status === "local_only") {
-    return `book world的「${label}」为：${localSummary}；世界库缺少这一部分。`;
+    return `This book's world "${label}" is: ${localSummary}. The world library is missing this part.`;
   }
   if (input.status === "library_only") {
-    return `世界库的「${label}」为：${librarySummary}；book world缺少这一部分。`;
+    return `The world library "${label}" is: ${librarySummary}. This book's world is missing this part.`;
   }
-  return `book world的「${label}」为：${localSummary}；世界库为：${librarySummary}。`;
+  return `This book's world "${label}" is: ${localSummary}. The world library is: ${librarySummary}.`;
 }
 
 function setSection(
@@ -164,7 +164,7 @@ export function buildSyncPendingChangesPayload(
   return JSON.stringify({
     differenceCount: differences.length,
     sections: differences.map((item) => item.section),
-    summary: differences.map((item) => `${item.label}：${item.summary}`).join("\n"),
+    summary: differences.map((item) => `${item.label}: ${item.summary}`).join("\n"),
     computedAt: new Date().toISOString(),
   });
 }
@@ -272,7 +272,7 @@ export class NovelWorldSyncService {
             ${novelWorld.sourceWorldId},
             ${"none"},
             ${JSON.stringify([])},
-            ${"Turn off sync：book world保留为independent copy。"},
+            ${"Turn off sync: keep this book world as an independent copy."},
             ${"user"},
             CURRENT_TIMESTAMP
           )
@@ -399,7 +399,7 @@ export class NovelWorldSyncService {
           ${sourceWorld.id},
           ${input.direction},
           ${JSON.stringify(selectedSections)},
-          ${`${input.direction === "push" ? "push" : "pull"}：${selectedSections.map((section) => SYNC_SECTION_LABELS[section]).join("、")}`},
+          ${`${input.direction === "push" ? "push" : "pull"}: ${selectedSections.map((section) => SYNC_SECTION_LABELS[section]).join(", ")}`},
           ${"user"},
           CURRENT_TIMESTAMP
         )

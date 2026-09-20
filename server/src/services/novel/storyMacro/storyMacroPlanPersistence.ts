@@ -62,12 +62,12 @@ function deriveProgressionLoop(rawDecomposition: unknown): string {
     return "";
   }
   if (!coreConflict) {
-    return `围绕「${mainHook}」不断发现新线索，并让每次行动都带来更大的反噬。`;
+    return `Keep discovering new clues around "${mainHook}", and make every action bring a larger backlash.`;
   }
   if (!mainHook) {
-    return `围绕「${coreConflict}」持续升级冲突，让每次试探都逼出新的代价与反转。`;
+    return `Keep escalating conflict around "${coreConflict}", so every probe forces a new cost and reversal.`;
   }
-  return `围绕「${coreConflict}」不断发现更深一层真相，并用每次反转继续追问「${mainHook}」。`;
+  return `Keep uncovering a deeper truth around "${coreConflict}", and use every reversal to keep asking "${mainHook}".`;
 }
 
 function deriveExpansion(rawExpansion: unknown, rawDecomposition: unknown, rawConstraintPayload: PersistedConstraintPayload): StoryExpansion | null {

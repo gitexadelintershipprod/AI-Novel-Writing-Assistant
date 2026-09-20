@@ -113,10 +113,10 @@ export function resolvePromptOverlays(input: {
         const isNovel = isCustom && effective.scope === "novel";
         const isGlobal = isCustom && effective.scope === "global";
         const scopeTag = isNovel
-          ? "【本书文案调整】"
+          ? "[This book copy adjustment]"
           : isGlobal
-            ? "【全局文案调整】"
-            : "【默认补充】";
+            ? "[Global copy adjustment]"
+            : "[Default supplement]";
         appendBlocks.push(
           createContextBlock({
             id: `custom_slot:${def.key}:${appendIdx}`,
@@ -174,36 +174,36 @@ export function resolvePromptOverlays(input: {
 
 export function validateSlotValue(def: PromptSlotDef, value: unknown): string | null {
   if (def.kind === "toggle") {
-    if (typeof value !== "boolean") return `${def.label}：值必须为 true 或 false。`;
+    if (typeof value !== "boolean") return `${def.label}: value must be true or false.`;
     return null;
   }
 
-  if (typeof value !== "string") return `${def.label}：值必须is a string.`;
+  if (typeof value !== "string") return `${def.label}: value must be a string.`;
   const str = value.trim();
 
   switch (def.kind) {
     case "replace": {
       if (!str) return `${def.label} This cannot be empty.`;
-      if (str.length > def.maxLength) return `${def.label} 不得超过 ${def.maxLength} characters。`;
+      if (str.length > def.maxLength) return `${def.label} cannot exceed ${def.maxLength} characters.`;
       if (def.requiredTokens) {
         for (const token of def.requiredTokens) {
-          if (!str.includes(token)) return `${def.label} 必须包含"${token}"。`;
+          if (!str.includes(token)) return `${def.label} must include "${token}".`;
         }
       }
       return null;
     }
     case "append": {
-      if (str.length > def.maxLength) return `${def.label} 不得超过 ${def.maxLength} characters。`;
+      if (str.length > def.maxLength) return `${def.label} cannot exceed ${def.maxLength} characters.`;
       return null;
     }
     case "choice": {
       if (!def.options.some((o) => o.value === str)) {
-        return `${def.label} 的值"${str}"不在可选项中。`;
+        return `${def.label} value "${str}" is not among the allowed options.`;
       }
       return null;
     }
     case "token": {
-      if (str.length > def.maxLength) return `${def.label} 不得超过 ${def.maxLength} characters。`;
+      if (str.length > def.maxLength) return `${def.label} cannot exceed ${def.maxLength} characters.`;
       return null;
     }
     default:

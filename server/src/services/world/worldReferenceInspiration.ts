@@ -114,13 +114,13 @@ function buildFallbackAnchors(input: GenerateReferenceInspirationInput): WorldRe
     push("Theme base", `This rework should still stay within the "${input.worldTypeHint.trim()}" world type.`);
   }
   if (input.preserveElements && input.preserveElements.length > 0) {
-    push("must be retained", `The core foundations that must not be lost from the original work include:${input.preserveElements.join("、")}。`);
+    push("must be retained", `The core foundations that must not be lost from the original work include: ${input.preserveElements.join(", ")}.`);
   }
   if (input.allowedChanges && input.allowedChanges.length > 0) {
-    push("Modifications allowed", `You may make alternate-world changes along the following dimensions:${input.allowedChanges.join("、")}。`);
+    push("Modifications allowed", `You may make alternate-world changes along the following dimensions: ${input.allowedChanges.join(", ")}.`);
   }
   if (input.forbiddenElements && input.forbiddenElements.length > 0) {
-    push("Deviation is prohibited", `The following boundaries must not be broken:${input.forbiddenElements.join("、")}。`);
+    push("Deviation is prohibited", `The following boundaries must not be broken: ${input.forbiddenElements.join(", ")}.`);
   }
   push("Reference summary", compactText(input.sourceText, 140));
   push(
@@ -151,10 +151,10 @@ function normalizeConceptCard(
     : [];
 
   const fallbackSummary = input.referenceMode === "extract_base"
-    ? `This world should first distill the original work's stable foundation, then decide the direction of further expansion. The key anchors identified so far include:${anchors.map((item) => item.label).join("、")}。`
+    ? `This world should first distill the original work's stable foundation, then decide the direction of further expansion. The key anchors identified so far include: ${anchors.map((item) => item.label).join(", ")}.`
     : input.referenceMode === "tone_rebuild"
-      ? `The goal this time is not to copy the original work's facts but to preserve its urban character, relationship structure, and narrative feel, then rebuild a new way of organizing the world. The key reference anchors include:${anchors.map((item) => item.label).join("、")}。`
-      : `This world should be built on the original work's foundation for an alternate-world rework: first preserve the original's character and realistic skeleton, then reorganize the world rules around the dimensions open to change. The key anchors include:${anchors.map((item) => item.label).join("、")}。`;
+      ? `The goal this time is not to copy the original work's facts but to preserve its urban character, relationship structure, and narrative feel, then rebuild a new way of organizing the world. The key reference anchors include: ${anchors.map((item) => item.label).join(", ")}.`
+      : `This world should be built on the original work's foundation for an alternate-world rework: first preserve the original's character and realistic skeleton, then reorganize the world rules around the dimensions open to change. The key anchors include: ${anchors.map((item) => item.label).join(", ")}.`;
 
   return {
     worldType: typeof record.worldType === "string" && record.worldType.trim()
@@ -174,18 +174,18 @@ function normalizeConceptCard(
 
 function buildPrompt(input: GenerateReferenceInspirationInput): string {
   return [
-    `Reference mode:${buildReferenceModeLabel(input.referenceMode)}`,
-    input.worldTypeHint?.trim() ? `World type hint:${input.worldTypeHint.trim()}` : "",
+    `Reference mode: ${buildReferenceModeLabel(input.referenceMode)}`,
+    input.worldTypeHint?.trim() ? `World type hint: ${input.worldTypeHint.trim()}` : "",
     input.preserveElements && input.preserveElements.length > 0
-      ? `Must be retained:${input.preserveElements.join("、")}`
+      ? `Must be retained: ${input.preserveElements.join(", ")}`
       : "",
     input.allowedChanges && input.allowedChanges.length > 0
-      ? `Allowed changes:${input.allowedChanges.join("、")}`
+      ? `Allowed changes: ${input.allowedChanges.join(", ")}`
       : "",
     input.forbiddenElements && input.forbiddenElements.length > 0
-      ? `Must not deviate from:${input.forbiddenElements.join("、")}`
+      ? `Must not deviate from: ${input.forbiddenElements.join(", ")}`
       : "",
-    `Reference material:${input.sourceText}`,
+    `Reference material: ${input.sourceText}`,
   ]
     .filter(Boolean)
     .join("\n");
@@ -199,7 +199,7 @@ export async function generateReferenceInspirationAnalysis(
 Please note:
 1. For "alternate-world rework of the original work", focus on distilling the original work's world anchors, the original settings that can be carried over directly, and the rework boundaries, not on generating a new genre template.
 2. For "extracting the original work's world foundation", focus on stable facts and how the world is organized; do not amplify the rework on your own.
-3. 如果是“Borrowing the temperament and structure of the original work to reconstruct it”，重点是保留氛围、关系结构和生活质感，不要求保留全部具体事实。`;
+3. For "Borrowing the temperament and structure of the original work to reconstruct it", keep atmosphere, relationship structure, and lived texture. Do not require keeping every concrete fact.`;
 
   for (const prompt of [buildPrompt(input), retryPrompt]) {
     try {

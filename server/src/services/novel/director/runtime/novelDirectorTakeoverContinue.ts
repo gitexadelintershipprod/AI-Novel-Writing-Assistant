@@ -18,7 +18,7 @@ import type { DirectorTakeoverResolvedPlan } from "./novelDirectorTakeover";
 import { parseSeedPayload, mergeSeedPayload } from "../../workflow/novelWorkflow.shared";
 import type { DirectorWorkflowSeedPayload } from "./novelDirectorHelpers";
 
-export const CONTINUE_EXISTING_REPLACEMENT_REASON = "由本任务替代";
+export const CONTINUE_EXISTING_REPLACEMENT_REASON = "Replaced by this task";
 
 interface ChapterOrderRange {
   startOrder: number;
@@ -180,7 +180,7 @@ function scopesOverlap(
 }
 
 function buildReplacementSummary(replacementTaskId: string): string {
-  return `${CONTINUE_EXISTING_REPLACEMENT_REASON}：${replacementTaskId}`;
+  return `${CONTINUE_EXISTING_REPLACEMENT_REASON}: ${replacementTaskId}`;
 }
 
 function resolveVolumeRangeFromWorkspace(

@@ -334,7 +334,7 @@ export function formatTakeoverStartError(error: unknown): string {
   if (
     message.includes("Chapter scope can only start")
     || message.includes("A chapter range can only start")
-    || message.includes("Chapter scope只能从")
+    || message.includes("章节范围只能从")
   ) {
     return "This project has not reached chapter production yet, so it cannot continue from a chapter range. Continue from the recommended place instead.";
   }

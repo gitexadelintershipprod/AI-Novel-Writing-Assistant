@@ -3,8 +3,8 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 
-// 反向边界守卫：novel 领域不得依赖任何改编模块（drama/comic/adaptation）。
-// 确保 novel 核心在拆分时可独立交付，改编产线整体迁出后 novel 侧无须任何修改。
+// Reverse-boundary guard: the novel domain must not depend on adaptation modules (drama/comic/adaptation).
+// Novel can then ship independently if the adaptation pipeline is moved out.
 const NOVEL_SRC = path.join(__dirname, "..", "src", "services", "novel");
 
 function collectTsFiles(dir) {
@@ -20,9 +20,9 @@ function collectTsFiles(dir) {
   return out;
 }
 
-test("services/novel 不依赖改编模块（drama/comic/adaptation），保证 novel 可独立拆分", () => {
+test("services/novel does not depend on adaptation modules", () => {
   const files = collectTsFiles(NOVEL_SRC);
-  assert.ok(files.length > 0, "应能扫描到 novel 源文件");
+  assert.ok(files.length > 0, "should find novel source files");
 
   const importRe = /\bfrom\s+['"]([^'"]+)['"]/g;
   const adaptationDomainRe = /(^|\/)(?:drama|comic|adaptation)(\/|$)/;
@@ -41,6 +41,6 @@ test("services/novel 不依赖改编模块（drama/comic/adaptation），保证 
   assert.deepEqual(
     violations,
     [],
-    `novel 领域禁止 import drama/comic/adaptation 改编模块：\n${violations.join("\n")}`,
+    `novel must not import drama/comic/adaptation modules:\n${violations.join("\n")}`,
   );
 });

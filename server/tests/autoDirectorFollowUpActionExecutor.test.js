@@ -375,7 +375,7 @@ test("auto director follow-up action executor returns forbidden when the action 
 
   assert.equal(result.code, "forbidden");
   assert.equal(result.taskId, "task_candidate");
-  assert.match(result.message, /当前任务不支持该操作|不支持/);
+  assert.match(result.message, /This task does not support that action/);
 
   prisma.autoDirectorFollowUpActionLog.findUnique = originals.actionLogFindUnique;
   prisma.autoDirectorFollowUpActionLog.create = originals.actionLogCreate;
@@ -547,7 +547,7 @@ test("auto director follow-up action executor blocks mutation when unified valid
   });
 
   assert.equal(result.code, "forbidden");
-  assert.match(result.message, /缺少节奏拆章/);
+  assert.match(result.message, /lacks beat\/chapter split/);
   assert.deepEqual(calls, []);
 
   prisma.autoDirectorFollowUpActionLog.findUnique = originals.actionLogFindUnique;
@@ -766,7 +766,7 @@ test("auto director follow-up action executor blocks validation-required tasks f
   assert.equal(result.successCount, 0);
   assert.equal(result.skippedCount, 1);
   assert.equal(result.itemResults[0].code, "forbidden");
-  assert.match(result.itemResults[0].message, /分区不支持|批量动作/);
+  assert.match(result.itemResults[0].message, /does not support that batch action/);
   assert.deepEqual(continueCalls, []);
 
   prisma.autoDirectorFollowUpActionLog.findUnique = originals.actionLogFindUnique;
@@ -944,7 +944,7 @@ test("auto director follow-up safe fix repairs only validator-marked safe action
   });
 
   assert.equal(result.code, "executed");
-  assert.match(result.message, /安全修复/);
+  assert.match(result.message, /Safety repair is complete/);
   assert.deepEqual(calls, [["heal", "task_validation_fix"]]);
   assert.equal(workflowUpdates.length, 1);
   assert.equal(JSON.parse(workflowUpdates[0].data.seedPayloadJson).autoDirectorValidationResult, undefined);
@@ -1009,7 +1009,7 @@ test("auto director follow-up safe fix blocks unsafe validation repairs", async 
   });
 
   assert.equal(result.code, "forbidden");
-  assert.match(result.message, /人工处理|不能安全修复|高风险/);
+  assert.match(result.message, /high-risk actions that cannot be auto-fixed|Handle them manually/);
   assert.equal(workflowUpdates.length, 0);
 
   prisma.autoDirectorFollowUpActionLog.findUnique = originals.actionLogFindUnique;

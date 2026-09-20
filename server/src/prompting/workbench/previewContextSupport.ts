@@ -65,7 +65,7 @@ export function truncatePreviewText(value: string | null | undefined, maxChars: 
   if (text.length <= maxChars) {
     return text;
   }
-  return `${text.slice(0, Math.max(0, maxChars - 16)).trimEnd()}\n...[裁剪]`;
+  return `${text.slice(0, Math.max(0, maxChars - 16)).trimEnd()}\n...[truncated]`;
 }
 
 export function previewListBlock(

@@ -118,7 +118,7 @@ function resolveDirectorStyleSeed(task: UnifiedTaskDetail | null): {
   }
   return {
     title: fallbackTone,
-    summaryLines: [`Keywords for writing style:${fallbackTone}`],
+    summaryLines: [`Keywords for writing style: ${fallbackTone}`],
   };
 }
 
@@ -145,7 +145,7 @@ function formatCheckpoint(
     return "Ready to start writing, waiting to select production method";
   }
   if (checkpoint === "chapter_batch_ready") {
-    return `${resolveAutoExecutionScopeLabel(task)}Auto-run is paused`;
+    return `${resolveAutoExecutionScopeLabel(task)} auto-run is paused`;
   }
   if (checkpoint === "step_review_required") {
     return "Current step to be checked";
@@ -437,12 +437,12 @@ export default function NovelAutoDirectorProgressPanel({
       <AITakeoverContainer
         mode={containerMode}
         title={visualMode === "execution_failed"
-          ? (candidateSetupFlow ? "\u5019\u9009\u65b9\u6848\u751f\u6210\u5931\u8d25" : "\u5bfc\u6f14\u6267\u884c\u5931\u8d25")
+          ? (candidateSetupFlow ? "Candidate plan generation failed" : "Director execution failed")
           : dashboardViewForDisplay?.mode === "recovering"
-            ? `\u300a${taskTitle}\u300b\u7b49\u5f85\u6062\u590d`
+            ? `“${taskTitle}” is waiting for recovery`
             : candidateSetupFlow
-              ? "\u6b63\u5728\u751f\u6210\u5bfc\u6f14\u5019\u9009\u65b9\u6848"
-              : `\u300a${taskTitle}\u300b\u6b63\u5728\u81ea\u52a8\u5bfc\u6f14`}
+              ? "Generating director candidate plans"
+              : `Auto-Directing “${taskTitle}”`}
         description={description}
         progress={displayProgress}
         currentAction={currentAction}
@@ -461,7 +461,7 @@ export default function NovelAutoDirectorProgressPanel({
 
         {activityTags.length > 0 ? (
           <div className="mt-4">
-            <div className="text-xs font-medium text-muted-foreground">{"\u540e\u53f0\u9644\u5c5e\u5206\u6790"}</div>
+            <div className="text-xs font-medium text-muted-foreground">Background analysis</div>
             <div className="mt-2 flex flex-wrap gap-2">
               {activityTags.map((tag) => (
                 <Badge key={tag} variant="secondary">{tag}</Badge>
@@ -488,16 +488,16 @@ export default function NovelAutoDirectorProgressPanel({
         <div className="mt-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <div className="text-sm font-medium text-foreground">{"\u5168\u90e8\u8fdb\u5c55"}</div>
+              <div className="text-sm font-medium text-foreground">All progress</div>
               <div className="mt-1 text-xs text-muted-foreground">
-                {historyEvents.length > 0 ? `\u663e\u793a ${historyEvents.length} \u6761\u6700\u8fd1\u8fdb\u5c55` : "\u6b63\u5728\u8bfb\u53d6\u8fdb\u5c55\u8bb0\u5f55"}
+                {historyEvents.length > 0 ? `Showing ${historyEvents.length} recent updates` : "Reading progress records"}
               </div>
             </div>
           </div>
 
           {snapshotQuery.isLoading ? (
             <div className="mt-3 text-sm text-muted-foreground">
-              {"\u6b63\u5728\u8bfb\u53d6\u8fdb\u5c55\u8bb0\u5f55\u3002"}
+              Reading progress records.
             </div>
           ) : historyEvents.length > 0 ? (
             <div className="mt-3 max-h-80 space-y-3 overflow-y-auto border-l border-border/60 pl-3 pr-1">
@@ -505,16 +505,16 @@ export default function NovelAutoDirectorProgressPanel({
                 <div key={event.eventId} className="text-sm">
                   <div className="font-medium text-foreground">{event.summary}</div>
                   <div className="mt-2 flex flex-wrap gap-2 text-xs text-muted-foreground">
-                    <span>{"\u8bb0\u5f55\u65f6\u95f4\uff1a"}{formatDate(event.occurredAt)}</span>
-                    {event.nodeKey ? <span>{"\u6b65\u9aa4\uff1a"}{event.nodeKey}</span> : null}
-                    {event.artifactType ? <span>{"\u4ea7\u7269\uff1a"}{event.artifactType}</span> : null}
+                    <span>Recorded at: {formatDate(event.occurredAt)}</span>
+                    {event.nodeKey ? <span>Step: {event.nodeKey}</span> : null}
+                    {event.artifactType ? <span>Artifact: {event.artifactType}</span> : null}
                   </div>
                 </div>
               ))}
             </div>
           ) : (
             <div className="mt-3 text-sm text-muted-foreground">
-              {"\u4efb\u52a1\u8fd0\u884c\u540e\u4f1a\u5728\u8fd9\u91cc\u5199\u5165\u8fdb\u5c55\u8bb0\u5f55\u3002"}
+              Progress records appear here after the task starts.
             </div>
           )}
         </div>

@@ -98,7 +98,7 @@ export const directorIssuePolicySchema = z.object({
   for (const [code, action] of Object.entries(policy.issueActions)) {
     const entry = DIRECTOR_ISSUE_CATALOG_BY_CODE[code as DirectorIssueCode];
     if (entry && action && !entry.allowedActions.includes(action)) {
-      context.addIssue({ code: "custom", path: ["issueActions", code], message: `${entry.label}This processing action is not allowed.` });
+      context.addIssue({ code: "custom", path: ["issueActions", code], message: `${entry.label}: this handling action is not allowed.` });
     }
   }
 });
@@ -112,7 +112,7 @@ export const directorIssuePolicyOverrideSchema = z.object({
   for (const [code, action] of Object.entries(override.issueActions ?? {})) {
     const entry = DIRECTOR_ISSUE_CATALOG_BY_CODE[code as DirectorIssueCode];
     if (entry && action && !entry.allowedActions.includes(action)) {
-      context.addIssue({ code: "custom", path: ["issueActions", code], message: `${entry.label}This processing action is not allowed.` });
+      context.addIssue({ code: "custom", path: ["issueActions", code], message: `${entry.label}: this handling action is not allowed.` });
     }
   }
 });

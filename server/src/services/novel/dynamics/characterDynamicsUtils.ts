@@ -211,13 +211,13 @@ export function buildOverviewSummary(input: {
 }): string {
   const segments = [
     input.volumeTitle ? `Current volume:${input.volumeTitle}` : "Current volume: not located",
-    `core role ${input.coreCount} 个`,
-    input.highCount > 0 ? `${input.highCount} 个角色已高风险缺席` : "",
-    input.warnCount > 0 ? `${input.warnCount} 个角色接近缺席阈值` : "",
-    input.pendingCandidateCount > 0 ? `待确认新角色 ${input.pendingCandidateCount} 个` : "",
-    input.relationStageCount > 0 ? `当前relationship stage ${input.relationStageCount} items` : "",
+    `core roles: ${input.coreCount}`,
+    input.highCount > 0 ? `${input.highCount} characters are at high absence risk` : "",
+    input.warnCount > 0 ? `${input.warnCount} characters are near the absence threshold` : "",
+    input.pendingCandidateCount > 0 ? `${input.pendingCandidateCount} new characters pending confirmation` : "",
+    input.relationStageCount > 0 ? `current relationship stages: ${input.relationStageCount}` : "",
   ];
-  return segments.filter(Boolean).join("，");
+  return segments.filter(Boolean).join(", ");
 }
 
 export function toCharacterCandidate(row: {

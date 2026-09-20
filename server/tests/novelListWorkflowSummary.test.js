@@ -220,10 +220,10 @@ test("listNovels attaches latest visible auto director summary, skips archived t
     assert.equal(result.items[0].latestAutoDirectorTask.id, "task_visible");
     assert.equal(result.items[0].latestAutoDirectorTask.status, "running");
     assert.equal(result.items[0].latestAutoDirectorTask.currentItemLabel, "正在生成角色阵容");
-    assert.equal(result.items[0].latestAutoDirectorTask.displayStatus, "角色准备进行中");
-    assert.equal(result.items[0].latestAutoDirectorTask.resumeAction, "查看当前进度");
-    assert.equal(result.items[0].latestAutoDirectorTask.lastHealthyStage, "角色准备");
-    assert.equal(result.items[0].latestAutoDirectorTask.nextActionLabel, "查看当前进度");
+    assert.equal(result.items[0].latestAutoDirectorTask.displayStatus, "Character setup in progress");
+    assert.equal(result.items[0].latestAutoDirectorTask.resumeAction, "View current progress");
+    assert.equal(result.items[0].latestAutoDirectorTask.lastHealthyStage, "Character setup");
+    assert.equal(result.items[0].latestAutoDirectorTask.nextActionLabel, "View current progress");
     assert.equal(result.items[0].tokenUsage.totalTokens, 1950);
     assert.equal(result.items[0].tokenUsage.promptTokens, 1290);
     assert.equal(result.items[0].tokenUsage.completionTokens, 660);

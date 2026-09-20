@@ -174,7 +174,7 @@ export class CharacterConversationService {
       return { session: mirrored, characterTurn, influence: mirrored.latestInfluence ?? null };
     }
     const resolved = await this.resolveSubject({ ...request, chapterAnchor: session.chapterAnchor ?? request.chapterAnchor });
-    const history = session.turns.slice(-12).map((turn) => `${turn.role === "author" ? "作者" : resolved.projection.name}：${compact(turn.content)}`).join("\n");
+    const history = session.turns.slice(-12).map((turn) => `${turn.role === "author" ? "Author" : resolved.projection.name}: ${compact(turn.content)}`).join("\n");
     const result = await runStructuredPrompt({
       asset: characterConversationTurnPrompt,
       promptInput: { interactionPolicy: resolved.projection.interactionPolicy },
@@ -340,10 +340,10 @@ export class CharacterConversationService {
         sourceLabel: "novel character",
         sourceDescription: "The character will respond based on the current novel situation; only after you confirm it, the conversational tendencies will be carried into subsequent creations.",
         interactionPolicy: "novel_influence",
-        identity: `身份/阵营/立场：${compact(character.identityLabel, "未指定")}｜${compact(character.factionLabel, "未指定")}｜${compact(character.stanceLabel, "未指定")}\n性格与背景：${compact(character.personality, "待补全")}｜${compact(character.background, "待补全")}`,
-        currentSituation: `Current goals:${compact(character.currentGoal, "待明确")}\nCurrent status:${compact(character.currentState, "待明确")}\n最新正史局面：${compact(state?.summary, "待更新")}`,
+        identity: `Identity / faction / stance: ${compact(character.identityLabel, "unspecified")} | ${compact(character.factionLabel, "unspecified")} | ${compact(character.stanceLabel, "unspecified")}\nPersonality and background: ${compact(character.personality, "to be filled")} | ${compact(character.background, "to be filled")}`,
+        currentSituation: `Current goals: ${compact(character.currentGoal, "to be clarified")}\nCurrent status: ${compact(character.currentState, "to be clarified")}\nLatest canon situation: ${compact(state?.summary, "to be updated")}`,
         hardBoundaries: ["The author's note is not objective fact, and it is not a plot command that must be executed.", "Characters must not break identity, faction, resource, place, established-event, or information bounds."],
-        subjectiveState: `角色如何理解局面：${mind.currentInterpretation}\n私下意图：${compact(mind.privateIntent, "未明确")}\nAction tendencies:${compact(mind.actionTendency, "未明确")}`,
+        subjectiveState: `How the character reads the situation: ${mind.currentInterpretation}\nPrivate intent: ${compact(mind.privateIntent, "unclear")}\nAction tendencies: ${compact(mind.actionTendency, "unclear")}`,
         evidence: parseJson<string[]>(mind.evidenceJson, []).slice(0, 4).map((detail, index) => ({ label: `Thought-line evidence ${index + 1}`, detail, sourceType: "character_mind", sourceRef: mind.id, chapterOrder: null })),
         chapterAnchor: null,
         chapterAnchorLabel: null,

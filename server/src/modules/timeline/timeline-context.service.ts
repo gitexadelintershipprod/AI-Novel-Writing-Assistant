@@ -50,8 +50,8 @@ function buildContinuityRequirements(input: {
 }): string[] {
   return [
     ...input.blockingHooks.map((hook) => `Must immediately pick up the previous-chapter hook: ${hook.title}. ${hook.description}`),
-    ...input.plannedEvents.map((event) => `This chapter must advance:${event.title}。${event.summary}`),
-    ...input.forbiddenEvents.slice(0, 5).map((event) => `Prohibited from occurring in advance：${event.title}。`),
+    ...input.plannedEvents.map((event) => `This chapter must advance: ${event.title}. ${event.summary}`),
+    ...input.forbiddenEvents.slice(0, 5).map((event) => `Must not happen early: ${event.title}.`),
     ...input.constraints.map(constraintToRequirement),
   ].filter(Boolean);
 }

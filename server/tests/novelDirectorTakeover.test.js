@@ -188,12 +188,12 @@ test("continue_existing routes back to structured outline when target range stil
     },
   });
 
-  // 范围内仍有未细化章节时，继续模式应先回到节奏 / 拆章补齐，而不是进入章节执行。
+  // When the range still has unprepared chapters, continue mode should go back to beats/chapters first, not chapter execution.
   assert.equal(plan.executionMode, "phase");
   assert.equal(plan.effectiveStep, "structured");
   assert.equal(plan.startPhase, "structured_outline");
-  // 该路径不应清空正文（接管说明同步修正）。
-  assert.ok(plan.impactNotes.some((note) => note.includes("保留已有正文")));
+  // This path must not clear written chapter text.
+  assert.ok(plan.impactNotes.some((note) => note.includes("Existing chapter text")));
 });
 
 test("continue_existing keeps running the active batch even if later chapters are unprepared", () => {
@@ -1158,6 +1158,6 @@ test("restart_current_step on pipeline clears repair outputs before rerun", () =
   assert.equal(plan.effectiveStep, "pipeline");
   assert.equal(plan.effectiveStage, "quality_repair");
   assert.equal(plan.usesCurrentBatch, false);
-  assert.match(plan.effectSummary, /清空当前质量修复结果|重新审校/);
-  assert.deepEqual(plan.impactNotes, ["保留当前章节正文。", "会重新进入自动审校与修复。"]);
+  assert.match(plan.effectSummary, /clear the current quality-repair result|re-review and repair/i);
+  assert.deepEqual(plan.impactNotes, ["Current chapter text is kept.", "It will re-enter automatic review and repair."]);
 });

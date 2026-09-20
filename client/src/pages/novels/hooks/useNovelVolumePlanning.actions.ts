@@ -178,9 +178,6 @@ export function buildChapterListSuccessMessage(params: {
     const beatLabel = targetBeat
       ? `${targetBeat.label}${targetBeat.title ? ` · ${targetBeat.title}` : ""}`
       : params.targetBeatKey;
-    const beatLabel = targetBeat
-      ? `${targetBeat.label}${targetBeat.title ? ` · ${targetBeat.title}` : ""}`
-      : params.targetBeatKey;
     return updatedChapterCount > 0
       ? `Beat "${beatLabel}" in the current volume was generated and saved automatically${syncSuffix}. This volume now has ${updatedChapterCount} chapters.`
       : `Beat "${beatLabel}" in the current volume was generated and saved automatically${syncSuffix}.`;

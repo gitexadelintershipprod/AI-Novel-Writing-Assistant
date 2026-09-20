@@ -48,7 +48,7 @@ Do not repeat existing facts. Return an empty array when the episode introduces 
         ];
     },
 };
-// ─── 分话规划 ───────────────────────────────────────────────────────────────
+// ─── Episode planning ───────────────────────────────────────────────────────────────
 export const comicEpisodeOutlineOutputSchema = z.object({
     episodes: z.array(z.object({
         order: z.number().int().min(1),
@@ -104,26 +104,26 @@ In ascending order, plot continuity is maintained, with suspense centered around
         ];
     }
 };
-// ─── 分格脚本生成 ──────────────────────────────────────────────────────────
+// ─── Panel-script generation ──────────────────────────────────────────────────────────
 const dialogueSchema = z.object({
     speaker: z.string().trim().min(1),
     text: z.string().trim().min(1).max(60),
-    // round=对白圆泡 spike=呐喊刺泡 cloud=思维云泡 caption=旁白矩形
+    // round=dialogue bubble, spike=shout spike, cloud=thought cloud, caption=narration rectangle
     bubbleType: z.enum(["round", "spike", "cloud", "caption"]).default("round"),
-    // 九宫格 + 方向，如 top-left / bottom-center / right-center
+    // 3x3 grid + direction, e.g. top-left / bottom-center / right-center
     anchorHint: z.string().trim().optional(),
 });
 const characterExpressionSchema = z.enum(["neutral", "happy", "angry", "sad", "surprised", "cold"]);
 const panelCharacterRefSchema = z.object({
     name: z.string().trim().min(1),
-    // 服装：default 或资产库中的服装名（如"战斗套装"）
+    // Costume: default, or a costume name from the asset library (e.g. "Battle Suit")
     costume: z.string().trim().max(60).default("default"),
     expression: characterExpressionSchema.default("neutral"),
     lighting: z.string().trim().max(40).optional(),
-    // 该格角色持有/使用的道具/武器等资产名列表（来自角色资产库）
+    // Names of props/weapons this panel's character holds or uses (from the character asset library)
     props: z.array(z.string().trim().max(60)).max(4).optional(),
 });
-// Scenario Bible：本话识别出的场景，跨格/跨话复用以锁定空间一致性
+// Scene Bible: scenes identified in this episode, reused across panels/episodes to lock spatial consistency
 const sceneSchema = z.object({
     name: z.string().trim().min(1).max(60),
     sceneType: z.enum(["interior", "exterior", "landscape", "abstract", "other"]).default("interior"),
@@ -139,11 +139,11 @@ const panelScriptSchema = z.object({
     densityLevel: z.enum(["low", "medium", "high"]).default("medium"),
     focus: z.string().trim().min(1).max(120),
     action: z.string().trim().min(1).max(200),
-    // 本格所属场景名，必须取自 scenes 清单
+    // Scene name for this panel; must come from the scenes list
     sceneRef: z.string().trim().max(60).optional(),
     dialogues: z.array(dialogueSchema).max(3).default([]),
     characterRefs: z.array(panelCharacterRefSchema).max(5).default([]),
-    // 发给图像模型的画面提示词（不含气泡文字）
+    // Image-model visual prompt (no bubble text)
     visualPrompt: z.string().trim().min(1).max(400),
     layoutData: z
         .object({
@@ -160,7 +160,7 @@ const panelScriptSchema = z.object({
         .optional(),
 });
 export const comicPanelScriptOutputSchema = z.object({
-    // 先识别本话场景（场景圣经），再分格
+    // Identify this episode's scenes (scene bible) first, then split into panels
     scenes: z.array(sceneSchema).max(8).default([]),
     panels: z.array(panelScriptSchema).min(10).max(80),
 });
@@ -175,29 +175,29 @@ export interface ComicPanelScriptPromptInput {
         name: string;
         visualAnchor?: string | null;
     }>;
-    /** 每个角色拥有的可选视觉资产，供 LLM 在分格时按情节选用 */
+    /** Optional visual assets per character, for the LLM to pick from while boarding panels */
     characterAssets?: Array<{
         characterName: string;
         assetType: string;
         name: string;
         description?: string;
     }>;
-    /** 项目中已存在的场景（跨话复用：本话出现同一地点时直接沿用同名，不要新建） */
+    /** Scenes already in the project (cross-episode reuse: if this episode uses the same location, keep the same name; do not create a new one) */
     existingScenes?: Array<{
         name: string;
         sceneType: string;
         summary?: string;
     }>;
     stylePreset?: string;
-    /** stylePreset.promptKeywords，注入每格 visualPrompt 前缀以锁定画风 */
+    /** stylePreset.promptKeywords, injected as a prefix on every panel visualPrompt to lock art style */
     stylePromptKeywords?: string;
-    /** stylePreset.format，影响 visualPrompt 结构（4koma 需显式描述4子格） */
+    /** stylePreset.format, affects visualPrompt structure (4koma must explicitly describe 4 sub-panels) */
     comicFormat?: string;
-    /** 跨话一致性事实 */
+    /** Cross-episode continuity facts */
     factDigest?: string;
-    /** 分格信息密度：relaxed=舒展，balanced=均衡，compact=紧凑 */
+    /** Panel information density: relaxed, balanced, or compact */
     densityMode?: "relaxed" | "balanced" | "compact";
-    /** 用户本次补充的分格要求，只能影响表达偏好，不得覆盖结构化输出规则 */
+    /** Extra panel-script preferences for this request; may only affect expression, not structured-output rules */
     scriptPromptInstruction?: string;
     targetPanelCount?: number;
 }
@@ -214,7 +214,7 @@ export const comicPanelScriptPrompt: PromptAsset<ComicPanelScriptPromptInput, Co
         const characterList = input.characters
             .map((c) => `- ${c.name}：${c.visualAnchor ?? "(No visual description yet)"}`)
             .join("\n");
-        // character assets清单：按角色分组，方便 LLM 理解"谁有什么"
+        // Character-assets list: grouped by character so the LLM can see who has what
         const assetsByChar = new Map<string, typeof input.characterAssets>();
         for (const asset of input.characterAssets ?? []) {
             if (!assetsByChar.has(asset.characterName))
@@ -232,7 +232,7 @@ export const comicPanelScriptPrompt: PromptAsset<ComicPanelScriptPromptInput, Co
             : null;
         const stylePrefix = input.stylePromptKeywords
             ?? (input.stylePreset ? `${input.stylePreset} style` : "webtoon style, vibrant colors, clean lines");
-        // 已有场景清单（跨话复用：同地点沿用同名）
+        // Existing scene list (cross-episode reuse: same location keeps the same name)
         const existingSceneSection = (input.existingScenes?.length ?? 0) > 0
             ? input.existingScenes!
                 .map((s) => `- ${s.name}（${s.sceneType}）${s.summary ? `：${s.summary}` : ""}`)
@@ -302,12 +302,12 @@ Keep the plot coherent, the shots rich in language, the dialogue concise, and th
         ];
     }
 };
-// ─── appearance anchor AI 重写 ─────────────────────────────────────────────────────────
-// 用于在角色 tab 由 AI-assisted optimization visualAnchor：去除内部矛盾词、按用户期望微调、保留人设亮点。
+// ─── Appearance-anchor AI rewrite ─────────────────────────────────────────────────────────
+// Used on the character tab for AI-assisted visualAnchor optimization: remove internal contradictions, apply user tweaks, keep character highlights.
 export const comicVisualAnchorRewriteOutputSchema = z.object({
-    /** 重写后的主外貌描述 */
+    /** Rewritten primary appearance description */
     appearance: z.string().trim().min(10).max(2000),
-    /** 可选：建议的"脸型强覆盖"片段（当用户要求与现有描述存在难以调和的冲突时） */
+    /** Optional: a suggested "face-shape override" fragment (when the user request conflicts with the current description in a way that is hard to reconcile) */
     faceShapeOverride: z.string().trim().max(500).optional(),
     /** Short user-facing revision rationale in Georgian (1-3 sentences). */
     rationale: z.string().trim().min(1).max(300),
@@ -316,11 +316,11 @@ export type ComicVisualAnchorRewriteOutput = z.infer<typeof comicVisualAnchorRew
 export interface ComicVisualAnchorRewriteInput {
     characterName: string;
     persona?: string | null;
-    /** 当前主外貌 */
+    /** Current primary appearance */
     currentAppearance: string;
-    /** 当前已有的脸型强覆盖（可空） */
+    /** Current face-shape override, if any (may be empty) */
     currentFaceShapeOverride?: string;
-    /** 用户的改写期望（可空 → 仅做矛盾去重） */
+    /** User rewrite request (may be empty → only remove contradictions) */
     userInstruction?: string;
 }
 export const comicVisualAnchorRewritePrompt: PromptAsset<ComicVisualAnchorRewriteInput, ComicVisualAnchorRewriteOutput> = {

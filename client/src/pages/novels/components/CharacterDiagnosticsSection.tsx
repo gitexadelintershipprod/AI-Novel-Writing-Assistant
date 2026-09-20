@@ -40,7 +40,7 @@ export default function CharacterDiagnosticsSection(props: CharacterDiagnosticsS
       <summary className="cursor-pointer list-none">
         <CollapsibleSummary
           title="Role Casting and Relationship Diagnosis"
-          description="Expand it when you need to fill positions, check for gaps, or organize lineup plans; role dynamics, candidates, and roll-level responsibilities are concentrated on the \"Dynamics\" page."
+          description='Expand it when you need to fill positions, check for gaps, or organize lineup plans; role dynamics, candidates, and roll-level responsibilities are concentrated on the "Dynamics" page.'
         />
       </summary>
 

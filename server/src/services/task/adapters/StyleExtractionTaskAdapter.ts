@@ -23,7 +23,7 @@ import {
 } from "../taskArchive";
 
 function buildTaskTitle(name: string): string {
-  return `Writing extraction：${name}`;
+  return `Writing extraction: ${name}`;
 }
 
 export class StyleExtractionTaskAdapter {

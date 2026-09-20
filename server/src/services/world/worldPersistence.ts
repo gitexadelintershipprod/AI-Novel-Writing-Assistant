@@ -44,7 +44,7 @@ function normalizeTextFieldValue(raw: unknown): string | null {
     const lines = Object.entries(record)
       .map(([key, value]) => {
         const normalized = normalizeTextFieldValue(value);
-        return normalized ? `${key}：${normalized}` : null;
+        return normalized ? `${key}: ${normalized}` : null;
       })
       .filter((item): item is string => Boolean(item));
     return lines.length > 0 ? lines.join("\n") : JSON.stringify(record, null, 2);

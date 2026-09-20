@@ -1408,8 +1408,8 @@ model ImageAsset {
   @@index([bookAnalysisCharacterId, isPrimary, createdAt])
 }
 
-// 项目级视觉资源索引。它只保存可展示、筛选与选择所需的投影，
-// 原始业务事实与文件继续由 ImageAsset / Comic / Drama 等来源拥有。
+// Project-level visual asset index. Stores only the projection needed for display, filter, and selection.
+// Source-of-truth records and files remain owned by ImageAsset / Comic / Drama and other origin modules.
 model VisualAssetProjection {
   id                String   @id @default(cuid())
   sourceDomain      String
@@ -3563,17 +3563,17 @@ model TimelineCheckReport {
   @@index([novelId, status])
 }
 
-// 事实账本：记录小说中已发生的不可逆事实，用于防止后续章节重复或矛盾
+// Fact ledger: irreversible events that have already happened in the novel, used to prevent later-chapter repetition or contradiction
 model NovelFactEntry {
   id           String   @id @default(cuid())
   novelId      String
-  // 事实发生在第几章（用于排序和范围查询）
+  // Chapter where the fact occurs (used for ordering and range queries)
   chapterOrder Int
-  // 一两句话描述，例如"陈建国已在第7章取得个体户执照"
+  // One- or two-sentence description, e.g. "Chen Jianguo obtained a self-employed business license in chapter 7"
   text         String
-  // completed=过程性目标已完成；revealed=信息已揭示；state_changed=不可逆状态变化
+  // Canonical write values (English): completed = process goal finished; revealed = information disclosed; state_changed = irreversible state change
   category     String   @default("completed")
-  // auto=系统自动写入；manual=Agent工具手动写入
+  // Canonical write values (English): auto = written by the system; manual = written via an Agent tool
   source       String   @default("auto")
   novel        Novel    @relation(fields: [novelId], references: [id], onDelete: Cascade)
   createdAt    DateTime @default(now())
@@ -3583,30 +3583,30 @@ model NovelFactEntry {
 }
 
 // ============================================================
-// 短剧创作模块（Drama）—— 独立 bounded context
-// 所有 Drama* 表自成一套，不与 Novel 建外键关系（仅软引用 sourceRef）。
-// 与小说模块的唯一接触点是 services/drama/source/NovelSourceAdapter（只读）。
-// 分类字段统一用 String + 注释（不用 enum），降低双 schema 维护成本。
+// Short-drama (Drama) module — independent bounded context
+// All Drama* tables are self-contained; they do not use foreign keys to Novel (only a soft sourceRef).
+// The only contact with the novel module is services/drama/source/NovelSourceAdapter (read-only).
+// Classification fields use String plus comments (not Prisma enums) to keep the dual schemas cheaper to maintain.
 // ============================================================
 
 model DramaProject {
   id             String   @id @default(cuid())
   title          String
-  // 内容源：novel_import=导入小说；original=独立原创；text_import=文本转剧本
+  // Content source. Canonical write values (English): novel_import = imported novel; original = standalone original; text_import = text-to-script
   source         String   @default("original")
-  // 软引用：内容源标识（如 novelId），不建外键，保证可拆分
+  // Soft reference: content-source id (e.g. novelId). No FK, so the module can be split out.
   sourceRef      String?
-  // 内容源输入快照：original/text_import 保存用户输入，novel_import 可空
+  // Content-source input snapshot: stored for original/text_import; may be empty for novel_import
   sourceInput    String?
-  // 赛道：逆袭/重生复仇/战神/赘婿/神医/豪门/甜宠/马甲文...
+  // Track/genre, e.g. comeback, rebirth-revenge, war-god, live-in son-in-law, miracle doctor, wealthy family, sweet romance, hidden-identity...
   track          String?
   theme          String?
-  // 形态：vertical_paid=竖屏付费短剧
+  // Format. Canonical write value (English): vertical_paid = vertical paid short drama
   orientation    String   @default("vertical_paid")
   targetEpisodes Int      @default(80)
-  // 策略 JSON：主爽点线/付费卡点分布/情绪曲线目标/改编偏离声明
+  // Strategy JSON: main payoff line / paywall beat placement / emotion-curve targets / adaptation-deviation notes
   strategy       String?
-  // 状态：draft/strategized/outlined/scripting/completed
+  // Status. Canonical write values (English): draft/strategized/outlined/scripting/completed
   status         String   @default("draft")
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
@@ -3627,15 +3627,15 @@ model DramaProject {
 model DramaSourceBundle {
   id         String   @id @default(cuid())
   projectId  String   @unique
-  // 剧情梗概
+  // Plot synopsis
   synopsis   String?
-  // 情节节拍 JSON 数组（来源无关）
+  // Plot-beat JSON array (source-agnostic)
   beats      String?
-  // 设定要点
+  // World/setting notes
   worldNotes String?
-  // 硬事实 JSON 数组（一致性约束）
+  // Hard-fact JSON array (consistency constraints)
   hardFacts  String?
-  // 原始文本（text_import 用）
+  // Raw source text (used for text_import)
   rawText    String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -3647,23 +3647,23 @@ model DramaCharacter {
   id                 String   @id @default(cuid())
   projectId          String
   name               String
-  // 原型：霸总/赘婿/重生复仇/马甲/扮猪吃老虎...
+  // Archetype, e.g. overbearing CEO, live-in son-in-law, rebirth-revenge, hidden identity, playing the fool...
   archetype          String?
-  // 人设标签
+  // Persona tags
   persona            String?
-  // 说话风格
+  // Speech style
   speechStyle        String?
-  // 视觉锚点 JSON：外形/服化/参考图 assetId（跨集视觉一致性用）
+  // Visual-anchor JSON: appearance / costume / reference-image assetId (cross-episode visual consistency)
   visualAnchor       String?
-  // 声线 JSON：配音用
+  // Voice-profile JSON (for dubbing)
   voiceProfile       String?
-  // 关系 JSON
+  // Relations JSON
   relations          String?
-  // 软引用：源角色标识（来自小说角色时）
+  // Soft reference: source character id (when imported from a novel character)
   sourceCharacterRef String?
-  // 角色形象图 JSON: { status:"idle"|"generating"|"done"|"error", url?:string, prompt?:string, generatedAt?:string }
+  // Character portrait JSON: { status:"idle"|"generating"|"done"|"error", url?:string, prompt?:string, generatedAt?:string }
   portraitData       String?
-  // 三视图 JSON: [{ view:"front"|"side"|"back", url?:string, status:string, ... }, ...]
+  // Three-view JSON: [{ view:"front"|"side"|"back", url?:string, status:string, ... }, ...]
   threeViewData      String?
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
@@ -3678,26 +3678,26 @@ model DramaEpisode {
   projectId    String
   order        Int
   title        String
-  // 台本正文
+  // Script body
   content      String?  @default("")
-  // 黄金3秒钩子开场
+  // Golden 3-second hook opening
   hookOpening  String?
-  // 集尾卡点（cliffhanger）
+  // End-of-episode paywall beat (cliffhanger)
   cliffhanger  String?
-  // 主钩子类型：身份反转/打脸/扮猪吃老虎/马甲掉落/误会/危机/情感拉扯...
+  // Main hook type, e.g. identity reversal, face-slap, playing the fool, hidden identity revealed, misunderstanding, crisis, emotional tug-of-war...
   hookType     String?
-  // 是否付费卡点集
+  // Whether this episode is a paywall beat
   isPaywall    Boolean  @default(false)
-  // 情绪净值：爽感曲线建模，正=释放，负=憋屈蓄势
+  // Emotion net: payoff-curve modeling; positive = release, negative = suppressed buildup
   emotionNet   Int?
-  // 集内节拍 JSON
+  // In-episode beat-sheet JSON
   beatSheet    String?
-  // 源映射 JSON：← 源 SourceBundle 节拍 / 小说章节区间
+  // Source-map JSON: SourceBundle beats / novel chapter range
   sourceMap    String?
   durationSec  Int?
-  // 状态：planned/scripted/reviewed/needs_repair/approved
+  // Status. Canonical write values (English): planned/scripted/reviewed/needs_repair/approved
   status       String   @default("planned")
-  // 质量标记 JSON
+  // Quality-flag JSON
   qualityFlags String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
@@ -3714,7 +3714,7 @@ model DramaEpisode {
 model DramaFact {
   id           String   @id @default(cuid())
   projectId    String
-  // 事实发生在第几集
+  // Episode where the fact occurs
   episodeOrder Int
   text         String
   // completed/revealed/state_changed
@@ -3840,8 +3840,8 @@ model DramaBatchJob {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Comic（AI 漫画）模块
-// 低耦合要点：所有外键对 Novel 零引用，sourceRef 为软引用（不建外键，保证可拆分）
+// Comic (AI manga/comics) module
+// Low coupling: no FKs to Novel; sourceRef is a soft reference (no FK, so the module can be split out)
 // ─────────────────────────────────────────────────────────────────────────────
 
 model ComicProject {
@@ -3849,13 +3849,13 @@ model ComicProject {
   title       String
   // novel_import | original | text_import | comic_import
   sourceType  String   @default("original")
-  // 软引用：novel_import 时为 novelId，不建外键，保证可拆分
+  // Soft reference: novelId when sourceType is novel_import. No FK, so the module can be split out.
   sourceRef   String?
-  // 原创/文本导入的用户输入（sourceInput，对齐 DramaProject）
+  // User input for original/text import (sourceInput, aligned with DramaProject)
   sourceInput String?
-  // 赛道模板 id（复用 rhythmEngine TrackId）
+  // Track template id (reuses rhythmEngine TrackId)
   trackId     String?
-  // 画风锁定 JSON：{ style, negativeStyle, referenceImages, origin }
+  // Locked art-style JSON: { style, negativeStyle, referenceImages, origin }
   stylePreset String?
   // draft/outlined/producing/completed
   status      String   @default("draft")
@@ -3877,10 +3877,10 @@ model ComicProject {
 }
 
 model ComicSourceBundle {
-  // SourceBundle JSON 快照，导入即落库，运行期不回读 novel 表（可拆分保证）
+  // SourceBundle JSON snapshot, persisted at import time; runtime does not re-read the novel table (split-out guarantee)
   id         String   @id @default(cuid())
   projectId  String   @unique
-  bundleJson String   // SourceBundle 序列化（synopsis/beats/characters/hardFacts）
+  bundleJson String   // Serialized SourceBundle (synopsis/beats/characters/hardFacts)
   importedAt DateTime @default(now())
 
   project ComicProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
@@ -3890,14 +3890,14 @@ model ComicCharacter {
   id               String  @id @default(cuid())
   projectId        String
   name             String
-  // 性别（用于生图时 GENDER LOCK）：male | female | other | unknown
+  // Gender for image GENDER LOCK. Canonical write values (English): male | female | other | unknown
   gender           String  @default("unknown")
   persona          String?
-  // 视觉锚点描述（外形/服装/标志性特征，注入每格 visualPrompt）
+  // Visual-anchor description (appearance/costume/signature traits; injected into each panel visualPrompt)
   visualAnchor     String?
   // JSON: { status, version, url, origin(generated|uploaded), history(max5) }
   sheetData        String?
-  // 软引用：novel_import 时为源小说 characterId
+  // Soft reference: source novel characterId when sourceType is novel_import
   sourceCharacterRef String?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
@@ -3908,7 +3908,7 @@ model ComicCharacter {
   @@index([projectId])
 }
 
-// 角色可选视觉资产：服装变体/武器/道具/载具/技能视觉/自定义
+// Optional character visual assets: costume variants / weapons / props / vehicles / ability visuals / custom
 // imageData JSON: { status, url, prompt, provider, generatedAt, error, origin: "generated"|"uploaded" }
 model ComicCharacterAsset {
   id          String   @id @default(cuid())
@@ -3916,8 +3916,8 @@ model ComicCharacterAsset {
   projectId   String
   // costume | weapon | item | vehicle | ability | other
   assetType   String
-  name        String   // 资产名（LLM 引用时用此名，如 "月光剑"）
-  description String?  // 注入 visual prompt 的外观描述
+  name        String   // Asset name (the name the LLM should cite, e.g. "Moonlight Sword")
+  description String?  // Appearance description injected into the visual prompt
   imageData   String?  // JSON
   sortOrder   Int      @default(0)
   createdAt   DateTime @default(now())
@@ -3930,17 +3930,17 @@ model ComicCharacterAsset {
   @@index([projectId])
 }
 
-// 场景一致性实体（L0 场景圣经 + L1 设定图）
+// Scene-consistency entity (L0 scene bible + L1 establishing sheet)
 // bible JSON: { palette, keyElements, materials, ambiance, layout }
 // sheetData JSON: { status, url, prompt, provider, generatedAt, error, origin: "generated"|"uploaded" }
 model ComicScene {
   id          String   @id @default(cuid())
   projectId   String
-  name        String   // 场景名，panel.sceneRef 软引用此名
+  name        String   // Scene name; panel.sceneRef soft-references this name
   // interior | exterior | landscape | abstract | other
   sceneType   String   @default("interior")
-  bible       String?  // 结构化场景圣经 JSON
-  sheetData   String?  // establishing 设定图 JSON
+  bible       String?  // Structured scene-bible JSON
+  sheetData   String?  // Establishing-sheet JSON
   sortOrder   Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -3955,14 +3955,14 @@ model ComicEpisode {
   projectId   String
   order       Int
   title       String?
-  // 开场钩子类型（复用 HookTypeId）
+  // Opening hook type (reuses HookTypeId)
   hookType    String?
-  // 收尾悬念/卡点
+  // Closing suspense / paywall beat
   cliffhanger String?
   isPaywalled Boolean @default(false)
-  // 本话情节大纲（LLM 产出，可编辑）
+  // Episode plot outline (LLM-produced, editable)
   outline     String?
-  // 本话覆盖章节的正文快照（分格脚本对白的原文依据，novel_import 时填入）
+  // Snapshot of source chapter text covered by this episode (dialogue source for panel scripts; filled on novel_import)
   sourceText  String?
   // draft/scripted/generating/reviewing/done
   status      String  @default("draft")
@@ -3983,29 +3983,29 @@ model ComicPanel {
   id           String  @id @default(cuid())
   episodeId    String
   order        Int
-  // 镜头语言：establishing/close_up/action/reaction/transition
+  // Shot language. Canonical write values (English): establishing/close_up/action/reaction/transition
   panelType    String?
-  // 画面行为描述
+  // On-panel action description
   action       String
   // JSON: [{ speaker, text, bubbleType(round|spike|cloud|caption), anchorHint }]
   dialogues    String?
-  // 本格出场角色 id 列表（JSON array）
+  // Character ids appearing in this panel (JSON array)
   characterRefs String?
-  // 本格所属场景名（软引用 ComicScene.name，保证可拆分）
+  // Scene name for this panel (soft-references ComicScene.name so the module can be split out)
   sceneRef      String?
-  // 图像生成提示词（含 stylePreset + characterSheet 注入后的完整 prompt）
+  // Image-generation prompt (full prompt after stylePreset + characterSheet injection)
   visualPrompt  String?
-  // low/medium/high，LLM 结构化输出，用于控制画面信息密度
+  // low/medium/high from LLM structured output; controls on-panel information density
   densityLevel String?
-  // 本格主视觉焦点，辅助用户审查和生图 prompt 微调
+  // Main visual focus of this panel; helps review and prompt tuning
   focus         String?
-  // JSON: { layout, subPanels? }，为四格/单页多格等结构化版式预留
+  // JSON: { layout, subPanels? }; reserved for structured layouts such as 4-koma or multi-panel pages
   layoutData    String?
   // JSON: { status, version, url, origin(generated|uploaded), history(max5) }
   imageData     String?
-  // JSON: { url, bubbleLayout, synthesizedAt }（气泡合成后的成品图）
+  // JSON: { url, bubbleLayout, synthesizedAt } (lettered/composited finished image)
   letteredData  String?
-  // JSON（P5）: { motionType(push_in|pull_out|pan|hold), durationMs, focusRegion }
+  // JSON (P5): { motionType(push_in|pull_out|pan|hold), durationMs, focusRegion }
   motionData    String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -4019,11 +4019,11 @@ model ComicPanel {
 model ComicFact {
   id        String  @id @default(cuid())
   projectId String
-  // 事实描述（跨话视觉一致性约束：服装变更/道具状态/场景状态）
+  // Fact description (cross-episode visual consistency: costume changes / prop state / scene state)
   text      String
   // completed | revealed | state_changed
   category  String  @default("completed")
-  // 关联话数（发生时的 episode order）
+  // Related episode order (when the fact occurs)
   episodeOrder Int?
   createdAt DateTime @default(now())
 
@@ -4037,11 +4037,11 @@ model ComicUploadAsset {
   projectId String
   // character_ref | style_ref | panel_image | imported_page
   kind      String
-  // 落盘相对路径（不存 base64，仅存路径）
+  // On-disk relative path (store the path only, not base64)
   filePath  String
-  // 关联实体 id（可选）
+  // Related entity id (optional)
   refId     String?
-  metadata  String? // JSON: 自由元数据（尺寸/原始文件名等）
+  metadata  String? // JSON: free-form metadata (dimensions / original filename, etc.)
   createdAt DateTime @default(now())
 
   project ComicProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
@@ -4053,13 +4053,13 @@ model ComicExportJob {
   id         String  @id @default(cuid())
   projectId  String
   episodeId  String?
-  // strip（条漫长图）| video（漫剧 MP4）
+  // strip (long vertical image) | video (motion-comic MP4)
   format     String
-  // JSON: 平台规格（切片高度/分辨率/水印等）
+  // JSON: platform spec (slice height / resolution / watermark, etc.)
   spec       String?
   // pending/running/done/failed
   status     String  @default("pending")
-  // JSON: 产物路径列表（落盘路径，不进 DB 正文）
+  // JSON: artifact path list (on-disk paths; not stored as DB blob content)
   artifacts  String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt

@@ -105,7 +105,7 @@ export class NovelCoreGenerationService {
 
     const charactersText = novel.characters.length > 0
       ? novel.characters
-        .map((character) => `- ${character.name}（${character.role}）${character.personality ? `：${character.personality.slice(0, 80)}` : ""}`)
+        .map((character) => `- ${character.name} (${character.role})${character.personality ? `: ${character.personality.slice(0, 80)}` : ""}`)
         .join("\n")
       : "None yet";
     const initialPrompt = options.initialPrompt?.trim() ?? "";
@@ -166,7 +166,7 @@ export class NovelCoreGenerationService {
 
     const charactersText = novel.characters.length > 0
       ? novel.characters
-        .map((character) => `- ${character.name}（${character.role}）${character.personality ? `：${character.personality.slice(0, 80)}` : ""}`)
+        .map((character) => `- ${character.name} (${character.role})${character.personality ? `: ${character.personality.slice(0, 80)}` : ""}`)
         .join("\n")
       : "None yet";
     const totalChapters = options.totalChapters
@@ -308,7 +308,7 @@ export class NovelCoreGenerationService {
         title: novel.title,
         genreName: novel.genre?.name ?? "Uncategorized",
         description: novel.description ?? "",
-        charactersText: novel.characters.map((item) => `${item.name}（${item.role}）`).join("、") || "None yet",
+        charactersText: novel.characters.map((item) => `${item.name} (${item.role})`).join(", ") || "None yet",
         worldContext,
         referenceContext: referenceContext.trim() || undefined,
       },

@@ -264,7 +264,7 @@ export function summarizeOutput(tool: string, output: Record<string, unknown>): 
 }
 
 export function summarizeFailure(tool: string, error: unknown): string {
-  return `${tool} Execution failed：${error instanceof Error ? error.message : "unknown error"}`;
+  return `${tool} Execution failed: ${error instanceof Error ? error.message : "unknown error"}`;
 }
 
 export function buildFinalMessage(results: ToolExecutionResult[], waitingForApproval: boolean): string {

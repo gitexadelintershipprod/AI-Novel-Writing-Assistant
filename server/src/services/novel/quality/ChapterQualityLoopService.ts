@@ -22,7 +22,7 @@ interface RecordChapterQualityLoopInput {
   terminalAction?: "defer_and_continue" | null;
   taskId?: string | null;
   runId?: string | null;
-  /** 阶段0 归因数据：仅在 terminalAction=defer_and_continue 时有意义 */
+  /** Stage-0 attribution: meaningful only when terminalAction=defer_and_continue */
   qualityDebtAttribution?: QualityDebtAttribution | null;
 }
 

@@ -158,7 +158,7 @@ export class DramaExportService {
       `Target episode count: ${project.targetEpisodes}`,
       "",
       "## Characters",
-      ...project.characters.map((character) => `- ${character.name}${character.persona ? `：${character.persona}` : ""}`),
+      ...project.characters.map((character) => `- ${character.name}${character.persona ? `: ${character.persona}` : ""}`),
       "",
       "## Episode scripts",
       ...project.episodes.flatMap((episode) => [

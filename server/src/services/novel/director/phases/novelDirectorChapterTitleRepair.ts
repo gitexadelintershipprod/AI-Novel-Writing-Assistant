@@ -25,7 +25,8 @@ function buildRepairStatusLabel(input: {
 
 function shouldRefreshBeatSheetForRepair(lastError: string | null | undefined): boolean {
   const normalized = lastError?.trim() ?? "";
-  return normalized.includes("current volume tempo板的章节跨度异常");
+  return normalized.includes("当前卷节奏板的章节跨度异常")
+    || /chapter span/i.test(normalized);
 }
 
 function resolveRepairBeatKeys(input: {

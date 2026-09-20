@@ -14,7 +14,7 @@ export interface WritingFormulaApplyGenerateStreamInput {
     topic: string;
     targetLength: number;
 }
-/** 从样例文本流式提取可复现writing formula（Markdown 结构）。 */
+/** Stream-extract a reproducible writing formula (Markdown structure) from sample text. */
 export const writingFormulaExtractStreamPrompt: PromptAsset<WritingFormulaExtractStreamInput, string, string> = {
     id: "writingFormula.extract.stream",
     version: "v2",
@@ -35,7 +35,7 @@ Output format (Markdown):
         new HumanMessage(input.sourceText),
     ]
 };
-/** 按给定公式改写原文。 */
+/** Rewrite the source text according to the given formula. */
 export const writingFormulaApplyRewriteStreamPrompt: PromptAsset<WritingFormulaApplyRewriteStreamInput, string, string> = {
     id: "writingFormula.apply.rewrite.stream",
     version: "v2",
@@ -54,7 +54,7 @@ Original text:
 ${input.sourceText}`),
     ]
 };
-/** 按给定公式围绕主题创作新内容。 */
+/** Create new content around a topic according to the given formula. */
 export const writingFormulaApplyGenerateStreamPrompt: PromptAsset<WritingFormulaApplyGenerateStreamInput, string, string> = {
     id: "writingFormula.apply.generate.stream",
     version: "v2",

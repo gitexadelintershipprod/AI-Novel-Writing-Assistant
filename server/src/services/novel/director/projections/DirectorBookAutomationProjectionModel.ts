@@ -167,7 +167,7 @@ export function buildHeadline(input: {
   }
   if (input.status === "running") {
     const label = input.task?.currentItemLabel?.trim();
-    return label ? `AI is advancing：${label}` : "AI is advancing this book";
+    return label ? `AI is advancing: ${label}` : "AI is advancing this book";
   }
   if (input.status === "waiting_approval") {
     return "Waiting for your confirmation";
@@ -333,7 +333,7 @@ export function buildUserHeadline(input: {
   }
   if (input.status === "running") {
     const label = input.task?.currentItemLabel?.trim();
-    return label ? `AI is processing：${label}` : "AI is advancing this book";
+    return label ? `AI is processing: ${label}` : "AI is advancing this book";
   }
   if (input.status === "waiting_approval") {
     return "Waiting for your confirmation before continuing";

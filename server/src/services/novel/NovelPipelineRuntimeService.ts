@@ -88,7 +88,7 @@ export class NovelPipelineRuntimeService {
         const message = error instanceof Error ? error.message : "The chapter pipeline task failed to recover.";
         await this.pipelineService.markPipelineJobPendingManualRecovery(
           row.id,
-          `${recoveryMessage} Recovery failed：${message}`,
+          `${recoveryMessage} Recovery failed: ${message}`,
         );
       }
     }

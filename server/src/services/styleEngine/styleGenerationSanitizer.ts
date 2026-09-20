@@ -14,6 +14,7 @@ type StyleContextWithSanitizedProfile = {
   sanitizedGenerationProfile?: StyleSanitizedGenerationProfile | null;
 };
 
+// Extra Chinese title tokens kept as honorific leak filters for source-language text.
 const ENTITY_SUFFIXES = [
   "世子",
   "殿下",
@@ -64,6 +65,7 @@ const MAX_FORBIDDEN_ENTITY_COUNT = 60;
 const MAX_GUIDANCE_LINES = 80;
 const MAX_GUIDANCE_LINE_LENGTH = 220;
 
+// Extra Chinese generic-entity stopwords kept as leak filters alongside English ones.
 const GENERIC_ENTITY_STOPWORDS = new Set([
   "主角",
   "配角",

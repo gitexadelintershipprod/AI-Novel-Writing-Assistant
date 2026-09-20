@@ -49,7 +49,7 @@ function buildFallbackTitleOption(candidate: DirectorCandidate): TitleFactorySug
     clickRate: 60,
     style: "high_concept",
     angle: "Current project title",
-    reason: "沿用Current project title。",
+    reason: "Keep the current project title.",
   };
 }
 
@@ -83,27 +83,27 @@ function buildTargetedTitleBrief(input: {
     ...(input.candidate.titleOptions ?? []).map((item) => item.title),
   ]
     .filter(Boolean)
-    .join("、");
+    .join(", ");
   const readerChannel = readerChannelPreferenceLabel(input.context.readerChannelPreference);
 
   return [
-    `story inspiration：${input.idea.trim()}`,
-    `Current plan：${input.candidate.workingTitle}`,
-    `Positioning of the work：${input.candidate.positioning}`,
-    `Core selling points:${input.candidate.sellingPoint}`,
-    `main conflict：${input.candidate.coreConflict}`,
-    `Protagonist path：${input.candidate.protagonistPath}`,
+    `story inspiration: ${input.idea.trim()}`,
+    `Current plan: ${input.candidate.workingTitle}`,
+    `Positioning of the work: ${input.candidate.positioning}`,
+    `Core selling points: ${input.candidate.sellingPoint}`,
+    `main conflict: ${input.candidate.coreConflict}`,
+    `Protagonist path: ${input.candidate.protagonistPath}`,
     `Main hook:${input.candidate.hookStrategy}`,
     `Advance cycle:${input.candidate.progressionLoop}`,
-    input.candidate.toneKeywords.length > 0 ? `气质Keywords:${input.candidate.toneKeywords.join("、")}` : "",
+    input.candidate.toneKeywords.length > 0 ? `Tone keywords: ${input.candidate.toneKeywords.join(", ")}` : "",
     input.context.targetAudience?.trim() ? `Target readers:${input.context.targetAudience.trim()}` : "",
-    readerChannel ? `Reader channel tendencies：${readerChannel}` : "",
-    input.context.competingFeel?.trim() ? `对标气质：${input.context.competingFeel.trim()}` : "",
-    currentTitleGroup ? `当前标题组：${currentTitleGroup}` : "",
-    `标题修正意见：${input.feedback.trim()}`,
+    readerChannel ? `Reader channel tendencies: ${readerChannel}` : "",
+    input.context.competingFeel?.trim() ? `Comparable tone: ${input.context.competingFeel.trim()}` : "",
+    currentTitleGroup ? `Current title group: ${currentTitleGroup}` : "",
+    `Title revision notes: ${input.feedback.trim()}`,
     "Create a more suitable set of Georgian titles for the same story direction.",
-    "优先响应用户要求的气质修正，比如更都市、更悬疑、更轻巧、更高级感或没那么土。",
-    "不要重复当前这组标题，也不要回退成概念短语、口号名或老套模板名。",
+    "Prefer the tone the user asked for, such as more urban, more suspenseful, lighter, more refined, or less cliche.",
+    "Do not repeat the current title set, and do not fall back to concept phrases, slogan names, or stock templates.",
   ].filter(Boolean).join("\n");
 }
 
@@ -354,7 +354,7 @@ export class NovelDirectorCandidateStageService {
       }),
     });
     await this.workflowService.recordCandidateSelectionRequired(workflowTask.id, {
-      summary: `${result.batch.roundLabel} 已生成 ${result.batch.candidates.length} 套book level orientation，并完成每套书名组。`,
+      summary: `${result.batch.roundLabel} generated ${result.batch.candidates.length} book-level orientations and finished a title set for each.`,
       seedPayload: buildWorkflowSeedPayload(resolvedInput, {
         batches: [result.batch],
         productionFoundation: foundation.recommendation,
@@ -428,7 +428,7 @@ export class NovelDirectorCandidateStageService {
       }),
     });
     await this.workflowService.recordCandidateSelectionRequired(workflowTask.id, {
-      summary: `${result.batch.roundLabel} 已根据修正意见生成 ${result.batch.candidates.length} 套新方向，并完成标题组增强。`,
+      summary: `${result.batch.roundLabel} generated ${result.batch.candidates.length} new directions from your notes and strengthened the title sets.`,
       seedPayload: buildWorkflowSeedPayload(input, {
         batches: nextBatches,
         candidateStage: {
@@ -469,13 +469,13 @@ export class NovelDirectorCandidateStageService {
     await this.markCandidateProgress(
       input.workflowTaskId,
       "candidate_seed_alignment",
-      `正在读取《${targetCandidate.workingTitle}》的Current plan`,
+      `Reading the current plan for "${targetCandidate.workingTitle}"`,
       DIRECTOR_PROGRESS.candidateSeedAlignment,
     );
     await this.markCandidateProgress(
       input.workflowTaskId,
       "candidate_direction_batch",
-      `正在按你的意见定向修正《${targetCandidate.workingTitle}》`,
+      `Applying your notes to "${targetCandidate.workingTitle}"`,
       DIRECTOR_PROGRESS.candidateDirectionBatch,
     );
 
@@ -510,7 +510,7 @@ export class NovelDirectorCandidateStageService {
     await this.markCandidateProgress(
       input.workflowTaskId,
       "candidate_title_pack",
-      `正在为《${targetCandidate.workingTitle}》重配书名组`,
+      `Rebuilding the title set for "${targetCandidate.workingTitle}"`,
       DIRECTOR_PROGRESS.candidateTitlePack,
     );
     const enrichedCandidate = await enhanceCandidateTitles({
@@ -530,7 +530,7 @@ export class NovelDirectorCandidateStageService {
     const nextBatch = replaceCandidateInBatch(
       targetBatch,
       enrichedCandidate,
-      `定向修正：${input.feedback.trim()}`,
+      `Directed revision: ${input.feedback.trim()}`,
     );
     const nextBatches = replaceBatchInList(input.previousBatches, nextBatch);
 
@@ -557,7 +557,7 @@ export class NovelDirectorCandidateStageService {
       }),
     });
     await this.workflowService.recordCandidateSelectionRequired(workflowTask.id, {
-      summary: `已按你的意见定向修正《${targetCandidate.workingTitle}》。`,
+      summary: `Directed revision for "${targetCandidate.workingTitle}" is done.`,
       seedPayload: buildWorkflowSeedPayload(input, {
         batches: nextBatches,
         candidateStage: {
@@ -600,7 +600,7 @@ export class NovelDirectorCandidateStageService {
     await this.markCandidateProgress(
       input.workflowTaskId,
       "candidate_title_pack",
-      `正在重做《${targetCandidate.workingTitle}》的标题组`,
+      `Rebuilding the title set for "${targetCandidate.workingTitle}"`,
       DIRECTOR_PROGRESS.candidateTitlePack,
     );
 
@@ -628,7 +628,7 @@ export class NovelDirectorCandidateStageService {
     const nextBatch = replaceCandidateInBatch(
       targetBatch,
       nextCandidate,
-      `标题组修正：${input.feedback.trim()}`,
+      `Title-set revision: ${input.feedback.trim()}`,
     );
     const nextBatches = replaceBatchInList(input.previousBatches, nextBatch);
 
@@ -654,7 +654,7 @@ export class NovelDirectorCandidateStageService {
       }),
     });
     await this.workflowService.recordCandidateSelectionRequired(workflowTask.id, {
-      summary: `已按你的意见重做《${targetCandidate.workingTitle}》的标题组。`,
+      summary: `The title set for "${targetCandidate.workingTitle}" was rebuilt from your notes.`,
       seedPayload: buildWorkflowSeedPayload(input, {
         batches: nextBatches,
         candidateStage: {

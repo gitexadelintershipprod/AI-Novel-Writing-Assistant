@@ -240,7 +240,7 @@ function buildFallbackAssessment(content: string): ChapterAcceptanceAssessmentOu
     repairDirectives: [],
     missingObligations: [],
     repairability: "none",
-    decisionReason: "接收闸门不可用，系统保留正文并keep pushing forward后续复查。",
+    decisionReason: "The acceptance gate is unavailable. The system keeps the prose and continues, leaving later review.",
     riskTags: ["acceptance_gate_unavailable"],
     assetSyncRecommendation: {
       priority: "normal",

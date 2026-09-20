@@ -218,18 +218,18 @@ export class CharacterDynamicsQueryService {
     const characterLines = overview.characters.slice(0, 8).map((item) => (
       [
         `${item.name}(${item.role})`,
-        item.isCoreInVolume ? "核心卷级角色" : "非核心卷级角色",
+        item.isCoreInVolume ? "core volume character" : "non-core volume character",
         item.volumeRoleLabel ? `Volume role=${item.volumeRoleLabel}` : "",
-        item.volumeResponsibility ? `职责=${item.volumeResponsibility}` : "",
+        item.volumeResponsibility ? `duty=${item.volumeResponsibility}` : "",
         item.currentGoal ? `current target =${item.currentGoal}` : "",
         item.currentState ? `current status=${item.currentState}` : "",
-        item.factionLabel ? `阵营=${item.factionLabel}` : "",
-        item.stanceLabel ? `立场=${item.stanceLabel}` : "",
-        item.absenceRisk !== "none" ? `缺席风险=${item.absenceRisk}(跨度=${item.absenceSpan})` : "",
+        item.factionLabel ? `faction=${item.factionLabel}` : "",
+        item.stanceLabel ? `stance=${item.stanceLabel}` : "",
+        item.absenceRisk !== "none" ? `absence risk=${item.absenceRisk}(span=${item.absenceSpan})` : "",
       ].filter(Boolean).join(" | ")
     ));
     const relationLines = overview.relations.slice(0, 8).map((item) => (
-      `${item.sourceCharacterName} -> ${item.targetCharacterName}: ${item.stageLabel} | ${item.stageSummary}${item.nextTurnPoint ? ` | 下一步=${item.nextTurnPoint}` : ""}`
+      `${item.sourceCharacterName} -> ${item.targetCharacterName}: ${item.stageLabel} | ${item.stageSummary}${item.nextTurnPoint ? ` | next=${item.nextTurnPoint}` : ""}`
     ));
     return [
       `Dynamic character system summary: ${overview.summary}`,

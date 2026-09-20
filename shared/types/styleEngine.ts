@@ -341,7 +341,7 @@ export function hasStyleRulePatchContent(patch: StyleRulePatch | null | undefine
 export function buildFallbackStyleRulePatch(
   feature: Pick<StyleExtractionFeature, "group" | "label" | "description">,
 ): StyleRulePatch {
-  const summary = `${feature.label}：${feature.description}`.trim();
+  const summary = `${feature.label}: ${feature.description}`.trim();
   if (!summary) {
     return {};
   }
@@ -677,7 +677,7 @@ function buildEmotionFocus(characterRules: CharacterRules): string | null {
     characterRules.emotionExpression,
     [
       Array.isArray(characterRules.defenseMechanisms) && characterRules.defenseMechanisms.length > 0
-        ? `Defense mechanism:${characterRules.defenseMechanisms.join("、")}`
+        ? `Defense mechanism:${characterRules.defenseMechanisms.join(", ")}`
         : "",
       formatBooleanHint(characterRules.allowSelfReflection, "allow for explicit introspection", "Do less direct introspection"),
       formatBooleanHint(characterRules.facePriority, "Prioritize keeping your dignity", "Don't insist on respectability"),
@@ -730,7 +730,7 @@ export function buildStyleIntentSummary(input: {
     languageFocus ? `Language density:${languageFocus}` : "",
     dialogueFocus ? `Dialogue style:${dialogueFocus}` : "",
     emotionFocus ? `Emotional display:${emotionFocus}` : "",
-    antiAiFocus.length > 0 ? `Anti-AI constraints:${antiAiFocus.join("；")}` : "",
+    antiAiFocus.length > 0 ? `Anti-AI constraints:${antiAiFocus.join("; ")}` : "",
     !styleProfile && styleTone ? `Keywords for writing style:${styleTone}` : "",
   ].filter(Boolean);
 

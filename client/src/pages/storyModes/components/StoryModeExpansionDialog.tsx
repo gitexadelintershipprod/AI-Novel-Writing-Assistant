@@ -115,7 +115,7 @@ export default function StoryModeExpansionDialog({
                         <span className="min-w-0">
                           <span className="block font-medium text-foreground">{candidate.name}</span>
                           <span className="mt-1 block text-sm leading-5 text-muted-foreground">{candidate.description || candidate.profile.coreDrive}</span>
-                          <span className="mt-2 block text-xs leading-5 text-muted-foreground">Propulsion unit:{candidate.profile.progressionUnits.join("、") || "To be added"} ·Return:{candidate.profile.readerReward || "To be added"}</span>
+                          <span className="mt-2 block text-xs leading-5 text-muted-foreground">Propulsion unit:{candidate.profile.progressionUnits.join(", ") || "To be added"} ·Return:{candidate.profile.readerReward || "To be added"}</span>
                         </span>
                       </div>
                     </button>

@@ -37,9 +37,9 @@ function buildFallbackPhases(lines: string[]): { early: string; middle: string; 
   }
   const blockSize = Math.max(1, Math.ceil(lines.length / 3));
   return {
-    early: lines.slice(0, blockSize).join("；"),
-    middle: lines.slice(blockSize, blockSize * 2).join("；"),
-    late: lines.slice(blockSize * 2).join("；"),
+    early: lines.slice(0, blockSize).join("; "),
+    middle: lines.slice(blockSize, blockSize * 2).join("; "),
+    late: lines.slice(blockSize * 2).join("; "),
   };
 }
 

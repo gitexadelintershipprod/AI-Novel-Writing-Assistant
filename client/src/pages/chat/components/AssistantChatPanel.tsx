@@ -387,7 +387,7 @@ export default function AssistantChatPanel({
               <p className="mt-2 text-2xl text-slate-500">Which plot do you want to perfect together today?</p>
               <div className="mt-8 grid gap-3 md:grid-cols-2">
                 <ThreadPrimitive.Suggestion
-                  prompt="Help me sort out the hard constraints of the world view of \"Distant Messiah V2\" and point out the conflict points in the current outline."
+                  prompt='Help me sort out the hard constraints of the world view of "Distant Messiah V2" and point out the conflict points in the current outline.'
                   send={false}
                   asChild
                 >

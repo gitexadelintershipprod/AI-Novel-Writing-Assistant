@@ -1,18 +1,19 @@
 /**
- * 漫画画风关键词解析（单一来源）
+ * Comic art-style keyword resolver (single source).
  *
- * 所有漫画相关图像生成（角色三视图、表情稿、角色资产、场景设定图、格子图）
- * 都应通过此函数注入项目画风，保证整本风格统一。
+ * All comic-related image generation (character turnaround, expression sheet, character assets,
+ * scene setting art, panel images) should inject project art style through this function
+ * so the whole book stays visually consistent.
  *
- * 画风来自 ComicProject.stylePreset(JSON).style（webtoon_color / ink_traditional 等）；
- * 注意 stylePreset.promptKeywords 是「漫画形态」（竖条漫/四格）关键词，不是画风。
+ * Art style comes from ComicProject.stylePreset(JSON).style (webtoon_color / ink_traditional, etc.).
+ * Note: stylePreset.promptKeywords are "comic format" keywords (vertical webtoon / 4-koma), not art style.
  */
 
 interface StyleEntry {
   en: string;
 }
 
-// 与前端 ComicProjectPage STYLE_OPTIONS 的 value 对应
+// Matches the value of ComicProjectPage STYLE_OPTIONS on the frontend.
 const STYLE_KEYWORDS: Record<string, StyleEntry> = {
   webtoon_color: { en: "Korean webtoon style, clean line art, vibrant colors" },
   bl_manga: { en: "shoujo manga style, soft palette, delicate features" },
@@ -33,21 +34,22 @@ function resolveStyleEntry(stylePresetRaw: string | null | undefined): StyleEntr
   return DEFAULT_STYLE;
 }
 
-/** 返回中英组合画风关键词串，直接拼入图像 prompt */
+/** Return an English art-style keyword string to append directly to the image prompt. */
 export function resolveComicStyleKeywords(stylePresetRaw: string | null | undefined): string {
   return resolveStyleEntry(stylePresetRaw).en;
 }
 
-/** 仅英文画风片段（用于以英文为主的 prompt） */
+/** English-only art-style fragment (for prompts that are primarily English). */
 export function resolveComicStyleKeywordsEn(stylePresetRaw: string | null | undefined): string {
   return resolveStyleEntry(stylePresetRaw).en;
 }
 
-// ─── 性别强约束 ───────────────────────────────────────────────────────────────
-// 漫画里"鹅蛋脸、桃花眼、媚意、傲娇"等描述在古风/韩漫语境对男女都通用，
-// 模型默认会偏向"美男"。所有生图链路（三视图/表情稿/资产/格子图）必须显式声明性别。
+// ─── Strong gender constraint ─────────────────────────────────────────────────
+// In historical / Korean-webtoon settings, descriptors such as "oval face, peach-blossom eyes,
+// alluring, tsundere" are used for both genders, and models default toward a pretty-boy look.
+// Every image-generation path (turnaround / expression sheet / asset / panel) must declare gender explicitly.
 
-/** 把 ComicCharacter.gender 转成强约束 prompt 片段；unknown/缺省时返回空串（不注入） */
+/** Convert ComicCharacter.gender into a strong constraint prompt fragment; empty when unknown/missing (not injected). */
 export function buildGenderLockPrompt(
   gender: string | null | undefined,
   characterName?: string,
@@ -66,7 +68,7 @@ export function buildGenderLockPrompt(
         "this character is female; preserve the specified gender and do not render a male or androgynous character",
       ].join(", ");
     case "other":
-      // 中性/非二元：不强约束某一性别，但提示不要随机偏向
+      // Neutral / non-binary: do not lock one gender, but warn against a random default bias.
       return `*** GENDER NOTE ***: ${characterName ?? "this character"} has androgynous / non-binary presentation, respect the appearance description above; do not force masculine or feminine defaults`;
     case "unknown":
     case null:

@@ -139,7 +139,7 @@ test("NovelProductionStatusService does not complete the book from a succeeded j
   assert.equal(status.progressBasis, "facts");
   assert.equal(status.factProgress.draftedChapterCount, 8);
   assert.equal(status.runtimeStatus.state, "succeeded");
-  assert.equal(status.currentStage, "章节正文写作中");
+  assert.equal(status.currentStage, "Chapter text is being written");
   assert.doesNotMatch(status.currentStage, /完成/);
 });
 
@@ -166,7 +166,7 @@ test("NovelProductionStatusService treats NovelWorld as the production world ass
   assert.equal(status.factProgress.facts.hasWorld, true);
   assert.equal(status.worldId, null);
   assert.equal(status.worldName, "本书雾港");
-  assert.equal(worldStage?.label, "本书世界");
+  assert.equal(worldStage?.label, "This book's world");
   assert.equal(worldStage?.status, "completed");
   assert.equal(worldStage?.detail, "本书雾港");
   assert.notEqual(status.currentStage, "等待生成世界观");
@@ -183,12 +183,12 @@ test("NovelProductionStatusService keeps fact progress when the latest job faile
     novelId: "novel-1",
     targetChapterCount: 20,
   });
-  assert.equal(status.currentStage, "章节正文写作中");
+  assert.equal(status.currentStage, "Chapter text is being written");
   assert.equal(status.factProgress.reviewedChapterCount, 8);
   assert.equal(status.factProgress.committedChapterCount, 6);
   assert.equal(status.runtimeStatus.state, "failed");
   assert.equal(status.failureSummary, "模型调用失败");
-  assert.match(status.summary, /正文 8\/20 章/);
+  assert.match(status.summary, /chapter text 8\/20 chapters/);
 });
 
 test("NovelProductionStatusService prioritizes repair facts over writing completion", async () => {
@@ -211,10 +211,10 @@ test("NovelProductionStatusService prioritizes repair facts over writing complet
     novelId: "novel-1",
     targetChapterCount: 20,
   });
-  assert.equal(status.currentStage, "质量修复待处理");
+  assert.equal(status.currentStage, "Quality repair is pending");
   assert.equal(status.factProgress.needsRepairChapters, 2);
-  assert.match(status.recoveryHint, /质量修复/);
-  assert.notEqual(status.currentStage, "小说事实进展可交付");
+  assert.match(status.recoveryHint, /quality repair/i);
+  assert.notEqual(status.currentStage, "Novel fact progress is ready to deliver");
 });
 
 test("NovelProductionStatusService reports delivery-ready facts without a job", async () => {
@@ -237,7 +237,7 @@ test("NovelProductionStatusService reports delivery-ready facts without a job", 
     novelId: "novel-1",
     targetChapterCount: 20,
   });
-  assert.equal(status.currentStage, "小说事实进展可交付");
+  assert.equal(status.currentStage, "Novel fact progress is ready to deliver");
   assert.equal(status.pipelineStatus, null);
   assert.equal(status.runtimeStatus.state, "idle");
   assert.equal(status.factProgress.draftedChapterCount, 20);

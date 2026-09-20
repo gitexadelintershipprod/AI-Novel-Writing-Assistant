@@ -98,7 +98,7 @@ export class NovelPipelineExecutor {
     try {
       await prisma.generationJob.update({ where: { id: jobId }, data });
     } catch {
-      // 后台任务状态更新失败不应影响主服务稳定
+      // A failed background job-status update must not destabilize the main service.
     }
   }
 
@@ -177,7 +177,7 @@ export class NovelPipelineExecutor {
           heartbeatAt: new Date(),
           currentStage: "generating_chapters",
         });
-        logPipelineInfo("任务开始执行", {
+        logPipelineInfo("Task execution started", {
           jobId,
           novelId,
           range: `${options.startOrder}-${options.endOrder}`,
@@ -201,7 +201,7 @@ export class NovelPipelineExecutor {
           throw new Error("The task failed: the novel or chapter does not exist");
         }
 
-        logPipelineInfo("任务加载完成", {
+        logPipelineInfo("Task loaded", {
           jobId,
           novelId,
           title: novel.title,
@@ -227,7 +227,7 @@ export class NovelPipelineExecutor {
         const chaptersToProcess = chapters.slice(remainingStartIndex);
         let pendingManualRecovery = false;
 
-        // Phase 3：JIT 预取服务（N+1 章执行预取）
+        // Phase 3: JIT prefetch service (prefetch execution for chapter N+1).
         const prefetchVolumeService = new NovelVolumeService();
         const prefetchRouteWindowService = new ChapterRouteWindowService(prefetchVolumeService);
         const prefetchJITService = new ChapterPlanJITService({
@@ -272,7 +272,7 @@ export class NovelPipelineExecutor {
           };
 
           await applyChapterStage("generating_chapters");
-          logPipelineInfo("开始处理章节", {
+          logPipelineInfo("Processing chapter", {
             jobId,
             chapterId: chapter.id,
             order: chapter.order,
@@ -448,9 +448,9 @@ export class NovelPipelineExecutor {
           });
           shouldStopAfterCurrentChapter = closure.shouldStopAfterCurrentChapter;
 
-          // Phase 3：N+1 章 JIT 预取
-          // 当前章 finalize 完成后（factLedger 已写入），后台触发下一章的 task sheet 生成。
-          // fire-and-forget：预取失败不影响当前流水线，下一章正式组装时会重试。
+          // Phase 3: JIT prefetch for chapter N+1.
+          // After the current chapter finalizes (fact ledger already written), kick off the next chapter's task sheet in the background.
+          // Fire-and-forget: prefetch failure does not affect this pipeline; the next chapter retries when it assembles.
           if (!shouldStopAfterCurrentChapter && isAutopilotMode && chapter.order < autopilotTargetEndOrder) {
             await prefetchRouteWindowService.ensureRouteWindow(novelId, chapter.order + 1, {
               min: 3,
@@ -541,7 +541,7 @@ export class NovelPipelineExecutor {
               recoverableRepairDetails,
             }),
           });
-          logPipelineInfo("任务进度更新", {
+          logPipelineInfo("Task progress updated", {
             jobId,
             completed,
             total: totalCount,
@@ -608,7 +608,7 @@ export class NovelPipelineExecutor {
             recoverableRepairDetails,
           }),
         });
-        logPipelineInfo("任务执行结束", {
+        logPipelineInfo("Task execution finished", {
           jobId,
           status: finalStatus,
           qualityAlertCount: qualityAlertDetails.length,

@@ -1,7 +1,7 @@
 /**
- * 短剧小说内容源适配器（re-export from adaptation 共享层）
+ * Short-drama novel source adapter (re-export from the adaptation shared layer).
  *
- * 权威实现已迁至 services/adaptation/source/NovelSourceAdapter。
- * drama 内部代码从此路径 import 不受影响。
+ * The canonical implementation now lives in services/adaptation/source/NovelSourceAdapter.
+ * Drama internal imports from this path are unaffected.
  */
 export { NovelSourceAdapter, novelSourceAdapter } from "../../adaptation/source/NovelSourceAdapter";

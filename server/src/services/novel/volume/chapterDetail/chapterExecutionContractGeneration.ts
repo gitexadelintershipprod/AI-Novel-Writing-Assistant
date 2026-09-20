@@ -62,12 +62,12 @@ export async function generateChapterTaskSheetDetail(params: {
     return {
       purpose: existingChapter.purpose?.trim() || existingChapter.summary.trim(),
       exclusiveEvent: existingChapter.exclusiveEvent?.trim() || existingChapter.summary.trim(),
-      endingState: existingChapter.endingState?.trim() || "本章完成Current chapter任务，并为下一章留下明确入口。",
-      nextChapterEntryState: existingChapter.nextChapterEntryState?.trim() || existingChapter.endingState?.trim() || "下一章承接本章结果keep pushing forward。",
+      endingState: existingChapter.endingState?.trim() || "This chapter completes the current chapter task and leaves a clear entry into the next chapter.",
+      nextChapterEntryState: existingChapter.nextChapterEntryState?.trim() || existingChapter.endingState?.trim() || "The next chapter continues from this chapter's outcome and keeps pushing forward.",
       conflictLevel: existingChapter.conflictLevel ?? 3,
       revealLevel: existingChapter.revealLevel ?? 2,
       targetWordCount: existingChapter.targetWordCount ?? 2200,
-      mustAvoid: existingChapter.mustAvoid?.trim() || "避免偏离Task sheet for this chapter和卷节奏。",
+      mustAvoid: existingChapter.mustAvoid?.trim() || "Do not drift from this chapter's task sheet or the volume's pacing.",
       payoffRefs: existingChapter.payoffRefs,
       taskSheet: existingChapter.taskSheet.trim(),
       sceneCards: serializeChapterScenePlan(scenePlan),
@@ -85,7 +85,7 @@ export async function generateChapterTaskSheetDetail(params: {
           ...params.promptInput,
           guidance: [
             params.promptInput.guidance?.trim(),
-            `上一版Chapter execution合同未通过质量门禁：${qualityFeedback}`,
+            `The previous chapter execution contract failed the quality gate: ${qualityFeedback}`,
           ].filter(Boolean).join("\n"),
         }
         : params.promptInput;

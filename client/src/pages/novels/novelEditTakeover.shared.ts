@@ -34,7 +34,7 @@ export function formatTakeoverCheckpoint(
     return "Volume Strategy/Volume Skeleton Pending Review";
   }
   if (checkpoint === "chapter_batch_ready") {
-    return `${resolveAutoExecutionScopeLabel(task)}Auto-run is paused`;
+    return `${resolveAutoExecutionScopeLabel(task)} auto-run is paused`;
   }
   if (checkpoint === "replan_required") {
     return "Pending processing of re-planning suggestions";
@@ -96,7 +96,7 @@ export function buildTakeoverDescription(input: {
     input.mode === "running"
     && input.checkpointType === "chapter_batch_ready"
   ) {
-    return `AI is executing automatically in the background${input.scopeLabel}, and will continue to complete the review and repair. You can still continue to view and edit manually; if you modify the current chapter at the same time, subsequent automatic results may overwrite this part of the content.`;
+    return `AI is running automatically in the background for ${input.scopeLabel}, and will continue review and repair. You can still view and edit manually; if you change the current chapter at the same time, later automatic results may overwrite that text.`;
   }
   if (input.mode === "waiting" || input.mode === "action_required") {
     if (input.checkpointType === "candidate_selection_required") {
@@ -120,7 +120,7 @@ export function buildTakeoverDescription(input: {
   }
   if (input.mode === "failed") {
     if (input.checkpointType === "chapter_batch_ready") {
-      return `${input.scopeLabel}Automated execution is paused. You can first view the execution details or quality repair area before deciding whether to continue automatic execution.`;
+      return `${input.scopeLabel} automated execution is paused. You can first view the execution details or quality repair area before deciding whether to continue automatic execution.`;
     }
     return "The backend director process has been interrupted. You can check the execution details before deciding whether to resume from the latest progress point.";
   }
@@ -131,7 +131,7 @@ export function buildTakeoverDescription(input: {
 }
 
 export function buildContinueAutoExecutionActionLabel(scopeLabel: string, isPending: boolean): string {
-  return isPending ? "Continue to execute..." : `Continue automatic execution${scopeLabel}`;
+  return isPending ? "Continue to execute..." : `Continue automatic execution of ${scopeLabel}`;
 }
 
 export function buildReplanAndContinueActionLabel(isPending: boolean): string {
@@ -139,5 +139,5 @@ export function buildReplanAndContinueActionLabel(isPending: boolean): string {
 }
 
 export function buildContinueAutoExecutionToast(scopeLabel: string): string {
-  return `Autodirector has continued execution${scopeLabel}, and it will be automatically reviewed and repaired in the background.`;
+  return `Auto-Director has continued ${scopeLabel}; review and repair will keep running in the background.`;
 }

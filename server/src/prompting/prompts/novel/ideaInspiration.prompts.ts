@@ -15,8 +15,8 @@ export const directorIdeaInspirationPrompt: PromptAsset<DirectorIdeaInspirationP
         maxTokensBudget: 0,
     },
     repairPolicy: {
-        // 通用 JSON repair 看不到原始创作上下文，可能把坏结构修成题材跑偏的可用 JSON。
-        // 该轻量任务由应用层携带原始上下文重新生成一次。
+        // Generic JSON repair cannot see the original creative context and may repair a broken structure into usable JSON that drifted off-topic.
+        // This lightweight task is regenerated once by the application layer with the original context attached.
         maxAttempts: 0,
     },
     semanticRetryPolicy: {

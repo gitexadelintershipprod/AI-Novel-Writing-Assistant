@@ -287,7 +287,7 @@ export class AutoDirectorFollowUpActionExecutor {
         taskId: input.taskId,
         actionCode: input.actionCode,
         code: "forbidden",
-        message: blockingReasons.join("；") || "This task needs to be rechecked first.",
+        message: blockingReasons.join("; ") || "This task needs to be rechecked first.",
         task: await this.safeGetTaskDetail(input.taskId),
       };
       await this.recordActionLog(input, result);

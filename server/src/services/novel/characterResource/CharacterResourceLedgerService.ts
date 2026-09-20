@@ -218,7 +218,7 @@ export class CharacterResourceLedgerService {
     const pendingProposalItems = pendingProposalRows.map(mapPendingProposalRow);
     const riskSignals = relevant.flatMap((item) => item.riskSignals.map((signal) => ({
       ...signal,
-      summary: `${item.name}：${signal.summary}`,
+      summary: `${item.name}: ${signal.summary}`,
     }))).slice(0, 10);
 
     return {
@@ -366,13 +366,13 @@ export class CharacterResourceLedgerService {
     pendingProposalItems: CharacterResourceProposalSummary[];
   }): string {
     const parts = [
-      input.availableItems.length > 0 ? `可用key resources ${input.availableItems.length} items` : "",
-      input.setupNeededItems.length > 0 ? `需要留意铺垫 ${input.setupNeededItems.length} items` : "",
-      input.blockedItems.length > 0 ? `不可直接使用 ${input.blockedItems.length} items` : "",
-      input.highRiskCommittedItems.length > 0 ? `High risk has been accounted for资源 ${input.highRiskCommittedItems.length} items` : "",
-      input.pendingProposalItems.length > 0 ? `待确认资源变更 ${input.pendingProposalItems.length} items` : "",
+      input.availableItems.length > 0 ? `${input.availableItems.length} usable key resources` : "",
+      input.setupNeededItems.length > 0 ? `${input.setupNeededItems.length} resources need setup attention` : "",
+      input.blockedItems.length > 0 ? `${input.blockedItems.length} resources must not be used directly` : "",
+      input.highRiskCommittedItems.length > 0 ? `${input.highRiskCommittedItems.length} high-risk already-committed resources` : "",
+      input.pendingProposalItems.length > 0 ? `${input.pendingProposalItems.length} pending resource changes` : "",
     ].filter(Boolean);
-    return parts.join("；") || "This chapter has no character resources that need a special hint.";
+    return parts.join("; ") || "This chapter has no character resources that need a special hint.";
   }
 
   private emptyContext(): CharacterResourceContext {

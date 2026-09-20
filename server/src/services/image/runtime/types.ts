@@ -1,17 +1,18 @@
 /**
- * 图像生成 runtime 统一类型 + Adapter 接口
+ * Unified image-generation runtime types and Adapter interface.
  *
- * 设计意图：comic 5 个 + drama 2 个生图入口（共 7 处）历史上各写一套
- * "业务表 JSON 字段 + idle→generating→done/error 状态机 + 落盘 + 清旧扩展名"样板。
- * 本模块把样板提到 runner 里执行一次，由 Adapter 适配各入口的状态字段。
+ * Intent: comic had 5 image-generation entry points and drama had 2 (7 total),
+ * each historically duplicating the same boilerplate:
+ * "business-table JSON field + idle→generating→done/error state machine + disk persist + cleanup of old extensions".
+ * This module lifts that boilerplate into the runner so it runs once, while each Adapter maps that entry's state fields.
  *
- * 持久化模型不动：状态仍嵌业务表 JSON 字段（sheetData/imageData/portraitData/keyframeData）。
- * 不替代 ImageGenerationService（小说封面 + 老 character image 走两表模型，范式不同）。
+ * Persistence is unchanged: status still lives in business-table JSON fields (sheetData/imageData/portraitData/keyframeData).
+ * This does not replace ImageGenerationService (novel covers and the older character-image flow use a two-table model).
  */
 import type { ImageSize } from "../types";
 import type { LLMProvider } from "@ai-novel/shared/types/llm";
 
-// ─── 状态 ─────────────────────────────────────────────────────────────────────
+// ─── State ────────────────────────────────────────────────────────────────────
 
 export type GeneratedImageStatus = "idle" | "generating" | "done" | "error";
 
@@ -23,17 +24,17 @@ export interface GeneratedImageHistoryItem {
   generatedAt?: string;
 }
 
-/** 生成的Reference material元数据（成功生图后写入，供前端弹窗溯源） */
+/** Metadata for generated reference material (written after a successful image, for frontend provenance). */
 export interface GeneratedReferenceImageMeta {
-  /** character_sheet=三视图 | character_expression=表情稿 | character_face=面部裁剪 | asset=角色资产 | scene=场景设定图 */
+  /** character_sheet=turnaround | character_expression=expression sheet | character_face=face crop | asset=character asset | scene=scene setting art */
   kind: "character_sheet" | "character_expression" | "character_face" | "asset" | "scene";
-  /** 人类可读标签 */
+  /** Human-readable label */
   label: string;
   /** HTTP URL */
   url: string;
 }
 
-/** 所有生图入口的统一状态形状 */
+/** Unified state shape for every image-generation entry point. */
 export interface GeneratedImageState {
   status: GeneratedImageStatus;
   version?: number;
@@ -44,103 +45,107 @@ export interface GeneratedImageState {
   error?: string;
   origin?: "generated" | "uploaded";
   history?: GeneratedImageHistoryItem[];
-  /** 本次生图实际使用的参考素材（成功时才写） */
+  /** Reference material actually used for this generation (written only on success). */
   referenceImages?: GeneratedReferenceImageMeta[];
 }
 
-// ─── Adapter 接口 ────────────────────────────────────────────────────────────
+// ─── Adapter interface ────────────────────────────────────────────────────────
 
 /**
- * 适配业务表的状态字段读写。每个生图入口（角色三视图/表情稿/资产/场景/格子图/Drama 角色/Drama 关键帧）
- * 实现一个 Adapter，把"如何从业务表读出Current status、如何把新状态写回去、如何计算磁盘路径与 HTTP URL"封装在内。
+ * Adapts read/write of a business table's state fields. Each image-generation entry
+ * (character turnaround / expression sheet / asset / scene / panel / drama character / drama keyframe)
+ * implements an Adapter that encapsulates how to read current status from the business table,
+ * how to write the new state back, and how to compute the disk path and HTTP URL.
  *
- * `TState` 允许扩展自 GeneratedImageState 以保留入口特定字段（如表情稿的嵌套位置、Drama 的 portraitData 兼容字段）。
+ * `TState` may extend GeneratedImageState to keep entry-specific fields
+ * (nested expression-sheet location, drama portraitData compatibility fields).
  */
 export interface ImageTargetAdapter<TState extends GeneratedImageState = GeneratedImageState> {
-  /** 标识，用于日志/trace（如 "comic.character.sheet" / "drama.shot.keyframe"） */
+  /** Identifier used in logs/trace (e.g. "comic.character.sheet" / "drama.shot.keyframe"). */
   readonly kind: string;
-  /** 读当前状态（不存在返回 { status: "idle" }） */
+  /** Read current state (return { status: "idle" } if missing). */
   loadState(): Promise<TState>;
-  /** 写状态（generating / done / error 均走此） */
+  /** Write state (generating / done / error all go through this). */
   saveState(state: TState): Promise<void>;
-  /** 计算落盘绝对路径（已知扩展名） */
+  /** Compute the absolute disk path (extension is already known). */
   diskPath(ext: string): string;
-  /** 返回 HTTP 可访问的 URL（写入 state.url） */
+  /** Return an HTTP-accessible URL (written to state.url). */
   publicUrl(): string;
-  /** 删除同目录其他扩展名的旧文件（用于覆盖式生成）；可选 */
+  /** Delete old files with other extensions in the same directory (overwrite generation); optional. */
   cleanupOtherExts?(keepExt: string): Promise<void>;
-  /** 版本管理策略：归档历史 + 版本号递增；不填则保留 history 但不归档现图 */
+  /** Versioning: archive history + increment version. If omitted, history is kept but the current image is not archived. */
   versioning?: {
     enabled: boolean;
-    /** history 最多保留几条；默认 5 */
+    /** Max history entries to keep; default 5. */
     maxHistory?: number;
-    /** 归档时把当前 done 状态转成历史条目；默认拷贝 url/prompt/provider/generatedAt/version */
+    /** Convert the current done state into a history item on archive; default copies url/prompt/provider/generatedAt/version. */
     archiveCurrent?: (current: TState) => Promise<GeneratedImageHistoryItem | null>;
   };
-  /** 合并业务定制状态字段（如把生成结果同时回写到兼容字段）；可选 */
+  /** Merge business-specific state fields (e.g. also write the result into compatibility fields); optional. */
   buildExtraDoneState?(base: GeneratedImageState): Partial<TState>;
 }
 
-// ─── runImageGeneration 入参 ──────────────────────────────────────────────────
+// ─── runImageGeneration options ───────────────────────────────────────────────
 
 export interface RunImageGenerationOptions {
-  /** LLM provider（缺省走调用方默认） */
+  /** LLM provider (defaults to the caller's default). */
   provider?: LLMProvider | string;
-  /** 已构建好的 prompt */
+  /** Fully built prompt. */
   prompt: string;
   negativePrompt?: string;
-  /** 图片尺寸（默认 1024x1536，竖版漫画/角色） */
+  /** Image size (default 1024x1536, portrait comic/character). */
   size?: ImageSize;
-  /** 生成张数（默认 1） */
+  /** Number of images to generate (default 1). */
   count?: number;
-  /** 参考图本地路径（优先级高于 refImages） */
+  /** Local reference-image paths (higher priority than refImages). */
   refImagePaths?: string[];
-  /** 参考图 URL */
+  /** Reference-image URLs. */
   refImages?: string[];
-  /** 写入 imageData.referenceImages 的素材元数据（供前端溯源） */
+  /** Reference metadata written to imageData.referenceImages (for frontend provenance). */
   referenceImages?: GeneratedReferenceImageMeta[];
-  /** sceneType 透传给底层 provider（不同 provider 有不同默认） */
+  /** sceneType passed through to the underlying provider (providers have different defaults). */
   sceneType?: "character" | "novel_cover" | "chapter_illustration";
 }
 
 export const DEFAULT_RUNTIME_PROVIDER: LLMProvider = "openai";
 export const DEFAULT_RUNTIME_SIZE: ImageSize = "1024x1536";
 
-// ─── 生图前预览数据（确认弹窗用） ────────────────────────────────────────────
+// ─── Pre-generation preview (confirmation dialog) ─────────────────────────────
 
 /**
- * service.prepare() 返回给前端的"将要发送给image model的全部素材"快照。
- * 前端弹窗展示这份数据，用户确认（可临时改 prompt/provider/size）后再调 generate。
+ * Snapshot returned by service.prepare() of all material that will be sent to the image model.
+ * The frontend shows this in a dialog; the user confirms (and may temporarily change prompt/provider/size)
+ * before calling generate.
  */
 export interface ImageGenerationPreview {
-  /** 入口 kind，如 "comic.character-asset" / "comic.scene" / "comic.panel" / "drama.character" 等 */
+  /** Entry kind, e.g. "comic.character-asset" / "comic.scene" / "comic.panel" / "drama.character". */
   kind: string;
-  /** 入口标题（前端展示，如 "生成场景设定图：宗门大殿"） */
+  /** Entry title shown in the frontend, e.g. "Generate scene setting art: Sect Hall". */
   title: string;
-  /** 即将发送的 prompt（完整文本，可前端编辑后通过 override 回传） */
+  /** Prompt about to be sent (full text; the frontend may edit it and pass it back via override). */
   prompt: string;
   negativePrompt?: string;
-  /** 参考素材清单（前端缩略图展示，URL 可直接 img src） */
+  /** Reference material list (frontend thumbnails; URLs can be used as img src). */
   referenceImages: GeneratedReferenceImageMeta[];
-  /** 默认 provider；用户可在弹窗里改 */
+  /** Default provider; the user may change it in the dialog. */
   provider: string;
-  /** 默认 size；用户可在弹窗里改 */
+  /** Default size; the user may change it in the dialog. */
   size: ImageSize;
-  /** 可选 provider 列表（前端下拉用，由调用方传入） */
+  /** Optional provider list for the frontend dropdown (supplied by the caller). */
   availableProviders?: Array<{ value: string; label: string }>;
-  /** 可选 size 列表（前端下拉用） */
+  /** Optional size list for the frontend dropdown. */
   availableSizes?: ImageSize[];
 }
 
 /**
- * 前端确认时回传的覆盖参数。
- * 全部可选——未传则按 service 的默认值。
+ * Override parameters sent back when the frontend confirms.
+ * All optional — omitted fields keep the service defaults.
  */
 export interface ImageGenerationOverrides {
   promptOverride?: string;
   providerOverride?: string;
   sizeOverride?: ImageSize;
   negativePromptOverride?: string;
-  /** 用户在确认弹窗中临时移除的参考素材 URL；本次生成不发送这些参考图 */
+  /** Reference-image URLs the user temporarily removed in the confirm dialog; they are not sent for this generation. */
   excludedReferenceImageUrls?: string[];
 }

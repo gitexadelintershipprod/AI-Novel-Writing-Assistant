@@ -454,7 +454,7 @@ export class PlannerService {
       expectation: chapter.expectation ?? null,
     });
     const openAuditIssues = recentAuditReports.flatMap((report) => report.issues.map((issue) => (
-      `${issue.auditType}/${issue.severity}: ${issue.description} | 证据=${issue.evidence}`
+      `${issue.auditType}/${issue.severity}: ${issue.description} | evidence=${issue.evidence}`
     )));
     const resolvedStateDrivenContext = await contextAssemblyService.build({
       novelId,
@@ -479,29 +479,29 @@ export class PlannerService {
     });
     const replanContextBlock = options.replanContext
       ? [
-          `重规划原因：${options.replanContext.reason}`,
+          `Replan reason: ${options.replanContext.reason}`,
           `Trigger type:${options.replanContext.triggerType}`,
           options.replanContext.triggerReason
-            ? `状态触发理由：${options.replanContext.triggerReason}`
+            ? `State trigger reason: ${options.replanContext.triggerReason}`
             : "",
           options.replanContext.windowReason
-            ? `选窗理由：${options.replanContext.windowReason}`
+            ? `Window reason: ${options.replanContext.windowReason}`
             : "",
           options.replanContext.whyTheseChapters
-            ? `为何改这几章：${options.replanContext.whyTheseChapters}`
+            ? `Why these chapters: ${options.replanContext.whyTheseChapters}`
             : "",
-          `重规划窗口：Chapter ${options.replanContext.affectedChapterOrders.join("、")}`,
+          `Replan window: Chapter ${options.replanContext.affectedChapterOrders.join(", ")}`,
           typeof options.replanContext.anchorChapterOrder === "number"
             ? `Anchor Chapter: Chapter ${options.replanContext.anchorChapterOrder}s`
             : "",
           options.replanContext.sourceIssueIds.length > 0
-            ? `Source question:${options.replanContext.sourceIssueIds.join("、")}`
+            ? `Source question:${options.replanContext.sourceIssueIds.join(", ")}`
             : "",
           options.replanContext.blockingLedgerKeys?.length
-            ? `账本风险：${options.replanContext.blockingLedgerKeys.join("、")}`
+            ? `Ledger risks: ${options.replanContext.blockingLedgerKeys.join(", ")}`
             : "",
           options.replanContext.replannedFromPlanId
-            ? `上一版计划：${options.replanContext.replannedFromPlanId}`
+            ? `Previous plan: ${options.replanContext.replannedFromPlanId}`
             : "",
         ].filter(Boolean).join("\n")
       : "None";
@@ -533,9 +533,9 @@ export class PlannerService {
         updatedAt: volume.updatedAt,
         chapters: volume.chapters,
       })),
-      bookPlan: bookPlan ? `${bookPlan.title} | ${bookPlan.objective}${bookPlan.phaseLabel ? ` | 阶段=${bookPlan.phaseLabel}` : ""}` : "None",
+      bookPlan: bookPlan ? `${bookPlan.title} | ${bookPlan.objective}${bookPlan.phaseLabel ? ` | phase=${bookPlan.phaseLabel}` : ""}` : "None",
       arcPlans: arcPlans.length > 0
-        ? arcPlans.map((plan) => `${plan.externalRef ?? "-"} ${plan.title} | ${plan.objective}${plan.phaseLabel ? ` | 阶段=${plan.phaseLabel}` : ""}`).join("\n")
+        ? arcPlans.map((plan) => `${plan.externalRef ?? "-"} ${plan.title} | ${plan.objective}${plan.phaseLabel ? ` | phase=${plan.phaseLabel}` : ""}`).join("\n")
         : "None",
       characters: characters.map((item) => `${item.id}|${item.name}|${item.role}|goal=${item.currentGoal ?? ""}|state=${item.currentState ?? ""}`).join("\n") || "None",
       recentSummaries: summaries.map((item) => `${item.summary}`).join("\n") || "None",
@@ -554,9 +554,9 @@ export class PlannerService {
       }),
       stateDrivenGoal: plannerStateGoalText,
       defaultMetadata: [
-        `planRole=${defaultMetadata.planRole ?? "progress"} | phase=${defaultMetadata.phaseLabel ?? "无"}`,
-        `mustAdvance=${defaultMetadata.mustAdvance.join("；") || "无"}`,
-        `mustPreserve=${defaultMetadata.mustPreserve.join("；") || "无"}`,
+        `planRole=${defaultMetadata.planRole ?? "progress"} | phase=${defaultMetadata.phaseLabel ?? "none"}`,
+        `mustAdvance=${defaultMetadata.mustAdvance.join("; ") || "none"}`,
+        `mustPreserve=${defaultMetadata.mustPreserve.join("; ") || "none"}`,
       ].join("\n"),
       replanContext: replanContextBlock,
       replanConflictLevelAnchors: options.replanContext
@@ -595,13 +595,13 @@ export class PlannerService {
       objective: output.objective
         || compactText(chapterStateGoal?.summary)
         || chapter.expectation?.trim()
-        || `推进Chapter ${chapter.order}主线。`,
+        || `Advance the Chapter ${chapter.order} spine.`,
       targetWordCount: chapter.targetWordCount,
       participants: resolvedParticipants,
       reveals: output.reveals ?? [],
       riskNotes: takeUnique([
         ...(output.riskNotes ?? []),
-        ...resolvedStateDrivenContext.protectedSecrets.map((item) => `禁止提前泄露：${item}`),
+        ...resolvedStateDrivenContext.protectedSecrets.map((item) => `Do not leak early: ${item}`),
       ], 8),
       hookTarget: output.hookTarget || chapter.hook?.trim() || null,
       baseExecutionContract: {

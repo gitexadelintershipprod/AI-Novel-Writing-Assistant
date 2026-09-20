@@ -162,7 +162,7 @@ export class ChapterExecutionContractService {
         tx,
         novelId,
         generatedDocument,
-        `刷新Chapter ${chapter.order}执行合同。`,
+        `Refresh the chapter ${chapter.order} execution contract.`,
       );
       const persistedDocument = {
         ...generatedDocument,

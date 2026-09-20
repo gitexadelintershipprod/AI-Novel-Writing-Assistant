@@ -255,15 +255,15 @@ function buildWindowOrders(
 }
 
 function formatOrders(orders: number[]): string {
-  return orders.map((order) => `Chapter ${order}`).join("、");
+  return orders.map((order) => `Chapter ${order}`).join(", ");
 }
 
 function buildTriggerReason(signal: ReplanSignal, input: ReplanDecisionInput, blockingIssues: AuditIssue[], blockingLedgerKeys: string[]): string {
   if (signal === "overdue_payoff") {
     const titles = uniqueStrings((input.snapshot?.narrative.overduePayoffs ?? []).map((item) => item.title)).slice(0, 2);
     return titles.length > 0
-      ? `canonical 状态显示 payoff 已逾期：${titles.join("；")}，作为章节级质量债继续跟进。`
-      : `canonical 状态显示存在逾期 payoff，作为章节级质量债继续跟进。`;
+      ? `Canonical state shows overdue payoffs: ${titles.join("; ")}. Keep following them as chapter-level quality debt.`
+      : `Canonical state shows overdue payoffs. Keep following them as chapter-level quality debt.`;
   }
   if (signal === "next_action_replan") {
     return `The state-driven decision switched to replan, meaning this chapter's goal no longer matches the current plan window.`;
@@ -271,37 +271,37 @@ function buildTriggerReason(signal: ReplanSignal, input: ReplanDecisionInput, bl
   if (signal === "blocking_audit") {
     const topIssues = blockingIssues.slice(0, 2).map((issue) => issue.description);
     return topIssues.length > 0
-      ? `高优先级审计问题未解决：${topIssues.join("；")}。`
+      ? `High-priority audit issues are still open: ${topIssues.join("; ")}.`
       : `There are unresolved high-priority audit issues. Adjust the chapter plan first.`;
   }
   if (signal === "manual_request") {
-    return input.reason?.trim() || "用户显式要求重规划当前窗口。";
+    return input.reason?.trim() || "The user explicitly asked to replan the current window.";
   }
   if (blockingLedgerKeys.length > 0) {
     return `The foreshadowing ledger has open risks. Recalibrate chapter duties.`;
   }
-  return "Current status稳定，暂不It is recommended to re-plan。";
+  return "Current status is stable. Replanning is not recommended yet.";
 }
 
 function buildWindowReason(signal: ReplanSignal, anchorChapterOrder: number | null, affectedChapterOrders: number[], protectedSecrets: string[]): string {
   const chapterLabel = anchorChapterOrder ? `Chapter ${anchorChapterOrder}` : "Current chapter";
   const secretHint = protectedSecrets.length > 0
-    ? ` 同时要守住“${protectedSecrets.slice(0, 2).join("；")}”这类未公开信息。`
+    ? ` Also protect unpublished information such as "${protectedSecrets.slice(0, 2).join("; ")}."`
     : "";
   if (signal === "overdue_payoff") {
     if (affectedChapterOrders.length === 0) {
-      return `${chapterLabel}只用于定位逾期承诺；系统不会仅凭逾期距离或当前章引用automatic selection重规划窗口。${secretHint}`.trim();
+      return `${chapterLabel} is only used to locate overdue promises; the system will not auto-select a replan window from overdue distance or the current chapter citation alone.${secretHint}`.trim();
     }
-    return `以${chapterLabel}为锚点，窗口覆盖 ${formatOrders(affectedChapterOrders)}，因为逾期 payoff 往往需要补铺垫、兑现和兑现后的余波连续联动。${secretHint}`.trim();
+    return `Using ${chapterLabel} as the anchor, the window covers ${formatOrders(affectedChapterOrders)} because overdue payoffs usually need setup, cashing, and aftershock chapters to move together.${secretHint}`.trim();
   }
   if (signal === "blocking_audit") {
-    return `以${chapterLabel}向后展开 ${formatOrders(affectedChapterOrders)}，先修正currently blocked问题，再避免旧计划继续污染后续章节。${secretHint}`.trim();
+    return `From ${chapterLabel}, expand forward through ${formatOrders(affectedChapterOrders)} to fix currently blocked issues first and keep the old plan from contaminating later chapters.${secretHint}`.trim();
   }
   if (signal === "next_action_replan") {
-    return `以${chapterLabel}为锚点联动 ${formatOrders(affectedChapterOrders)}，让Current status目标重新对齐邻近章节职责。${secretHint}`.trim();
+    return `Using ${chapterLabel} as the anchor, coordinate ${formatOrders(affectedChapterOrders)} so the current-state goal realigns neighboring chapter duties.${secretHint}`.trim();
   }
   if (signal === "manual_request") {
-    return `本次按 ${formatOrders(affectedChapterOrders)} 执行手动重规划，优先围绕${chapterLabel}附近的连续章节收口。${secretHint}`.trim();
+    return `This manual replan covers ${formatOrders(affectedChapterOrders)}, focusing on consecutive chapters around ${chapterLabel}.${secretHint}`.trim();
   }
   return `There is no window that must be adjusted.`;
 }
@@ -312,21 +312,21 @@ function buildWhyTheseChapters(signal: ReplanSignal, affectedChapterOrders: numb
   }
   const ordersLabel = formatOrders(affectedChapterOrders);
   const goalHint = chapterStateGoal?.summary?.trim()
-    ? `，并围绕“${chapterStateGoal.summary.trim()}”重新分配章节职责`
+    ? `, and reassign chapter duties around "${chapterStateGoal.summary.trim()}"`
     : "";
   if (affectedChapterOrders.length === 1) {
-    return `只调整${ordersLabel}，因为问题当前集中在单章范围内${goalHint}。`;
+    return `Adjust only ${ordersLabel} because the issue is currently inside a single chapter${goalHint}.`;
   }
   if (signal === "overdue_payoff") {
-    return `选择${ordersLabel}，因为这组章节需要连续承担补铺垫、兑现逾期 payoff 和承接新盘面变化${goalHint}。`;
+    return `Choose ${ordersLabel} because these chapters need to carry setup, overdue payoff, and the next board change in sequence${goalHint}.`;
   }
   if (signal === "blocking_audit") {
-    return `选择${ordersLabel}，因为高优先级问题已经进入Current chapter，并会直接影响紧邻的后续推进${goalHint}。`;
+    return `Choose ${ordersLabel} because a high-priority issue has already entered the current chapter and will affect the next stretch${goalHint}.`;
   }
   if (signal === "next_action_replan") {
-    return `选择${ordersLabel}，因为 canonical state 已判定现有窗口失配，需要从锚点章向前后联动收口${goalHint}。`;
+    return `Choose ${ordersLabel} because canonical state judged the current window a mismatch and needs neighboring chapters around the anchor to close together${goalHint}.`;
   }
-  return `选择${ordersLabel}，因为这些章节与Current status目标直接相邻，调整成本最低${goalHint}。`;
+  return `Choose ${ordersLabel} because these chapters sit next to the current-state goal and cost the least to adjust${goalHint}.`;
 }
 
 export function buildReplanDecision(input: ReplanDecisionInput): ReplanDecision {

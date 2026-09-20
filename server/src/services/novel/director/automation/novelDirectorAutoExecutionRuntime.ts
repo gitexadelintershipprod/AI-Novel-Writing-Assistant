@@ -477,7 +477,7 @@ export class NovelDirectorAutoExecutionRuntime {
         const scopeLabel = buildDirectorAutoExecutionScopeLabelFromState(autoExecution, range.totalChapterCount);
         const failureMessage = job.error?.trim()
           || (job.status === "cancelled"
-            ? `${scopeLabel}Auto execution canceled。`
+            ? `${scopeLabel} auto-run was canceled.`
             : `${scopeLabel} auto-run did not fully pass quality requirements.`);
         if (
           isFullBookAutopilotRunMode(input.request.runMode)

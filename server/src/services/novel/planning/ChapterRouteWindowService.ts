@@ -56,9 +56,9 @@ export class ChapterRouteWindowService {
       : null;
     const remaining = compactTarget == null ? null : Math.max(0, compactTarget - fromChapterOrder + 1);
     const closingGuidance = remaining != null && remaining <= 3
-      ? `紧凑全书终章倒计时：剩余约 ${remaining} chapters。只生成结局合同所需的收束路线，不要创建新的主线或下一阶段钩子。`
+      ? `Compact full-book finale countdown: about ${remaining} chapters left. Generate only the closing route the ending contract needs. Do not create a new main line or next-stage hook.`
       : remaining != null && remaining <= 8
-        ? `紧凑全书收束规划：剩余约 ${remaining} chapters。优先完成主冲突、relationship changes和未兑现回报，不扩展远期世界或新主线。`
+        ? `Compact full-book closing plan: about ${remaining} chapters left. Finish the main conflict, relationship changes, and unpaid payoffs first. Do not expand a far-future world or a new main line.`
         : undefined;
     let availableRouteCount = await this.countAvailableRoute(novelId, fromChapterOrder);
     if (availableRouteCount >= minimum) {

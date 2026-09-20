@@ -15,7 +15,7 @@ test("workflow explainability exposes chapter-batch readiness for the default 1-
   assert.match(result.displayStatus, /1-10/);
   assert.match(result.resumeAction, /1-10/);
   assert.ok(result.blockingReason?.includes("1-10"));
-  assert.equal(result.lastHealthyStage, "节奏 / 拆章");
+  assert.equal(result.lastHealthyStage, "Beats / chapters");
 });
 
 test("workflow explainability exposes recovery guidance for a failed chapter batch", () => {
@@ -29,7 +29,7 @@ test("workflow explainability exposes recovery guidance for a failed chapter bat
 
   assert.match(result.displayStatus, /1-10/);
   assert.match(result.resumeAction, /1-10/);
-  assert.equal(result.lastHealthyStage, "章节执行");
+  assert.equal(result.lastHealthyStage, "Chapter execution");
   assert.ok(result.blockingReason);
 });
 
@@ -57,8 +57,8 @@ test("workflow explainability treats restart recovery as recovery-in-progress", 
     lastError: "service restarted and recovery is in progress",
   });
 
-  assert.equal(result.displayStatus, "节奏 / 拆章进行中");
-  assert.equal(result.resumeAction, "查看当前进度");
-  assert.equal(result.lastHealthyStage, "节奏 / 拆章");
+  assert.equal(result.displayStatus, "Beats / chapters in progress");
+  assert.equal(result.resumeAction, "View current progress");
+  assert.equal(result.lastHealthyStage, "Beats / chapters");
   assert.equal(result.blockingReason, null);
 });

@@ -1,12 +1,12 @@
 /**
  * DramaCharacterImageService
- * 为短剧角色生成「角色设计稿」：一张横版图同时包含面部特写 + 正/侧/背三视图。
- * 对齐行业标准角色参考图规范，一次生成、全视角一致、作为视频生成的视觉锚点。
+ * Generate a short-drama character design sheet: one landscape image with a face close-up plus front/side/back turnaround.
+ * Aligns with industry character-reference conventions: generate once, keep all views consistent, and use it as the visual anchor for video.
  *
- * 设计原则：
- * - 仅依赖平台级图片能力（provider.ts），不导入 novel 业务服务。
- * - 图片存储于 drama-characters/{charId}/ 独立目录，通过专用端点服务。
- * - characterSheetData 存Character design draft（主）；portraitData/threeViewData 保留后备兼容。
+ * Design rules:
+ * - Depend only on platform image capability (provider.ts); do not import novel business services.
+ * - Store images under drama-characters/{charId}/ and serve them through a dedicated endpoint.
+ * - characterSheetData holds the design sheet (primary); portraitData/threeViewData stay as compatibility fallbacks.
  */
 import fs from "fs/promises";
 import path from "path";
@@ -33,7 +33,7 @@ export interface CharacterImageHistoryItem {
 export interface CharacterSheetData {
   status: CharacterImageStatus;
   version?: number;
-  /** 角色设计稿公开 URL（面部特写 + 三视图合图） */
+  /** Public URL of the character design sheet (face close-up + turnaround composite). */
   url?: string;
   prompt?: string;
   provider?: string;
@@ -142,8 +142,8 @@ function extractVisualDesc(visualAnchor: string | null | undefined): string {
 }
 
 /**
- * 构建「Character design draft」提示词：
- * 单张横版图 = 左侧面部特写（1/3） + 右侧全身三视图正/侧/背（2/3）
+ * Build the character-design-sheet prompt:
+ * one landscape image = left-third face close-up + right two-thirds full-body front/side/back turnaround
  */
 function buildCharacterSheetPrompt(character: {
   name: string;
@@ -229,9 +229,9 @@ export class DramaCharacterImageService {
   }
 
   /**
-   * Generate character design draft（主方法）：
-   * 一张横版图 = 左侧面部特写 + 右侧全身正/侧/背三视图。
-   * 回填到 portraitData（兼容旧字段，视频生成读这个字段取参考图 URL）。
+   * Generate the character design sheet (primary method):
+   * one landscape image = left face close-up + right full-body front/side/back turnaround.
+   * Also written back to portraitData (legacy field; video generation reads this URL).
    */
   async generateCharacterSheet(
     characterId: string,
@@ -276,8 +276,8 @@ export class DramaCharacterImageService {
   }
 
   /**
-   * @deprecated 使用 generateCharacterSheet() 替代。
-   * 保留以避免旧调用报错，内部转发到 generateCharacterSheet。
+   * @deprecated Use generateCharacterSheet() instead.
+   * Kept so old callers do not fail; internally forwards to generateCharacterSheet.
    */
   async generatePortrait(
     characterId: string,
@@ -287,14 +287,14 @@ export class DramaCharacterImageService {
   }
 
   /**
-   * @deprecated 使用 generateCharacterSheet() 替代。
-   * 三视图已合并进Character design draft，此方法返回空数组作为兼容占位。
+   * @deprecated Use generateCharacterSheet() instead.
+   * The turnaround is now merged into the design sheet; this method returns an empty array as a compatibility stub.
    */
   async generateThreeView(
     characterId: string,
     provider = DEFAULT_PROVIDER,
   ): Promise<ThreeViewItem[]> {
-    // 三视图现在在设计稿里，直接生成设计稿并返回占位
+    // Turnaround now lives in the design sheet; generate the sheet and return a stub.
     await this.generateCharacterSheet(characterId, provider);
     return [];
   }
@@ -323,7 +323,7 @@ export class DramaCharacterImageService {
   }
 
   /**
-   * 解析Character design draft本地文件路径（供 HTTP 端点读文件使用）。
+   * Resolve the local path of the character design sheet (for HTTP file serving).
    */
   async resolveExistingImagePath(
     characterId: string,
@@ -331,7 +331,7 @@ export class DramaCharacterImageService {
   ): Promise<{ filePath: string; mimeType: string } | null> {
     const dir = dramaCharacterDir(characterId);
 
-    // character-sheet 和 portrait 都指向同一文件
+    // character-sheet and portrait both point at the same file.
     const fileBase = (type === "portrait" || type === "character-sheet")
       ? "character-sheet"
       : type;

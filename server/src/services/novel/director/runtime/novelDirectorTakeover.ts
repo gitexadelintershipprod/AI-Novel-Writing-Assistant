@@ -51,12 +51,12 @@ export interface DirectorTakeoverAssetSnapshot {
   approvedChapterCount?: number;
   pendingRepairChapterCount?: number;
   /**
-   * 目标自动执行范围内是否仍有「未处理且缺少完整章节细化」的章节。
-   * 为真时，继续模式应先回到节奏 / 拆章补齐细化，而非直接进入章节执行
-   * （否则 runFromReady 会抛「缺少完整章节细化」并卡死）。
+   * Whether the target auto-execution range still has chapters that are unprocessed and missing complete chapter detail.
+   * When true, continue mode should first return to beats / chapter-split to fill detail, instead of entering chapter execution
+   * (otherwise runFromReady throws "missing complete chapter detail" and stalls).
    */
   hasUnpreparedChaptersInRange?: boolean;
-  /** 缺少完整细化的章节序（调试/展示用）。 */
+  /** Chapter orders that still lack complete detail (for debug / display). */
   missingExecutionContractOrders?: number[];
 }
 
@@ -423,8 +423,8 @@ function resolveExecutionContinuationStep(input: {
   if (pendingRepair) {
     return "pipeline";
   }
-  // 目标范围内仍有未细化章节、且当前没有进行中的批次时，先回到Beats / chapters补齐细化，
-  // 而不是直接Enter chapter execution——否则会因「缺少完整章节细化」抛错卡死，且无法自动补齐。
+  // If the target range still has unprepared chapters and no batch is in progress, return to beats / chapters to fill detail
+  // instead of entering chapter execution — otherwise "missing complete chapter detail" throws and the gap cannot auto-fill.
   if (input.snapshot.hasUnpreparedChaptersInRange && !input.activePipelineJob) {
     return null;
   }

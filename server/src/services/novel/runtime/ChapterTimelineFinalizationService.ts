@@ -404,7 +404,7 @@ export class ChapterTimelineFinalizationService {
             severity: "warning",
             message: "Timeline context is missing. A minimal timeline checkpoint was submitted instead.",
             evidence: "timelineContext missing",
-            suggestedFix: "重新组装章节上下文后补跑 timeline finalization。",
+            suggestedFix: "Reassemble chapter context and rerun timeline finalization.",
             relatedEventIds: [],
             relatedHookIds: [],
           }],

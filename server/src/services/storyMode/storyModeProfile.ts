@@ -18,16 +18,16 @@ export const storyModeProfileSchema = z.object({
 }).strict();
 
 const DEFAULT_STORY_MODE_PROFILE: StoryModeProfile = {
-  coreDrive: "通过稳定兑现核心阅读期待来推动连载体验。",
-  readerReward: "每隔数章都获得清晰、可感知的满足感。",
-  progressionUnits: ["Key relations推进", "阶段性目标兑现"],
+  coreDrive: "Keep serial momentum by steadily cashing the core reading expectation.",
+  readerReward: "Every few chapters, give a clear, noticeable payoff.",
+  progressionUnits: ["Key-relation advance", "Stage-goal payoff"],
   allowedConflictForms: ["Low to medium intensity conflict consistent with primary drive"],
   forbiddenConflictForms: ["Unrelated high-pressure bloody conflict"],
   conflictCeiling: "medium",
-  resolutionStyle: "优先使用符合该模式的方式化解问题，而不是强行升级。",
-  chapterUnit: "每章围绕一个清晰的推进单位展开。",
-  volumeReward: "卷末给出与模式一致的阶段性兑现。",
-  mandatorySignals: ["Main drive keeps showing up", "读者期待被重复确认"],
+  resolutionStyle: "Resolve problems in a way that fits this mode instead of forcing an escalation.",
+  chapterUnit: "Each chapter turns on one clear unit of advance.",
+  volumeReward: "Give a stage payoff at volume end that matches this mode.",
+  mandatorySignals: ["Main drive keeps showing up", "Reader expectation is confirmed again"],
   antiSignals: ["Long-term deviation from main drive", "The intensity of the conflict is out of control"],
 };
 
@@ -117,10 +117,10 @@ export function buildStoryModePromptBlock(input: {
 }): string {
   const sections: string[] = [];
   if (input.primary) {
-    sections.push(formatSingleStoryModeBlock("主流派模式", input.primary, true));
+    sections.push(formatSingleStoryModeBlock("Main story mode", input.primary, true));
   }
   if (input.secondary) {
-    sections.push(formatSingleStoryModeBlock("副流派模式", input.secondary, false));
+    sections.push(formatSingleStoryModeBlock("Supporting story mode", input.secondary, false));
   }
   if (sections.length === 0) {
     return "";
@@ -138,22 +138,22 @@ function formatSingleStoryModeBlock(
 ): string {
   const profile = storyMode.profile;
   return [
-    `${label}：${storyMode.name}`,
-    storyMode.description ? `说明：${storyMode.description}` : "",
-    storyMode.template ? `补充模板：${storyMode.template}` : "",
+    `${label}: ${storyMode.name}`,
+    storyMode.description ? `Note: ${storyMode.description}` : "",
+    storyMode.template ? `Extra template: ${storyMode.template}` : "",
     `Core driver:${profile.coreDrive}`,
-    `读者奖励：${profile.readerReward}`,
-    `Chapter advancement unit：${profile.chapterUnit}`,
-    `Cash out at the end of the roll：${profile.volumeReward}`,
-    `允许的冲突形式：${profile.allowedConflictForms.join("、")}`,
-    `禁止的冲突形式：${profile.forbiddenConflictForms.join("、")}`,
+    `Reader reward: ${profile.readerReward}`,
+    `Chapter advancement unit: ${profile.chapterUnit}`,
+    `Volume-end payoff: ${profile.volumeReward}`,
+    `Allowed conflict forms: ${profile.allowedConflictForms.join(", ")}`,
+    `Forbidden conflict forms: ${profile.forbiddenConflictForms.join(", ")}`,
     `Conflict limit:${profile.conflictCeiling}`,
-    `化解方式：${profile.resolutionStyle}`,
-    `必须反复出现的信号：${profile.mandatorySignals.join("、")}`,
-    `Deviation signals that must be avoided：${profile.antiSignals.join("、")}`,
-    `剧情主要推进单位：${profile.progressionUnits.join("、")}`,
+    `Resolution style: ${profile.resolutionStyle}`,
+    `Signals that must keep recurring: ${profile.mandatorySignals.join(", ")}`,
+    `Deviation signals that must be avoided: ${profile.antiSignals.join(", ")}`,
+    `Main plot-advance units: ${profile.progressionUnits.join(", ")}`,
     isPrimary
       ? "Usage rule: later planning and generation must follow this mode first."
-      : "使用要求：只能作为补充风味，不得破坏主模式的边界。",
+      : "Usage rule: use this only as extra flavor; do not break the main mode's bounds.",
   ].filter(Boolean).join("\n");
 }

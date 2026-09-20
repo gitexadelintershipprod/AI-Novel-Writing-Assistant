@@ -71,7 +71,7 @@ function getPresetSectionTitles(sectionKeys: readonly string[]): string {
   return sectionKeys
     .map((key) => BOOK_ANALYSIS_SECTIONS.find((section) => section.key === key)?.title)
     .filter((title): title is string => Boolean(title))
-    .join("、");
+    .join(", ");
 }
 
 export default function BookAnalysisCreateDialog(props: BookAnalysisCreateDialogProps) {

@@ -283,7 +283,7 @@ export default function BookAnalysisCharacterAppearancePanel({
                 />
                 <img
                   src={resolveImageAssetUrl(image.url)}
-                  alt={`${character.name}Basic image reference`}
+                  alt={`${character.name} basic image reference`}
                   className="aspect-[4/3] w-full object-cover"
                   loading="lazy"
                 />

@@ -15,9 +15,9 @@ export interface BatchProgress {
 
 export interface StartBatchOptions {
   provider?: LLMProvider;
-  /** 并发格子数，默认 3（避免 API 限流） */
+  /** Concurrent panels, default 3 (avoid API rate limits). */
   concurrency?: number;
-  /** 是否跳过已有图片的格子，默认 true */
+  /** Skip panels that already have an image, default true. */
   skipDone?: boolean;
 }
 
@@ -25,7 +25,7 @@ export interface StartBatchOptions {
 
 const COST_PER_IMAGE_CENTS: Partial<Record<string, number>> = {
   openai: 4,   // gpt-image-1 ~$0.04/image
-  jimeng: 0.5, // 即梦约 ¥0.04/张
+  jimeng: 0.5, // Jimeng is about ¥0.04 / image
   grok: 10,
 };
 
@@ -33,10 +33,10 @@ const COST_PER_IMAGE_CENTS: Partial<Record<string, number>> = {
 
 export class ComicBatchOrchestrator {
   /**
-   * 批量生成一话内所有格子图像。
-   * - 并发限制 concurrency（默认3），避免 API 限流
-   * - 失败格子记录入 ComicBatchJob.progress，可重跑
-   * - 写 ComicBatchJob 记录进度，前端可轮询
+   * Batch-generate images for every panel in an episode.
+   * - Concurrency is capped (default 3) to avoid API rate limits.
+   * - Failed panels are recorded in ComicBatchJob.progress and can be retried.
+   * - ComicBatchJob is written so the frontend can poll progress.
    */
   async startEpisodeBatch(
     episodeId: string,
@@ -56,7 +56,7 @@ export class ComicBatchOrchestrator {
       throw new AppError("This episode has no panel script yet. Generate the script before batch-generating images.", 400);
     }
 
-    // 筛选待生成格子
+    // Filter panels that still need generation.
     const targetPanels = skipDone
       ? episode.panels.filter((p) => {
           if (!p.imageData) return true;
@@ -73,7 +73,7 @@ export class ComicBatchOrchestrator {
       throw new AppError("Every panel already has an image, so regeneration is not needed. To regenerate, use skipDone=false.", 400);
     }
 
-    // 创建 BatchJob 记录
+    // Create the BatchJob record.
     const progress: BatchProgress = {
       total: targetPanels.length,
       done: 0,
@@ -90,7 +90,7 @@ export class ComicBatchOrchestrator {
       },
     });
 
-    // 异步执行，不阻塞 HTTP 响应
+    // Run asynchronously so the HTTP response is not blocked.
     void this._runBatch(batchJob.id, targetPanels.map((p) => p.id), provider, concurrency);
 
     return { jobId: batchJob.id };
@@ -110,7 +110,7 @@ export class ComicBatchOrchestrator {
       status: "running",
     };
 
-    // 并发池：每次最多 concurrency 格并发
+    // Concurrency pool: at most `concurrency` panels at a time.
     const queue = [...panelIds];
     const workers: Promise<void>[] = [];
 
@@ -124,11 +124,11 @@ export class ComicBatchOrchestrator {
           progress.failed++;
           progress.failedPanelIds.push(panelId);
         }
-        // 每完成一格就持久化进度
+        // Persist progress after each panel.
         await prisma.comicBatchJob.update({
           where: { id: jobId },
           data: { progress: JSON.stringify(progress) },
-        }).catch(() => { /* 进度写入失败不中断批量 */ });
+        }).catch(() => { /* Progress-write failure must not stop the batch. */ });
       }
     };
 
@@ -154,7 +154,7 @@ export class ComicBatchOrchestrator {
   }
 
   /**
-   * 重试失败的格子（读取 BatchJob 中的 failedPanelIds）。
+   * Retry failed panels (read failedPanelIds from the BatchJob).
    */
   async retryFailed(jobId: string, opts: { provider?: LLMProvider } = {}): Promise<{ jobId: string }> {
     const job = await prisma.comicBatchJob.findUnique({ where: { id: jobId } });
@@ -185,7 +185,7 @@ export class ComicBatchOrchestrator {
   }
 
   /**
-   * 估算Batch generation费用（粗略）。
+   * Rough estimate of batch-generation cost.
    */
   async estimateCost(episodeId: string, provider: string = "openai"): Promise<{
     totalPanels: number;
@@ -210,7 +210,7 @@ export class ComicBatchOrchestrator {
       totalPanels: panels.length,
       pendingPanels: pending.length,
       estimatedCentsCost: pending.length * centsPerImage,
-      providerNote: `基于 ${provider} 约 ${centsPerImage} 美分/张估算，实际费用以平台账单为准`,
+      providerNote: `Estimate based on ${provider} at about ${centsPerImage} cents per image; actual cost follows the platform bill.`,
     };
   }
 

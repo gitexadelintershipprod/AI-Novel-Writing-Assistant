@@ -253,9 +253,10 @@ export function registerNovelProductionRoutes(input: RegisterNovelProductionRout
     },
   );
 
-  // ─── 开发工具：Reset all chapter text ───────────────────────────────────────────────
-  // 仅供本地测试使用。清除Chapter text、生成状态、事实账本、摘要、质量报告等，
-  // 让下次自动驾驶可以从零重新跑，节省重建项目的时间。
+  // ─── Dev tool: Reset all chapter text ───────────────────────────────────────────────
+  // Local testing only. Clears chapter text, generation state, fact ledger, summaries,
+  // quality reports, and related records so the next autopilot run can start from zero
+  // without rebuilding the project.
   router.post(
     "/:id/dev/reset-chapters",
     validate({ params: idParamsSchema }),
@@ -263,7 +264,7 @@ export function registerNovelProductionRoutes(input: RegisterNovelProductionRout
       try {
         const { id } = req.params as z.infer<typeof idParamsSchema>;
 
-        // 1. 找出所有章节 id 和 order
+        // 1. Collect all chapter ids and orders
         const chapters = await prisma.chapter.findMany({
           where: { novelId: id },
           select: { id: true, order: true },
@@ -279,7 +280,7 @@ export function registerNovelProductionRoutes(input: RegisterNovelProductionRout
         const chapterIds = chapters.map((c) => c.id);
         const orders = chapters.map((c) => c.order);
 
-        // 2. 事务内清除章节本体数据
+        // 2. Clear chapter-owned data inside a transaction
         await prisma.$transaction(async (tx) => {
           await tx.chapter.updateMany({
             where: { id: { in: chapterIds } },
@@ -310,7 +311,7 @@ export function registerNovelProductionRoutes(input: RegisterNovelProductionRout
           await tx.storyStateSnapshot.deleteMany({ where: { novelId: id, sourceChapterId: { in: chapterIds } } });
         });
 
-        // 3. 事务外清除事实账本（按 order 范围）
+        // 3. Clear the fact ledger outside the transaction (by order range)
         if (orders.length > 0) {
           await prisma.novelFactEntry.deleteMany({
             where: {

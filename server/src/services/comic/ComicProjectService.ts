@@ -1,9 +1,9 @@
 /**
- * AI 漫画项目服务
+ * Comic project service.
  *
- * 低耦合：仅依赖 prisma（基础设施）和 adaptation 共享层，
- * 不 import 任何 services/novel/* 或 services/drama/* 实现
- * （由 CI 守卫 comicDecoupling.test.js 强制）。
+ * Low coupling: depends only on prisma (infrastructure) and the adaptation shared layer.
+ * Does not import any services/novel/* or services/drama/* implementation
+ * (enforced by the CI guard comicDecoupling.test.js).
  */
 import { prisma } from "../../db/prisma";
 import { adaptationSourceRegistry } from "../adaptation/source/SourceContentPort";
@@ -54,13 +54,13 @@ function buildComicVisualAnchor(character: SourceBundle["characters"][number]): 
 export interface CreateComicProjectInput {
   title: string;
   sourceType: AdaptationSourceType;
-  /** 软引用：novel_import 时为 novelId */
+  /** Soft reference: novelId when sourceType is novel_import. */
   sourceRef?: string;
   trackId?: string;
-  /** original / text_import 的原始输入 */
+  /** Raw input for original / text_import. */
   inspiration?: string;
   rawText?: string;
-  /** JSON 序列化的画风/格式预设，创建时从向导直接传入 */
+  /** JSON-serialized art-style / format preset, passed in from the wizard at create time. */
   stylePreset?: string;
 }
 
@@ -110,11 +110,13 @@ export class ComicProjectService {
   }
 
   /**
-   * 更新角色"appearance anchor"。
-   * - appearance：Main appearance description（生图链路的主源头）
-   * - faceShapeOverride：脸型强覆盖(optional)。当与 appearance 中的描述冲突时（如 appearance 写"五官锐利"
-   *   但用户希望脸型圆），此字段在生图 prompt 里以 FINAL OVERRIDE 形式出现，权重高于 appearance，
-   *   并显式告诉模型"忽略前述与脸型冲突的词"。仅传入字段会被更新；其他字段保持。
+   * Update a character's appearance anchor.
+   * - appearance: main appearance description (primary source for the image-generation chain)
+   * - faceShapeOverride: optional hard face-shape override. When it conflicts with appearance
+   *   (e.g. appearance says "sharp features" but the user wants a round face), this field is
+   *   appended in the image prompt as FINAL OVERRIDE with higher weight than appearance, and
+   *   the model is told to ignore earlier face-shape words that conflict. Only provided fields
+   *   are updated; others stay as they are.
    */
   async updateCharacterVisualAnchor(
     charId: string,
@@ -135,13 +137,13 @@ export class ComicProjectService {
     if (patch.appearance !== undefined) {
       const trimmed = patch.appearance.trim();
       nextSpec.appearance = trimmed;
-      // description 兼容字段（旧版/部分链路读它）
+      // description is a compatibility field (older / some pipelines still read it).
       nextDescription = trimmed.length > 80 ? trimmed.slice(0, 80) : trimmed;
     }
     if (patch.faceShapeOverride !== undefined) {
       const trimmed = patch.faceShapeOverride.trim();
       if (trimmed) nextSpec.faceShapeOverride = trimmed;
-      else delete nextSpec.faceShapeOverride; // 空串视为清除
+      else delete nextSpec.faceShapeOverride; // Empty string clears the override.
     }
 
     const next: Record<string, unknown> = {
@@ -157,8 +159,9 @@ export class ComicProjectService {
   }
 
   /**
-   * 更新角色性别。生图全链路（三视图/表情稿/资产/格子图）会按此值注入 GENDER LOCK，
-   * 避免外貌描述歧义时模型把男画成女、或反之。
+   * Update character gender. The full image-generation chain (turnaround / expression sheet /
+   * assets / panel images) injects GENDER LOCK from this value so the model does not flip
+   * gender when appearance copy is ambiguous.
    */
   async updateCharacterGender(charId: string, gender: "male" | "female" | "other" | "unknown") {
     const character = await prisma.comicCharacter.findUnique({ where: { id: charId } });
@@ -170,9 +173,9 @@ export class ComicProjectService {
   }
 
   /**
-   * AI 协助重写"appearance anchor"。
-   * 不直接落库，返回 { appearance, faceShapeOverride?, rationale } 给前端审阅，
-   * 用户确认后再调用 updateCharacterVisualAnchor 保存。
+   * AI-assisted rewrite of the appearance anchor.
+   * Does not persist. Returns { appearance, faceShapeOverride?, rationale } for frontend review;
+   * the user confirms, then updateCharacterVisualAnchor saves it.
    */
   async rewriteCharacterVisualAnchor(
     charId: string,
@@ -239,9 +242,10 @@ export class ComicProjectService {
   }
 
   /**
-   * 通过防腐层把内容源装配为标准化内容包并落库（导入即快照）：
-   * 1) ComicSourceBundle（梗概/节拍/角色/硬事实）
-   * 2) ComicCharacter（Character resources导入）
+   * Assemble a source into a standard content bundle through the anti-corruption layer
+   * and persist it (import is a snapshot):
+   * 1) ComicSourceBundle (synopsis / beats / characters / hard facts)
+   * 2) ComicCharacter (character-resource import)
    */
   async importSourceBundle(projectId: string) {
     const project = await prisma.comicProject.findUnique({ where: { id: projectId } });
@@ -257,16 +261,16 @@ export class ComicProjectService {
     const adapter = adaptationSourceRegistry.resolve(sourceRef.type);
     const bundle: SourceBundle = await adapter.loadBundle(sourceRef);
 
-    // 事务：落库 sourceBundle + characters
+    // Transaction: persist sourceBundle + characters.
     await prisma.$transaction(async (tx) => {
-      // 幂等：已存在则替换
+      // Idempotent: replace if it already exists.
       await tx.comicSourceBundle.upsert({
         where: { projectId },
         create: { projectId, bundleJson: JSON.stringify(bundle) },
         update: { bundleJson: JSON.stringify(bundle), importedAt: new Date() },
       });
 
-      // 删除旧Character resources再重建（保证与源同步）
+      // Delete old character resources and rebuild so they stay in sync with the source.
       await tx.comicCharacter.deleteMany({ where: { projectId } });
       if (bundle.characters.length > 0) {
         await tx.comicCharacter.createMany({

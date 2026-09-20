@@ -668,7 +668,7 @@ export class NovelDirectorService {
       },
     });
     if (!takeoverValidation.allowed) {
-      throw new AppError(takeoverValidation.blockingReasons.join("；") || "This takeover request needs to be rechecked first.", 409);
+      throw new AppError(takeoverValidation.blockingReasons.join("; ") || "This takeover request needs to be rechecked first.", 409);
     }
 
     const takeoverDirectorInput = buildDirectorTakeoverInput({

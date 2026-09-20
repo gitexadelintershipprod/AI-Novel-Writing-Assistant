@@ -138,7 +138,7 @@ export class ChapterContentFinalizationService {
     }
     await this.markChapterStatus(input.chapterId, needsRepair ? "needs_repair" : "pending_review");
     if (!needsRepair) {
-      // 保证义务账本在下一章 JIT 上下文组装前完成；失败只告警，不阻断定稿返回。
+      // Finish the obligation ledger before the next chapter's JIT context assemble. Failure only warns; it does not block finalization.
       try {
         await this.writeAcceptedFacts(
           input.novelId,
@@ -218,10 +218,10 @@ export class ChapterContentFinalizationService {
   }
 
   /**
-   * 章节接收通过后，仅将验收确认已完成的 mustHitNow 义务写入事实账本。
+   * After chapter acceptance passes, write only mustHitNow obligations that acceptance confirmed as done into the fact ledger.
    *
-   * payoffDirectives 是写前指令，不是正文观测结果；伏笔“已揭示”事实应由
-   * payoff ledger 状态迁移或 timeline gate 的 resolvedHookIds 等观测来源写入。
+   * payoffDirectives are pre-write instructions, not observations of the prose. "Already revealed" foreshadowing facts
+   * should be written from payoff-ledger status transitions or observed sources such as timeline-gate resolvedHookIds.
    */
   private async writeAcceptedFacts(
     novelId: string,

@@ -1,15 +1,15 @@
 /**
- * 图像生成 runner：执行"业务表 JSON 状态机 + 落盘"的唯一流程入口。
+ * Image-generation runner: the single flow that runs "business-table JSON state machine + disk persist".
  *
- * 由 Adapter 适配各业务表的字段读写；本文件不感知具体业务模型。
+ * Adapters handle field read/write for each business table; this file does not know concrete business models.
  *
- * 流程：
- *   provider 解析/校验 → model 解析 → loadState → 归档历史/递增 version
- *   → save generating → generateImagesByProvider → 落盘 → cleanupOtherExts
- *   → save done（写 url/prompt/provider/generatedAt/history/referenceImages 等）
+ * Flow:
+ *   resolve/validate provider → resolve model → loadState → archive history / increment version
+ *   → save generating → generateImagesByProvider → persist to disk → cleanupOtherExts
+ *   → save done (write url/prompt/provider/generatedAt/history/referenceImages, etc.)
  *   catch → save error
  *
- * Adapter 的 buildExtraDoneState 用于业务定制（如 Drama 兼容字段、表情稿嵌套位置）。
+ * Adapter.buildExtraDoneState is for business customization (drama compatibility fields, nested expression-sheet location).
  */
 import path from "path";
 
@@ -33,7 +33,7 @@ import { describeError, inferExtension, saveImageToDisk } from "./utils";
 
 const DEFAULT_HISTORY_MAX = 5;
 
-/** 默认归档当前 done 状态为历史条目 */
+/** Archive the current done state as a history item. */
 function defaultArchive<TState extends GeneratedImageState>(current: TState): GeneratedImageHistoryItem | null {
   if (current.status !== "done") return null;
   return {
@@ -45,7 +45,7 @@ function defaultArchive<TState extends GeneratedImageState>(current: TState): Ge
   };
 }
 
-/** 计算下一版本号 */
+/** Read the next version number. */
 function readVersion(state: GeneratedImageState): number {
   const v = Number(state.version);
   if (Number.isFinite(v) && v > 0) return Math.round(v);
@@ -56,16 +56,16 @@ export async function runImageGeneration<TState extends GeneratedImageState>(
   adapter: ImageTargetAdapter<TState>,
   opts: RunImageGenerationOptions,
 ): Promise<TState> {
-  // 1. provider 解析 + 校验
+  // 1. Resolve and validate provider
   const provider = (opts.provider as LLMProvider | undefined) ?? DEFAULT_RUNTIME_PROVIDER;
   if (!isImageProviderSupported(provider)) {
     throw new AppError(`Image provider ${provider} is not supported yet.`, 400);
   }
 
-  // 2. model 解析
+  // 2. Resolve model
   const model = await resolveImageModel(provider);
 
-  // 3. loadState + 归档/版本号
+  // 3. loadState + archive / version
   const existing = await adapter.loadState();
   const versioning = adapter.versioning ?? { enabled: false };
   const archiver = versioning.archiveCurrent ?? defaultArchive;
@@ -76,19 +76,19 @@ export async function runImageGeneration<TState extends GeneratedImageState>(
     ? readVersion(existing) + 1
     : Math.max(1, readVersion(existing) || 1);
 
-  // 4. 标 generating
+  // 4. Mark generating
   const generatingState = {
     ...existing,
     status: "generating",
     provider,
     version: nextVersion,
     history: nextHistory,
-    // 清掉上一轮 error 信息，避免误展示
+    // Clear the previous error so it is not shown by mistake
     error: undefined,
   } as TState;
   await adapter.saveState(generatingState);
 
-  // 5. 调 provider + 落盘
+  // 5. Call provider and persist to disk
   try {
     const result = await generateImagesByProvider({
       sceneType: opts.sceneType ?? "chapter_illustration",
@@ -112,7 +112,7 @@ export async function runImageGeneration<TState extends GeneratedImageState>(
 
     console.log(`[image.runtime] done kind=${adapter.kind} provider=${provider} model=${model} -> ${path.basename(destPath)}`);
 
-    // 6. 写 done
+    // 6. Write done
     const doneBase: GeneratedImageState = {
       status: "done",
       version: nextVersion,

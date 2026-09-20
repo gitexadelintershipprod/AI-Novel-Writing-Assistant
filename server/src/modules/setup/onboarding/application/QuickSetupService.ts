@@ -232,7 +232,7 @@ export async function completeQuickSetup(
     const details = [
       !plainReady ? `Normal text:${probe.plain?.error ?? probe.error ?? "Connection failed"}` : "",
       !structuredReady ? `Structured output:${probe.structured?.error ?? probe.error ?? "Connection failed"}` : "",
-    ].filter(Boolean).join("；");
+    ].filter(Boolean).join("; ");
     throw new AppError(`Model check failed.${details}`, 400);
   }
 

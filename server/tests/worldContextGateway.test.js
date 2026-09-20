@@ -60,7 +60,7 @@ test("world context block formats character purpose from story slice", () => {
   assert.equal(block.sourceType, "story_slice");
   assert.equal(block.novelWorldId, "novel-world-1");
   assert.equal(block.purpose, "character");
-  assert.match(block.promptBlock, /角色生成必须贴合本书世界/);
+  assert.match(block.promptBlock, /Character generation must fit this book's world/);
   assert.match(block.worldRulesText, /星核代价/);
   assert.match(block.worldStageText, /星皇朝廷/);
   assert.match(block.worldStageText, /北境冰原/);
@@ -164,7 +164,7 @@ test("gateway builds context through story slice service and persists slice to n
 
   assert.equal(block.novelWorldId, "novel-world-1");
   assert.equal(block.purpose, "chapter");
-  assert.match(block.promptBlock, /章节生成必须遵守本书世界/);
+  assert.match(block.promptBlock, /Chapter generation must follow this book's world/);
   assert.deepEqual(calls, [{
     type: "ensureFromLegacyNovel",
     novelId: "novel-1",

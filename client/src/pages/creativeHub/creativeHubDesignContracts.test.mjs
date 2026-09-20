@@ -136,9 +136,9 @@ test("collapsed runtime cards keep technical identifiers inside expanded content
 
 test("Creative Hub module documents its product and dependency boundary", () => {
   const source = read("README.md");
-  assert.match(source, /不是小说生产事实源/);
-  assert.match(source, /状态优先级/);
-  assert.match(source, /不得增加关键词、正则或自由文本分流/);
+  assert.match(source, /not the novel-production source of truth/);
+  assert.match(source, /Status priority/);
+  assert.match(source, /Do not add keyword, regex, or free-text routing/);
   assert.match(source, /client\/src\/components\/workspace\//);
 });
 

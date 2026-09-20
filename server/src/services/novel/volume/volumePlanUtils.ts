@@ -595,7 +595,7 @@ export function buildDerivedOutlineFromVolumes(volumes: VolumePlan[]): string {
         volume.payoffType ? `Redemption type:${volume.payoffType}` : "",
         volume.nextVolumeHook ? `Lower roll hook:${volume.nextVolumeHook}` : "",
         volume.resetPoint ? `Reset point:${volume.resetPoint}` : "",
-        volume.openPayoffs.length > 0 ? `Unfulfilled items:${volume.openPayoffs.join("、")}` : "",
+        volume.openPayoffs.length > 0 ? `Unfulfilled items:${volume.openPayoffs.join(", ")}` : "",
         `Chapter scope:${chapterSpan}`,
       ].filter(Boolean);
       return lines.join("\n");

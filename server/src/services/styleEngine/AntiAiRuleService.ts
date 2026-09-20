@@ -84,9 +84,9 @@ function formatCurrentRuleForPrompt(rule: AntiAiRuleDraftFields): string {
     `type: ${rule.type}`,
     `severity: ${rule.severity}`,
     `description: ${rule.description}`,
-    `detectPatterns: ${rule.detectPatterns.join(" / ") || "无"}`,
-    `promptInstruction: ${rule.promptInstruction ?? "无"}`,
-    `rewriteSuggestion: ${rule.rewriteSuggestion ?? "无"}`,
+    `detectPatterns: ${rule.detectPatterns.join(" / ") || "none"}`,
+    `promptInstruction: ${rule.promptInstruction ?? "none"}`,
+    `rewriteSuggestion: ${rule.rewriteSuggestion ?? "none"}`,
   ].join("\n");
 }
 

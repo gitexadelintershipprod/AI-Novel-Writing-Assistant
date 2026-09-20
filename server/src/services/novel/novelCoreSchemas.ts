@@ -3,7 +3,7 @@ import { z } from "zod";
 export const novelCoreJsonObjectSchema = z
   .record(z.string(), z.unknown());
 
-// NovelCoreService: 角色演进编辑输出
+// NovelCoreService: character-evolution edit output
 export const characterEvolutionOutputSchema = z
   .object({
     personality: z.string().trim().optional(),
@@ -14,7 +14,7 @@ export const characterEvolutionOutputSchema = z
   })
   .passthrough();
 
-// NovelCoreService: 角色设定审计输出
+// NovelCoreService: character-setup audit output
 export const characterWorldCheckOutputSchema = z
   .object({
     status: z.enum(["pass", "warn", "error"]).optional(),
@@ -31,6 +31,6 @@ export const characterWorldCheckOutputSchema = z
   })
   .passthrough();
 
-// NovelBible / 其它“作品圣经 JSON”通常会被 normalizeNovelBiblePayload 进一步归一化。
+// NovelBible / other work-bible JSON is usually normalized further by normalizeNovelBiblePayload.
 export const novelBiblePayloadSchema = novelCoreJsonObjectSchema;
 

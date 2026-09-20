@@ -233,7 +233,7 @@ export class NovelCoreReviewService {
       if (novelId) {
         try {
           ragContext = await ragServices.hybridRetrievalService.buildContextBlock(
-            `章节审校 ${novelTitle}\n${chapterTitle}\n${content.slice(0, 1500)}`,
+            `Chapter review ${novelTitle}\n${chapterTitle}\n${content.slice(0, 1500)}`,
             {
               novelId,
               ownerTypes: ["novel", "chapter", "chapter_summary", "consistency_fact", "character", "bible"],

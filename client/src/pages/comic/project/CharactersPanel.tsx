@@ -196,8 +196,11 @@ function CharacterList({
 }
 
 // ─── Gender Selector ──────────────────────────────────────────────────────────
-// 角色性别是所有生图链路（三视图/表情稿/资产/格子图）的 GENDER LOCK 来源。
-// 古风/韩漫语境里"鹅蛋脸/桃花眼"等描述男女通用，必须显式声明性别，否则模型偏向韩漫美男。
+// Character gender is the GENDER LOCK source for every image pipeline
+// (three-view, expression sheets, assets, panel grids).
+// In historical/manhwa prompts, descriptors like "oval face / peach-blossom eyes"
+// apply to any gender, so gender must be declared explicitly or the model
+// defaults toward pretty-boy manhwa faces.
 
 const GENDER_LABELS: Record<ComicCharacterGender, string> = {
   unknown: "unspecified",
@@ -244,7 +247,7 @@ function GenderSelector({ character }: { character: ComicCharacter }) {
 }
 
 // ─── Visual Anchor Editor ──────────────────────────────────────────────────────
-// 一次编辑，所有生图（三视图/表情稿/资产/格子图）后续生成都会读新版
+// One edit; later three-view, expression, asset, and panel-grid generations all read the new version.
 
 const FACE_PRESETS: Array<{ key: string; label: string; snippet: string }> = [
   { key: "round", label: "round face", snippet: "Round soft face, gentle rounded jawline" },
@@ -285,8 +288,8 @@ function VisualAnchorEditor({ character }: { character: ComicCharacter }) {
   const [aiInstruction, setAiInstruction] = useState("");
   const [suggestion, setSuggestion] = useState<RewriteSuggestion | null>(null);
 
-  // 切角色时重置（key 已用 character.id 重新挂载 CharacterDetail，但单独保险）
-  // 注：CharacterDetail 用 key={character.id}，本组件会随之重建
+  // Reset on character switch (CharacterDetail remounts via key={character.id}; this is extra insurance).
+  // Note: CharacterDetail uses key={character.id}, so this component remounts with it.
 
   const saveMut = useMutation({
     mutationFn: () =>
@@ -359,7 +362,7 @@ function VisualAnchorEditor({ character }: { character: ComicCharacter }) {
 
       {editing ? (
         <>
-          {/* AI 协助优化 */}
+          {/* AI-assisted rewrite */}
           <div className="mt-3 rounded-md border border-violet-300/50 bg-violet-50/40 px-2.5 py-2 dark:border-violet-700/50 dark:bg-violet-900/10">
             <div className="flex items-center justify-between gap-2">
               <p className="flex items-center gap-1 text-[10px] font-semibold text-violet-700 dark:text-violet-300">
@@ -939,7 +942,7 @@ function AssetCard({
   );
 }
 
-/** 类型快捷按钮 */
+/** Type shortcut chip */
 function AssetTypeChip({
   type,
   active,
@@ -967,7 +970,7 @@ function AssetTypeChip({
   );
 }
 
-/** 添加输入行：激活某类型后展示，Enter 提交，Esc 取消，连续添加 */
+/** Add row: shown after a type is activated; Enter submits, Esc cancels, then add another. */
 function AssetAddRow({
   type,
   characterId,
@@ -1092,7 +1095,7 @@ function AssetSection({
 
   return (
     <div className="border-t bg-muted/10 px-4 py-4">
-      {/* 标题 */}
+      {/* Title */}
       <div className="mb-2.5 flex items-baseline gap-2">
         <p className="text-sm font-semibold">Character asset library</p>
         <span className="text-[11px] text-muted-foreground">
@@ -1102,7 +1105,7 @@ function AssetSection({
         </span>
       </div>
 
-      {/* 类型快捷条 = 主入口 */}
+      {/* Type shortcut bar = primary add entry */}
       <div className="mb-3 flex flex-wrap items-center gap-1.5">
         <span className="text-[10px] text-muted-foreground">Add:</span>
         {ASSET_TYPE_ORDER.map((t) => (

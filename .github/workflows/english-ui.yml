@@ -48,6 +48,9 @@ jobs:
       - name: Enforce English UI policy
         run: pnpm check:english-ui
 
+      - name: Enforce English developer-docs policy
+        run: pnpm check:english-docs
+
       - name: Enforce Georgian creative-content policy
         run: pnpm check:georgian-content
 

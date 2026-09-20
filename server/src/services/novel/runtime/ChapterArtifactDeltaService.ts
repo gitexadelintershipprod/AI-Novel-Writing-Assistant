@@ -160,7 +160,7 @@ function uniqueTextItems(items: string[] | null | undefined, maxItems: number): 
 }
 
 function joinFactContents(items: string[], maxItems = 3): string | null {
-  const joined = uniqueTextItems(items, maxItems).join("；");
+  const joined = uniqueTextItems(items, maxItems).join("; ");
   return joined || null;
 }
 

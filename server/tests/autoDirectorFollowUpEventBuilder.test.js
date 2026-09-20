@@ -178,6 +178,6 @@ test("auto director event builder exposes validation-required state without muta
 
   assert.ok(state);
   assert.equal(state.reason, "validation_required");
-  assert.equal(state.reasonLabel, "需要重新校验");
+  assert.equal(state.reasonLabel, "Need to recheck");
   assert.deepEqual(state.availableMutationActions, []);
 });

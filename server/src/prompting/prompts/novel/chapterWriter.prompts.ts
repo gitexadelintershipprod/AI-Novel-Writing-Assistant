@@ -88,7 +88,7 @@ export const chapterWriterPrompt: PromptAsset<ChapterWriterPromptInput, string, 
         },
     ],
     slots: [
-        // replace：改写出厂指令
+        // replace: rewrite the factory instruction
         {
             kind: "replace",
             key: "writer.tonePreference",
@@ -147,7 +147,7 @@ export const chapterWriterPrompt: PromptAsset<ChapterWriterPromptInput, string, 
             default: false,
             copy: "Avoid the following web writing routines: secret realms/new dungeons suddenly appear to interrupt the plot, characters give a long series of system introductions on the spot, the protagonist must be slapped in the face when he appears, and \"breakthrough\" is the only climax at the end of each chapter.",
         },
-        // token：target word count标签
+        // token: target word-count label
         {
             kind: "token",
             key: "writer.wordCountHint",
@@ -157,7 +157,7 @@ export const chapterWriterPrompt: PromptAsset<ChapterWriterPromptInput, string, 
             patternHint: "Number + unit (such as about 2000 words, 5000 words)",
             maxLength: 30,
         },
-        // append：追加写法约束（继承旧 addendum 功能）
+        // append: extra writing constraints (inherits the old addendum behavior)
         {
             kind: "append",
             key: "writer.customConstraints",

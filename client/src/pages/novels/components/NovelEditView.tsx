@@ -135,7 +135,7 @@ function DesktopNovelEditView(props: NovelEditViewProps) {
       ? "basic"
       : normalizedWorkflowTab
     : normalizedActiveTab;
-  const novelTitle = basicTab.basicForm.title.trim() || "\u672a\u547d\u540d\u5c0f\u8bf4";
+  const novelTitle = basicTab.basicForm.title.trim() || "Untitled novel";
   const directorDisplayState = taskDrawer?.snapshot?.displayState ?? null;
   const currentPageLabel = getNovelWorkspaceTabLabel(normalizedActiveTab);
   const currentStepLabel = directorDisplayState?.stageLabel ?? currentPageLabel;
@@ -147,7 +147,7 @@ function DesktopNovelEditView(props: NovelEditViewProps) {
     : null;
   const stepIndex = directorDisplayState?.stepIndex ?? getNovelWorkspaceFlowStepIndex(guidedFlowTab);
   const progressLabel = stepIndex >= 0
-    ? `\u7b2c ${stepIndex + 1} \u6b65 / \u5171 ${directorDisplayState?.totalSteps ?? NOVEL_WORKSPACE_FLOW_STEPS.length} \u6b65`
+    ? `Step ${stepIndex + 1} / ${directorDisplayState?.totalSteps ?? NOVEL_WORKSPACE_FLOW_STEPS.length}`
     : null;
   const showWorkflowRecommendation = Boolean(
     recommendedWorkflowTab
@@ -334,7 +334,7 @@ function DesktopNovelEditView(props: NovelEditViewProps) {
                 </div>
                 <KnowledgeBindingPanel targetType="novel" targetId={id} title="Reference knowledge" />
 
-                {/* 开发工具区 —— 仅在 DEV 环境可见 */}
+                {/* Dev tools — visible only in DEV */}
                 {import.meta.env.DEV ? (
                   <Card className="border-dashed border-yellow-500/60 bg-yellow-50/30 dark:bg-yellow-950/10">
                     <CardHeader>

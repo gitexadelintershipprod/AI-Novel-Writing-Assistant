@@ -153,7 +153,7 @@ export function buildDirectorAutoExecutionScopeLabel(
     const volumeLabel = fallbackVolumeTitle?.trim() ? ` · ${fallbackVolumeTitle.trim()}` : "";
     return `Volume ${normalized.volumeOrder}${volumeLabel}`;
   }
-  return `No. 1-${Math.max(1, normalized.endOrder ?? fallbackTotalChapterCount ?? 10)} chapters`;
+  return `Chapters 1–${Math.max(1, normalized.endOrder ?? fallbackTotalChapterCount ?? 10)}`;
 }
 
 export function resolveDirectorAutoExecutionBookRange(
@@ -449,7 +449,7 @@ export function buildDirectorAutoExecutionState(input: {
 }
 
 export function buildDirectorAutoExecutionPausedLabel(state: DirectorAutoExecutionState): string {
-  return `${buildDirectorAutoExecutionScopeLabelFromState(state)}Auto-run is paused`;
+  return `${buildDirectorAutoExecutionScopeLabelFromState(state)} auto-run is paused`;
 }
 
 export function buildDirectorAutoExecutionStageLabel(state: DirectorAutoExecutionState): string {

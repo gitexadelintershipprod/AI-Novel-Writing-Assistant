@@ -49,13 +49,14 @@ export function normalizeBookAnalysisTimelineNodes(value: unknown, limit: number
 
 export function groupBookAnalysisTimelineNodesByPhase(
   nodes: ReadonlyArray<BookAnalysisTimelineNode>,
-  fallbackPhase = "未分阶段",
+  fallbackPhase = "Ungrouped",
 ): Array<{ phase: string; nodes: BookAnalysisTimelineNode[] }> {
   const phaseOrder: string[] = [];
   const phaseGroups = new Map<string, BookAnalysisTimelineNode[]>();
 
   for (const node of nodes) {
-    const phase = node.phase?.trim() || fallbackPhase;
+    const rawPhase = node.phase?.trim() || fallbackPhase;
+    const phase = rawPhase === "未分阶段" ? fallbackPhase : rawPhase;
     if (!phaseGroups.has(phase)) {
       phaseGroups.set(phase, []);
       phaseOrder.push(phase);

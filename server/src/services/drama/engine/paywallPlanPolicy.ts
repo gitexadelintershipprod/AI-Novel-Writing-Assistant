@@ -39,7 +39,7 @@ function normalizeIntensityCurve(value: unknown, targetEpisodes: number): DramaP
       const toEpisode = clampInt(record.toEpisode, fromEpisode, fromEpisode, targetEpisodes);
       const goal = typeof record.goal === "string" && record.goal.trim()
         ? record.goal.trim()
-        : "保持付费短剧钩子和Emotional push";
+        : "Keep paid short-drama hooks and emotional push";
       return {
         fromEpisode,
         toEpisode,
@@ -82,15 +82,15 @@ export function resolveDramaPaywallPlan(strategyJson: string | null | undefined,
 export function describeDramaPaywallPlan(plan: DramaPaywallPlan): string {
   const curve = plan.intensityCurve.length
     ? plan.intensityCurve
-      .map((segment) => `E${segment.fromEpisode}-${segment.toEpisode}：${segment.goal}（情绪目标 ${segment.targetEmotionNet}）`)
+      .map((segment) => `E${segment.fromEpisode}-${segment.toEpisode}: ${segment.goal} (emotion target ${segment.targetEmotionNet})`)
       .join("\n")
-    : "按赛道默认节奏推进。";
+    : "Advance on the track's default rhythm.";
   return [
-    `首付费集：Episode ${plan.firstPaywallAt}`,
-    `免费引流：前 ${plan.freeEpisodes} episode`,
-    `Pay card points间隔：${plan.paywallCadence} episode`,
-    `付费集卡点强度阈值：${plan.cliffhangerStrengthThreshold}`,
-    plan.buildupBeforePaywall ? `付费前蓄势：${plan.buildupBeforePaywall}` : "",
-    `强度曲线：\n${curve}`,
+    `First paid episode: Episode ${plan.firstPaywallAt}`,
+    `Free lead-in: first ${plan.freeEpisodes} episode(s)`,
+    `Pay-card interval: ${plan.paywallCadence} episode(s)`,
+    `Paid-episode cliffhanger strength threshold: ${plan.cliffhangerStrengthThreshold}`,
+    plan.buildupBeforePaywall ? `Buildup before paywall: ${plan.buildupBeforePaywall}` : "",
+    `Intensity curve:\n${curve}`,
   ].filter(Boolean).join("\n");
 }

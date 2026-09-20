@@ -49,8 +49,8 @@ test("resolveDirectorAutoExecutionWorkflowState appends background sync labels t
   );
 
   assert.equal(state.stage, "chapter_execution");
-  assert.match(state.itemLabel, /角色成长中\(第2章\)/);
-  assert.match(state.itemLabel, /状态同步中\(第2章\)/);
+  assert.match(state.itemLabel, /Character development\(Chapter 2\)/);
+  assert.match(state.itemLabel, /Status synchronizing\(Chapter 2\)/);
 });
 test("pipeline payload preserves full-book autopilot control policy", () => {
   const payload = stringifyPipelinePayload({

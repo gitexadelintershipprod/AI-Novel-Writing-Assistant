@@ -334,7 +334,7 @@ async function createRewriteSnapshotForRestart(
       restoreEntry: "version_history",
     };
   } catch (error) {
-    const cause = error instanceof Error && error.message ? `：${error.message}` : "";
+    const cause = error instanceof Error && error.message ? `: ${error.message}` : "";
     throw new Error(`Could not create the Auto-Director pre-rewrite backup${cause}`);
   }
 }

@@ -77,20 +77,20 @@ function formatGeneratedLayerObject(raw: unknown, depth = 0): string {
     if (Array.isArray(value)) {
       const items = value.map((item) => normalizeGeneratedLayerFieldValue(item)).filter(Boolean);
       if (items.length > 0) {
-        lines.push(`${label}：${items.join("、")}`);
+        lines.push(`${label}: ${items.join(", ")}`);
       }
       continue;
     }
     if (value && typeof value === "object") {
       const nested = formatGeneratedLayerObject(value, depth + 1);
       if (nested) {
-        lines.push(depth === 0 ? `${label}\n${nested}` : `${label}：${nested.replace(/\n/g, "；")}`);
+        lines.push(depth === 0 ? `${label}\n${nested}` : `${label}: ${nested.replace(/\n/g, "; ")}`);
       }
       continue;
     }
     const text = normalizeGeneratedLayerFieldValue(value);
     if (text) {
-      lines.push(`${label}：${text}`);
+      lines.push(`${label}: ${text}`);
     }
   }
   return lines.join("\n");

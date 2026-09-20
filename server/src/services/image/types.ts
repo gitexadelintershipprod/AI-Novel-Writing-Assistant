@@ -96,9 +96,9 @@ export interface ImageProviderGenerateInput {
   outputFormat?: ImageOutputFormat;
   outputCompression?: number;
   moderation?: ImageModerationLevel;
-  /** 参考图 URL 列表（支持 http/https）；provider 不支持时静默忽略 */
+  /** Reference-image URL list (http/https); silently ignored when the provider does not support it. */
   refImages?: string[];
-  /** 参考图本地文件路径列表；优先于 refImages，通过 multipart/form-data 上传，避免 base64 膨胀 */
+  /** Local reference-image file paths; preferred over refImages. Uploaded via multipart/form-data to avoid base64 bloat. */
   refImagePaths?: string[];
 }
 

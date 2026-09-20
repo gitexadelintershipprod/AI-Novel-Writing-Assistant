@@ -89,7 +89,7 @@ test("chapter planner context prioritizes framing, story macro and current volum
   const blocks = buildChapterPlanContextBlocks(createInput());
   const byId = new Map(blocks.map((block) => [block.id, block]));
 
-  assert.match(byId.get("book_framing").content, /target audience: 新手向男频读者/);
+  assert.match(byId.get("book_framing").content, /Target audience: 新手向男频读者/);
   assert.match(byId.get("book_framing").content, /Theme base: 都市异能/);
   assert.match(byId.get("book_framing").content, /First-30-chapter promise: 前三十章稳定兑现压迫与反压快感/);
   assert.match(byId.get("style_engine").content, /当前命中写法：冷峻现实派/);

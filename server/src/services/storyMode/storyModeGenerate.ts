@@ -202,10 +202,10 @@ export async function generateStoryModeExpansionDrafts(input: GenerateStoryModeE
     return [
       path,
       description,
-      `驱动：${profile.coreDrive}`,
-      `回报：${profile.readerReward}`,
-      `单元：${profile.progressionUnits.slice(0, 3).join("、")}`,
-    ].filter(Boolean).join("；");
+      `Drive: ${profile.coreDrive}`,
+      `Reward: ${profile.readerReward}`,
+      `Units: ${profile.progressionUnits.slice(0, 3).join(", ")}`,
+    ].filter(Boolean).join("; ");
   }).join("\n");
   const result = await runStructuredPrompt({
     asset: storyModeExpansionPrompt,

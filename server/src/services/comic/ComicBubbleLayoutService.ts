@@ -1,11 +1,11 @@
 /**
- * 气泡排版引擎
+ * Speech-bubble lettering engine.
  *
- * 输入：ComicPanel（含 imageData 路径 + dialogues JSON）
- * 输出：格子图 + 气泡合成后的新图（写入 ComicPanel.letteredData 路径）
+ * Input: ComicPanel (imageData path + dialogues JSON)
+ * Output: a new image with bubbles composited onto the panel (written to ComicPanel.letteredData)
  *
- * 实现：sharp + 手写 SVG 气泡模板，librsvg 渲染，不依赖 headless 浏览器。
- * 中文字体：按优先级降序尝试系统字体，均不可用时降级为无衬线字体（librsvg 兜底）。
+ * Implementation: sharp + handwritten SVG bubble templates, rendered by librsvg. No headless browser.
+ * CJK fonts: try system fonts in priority order, then fall back to a sans-serif family (librsvg fallback).
  */
 import fs from "fs/promises";
 import path from "path";
@@ -30,9 +30,9 @@ export interface Dialogue {
 }
 
 export interface LetterPanelOptions {
-  /** 气泡背景不透明度（0-1），默认 0.95 */
+  /** Bubble background opacity (0-1), default 0.95. */
   bubbleOpacity?: number;
-  /** 最大气泡宽度（像素），默认为图宽 * 0.45 */
+  /** Max bubble width (pixels), default image width * 0.45. */
   maxBubbleWidthRatio?: number;
 }
 
@@ -52,7 +52,7 @@ const BUBBLE_PADDING = 16;
 const LINE_HEIGHT_RATIO = 1.45;
 const MAX_CHARS_PER_LINE = 10;
 
-// 锚点位置 → [x%, y%]（相对图片宽高的百分比）
+// Anchor position → [x%, y%] (percent of image width/height)
 const ANCHOR_POSITIONS: Record<string, [number, number]> = {
   "top-left":      [0.18, 0.12],
   "top-center":    [0.50, 0.12],
@@ -64,12 +64,12 @@ const ANCHOR_POSITIONS: Record<string, [number, number]> = {
   "bottom-center": [0.50, 0.88],
   "bottom-right":  [0.82, 0.88],
 };
-// 默认排列顺序（anchorHint 缺失时按话序占用格点）
+// Default occupancy order when anchorHint is missing (by dialogue order).
 const DEFAULT_ANCHOR_ORDER: AnchorHint[] = [
   "top-right", "top-left", "mid-right", "mid-left", "bottom-right", "bottom-left",
 ];
 
-// ─── SVG 生成 ─────────────────────────────────────────────────────────────────
+// ─── SVG generation ───────────────────────────────────────────────────────────
 
 function wrapText(text: string, maxCharsPerLine: number): string[] {
   const lines: string[] = [];
@@ -86,8 +86,8 @@ function wrapText(text: string, maxCharsPerLine: number): string[] {
 }
 
 /**
- * 生成单个气泡的 SVG 字符串（坐标相对于气泡自身左上角）。
- * cx/cy 是气泡中心在整图中的坐标（像素）。
+ * Build one bubble's SVG string (coordinates relative to the bubble's own top-left).
+ * cx/cy are the bubble center in the full image (pixels).
  */
 function buildBubbleSvg(
   dialogue: Dialogue,
@@ -112,7 +112,7 @@ function buildBubbleSvg(
   const bw = Math.ceil(textW + padding * 2);
   const bh = Math.ceil(textH + padding * 2);
 
-  // 气泡左上角坐标（保证在图内）
+  // Bubble top-left, clamped inside the image.
   let bx = Math.round(cx - bw / 2);
   let by = Math.round(cy - bh / 2);
   bx = Math.max(4, Math.min(imgWidth - bw - 4, bx));
@@ -138,13 +138,13 @@ function buildBubbleSvg(
       break;
     }
     case "spike": {
-      // 尖角气泡：矩形 + 外圆角 + 锯齿描边
+      // Spike bubble: rounded rectangle + jagged stroke.
       bgShape = `<rect x="2" y="2" width="${bw - 4}" height="${bh - 4}" rx="4" ry="4"
         fill="white" fill-opacity="${opacity}" stroke="#e53e3e" stroke-width="2" stroke-dasharray="6 2"/>`;
       break;
     }
     case "cloud": {
-      // 思维云泡：多个圆形叠加近似
+      // Thought cloud: overlapping circles as an approximation.
       const r = Math.min(bw, bh) * 0.35;
       bgShape = `
         <circle cx="${bw * 0.3}" cy="${bh * 0.45}" r="${r * 0.85}" fill="white" fill-opacity="${opacity}" stroke="#333" stroke-width="1"/>
@@ -210,8 +210,8 @@ async function findPanelImageBuffer(panelId: string): Promise<Buffer> {
 
 export class ComicBubbleLayoutService {
   /**
-   * 为单格格子叠加气泡，生成已排版图。
-   * 结果存磁盘 + letteredData 写入 ComicPanel。
+   * Overlay bubbles on one panel and produce a lettered image.
+   * Persist to disk and write letteredData on ComicPanel.
    */
   async letterPanel(panelId: string, opts: LetterPanelOptions = {}): Promise<LetterPanelResult> {
     const panel = await prisma.comicPanel.findUnique({ where: { id: panelId } });
@@ -221,7 +221,7 @@ export class ComicBubbleLayoutService {
       ? (JSON.parse(panel.dialogues) as Dialogue[])
       : [];
 
-    // 加载原始格子图
+    // Load the original panel image.
     const rawBuffer = await findPanelImageBuffer(panelId);
     const meta = await sharp(rawBuffer).metadata();
     const imgWidth = meta.width ?? 1024;
@@ -237,7 +237,7 @@ export class ComicBubbleLayoutService {
         const dlg = dialogues[idx];
         const hint = dlg.anchorHint?.toLowerCase();
 
-        // 选锚点
+        // Pick an anchor.
         let anchor: [number, number];
         const knownHint = hint && ANCHOR_POSITIONS[hint] ? hint : null;
         if (knownHint && !usedAnchors.has(knownHint)) {
@@ -281,7 +281,7 @@ export class ComicBubbleLayoutService {
     return { buffer: outBuffer, ext: "png", width: imgWidth, height: imgHeight };
   }
 
-  /** 读取已排版图文件（供 HTTP 路由流式响应） */
+  /** Read a lettered image file (for HTTP streaming). */
   async getLetteredImageFile(panelId: string): Promise<Buffer | null> {
     const filePath = path.join(letteredPanelDir(panelId), "lettered.png");
     try {

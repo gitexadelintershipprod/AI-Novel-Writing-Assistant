@@ -9,7 +9,7 @@ export const productionWorkflowDefinitions: WorkflowDefinition[] = [
       ? [{
         agent: "Planner",
         tool: "create_novel",
-        reason: `Create a novel《${intent.novelTitle}》`,
+        reason: `Create the novel "${intent.novelTitle}"`,
         input: { title: intent.novelTitle },
         keyPrefix: `create_novel_${intent.novelTitle}`,
       }]
@@ -23,7 +23,7 @@ export const productionWorkflowDefinitions: WorkflowDefinition[] = [
       ? [{
         agent: "Planner",
         tool: "bind_world_to_novel",
-        reason: `将《${intent.worldName}》绑定为current novel世界观`,
+        reason: `Bind "${intent.worldName}" as the current novel's world`,
         input: {
           novelId: plannerInput.novelId,
           worldName: intent.worldName,
@@ -40,7 +40,7 @@ export const productionWorkflowDefinitions: WorkflowDefinition[] = [
       ? [{
         agent: "Planner",
         tool: "unbind_world_from_novel",
-        reason: "解除current novel的世界观绑定",
+        reason: "Unbind the current novel's world",
         input: {
           novelId: plannerInput.novelId,
         },
@@ -77,7 +77,7 @@ export const productionWorkflowDefinitions: WorkflowDefinition[] = [
         actions.push({
           agent: "Planner",
           tool: "create_novel",
-          reason: `Create a novel《${intent.novelTitle}》`,
+          reason: `Create the novel "${intent.novelTitle}"`,
           input: createNovelInput,
           keyPrefix: `produce_create_${intent.novelTitle}`,
         });
@@ -144,14 +144,14 @@ export const productionWorkflowDefinitions: WorkflowDefinition[] = [
         {
           agent: "Planner",
           tool: "sync_chapters_from_structured_outline",
-          reason: "根据Structured outline同步Chapter table of contents",
+          reason: "Sync the chapter table of contents from the structured outline",
           input: {},
           keyPrefix: "produce_sync_chapters",
         },
         {
           agent: "Planner",
           tool: "preview_pipeline_run",
-          reason: "预览整本写作范围",
+          reason: "Preview the full-book writing range",
           input: {
             startOrder: 1,
             endOrder: intent.targetChapterCount ?? 20,
@@ -161,7 +161,7 @@ export const productionWorkflowDefinitions: WorkflowDefinition[] = [
         {
           agent: "Planner",
           tool: "queue_pipeline_run",
-          reason: "启动Whole writing assignment",
+          reason: "Start the full-book writing assignment",
           input: {
             startOrder: 1,
             endOrder: intent.targetChapterCount ?? 20,

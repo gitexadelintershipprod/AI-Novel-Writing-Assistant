@@ -1,14 +1,15 @@
 /**
  * ComicSpriteSheetService
- * 在格子图生图前，把角色三视图 + 服装资产 + 道具资产横向拼合成一张雪碧图，
- * 作为单一参考图传给图像模型，保证角色外形一致性。
+ * Before generating a panel image, horizontally composite the character turnaround,
+ * costume assets, and prop assets into one sprite sheet and send it as a single
+ * reference image so character appearance stays consistent.
  *
- * 布局（从左到右）：
- *   [三视图] | [服装（costume）] | [武器/道具/其他资产...]
+ * Layout (left to right):
+ *   [turnaround] | [costume] | [weapons / props / other assets...]
  *
- * 每列等高（TARGET_HEIGHT），宽度按原图比例缩放。
- * 每列底部附 SVG 标签（角色名或资产名）。
- * 输出：临时 PNG 文件，使用后由调用方负责清理。
+ * Every column shares TARGET_HEIGHT; width scales with the source aspect ratio.
+ * An SVG label (character name or asset name) is attached under each column.
+ * Output: a temporary PNG that the caller must clean up after use.
  */
 import fs from "fs/promises";
 import os from "os";
@@ -26,35 +27,35 @@ const TARGET_HEIGHT = 512;
 const LABEL_HEIGHT = 28;
 const LABEL_FONT_SIZE = 14;
 const TOTAL_HEIGHT = TARGET_HEIGHT + LABEL_HEIGHT;
-const MAX_ASSET_COLS = 5; // 最多额外资产列，避免图片过宽
+const MAX_ASSET_COLS = 5; // Cap extra asset columns so the sheet does not get too wide.
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface SpriteSheetInput {
   characterId: string;
   characterName: string;
-  /** 已解析的三视图磁盘路径，可以为空（无三视图时跳过） */
+  /** Resolved turnaround disk path; empty means skip that column. */
   sheetFilePath?: string;
-  /** 服装资产（最多取第一个已完成的） */
+  /** Costume assets (use the first completed one). */
   costumeAssets: Array<{ id: string; name: string }>;
-  /** 其他资产（按传入顺序，最多 MAX_ASSET_COLS - 1 个） */
+  /** Other assets (in caller order, at most MAX_ASSET_COLS - 1). */
   propAssets: Array<{ id: string; name: string; assetType: CharacterAssetType }>;
 }
 
 export interface SpriteSheetResult {
-  /** 临时 PNG 文件路径，调用方用完后调用 cleanup() */
+  /** Temporary PNG path; the caller should call cleanup() after use. */
   filePath: string;
   cleanup: () => Promise<void>;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-/** 把一段文字截断到最大长度（避免标签溢出） */
+/** Truncate a label so it does not overflow. */
 function truncLabel(text: string, maxLen = 12): string {
   return text.length > maxLen ? `${text.slice(0, maxLen)}…` : text;
 }
 
-/** 生成底部标签 SVG Buffer */
+/** Build a bottom-label SVG buffer. */
 function buildLabelBuffer(label: string, width: number): Buffer {
   const escaped = label.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${LABEL_HEIGHT}">
@@ -66,7 +67,7 @@ function buildLabelBuffer(label: string, width: number): Buffer {
   return Buffer.from(svg);
 }
 
-/** 将图片缩放到目标高度，返回 sharp 实例和宽度 */
+/** Resize an image to the target height and return the buffer plus width. */
 async function resizeToHeight(filePath: string, height: number): Promise<{ buf: Buffer; width: number }> {
   const resized = sharp(filePath).resize({ height, withoutEnlargement: false });
   const meta = await resized.metadata();
@@ -75,12 +76,12 @@ async function resizeToHeight(filePath: string, height: number): Promise<{ buf: 
   return { buf, width };
 }
 
-/** 拼合单列（图片 + 标签）成 TARGET_HEIGHT + LABEL_HEIGHT 高的 Buffer */
+/** Composite one column (image + label) into a TARGET_HEIGHT + LABEL_HEIGHT buffer. */
 async function buildColumn(filePath: string, label: string): Promise<{ buf: Buffer; width: number }> {
   const { buf: imgBuf, width } = await resizeToHeight(filePath, TARGET_HEIGHT);
   const labelBuf = buildLabelBuffer(truncLabel(label), width);
 
-  // 合并图片 + 标签（竖排）
+  // Stack the image and label vertically.
   const combined = await sharp({
     create: { width, height: TOTAL_HEIGHT, channels: 4, background: { r: 255, g: 255, b: 255, alpha: 1 } },
   })
@@ -94,13 +95,13 @@ async function buildColumn(filePath: string, label: string): Promise<{ buf: Buff
   return { buf: combined, width };
 }
 
-/** 当没有任何图片可用时生成占位列 */
+/** Build a placeholder column when no image is available. */
 function buildPlaceholderColumn(label: string, width = 256): { buf: Buffer; width: number } {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${TOTAL_HEIGHT}">
   <rect width="${width}" height="${TOTAL_HEIGHT}" fill="#f0f0f0"/>
   <text x="${width / 2}" y="${TARGET_HEIGHT / 2}"
     font-family="sans-serif" font-size="13" fill="#999999"
-    text-anchor="middle" dominant-baseline="middle">无参考图</text>
+    text-anchor="middle" dominant-baseline="middle">No reference</text>
   ${buildLabelBuffer(label, width).toString("utf-8").replace(/<svg[^>]*>|<\/svg>/g, "")}
 </svg>`;
   return { buf: Buffer.from(svg), width };
@@ -110,34 +111,34 @@ function buildPlaceholderColumn(label: string, width = 256): { buf: Buffer; widt
 
 export class ComicSpriteSheetService {
   /**
-   * 根据输入构建雪碧图：三视图列 + 服装列 + 道具列...
-   * 若所有列都没有可用图片则返回 null（调用方直接用原三视图或不用参考图）。
+   * Build a sprite sheet from the input: turnaround column + costume column + prop columns.
+   * Returns null when no column has a usable image (caller then uses the original turnaround or no reference).
    */
   async buildSpriteSheet(input: SpriteSheetInput): Promise<SpriteSheetResult | null> {
     const columns: Array<{ buf: Buffer; width: number }> = [];
 
-    // 列 1：三视图
+    // Column 1: turnaround
     if (input.sheetFilePath) {
       try {
-        const col = await buildColumn(input.sheetFilePath, `${truncLabel(input.characterName, 8)}·三视图`);
+        const col = await buildColumn(input.sheetFilePath, `${truncLabel(input.characterName, 8)} · turnaround`);
         columns.push(col);
       } catch (err) {
-        console.warn(`[sprite] 三视图加载失败：${err instanceof Error ? err.message : err}`);
+        console.warn(`[sprite] Failed to load turnaround: ${err instanceof Error ? err.message : err}`);
       }
     }
 
-    // 列 2：服装（costume）—— 只取第一个有图的资产
+    // Column 2: costume — use the first asset that has an image.
     for (const asset of input.costumeAssets.slice(0, 3)) {
       const resolved = await resolveAssetFile(asset.id);
       if (!resolved) continue;
       try {
-        const col = await buildColumn(resolved.filePath, `服装·${asset.name}`);
+        const col = await buildColumn(resolved.filePath, `Costume · ${asset.name}`);
         columns.push(col);
         break;
-      } catch { /* 跳过损坏图 */ }
+      } catch { /* skip a damaged image */ }
     }
 
-    // 列 3+：其他道具/武器等（上限 MAX_ASSET_COLS 总列数）
+    // Columns 3+: other props / weapons, capped at MAX_ASSET_COLS total columns.
     const remaining = MAX_ASSET_COLS - columns.length;
     for (const asset of input.propAssets.slice(0, remaining)) {
       const resolved = await resolveAssetFile(asset.id);
@@ -145,13 +146,13 @@ export class ComicSpriteSheetService {
       try {
         const col = await buildColumn(resolved.filePath, asset.name);
         columns.push(col);
-      } catch { /* 跳过 */ }
+      } catch { /* skip */ }
     }
 
-    // 没有任何可用图片
+    // No usable images.
     if (columns.length === 0) return null;
 
-    // 横向拼合
+    // Composite horizontally.
     const totalWidth = columns.reduce((sum, c) => sum + c.width, 0);
     const compositeInputs: Array<sharp.OverlayOptions> = [];
     let xOffset = 0;
@@ -167,14 +168,14 @@ export class ComicSpriteSheetService {
       .png()
       .toBuffer();
 
-    // 写到临时文件
+    // Write to a temporary file.
     const tmpFile = path.join(os.tmpdir(), `comic-sprite-${Date.now()}-${Math.random().toString(36).slice(2)}.png`);
     await fs.writeFile(tmpFile, finalBuf);
 
     return {
       filePath: tmpFile,
       cleanup: async () => {
-        try { await fs.unlink(tmpFile); } catch { /* 忽略 */ }
+        try { await fs.unlink(tmpFile); } catch { /* ignore */ }
       },
     };
   }

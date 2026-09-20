@@ -137,9 +137,9 @@ export const formulaToolDefinitions: Partial<
       const missingSignals = signals.filter((signal) => !matchedSignals.includes(signal));
       const summary = basisText
         ? matchedSignals.length > 0
-          ? `公式《${row.name}》与当前上下文命中了 ${matchedSignals.length} items风格信号。`
-          : `公式《${row.name}》已读取，但当前上下文未出现明确命中信号。`
-        : `公式《${row.name}》已读取，但当前没有可用于比对的上下文文本。`;
+          ? `Writing formula “${row.name}” matched ${matchedSignals.length} style signals in the current context.`
+          : `Writing formula “${row.name}” was read, but the current context has no clear match signals.`
+        : `Writing formula “${row.name}” was read, but there is no context text to compare against.`;
       return explainFormulaMatchOutputSchema.parse({
         formulaId: row.id,
         basisType,

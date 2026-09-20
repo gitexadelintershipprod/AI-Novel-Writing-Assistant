@@ -114,8 +114,9 @@ export default function SimpleNovelShelfPage() {
       if (!directorTaskId) {
         throw new Error("No resumable AI tasks found.");
       }
-      // 书架已投影出本书最近的Automatic director tasks。重规划检查点会将任务标记为
-      // failed，因此不能再用“仅运行中任务”的查询覆盖这个恢复锚点。
+      // The shelf already projected this book's latest Automatic director task.
+      // Replan checkpoints mark that task failed, so a "running tasks only"
+      // query must not overwrite this recovery anchor.
       return continueNovelWorkflow(directorTaskId, { continuationMode: "auto_execute_range" });
     },
     onSuccess: async () => {

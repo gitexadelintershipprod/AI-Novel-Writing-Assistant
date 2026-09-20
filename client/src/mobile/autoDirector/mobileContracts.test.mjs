@@ -128,7 +128,7 @@ test("auto-director follow-up center uses mobile contracts for single-column non
   );
   assertContains(
     overview,
-    "label: \"全部\"",
+    "label: \"All\"",
     "follow-up section filters should expose the all-items entry to users",
   );
   assertContains(

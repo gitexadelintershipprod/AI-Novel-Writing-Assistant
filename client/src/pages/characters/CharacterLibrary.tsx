@@ -357,7 +357,7 @@ export default function CharacterLibrary() {
                 <AssetLibraryEmptyState
                   icon={UsersRound}
                   title="There is no basic role yet"
-                  description="Use \"Create Character\" in the upper right corner of the page to first create a protagonist with clear goals and clear weaknesses."
+                  description='Use "Create Character" in the upper right corner of the page to first create a protagonist with clear goals and clear weaknesses.'
                 />
               ) : null}
             </>

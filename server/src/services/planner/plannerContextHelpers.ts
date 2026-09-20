@@ -67,20 +67,20 @@ export function buildStoryMacroSummary(plan: StoryMacroPlan | null): string {
     return "None";
   }
   const lines = [
-    plan.expansion?.expanded_premise ? `扩展 premise：${plan.expansion.expanded_premise}` : "",
-    plan.expansion?.protagonist_core ? `Protagonist Core：${plan.expansion.protagonist_core}` : "",
-    plan.decomposition?.selling_point ? `卖点拆解：${plan.decomposition.selling_point}` : "",
-    plan.decomposition?.core_conflict ? `Core conflict:${plan.decomposition.core_conflict}` : "",
-    plan.decomposition?.main_hook ? `Main hook:${plan.decomposition.main_hook}` : "",
-    plan.decomposition?.progression_loop ? `Propulsion circuit：${plan.decomposition.progression_loop}` : "",
-    plan.decomposition?.growth_path ? `Growth path:${plan.decomposition.growth_path}` : "",
+    plan.expansion?.expanded_premise ? `Expanded premise: ${plan.expansion.expanded_premise}` : "",
+    plan.expansion?.protagonist_core ? `Protagonist core: ${plan.expansion.protagonist_core}` : "",
+    plan.decomposition?.selling_point ? `Selling-point breakdown: ${plan.decomposition.selling_point}` : "",
+    plan.decomposition?.core_conflict ? `Core conflict: ${plan.decomposition.core_conflict}` : "",
+    plan.decomposition?.main_hook ? `Main hook: ${plan.decomposition.main_hook}` : "",
+    plan.decomposition?.progression_loop ? `Progression loop: ${plan.decomposition.progression_loop}` : "",
+    plan.decomposition?.growth_path ? `Growth path: ${plan.decomposition.growth_path}` : "",
     plan.decomposition?.major_payoffs?.length
-      ? `关键兑现：${plan.decomposition.major_payoffs.join("；")}`
+      ? `Key payoffs: ${plan.decomposition.major_payoffs.join("; ")}`
       : "",
-    plan.decomposition?.ending_flavor ? `结尾风味：${plan.decomposition.ending_flavor}` : "",
-    plan.constraints.length > 0 ? `硬约束：${plan.constraints.join("；")}` : "",
+    plan.decomposition?.ending_flavor ? `Ending flavor: ${plan.decomposition.ending_flavor}` : "",
+    plan.constraints.length > 0 ? `Hard constraints: ${plan.constraints.join("; ")}` : "",
     plan.constraintEngine?.phase_model?.length
-      ? `stage model：${plan.constraintEngine.phase_model.map((item) => `${item.name}:${item.goal}`).join(" | ")}`
+      ? `stage model: ${plan.constraintEngine.phase_model.map((item) => `${item.name}:${item.goal}`).join(" | ")}`
       : "",
   ].filter(Boolean);
   return lines.join("\n") || "None";
@@ -100,7 +100,7 @@ export function buildCurrentVolumeWindowSummary(
     return [
       `Current chapter:Chapter ${chapterOrder}`,
       "This is not bound to any volume structure yet. Sync chapters and the volume window first.",
-      `已有卷窗口：${volumes.map((volume) => `第${volume.sortOrder} volume《${volume.title}》`).join("；")}`,
+      `Existing volume windows: ${volumes.map((volume) => `Volume ${volume.sortOrder} "${volume.title}"`).join("; ")}`,
     ].join("\n");
   }
 
@@ -114,18 +114,18 @@ export function buildCurrentVolumeWindowSummary(
     .findIndex((chapter) => chapter.chapterOrder === chapterOrder);
 
   return [
-    `Current chapter:Chapter ${chapterOrder}（卷内位置 ${chapterIndex + 1}/${currentVolume.chapters.length}）`,
-    `Current volume:Volume ${currentVolume.sortOrder}"${currentVolume.title}"`,
-    `卷使命：${currentVolume.mainPromise ?? currentVolume.summary ?? "无"}`,
-    currentVolume.climax ? `Climax at the end of the volume:${currentVolume.climax}` : "",
-    chapterOrders.length > 0 ? `卷Chapter scope:${chapterOrders[0]}-${chapterOrders[chapterOrders.length - 1]}` : "",
-    currentVolume.openPayoffs.length > 0 ? `Items to be redeemed in this volume：${currentVolume.openPayoffs.join("；")}` : "",
+    `Current chapter: Chapter ${chapterOrder} (position ${chapterIndex + 1}/${currentVolume.chapters.length} in this volume)`,
+    `Current volume: Volume ${currentVolume.sortOrder} "${currentVolume.title}"`,
+    `Volume mission: ${currentVolume.mainPromise ?? currentVolume.summary ?? "none"}`,
+    currentVolume.climax ? `Climax at the end of the volume: ${currentVolume.climax}` : "",
+    chapterOrders.length > 0 ? `Volume chapter range: ${chapterOrders[0]}-${chapterOrders[chapterOrders.length - 1]}` : "",
+    currentVolume.openPayoffs.length > 0 ? `Items still owed in this volume: ${currentVolume.openPayoffs.join("; ")}` : "",
     previousVolume
-      ? `上一卷承接：Volume ${previousVolume.sortOrder}《${previousVolume.title}》 | ${previousVolume.mainPromise ?? previousVolume.summary ?? "无"}`
-      : "上一卷承接：无",
+      ? `Carry-in from previous volume: Volume ${previousVolume.sortOrder} "${previousVolume.title}" | ${previousVolume.mainPromise ?? previousVolume.summary ?? "none"}`
+      : "Carry-in from previous volume: none",
     nextVolume
-      ? `下一卷预期：Volume ${nextVolume.sortOrder}《${nextVolume.title}》 | ${nextVolume.mainPromise ?? nextVolume.summary ?? "无"}`
-      : "下一卷预期：无",
+      ? `Expected next volume: Volume ${nextVolume.sortOrder} "${nextVolume.title}" | ${nextVolume.mainPromise ?? nextVolume.summary ?? "none"}`
+      : "Expected next volume: none",
   ].filter(Boolean).join("\n");
 }
 
@@ -137,12 +137,12 @@ function describeConflictStep(
     return "unknown";
   }
   if (current > previous) {
-    return "上升";
+    return "rising";
   }
   if (current < previous) {
-    return "下降";
+    return "falling";
   }
-  return "持平";
+  return "flat";
 }
 
 export function buildPlannerConflictLevelAnchorContext(
@@ -167,9 +167,9 @@ export function buildPlannerConflictLevelAnchorContext(
       lines.push([
         `Chapter ${chapter.chapterOrder}"${chapter.title}"`,
         `conflictLevel=${chapter.conflictLevel}`,
-        "用户锚定，不可更改",
-        `相对上一章=${describeConflictStep(previous?.conflictLevel, chapter.conflictLevel)}`,
-        `相对下一章=${describeConflictStep(chapter.conflictLevel, next?.conflictLevel)}`,
+        "user-anchored, do not change",
+        `vs previous chapter=${describeConflictStep(previous?.conflictLevel, chapter.conflictLevel)}`,
+        `vs next chapter=${describeConflictStep(chapter.conflictLevel, next?.conflictLevel)}`,
       ].join(" | "));
     }
   }
@@ -194,7 +194,7 @@ export function buildPlannerCharacterDynamicsContext(overview: PlannerCharacterD
   const highRiskCharacters = overview.characters
     .filter((item) => item.absenceRisk === "high" || item.absenceRisk === "warn")
     .slice(0, 4)
-    .map((item) => `${item.name}(${item.absenceRisk}, 缺席跨度=${item.absenceSpan})`);
+    .map((item) => `${item.name}(${item.absenceRisk}, absence span=${item.absenceSpan})`);
   const coreCharacters = overview.characters
     .filter((item) => item.isCoreInVolume)
     .slice(0, 6)
@@ -202,29 +202,29 @@ export function buildPlannerCharacterDynamicsContext(overview: PlannerCharacterD
       [
         item.name,
         item.volumeRoleLabel ? `Volume role=${item.volumeRoleLabel}` : "",
-        item.volumeResponsibility ? `卷级职责=${item.volumeResponsibility}` : "",
-        item.plannedChapterOrders.length > 0 ? `计划章次=${item.plannedChapterOrders.join("、")}` : "",
-        item.absenceRisk !== "none" ? `缺席风险=${item.absenceRisk}(跨度=${item.absenceSpan})` : "",
+        item.volumeResponsibility ? `volume duty=${item.volumeResponsibility}` : "",
+        item.plannedChapterOrders.length > 0 ? `planned chapters=${item.plannedChapterOrders.join(", ")}` : "",
+        item.absenceRisk !== "none" ? `absence risk=${item.absenceRisk} (span=${item.absenceSpan})` : "",
       ].filter(Boolean).join(" | ")
     ));
   const relationStages = overview.relations
     .slice(0, 8)
     .map((item) => (
-      `${item.sourceCharacterName} -> ${item.targetCharacterName}: ${item.stageLabel} | ${item.stageSummary}${item.nextTurnPoint ? ` | 下一步=${item.nextTurnPoint}` : ""}`
+      `${item.sourceCharacterName} -> ${item.targetCharacterName}: ${item.stageLabel} | ${item.stageSummary}${item.nextTurnPoint ? ` | next=${item.nextTurnPoint}` : ""}`
     ));
   const candidateGuards = overview.candidates
     .slice(0, 4)
     .map((item) => (
-      `${item.proposedName}${item.proposedRole ? `(${item.proposedRole})` : ""} | ${item.summary ?? "待确认候选"} | Source chapter=${item.sourceChapterOrder ?? "未知"} | 只读约束，未确认前禁止写入正式执行链`
+      `${item.proposedName}${item.proposedRole ? `(${item.proposedRole})` : ""} | ${item.summary ?? "pending candidate"} | Source chapter=${item.sourceChapterOrder ?? "unknown"} | read-only; do not write into the formal execution chain before confirm`
     ));
 
   return {
     summary: [
       overview.summary,
       overview.currentVolume ? `Current volume:${overview.currentVolume.title}` : "Current volume: not located",
-      coreCharacters.length > 0 ? `当前卷Core roles:${coreCharacters.map((item) => item.split(" | ")[0]).join("、")}` : "当前卷Core roles:无",
-      highRiskCharacters.length > 0 ? `缺席高风险角色：${highRiskCharacters.join("；")}` : "缺席高风险角色：无",
-      overview.pendingCandidateCount > 0 ? `待确认候选：${overview.pendingCandidateCount} 个` : "待确认候选：无",
+      coreCharacters.length > 0 ? `Current-volume core roles: ${coreCharacters.map((item) => item.split(" | ")[0]).join(", ")}` : "Current-volume core roles: none",
+      highRiskCharacters.length > 0 ? `High-risk absences: ${highRiskCharacters.join("; ")}` : "High-risk absences: none",
+      overview.pendingCandidateCount > 0 ? `Pending candidates: ${overview.pendingCandidateCount}` : "Pending candidates: none",
     ].join("\n"),
     volumeAssignments: coreCharacters.join("\n") || "None",
     relationStages: relationStages.join("\n") || "None",
@@ -241,7 +241,7 @@ export function buildPlannerStyleEngineSummary(styleContext: ResolvedStyleContex
   }
 
   const bindingLine = matchedBindings.length > 0
-    ? `Current hit writing：${matchedBindings
+    ? `Current hit writing: ${matchedBindings
       .map((binding) => compactText(binding.styleProfile?.name, binding.styleProfileId))
       .join(" / ")}`
     : "";
@@ -251,7 +251,7 @@ export function buildPlannerStyleEngineSummary(styleContext: ResolvedStyleContex
 
   return [
     bindingLine,
-    sections.length > 0 ? `规划期写法约束：\n${sections.join("\n")}` : "",
+    sections.length > 0 ? `Planning-period writing constraints:\n${sections.join("\n")}` : "",
   ].filter(Boolean).join("\n\n") || "None";
 }
 
@@ -276,18 +276,18 @@ export function buildPlannerPayoffLedgerContext(ledger: PayoffLedgerResponse, ch
       || isPayoffOverdueAtChapter(item, chapterOrder)
     ))
     .slice(0, 5)
-    .map((item) => `${item.title} | 窗口=${item.targetStartChapterOrder ?? "?"}-${item.targetEndChapterOrder ?? "?"}`);
+    .map((item) => `${item.title} | window=${item.targetStartChapterOrder ?? "?"}-${item.targetEndChapterOrder ?? "?"}`);
   const recentlyPaidOff = ledger.items
     .filter((item) => item.currentStatus === "paid_off")
     .sort((left, right) => (right.lastTouchedChapterOrder ?? 0) - (left.lastTouchedChapterOrder ?? 0))
     .slice(0, 4)
-    .map((item) => `${item.title} | 已在Chapter ${item.lastTouchedChapterOrder ?? "?"}附近兑现`);
+    .map((item) => `${item.title} | paid off near Chapter ${item.lastTouchedChapterOrder ?? "?"}`);
 
   return [
-    `账本摘要：待兑现=${ledger.summary.pendingCount}，紧急=${ledger.summary.urgentCount}，逾期=${ledger.summary.overdueCount}，已兑现=${ledger.summary.paidOffCount}`,
-    `当前未兑现项：${pendingItems.join("；") || "无"}`,
-    `当前逾期项：${overdueItems.join("；") || "无"}`,
-    `本章应触碰项：${touchNowItems.join("；") || "无"}`,
-    `最近一次已兑现项：${recentlyPaidOff.join("；") || "无"}`,
+    `Ledger summary: pending=${ledger.summary.pendingCount}, urgent=${ledger.summary.urgentCount}, overdue=${ledger.summary.overdueCount}, paid off=${ledger.summary.paidOffCount}`,
+    `Currently unpaid: ${pendingItems.join("; ") || "none"}`,
+    `Currently overdue: ${overdueItems.join("; ") || "none"}`,
+    `Should touch this chapter: ${touchNowItems.join("; ") || "none"}`,
+    `Recently paid off: ${recentlyPaidOff.join("; ") || "none"}`,
   ].join("\n");
 }

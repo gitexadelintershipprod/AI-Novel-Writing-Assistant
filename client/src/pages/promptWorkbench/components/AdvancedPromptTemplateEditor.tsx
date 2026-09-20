@@ -28,7 +28,7 @@ function formatDiagnosticKeys(
   keys: string[],
   kind: Extract<PromptTemplateTokenKind, "context" | "input" | "slot">,
 ) {
-  return keys.map((key) => labelTemplateToken({ kind, key })).join("、") || "None";
+  return keys.map((key) => labelTemplateToken({ kind, key })).join(", ") || "None";
 }
 
 function VersionRow(props: {

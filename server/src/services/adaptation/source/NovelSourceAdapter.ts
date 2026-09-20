@@ -1,10 +1,10 @@
 /**
- * 小说内容源适配器（novel_import）——共享层版本
+ * Novel content-source adapter (novel_import) — shared-layer version.
  *
- * drama 与 comic 共用此适配器。唯一通过 prisma 只读访问 novel 相关表，
- * 不 import 任何 services/novel/* 业务逻辑（由 CI 守卫强制）。
+ * Drama and comic share this adapter. It is the only path that reads novel tables via prisma,
+ * and it does not import any services/novel/* business logic (enforced by a CI guard).
  *
- * loadChapterText：按章节区间取原文，供 comic 分格脚本提取对白。
+ * loadChapterText: fetch source text by chapter range so comic panel scripts can extract dialogue.
  */
 import { prisma } from "../../../db/prisma";
 import type { SourceContentPort } from "./SourceContentPort";
@@ -77,7 +77,7 @@ export class NovelSourceAdapter implements SourceContentPort {
         (chapter.expectation ?? "").trim() || truncate(chapter.content ?? "") || chapter.title;
       return {
         order: chapter.order,
-        summary: `${chapter.title}：${summary}`,
+        summary: `${chapter.title}: ${summary}`,
         sourceChapterStart: chapter.order,
         sourceChapterEnd: chapter.order,
       };
@@ -86,14 +86,14 @@ export class NovelSourceAdapter implements SourceContentPort {
     const bundleCharacters: SourceCharacter[] = characters.map((character) => ({
       name: character.name,
       gender: character.gender as "male" | "female" | "other" | "unknown" | undefined,
-      persona: [character.role, character.personality].filter(Boolean).join("｜") || undefined,
+      persona: [character.role, character.personality].filter(Boolean).join(" | ") || undefined,
       relations: character.background ?? undefined,
       visualHint: [
         character.appearance,
         character.physique,
         character.attireStyle,
         character.signatureDetail,
-      ].filter(Boolean).join("，") || undefined,
+      ].filter(Boolean).join(", ") || undefined,
       sourceCharacterRef: character.id,
     }));
 

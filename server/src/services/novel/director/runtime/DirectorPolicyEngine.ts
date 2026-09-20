@@ -103,7 +103,7 @@ export class DirectorPolicyEngine {
         canRun: true,
         requiresApproval: false,
         gateType: "none",
-        reason: "工作区分析不会写入小说内容，可以直接执行。",
+        reason: "Workspace analysis does not write novel content and can run immediately.",
         mayOverwriteUserContent: false,
         affectedArtifacts,
       });
@@ -185,7 +185,7 @@ export class DirectorPolicyEngine {
       canRun: true,
       requiresApproval: false,
       gateType: "none",
-      reason: "当前策略允许执行该动作。",
+      reason: "The current policy allows this action.",
       mayOverwriteUserContent: mayTouchUserContent,
       affectedArtifacts,
     });

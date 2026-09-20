@@ -15,7 +15,7 @@ function compact(value: string | null | undefined): string {
 
 function present(label: string, value: string | null | undefined): string | null {
   const text = compact(value);
-  return text ? `${label}：${text}` : null;
+  return text ? `${label}: ${text}` : null;
 }
 
 /**
@@ -46,7 +46,7 @@ export const baseCharacterSubjectAdapter: CharacterSubjectAdapter<BaseCharacterS
       sourceDescription: "Reply from the stable character-library profile. The talk is only for understanding the person and will not rewrite library settings.",
       interactionPolicy: "read_only",
       identity: stableDetails.join("\n") || `Role positioning:${character.role}`,
-      currentSituation: "This is a 可复用的角色原型，未绑定任何小说、章节或当前剧情处境。",
+      currentSituation: "This is a reusable character prototype, not bound to any novel, chapter, or current plot situation.",
       hardBoundaries: [
         "Reply only from the stable base character-library profile. Do not invent events from a specific novel.",
         "This is a read-only interview. It will not change the character library, create versions, or affect any novel text.",
@@ -68,17 +68,17 @@ export const baseCharacterSubjectAdapter: CharacterSubjectAdapter<BaseCharacterS
 
   buildPromptContext({ character }): string {
     return [
-      "角色来源：Basic character library（read-only interview）",
-      `姓名：${compact(character.name)}`,
+      "Character source: Basic character library (read-only interview)",
+      `Name: ${compact(character.name)}`,
       `Role positioning:${compact(character.role)}`,
       present("Personality", character.personality),
       present("Background", character.background),
       present("Development direction", character.development),
-      present("外形", character.appearance),
+      present("Appearance", character.appearance),
       present("Weaknesses", character.weaknesses),
       present("Interests", character.interests),
       present("key experiences", character.keyEvents),
-      character.tags.trim() ? `标签：${compact(character.tags)}` : null,
+      character.tags.trim() ? `Tags: ${compact(character.tags)}` : null,
       "Boundary: not bound to novel plot. Do not treat the conversation as established fact, and do not propose or write character-library changes.",
     ].filter((line): line is string => Boolean(line)).join("\n");
   },

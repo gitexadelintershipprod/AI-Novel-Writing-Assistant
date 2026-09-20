@@ -126,8 +126,7 @@ export function hasContinuableChapterQualityLoopRiskFlags(riskFlags: string | nu
 }
 
 /**
- * 标识必须先调整章节窗口的结构性问题。该判断只消费已落库的结构化Quality closed loop结果，
- * 供任务投影与阅读入口区分“待优化”与“Waiting for re-planning”。
+ * Marks a structural problem that must adjust the chapter window first. This judgment only consumes persisted structured quality-loop results, so task projection and reading entries can distinguish "needs polish" from "waiting for replan".
  */
 export function hasChapterQualityLoopReplanRequiredRiskFlags(riskFlags: string | null | undefined): boolean {
   const qualityLoop = parseRiskFlagsObject(riskFlags)?.qualityLoop;

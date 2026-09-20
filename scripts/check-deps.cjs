@@ -1,14 +1,14 @@
 const fs = require("fs");
 const path = require("path");
 
-// 启动前的依赖完整性防呆检查：面向从源码运行的使用者（含非专业开发者）。
-// 只做直接依赖的存在性检查（pnpm 会为每个 workspace 包创建 node_modules 符号链接），
-// 不做版本比对——版本漂移由 pnpm-lock.yaml 保证，这里只拦截"拉了新代码忘了装依赖"。
+// Pre-start dependency check for people running from source (including non-developers).
+// Only checks that direct dependencies exist (pnpm creates a node_modules symlink per workspace package).
+// It does not compare versions — pnpm-lock.yaml owns that. This only catches "pulled new code, forgot pnpm install".
 
 const ROOT = path.resolve(__dirname, "..");
 
 const WORKSPACE_PACKAGES = [
-  { name: "根目录", dir: "." },
+  { name: "root", dir: "." },
   { name: "shared", dir: "shared" },
   { name: "server", dir: "server" },
   { name: "client", dir: "client" },
@@ -45,24 +45,24 @@ if (problems.length === 0) {
 const lines = [
   "",
   "==============================================",
-  "  依赖未安装或不完整，项目还不能启动",
+  "  Dependencies are missing or incomplete; the project cannot start yet",
   "==============================================",
   "",
-  "检测到以下依赖缺失：",
+  "Missing dependencies:",
 ];
 for (const problem of problems) {
-  const preview = problem.missing.slice(0, 5).join("、");
-  const suffix = problem.missing.length > 5 ? ` 等 ${problem.missing.length} 个` : "";
+  const preview = problem.missing.slice(0, 5).join(", ");
+  const suffix = problem.missing.length > 5 ? ` and ${problem.missing.length - 5} more` : "";
   lines.push(`  - [${problem.package}] ${preview}${suffix}`);
 }
 lines.push(
   "",
-  "这是正常情况：更新代码（git pull）后新增的依赖需要重新安装。",
-  "请在项目根目录执行下面这一条命令，然后重新启动：",
+  "This is expected after a git pull that added packages: reinstall dependencies, then start again.",
+  "From the project root, run:",
   "",
   "  pnpm install",
   "",
-  "如果没有安装 pnpm，先执行：npm install -g pnpm",
+  "If pnpm is not installed, run: npm install -g pnpm",
   "",
 );
 console.error(lines.join("\n"));

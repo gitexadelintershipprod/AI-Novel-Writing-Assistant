@@ -46,7 +46,7 @@ function complianceToQualityFlags(compliance: DramaComplianceOutput): QualityFla
   return compliance.items.map((item) => ({
     severity,
     code: `compliance_${compliance.level}`,
-    evidence: `${item.rule}：${item.excerpt}`,
+    evidence: `${item.rule}: ${item.excerpt}`,
     suggestion: item.suggestion,
   }));
 }
@@ -60,7 +60,7 @@ function mergeRepairPlan(
   }
   return {
     mode: "patch",
-    instruction: flags.map((flag) => flag.suggestion).join("；"),
+    instruction: flags.map((flag) => flag.suggestion).join("; "),
   };
 }
 

@@ -282,7 +282,7 @@ test("JSON repair receives the target schema when the original output cannot be 
 
     const repairPrompt = capturedMessages.map((message) => String(message.content)).join("\n");
     assert.deepEqual(result.data, { value: "fixed", requiredField: "restored" });
-    assert.match(repairPrompt, /目标 JSON Schema/);
+    assert.match(repairPrompt, /target JSON Schema/i);
     assert.match(repairPrompt, /requiredField/);
   } finally {
     factory.getLLM = originalGetLLM;
@@ -297,9 +297,9 @@ test("summarizeStructuredOutputFailure tells users to retry or switch models for
 
   assert.equal(summary.category, "incomplete_json");
   assert.equal(summary.failureCode, "STRUCTURED_OUTPUT_INCOMPLETE_JSON");
-  assert.match(summary.summary, /截断|不完整/);
-  assert.match(summary.summary, /重试/);
-  assert.match(summary.summary, /更强模型|备用模型/);
+  assert.match(summary.summary, /truncated or incomplete/);
+  assert.match(summary.summary, /Retry first/);
+  assert.match(summary.summary, /stronger model|fallback model/);
 });
 
 test("invokeStructuredLlmDetailed degrades to prompt JSON before using fallback models", async () => {

@@ -157,7 +157,7 @@ function compactStructuredValue(value: unknown): string[] {
       const meta = [
         typeof record.phase === "string" && record.phase.trim() ? `phase=${record.phase.trim()}` : "",
         typeof record.timeHint === "string" && record.timeHint.trim() ? `time=${record.timeHint.trim()}` : "",
-      ].filter(Boolean).join("；");
+      ].filter(Boolean).join("; ");
       return [meta ? `${nodeLabel}（${meta}）` : nodeLabel];
     }
     return [];
@@ -176,7 +176,7 @@ function extractAnalysisSectionLines(section: ContinuationAnalysisSection, limit
         continue;
       }
       const label = BOOK_ANALYSIS_STRUCTURED_FIELD_LABELS[key] ?? key;
-      lines.push(`${section.title}/${label}: ${values.slice(0, 4).join("；")}`);
+      lines.push(`${section.title}/${label}: ${values.slice(0, 4).join("; ")}`);
       if (lines.length >= limit) {
         break;
       }

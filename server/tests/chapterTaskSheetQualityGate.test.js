@@ -96,7 +96,7 @@ test("chapter execution contract shape gate blocks invalid task sheet artifacts"
   assert.equal(result.status, "repairable");
   assert.ok(result.issues.some((issue) => issue.id === "missing_task_sheet"));
   assert.ok(result.issues.some((issue) => issue.id === "invalid_scene_cards"));
-  assert.match(formatChapterTaskSheetQualityFailure(result), /章节执行合同/);
+  assert.match(formatChapterTaskSheetQualityFailure(result), /chapter execution contract/i);
 });
 
 test("chapter task sheet quality service lets full book mode auto-repair semantic failures", async () => {

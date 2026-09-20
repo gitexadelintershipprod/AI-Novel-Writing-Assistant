@@ -135,7 +135,7 @@ export class BookAnalysisWatchdogService {
         data: {
           status: "failed",
           progress: 1,
-          lastError: "任务心跳超时",
+          lastError: "Task heartbeat timed out",
           heartbeatAt: null,
           currentStage: null,
           currentItemKey: null,

@@ -280,7 +280,7 @@ export default function ChapterEditorDirectorPanel(props: ChapterEditorDirectorP
               ) : null}
               {activeCandidate.riskNotes && activeCandidate.riskNotes.length > 0 ? (
                 <div className="rounded-2xl border border-amber-200 bg-amber-50/90 p-3 text-sm leading-6 text-amber-900">
-                  Need to pay attention to:{activeCandidate.riskNotes.join("；")}
+                  Need to pay attention to:{activeCandidate.riskNotes.join("; ")}
                 </div>
               ) : null}
             </div>

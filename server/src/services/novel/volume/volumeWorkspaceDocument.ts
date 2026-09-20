@@ -136,8 +136,8 @@ function normalizeStrategyVolume(raw: unknown, index: number): VolumeStrategyVol
     sortOrder: Math.max(1, normalizeInteger(raw.sortOrder, index + 1)),
     planningMode,
     roleLabel: normalizeString(raw.roleLabel, `Volume ${index + 1} role`),
-    coreReward: normalizeString(raw.coreReward, "待补全本卷Reader feedback。"),
-    escalationFocus: normalizeString(raw.escalationFocus, "待补全本卷Upgrade focus。"),
+    coreReward: normalizeString(raw.coreReward, "This volume's reader payoff still needs filling in."),
+    escalationFocus: normalizeString(raw.escalationFocus, "This volume's upgrade focus still needs filling in."),
     uncertaintyLevel,
   };
 }
@@ -178,10 +178,10 @@ function normalizeStrategyPlan(raw: unknown, volumeCount: number): VolumeStrateg
   return {
     recommendedVolumeCount: Math.max(1, normalizeInteger(raw.recommendedVolumeCount, volumes.length || volumeCount || 1)),
     hardPlannedVolumeCount: Math.max(1, normalizeInteger(raw.hardPlannedVolumeCount, Math.min(volumes.length, 3))),
-    readerRewardLadder: normalizeString(raw.readerRewardLadder, "待补全reader reward gradient。"),
-    escalationLadder: normalizeString(raw.escalationLadder, "待补全Upgrade gradient。"),
-    midpointShift: normalizeString(raw.midpointShift, "待补全mid game turn。"),
-    notes: normalizeString(raw.notes, "待补全卷战略备注。"),
+    readerRewardLadder: normalizeString(raw.readerRewardLadder, "The reader-reward gradient still needs filling in."),
+    escalationLadder: normalizeString(raw.escalationLadder, "The upgrade gradient still needs filling in."),
+    midpointShift: normalizeString(raw.midpointShift, "The mid-volume turn still needs filling in."),
+    notes: normalizeString(raw.notes, "Volume strategy notes still need filling in."),
     volumes,
     uncertainties: Array.isArray(raw.uncertainties)
       ? raw.uncertainties

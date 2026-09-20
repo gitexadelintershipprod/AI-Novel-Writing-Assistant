@@ -106,21 +106,21 @@ function buildWorldContext(novel: {
   }
   return `World context:
 World name:${world.name}
-World type:${world.worldType ?? "未指定"}
-世界简介：${world.description ?? "无"}
-核心公理：
+World type:${world.worldType ?? "unspecified"}
+World overview: ${world.description ?? "none"}
+Core axioms:
 ${axiomsText}
-背景：${world.background ?? "无"}
-地理：${world.geography ?? "无"}
-Power system:${world.magicSystem ?? "无"}
-社会政治：${world.politics ?? "无"}
-种族：${world.races ?? "无"}
-宗教：${world.religions ?? "无"}
-科技：${world.technology ?? "无"}
-历史：${world.history ?? "无"}
-经济：${world.economy ?? "无"}
-power relations：${world.factions ?? "无"}
-Core conflict:${world.conflicts ?? "无"}`;
+Background: ${world.background ?? "none"}
+Geography: ${world.geography ?? "none"}
+Power system:${world.magicSystem ?? "none"}
+Society and politics: ${world.politics ?? "none"}
+Races: ${world.races ?? "none"}
+Religion: ${world.religions ?? "none"}
+Technology: ${world.technology ?? "none"}
+History: ${world.history ?? "none"}
+Economy: ${world.economy ?? "none"}
+Power relations: ${world.factions ?? "none"}
+Core conflict:${world.conflicts ?? "none"}`;
 }
 
 export class NovelDraftOptimizeService {
@@ -145,7 +145,7 @@ export class NovelDraftOptimizeService {
     const worldContext = buildWorldContext(novel);
     const charactersText = novel.characters.length > 0
       ? novel.characters
-          .map((c) => `- ${c.name}(${c.role})${c.personality ? `：${c.personality.slice(0, 80)}` : ""}`)
+          .map((c) => `- ${c.name}(${c.role})${c.personality ? `: ${c.personality.slice(0, 80)}` : ""}`)
           .join("\n")
       : "None yet";
 

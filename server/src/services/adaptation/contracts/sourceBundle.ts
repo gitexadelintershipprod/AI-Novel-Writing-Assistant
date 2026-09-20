@@ -1,64 +1,65 @@
 /**
- * 改编模块通用内容包契约（SourceBundle）
+ * Shared adaptation content-bundle contract (SourceBundle).
  *
- * drama 与 comic 的共享基础契约：任何内容源（小说导入/独立原创/文本导入/漫画导入）
- * 都必须先产出 SourceBundle，改编产线引擎只面向 SourceBundle，与具体来源彻底解耦。
+ * Shared foundation for drama and comic: every content source (novel import / original /
+ * text import / comic import) must first produce a SourceBundle. Adaptation engines only
+ * face SourceBundle, fully decoupled from the concrete origin.
  *
- * 低耦合要点：本文件不 import 任何 novel/drama/comic 领域类型。
+ * Low-coupling rule: this file does not import any novel/drama/comic domain types.
  */
 
-/** 内容源类型（drama + comic 共用） */
+/** Content-source type (shared by drama and comic). */
 export type AdaptationSourceType = "novel_import" | "original" | "text_import" | "comic_import";
 
-/** 事实分类 */
+/** Fact category. */
 export type SourceFactCategory = "completed" | "revealed" | "state_changed";
 
-/** 内容源引用 */
+/** Content-source reference. */
 export interface SourceRef {
   type: AdaptationSourceType;
-  /** 软引用：novel_import 时为 novelId；其余可空 */
+  /** Soft reference: novelId for novel_import; otherwise optional. */
   ref?: string;
-  /** original：一句话灵感 / 题材输入 */
+  /** original: one-line inspiration / genre input. */
   inspiration?: string;
-  /** text_import / comic_import：原始文本 */
+  /** text_import / comic_import: raw text. */
   rawText?: string;
 }
 
-/** 情节节拍（来源无关） */
+/** Plot beat (source-agnostic). */
 export interface SourceBeat {
   order: number;
   summary: string;
-  /** 可选：源章节区间（novel_import 时回填，用于改编映射） */
+  /** Optional source-chapter range (filled for novel_import, used for adaptation mapping). */
   sourceChapterStart?: number;
   sourceChapterEnd?: number;
 }
 
-/** 角色（来源无关） */
+/** Character (source-agnostic). */
 export interface SourceCharacter {
   name: string;
-  /** 角色性别（生图链路 GENDER LOCK 用）：male | female | other | unknown */
+  /** Character gender for the image-generation GENDER LOCK: male | female | other | unknown. */
   gender?: "male" | "female" | "other" | "unknown";
   persona?: string;
   relations?: string;
-  /** 视觉提示（外形/气质），后续可升级为视觉锚点 */
+  /** Visual hint (look / temperament); may later be upgraded to a visual anchor. */
   visualHint?: string;
-  /** 软引用：源角色标识（novel_import 时为 characterId） */
+  /** Soft reference: source character id (characterId for novel_import). */
   sourceCharacterRef?: string;
 }
 
-/** 硬事实（一致性约束） */
+/** Hard fact (consistency constraint). */
 export interface SourceFact {
   text: string;
   category: SourceFactCategory;
 }
 
-/** 标准化内容包 */
+/** Standardized content bundle. */
 export interface SourceBundle {
   synopsis: string;
   beats: SourceBeat[];
   characters: SourceCharacter[];
   worldNotes?: string;
   hardFacts?: SourceFact[];
-  /** 原始文本（text_import 保留） */
+  /** Raw text (kept for text_import). */
   rawText?: string;
 }

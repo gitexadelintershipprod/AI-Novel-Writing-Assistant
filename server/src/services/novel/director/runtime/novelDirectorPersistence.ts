@@ -5,12 +5,12 @@ export const DIRECTOR_BLUEPRINT_TRANSACTION_TIMEOUT_MS = 60_000;
 
 function buildOutlineText(blueprint: DirectorPlanBlueprint): string {
   return [
-    `全书目标：${blueprint.bookPlan.objective}`,
-    blueprint.bookPlan.hookTarget ? `总钩子：${blueprint.bookPlan.hookTarget}` : "",
+    `Book goal: ${blueprint.bookPlan.objective}`,
+    blueprint.bookPlan.hookTarget ? `Overall hook: ${blueprint.bookPlan.hookTarget}` : "",
     ...blueprint.arcs.map((arc, arcIndex) => [
-      `第 ${arcIndex + 1} 幕：${arc.title}`,
-      `阶段作用：${arc.summary}`,
-      ...arc.chapters.map((chapter, chapterIndex) => `  ${chapterIndex + 1}. ${chapter.title}：${chapter.expectation}`),
+      `Act ${arcIndex + 1}: ${arc.title}`,
+      `Stage role: ${arc.summary}`,
+      ...arc.chapters.map((chapter, chapterIndex) => `  ${chapterIndex + 1}. ${chapter.title}: ${chapter.expectation}`),
     ].join("\n")),
   ].filter(Boolean).join("\n\n");
 }

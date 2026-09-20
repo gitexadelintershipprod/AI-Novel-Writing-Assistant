@@ -355,7 +355,7 @@ export default function KnowledgeDocumentsTab({
               placeholder="Optional title, leave blank to use filename"
             />
 
-            {/* 拖拽上传区域 */}
+            {/* Drag-and-drop upload area */}
             <div
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}

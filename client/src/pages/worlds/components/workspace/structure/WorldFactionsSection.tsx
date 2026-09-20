@@ -164,7 +164,7 @@ export default function WorldFactionsSection(props: {
             />
             <div className="grid gap-2 md:grid-cols-2">
               <Input
-                value={faction.goals.join("、")}
+                value={faction.goals.join(", ")}
                 onChange={(event) =>
                   setDraftStructure((prev) =>
                     prev
@@ -181,7 +181,7 @@ export default function WorldFactionsSection(props: {
                 placeholder="Long-term goals, separated by commas or commas"
               />
               <Input
-                value={faction.methods.join("、")}
+                value={faction.methods.join(", ")}
                 onChange={(event) =>
                   setDraftStructure((prev) =>
                     prev
@@ -199,7 +199,7 @@ export default function WorldFactionsSection(props: {
               />
             </div>
             <Input
-              value={faction.representativeForceIds.join("、")}
+              value={faction.representativeForceIds.join(", ")}
               onChange={(event) =>
                 setDraftStructure((prev) =>
                   prev
@@ -217,7 +217,7 @@ export default function WorldFactionsSection(props: {
             />
             {faction.representativeForceIds.length > 0 ? (
               <div className="text-xs text-muted-foreground">
-                Representative forces:{faction.representativeForceIds.map((id) => forceNameById.get(id) || id).join("、")}
+                Representative forces:{faction.representativeForceIds.map((id) => forceNameById.get(id) || id).join(", ")}
               </div>
             ) : null}
           </div>

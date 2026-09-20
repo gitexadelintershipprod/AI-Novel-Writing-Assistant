@@ -457,7 +457,7 @@ export function normalizeScore(value: Partial<QualityScore>): QualityScore {
 
 export function ruleScore(content: string): QualityScore {
   const text = content.replace(/\s+/g, " ").trim();
-  const sentences = text.split(/[。！"?]/).map((item) => item.trim()).filter(Boolean);
+  const sentences = text.split(/[。！？.!?]/).map((item) => item.trim()).filter(Boolean);
   const unique = new Set(sentences);
   const repeatRatio = sentences.length > 0 ? 1 - unique.size / sentences.length : 0;
   const coherence = text.length >= 1800 ? 85 : text.length >= 1200 ? 75 : 60;
@@ -522,7 +522,7 @@ export function briefSummary(
     return blocks.join("\n");
   }
 
-  const sentences = text.split(/[。！"?]/).map((item) => item.trim()).filter(Boolean);
+  const sentences = text.split(/[。！？.!?]/).map((item) => item.trim()).filter(Boolean);
   if (sentences.length === 0) {
     return text.length <= 220 ? text : `${text.slice(0, 220)}...`;
   }
@@ -536,7 +536,7 @@ export function briefSummary(
 }
 
 export function extractFacts(content: string): Array<{ category: "plot" | "character" | "world"; content: string }> {
-  const lines = content.split(/[\n。！"?]/).map((item) => item.trim()).filter((item) => item.length >= 8).slice(0, 6);
+  const lines = content.split(/[\n。！？.!?]/).map((item) => item.trim()).filter((item) => item.length >= 8).slice(0, 6);
   return lines.map((line) => {
     if (/世界|地理|宗门|王朝|大陆|规则/.test(line)) {
       return { category: "world" as const, content: line };
@@ -553,7 +553,7 @@ export function extractCharacterEventLines(content: string, characterName: strin
     return [];
   }
   return content
-    .split(/[\n。！"?]/)
+    .split(/[\n。！？.!?]/)
     .map((item) => item.trim())
     .filter((item) => item.length >= 8 && item.includes(characterName))
     .slice(0, limit);

@@ -1,11 +1,11 @@
 /**
  * ComicCharacterImageService
- * 为漫画角色生成「角色设计稿」：一张横版图同时包含面部特写 + 正/侧/背三视图。
- * 对齐 DramaCharacterImageService 的能力和存储规范。
+ * Generate a character design sheet: one landscape image with a face close-up plus front / side / back turnaround.
+ * Aligns with DramaCharacterImageService capabilities and storage rules.
  *
- * sheetData 结构：{ status, version, url, prompt, provider, generatedAt, error, history[] }
- * 图片存储：generated-images/comic-characters/{charId}/character-sheet.{ext}
- * HTTP 端点：/api/comic/character-images/:charId/sheet
+ * sheetData shape: { status, version, url, prompt, provider, generatedAt, error, history[] }
+ * Image storage: generated-images/comic-characters/{charId}/character-sheet.{ext}
+ * HTTP endpoint: /api/comic/character-images/:charId/sheet
  */
 import fs from "fs/promises";
 import path from "path";
@@ -81,12 +81,12 @@ const IMAGE_EXTS: Array<[string, string]> = [
 ];
 const EXPRESSION_ORDER: CharacterExpressionId[] = ["neutral", "happy", "angry", "sad", "surprised", "cold"];
 const EXPRESSION_LABELS: Record<CharacterExpressionId, string> = {
-  neutral: "正常",
-  happy: "开心",
-  angry: "愤怒",
-  sad: "悲伤",
-  surprised: "惊讶",
-  cold: "冷漠",
+  neutral: "neutral",
+  happy: "happy",
+  angry: "angry",
+  sad: "sad",
+  surprised: "surprised",
+  cold: "cold",
 };
 
 function comicCharacterDir(charId: string): string {
@@ -116,9 +116,9 @@ function readExpressionVersion(data: CharacterExpressionData | undefined): numbe
 }
 
 /**
- * 取脸型强覆盖描述（visualSpec.faceShapeOverride）。
- * 当用户希望强压脸型但不想删 appearance 里的人设描述（如反派"五官锐利"）时使用。
- * 生图 prompt 里以 FINAL OVERRIDE 形式追加，权重高于 appearance。
+ * Read the face-shape override (visualSpec.faceShapeOverride).
+ * Use this when the user wants a hard face-shape lock without deleting appearance copy such as a villain's "sharp features".
+ * The image prompt appends it as FINAL OVERRIDE, with higher weight than appearance.
  */
 function extractFaceShapeOverride(visualAnchor: string | null | undefined): string {
   if (!visualAnchor?.trim()) return "";
@@ -131,11 +131,11 @@ function extractFaceShapeOverride(visualAnchor: string | null | undefined): stri
 }
 
 /**
- * 取角色外貌描述。
- * 优先级：visualSpec.appearance（完整版，含脸型/体格/服饰/标志细节）
- *       > description（40 字精简版）
- *       > hint
- * 三视图/表情稿/资产图都该用完整版，把"外貌锁定"做实而不是只放氛围词。
+ * Read the character appearance description.
+ * Priority: visualSpec.appearance (full version, including face / build / clothing / signature details)
+ *        > description (40-character brief)
+ *        > hint
+ * Turnaround, expression, and asset images should all use the full version so appearance lock is real, not only mood words.
  */
 function extractVisualDesc(visualAnchor: string | null | undefined): string {
   if (!visualAnchor?.trim()) return "";
@@ -144,9 +144,9 @@ function extractVisualDesc(visualAnchor: string | null | undefined): string {
     const spec = parsed.visualSpec as Record<string, unknown> | undefined;
     if (spec && typeof spec.appearance === "string" && spec.appearance.trim()) {
       const signatures = typeof spec.signatureFeatures === "string" ? spec.signatureFeatures.trim() : "";
-      // 完整外貌 + 标志特征（若与 appearance 不重叠）
+      // Full appearance plus signature features (when they are not already inside appearance)
       if (signatures && !spec.appearance.includes(signatures)) {
-        return `${spec.appearance}，${signatures}`;
+        return `${spec.appearance}, ${signatures}`;
       }
       return spec.appearance;
     }
@@ -165,7 +165,7 @@ function buildSheetPrompt(character: {
   const visualDesc = extractVisualDesc(character.visualAnchor);
   const faceOverride = extractFaceShapeOverride(character.visualAnchor);
   const genderLock = buildGenderLockPrompt(character.gender, character.name);
-  // 关键顺序：性别锁 → 布局 → 强制外貌锚定 → 脸型 FINAL OVERRIDE（若有）→ 画风
+  // Critical order: gender lock → layout → hard appearance lock → face-shape FINAL OVERRIDE (if any) → style
   const lines: string[] = [];
   if (genderLock) lines.push(genderLock);
   lines.push(
@@ -182,7 +182,7 @@ function buildSheetPrompt(character: {
     );
   }
   if (faceOverride) {
-    // 脸型 FINAL OVERRIDE：权重高于 appearance，显式压制冲突词
+    // Face-shape FINAL OVERRIDE: higher weight than appearance, explicitly suppresses conflicting words
     lines.push(
       `*** FINAL FACE SHAPE OVERRIDE (highest priority, ignore conflicting words in appearance above) ***: ${faceOverride}`,
       "if the appearance description contains words like sharp/pointy/triangular/angular jaw/cheekbone that conflict with this override, the OVERRIDE wins for face/jaw/cheek shape; sharp features may remain ONLY in eye gaze or expression, NEVER in bone structure",
@@ -447,7 +447,7 @@ export class ComicCharacterImageService {
       ? [{ kind: "character_sheet", label: `${character.name} · three-view sheet`, url: sheetUrl(charId) }]
       : [];
 
-    // Expression 状态嵌在 sheetData.assets.expression；adapter 负责读写嵌套位置。
+    // Expression state is nested in sheetData.assets.expression; the adapter reads and writes that nested location.
     const adapter: ImageTargetAdapter<CharacterExpressionData> = {
       kind: `comic.character.expression:${charId}`,
       loadState: async () => {
@@ -456,7 +456,7 @@ export class ComicCharacterImageService {
         return sheet.assets?.expression ?? { status: "idle" };
       },
       saveState: async (next) => {
-        // 每次写入都重新读最新 sheetData 再合并，避免覆盖三视图状态
+        // Re-read the latest sheetData on every write, then merge, so turnaround state is not overwritten
         const latest = await prisma.comicCharacter.findUnique({ where: { id: charId }, select: { sheetData: true } });
         const sheet = safeJsonParse<CharacterSheetData>(latest?.sheetData, { status: "idle" });
         const merged: CharacterSheetData = {
@@ -477,7 +477,7 @@ export class ComicCharacterImageService {
       refImagePaths: sheetReference ? [sheetReference.filePath] : undefined,
       referenceImages,
       size: "1536x1024" as const,
-      title: `Generate emoticons：${character.name}`,
+      title: `Generate expression sheet: ${character.name}`,
     };
   }
 

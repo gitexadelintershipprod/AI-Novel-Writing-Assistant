@@ -174,15 +174,15 @@ test("restart_current_step stores rewrite snapshot reference in task seed and mi
   });
 
   assert.deepEqual(calls.slice(0, 3), [
-    ["snapshot", "自动导演重写前备份"],
+    ["snapshot", "Auto-Director pre-rewrite backup"],
     "reset",
     "bootstrap",
   ]);
   assert.equal(bootstrapInput.seedPayload.rewriteSnapshot.snapshotId, "snapshot_before_rewrite");
-  assert.equal(bootstrapInput.seedPayload.rewriteSnapshot.label, "自动导演重写前备份");
+  assert.equal(bootstrapInput.seedPayload.rewriteSnapshot.label, "Auto-Director pre-rewrite backup");
   assert.equal(bootstrapInput.seedPayload.rewriteSnapshot.restoreEntry, "version_history");
   assert.equal(milestoneInput.taskId, "workflow_takeover_demo");
-  assert.match(milestoneInput.summary, /自动导演重写前备份/);
+  assert.match(milestoneInput.summary, /Auto-Director pre-rewrite backup/);
   assert.match(milestoneInput.summary, /snapshot_before_rewrite/);
 });
 
@@ -228,7 +228,7 @@ test("restart_current_step stops before reset when rewrite snapshot creation fai
         calls.push("reset");
       },
     }),
-    /无法创建自动导演重写前备份/,
+    /Could not create the Auto-Director pre-rewrite backup/,
   );
 
   assert.deepEqual(calls, ["snapshot"]);

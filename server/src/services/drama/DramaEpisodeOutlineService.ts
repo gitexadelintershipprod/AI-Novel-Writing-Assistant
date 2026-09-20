@@ -1,8 +1,9 @@
 /**
- * 短剧分集大纲服务（P1-C）
+ * Short-drama episode-outline service (P1-C).
  *
- * 读取策略 + 内容节拍 → LLM 生成区间分集大纲 → 落库 DramaEpisode。
- * 卡点集号由节奏引擎确定性给出（不交给 LLM 自由发挥），保证付费节奏可控。
+ * Reads strategy + source beats → LLM generates a range of episode outlines → persist DramaEpisode.
+ * Paywall episode numbers come from the rhythm engine deterministically (not left to the LLM)
+ * so paid pacing stays controllable.
  */
 import type { LLMProvider } from "@ai-novel/shared/types/llm";
 import { prisma } from "../../db/prisma";
@@ -52,7 +53,7 @@ export class DramaEpisodeOutlineService {
     const count = Math.min(40, Math.max(1, input.count ?? 12));
     const endOrder = Math.min(project.targetEpisodes, startOrder + count - 1);
 
-    // 内容节拍摘要（截断，避免超预算）
+    // Beat digest (truncated so it stays inside budget).
     let beats: SourceBeatLite[] = [];
     try {
       beats = JSON.parse(project.sourceBundle?.beats ?? "[]") as SourceBeatLite[];
@@ -61,15 +62,15 @@ export class DramaEpisodeOutlineService {
     }
     const beatsDigest = beats
       .slice(0, 60)
-      .map((beat) => `${beat.order}：${beat.summary}`)
-      .join("\n") || "（无结构化节拍，按梗概自由分集）";
+      .map((beat) => `${beat.order}: ${beat.summary}`)
+      .join("\n") || "(No structured beats; split episodes from the synopsis.)";
 
     const hookLibrary = rhythmEngine
       .listHooks()
-      .map((hook) => `${hook.id}：${hook.label} — ${hook.description}`)
+      .map((hook) => `${hook.id}: ${hook.label} — ${hook.description}`)
       .join("\n");
 
-    // 确定性卡点集号
+    // Deterministic paywall episode numbers.
     const paywallInRange: number[] = [];
     for (let order = startOrder; order <= endOrder; order += 1) {
       if (rhythmEngine.isPaywallEpisode(order, project.targetEpisodes, paywallPlan)) {
@@ -87,7 +88,7 @@ export class DramaEpisodeOutlineService {
         hookLibrary,
         startOrder,
         count: endOrder - startOrder + 1,
-        paywallEpisodes: paywallInRange.join("、"),
+        paywallEpisodes: paywallInRange.join(", "),
         paywallPlanDigest: describeDramaPaywallPlan(paywallPlan),
       },
       options: {
@@ -97,7 +98,7 @@ export class DramaEpisodeOutlineService {
       },
     });
 
-    // 落库：upsert by (projectId, order)，卡点由引擎判定（不信任 LLM）
+    // Persist: upsert by (projectId, order). Paywall is decided by the engine (do not trust the LLM).
     const episodes = result.output.episodes.filter(
       (episode) => episode.order >= startOrder && episode.order <= endOrder,
     );

@@ -115,9 +115,9 @@ export class CreationStudioService {
       .join("\n\n")
       .slice(0, 8000);
     const idea = [
-      `请把短篇《${source.title}》发展成一部长篇，同时保留原作的核心人物、core conflict和结尾意义。`,
-      activeIntent ? `原始创作意图：${activeIntent.originalExpression}` : "",
-      `短篇成稿摘要素材：${storyDigest}`,
+      `Please develop the short story “${source.title}” into a long novel, while keeping the original core characters, core conflict, and ending meaning.`,
+      activeIntent ? `Original creative intent: ${activeIntent.originalExpression}` : "",
+      `Short-story excerpt material: ${storyDigest}`,
     ].filter(Boolean).join("\n\n");
     const task = await this.workflowService.bootstrapTask({
       lane: "creation_studio",
@@ -281,11 +281,11 @@ export class CreationStudioService {
         title: generated.output.directions[0].title,
         description: [
           generated.output.understanding,
-          ...generated.output.directions.map((item) => `${item.title}：${item.premise}`),
+          ...generated.output.directions.map((item) => `${item.title}: ${item.premise}`),
         ].join("\n"),
         targetAudience: generated.output.directions[0].coreExperience,
         bookSellingPoint: generated.output.directions[0].coreExperience,
-        styleTone: generated.output.directions[0].styleKeywords.join("、"),
+        styleTone: generated.output.directions[0].styleKeywords.join(", "),
         projectMode: "auto_pipeline",
         writingMode: "original",
       });
@@ -360,7 +360,7 @@ export class CreationStudioService {
         title: direction.title,
         description: direction.premise,
         bookSellingPoint: direction.coreExperience,
-        styleTone: direction.styleKeywords.join("、"),
+        styleTone: direction.styleKeywords.join(", "),
         writingMode: "original",
         projectMode: "ai_led",
       });
@@ -440,7 +440,7 @@ export class CreationStudioService {
           title: direction.title,
           description: direction.premise,
           bookSellingPoint: direction.coreExperience,
-          styleTone: direction.styleKeywords.join("、"),
+          styleTone: direction.styleKeywords.join(", "),
           writingMode: "original",
           projectMode: "auto_pipeline",
         });
@@ -450,7 +450,7 @@ export class CreationStudioService {
         title: direction.title,
         description: direction.premise,
         bookSellingPoint: direction.coreExperience,
-        styleTone: direction.styleKeywords.join("、"),
+        styleTone: direction.styleKeywords.join(", "),
         estimatedChapterCount: targetChapterCount(input.targetWordCount, DEFAULT_CHAPTER_WORD_COUNT),
         defaultChapterLength: DEFAULT_CHAPTER_WORD_COUNT,
         projectMode: "auto_pipeline",

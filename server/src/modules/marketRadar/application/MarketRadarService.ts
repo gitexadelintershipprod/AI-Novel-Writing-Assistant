@@ -134,7 +134,7 @@ function buildPlatformStatuses(snapshots: Array<{
       status: succeeded.length > 0 ? failed.length > 0 ? "stale" : "succeeded" : "failed",
       itemCount: succeeded.reduce((sum, row) => sum + row.items.length, 0),
       capturedAt: capturedAt?.toISOString() ?? null,
-      error: failed.map((row) => row.error).filter(Boolean).join("；") || null,
+      error: failed.map((row) => row.error).filter(Boolean).join("; ") || null,
     };
   });
 }
@@ -149,16 +149,16 @@ function formatRankingItems(items: MarketRankingItem[]): string {
   return [...groups.values()].sort((left, right) => Number(isPrimary(right)) - Number(isPrimary(left))).map((appearances) => {
     const item = appearances.sort((left, right) => left.rank - right.rank)[0];
     return [
-    `证据层级=${isPrimary(appearances) ? "主要（新书榜或New Author List）" : "辅助（成熟榜单，仅用于验证持续需求）"}`,
-    `证据ID=${appearances.map((appearance) => appearance.id).join(",")}`,
-    `上榜记录=${appearances.map((appearance) => `${appearance.listKey}第${appearance.rank}名`).join("、")}`,
-    `书名=${item.title}`,
-    item.author ? `作者=${item.author}` : "",
-    item.category ? `分类=${item.category}` : "",
-    item.tags.length ? `公开标签=${item.tags.join("、")}` : "",
-    item.heatLabel ? `公开热度=${item.heatLabel}` : "",
-    item.serialStatus ? `状态=${item.serialStatus}` : "",
-    item.synopsis ? `公开简介=${item.synopsis.slice(0, 320)}` : "",
+    `evidence_tier=${isPrimary(appearances) ? "primary (new-book or New Author List)" : "supporting (mature lists, only to confirm ongoing demand)"}`,
+    `evidence_id=${appearances.map((appearance) => appearance.id).join(",")}`,
+    `ranking=${appearances.map((appearance) => `${appearance.listKey} #${appearance.rank}`).join(", ")}`,
+    `title=${item.title}`,
+    item.author ? `author=${item.author}` : "",
+    item.category ? `category=${item.category}` : "",
+    item.tags.length ? `public_tags=${item.tags.join(", ")}` : "",
+    item.heatLabel ? `public_heat=${item.heatLabel}` : "",
+    item.serialStatus ? `status=${item.serialStatus}` : "",
+    item.synopsis ? `public_blurb=${item.synopsis.slice(0, 320)}` : "",
     ].filter(Boolean).join(" | ");
   }).join("\n");
 }
@@ -201,18 +201,18 @@ function flattenStoryModeCatalog(nodes: StoryModeTreeNode[], path: string[] = []
 function formatFoundationCatalog(options: MarketFoundationCatalogOption[]): string {
   return options.map((option) => [
     `ID=${option.id}`,
-    `路径=${option.path}`,
-    option.description ? `说明=${option.description}` : "",
+    `path=${option.path}`,
+    option.description ? `note=${option.description}` : "",
   ].filter(Boolean).join(" | ")).join("\n");
 }
 
 function formatStoryModeCatalog(options: MarketStoryModeCatalogOption[]): string {
   return options.map((option) => [
     `ID=${option.id}`,
-    `路径=${option.path}`,
-    option.description ? `说明=${option.description}` : "",
+    `path=${option.path}`,
+    option.description ? `note=${option.description}` : "",
     `core driver=${option.profile.coreDrive}`,
-    `读者奖励=${option.profile.readerReward}`,
+    `reader_reward=${option.profile.readerReward}`,
   ].filter(Boolean).join(" | ")).join("\n");
 }
 

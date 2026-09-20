@@ -86,8 +86,8 @@ export interface RagSearchOptions {
   finalTopK?: number;
   rerankerEnabled?: boolean;
   rerankerCandidateLimit?: number;
-  /** 当前章节序号，用于叙事距离衰减：距离越近的章节权重越高 */
+  /** Current chapter order, used for narrative-distance decay: nearer chapters score higher */
   currentChapterOrder?: number;
-  /** 距离衰减系数，默认 0.05，越大衰减越快 */
+  /** Distance decay rate, default 0.05; larger values decay faster */
   narrativeDecayRate?: number;
 }

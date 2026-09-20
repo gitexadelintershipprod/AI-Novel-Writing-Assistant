@@ -84,13 +84,13 @@ function buildWorldSummaryFromContext(block: WorldContextBlock | null | undefine
   const parts = [
     normalizeOptionalText(block.summaryText),
     block.activeForces.length > 0
-      ? `Active forces：${block.activeForces.slice(0, 3).map((force) => force.name).join("、")}`
+      ? `Active forces: ${block.activeForces.slice(0, 3).map((force) => force.name).join(", ")}`
       : null,
     block.activeLocations.length > 0
-      ? `本书舞台：${block.activeLocations.slice(0, 3).map((location) => location.name).join("、")}`
+      ? `Book stage: ${block.activeLocations.slice(0, 3).map((location) => location.name).join(", ")}`
       : null,
   ].filter((item): item is string => Boolean(item));
-  return normalizeOptionalText(parts.join("；"));
+  return normalizeOptionalText(parts.join("; "));
 }
 
 function buildNarrativeLabel(mapping: Record<string, string>, value: string | null | undefined): string | null {

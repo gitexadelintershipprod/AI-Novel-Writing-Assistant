@@ -178,7 +178,7 @@ The priority is helping a beginner finish a book, not stacking extra side tools.
 ### 2026-09-20
 
 - Buttons, errors, task names, world templates, character roles, and public help pages now come from English source text, not only an on-screen translation overlay. Auto-Director, Task Center, and export headings stay readable even in native browser dialogs and notifications.
-- Remaining system messages, Creative Hub summaries, and image-generation prompts now use English control text. Generated fiction stays Georgian. Older saved Chinese protocol values are still understood.
+- Remaining system messages, Creative Hub summaries, Auto-Director progress titles, and image-generation prompts now use English control text. Generated fiction stays Georgian. Older saved Chinese protocol values are still understood.
 - Older books keep working: saved role names, world types, and beat labels are still understood, while new saves use English protocol values. Your novel text, knowledge files, and Georgian chapter output are unchanged.
 
 Full history: [docs/releases/release-notes.md](./docs/releases/release-notes.md).

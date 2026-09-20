@@ -67,7 +67,7 @@ function estimateJsonBytes(value: unknown): number {
 export class VectorStoreService {
   private ensuredDimension = 0;
   private readonly upsertWrapperBytes = estimateJsonBytes({ points: [] });
-  private static readonly timeoutPattern = /Qdrant 请求超时/;
+  private static readonly timeoutPattern = /Qdrant (?:request timed out|请求超时)/;
   private static readonly logPrefix = "[RAG][Qdrant]";
 
   private logInfo(message: string, meta?: Record<string, unknown>): void {
@@ -227,7 +227,7 @@ export class VectorStoreService {
           body: JSON.stringify({ field_name: field, field_schema: "keyword" }),
         });
       } catch {
-        // 已存在时 Qdrant 返回错误，忽略
+        // Ignore errors when the index already exists
       }
     }
     this.logInfo("Payload indexes ensured.", { fields: this.PAYLOAD_INDEX_FIELDS });
@@ -282,7 +282,7 @@ export class VectorStoreService {
       expectedDimension: dimension,
       existingDimension: existingDimension ?? dimension,
     });
-    // 已有集合也确保 payload index 存在（幂等操作）
+    // Also ensure payload indexes exist on existing collections (idempotent)
     await this.ensurePayloadIndexes();
     this.ensuredDimension = dimension;
   }
@@ -404,7 +404,7 @@ export class VectorStoreService {
       });
       if (!response.ok) {
         const text = await response.text();
-        throw new Error(`Qdrant health check failed(${response.status})：${text}`);
+        throw new Error(`Qdrant health check failed(${response.status}): ${text}`);
       }
       return { ok: true };
     } catch (error) {

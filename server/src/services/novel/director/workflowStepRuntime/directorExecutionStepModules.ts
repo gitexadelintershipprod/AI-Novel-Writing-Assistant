@@ -325,7 +325,7 @@ function createChapterDraftExecutableModule(
           return buildSimpleProgress({
             status: "not_started",
             ratio: 0,
-            label: "\u7b49\u5f85\u8fdb\u5165\u7ae0\u8282\u6267\u884c",
+            label: "Waiting to start chapter execution",
             nextAction: "run_chapter_execution",
           });
         }
@@ -336,7 +336,7 @@ function createChapterDraftExecutableModule(
           return buildSimpleProgress({
             status: "completed",
             ratio: 1,
-            label: "\u6b63\u6587\u5df2\u5168\u90e8\u751f\u6210",
+            label: "All chapter text has been generated",
             evidence: {
               draftedChapterCount: progress.draftedChapterCount,
               approvedChapterCount: progress.approvedChapterCount,
@@ -351,10 +351,10 @@ function createChapterDraftExecutableModule(
           status: "partially_done",
           ratio: draftedRatio,
           label: progress.activeChapterOrder
-            ? `\u6b63\u5728\u63a8\u8fdb\u7b2c ${progress.activeChapterOrder} \u7ae0`
+            ? `Advancing chapter ${progress.activeChapterOrder}`
             : progress.currentChapterOrder
-              ? `\u5f53\u524d\u53ef\u4ece\u7b2c ${progress.currentChapterOrder} \u7ae0\u7ee7\u7eed\u8865\u9f50`
-              : "\u6b63\u5728\u63a8\u8fdb\u7ae0\u8282\u6267\u884c",
+              ? `Can continue from chapter ${progress.currentChapterOrder}`
+              : "Advancing chapter execution",
           evidence: {
             activeChapterOrder: progress.activeChapterOrder,
             currentChapterOrder: progress.currentChapterOrder,

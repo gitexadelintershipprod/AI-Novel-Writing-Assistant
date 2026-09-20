@@ -398,7 +398,7 @@ export default function TaskCenterPage() {
     detailActions.push({
       key: "continue-range",
       title: "Continue current chapter scope",
-      label: selectedTask.resumeAction ?? `Continue automatic execution${selectedTask.executionScopeLabel ?? "Current chapter scope"}`,
+      label: selectedTask.resumeAction ?? `Continue automatic execution of ${selectedTask.executionScopeLabel ?? "the current chapter range"}`,
       consequence: selectedTask.status === "failed" || selectedTask.status === "cancelled"
         ? "The mission will requeue from the recoverable position and continue the current chapter scope."
         : "The system will submit a continue command and advance the chapter range from the current checkpoint.",
@@ -534,7 +534,7 @@ export default function TaskCenterPage() {
         icon={ListChecks}
         context="Execution history and recovery"
         title="Operation record"
-        description="Review the authoring, unpacking, knowledge indexing, and picture tasks, prioritizing records that require your intervention. The real-time generation process can be viewed from the top \"AI Live\"."
+        description='Review the authoring, unpacking, knowledge indexing, and picture tasks, prioritizing records that require your intervention. The real-time generation process can be viewed from the top "AI Live".'
         actions={(
           <Button
             type="button"

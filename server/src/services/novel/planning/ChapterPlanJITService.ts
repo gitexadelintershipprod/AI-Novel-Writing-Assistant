@@ -5,16 +5,16 @@ import { novelFactService } from "../fact/NovelFactService";
 import type { ChapterRouteWindowOptions, ChapterRouteWindowResult } from "./ChapterRouteWindowService";
 
 /**
- * Chapter planning即时生成服务（Just-In-Time）
+ * Just-in-time chapter planning service.
  *
- * 在执行第 N 章之前被调用，确保 task sheet 已就绪。
- * 若章节尚无 task sheet，或 factLedger 有新数据（前文已写），
- * 则调用 volumeService 即时生成，将已发生事实注入到生成上下文中。
+ * Called before executing chapter N to make sure the task sheet is ready.
+ * If the chapter has no task sheet, or the fact ledger has new data (prior prose already written),
+ * call volumeService to generate immediately and inject already-happened facts into the generation context.
  *
- * 兼容性：
- * - 旧小说若 factLedger 为空（前文未写），回退到现有 taskSheet。
- * - 旧小说若 taskSheet 已存在且 factLedger 为空，直接跳过不Regenerate。
- * - 只在 autopilot 流水线路径调用（manual 单章模式继续用 ChapterExecutionContractService）。
+ * Compatibility:
+ * - Older novels with an empty fact ledger (no prior prose) fall back to the existing taskSheet.
+ * - Older novels that already have a taskSheet and an empty fact ledger skip regeneration.
+ * - Only called on the autopilot pipeline path (manual single-chapter mode still uses ChapterExecutionContractService).
  */
 
 const JIT_MIN_FACTS_FOR_REFRESH = 3;
@@ -40,10 +40,10 @@ export class ChapterPlanJITService {
   constructor(private readonly deps: ChapterPlanJITDeps) {}
 
   /**
-   * 确保第 N 章的执行合同（task sheet / sceneCards / targetWordCount / mustAvoid）就绪。
+   * Ensure chapter N's execution contract (task sheet / sceneCards / targetWordCount / mustAvoid) is ready.
    *
-   * 调用时机：GenerationContextAssembler.assemble 中，plannerService.ensureChapterPlan 之前。
-   * 仅在 advanceMode === "full_book_autopilot" 时调用。
+   * Call site: GenerationContextAssembler.assemble, before plannerService.ensureChapterPlan.
+   * Only called when advanceMode === "full_book_autopilot".
    */
   async ensureExecutionReady(
     novelId: string,
@@ -76,19 +76,19 @@ export class ChapterPlanJITService {
         targetWordCount: chapter.targetWordCount ?? undefined,
       }));
 
-    // 拉取前文事实账本
+    // Load the prior-prose fact ledger.
     const facts = await novelFactService.listForChapter({
       novelId,
       beforeChapterOrder: chapter.order,
     });
 
     if (hasCompleteTaskSheet && facts.length < JIT_MIN_FACTS_FOR_REFRESH) {
-      // task sheet 已存在，且前文事实不足（旧小说 / 首章），跳过
+      // Task sheet already exists and prior facts are insufficient (older novel / first chapter); skip.
       return;
     }
 
     if (hasCompleteTaskSheet && facts.length >= JIT_MIN_FACTS_FOR_REFRESH) {
-      // task sheet 已存在但前文有足够事实 —— 重新生成以纳入实际进度
+      // Task sheet already exists, but prior prose has enough facts — regenerate so actual progress is included.
       const factGuidance = buildFactLedgerGuidance(facts);
       await this.deps.ensureChapterExecutionContract(novelId, chapterId, {
         guidance: factGuidance,
@@ -98,7 +98,7 @@ export class ChapterPlanJITService {
       return;
     }
 
-    // task sheet 缺失 —— 生成（含 factLedger 上下文）
+    // Task sheet is missing — generate (including factLedger context).
     const factGuidance = facts.length > 0 ? buildFactLedgerGuidance(facts) : undefined;
     await this.deps.ensureChapterExecutionContract(novelId, chapterId, {
       guidance: factGuidance,
@@ -134,7 +134,7 @@ function buildFactLedgerGuidance(
     }
   }
   if (stateChanged.length > 0) {
-    lines.push("近期status change：");
+    lines.push("Recent status changes:");
     for (const f of stateChanged) {
       lines.push(`  - [Chapter ${f.chapterOrder}] ${f.text}`);
     }
@@ -143,7 +143,7 @@ function buildFactLedgerGuidance(
 }
 
 /**
- * 工厂函数，供依赖注入。通常在 volumeService 初始化后调用。
+ * Factory for dependency injection. Usually called after volumeService is initialized.
  */
 export function createChapterPlanJITService(deps: ChapterPlanJITDeps): ChapterPlanJITService {
   return new ChapterPlanJITService(deps);

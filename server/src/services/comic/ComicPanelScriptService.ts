@@ -9,7 +9,7 @@ export interface GeneratePanelScriptInput {
   targetPanelCount?: number;
   densityMode?: "relaxed" | "balanced" | "compact";
   scriptPromptInstruction?: string;
-  /** 强制刷新 sourceText 快照（仅 novel_import 有效） */
+  /** Force-refresh the sourceText snapshot (only valid for novel_import). */
   refreshSourceText?: boolean;
 }
 
@@ -42,14 +42,14 @@ export class ComicPanelScriptService {
 
     const project = episode.project;
 
-    // Tier-2 快照：novel_import 时按需加载章节原文（导入即快照）
+    // Tier-2 snapshot: for novel_import, load chapter source text on demand (import is a snapshot).
     let sourceText = episode.sourceText ?? "";
     if (!sourceText || input.refreshSourceText) {
       if (project.sourceType === "novel_import" && project.sourceRef) {
         try {
           const adapter = adaptationSourceRegistry.resolve("novel_import");
           if (adapter.loadChapterText) {
-            // 从 bundle 中找话对应的章节范围（由分话大纲 LLM 输出写入 bundle 时记录）
+            // Find the chapter range for this episode from the bundle (written when the outline LLM output is stored).
             const bundle = project.sourceBundle
               ? (JSON.parse(project.sourceBundle.bundleJson) as Record<string, unknown>)
               : null;
@@ -72,7 +72,7 @@ export class ComicPanelScriptService {
             });
           }
         } catch {
-          // 快照失败不阻断分格生成
+          // Snapshot failure must not block panel-script generation.
         }
       }
     }
@@ -90,7 +90,7 @@ export class ComicPanelScriptService {
         ? densityMode === "relaxed" ? 10 : densityMode === "compact" ? 16 : 12
         : densityMode === "relaxed" ? 30 : densityMode === "compact" ? 65 : 45);
 
-    // 取本话及之前的跨话事实
+    // Cross-episode facts for this episode and earlier ones.
     const factDigest =
       project.facts
         .filter((f) => f.episodeOrder == null || f.episodeOrder <= episode.order)
@@ -155,12 +155,12 @@ export class ComicPanelScriptService {
       generatedAt: new Date().toISOString(),
     };
 
-    // 已存在的场景名集合（跨话/用户编辑过的不覆盖）
+    // Existing scene names (do not overwrite scenes edited across episodes or by the user).
     const existingSceneNames = new Set(project.scenes.map((s) => s.name));
 
-    // 事务：upsert 场景（仅新增）+ 清空旧格子重建 + 更新话状态
+    // Transaction: upsert scenes (new only) + rebuild panels + update episode status.
     await prisma.$transaction(async (tx) => {
-      // 仅创建尚不存在的场景草案，保留用户编辑过的 bible 与跨话场景
+      // Create only scene drafts that do not exist yet; keep user-edited bibles and cross-episode scenes.
       const newScenes = scenes.filter((s) => !existingSceneNames.has(s.name));
       if (newScenes.length > 0) {
         await tx.comicScene.createMany({
@@ -203,7 +203,7 @@ export class ComicPanelScriptService {
       });
     });
 
-    // 异步提取跨话事实，不阻塞响应
+    // Extract cross-episode facts asynchronously; do not block the response.
     void comicFactService.extractAndSave(episodeId, provider);
 
     return prisma.comicEpisode.findUnique({

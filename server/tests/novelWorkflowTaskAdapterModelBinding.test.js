@@ -302,9 +302,9 @@ test("task center list only queries auto director workflow rows", async () => {
     assert.equal(whereSnapshots.length, 1);
     assert.equal(whereSnapshots[0].lane, "auto_director");
     assert.deepEqual(list.map((item) => item.id), ["task_auto_director"]);
-    assert.equal(list[0].displayStatus, "节奏 / 拆章进行中");
-    assert.equal(list[0].resumeAction, "查看当前进度");
-    assert.equal(list[0].lastHealthyStage, "节奏 / 拆章");
+    assert.equal(list[0].displayStatus, "Beats / chapters in progress");
+    assert.equal(list[0].resumeAction, "View current progress");
+    assert.equal(list[0].lastHealthyStage, "Beats / chapters");
   } finally {
     prisma.novelWorkflowTask.findMany = originals.findMany;
     adapter.workflowService.healAutoDirectorTaskState = originalHeal;
@@ -358,7 +358,7 @@ test("task center list treats restart recovery note as running recovery instead 
 
     assert.equal(list.length, 1);
     assert.equal(list[0].status, "running");
-    assert.equal(list[0].displayStatus, "节奏 / 拆章恢复中");
+    assert.equal(list[0].displayStatus, "Beats / chapters recovering");
     assert.equal(list[0].blockingReason, "自动导演任务因服务重启中断，正在尝试恢复。");
     assert.equal(list[0].lastError, null);
     assert.equal(list[0].failureSummary, null);
@@ -417,9 +417,9 @@ test("task center list keeps manual recovery tasks out of running display state"
     assert.equal(list.length, 1);
     assert.equal(list[0].status, "queued");
     assert.equal(list[0].pendingManualRecovery, true);
-    assert.equal(list[0].displayStatus, "等待手动恢复");
+    assert.equal(list[0].displayStatus, "Waiting for manual recovery");
     assert.equal(list[0].blockingReason, "服务重启后任务已暂停，等待手动恢复。");
-    assert.equal(list[0].resumeAction, "从最近检查点恢复");
+    assert.equal(list[0].resumeAction, "Resume from the latest checkpoint");
     assert.equal(list[0].recoveryHint, "服务重启后任务已暂停，等待手动恢复。");
   } finally {
     prisma.novelWorkflowTask.findMany = originals.findMany;
@@ -483,9 +483,9 @@ test("task center list surfaces actual auto execution range in explainability fi
 
     assert.equal(list.length, 1);
     assert.equal(list[0].executionScopeLabel, "第 11-20 章");
-    assert.equal(list[0].displayStatus, "第 11-20 章已可进入章节执行");
-    assert.equal(list[0].resumeAction, "继续自动执行第 11-20 章");
-    assert.match(String(list[0].blockingReason), /第 11-20 章细化已准备完成/);
+    assert.equal(list[0].displayStatus, "第 11-20 章 can enter chapter execution");
+    assert.equal(list[0].resumeAction, "Continue automatic execution of 第 11-20 章");
+    assert.match(String(list[0].blockingReason), /第 11-20 章 detailing is ready/);
   } finally {
     prisma.novelWorkflowTask.findMany = originals.findMany;
     adapter.workflowService.healAutoDirectorTaskState = originalHeal;
@@ -554,12 +554,12 @@ test("task detail treats review-blocked auto execution as skippable continuation
     assert.ok(detail);
     assert.equal(detail.lastError, null);
     assert.equal(detail.failureCode, null);
-    assert.match(String(detail.failureSummary), /允许跳过当前章继续执行/);
-    assert.match(String(detail.failureSummary), /第 2 章继续/);
-    assert.match(String(detail.blockingReason), /第 2 章继续/);
-    assert.match(String(detail.checkpointSummary), /当前仍有 9 章待继续/);
+    assert.match(String(detail.failureSummary), /skip the chapter and continue/);
+    assert.match(String(detail.failureSummary), /Chapter 2/);
+    assert.match(String(detail.blockingReason), /Chapter 2/);
+    assert.match(String(detail.checkpointSummary), /There are still 9 chapters left to continue/);
     assert.doesNotMatch(String(detail.checkpointSummary), /Chapter generation is blocked until review is resolved/);
-    assert.match(String(detail.recoveryHint), /继续自动执行前 10 章/);
+    assert.match(String(detail.recoveryHint), /Continue automatic execution of 前 10 章/);
   } finally {
     prisma.novelWorkflowTask.findUnique = originals.findUnique;
     adapter.workflowService.healAutoDirectorTaskState = originalHeal;

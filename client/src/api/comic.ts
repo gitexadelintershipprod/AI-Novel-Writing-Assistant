@@ -574,7 +574,7 @@ export async function deleteCharacterAsset(assetId: string): Promise<void> {
   await apiClient.delete(`/comic/character-assets/${assetId}`);
 }
 
-// ─── Confirm before drawing弹窗用 ─────────────────────────────────────────────────────────
+// ─── Confirm-before-drawing dialog ────────────────────────────────────────────
 
 export interface ImageGenerationPreview {
   kind: string;
@@ -629,7 +629,7 @@ export function characterAssetImageUrl(assetId: string): string {
   return `/api/comic/character-assets/${assetId}/image`;
 }
 
-/** 更新角色性别（所有生图链路的 GENDER LOCK 来源） */
+/** Update character gender (GENDER LOCK source for every image pipeline). */
 export async function updateCharacterGender(
   charId: string,
   gender: ComicCharacterGender,
@@ -642,9 +642,9 @@ export async function updateCharacterGender(
 }
 
 export interface UpdateVisualAnchorPayload {
-  /** 主外貌描述 */
+  /** Primary appearance description */
   appearance?: string;
-  /** 脸型强覆盖（FINAL OVERRIDE）；当 appearance 含"锐利/尖锐"等冲突词时用此字段强压脸型 */
+  /** Face-shape hard override (FINAL OVERRIDE); use this when appearance contains conflicting words such as "sharp". */
   faceShapeOverride?: string;
 }
 
@@ -666,8 +666,9 @@ export async function rewriteCharacterVisualAnchor(
 }
 
 /**
- * 更新角色"appearance anchor"（生图源头）。
- * 改一次，三视图/表情稿/资产/格子图后续生成都会读新版（已有图不会自动重绘）。
+ * Update the character appearance anchor (image-generation source).
+ * One edit; later three-view, expression, asset, and panel-grid generations all
+ * read the new version (existing images are not redrawn automatically).
  */
 export async function updateCharacterVisualAnchor(
   charId: string,

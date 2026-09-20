@@ -165,7 +165,7 @@ test("book scope selects every prepared chapter across volumes", () => {
   });
 
   assert.equal(cursor.step, "chapter_sync");
-  assert.equal(cursor.scopeLabel, "全书");
+  assert.equal(cursor.scopeLabel, "whole book");
   assert.deepEqual(cursor.requiredVolumes.map((volume) => volume.id), ["volume-1", "volume-2"]);
   assert.deepEqual(cursor.selectedChapters.map((chapter) => chapter.chapterOrder), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
 });
@@ -200,7 +200,7 @@ test("book scope waits for incomplete later-volume chapter details", () => {
   });
 
   assert.equal(cursor.step, "chapter_detail_bundle");
-  assert.equal(cursor.scopeLabel, "全书");
+  assert.equal(cursor.scopeLabel, "whole book");
   assert.equal(cursor.volumeId, "volume-2");
   assert.equal(cursor.chapterOrder, 9);
   assert.equal(cursor.completedChapterCount, 8);

@@ -93,19 +93,19 @@ function buildAutoExecutionPreparedStatus(input: WorkflowExplainabilityInput): s
 }
 
 function buildAutoExecutionRunningStatus(input: WorkflowExplainabilityInput): string {
-  return `${getExecutionScopeLabel(input)}Automatically executing`;
+  return `${getExecutionScopeLabel(input)} is running automatically`;
 }
 
 function buildAutoExecutionPausedStatus(input: WorkflowExplainabilityInput): string {
-  return `${getExecutionScopeLabel(input)}Auto-run is paused`;
+  return `${getExecutionScopeLabel(input)} auto-run is paused`;
 }
 
 function buildAutoExecutionCancelledStatus(input: WorkflowExplainabilityInput): string {
-  return `${getExecutionScopeLabel(input)}Auto execution canceled`;
+  return `${getExecutionScopeLabel(input)} auto-run was canceled`;
 }
 
 function buildAutoExecutionResumeAction(input: WorkflowExplainabilityInput): string {
-  return `Continue automatic execution${getExecutionScopeLabel(input)}`;
+  return `Continue automatic execution of ${getExecutionScopeLabel(input)}`;
 }
 
 function buildAutoExecutionPreparedReason(input: WorkflowExplainabilityInput): string {
@@ -289,13 +289,13 @@ function buildBlockingReason(input: WorkflowExplainabilityInput): string | null 
   }
   if (input.status === "failed") {
     if (input.checkpointType === "chapter_batch_ready") {
-      return `${getExecutionScopeLabel(input)}auto execution was interrupted during the batch stage; we recommend resuming from the most recent healthy stage.`;
+      return `${getExecutionScopeLabel(input)} auto execution was interrupted during the batch stage; we recommend resuming from the most recent healthy stage.`;
     }
     return normalizeFailureSummary(input.lastError, "The current stage failed; we recommend resuming from the most recent checkpoint.");
   }
   if (input.status === "cancelled") {
     if (input.checkpointType === "chapter_batch_ready") {
-      return `${getExecutionScopeLabel(input)}auto execution was cancelled; to continue, you can resume from the most recent healthy stage.`;
+      return `${getExecutionScopeLabel(input)} auto execution was cancelled; to continue, you can resume from the most recent healthy stage.`;
     }
     return "The task has been cancelled; if you still want to continue, you can resume from the most recent checkpoint.";
   }

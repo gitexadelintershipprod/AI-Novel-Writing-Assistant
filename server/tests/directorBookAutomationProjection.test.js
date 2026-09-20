@@ -210,7 +210,7 @@ test("book automation projection aggregates task, command, event, approval and a
     assert.equal(projection.novelId, "novel-1");
     assert.equal(projection.focusNovel.title, "测试小说");
     assert.equal(projection.displayState, "processing");
-    assert.equal(projection.userHeadline, "AI 正在处理：生成章节任务单");
+    assert.equal(projection.userHeadline, "AI is processing: 生成章节任务单");
     assert.equal(projection.latestTask.id, "task-1");
     assert.equal(projection.latestRunId, "run-1");
     assert.equal(projection.status, "running");
@@ -230,7 +230,7 @@ test("book automation projection aggregates task, command, event, approval and a
       protectedUserContentCount: 2,
       repairTicketCount: 1,
     });
-    assert.equal(projection.primaryAction.label, "查看推进状态");
+    assert.equal(projection.primaryAction.label, "View advancement status");
     assert.equal(projection.primaryAction.target.href, "/novels/novel-1/edit?directorTaskId=task-1");
     assert.equal(projection.secondaryActions[0].target.href, "/novels/novel-1/edit?directorTaskId=task-1&taskPanel=1");
     assert.equal(projection.timeline[0].id, "event:event-1");
@@ -262,7 +262,7 @@ test("book automation projection exposes production experience handoff as the pr
   try {
     const projection = await harness.service.getProjection("novel-1");
     assert.equal(projection.status, "waiting_approval");
-    assert.equal(projection.primaryAction.label, "选择正文生产方式");
+    assert.equal(projection.primaryAction.label, "Choose a writing method");
     assert.equal(projection.primaryAction.target.href, "/novels/novel-1/edit?directorTaskId=task-1");
   } finally {
     harness.restore();
@@ -287,7 +287,7 @@ test("book automation projection exposes replan-and-continue for professional re
     try {
       const projection = await harness.service.getProjection("novel-1");
       assert.equal(projection.primaryAction.type, "auto_execute_range");
-      assert.equal(projection.primaryAction.label, "重规划后继续");
+      assert.equal(projection.primaryAction.label, "Continue after re-planning");
       assert.equal(projection.primaryAction.commandPayload.continuationMode, "auto_execute_range");
     } finally {
       harness.restore();
@@ -366,9 +366,9 @@ test("book automation projection explains queued commands waiting for a worker",
     assert.equal(projection.activeCommandCount, 0);
     assert.equal(projection.workerHealth.derivedState, "queued_waiting_worker");
     assert.equal(projection.workerHealth.queuedCommandCount, 1);
-    assert.match(projection.detail, /后台执行器接手/);
-    assert.match(projection.currentLabel, /后台执行器接手/);
-    assert.match(projection.automationSummary, /后台执行器接手/);
+    assert.match(projection.detail, /waiting for a runner to take over/i);
+    assert.match(projection.currentLabel, /waiting for a runner to take over/i);
+    assert.match(projection.automationSummary, /waiting for a runner to take over/i);
   } finally {
     harness.restore();
   }
@@ -403,9 +403,9 @@ test("book automation projection treats manual recovery as a book-level user act
     assert.equal(projection.displayState, "paused");
     assert.equal(projection.requiresUserAction, true);
     assert.equal(projection.blockedReason, "后台执行中断，点击恢复后继续。");
-    assert.equal(projection.headline, "等待恢复自动导演");
-    assert.equal(projection.userHeadline, "AI 已暂停在可处理的位置");
-    assert.equal(projection.primaryAction.label, "从进度点继续");
+    assert.equal(projection.headline, "Waiting to resume Auto-Director");
+    assert.equal(projection.userHeadline, "AI paused at a point you can act on");
+    assert.equal(projection.primaryAction.label, "Continue from the progress point");
     assert.equal(projection.primaryAction.commandPayload.continuationMode, "resume");
   } finally {
     harness.restore();
@@ -493,7 +493,7 @@ test("book automation projection keeps a running workflow ahead of a completed r
     assert.equal(projection.status, "running");
     assert.equal(projection.displayState, "processing");
     assert.equal(projection.requiresUserAction, false);
-    assert.equal(projection.primaryAction.label, "查看推进状态");
+    assert.equal(projection.primaryAction.label, "View advancement status");
   } finally {
     harness.restore();
   }
@@ -534,7 +534,7 @@ test("book automation projection keeps queued retry workflow ahead of old failed
     assert.equal(projection.displayState, "processing");
     assert.equal(projection.requiresUserAction, false);
     assert.equal(projection.blockedReason, null);
-    assert.equal(projection.primaryAction.label, "查看推进状态");
+    assert.equal(projection.primaryAction.label, "View advancement status");
   } finally {
     harness.restore();
   }
@@ -682,7 +682,7 @@ test("book automation projection keeps a failed workflow ahead of a stale waitin
     assert.equal(projection.status, "failed");
     assert.equal(projection.displayState, "needs_attention");
     assert.equal(projection.detail, "指定区间内没有可生成的章节。当前可用章节范围为第 1 章到第 55 章。");
-    assert.equal(projection.primaryAction.label, "查看失败原因");
+    assert.equal(projection.primaryAction.label, "Check the failure reason");
   } finally {
     harness.restore();
   }

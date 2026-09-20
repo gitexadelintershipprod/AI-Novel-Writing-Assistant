@@ -27,7 +27,7 @@ export interface VideoProviderPort {
 
 export class MockVideoProvider implements VideoProviderPort {
   readonly provider = "mock";
-  readonly label = "模拟video channel";
+  readonly label = "Mock video channel";
   readonly description = "A local mock provider for testing the video pipeline. It does not generate real video.";
   readonly supportsRefImages = true;
   readonly costPerSecond = normalizeCostValue(process.env.DRAMA_VIDEO_MOCK_COST_PER_SECOND);

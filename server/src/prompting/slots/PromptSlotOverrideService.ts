@@ -168,7 +168,7 @@ export class PromptSlotOverrideService {
     }
     const slotDefs: PromptSlotDef[] = assets.slots ?? [];
     if (slotDefs.length === 0) {
-      throw new Error(`提示词 ${promptId} 没有可编辑的槽位。`);
+      throw new Error(`Prompt ${promptId} has no editable slots.`);
     }
 
     if (scope === "novel" && novelId) {
@@ -198,7 +198,7 @@ export class PromptSlotOverrideService {
 
     for (const [key, value] of Object.entries(slotUpdates)) {
       const def = slotDefs.find((d) => d.key === key);
-      if (!def) throw new Error(`槽位不存在：${key}`);
+      if (!def) throw new Error(`Slot does not exist: ${key}`);
 
       const validationError = validateSlotValue(def, value);
       if (validationError) throw new Error(validationError);

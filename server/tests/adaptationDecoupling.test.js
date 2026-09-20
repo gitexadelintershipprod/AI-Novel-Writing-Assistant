@@ -3,10 +3,10 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 
-// 低耦合守卫：services/adaptation 是 drama/comic 共享改编基建层，
-// 不得依赖任何上层领域（novel/drama/comic 的业务服务），
-// 只允许依赖：prisma（基础设施）、prompting（通用）、services/image（通用）。
-// NovelSourceAdapter 仅经 prisma 只读访问 novel 表，不 import 任何 novel 业务服务。
+// Low-coupling guard: services/adaptation is the shared adaptation layer for drama/comic.
+// It must not depend on upper domains (novel/drama/comic business services).
+// Allowed: prisma (infra), prompting (shared), services/image (shared).
+// NovelSourceAdapter may only read novel tables through prisma; it must not import novel business services.
 const ADAPTATION_SRC = path.join(__dirname, "..", "src", "services", "adaptation");
 
 function collectTsFiles(dir) {
@@ -23,7 +23,7 @@ function collectTsFiles(dir) {
   return out;
 }
 
-test("services/adaptation 不依赖 novel 领域业务服务（低耦合守卫）", () => {
+test("services/adaptation does not depend on novel-domain business services", () => {
   const files = collectTsFiles(ADAPTATION_SRC);
   if (files.length === 0) return;
 
@@ -44,11 +44,11 @@ test("services/adaptation 不依赖 novel 领域业务服务（低耦合守卫�
   assert.deepEqual(
     violations,
     [],
-    `adaptation 层禁止 import novel 领域业务服务（NovelSourceAdapter 仅可经 prisma 只读）：\n${violations.join("\n")}`,
+    `adaptation must not import novel-domain business services (NovelSourceAdapter may only read through prisma):\n${violations.join("\n")}`,
   );
 });
 
-test("services/adaptation 不依赖 drama/comic 服务实现（共享层不反向依赖上层）", () => {
+test("services/adaptation does not depend on drama/comic service implementations", () => {
   const files = collectTsFiles(ADAPTATION_SRC);
   if (files.length === 0) return;
 
@@ -69,6 +69,6 @@ test("services/adaptation 不依赖 drama/comic 服务实现（共享层不反�
   assert.deepEqual(
     violations,
     [],
-    `adaptation 共享层禁止反向依赖 drama/comic 上层模块：\n${violations.join("\n")}`,
+    `adaptation must not reverse-depend on drama/comic upper modules:\n${violations.join("\n")}`,
   );
 });

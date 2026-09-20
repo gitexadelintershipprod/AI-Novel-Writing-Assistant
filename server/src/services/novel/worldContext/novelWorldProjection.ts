@@ -57,7 +57,7 @@ export function buildNovelWorldHandbook(row: NovelWorldHandbookSource): NovelWor
     tone: structure.profile.tone || null,
     themes: structure.profile.themes.slice(0, 6),
     coreRules: structure.rules.axioms.slice(0, 5).map((rule) => ({
-      name: rule.name || "未命名规则",
+      name: rule.name || "Unnamed rule",
       summary: rule.summary || rule.enforcement || "",
       cost: rule.cost || null,
       boundary: rule.boundary || null,
@@ -82,18 +82,18 @@ export function buildNovelWorldHandbook(row: NovelWorldHandbookSource): NovelWor
     tensions: [
       structure.profile.coreConflict,
       ...forceTensions,
-      ...structure.rules.sharedConsequences.map((item) => `共同代价：${item}`),
+      ...structure.rules.sharedConsequences.map((item) => `Shared cost: ${item}`),
     ].filter((item): item is string => Boolean(item?.trim())).slice(0, 6),
     generationGuidance: {
       characterUses: [
         ...structure.forces.map((force) => [
           force.name,
           force.narrativeRole || force.pressure || force.summary,
-        ].filter(Boolean).join("：")),
+        ].filter(Boolean).join(": ")),
         ...structure.factions.map((faction) => [
           faction.name,
           faction.position || faction.doctrine,
-        ].filter(Boolean).join("：")),
+        ].filter(Boolean).join(": ")),
       ].filter((item): item is string => Boolean(item?.trim())).slice(0, 5),
       outlineUses: [
         structure.profile.coreConflict,
@@ -101,21 +101,21 @@ export function buildNovelWorldHandbook(row: NovelWorldHandbookSource): NovelWor
         ...structure.locations.map((location) => [
           location.name,
           location.narrativeFunction || location.risk || location.summary,
-        ].filter(Boolean).join("：")),
+        ].filter(Boolean).join(": ")),
       ].filter((item): item is string => Boolean(item?.trim())).slice(0, 5),
       chapterUses: [
         ...structure.rules.axioms.map((rule) => [
           rule.name,
           rule.boundary || rule.cost || rule.summary,
-        ].filter(Boolean).join("：")),
+        ].filter(Boolean).join(": ")),
         ...structure.locations.map((location) => [
           location.name,
           location.risk || location.narrativeFunction,
-        ].filter(Boolean).join("：")),
+        ].filter(Boolean).join(": ")),
       ].filter((item): item is string => Boolean(item?.trim())).slice(0, 5),
       avoidUses: [
         ...structure.rules.taboo,
-        ...structure.rules.sharedConsequences.map((item) => `不要忽略后果：${item}`),
+        ...structure.rules.sharedConsequences.map((item) => `Do not ignore the consequence: ${item}`),
       ].filter((item): item is string => Boolean(item?.trim())).slice(0, 5),
     },
   };

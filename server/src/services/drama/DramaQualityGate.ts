@@ -32,8 +32,8 @@ function buildEpisodeRhythmDigest(episodes: EpisodeRhythmLite[], focusOrder: num
     .map((episode) => [
       `Episode ${episode.order}"${episode.title}"`,
       episode.isPaywall ? "Pay card points" : "Ordinary set",
-      `情绪净值:${episode.emotionNet ?? "待定"}`,
-      `结尾:${episode.cliffhanger ?? "待定"}`,
+      `emotion net:${episode.emotionNet ?? "TBD"}`,
+      `ending:${episode.cliffhanger ?? "TBD"}`,
     ].join(" | "))
     .join("\n") || "No neighboring-episode rhythm yet.";
 }
@@ -44,7 +44,7 @@ function addRepairInstruction(existing: DramaQualityOutput["repairPlan"], flags:
   }
   return {
     mode: "patch",
-    instruction: flags.map((flag) => flag.suggestion).join("；"),
+    instruction: flags.map((flag) => flag.suggestion).join("; "),
   };
 }
 
@@ -74,7 +74,7 @@ export function applyPaywallQualityRules(
         severity: "high",
         code: "pre_paywall_buildup_not_lowest",
         evidence: `Episode ${input.episode.order} emotion net is ${input.episode.emotionNet}, which is not the pre-paywall low of ${minEmotionNet}.`,
-        suggestion: `把Episode ${input.episode.order}结尾改成更强的受压、误解或危机蓄势，让Episode ${plan.firstPaywallAt}Pay card points有更高释放空间。`,
+        suggestion: `Make Episode ${input.episode.order}'s ending a stronger pressure, misunderstanding, or crisis buildup so Episode ${plan.firstPaywallAt}'s paywall beat has more release room.`,
       });
     }
   }

@@ -188,7 +188,7 @@ test("markPendingAutoDirectorTasksForManualRecovery marks stale running tasks as
   });
 
   assert.deepEqual(calls, [
-    ["failed", "task-stale", "自动导演任务长时间没有心跳，可能已因服务重启或内存不足中断。请检查后继续或重试。"],
+    ["failed", "task-stale", "The Auto-Director task lost its heartbeat, likely from a restart or memory pressure. Check it, then continue or retry."],
     ["requeue", "task-fresh", "服务重启后任务已暂停，等待手动恢复。"],
   ]);
 });
@@ -244,7 +244,7 @@ test("stale running auto director healing does not recurse through markTaskFaile
     assert.equal(changed, true);
     assert.equal(updates.length, 1);
     assert.equal(updates[0].status, "failed");
-    assert.equal(updates[0].lastError, "自动导演任务长时间没有心跳，可能已因服务重启或内存不足中断。请检查后继续或重试。");
+    assert.equal(updates[0].lastError, "The Auto-Director task lost its heartbeat, likely from a restart or memory pressure. Check it, then continue or retry.");
   } finally {
     prisma.taskCenterArchive.findUnique = originals.archiveFindUnique;
     prisma.novelWorkflowTask.findUnique = originals.taskFindUnique;

@@ -324,7 +324,7 @@ test("runFromReady completes immediately when repaired chapters leave no remaini
   assert.equal(calls.length, 2);
   assert.deepEqual(calls[0], ["bootstrapTask", 0]);
   assert.deepEqual(calls[1].slice(0, 3), ["recordCheckpoint", "task-auto-exec", "workflow_completed"]);
-  assert.match(String(calls[1][3]), /第 1-2 章自动执行完成/);
+  assert.match(String(calls[1][3]), /Chapters 1–2 auto-run finished/);
   assert.equal(calls[1][4], 0);
 });
 
@@ -1736,7 +1736,7 @@ test("runFromReady records replan_required outside AI-driver execution when pipe
 
   assert.equal(calls[5][0], "recordCheckpoint");
   assert.equal(calls[5][2], "replan_required");
-  assert.match(String(calls[5][3]), /等待处理重规划建议/);
+  assert.match(String(calls[5][3]), /waiting on replan suggestions/);
   assert.match(String(calls[5][4]), /replan/i);
 });
 
@@ -2034,7 +2034,7 @@ test("prepareRequestedAutoExecution resolves the selected volume range instead o
     firstChapterId: "chapter-5",
   });
   assert.equal(resolved.autoExecution.volumeOrder, 2);
-  assert.equal(resolved.autoExecution.scopeLabel, "第 2 卷 · 反扑卷");
+  assert.equal(resolved.autoExecution.scopeLabel, "Volume 2 · 反扑卷");
   assert.deepEqual(resolved.autoExecution.remainingChapterOrders, [5, 6, 7, 8]);
 });
 
@@ -2276,7 +2276,7 @@ test("prepareRequestedAutoExecution does not let stale skips bypass execution de
         skippedChapterOrders: [6],
       },
     }),
-    /第 6 章.*章节细化/,
+    /chapter-execution area still has chapters 6 without full chapter details/,
   );
 });
 
@@ -2347,7 +2347,7 @@ test("prepareRequestedAutoExecution rejects skipping to a later volume while ear
         },
       }),
     }),
-    /开局卷仍有未完成章节（第 1 章起），不能直接跳到第 2 卷/,
+    /开局卷 still has unfinished chapters \(from chapter 1\).*You cannot jump to Volume 2 yet/,
   );
 });
 
@@ -2481,7 +2481,7 @@ test("prepareRequestedAutoExecution rejects chapter ranges with incomplete execu
         totalChapterCount: 2,
       },
     }),
-    /第 2 章.*章节细化/,
+    /chapter-execution area still has chapters 2 without full chapter details/,
   );
 });
 

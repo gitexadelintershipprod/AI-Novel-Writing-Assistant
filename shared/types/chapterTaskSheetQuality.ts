@@ -299,7 +299,7 @@ export function formatChapterTaskSheetQualityFailure(result: ChapterTaskSheetQua
     .map((issue) => `${issue.summary}${issue.repairHint ? ` Repair hint: ${issue.repairHint}` : ""}`)
     .join(" ");
   const guidanceText = result.repairGuidance.length > 0
-    ? ` Need to adjust:${result.repairGuidance.slice(0, 4).join("；")}`
+    ? ` Need to adjust: ${result.repairGuidance.slice(0, 4).join("; ")}`
     : "";
   return `${result.summary}${issueText ? ` ${issueText}` : ""}${guidanceText}`;
 }

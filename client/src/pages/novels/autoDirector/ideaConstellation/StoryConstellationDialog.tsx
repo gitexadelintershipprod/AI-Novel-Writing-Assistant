@@ -271,7 +271,7 @@ export default function StoryConstellationDialog({
                     <motion.button
                       type="button"
                       aria-pressed={selectedOption}
-                      aria-label={`${IDEA_CONSTELLATION_CATEGORY_LABELS[option.category]}：${option.label}。${option.hint}`}
+                      aria-label={`${IDEA_CONSTELLATION_CATEGORY_LABELS[option.category]}: ${option.label}。${option.hint}`}
                       initial={reducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.88 }}
                       animate={{ opacity: 1, scale: selectedOption ? 1.06 : 1 }}
                       transition={{ duration: reducedMotion ? 0 : 0.2, delay: reducedMotion ? 0 : index * 0.018 }}

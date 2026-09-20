@@ -26,61 +26,61 @@ export interface LegacyWorldContextSource {
 function formatRule(rule: StoryWorldSliceRule): string {
   return [
     rule.name,
-    rule.summary && `说明: ${rule.summary}`,
-    rule.whyItMatters && `作用: ${rule.whyItMatters}`,
+    rule.summary && `Note: ${rule.summary}`,
+    rule.whyItMatters && `Role: ${rule.whyItMatters}`,
   ].filter(Boolean).join(" | ");
 }
 
 function formatForce(force: StoryWorldSliceForce): string {
   return [
     force.name,
-    force.summary && `概述: ${force.summary}`,
-    force.roleInStory && `在这本书里的作用: ${force.roleInStory}`,
-    force.pressure && `会带来的压力: ${force.pressure}`,
+    force.summary && `Summary: ${force.summary}`,
+    force.roleInStory && `Role in this book: ${force.roleInStory}`,
+    force.pressure && `Pressure it creates: ${force.pressure}`,
   ].filter(Boolean).join(" | ");
 }
 
 function formatLocation(location: StoryWorldSliceLocation): string {
   return [
     location.name,
-    location.summary && `概述: ${location.summary}`,
-    location.storyUse && `适合承载的剧情: ${location.storyUse}`,
-    location.risk && `风险: ${location.risk}`,
+    location.summary && `Summary: ${location.summary}`,
+    location.storyUse && `Story uses: ${location.storyUse}`,
+    location.risk && `Risk: ${location.risk}`,
   ].filter(Boolean).join(" | ");
 }
 
 export function formatStoryWorldSlicePromptBlock(slice: StoryWorldSlice): string {
   return [
-    "这本书会用到的World setting：",
-    slice.coreWorldFrame ? `核心舞台：${slice.coreWorldFrame}` : "",
+    "World setting this book will use:",
+    slice.coreWorldFrame ? `Core stage: ${slice.coreWorldFrame}` : "",
     slice.appliedRules.length > 0
-      ? `当前rules that must be followed：\n${slice.appliedRules.map((item) => `- ${formatRule(item)}`).join("\n")}`
+      ? `Rules that must be followed now:\n${slice.appliedRules.map((item) => `- ${formatRule(item)}`).join("\n")}`
       : "",
     slice.activeForces.length > 0
-      ? `当前会介入故事的Organization and power：\n${slice.activeForces.map((item) => `- ${formatForce(item)}`).join("\n")}`
+      ? `Organizations and powers that will enter the story:\n${slice.activeForces.map((item) => `- ${formatForce(item)}`).join("\n")}`
       : "",
     slice.activeLocations.length > 0
-      ? `当前会被真正用到的地点：\n${slice.activeLocations.map((item) => `- ${formatLocation(item)}`).join("\n")}`
+      ? `Places that will actually be used:\n${slice.activeLocations.map((item) => `- ${formatLocation(item)}`).join("\n")}`
       : "",
     slice.conflictCandidates.length > 0
-      ? `可直接展开的冲突方向：\n${slice.conflictCandidates.map((item) => `- ${item}`).join("\n")}`
+      ? `Conflict directions that can open now:\n${slice.conflictCandidates.map((item) => `- ${item}`).join("\n")}`
       : "",
     slice.pressureSources.length > 0
-      ? `主要source of stress：\n${slice.pressureSources.map((item) => `- ${item}`).join("\n")}`
+      ? `Main sources of stress:\n${slice.pressureSources.map((item) => `- ${item}`).join("\n")}`
       : "",
     slice.mysterySources.length > 0
-      ? `可持续吊住读者的问题：\n${slice.mysterySources.map((item) => `- ${item}`).join("\n")}`
+      ? `Questions that can keep holding the reader:\n${slice.mysterySources.map((item) => `- ${item}`).join("\n")}`
       : "",
     slice.suggestedStoryAxes.length > 0
-      ? `优先推进的故事轴：\n${slice.suggestedStoryAxes.map((item) => `- ${item}`).join("\n")}`
+      ? `Story axes to advance first:\n${slice.suggestedStoryAxes.map((item) => `- ${item}`).join("\n")}`
       : "",
     slice.recommendedEntryPoints.length > 0
-      ? `适合开场的切入口：\n${slice.recommendedEntryPoints.map((item) => `- ${item}`).join("\n")}`
+      ? `Recommended opening entries:\n${slice.recommendedEntryPoints.map((item) => `- ${item}`).join("\n")}`
       : "",
     slice.forbiddenCombinations.length > 0
-      ? `不要越界的搭配：\n${slice.forbiddenCombinations.map((item) => `- ${item}`).join("\n")}`
+      ? `Pairings that must stay in bounds:\n${slice.forbiddenCombinations.map((item) => `- ${item}`).join("\n")}`
       : "",
-    slice.storyScopeBoundary ? `本书边界：${slice.storyScopeBoundary}` : "",
+    slice.storyScopeBoundary ? `Book boundary: ${slice.storyScopeBoundary}` : "",
   ].filter(Boolean).join("\n\n");
 }
 
@@ -104,20 +104,20 @@ export function buildLegacyWorldContextFromWorld(world: LegacyWorldContextSource
   return [
     "World context:",
     `World name:${world.name}`,
-    `World type:${world.worldType ?? "未指定"}`,
-    `世界简介：${world.description ?? ""}`,
-    "核心公理：",
+    `World type:${world.worldType ?? "unspecified"}`,
+    `World overview: ${world.description ?? ""}`,
+    "Core axioms:",
     axiomsText,
-    `背景：${world.background ?? ""}`,
-    `地理：${world.geography ?? ""}`,
+    `Background: ${world.background ?? ""}`,
+    `Geography: ${world.geography ?? ""}`,
     `Power system:${world.magicSystem ?? ""}`,
-    `社会政治：${world.politics ?? ""}`,
-    `种族：${world.races ?? ""}`,
-    `宗教：${world.religions ?? ""}`,
-    `科技：${world.technology ?? ""}`,
-    `历史：${world.history ?? ""}`,
-    `经济：${world.economy ?? ""}`,
-    `power relations：${world.factions ?? ""}`,
+    `Society and politics: ${world.politics ?? ""}`,
+    `Races: ${world.races ?? ""}`,
+    `Religion: ${world.religions ?? ""}`,
+    `Technology: ${world.technology ?? ""}`,
+    `History: ${world.history ?? ""}`,
+    `Economy: ${world.economy ?? ""}`,
+    `Power relations: ${world.factions ?? ""}`,
     `Core conflict:${world.conflicts ?? ""}`,
   ].join("\n");
 }

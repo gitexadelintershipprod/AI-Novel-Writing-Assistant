@@ -394,6 +394,7 @@ export function classifyStructuredOutputFailure(input: {
   }
   if (
     haystack.includes("未检测到完整 json 值")
+    || haystack.includes("no complete json value")
     || haystack.includes("unexpected end of json input")
     || haystack.includes("unterminated")
     || haystack.includes("end of json")

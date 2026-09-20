@@ -1,14 +1,14 @@
 /**
- * 漫画分话规划服务
+ * Comic episode-planning service.
  *
- * 复用 drama 已验证的 rhythmEngine + paywallPlanPolicy，
- * 生成每话大纲（hookType / cliffhanger / 卡点）并落库 ComicEpisode。
+ * Reuses the already-validated drama rhythmEngine + paywallPlanPolicy to generate
+ * per-episode outlines (hookType / cliffhanger / paywall beats) and persist ComicEpisode rows.
  */
 import type { LLMProvider } from "@ai-novel/shared/types/llm";
 import { prisma } from "../../db/prisma";
 import { runStructuredPrompt } from "../../prompting/core/promptRunner";
 import { comicEpisodeOutlinePrompt } from "../../prompting/prompts/comic/comic.prompts";
-// rhythmEngine 是纯领域知识（零外部依赖），可直接 import
+// rhythmEngine is pure domain knowledge (zero external deps) and can be imported directly.
 import { rhythmEngine, type TrackId } from "../drama/engine/rhythmEngine";
 import {
   describeDramaPaywallPlan,
@@ -42,7 +42,7 @@ export class ComicEpisodePlanService {
     const trackId = project.trackId as TrackId | undefined;
     const track = trackId ? rhythmEngine.getTrack(trackId) : null;
 
-    // 目标集数：参考节拍数折算，默认 20 话
+    // Target episode count: derived from beat count, default 20 episodes.
     const targetEpisodes = Math.max(10, Math.min(100, Math.ceil(beats.length / 3)));
 
     const startOrder = Math.max(1, input.startOrder ?? 1);
@@ -51,10 +51,10 @@ export class ComicEpisodePlanService {
 
     const beatsDigest = beats
       .slice(0, 60)
-      .map((beat) => `${beat.order}：${beat.summary}`)
-      .join("\n") || "（无结构化节拍，按梗概自由分话）";
+      .map((beat) => `${beat.order}: ${beat.summary}`)
+      .join("\n") || "(No structured beats; split episodes freely from the synopsis.)";
 
-    // Pay card points（有赛道策略时才计算）
+    // Paywall episode numbers (only when a track strategy exists).
     const paywallOrders: number[] = [];
     if (track) {
       const paywallPlan = resolveDramaPaywallPlan(
@@ -70,7 +70,7 @@ export class ComicEpisodePlanService {
 
     const hookLibrary = rhythmEngine
       .listHooks()
-      .map((hook) => `${hook.id}：${hook.label} — ${hook.description}`)
+      .map((hook) => `${hook.id}: ${hook.label} — ${hook.description}`)
       .join("\n");
 
     const result = await runStructuredPrompt({
@@ -92,7 +92,7 @@ export class ComicEpisodePlanService {
 
     const episodes = result.output.episodes;
 
-    // 事务：落库 ComicEpisode（幂等，order 已存在则更新）
+    // Transaction: persist ComicEpisode (idempotent; update when order already exists).
     await prisma.$transaction(async (tx) => {
       for (const ep of episodes) {
         await tx.comicEpisode.upsert({

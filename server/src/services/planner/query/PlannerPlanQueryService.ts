@@ -55,18 +55,18 @@ export class PlannerPlanQueryService {
     const reveals = parseJsonStringArray(plan.revealsJson);
     const riskNotes = parseJsonStringArray(plan.riskNotesJson);
     const sceneLines = plan.scenes
-      .map((scene: (typeof plan.scenes)[number]) => `${scene.sortOrder}. ${scene.title}${scene.objective ? ` | 目标:${scene.objective}` : ""}${scene.conflict ? ` | 冲突:${scene.conflict}` : ""}${scene.reveal ? ` | 揭露:${scene.reveal}` : ""}${scene.emotionBeat ? ` | 情绪:${scene.emotionBeat}` : ""}`)
+      .map((scene: (typeof plan.scenes)[number]) => `${scene.sortOrder}. ${scene.title}${scene.objective ? ` | Objective:${scene.objective}` : ""}${scene.conflict ? ` | Conflict:${scene.conflict}` : ""}${scene.reveal ? ` | Reveal:${scene.reveal}` : ""}${scene.emotionBeat ? ` | Emotion:${scene.emotionBeat}` : ""}`)
       .join("\n");
     return [
       `Plan title: ${plan.title}`,
       plan.planRole ? `Plan role: ${plan.planRole}` : "",
       plan.phaseLabel ? `Phase: ${plan.phaseLabel}` : "",
       `Objective: ${plan.objective}`,
-      participants.length > 0 ? `Participants: ${participants.join("、")}` : "",
-      reveals.length > 0 ? `Key reveals: ${reveals.join("；")}` : "",
-      riskNotes.length > 0 ? `Risk notes: ${riskNotes.join("；")}` : "",
-      plan.mustAdvanceJson ? `Must advance: ${parseJsonStringArray(plan.mustAdvanceJson).join("；")}` : "",
-      plan.mustPreserveJson ? `Must preserve: ${parseJsonStringArray(plan.mustPreserveJson).join("；")}` : "",
+      participants.length > 0 ? `Participants: ${participants.join(", ")}` : "",
+      reveals.length > 0 ? `Key reveals: ${reveals.join("; ")}` : "",
+      riskNotes.length > 0 ? `Risk notes: ${riskNotes.join("; ")}` : "",
+      plan.mustAdvanceJson ? `Must advance: ${parseJsonStringArray(plan.mustAdvanceJson).join("; ")}` : "",
+      plan.mustPreserveJson ? `Must preserve: ${parseJsonStringArray(plan.mustPreserveJson).join("; ")}` : "",
       plan.hookTarget ? `Hook target: ${plan.hookTarget}` : "",
       sceneLines ? `Scenes:\n${sceneLines}` : "",
     ].filter(Boolean).join("\n");

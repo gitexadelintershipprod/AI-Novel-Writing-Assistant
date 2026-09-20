@@ -36,19 +36,19 @@ const FULL_CHAPTER_REVISION_LIMIT = 8000;
 
 const OPERATION_LABELS: Record<ChapterEditorOperation, string> = {
   polish: "Optimize expression",
-  expand: "扩写细节",
-  compress: "精简压缩",
+  expand: "Expand detail",
+  compress: "Tighten and compress",
   emotion: "Strengthen mood",
   conflict: "intensify conflict",
-  custom: "Custom instructions改写",
+  custom: "Rewrite from custom instructions",
 };
 
 function buildConstraintsText(input: ChapterEditorAiRevisionRequest["constraints"]): string {
   const lines = [
-    input.keepFacts ? "- 保留现有剧情事实" : "- 可调整部分事实",
-    input.keepPov ? "- 保持当前人称与narrative perspective" : "- 可调整narrative perspective",
-    input.noUnauthorizedSetting ? "- 不新增未授权设定" : "- 可引入补充设定",
-    input.preserveCoreInfo ? "- 尽量保留原段核心信息" : "- 可重组核心信息",
+    input.keepFacts ? "- Keep existing plot facts" : "- Some facts may be adjusted",
+    input.keepPov ? "- Keep the current person and narrative perspective" : "- Narrative perspective may be adjusted",
+    input.noUnauthorizedSetting ? "- Do not add unauthorized setting" : "- Supplementary setting may be introduced",
+    input.preserveCoreInfo ? "- Keep the original core information as much as possible" : "- Core information may be reorganized",
   ];
   return lines.join("\n");
 }

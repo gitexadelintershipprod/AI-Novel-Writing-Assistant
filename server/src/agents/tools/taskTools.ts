@@ -29,8 +29,8 @@ export const taskToolDefinitions: Partial<
     resourceScopes: ["task", "agent_run", "generation_job"],
     parserHints: {
       intent: "query_task_status",
-      aliases: ["任务列表", "系统任务", "tasks"],
-      phrases: ["List current system task status", "系统现在有哪些任务", "View task center状态"],
+      aliases: ["task list", "system tasks", "tasks", "任务列表", "系统任务", "系统现在有哪些任务"],
+      phrases: ["List current system task status", "What tasks does the system have now", "View task center status"],
       requiresNovelContext: false,
       whenToUse: "The user is querying the task center, system task status, or the task list.",
       whenNotToUse: "The user is asking about one novel's production progress; that is closer to query_novel_production_status.",
@@ -109,7 +109,7 @@ export const taskToolDefinitions: Partial<
         detail.failureSummary ?? detail.lastError,
         detail.status === "failed"
           ? "The task failed without a recorded error."
-          : `任务Current status为 ${detail.status}。`,
+          : `The task's current status is ${detail.status}.`,
       );
       return getTaskFailureReasonOutputSchema.parse({
         kind: detail.kind,
@@ -153,7 +153,7 @@ export const taskToolDefinitions: Partial<
           ? "The run failed without a recorded error."
           : run.status === "waiting_approval"
             ? "The run is waiting for approval."
-            : `运行Current status为 ${run.status}。`,
+            : `The run's current status is ${run.status}.`,
       );
       return getRunFailureReasonOutputSchema.parse({
         runId: run.id,

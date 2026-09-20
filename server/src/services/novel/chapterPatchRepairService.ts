@@ -107,7 +107,7 @@ export class ChapterPatchRepairService {
       );
     }
     if (!applied.success) {
-      const reason = applied.failures.map((failure) => `${failure.patchId}: ${failure.reason}`).join("；")
+      const reason = applied.failures.map((failure) => `${failure.patchId}: ${failure.reason}`).join("; ")
         || generated.output.escalationReason
         || "The partial patch produced no valid text changes.";
       throw new ChapterPatchRepairFailedError(reason, generated.output, applied);

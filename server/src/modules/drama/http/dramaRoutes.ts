@@ -535,7 +535,7 @@ router.post("/video-prompts/:videoPromptId/provider-task/refresh", validate({ pa
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 角色Image generation（形象图 + 三视图）
+// Character image generation (portrait + turnaround)
 // ─────────────────────────────────────────────────────────────────────────────
 
 const charImageParamsSchema = z.object({
@@ -562,7 +562,7 @@ router.get(
 );
 
 /** POST /api/drama/projects/:id/characters/:characterId/generate-character-sheet
- *  Generate character design draft（面部特写 + 三视图合图，一次完成）。
+ *  Generate a character design sheet (face close-up + turnaround in one image).
  */
 router.post(
   "/projects/:id/characters/:characterId/prepare-character-sheet",
@@ -614,7 +614,7 @@ router.post(
   },
 );
 
-/** POST /api/drama/projects/:id/characters/:characterId/generate-portrait （兼容旧调用） */
+/** POST /api/drama/projects/:id/characters/:characterId/generate-portrait (legacy compatible) */
 router.post(
   "/projects/:id/characters/:characterId/generate-portrait",
   validate({ params: characterParamsSchema, body: imageProviderBodySchema }),
@@ -647,7 +647,7 @@ router.post(
   },
 );
 
-/** POST /api/drama/projects/:id/characters/:characterId/generate-three-view （兼容旧调用，转发到设计稿） */
+/** POST /api/drama/projects/:id/characters/:characterId/generate-three-view (legacy compatible, forwards to the design sheet) */
 router.post(
   "/projects/:id/characters/:characterId/generate-three-view",
   validate({ params: characterParamsSchema, body: imageProviderBodySchema }),
@@ -667,7 +667,7 @@ router.post(
 );
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 角色图片文件服务（本地存储直出）
+// Character image file serving (local storage, streamed out).
 // ─────────────────────────────────────────────────────────────────────────────
 
 const threeViewParamsSchema = z.object({
@@ -752,7 +752,7 @@ router.get("/character-images/:characterId/character-sheet/:version", validate({
   }
 });
 
-/** GET /api/drama/character-images/:characterId/portrait （兼容旧 URL，指向同一文件） */
+/** GET /api/drama/character-images/:characterId/portrait (legacy URL, same file) */
 router.get("/character-images/:characterId/portrait", async (req, res, next) => {
   try {
     const { characterId } = req.params as z.infer<typeof charImageParamsSchema>;

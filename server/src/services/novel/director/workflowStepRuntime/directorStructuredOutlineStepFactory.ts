@@ -132,8 +132,8 @@ async function inspectStructuredOutlineFactState(
     };
   }
 
-  // JIT 模式下 chapter_detail_bundle 被主动跳过（Phase 1 懒规划），task sheet 在Chapter execution前
-  // 即时生成。此时 chapterDetailReady = false 是预期状态，应视为已完成。
+  // In JIT mode, chapter_detail_bundle is intentionally skipped (Phase 1 lazy planning). The task sheet is generated
+  // just before chapter execution. chapterDetailReady = false is expected then, and should count as complete.
   const { request: directorRequest } = await loadDirectorModuleState(context);
   const isJITMode = isFullBookAutopilotRunMode(directorRequest?.runMode);
   const effectiveDetailReady = detailReady || (isJITMode && chapterListReady);

@@ -192,8 +192,8 @@ export async function runChapterDetailBatchGeneration({
     }
     setStructuredMessage(
       processedModeCount > 0
-        ? `${label}The chapter objectives, execution boundaries and task orders have been completed and automatically saved.`
-        : `${label}It is now complete and there is no need to repeatedly generate chapter refinements.`,
+        ? `${label}: the chapter objectives, execution boundaries, and task sheets have been completed and saved.`
+        : `${label} is complete. You do not need to generate chapter refinements again.`,
     );
   } finally {
     setIsGenerating(false);

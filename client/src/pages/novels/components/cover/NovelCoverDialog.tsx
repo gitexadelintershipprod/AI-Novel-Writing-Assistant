@@ -329,7 +329,7 @@ export function NovelCoverDialog(props: NovelCoverDialogProps) {
         <DialogHeader className="shrink-0 border-b border-slate-200 px-6 pb-4 pt-5">
           <DialogTitle className="text-[22px] font-semibold tracking-tight text-slate-900">
             Generate novel cover main screen
-            {promptContext.title ? `：${promptContext.title}` : ""}
+            {promptContext.title ? `: ${promptContext.title}` : ""}
           </DialogTitle>
         </DialogHeader>
 

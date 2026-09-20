@@ -103,7 +103,7 @@ export class HybridRetrievalService {
       }));
   }
 
-  /** 叙事距离衰减：与 currentChapterOrder 距离越远的章节 chunk 权重越低 */
+  /** Narrative-distance decay: chapter chunks farther from currentChapterOrder get a lower weight */
   private applyNarrativeDecay(
     chunks: RetrievedChunk[],
     currentChapterOrder: number,

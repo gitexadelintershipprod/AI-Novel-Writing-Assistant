@@ -88,7 +88,7 @@ function TimelineNodeList({ nodes }: { nodes: BookAnalysisTimelineNode[] }) {
               {node.timeHint || node.sourceRefs?.length ? (
                 <div className="mt-1 flex flex-wrap gap-1 text-[11px] text-muted-foreground">
                   {node.timeHint ? <span>Time:{node.timeHint}</span> : null}
-                  {node.sourceRefs?.length ? <span>Source: {node.sourceRefs.join("、")}</span> : null}
+                  {node.sourceRefs?.length ? <span>Source: {node.sourceRefs.join(", ")}</span> : null}
                 </div>
               ) : null}
             </div>
@@ -126,7 +126,7 @@ export default function BookAnalysisStructuredSummary({
       </div>
       {warningLabels.length > 0 ? (
         <div className="rounded-md border border-warning/30 bg-warning/5 px-3 py-2 text-xs text-foreground">
-          The following fields have a lot of content and have been reserved according to the upper limit:{warningLabels.join("、")}
+          The following fields have a lot of content and have been reserved according to the upper limit:{warningLabels.join(", ")}
         </div>
       ) : null}
       <div className="grid gap-x-8 gap-y-1 md:grid-cols-2">
@@ -136,7 +136,7 @@ export default function BookAnalysisStructuredSummary({
               <span>{row.label}</span>
               {row.evidence.length > 0 ? (
                 <span
-                  aria-label={`${row.label}Excerpts from sources`}
+                  aria-label={`${row.label} excerpts from sources`}
                   title={formatEvidenceTooltip(row.evidence)}
                 >
                   <Info className="h-3.5 w-3.5 text-primary" />

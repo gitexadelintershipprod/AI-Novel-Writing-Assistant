@@ -21,8 +21,8 @@ export function shortStoryProductionFoundationText(novel: ShortStoryFoundationNo
     : null;
   return [
     novel.genre?.name ? `Theme base:${novel.genre.name}` : "",
-    novel.genre?.description ? `题材定位：${novel.genre.description}` : "",
-    novel.genre?.template ? `题材使用倾向：${novel.genre.template}` : "",
+    novel.genre?.description ? `Genre positioning: ${novel.genre.description}` : "",
+    novel.genre?.template ? `Genre usage tendency: ${novel.genre.template}` : "",
     buildStoryModePromptBlock({
       primary: toMode(novel.primaryStoryMode),
       secondary: toMode(novel.secondaryStoryMode),
@@ -37,7 +37,7 @@ export function parseWritingPlatformSnapshot(raw: string | null | undefined): Wr
 
 export function shortStoryPlatformText(snapshot: WritingPlatformSnapshot | null, stage: "planning" | "drafting" | "auditing" | "repairing"): string {
   if (!snapshot) return "Use natural Georgian serial-fiction craft: prioritize event progression, clear causality, active characters, and a complete ending.";
-  return `${snapshot.label}（配置版本 ${snapshot.profileVersion}）：${snapshot.guidance[stage]}`;
+  return `${snapshot.label} (config version ${snapshot.profileVersion}): ${snapshot.guidance[stage]}`;
 }
 
 export function buildShortStoryWriterContextBlocks(input: {
@@ -61,6 +61,6 @@ export function buildShortStoryWriterContextBlocks(input: {
     block("short-story:continuity", "short_story_continuity", JSON.stringify({ previousContinuity: input.previousContinuity, previousContentTail: input.previousContentTail }, null, 2), 96),
     block("short-story:platform", "writing_platform", shortStoryPlatformText(input.platform, "drafting"), 104),
     block("short-story:production-foundation", "production_foundation", input.productionFoundation, 103),
-    block("short-story:book-style", "book_style", input.bookStyle?.trim() || input.direction.styleKeywords.join("、"), 80),
+    block("short-story:book-style", "book_style", input.bookStyle?.trim() || input.direction.styleKeywords.join(", "), 80),
   ];
 }

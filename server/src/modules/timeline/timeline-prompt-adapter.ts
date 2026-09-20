@@ -2,7 +2,7 @@ import type { TimelineContextForChapter } from "@ai-novel/shared/types/timeline"
 
 function listBlock<T>(title: string, items: T[], render: (item: T) => string): string {
   if (items.length === 0) {
-    return `${title}\n- 无`;
+    return `${title}\n- none`;
   }
   return [title, ...items.map((item) => `- ${render(item)}`)].join("\n");
 }
@@ -25,7 +25,7 @@ function isBlockingHook(hook: TimelineContextHook): boolean {
 }
 
 function hookLabel(hook: TimelineContextHook): string {
-  return `[id=${hook.id}] ${hook.title}：${hook.description}（${hook.priority} / ${resolveModeOf(hook)}）`;
+  return `[id=${hook.id}] ${hook.title}: ${hook.description} (${hook.priority} / ${resolveModeOf(hook)})`;
 }
 
 export class TimelinePromptAdapter {
@@ -44,32 +44,32 @@ export class TimelinePromptAdapter {
     const softHooks = softHooksSource.slice(-maxSoftHooks);
     const addressedHooks = (context.addressedHooks ?? []).slice(-maxAddressedHooks);
     return [
-      "【时间线约束】",
-      `Current chapter:Chapter ${context.currentChapterIndex}`,
-      `当前故事时间：${context.currentTime?.label || "未明确"}`,
+      "[Timeline constraints]",
+      `Current chapter: Chapter ${context.currentChapterIndex}`,
+      `Current story time: ${context.currentTime?.label || "unspecified"}`,
       "",
       listBlock("[Key events that already happened]", previousEvents, (event) =>
-        `${event.title}：${event.summary}${event.storyTimeLabel ? `（${event.storyTimeLabel}）` : ""}`),
+        `${event.title}: ${event.summary}${event.storyTimeLabel ? ` (${event.storyTimeLabel})` : ""}`),
       "",
       listBlock("[This chapter must advance]", context.plannedEventsThisChapter, (event) =>
-        `${event.title}：${event.summary}`),
+        `${event.title}: ${event.summary}`),
       "",
       listBlock("[Hooks that must be picked up now]", blockingHooks, (hook) =>
         hookLabel(hook)),
       "",
-      listBlock("【可延后承接的钩子】", softHooks, (hook) =>
+      listBlock("[Hooks that can wait]", softHooks, (hook) =>
         hookLabel(hook)),
       "",
       listBlock("[Hooks already partly picked up]", addressedHooks, (hook) =>
         hookLabel(hook)),
       "",
       listBlock("[Prohibited from occurring in advance]", context.forbiddenEvents, (event) =>
-        `${event.title}：${event.reason}`),
+        `${event.title}: ${event.reason}`),
       "",
-      listBlock("【连续性要求】", context.continuityRequirements, (item) => item),
+      listBlock("[Continuity requirements]", context.continuityRequirements, (item) => item),
       "",
-      listBlock("【关键status change】", context.knownStateChanges.slice(-8), (change) =>
-        `${change.targetType}:${change.targetId}.${change.field} = ${change.after}（${change.certainty}）`),
+      listBlock("[Key state changes]", context.knownStateChanges.slice(-8), (change) =>
+        `${change.targetType}:${change.targetId}.${change.field} = ${change.after} (${change.certainty})`),
     ].join("\n").trim();
   }
 
@@ -81,9 +81,9 @@ export class TimelinePromptAdapter {
     const hooks = blockingHooks.length > 0 ? blockingHooks : softHooks.slice(0, 4);
     const title = blockingHooks.length > 0
       ? "[Hooks from the previous chapter that must be picked up immediately]"
-      : "【上一章可延后承接的钩子】";
+      : "[Hooks from the previous chapter that can wait]";
     return listBlock(title, hooks, (hook) =>
-      `[id=${hook.id}] ${hook.title}：${hook.description}（优先级：${hook.priority} / ${resolveModeOf(hook)}）`);
+      `[id=${hook.id}] ${hook.title}: ${hook.description} (priority: ${hook.priority} / ${resolveModeOf(hook)})`);
   }
 }
 

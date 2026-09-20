@@ -20,9 +20,9 @@ export async function resetDirectorDownstreamChapterState(
   if (chapterRows.length === 0) {
     return;
   }
-  // 仅重置尚未开写的章节。已写正文的章节必须完整保留——content、生成状态、
-  // 以及派生的摘要 / 连续性事实 / 角色时间线都是后续章节续写所依赖的上下文，
-  // 绝不能因为「回到节奏 / 拆章补齐细化」就被清空。
+  // Reset only chapters that have not started writing. Chapters with prose must be kept in full — content, generation state,
+  // and derived summaries / continuity facts / character timelines are context later chapters depend on.
+  // Never clear them just because the run "returned to beats / chapter-split to fill detail".
   const chapterIds = chapterRows
     .filter((chapter) => !(typeof chapter.content === "string" && chapter.content.trim().length > 0))
     .map((chapter) => chapter.id);

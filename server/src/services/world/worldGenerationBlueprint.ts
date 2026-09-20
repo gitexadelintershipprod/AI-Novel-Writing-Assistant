@@ -80,71 +80,71 @@ export function buildWorldBlueprintPromptBlock(
   const sections: string[] = [];
 
   if (enabledDimensions.length > 0) {
-    sections.push(`User-selected generation dimensions:${enabledDimensions.join("、")}`);
+    sections.push(`User-selected generation dimensions: ${enabledDimensions.join(", ")}`);
   }
 
   if (blueprint.classicElements.length > 0) {
-    sections.push(`User-kept classic elements:${blueprint.classicElements.join("、")}`);
+    sections.push(`User-kept classic elements: ${blueprint.classicElements.join(", ")}`);
   }
 
   if (blueprint.propertySelections.length > 0) {
     const propertyLines = blueprint.propertySelections.map((selection) => {
       const choice = selection.choiceLabel?.trim()
-        ? `; Selected direction:${selection.choiceLabel.trim()}${selection.choiceSummary?.trim() ? `（${selection.choiceSummary.trim()}）` : ""}`
+        ? `; Selected direction: ${selection.choiceLabel.trim()}${selection.choiceSummary?.trim() ? ` (${selection.choiceSummary.trim()})` : ""}`
         : "";
-      const detail = selection.detail?.trim() ? `; User notes:${selection.detail.trim()}` : "";
-      return `- [${WORLD_LAYER_LABELS[selection.targetLayer]}] ${selection.name}：${selection.description}${choice}${detail}`;
+      const detail = selection.detail?.trim() ? `; User notes: ${selection.detail.trim()}` : "";
+      return `- [${WORLD_LAYER_LABELS[selection.targetLayer]}] ${selection.name}: ${selection.description}${choice}${detail}`;
     });
     sections.push(`World attributes preselected by the user:\n${propertyLines.join("\n")}`);
   }
 
   if (blueprint.referenceContext) {
-    sections.push(`Reference work handling:${WORLD_REFERENCE_MODE_LABELS[blueprint.referenceContext.mode]}`);
+    sections.push(`Reference work handling: ${WORLD_REFERENCE_MODE_LABELS[blueprint.referenceContext.mode]}`);
 
     if (blueprint.referenceContext.anchors.length > 0) {
       sections.push(
-        `Reference work world anchors:\n${blueprint.referenceContext.anchors.map((item) => `- ${item.label}：${item.content}`).join("\n")}`,
+        `Reference work world anchors:\n${blueprint.referenceContext.anchors.map((item) => `- ${item.label}: ${item.content}`).join("\n")}`,
       );
     }
 
     if (blueprint.referenceContext.preserveElements.length > 0) {
-      sections.push(`Must be retained:${blueprint.referenceContext.preserveElements.join("、")}`);
+      sections.push(`Must be retained: ${blueprint.referenceContext.preserveElements.join(", ")}`);
     }
 
     if (blueprint.referenceContext.allowedChanges.length > 0) {
-      sections.push(`Allowed changes:${blueprint.referenceContext.allowedChanges.join("、")}`);
+      sections.push(`Allowed changes: ${blueprint.referenceContext.allowedChanges.join(", ")}`);
     }
 
     if (blueprint.referenceContext.forbiddenElements.length > 0) {
-      sections.push(`Must not deviate from:${blueprint.referenceContext.forbiddenElements.join("、")}`);
+      sections.push(`Must not deviate from: ${blueprint.referenceContext.forbiddenElements.join(", ")}`);
     }
 
     const selectedRuleNames = (blueprint.referenceContext.referenceSeeds?.rules ?? [])
       .filter((item) => blueprint.referenceContext?.selectedSeedIds?.ruleIds.includes(item.id))
       .map((item) => item.name);
     if (selectedRuleNames.length > 0) {
-      sections.push(`Original-work rules carried over directly:${selectedRuleNames.join("、")}`);
+      sections.push(`Original-work rules carried over directly: ${selectedRuleNames.join(", ")}`);
     }
 
     const selectedFactionNames = (blueprint.referenceContext.referenceSeeds?.factions ?? [])
       .filter((item) => blueprint.referenceContext?.selectedSeedIds?.factionIds.includes(item.id))
       .map((item) => item.name);
     if (selectedFactionNames.length > 0) {
-      sections.push(`Original-work factions carried over directly:${selectedFactionNames.join("、")}`);
+      sections.push(`Original-work factions carried over directly: ${selectedFactionNames.join(", ")}`);
     }
 
     const selectedForceNames = (blueprint.referenceContext.referenceSeeds?.forces ?? [])
       .filter((item) => blueprint.referenceContext?.selectedSeedIds?.forceIds.includes(item.id))
       .map((item) => item.name);
     if (selectedForceNames.length > 0) {
-      sections.push(`Original-work forces carried over directly:${selectedForceNames.join("、")}`);
+      sections.push(`Original-work forces carried over directly: ${selectedForceNames.join(", ")}`);
     }
 
     const selectedLocationNames = (blueprint.referenceContext.referenceSeeds?.locations ?? [])
       .filter((item) => blueprint.referenceContext?.selectedSeedIds?.locationIds.includes(item.id))
       .map((item) => item.name);
     if (selectedLocationNames.length > 0) {
-      sections.push(`Original-work locations carried over directly:${selectedLocationNames.join("、")}`);
+      sections.push(`Original-work locations carried over directly: ${selectedLocationNames.join(", ")}`);
     }
   }
 

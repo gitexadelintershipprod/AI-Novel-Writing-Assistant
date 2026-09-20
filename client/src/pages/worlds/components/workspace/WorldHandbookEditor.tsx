@@ -163,7 +163,7 @@ export default function WorldHandbookEditor(props: {
             />
             <HandbookPreviewLine
               label="reading temperament"
-              value={draftStructure.profile.tone || draftStructure.profile.themes.join("、")}
+              value={draftStructure.profile.tone || draftStructure.profile.themes.join(", ")}
               fallback="Supplement reading temperament, such as passionate upgrades, dark epics, light-hearted adventures, or power struggles."
             />
             <HandbookPreviewLine
@@ -205,7 +205,7 @@ export default function WorldHandbookEditor(props: {
               </HandbookField>
               <HandbookField title="Topic keywords" hint="Separate them with periods to help keep the same thematic direction for subsequent characters, locations, and conflicts.">
                 <Input
-                  value={draftStructure.profile.themes.join("、")}
+                  value={draftStructure.profile.themes.join(", ")}
                   onChange={(event) =>
                     setDraftStructure((prev) =>
                       prev

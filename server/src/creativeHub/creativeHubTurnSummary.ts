@@ -26,37 +26,37 @@ function formatIntentLabel(intent: StructuredIntent["intent"] | undefined): stri
     case "create_novel":
       return "Create a new novel";
     case "select_novel_workspace":
-      return "切换当前工作区";
+      return "Switch the current workspace";
     case "unbind_world_from_novel":
-      return "解除当前世界观绑定";
+      return "Unbind the current world";
     case "produce_novel":
-      return "推进整本创作";
+      return "Advance full-book production";
     case "query_novel_production_status":
-      return "查看Whole production进度";
+      return "View full-book production progress";
     case "query_chapter_content":
-      return "查看Chapter content";
+      return "View chapter content";
     case "inspect_failure_reason":
-      return "诊断currently blocked";
+      return "Diagnose the current blocker";
     case "write_chapter":
-      return "推进章节创作";
+      return "Advance chapter writing";
     case "rewrite_chapter":
-      return "重写Current chapter";
+      return "Rewrite the current chapter";
     case "search_knowledge":
-      return "查阅Knowledge materials";
+      return "Look up knowledge materials";
     case "ideate_novel_setup":
       return "Generate settings alternatives";
     case "workflow_handoff":
-      return "前往正式工作台";
+      return "Open the formal workspace";
     case "out_of_scope":
-      return "查看合适入口";
+      return "Find a better entry point";
     case "inspect_world":
-      return "检查世界观约束";
+      return "Check world constraints";
     case "inspect_characters":
       return "View character status";
     case "general_chat":
-      return "创作讨论";
+      return "Creative discussion";
     default:
-      return "推进当前创作";
+      return "Advance the current work";
   }
 }
 
@@ -118,7 +118,7 @@ function buildIntentSummary(goal: string, plannerResult: PlannerResult | null): 
   const structuredIntent = plannerResult?.structuredIntent;
   const describedGoal = truncateText(structuredIntent?.description ?? structuredIntent?.note ?? goal, 150);
   const label = formatIntentLabel(structuredIntent?.intent);
-  return describedGoal ? `${label}：${describedGoal}` : label;
+  return describedGoal ? `${label}: ${describedGoal}` : label;
 }
 
 function buildActionSummary(
@@ -127,20 +127,20 @@ function buildActionSummary(
   toolSummaries: string[],
 ): string {
   if (toolSummaries.length > 0) {
-    const preview = toolSummaries.slice(0, 3).join("；");
+    const preview = toolSummaries.slice(0, 3).join("; ");
     if (toolSummaries.length > 3) {
-      return `${preview} 等 ${toolSummaries.length} items动作。`;
+      return `${preview} and ${toolSummaries.length - 3} more actions.`;
     }
     return preview;
   }
   if ((plannerResult?.actions.length ?? 0) > 0) {
     const count = plannerResult?.actions.reduce((total, action) => total + action.calls.length, 0) ?? 0;
     if (turnStatus === "interrupted") {
-      return `已规划 ${count} items动作，当前停在审批或确认环节。`;
+      return `${count} actions were planned. The run is waiting on approval or confirmation.`;
     }
-    return `已规划 ${count} items动作，本轮以创作协同与状态整理为主。`;
+    return `${count} actions were planned. This turn focused on creative coordination and status cleanup.`;
   }
-  return "本轮未触发显式工具动作，以creative dialogue与工作区理解为主。";
+  return "This turn did not call an explicit tool. It stayed on creative dialogue and workspace understanding.";
 }
 
 function buildImpactSummary(
@@ -153,7 +153,7 @@ function buildImpactSummary(
     return truncateText(latestError, 180);
   }
   if (interrupts.length > 0) {
-    return truncateText(interrupts[0]?.summary ?? "当前存在待确认的高影响操作。", 180);
+    return truncateText(interrupts[0]?.summary ?? "A high-impact action is waiting for confirmation.", 180);
   }
   if (productionStatus?.summary?.trim()) {
     return truncateText(productionStatus.summary, 180);
@@ -172,7 +172,7 @@ function buildNextSuggestion(
   productionStatus?: ProductionStatusResult | null,
 ): string {
   if (turnStatus === "interrupted" && interrupts.length > 0) {
-    return "先处理当前审批卡，再keep pushing forward后续创作。";
+    return "Handle the current approval card first, then continue production.";
   }
   if (turnStatus === "failed" || latestError) {
     return productionStatus?.recoveryHint?.trim()
@@ -180,23 +180,23 @@ function buildNextSuggestion(
   }
   switch (plannerResult?.structuredIntent.intent) {
     case "create_novel":
-      return "继续补齐世界观、角色或Whole production参数，让这本书进入稳定工作区。";
+      return "Keep filling in the world, characters, or full-book production settings so this book can enter a stable workspace.";
     case "unbind_world_from_novel":
       return "If the world still cannot support the story, pick a better world. Otherwise continue filling in the core setup.";
     case "produce_novel":
-      return "继续围绕current novel推进Whole production，必要时先检查关键阻塞。";
+      return "Keep advancing full-book production for the current novel. Check the key blocker first if needed.";
     case "query_novel_production_status":
       return "Use the current progress to decide whether to keep generating, fill in assets, or handle the failure first.";
     case "write_chapter":
     case "rewrite_chapter":
-      return "继续围绕Current chapter推进正文、修复问题或检查上下文一致性。";
+      return "Keep advancing the current chapter text, repair remaining issues, or check context consistency.";
     case "search_knowledge":
       return "Keep asking from the materials already found, or bind key materials to the current workspace.";
     case "ideate_novel_setup":
-      return "从当前备选里挑出最接近的一版，再继续细化主角、冲突和story promise。";
+      return "Pick the closest option from the current alternatives, then refine the protagonist, conflict, and story promise.";
     case "workflow_handoff":
     case "out_of_scope":
-      return "打开正式Novel workbench、Auto-Director或任务中心完成后续操作。";
+      return "Open the formal novel workbench, Auto-Director, or Task Center to finish the next steps.";
     default:
       return "View the current status, failure reason, or next-step suggestion.";
   }

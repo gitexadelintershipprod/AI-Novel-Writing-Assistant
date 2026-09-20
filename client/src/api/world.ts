@@ -55,7 +55,7 @@ function normalizeSuggestedAxioms(raw: unknown): string[] {
         return `${title}（${description}, impact:${effect}）`.trim();
       }
       if (title && description) {
-        return `${title}：${description}`.trim();
+        return `${title}: ${description}`.trim();
       }
       if (title) {
         return title.trim();

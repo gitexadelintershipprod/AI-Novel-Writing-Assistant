@@ -4,7 +4,7 @@ export const genreTreeDraftNodeSchema = z
   .object({
     name: z.string().trim().min(1),
     description: z.string().trim().optional(),
-    // children 会在 sanitize 阶段进一步递归归一化
+    // children are recursively normalized further during sanitize
     children: z.array(z.unknown()).optional(),
   })
   .passthrough();

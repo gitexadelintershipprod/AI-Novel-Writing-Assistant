@@ -119,7 +119,7 @@ export function buildTaskSheetFromVolumeChapter(chapter: VolumeChapterPlan): str
     typeof chapter.revealLevel === "number" ? `Disclosure level:${chapter.revealLevel}` : "",
     typeof chapter.targetWordCount === "number" ? `Target word count:${chapter.targetWordCount}` : "",
     chapter.mustAvoid?.trim() ? `Prohibited matters:${chapter.mustAvoid.trim()}` : "",
-    chapter.payoffRefs.length > 0 ? `Redeem association:${chapter.payoffRefs.join("、")}` : "",
+    chapter.payoffRefs.length > 0 ? `Redeem association:${chapter.payoffRefs.join(", ")}` : "",
   ].filter(Boolean);
   return lines.join("\n");
 }
@@ -179,7 +179,7 @@ export function buildOutlinePreviewFromVolumes(volumes: VolumePlan[]): string {
         volume.payoffType?.trim() ? `Redemption type:${volume.payoffType.trim()}` : "",
         volume.nextVolumeHook?.trim() ? `Lower roll hook:${volume.nextVolumeHook.trim()}` : "",
         volume.resetPoint?.trim() ? `Reset point:${volume.resetPoint.trim()}` : "",
-        volume.openPayoffs.length > 0 ? `Unfulfilled items:${volume.openPayoffs.join("；")}` : "",
+        volume.openPayoffs.length > 0 ? `Unfulfilled items:${volume.openPayoffs.join("; ")}` : "",
         `Chapter scope:${chapterSpan}`,
       ].filter(Boolean).join("\n");
     })

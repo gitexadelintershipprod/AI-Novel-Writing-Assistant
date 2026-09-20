@@ -6,7 +6,6 @@ import {
 } from "@ai-novel/shared/types/worldWizard";
 import { runStructuredPrompt } from "../../prompting/core/promptRunner";
 import {
-  worldInspirationConceptCardLocalizationPrompt,
   worldInspirationConceptCardPrompt,
 } from "../../prompting/prompts/world/world.prompts";
 import { getTemplateByKey, WORLD_TEMPLATES } from "./worldTemplates";
@@ -240,10 +239,10 @@ function prepareInspirationSource(source: string): PreparedInspirationSource {
   const chunks = splitInspirationTextIntoChunks(normalized);
   const selectedIndexes = pickRepresentativeChunkIndexes(chunks);
   const excerptLines = selectedIndexes
-    .map((index) => `[片段 ${index + 1}/${chunks.length}] ${compactInspirationExcerpt(chunks[index])}`);
+    .map((index) => `[Excerpt ${index + 1}/${chunks.length}] ${compactInspirationExcerpt(chunks[index])}`);
 
   const digest = [
-    `Source length:${normalized.length} characters; chunks:${chunks.length}; excerpts selected:${selectedIndexes.length}。`,
+    `Source length: ${normalized.length} characters; chunks: ${chunks.length}; excerpts selected: ${selectedIndexes.length}.`,
     ...excerptLines,
   ].join("\n");
 
@@ -255,58 +254,11 @@ function prepareInspirationSource(source: string): PreparedInspirationSource {
   };
 }
 
-function needsChineseConceptTranslation(card: InspirationConceptCard): boolean {
-  const content = [
-    card.worldType,
-    card.tone,
-    card.summary,
-    ...card.coreImagery,
-    ...card.keywords,
-  ].join(" ");
-  const latinCount = (content.match(/[A-Za-z]/g) ?? []).length;
-  const cjkCount = (content.match(/[\u4E00-\u9FFF]/g) ?? []).length;
-  return latinCount >= 12 && cjkCount < latinCount;
-}
-
 async function translateConceptCardToChinese(
-  options: { provider?: LLMProvider; model?: string },
+  _options: { provider?: LLMProvider; model?: string },
   conceptCard: InspirationConceptCard,
 ): Promise<InspirationConceptCard> {
-  if (!needsChineseConceptTranslation(conceptCard)) {
-    return conceptCard;
-  }
-
-  try {
-    const result = await runStructuredPrompt({
-      asset: worldInspirationConceptCardLocalizationPrompt,
-      promptInput: {
-        conceptCardJson: JSON.stringify(conceptCard),
-      },
-      options: {
-        provider: options.provider ?? "deepseek",
-        model: options.model,
-        temperature: 0.2,
-      },
-    });
-    const parsed = result.output as Partial<InspirationConceptCard>;
-    const translatedCoreImagery = Array.isArray(parsed.coreImagery)
-      ? parsed.coreImagery.map((item) => String(item).trim()).filter(Boolean)
-      : conceptCard.coreImagery;
-    const translatedKeywords = Array.isArray(parsed.keywords)
-      ? parsed.keywords.map((item) => String(item).trim()).filter(Boolean)
-      : conceptCard.keywords;
-
-    return {
-      worldType: parsed.worldType?.trim() || conceptCard.worldType,
-      templateKey: parsed.templateKey ? getTemplateByKey(parsed.templateKey).key : conceptCard.templateKey,
-      coreImagery: translatedCoreImagery,
-      tone: parsed.tone?.trim() || conceptCard.tone,
-      keywords: translatedKeywords,
-      summary: parsed.summary?.trim() || conceptCard.summary,
-    };
-  } catch {
-    return conceptCard;
-  }
+  return conceptCard;
 }
 
 export async function analyzeWorldInspiration(
@@ -338,7 +290,7 @@ export async function analyzeWorldInspiration(
       coreImagery: pickedImagery,
       tone: Math.random() > 0.5 ? "Grim epic" : "Adventure epic",
       keywords: pickedImagery,
-      summary: `This is a ${randomTemplate.name} world whose core imagery is ${pickedImagery.join("、")}, with a distinctive overall feel and ample dramatic tension.`,
+      summary: `This is a ${randomTemplate.name} world whose core imagery is ${pickedImagery.join(", ")}, with a distinctive overall feel and ample dramatic tension.`,
     };
     inspirationSource = seededConceptCard.summary;
     seededPreparedSource = {

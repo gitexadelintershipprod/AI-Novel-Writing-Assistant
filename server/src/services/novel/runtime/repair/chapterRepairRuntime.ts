@@ -100,12 +100,12 @@ function resolveIssueCodes(runtimePackage: ChapterRuntimePackage | null | undefi
 }
 
 /**
- * 构建修复 prompt 所用的结构化 issuesJson。
+ * Build the structured issuesJson used by the repair prompt.
  *
- * Root A 修复：在 ReviewIssue 列表之外，额外透传：
- *  - missingObligations：本章未兑现的义务（kind/summary/evidence），修复器可据此定向补写
- *  - blockingIssueCodes：审计层给出的精确 code（如 OBLIGATION_UNMET / LENGTH_OVER_HARD_MAX），
- *    避免修复器只看压扁文本猜问题类型
+ * Root A fix: besides the ReviewIssue list, also pass through:
+ *  - missingObligations: unpaid obligations for this chapter (kind/summary/evidence) so the repairer can patch them directly
+ *  - blockingIssueCodes: exact codes from the audit layer (for example OBLIGATION_UNMET / LENGTH_OVER_HARD_MAX),
+ *    so the repairer does not have to guess the issue type from flattened text
  */
 function buildRepairIssuesPayload(
   issues: ReviewIssue[],
@@ -162,30 +162,30 @@ function buildRepairRagContext(input: {
   }
   const fragments = [
     writeContext.previousChapterTail
-      ? `上一章尾段：${writeContext.previousChapterTail}`
+      ? `Previous chapter ending:\n${writeContext.previousChapterTail}`
       : "",
     writeContext.recentChapterSummaries?.length
       ? `Recent chapter summaries:\n${writeContext.recentChapterSummaries.slice(0, 3).map((item) => `- ${item}`).join("\n")}`
       : "",
     writeContext.openConflictSummaries?.length
-      ? `待回收冲突：\n${writeContext.openConflictSummaries.slice(0, 5).map((item) => `- ${item}`).join("\n")}`
+      ? `Open conflicts still to recover:\n${writeContext.openConflictSummaries.slice(0, 5).map((item) => `- ${item}`).join("\n")}`
       : "",
     writeContext.characterHardFacts?.length
       ? `character hard facts：\n${writeContext.characterHardFacts.slice(0, 6).map((item) => [
           item.name,
-          item.currentState ? `状态=${item.currentState}` : "",
-          item.currentGoal ? `目标=${item.currentGoal}` : "",
-          item.currentLocation ? `位置=${item.currentLocation}` : "",
-          item.prohibitions?.length ? `禁止=${item.prohibitions.join(" / ")}` : "",
+          item.currentState ? `state=${item.currentState}` : "",
+          item.currentGoal ? `goal=${item.currentGoal}` : "",
+          item.currentLocation ? `location=${item.currentLocation}` : "",
+          item.prohibitions?.length ? `forbidden=${item.prohibitions.join(" / ")}` : "",
         ].filter(Boolean).join(" | ")).join("\n")}`
       : "",
     writeContext.characterResourceContext
       ? [
-          "资源事实：",
-          ...writeContext.characterResourceContext.availableItems.slice(0, 4).map((item) => `- 可用：${item.name} / ${item.summary}`),
-          ...writeContext.characterResourceContext.blockedItems.slice(0, 4).map((item) => `- 不可直接使用：${item.name} / ${item.status} / ${item.summary}`),
-          ...writeContext.characterResourceContext.highRiskCommittedItems.slice(0, 3).map((item) => `- High risk has been accounted for：${item.name} / ${item.summary}`),
-          ...writeContext.characterResourceContext.pendingProposalItems.slice(0, 3).map((item) => `- 未确认变更：${item.summary}；确认前不要写成已发生事实`),
+          "Resource facts:",
+          ...writeContext.characterResourceContext.availableItems.slice(0, 4).map((item) => `- available: ${item.name} / ${item.summary}`),
+          ...writeContext.characterResourceContext.blockedItems.slice(0, 4).map((item) => `- not directly usable: ${item.name} / ${item.status} / ${item.summary}`),
+          ...writeContext.characterResourceContext.highRiskCommittedItems.slice(0, 3).map((item) => `- High risk has been accounted for: ${item.name} / ${item.summary}`),
+          ...writeContext.characterResourceContext.pendingProposalItems.slice(0, 3).map((item) => `- unconfirmed change: ${item.summary}; do not write it as an already-happened fact before confirmation`),
         ].join("\n")
       : "",
   ].filter((item) => item.trim().length > 0);
@@ -358,8 +358,8 @@ function buildRepairBibleFallback(runtimePackage: ChapterRuntimePackage | null |
     context.bookContract?.sellingPoint ? `Core selling points:${context.bookContract.sellingPoint}` : "",
     context.bookContract?.first30ChapterPromise ? `The first 30 chapters promise:${context.bookContract.first30ChapterPromise}` : "",
     context.macroConstraints?.coreConflict ? `Core conflict:${context.macroConstraints.coreConflict}` : "",
-    context.macroConstraints?.progressionLoop ? `Propulsion circuit：${context.macroConstraints.progressionLoop}` : "",
-    context.volumeWindow?.missionSummary ? `当前卷使命：${context.volumeWindow.missionSummary}` : "",
+    context.macroConstraints?.progressionLoop ? `Propulsion circuit: ${context.macroConstraints.progressionLoop}` : "",
+    context.volumeWindow?.missionSummary ? `Current volume mission: ${context.volumeWindow.missionSummary}` : "",
   ].filter(Boolean);
   return fragments.join("\n") || "none";
 }
@@ -372,22 +372,22 @@ export function getRepairModeHint(
     return "compress_chapter_for_length: Compress repeated wording, explanation, and empty turns across the chapter, while keeping the core advance and ending pressure.";
   }
   if (issueCodes.includes("LENGTH_OVER_SOFT_MAX")) {
-    return "compress_tail_for_length：优先回收尾段冗余展开，保留结尾 hook 和关键冲突。";
+    return "compress_tail_for_length: Prefer trimming redundant tail expansion while keeping the ending hook and key conflict.";
   }
   if (issueCodes.includes("LENGTH_UNDER_SOFT_MIN")) {
-    return "extend_for_length：只补最后的义务场景或结尾 hook，增加有效推进，不要回顾性凑字数。";
+    return "extend_for_length: Only add the last owed scene or ending hook. Increase real advance; do not pad with recap.";
   }
   switch (repairMode) {
     case "continuity_only":
-      return "优先修连续性、时间线和事件承接，不做大幅风格重写。";
+      return "Prefer repairing continuity, timeline, and event handoff. Do not do a large style rewrite.";
     case "character_only":
-      return "优先修人物言行一致性、动机和关系表现，不改变主线任务。";
+      return "Prefer repairing character speech, motive, and relationship behavior. Do not change the spine task.";
     case "ending_only":
-      return "优先修章节收束、钩子和结尾决断感，让章节尾部更有拉力。";
+      return "Prefer repairing chapter closure, hooks, and ending decisiveness so the tail has more pull.";
     case "heavy_repair":
-      return "允许较大幅度重写句段，只要剧情方向不变即可。";
+      return "Larger sentence-level rewrites are allowed as long as the plot direction stays the same.";
     case "light_repair":
     default:
-      return "以轻修为主，优先保持原有内容框架和事件顺序。";
+      return "Prefer light repair. Keep the existing content frame and event order first.";
   }
 }

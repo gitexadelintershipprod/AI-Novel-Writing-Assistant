@@ -132,8 +132,8 @@ export async function runDirectorCharacterSetupPhase(input: {
       "character_setup",
       "character_cast_apply",
       targetOption.status === "applied"
-        ? `复用可直接使用的Cast of characters「${targetOption.title}」`
-        : `复用候选Cast of characters「${targetOption.title}」`,
+        ? `Reuse the ready-to-apply character cast “${targetOption.title}”`
+        : `Reuse the candidate character cast “${targetOption.title}”`,
       DIRECTOR_PROGRESS.characterSetupReady,
     );
   }
@@ -178,7 +178,7 @@ export async function runDirectorCharacterSetupPhase(input: {
     taskId,
     stage: "character_setup",
     itemKey: "character_cast_apply",
-    itemLabel: `ApplyingCast of characters「${targetOption.title}」`,
+    itemLabel: `Applying cast of characters “${targetOption.title}”`,
     progress: DIRECTOR_PROGRESS.characterSetupReady,
     callbacks,
     run: async () => {
@@ -381,7 +381,7 @@ export async function runDirectorVolumeStrategyPhase(input: {
     stage: "volume_strategy",
     checkpointType: "volume_strategy_ready",
     checkpointSummary: `Volume strategy and skeleton generated, ${persistedStrategyWorkspace.volumes.length} volume(s). Confirm them before continuing Volume 1 beats and chapter split.`,
-    itemLabel: "Waiting for reviewVolume strategy / skeleton",
+    itemLabel: "Waiting for review: volume strategy / skeleton",
     progress: DIRECTOR_PROGRESS.volumeStrategyReady,
     seedPayload: callbacks.buildDirectorSeedPayload(request, novelId, {
       directorSession: pausedSession,

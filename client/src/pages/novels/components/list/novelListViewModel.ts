@@ -194,7 +194,7 @@ export function getPrimaryActionLabel(novel: NovelListItem): string {
   }
   const task = getNovelWorkflowTask(novel);
   if (canContinueChapterBatchAutoExecution(task)) {
-    return task?.resumeAction ?? `Continue automatic execution${task?.executionScopeLabel ?? "Current chapter scope"}`;
+    return task?.resumeAction ?? `Continue automatic execution of ${task?.executionScopeLabel ?? "the current chapter range"}`;
   }
   if (canContinueDirector(task)) {
     return task?.resumeAction ?? "continue directing";

@@ -28,7 +28,7 @@ function buildVolumeOutline(input: Array<{
         ? `${volume.chapters[0]?.chapterOrder ?? "-"}-${volume.chapters[volume.chapters.length - 1]?.chapterOrder ?? "-"}`
         : "Unopened";
       return [
-        `[Chapter ${volume.sortOrder}Volume ]${volume.title}`,
+        `[Volume ${volume.sortOrder}] ${volume.title}`,
         volume.summary ? `Volume Summary: ${volume.summary}` : "",
         volume.mainPromise ? `Main promise: ${volume.mainPromise}` : "",
         volume.climax ? `Volume climax: ${volume.climax}` : "",
@@ -51,13 +51,13 @@ function buildBookFramingText(input: {
 }): string {
   return [
     buildBlockContent("Theme base", input.genreName ?? "None"),
-    buildBlockContent("target audience", input.targetAudience ?? "None"),
-    buildBlockContent("core selling point", input.bookSellingPoint ?? "None"),
+    buildBlockContent("Target audience", input.targetAudience ?? "None"),
+    buildBlockContent("Core selling point", input.bookSellingPoint ?? "None"),
     buildBlockContent("Comparable-work impression", input.competingFeel ?? "None"),
     buildBlockContent("First-30-chapter promise", input.first30ChapterPromise ?? "None"),
-    buildBlockContent("narrative perspective", input.narrativePov ?? "None"),
-    buildBlockContent("rhythm preference", input.pacePreference ?? "None"),
-    buildBlockContent("emotional intensity", input.emotionIntensity ?? "None"),
+    buildBlockContent("Narrative perspective", input.narrativePov ?? "None"),
+    buildBlockContent("Rhythm preference", input.pacePreference ?? "None"),
+    buildBlockContent("Emotional intensity", input.emotionIntensity ?? "None"),
     buildBlockContent("Tone guardrail", input.styleTone ?? "None"),
   ].join("\n");
 }

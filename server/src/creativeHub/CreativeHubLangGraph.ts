@@ -270,7 +270,7 @@ export class CreativeHubLangGraph {
 
   private async toolExecuteNode(state: CreativeHubGraphStateValue) {
     if (!state.runId || !state.plannerResult) {
-      throw new Error("creative center图缺少 runId 或 plannerResult。");
+      throw new Error("Creative Hub graph is missing runId or plannerResult.");
     }
 
     const interrupts: CreativeHubInterrupt[] = [];
@@ -330,7 +330,7 @@ export class CreativeHubLangGraph {
 
     const { allowedActions, blockedTools } = filterCreativeHubActions(state.plannerResult.actions);
     if (blockedTools.length > 0) {
-      const warning = `creative center只提供查询、诊断和引导；以下写入或执行操作请从正式Novel workbench或Auto-Director入口发起：${blockedTools.join("、")}`;
+      const warning = `Creative Hub only provides query, diagnosis, and guidance. Start these write or execute operations from the official novel workbench or Auto-Director: ${blockedTools.join(", ")}`;
       this.emitFrame(state, {
         event: "metadata",
         data: { governance: { blockedTools, warning } },

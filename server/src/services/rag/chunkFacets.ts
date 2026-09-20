@@ -59,7 +59,7 @@ export function hasRagFacets(facets?: RagChunkFacets): boolean {
   return Object.values(facets ?? {}).some((values) => Array.isArray(values) && values.length > 0);
 }
 
-const CHAPTER_HEADER_RE = /第\s*([一二三四五六七八九十百千零〇\d]{1,8})\s*章/g;
+const CHAPTER_HEADER_RE = /(?:第\s*([一二三四五六七八九十百千零〇\d]{1,8})\s*章|\bchapter\s+(\d+)|\bch\.?\s+(\d+))/gi;
 const CJK_NUM_MAP: Record<string, number> = {
   零: 0, 〇: 0, 一: 1, 二: 2, 三: 3, 四: 4, 五: 5, 六: 6, 七: 7, 八: 8, 九: 9,
   十: 10, 百: 100, 千: 1000,
@@ -94,7 +94,8 @@ export function extractChapterAnchorFromChunk(text: string): string[] {
   const found = new Set<string>();
   const matches = text.matchAll(CHAPTER_HEADER_RE);
   for (const match of matches) {
-    const num = parseCjkOrArabic(match[1]);
+    const raw = match[1] ?? match[2] ?? match[3];
+    const num = raw ? parseCjkOrArabic(raw) : null;
     if (num !== null) {
       found.add(String(num - 1));
     }

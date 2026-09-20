@@ -1,6 +1,6 @@
 /**
- * Director 子系统门面：聚合对外最常用的服务类，路由与 worker 可由此单点导入，
- * 减少对目录内数十个文件的直接耦合。
+ * Director subsystem facade: aggregates the most commonly used service classes so routes and workers can import from one place
+ * instead of coupling directly to dozens of files in this directory.
  */
 export { DirectorCommandService } from "../commands/DirectorCommandService";
 export { DirectorCommandExecutor } from "../commands/DirectorCommandExecutor";

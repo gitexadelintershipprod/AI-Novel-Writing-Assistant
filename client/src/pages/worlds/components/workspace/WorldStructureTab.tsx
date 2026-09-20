@@ -190,7 +190,7 @@ export default function WorldStructureTab(props: {
             placeholder="core conflict"
           />
           <Input
-            value={draftStructure.profile.themes.join("、")}
+            value={draftStructure.profile.themes.join(", ")}
             onChange={(event) =>
               setDraftStructure((prev) =>
                 prev

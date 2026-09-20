@@ -77,7 +77,7 @@ export const getBookAnalysisFailureReasonOutputSchema = z.object({
 export const auditChapterContinuityInputSchema = z.object({
   novelId: toolRequiredIdSchema,
   startOrder: z.number().int().min(1).optional().describe("Starting chapter number, default 1"),
-  endOrder: z.number().int().min(1).optional().describe("end chapter序号，默认小说最后一章"),
+  endOrder: z.number().int().min(1).optional().describe("Ending chapter number; defaults to the novel's last chapter"),
 });
 
 export const continuityMilestoneBreakSchema = z.object({
@@ -109,12 +109,12 @@ export const auditChapterContinuityOutputSchema = z.object({
   recommendation: toolSummarySchema,
 });
 
-// ─── analyze_quality_debt_attribution ─────────────────────────���─────────────
+// analyze_quality_debt_attribution
 
 export const analyzeQualityDebtAttributionInputSchema = z.object({
   novelId: toolRequiredIdSchema,
   startOrder: z.number().int().min(1).optional().describe("Starting chapter number, default 1"),
-  endOrder: z.number().int().min(1).optional().describe("end chapter序号，默认全部"),
+  endOrder: z.number().int().min(1).optional().describe("Ending chapter number; defaults to all chapters"),
 });
 
 export const qualityDebtChapterAttributionSchema = z.object({
@@ -129,7 +129,7 @@ export const qualityDebtChapterAttributionSchema = z.object({
   planMisaligned: z.boolean(),
   lengthVsContentDrift: z.boolean(),
   missingObligationKinds: z.array(z.string()),
-  /** 推断的主要根因标签 */
+  /** Inferred primary root-cause label */
   primaryRootCause: z.enum(["A", "B", "D", "E", "unknown"]),
 });
 
@@ -139,28 +139,28 @@ export const analyzeQualityDebtAttributionOutputSchema = z.object({
   novelId: z.string(),
   checkedRange: z.string(),
   totalDeferredChapters: toolCountSchema,
-  /** 有归因数据的章节数（无归因 = 旧数据，修复前生成） */
+  /** Chapters with attribution data (no attribution = legacy data generated before the fix) */
   attributedChapters: toolCountSchema,
-  /** 根因占比（0~1，仅计有归因章节） */
+  /** Root-cause share (0–1; attributed chapters only) */
   rootCauseRatios: z.object({
     A: z.number().describe("Open-loop repair: the same obligation failed repeatedly"),
-    B: z.number().describe("patch 锚点失配"),
-    D: z.number().describe("义务不可达 / 计划错位"),
-    E: z.number().describe("签名漂移：length→content"),
+    B: z.number().describe("Patch-anchor mismatch"),
+    D: z.number().describe("Unreachable obligation / plan misalignment"),
+    E: z.number().describe("Signature drift: length → content"),
     unknown: z.number().describe("Cannot attribute"),
   }),
-  /** 最常见失败 issue code TOP5 */
+  /** Top 5 most common failed issue codes */
   topFailureIssueCodes: z.array(z.object({
     code: z.string(),
     count: toolCountSchema,
   })),
-  /** 最常见缺失义务种类 TOP3 */
+  /** Top 3 most common missing obligation kinds */
   topMissingObligationKinds: z.array(z.object({
     kind: z.string(),
     count: toolCountSchema,
   })),
-  /** 每个 deferred 章节的归因明细 */
+  /** Attribution details for each deferred chapter */
   chapters: z.array(qualityDebtChapterAttributionSchema),
-  /** 决策建议 */
+  /** Decision recommendation */
   recommendation: toolSummarySchema,
 });

@@ -11,7 +11,7 @@ test("director takeover adapter exposes the takeover runtime contract", () => {
 
   assert.equal(adapter, DIRECTOR_TAKEOVER_NODE_ADAPTER);
   assert.equal(adapter.nodeKey, "takeover_execution");
-  assert.equal(adapter.label, "执行 AI 自动导演接管");
+  assert.equal(adapter.label, "Run Auto-Director takeover");
   assert.equal(adapter.targetType, "global");
   assert.deepEqual(adapter.reads, ["workspace_inventory", "takeover_plan", "runtime_policy"]);
   assert.deepEqual(adapter.writes, ["workflow_task", "director_runtime"]);

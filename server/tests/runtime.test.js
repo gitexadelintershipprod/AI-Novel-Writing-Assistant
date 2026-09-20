@@ -37,7 +37,7 @@ test("summarizeOutput handles chapter range summary", () => {
     startOrder: 1,
     endOrder: 3,
   });
-  assert.equal(text, "已总结第1到第3章。");
+  assert.equal(text, "Summarized chapters 1–3.");
 });
 
 test("buildCreativeHubTurnSummary skips pure setup chat turns without tool results", () => {
@@ -152,8 +152,8 @@ test("composeAssistantMessage returns a light greeting for social openings", asy
     },
   );
 
-  assert.match(text, /你好/);
-  assert.doesNotMatch(text, /先不把它当成命令执行/);
+  assert.match(text, /Hi\. I can help polish setup/);
+  assert.doesNotMatch(text, /don't treat it as a command/i);
 });
 
 test("composeAssistantMessage summarizes produce_novel before queue approval", async () => {
@@ -246,8 +246,8 @@ test("composeAssistantMessage summarizes produce_novel before queue approval", a
       chapterSelectors: {},
     },
   );
-  assert.match(text, /核心资产已生成完成/);
-  assert.match(text, /等待审批/);
+  assert.match(text, /Core assets for/);
+  assert.match(text, /Waiting for approval/);
 });
 
 test("composeAssistantMessage summarizes production status query", async () => {
@@ -295,8 +295,8 @@ test("composeAssistantMessage summarizes production status query", async () => {
     },
   );
   assert.match(text, /章节正文写作中/);
-  assert.match(text, /规划：6\/6 项/);
-  assert.match(text, /正文：8\/20 章/);
+  assert.match(text, /Planning: 6\/6 items/);
+  assert.match(text, /Chapter text: 8\/20 chapters/);
   assert.match(text, /继续从第 9 章推进正文/);
 });
 
@@ -344,11 +344,11 @@ test("composeAssistantMessage summarizes generic progress from production status
       chapterSelectors: {},
     },
   );
-  assert.match(text, /事实进展：质量修复待处理/);
-  assert.match(text, /正文：8\/20 章/);
-  assert.match(text, /2 章待修复/);
-  assert.match(text, /后台补充：后台任务失败/);
-  assert.match(text, /已产出的事实内容可继续使用/);
+  assert.match(text, /fact progress: 质量修复待处理/);
+  assert.match(text, /Chapter text: 8\/20 chapters/);
+  assert.match(text, /2 chapters waiting for repair/);
+  assert.match(text, /Background: 后台任务失败/);
+  assert.match(text, /Facts already produced can still be used/);
 });
 
 test("composeAssistantMessage does not turn novel overview queries into collaborative followups", async () => {
@@ -450,8 +450,8 @@ test("composeAssistantMessage asks a warm kickoff question when create_novel lac
       },
     );
     assert.equal(text, "当然可以。你想先给这本书起个暂定名字，还是先告诉我你更想写什么类型、谁来当主角？");
-    assert.match(captured[0].at(-1).content, /当前还没有创建成功的小说/);
-    assert.match(captured[0].at(-1).content, /用户还没有明确标题/);
+    assert.match(captured[0].at(-1).content, /No novel has been created yet/);
+    assert.match(captured[0].at(-1).content, /has not given a clear title/);
   } finally {
     setNovelSetupGuidanceLLMFactoryForTests();
   }
@@ -509,8 +509,8 @@ test("composeAssistantMessage guides setup after create_novel", async () => {
       },
     );
     assert.equal(text, "《风雪断桥》已经开好了，我们先把故事抓手定稳一点。你更想先聊主角是谁、他卡在什么冲突里，还是我先给你几种题材方向做选择？");
-    assert.match(captured[0].at(-1).content, /题材与风格、叙事配置、世界观基础/);
-    assert.match(captured[0].at(-1).content, /系统建议提问：这本书想讲谁、遇到什么冲突、最后要把故事推向哪里？/);
+    assert.match(captured[0].at(-1).content, /题材与风格, 叙事配置, 世界观基础/);
+    assert.match(captured[0].at(-1).content, /Recommended question: 这本书想讲谁、遇到什么冲突、最后要把故事推向哪里？/);
   } finally {
     setNovelSetupGuidanceLLMFactoryForTests();
   }

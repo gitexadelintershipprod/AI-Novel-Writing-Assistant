@@ -92,7 +92,7 @@ export const explainWorldConflictOutputSchema = z.object({
 
 export const rebuildStoryWorldSliceInputSchema = z.object({
   novelId: toolRequiredIdSchema,
-  storyInput: z.string().trim().optional().describe("用于重建切片的Story background摘要，留空则使用小说描述"),
+  storyInput: z.string().trim().optional().describe("Story-background summary used to rebuild the slice; leave empty to use the novel description"),
 });
 
 export const rebuildStoryWorldSliceOutputSchema = z.object({

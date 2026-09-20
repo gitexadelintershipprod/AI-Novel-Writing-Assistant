@@ -78,26 +78,26 @@ function mapPurposeToBuilderMode(purpose: WorldContextPurpose): StoryWorldSliceB
 function formatRule(rule: StoryWorldSlice["appliedRules"][number]): string {
   return [
     rule.name,
-    rule.summary ? `说明：${rule.summary}` : "",
-    rule.whyItMatters ? `影响：${rule.whyItMatters}` : "",
+    rule.summary ? `Note: ${rule.summary}` : "",
+    rule.whyItMatters ? `Impact: ${rule.whyItMatters}` : "",
   ].filter(Boolean).join(" | ");
 }
 
 function formatForce(force: StoryWorldSlice["activeForces"][number]): string {
   return [
     force.name,
-    force.roleInStory ? `本书作用：${force.roleInStory}` : "",
-    force.pressure ? `Pressure tactics:${force.pressure}` : "",
-    force.summary ? `概述：${force.summary}` : "",
+    force.roleInStory ? `Role in this book: ${force.roleInStory}` : "",
+    force.pressure ? `Pressure tactics: ${force.pressure}` : "",
+    force.summary ? `Summary: ${force.summary}` : "",
   ].filter(Boolean).join(" | ");
 }
 
 function formatLocation(location: StoryWorldSlice["activeLocations"][number]): string {
   return [
     location.name,
-    location.storyUse ? `剧情用途：${location.storyUse}` : "",
-    location.risk ? `风险：${location.risk}` : "",
-    location.summary ? `概述：${location.summary}` : "",
+    location.storyUse ? `Story use: ${location.storyUse}` : "",
+    location.risk ? `Risk: ${location.risk}` : "",
+    location.summary ? `Summary: ${location.summary}` : "",
   ].filter(Boolean).join(" | ");
 }
 
@@ -140,34 +140,34 @@ export function buildWorldContextBlockFromSlice(input: {
   }));
 
   const worldRulesText = [
-    slice.coreWorldFrame ? `world background：${slice.coreWorldFrame}` : "",
+    slice.coreWorldFrame ? `World background: ${slice.coreWorldFrame}` : "",
     hardRules.length > 0 ? `Hard rules:\n${compactList(hardRules)}` : "",
     slice.forbiddenCombinations.length > 0
-      ? `禁止搭配：\n${compactList(slice.forbiddenCombinations)}`
+      ? `Forbidden pairings:\n${compactList(slice.forbiddenCombinations)}`
       : "",
-    slice.storyScopeBoundary ? `本书边界：${slice.storyScopeBoundary}` : "",
+    slice.storyScopeBoundary ? `Book boundary: ${slice.storyScopeBoundary}` : "",
   ].filter(Boolean).join("\n\n");
 
   const worldStageText = [
-    slice.coreWorldFrame ? `核心舞台：${slice.coreWorldFrame}` : "",
+    slice.coreWorldFrame ? `Core stage: ${slice.coreWorldFrame}` : "",
     slice.activeForces.length > 0
-      ? `Active forces：\n${slice.activeForces.map((force: StoryWorldSliceForce) => `- ${formatForce(force)}`).join("\n")}`
+      ? `Active forces:\n${slice.activeForces.map((force: StoryWorldSliceForce) => `- ${formatForce(force)}`).join("\n")}`
       : "",
     slice.activeLocations.length > 0
-      ? `本书舞台：\n${slice.activeLocations.map((location: StoryWorldSliceLocation) => `- ${formatLocation(location)}`).join("\n")}`
+      ? `This book's stage:\n${slice.activeLocations.map((location: StoryWorldSliceLocation) => `- ${formatLocation(location)}`).join("\n")}`
       : "",
-    slice.pressureSources.length > 0 ? `source of stress：\n${compactList(slice.pressureSources)}` : "",
-    slice.conflictCandidates.length > 0 ? `可展开冲突：\n${compactList(slice.conflictCandidates)}` : "",
-    slice.recommendedEntryPoints.length > 0 ? `适合切入口：\n${compactList(slice.recommendedEntryPoints)}` : "",
+    slice.pressureSources.length > 0 ? `Pressure sources:\n${compactList(slice.pressureSources)}` : "",
+    slice.conflictCandidates.length > 0 ? `Conflicts that can open:\n${compactList(slice.conflictCandidates)}` : "",
+    slice.recommendedEntryPoints.length > 0 ? `Recommended entries:\n${compactList(slice.recommendedEntryPoints)}` : "",
   ].filter(Boolean).join("\n\n");
 
   const promptBlock = [
-    `【book world上下文｜用途：${purpose}｜强度：${strength}】`,
+    `[Book-world context | purpose: ${purpose} | strength: ${strength}]`,
     buildPurposeLead(purpose),
     worldRulesText,
     worldStageText,
-    slice.mysterySources.length > 0 ? `悬念来源：\n${compactList(slice.mysterySources)}` : "",
-    slice.suggestedStoryAxes.length > 0 ? `故事轴建议：\n${compactList(slice.suggestedStoryAxes)}` : "",
+    slice.mysterySources.length > 0 ? `Mystery sources:\n${compactList(slice.mysterySources)}` : "",
+    slice.suggestedStoryAxes.length > 0 ? `Suggested story axes:\n${compactList(slice.suggestedStoryAxes)}` : "",
   ].filter(Boolean).join("\n\n");
 
   return {

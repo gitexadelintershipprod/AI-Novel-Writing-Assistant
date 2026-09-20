@@ -215,19 +215,19 @@ export class PayoffLedgerSyncService {
       ? [
           `Current volume:Volume ${activeVolume.sortOrder}"${activeVolume.title}"`,
           `Volume summary:${compactText(activeVolume.summary)}`,
-          `卷 open payoffs：${safeParseJson<string[]>(activeVolume.openPayoffsJson, []).join("；") || "无"}`,
+          `Volume open payoffs: ${safeParseJson<string[]>(activeVolume.openPayoffsJson, []).join("; ") || "none"}`,
           activeVolume.chapters.length > 0
-            ? `卷Chapter scope:${activeVolume.chapters[0]?.chapterOrder ?? "-"}-${activeVolume.chapters[activeVolume.chapters.length - 1]?.chapterOrder ?? "-"}`
-            : "卷Chapter scope:无",
+            ? `Volume chapter scope: ${activeVolume.chapters[0]?.chapterOrder ?? "-"}-${activeVolume.chapters[activeVolume.chapters.length - 1]?.chapterOrder ?? "-"}`
+            : "Volume chapter scope: none",
         ].join("\n")
       : `There is no active volume window.${volumeRows.length > 0 ? ` Existing volumes: ${volumeRows.map((item) => `Volume ${item.sortOrder} "${item.title}"`).join("; ")}` : ""}`;
 
     const latestChapterContext = [
-      typeof chapterOrder === "number" ? `Current chapter number:Chapter ${chapterOrder}` : "Current chapter number:未知",
+      typeof chapterOrder === "number" ? `Current chapter number:Chapter ${chapterOrder}` : "Current chapter number: unknown",
       snapshot?.sourceChapter
-        ? `最新status snapshot来源：Chapter ${snapshot.sourceChapter.order}《${snapshot.sourceChapter.title}》`
-        : "最新status snapshot来源：无",
-      snapshot?.summary ? `status snapshot摘要：${snapshot.summary}` : "",
+        ? `Latest status-snapshot source: Chapter ${snapshot.sourceChapter.order} "${snapshot.sourceChapter.title}"`
+        : "Latest status-snapshot source: none",
+      snapshot?.summary ? `Status-snapshot summary: ${snapshot.summary}` : "",
     ].filter(Boolean).join("\n");
 
     const openPayoffsText = volumeRows.length > 0
@@ -236,7 +236,7 @@ export class PayoffLedgerSyncService {
           if (openPayoffs.length === 0) {
             return "";
           }
-          return `【Volume ${volume.sortOrder} ${volume.title}】 ${openPayoffs.map((item) => compactText(item, "无")).join("；")}`;
+          return `[Volume ${volume.sortOrder} ${volume.title}] ${openPayoffs.map((item) => compactText(item, "none")).join("; ")}`;
         }).filter(Boolean).join("\n\n") || "None"
       : "None";
 
@@ -245,17 +245,17 @@ export class PayoffLedgerSyncService {
       if (refs.length === 0) {
         return "";
       }
-      return `Chapter ${chapter.chapterOrder}《${chapter.title}》 | ${refs.map((item) => compactText(item, "无")).join("；")}`;
+      return `Chapter ${chapter.chapterOrder} "${chapter.title}" | ${refs.map((item) => compactText(item, "none")).join("; ")}`;
     })).filter(Boolean).join("\n\n") || "None";
 
     const foreshadowStatesText = snapshot?.foreshadowStates.length
       ? snapshot.foreshadowStates.map((item) => (
         [
-          `标题：${item.title}`,
-          `状态：${compactText(item.status)}`,
-          item.summary ? `摘要：${item.summary}` : "",
-          item.setupChapterId ? `setupChapterId：${item.setupChapterId}` : "",
-          item.payoffChapterId ? `payoffChapterId：${item.payoffChapterId}` : "",
+          `Title: ${item.title}`,
+          `Status: ${compactText(item.status)}`,
+          item.summary ? `Summary: ${item.summary}` : "",
+          item.setupChapterId ? `setupChapterId: ${item.setupChapterId}` : "",
+          item.payoffChapterId ? `payoffChapterId: ${item.payoffChapterId}` : "",
         ].filter(Boolean).join(" | ")
       )).join("\n")
       : "None";
@@ -264,7 +264,7 @@ export class PayoffLedgerSyncService {
       ? openConflicts.map((row) => {
           const conflict = normalizeConflict(row);
           return [
-            `${conflict.conflictType}/${conflict.severity}：${conflict.title}`,
+            `${conflict.conflictType}/${conflict.severity}: ${conflict.title}`,
             compactText(conflict.summary),
             conflict.resolutionHint ? `Repair suggestions:${compactText(conflict.resolutionHint)}` : "",
           ].filter(Boolean).join(" | ");
@@ -273,7 +273,7 @@ export class PayoffLedgerSyncService {
 
     const payoffAuditIssuesText = recentAuditReports.length > 0
       ? recentAuditReports.flatMap((report) => report.issues.map((issue) => (
-        `${issue.code} (${issue.severity})：${compactText(issue.description)} | 证据：${compactText(issue.evidence)}`
+        `${issue.code} (${issue.severity}): ${compactText(issue.description)} | evidence: ${compactText(issue.evidence)}`
       ))).join("\n") || "None"
       : "None";
 

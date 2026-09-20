@@ -177,7 +177,7 @@ export function formatCheckpoint(checkpoint: NovelWorkflowMilestoneType | null |
     return "Volume strategy is ready";
   }
   if (checkpoint === "chapter_batch_ready") {
-    return `${resolvedScopeLabel}Auto-run is paused`;
+    return `${resolvedScopeLabel} auto-run is paused`;
   }
   if (checkpoint === "step_review_required") {
     return "Current step to be checked";

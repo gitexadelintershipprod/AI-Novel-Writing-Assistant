@@ -82,16 +82,16 @@ test("buildWorldBlueprintPromptBlock includes reference context and selected cho
     }),
   });
 
-  assert.match(prompt, /用户勾选的生成维度：基础层、社会层、冲突层/);
-  assert.match(prompt, /选择方向：现实外壳下加入隐性规则/);
+  assert.match(prompt, /User-selected generation dimensions: base layer, social layer, conflict layer/);
+  assert.match(prompt, /Selected direction: 现实外壳下加入隐性规则/);
   assert.match(prompt, /只允许在租住网络背后增加隐性规则/);
-  assert.match(prompt, /参考作品处理方式：基于原作做架空改造/);
-  assert.match(prompt, /城市生活基底：原作的现实都市生活感与租住场景必须保留/);
-  assert.match(prompt, /必须保留：现实都市基底、成年人的情感拉扯/);
-  assert.match(prompt, /允许改造：势力网络、地点系统/);
-  assert.match(prompt, /禁止偏离：不要超凡化/);
-  assert.match(prompt, /直接沿用的原作规则：城市关系要受现实代价约束/);
-  assert.match(prompt, /直接沿用的原作阵营：现实求稳派/);
-  assert.match(prompt, /直接沿用的原作势力：乐圣公司/);
-  assert.match(prompt, /直接沿用的原作地点：老城区出租屋/);
+  assert.match(prompt, /Reference work handling: An overhead transformation based on the original work/);
+  assert.match(prompt, /城市生活基底: 原作的现实都市生活感与租住场景必须保留/);
+  assert.match(prompt, /Must be retained: 现实都市基底, 成年人的情感拉扯/);
+  assert.match(prompt, /Allowed changes: 势力网络, 地点系统/);
+  assert.match(prompt, /Must not deviate from: 不要超凡化/);
+  assert.match(prompt, /Original-work rules carried over directly: 城市关系要受现实代价约束/);
+  assert.match(prompt, /Original-work factions carried over directly: 现实求稳派/);
+  assert.match(prompt, /Original-work forces carried over directly: 乐圣公司/);
+  assert.match(prompt, /Original-work locations carried over directly: 老城区出租屋/);
 });

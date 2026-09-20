@@ -14,7 +14,7 @@ export class DramaRepairService {
     const quality = safeJsonParse<{ repairPlan?: { instruction?: string } }>(context.episode.qualityFlags, {});
     const repairInstruction = instruction?.trim()
       || quality.repairPlan?.instruction
-      || "Repair script中的钩子、卡点、时长、事实一致或角色一致问题，保留本集剧情目标。";
+      || "Repair hook, paywall-card, duration, fact-consistency, or character-consistency issues in the script. Keep this episode's plot goal.";
     const result = await runStructuredPrompt({
       asset: dramaRepairPrompt,
       promptInput: {

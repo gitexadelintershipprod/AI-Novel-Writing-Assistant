@@ -3,10 +3,10 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 
-// 低耦合守卫：services/drama 是独立 bounded context，
-// 禁止依赖 novel 领域（services/novel、modules/novel、相对 novel 路径）。
-// 与 novel 的唯一接触点 NovelSourceAdapter 仅通过 prisma（基础设施）只读访问，
-// 其 import 不应出现任何含 "novel" 的模块路径。
+// Low-coupling guard: services/drama is an independent bounded context.
+// It must not depend on the novel domain (services/novel, modules/novel, or relative novel paths).
+// The only contact with novel is NovelSourceAdapter, which reads through prisma (infra).
+// Imports must not include a "novel" module path.
 const DRAMA_SRC = path.join(__dirname, "..", "src", "services", "drama");
 
 function collectTsFiles(dir) {
@@ -22,13 +22,13 @@ function collectTsFiles(dir) {
   return out;
 }
 
-test("services/drama 不依赖 novel 领域（低耦合守卫）", () => {
+test("services/drama does not depend on the novel domain", () => {
   const files = collectTsFiles(DRAMA_SRC);
-  assert.ok(files.length > 0, "应能扫描到 drama 源文件");
+  assert.ok(files.length > 0, "should find drama source files");
 
   const importRe = /\bfrom\s+['"]([^'"]+)['"]/g;
-  // 只拦「novel 作为完整路径段」的 import（指向 novel 领域目录），
-  // 放行 drama 内部文件名含 novel 的情况（如 ./source/NovelSourceAdapter）。
+  // Block imports where "novel" is a full path segment (novel-domain directories).
+  // Allow drama-internal filenames that contain "novel" (e.g. ./source/NovelSourceAdapter).
   const novelSegmentRe = /(^|\/)novel(\/|$)/;
   const violations = [];
   for (const file of files) {
@@ -45,6 +45,6 @@ test("services/drama 不依赖 novel 领域（低耦合守卫）", () => {
   assert.deepEqual(
     violations,
     [],
-    `drama 模块禁止 import novel 领域（仅可经 prisma 只读）：\n${violations.join("\n")}`,
+    `drama must not import the novel domain (read-only prisma access only):\n${violations.join("\n")}`,
   );
 });

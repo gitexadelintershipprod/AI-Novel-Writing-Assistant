@@ -1,18 +1,19 @@
 /**
- * 改编内容源端口（Anti-Corruption Layer）
+ * Adaptation content-source port (Anti-Corruption Layer).
  *
- * drama 与 comic 共用此接口。每种内容源实现一个 adapter，
- * 统一产出 SourceBundle；上层改编引擎只面向此接口。
+ * Drama and comic share this interface. Each content source implements an adapter
+ * that produces a SourceBundle; upper adaptation engines only face this interface.
  *
- * loadChapterText：可选扩展——按章节区间取原文正文，
- * 供 comic 分格脚本生成时提取对白（novel_import 实现；其余源返回切片或空字符串）。
+ * loadChapterText: optional extension — fetch chapter source text by range,
+ * used when comic panel-script generation extracts dialogue (implemented for novel_import;
+ * other sources return a slice or an empty string).
  */
 import type { AdaptationSourceType, SourceBundle, SourceRef } from "../contracts/sourceBundle";
 
 export interface SourceContentPort {
   readonly sourceType: AdaptationSourceType;
   loadBundle(ref: SourceRef): Promise<SourceBundle>;
-  /** 按章节区间取原文正文（comic 分格对白的原文依据） */
+  /** Fetch chapter source text by range (source of comic panel dialogue). */
   loadChapterText?(ref: SourceRef, start: number, end: number): Promise<string>;
 }
 

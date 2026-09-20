@@ -105,7 +105,7 @@ function toOfficialView(input: {
   const officialTemplate = getOfficialPromptTemplate(input.promptId);
   const officialContextRefs = getOfficialPromptTemplateContextRefs(input.promptId);
   if (!officialTemplate || !officialContextRefs) {
-    throw new Error(`提示词不支持Advanced template：${input.promptId}`);
+    throw new Error(`This prompt does not support advanced templates: ${input.promptId}`);
   }
   return {
     promptId: input.promptId,
@@ -128,7 +128,7 @@ function assertAdvancedTemplatePrompt(promptId: string): UnknownPromptAsset {
     throw new Error(`Prompt word is not registered:${promptId}`);
   }
   if (!supportsAdvancedPromptTemplate(promptId) || !asset.management?.editModes.includes("advanced_template")) {
-    throw new Error("该提示词不支持Advanced template。");
+    throw new Error("This prompt does not support advanced templates.");
   }
   return asset;
 }
@@ -140,9 +140,9 @@ function allowedContextGroups(asset: UnknownPromptAsset): string[] {
 function formatDiagnosticsError(prefix: string, diagnostics: ReturnType<typeof assertPromptTemplateIsSavable>): Error {
   const details = [
     ...diagnostics.invalidMessages,
-    diagnostics.unknownTokens.length > 0 ? `未知 token：${diagnostics.unknownTokens.join("、")}` : "",
+    diagnostics.unknownTokens.length > 0 ? `Unknown token: ${diagnostics.unknownTokens.join(", ")}` : "",
   ].filter(Boolean);
-  return new Error(`${prefix}${details.length > 0 ? `：${details.join("；")}` : ""}`);
+  return new Error(`${prefix}${details.length > 0 ? `: ${details.join("; ")}` : ""}`);
 }
 
 export class PromptTemplateOverrideService {
@@ -387,7 +387,7 @@ export class PromptTemplateOverrideService {
     const contextRefs = getOfficialPromptTemplateContextRefs(input.promptId);
     const basePromptVersion = getOfficialPromptTemplateVersion(input.promptId);
     if (!template || !contextRefs || !basePromptVersion) {
-      throw new Error(`提示词不支持Advanced template：${input.promptId}`);
+      throw new Error(`This prompt does not support advanced templates: ${input.promptId}`);
     }
     return {
       template,

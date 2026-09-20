@@ -29,13 +29,13 @@ export class StyleGenerationService {
 
     const targetLength = input.targetLength ?? 1200;
     const prompt = input.mode === "rewrite"
-      ? `任务：请在不改变事件事实与顺序的前提下改写原文，使其符合当前写法。
+      ? `Task: Rewrite the source text to match the current writing style without changing the facts or their order.
 
-原文：
+Source text:
 ${input.sourceText ?? ""}`
-      : `任务：请围绕以下主题创作一段小说文本，控制在 ${targetLength} characters左右。
+      : `Task: Write a short novel passage on the following topic, about ${targetLength} characters long.
 
-主题：
+Topic:
 ${input.topic ?? ""}`;
 
     const result = await runTextPrompt({

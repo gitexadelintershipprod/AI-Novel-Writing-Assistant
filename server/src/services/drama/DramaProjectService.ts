@@ -1,11 +1,12 @@
 /**
- * 短剧项目服务（P0 骨架）
+ * Short-drama project service (P0 skeleton).
  *
- * 负责短剧项目的基础生命周期，以及通过防腐层把任意内容源装配为
- * 标准化内容包并落库（含角色资源导入 + 初始事实账本）。
+ * Owns the basic project lifecycle, and assembles any content source into a
+ * standard content bundle through the anti-corruption layer (including character
+ * import and the initial fact ledger).
  *
- * 低耦合：本文件只依赖 prisma（基础设施）与 drama 自有契约/端口，
- * 不 import 任何 services/novel/* 业务逻辑。
+ * Low coupling: this file depends only on prisma (infrastructure) and drama's own
+ * contracts/ports. It does not import any services/novel/* business logic.
  */
 import { prisma } from "../../db/prisma";
 import { sourceContentRegistry } from "./source/SourceContentPort";
@@ -21,12 +22,12 @@ sourceContentRegistry.register(textImportSourceAdapter);
 export interface CreateDramaProjectInput {
   title: string;
   source: DramaSourceType;
-  /** 软引用：novel_import 时为 novelId */
+  /** Soft reference: novelId when source is novel_import. */
   sourceRef?: string;
   track?: string;
   theme?: string;
   targetEpisodes?: number;
-  /** original / text_import 的原始输入（透传给 adapter） */
+  /** Raw input for original / text_import (passed through to the adapter). */
   inspiration?: string;
   rawText?: string;
 }
@@ -74,10 +75,10 @@ export class DramaProjectService {
   }
 
   /**
-   * 通过防腐层把内容源装配为标准化内容包，并落库：
-   * 1) DramaSourceBundle（梗概/节拍/设定/硬事实/原文）
-   * 2) DramaCharacter（Character resources导入）
-   * 3) DramaFact（初始事实账本，episodeOrder=0 表示源初始事实）
+   * Assemble a source into a standard content bundle through the anti-corruption layer and persist:
+   * 1) DramaSourceBundle (synopsis / beats / setting / hard facts / source text)
+   * 2) DramaCharacter (character-resource import)
+   * 3) DramaFact (initial fact ledger; episodeOrder=0 means source-initial facts)
    */
   async assembleSourceBundle(projectId: string): Promise<SourceBundle> {
     const project = await prisma.dramaProject.findUnique({ where: { id: projectId } });
@@ -114,7 +115,7 @@ export class DramaProjectService {
         },
       });
 
-      // Character resources导入（重置后重建，保证幂等）
+      // Import character resources (reset then rebuild so it stays idempotent).
       await tx.dramaCharacter.deleteMany({ where: { projectId } });
       if (bundle.characters.length > 0) {
         await tx.dramaCharacter.createMany({
@@ -131,7 +132,7 @@ export class DramaProjectService {
         });
       }
 
-      // 初始事实账本（episodeOrder=0 表示源带入的初始硬事实）
+      // Initial fact ledger (episodeOrder=0 means hard facts brought in from the source).
       await tx.dramaFact.deleteMany({ where: { projectId, episodeOrder: 0 } });
       if (bundle.hardFacts && bundle.hardFacts.length > 0) {
         await tx.dramaFact.createMany({
@@ -145,7 +146,7 @@ export class DramaProjectService {
         });
       }
 
-      // 内容包就绪后仅刷新 updatedAt；status 推进交给后续策略/分集阶段
+      // After the content bundle is ready, only refresh updatedAt; status advances in later strategy/outline stages.
       await tx.dramaProject.update({
         where: { id: projectId },
         data: { updatedAt: new Date() },

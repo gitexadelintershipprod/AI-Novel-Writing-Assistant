@@ -449,17 +449,17 @@ export function summarizeStructuredOutputFailure(input: {
   const category = input.error instanceof StructuredOutputError
     ? input.error.category
     : extractStructuredOutputErrorCategory(message) ?? classifyStructuredOutputFailure({ error: input.error });
-  const suffix = input.fallbackAvailable ? "，可考虑启用Structured fallback model。" : "。";
+  const suffix = input.fallbackAvailable ? " Consider enabling the structured fallback model." : "";
   const incompleteJsonSummary = input.fallbackAvailable
     ? "The model's JSON was truncated or incomplete, likely from a cutoff or token limit. Retry first, and switch to a stronger model or enable the structured fallback model if needed."
     : "The model's JSON was truncated or incomplete, likely from a cutoff or token limit. Retry first, and switch to a stronger model if needed.";
   const summaryMap: Record<StructuredOutputErrorCategory, string> = {
-    unsupported_native_json: `current model端点不兼容原生 JSON 输出${suffix}`,
-    thinking_pollution: `current model的思考内容污染了Structured output${suffix}`,
+    unsupported_native_json: `The current model endpoint is incompatible with native JSON output.${suffix}`,
+    thinking_pollution: `The current model's thinking content polluted the structured output.${suffix}`,
     incomplete_json: incompleteJsonSummary,
-    malformed_json: `模型输出的 JSON 格式不稳定${suffix}`,
-    schema_mismatch: `模型输出未满足目标结构要求${suffix}`,
-    transport_error: `结构化调用过程发生传输或服务端错误${suffix}`,
+    malformed_json: `The model's JSON format is unstable.${suffix}`,
+    schema_mismatch: `The model output did not match the target structure.${suffix}`,
+    transport_error: `A transport or server error occurred during the structured call.${suffix}`,
   };
   return {
     category,

@@ -1408,8 +1408,8 @@ model ImageAsset {
   @@index([bookAnalysisCharacterId, isPrimary, createdAt])
 }
 
-// 项目级视觉资源索引。它只保存可展示、筛选与选择所需的投影，
-// 原始业务事实与文件继续由 ImageAsset / Comic / Drama 等来源拥有。
+// Project-level visual asset index. Stores only the projection needed for display, filter, and selection.
+// Source-of-truth records and files remain owned by ImageAsset / Comic / Drama and other origin modules.
 model VisualAssetProjection {
   id                String   @id @default(cuid())
   sourceDomain      String
@@ -3578,10 +3578,10 @@ model NovelFactEntry {
 }
 
 // ============================================================
-// 短剧创作模块（Drama）—— 独立 bounded context
-// 所有 Drama* 表自成一套，不与 Novel 建外键关系（仅软引用 sourceRef）。
-// 与小说模块的唯一接触点是 services/drama/source/NovelSourceAdapter（只读）。
-// 分类字段统一用 String + 注释（不用 enum），降低双 schema 维护成本。
+// Short-drama (Drama) module — independent bounded context
+// All Drama* tables are self-contained; they do not use foreign keys to Novel (only a soft sourceRef).
+// The only contact with the novel module is services/drama/source/NovelSourceAdapter (read-only).
+// Classification fields use String plus comments (not Prisma enums) to keep the dual schemas cheaper to maintain.
 // ============================================================
 
 model DramaProject {
@@ -3637,9 +3637,9 @@ model DramaCharacter {
   voiceProfile       String?
   relations          String?
   sourceCharacterRef String?
-  // 角色形象图 JSON: { status:"idle"|"generating"|"done"|"error", url?:string, prompt?:string, generatedAt?:string }
+  // Character portrait JSON: { status:"idle"|"generating"|"done"|"error", url?:string, prompt?:string, generatedAt?:string }
   portraitData       String?
-  // 三视图 JSON: [{ view:"front"|"side"|"back", url?:string, status:string, ... }, ...]
+  // Three-view JSON: [{ view:"front"|"side"|"back", url?:string, status:string, ... }, ...]
   threeViewData      String?
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
@@ -3801,8 +3801,8 @@ model DramaBatchJob {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Comic（AI 漫画）模块
-// 低耦合要点：所有外键对 Novel 零引用，sourceRef 为软引用（不建外键，保证可拆分）
+// Comic (AI manga/comics) module
+// Low coupling: no FKs to Novel; sourceRef is a soft reference (no FK, so the module can be split out)
 // ─────────────────────────────────────────────────────────────────────────────
 
 model ComicProject {

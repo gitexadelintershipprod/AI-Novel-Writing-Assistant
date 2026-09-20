@@ -82,8 +82,8 @@ export async function extractSnapshotWithAI(input: StateSnapshotExtractionInput)
     })
     .join("\n");
   const previousSummary = input.previousSnapshot?.summary
-    ? `上一status snapshot：${input.previousSnapshot.summary}`
-    : "上一status snapshot：无";
+    ? `Previous status snapshot: ${input.previousSnapshot.summary}`
+    : "Previous status snapshot: none";
   try {
     const result = await runStructuredPrompt({
       asset: stateSnapshotPrompt,

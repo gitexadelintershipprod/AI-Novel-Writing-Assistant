@@ -452,7 +452,7 @@ router.post("/style-profiles/from-extraction", validate({ body: fromExtractionSc
     res.status(201).json({
       success: true,
       data,
-      message: "已按特征选择生成写法资产。",
+      message: "The writing asset was generated from the selected features.",
     } satisfies ApiResponse<typeof data>);
   } catch (error) {
     next(error);

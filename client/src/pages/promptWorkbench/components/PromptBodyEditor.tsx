@@ -285,7 +285,7 @@ function PromptSlotSection(props: {
 
         {"requiredTokens" in section.slot && section.slot.requiredTokens?.length ? (
           <div className="mt-2 text-xs text-muted-foreground">
-            Need to keep:{section.slot.requiredTokens.join("、")}
+            Need to keep:{section.slot.requiredTokens.join(", ")}
           </div>
         ) : null}
       </div>

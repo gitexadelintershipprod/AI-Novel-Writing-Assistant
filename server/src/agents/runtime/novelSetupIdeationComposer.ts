@@ -61,7 +61,7 @@ function toReadableValue(value: unknown): string | null {
 function pushFact(lines: string[], label: string, value: unknown): void {
   const text = toReadableValue(value);
   if (text) {
-    lines.push(`${label}：${text}`);
+    lines.push(`${label}: ${text}`);
   }
 }
 
@@ -76,13 +76,13 @@ function buildIdeationFacts(results: ToolExecutionResult[], structuredIntent?: S
     pushFact(lines, "Novel title", novelContext.title);
     pushFact(lines, "A synopsis already exists", novelContext.description);
     pushFact(lines, "Genre", novelContext.genre);
-    pushFact(lines, "风格气质", novelContext.styleTone);
+    pushFact(lines, "Style tone", novelContext.styleTone);
     pushFact(lines, "narrative perspective", novelContext.narrativePov);
     pushFact(lines, "Push the rhythm", novelContext.pacePreference);
     pushFact(lines, "Collaboration mode", novelContext.projectMode);
     pushFact(lines, "emotional intensity", novelContext.emotionIntensity);
     pushFact(lines, "AI degrees of freedom", novelContext.aiFreedom);
-    pushFact(lines, "默认章长", novelContext.defaultChapterLength);
+    pushFact(lines, "Default chapter length", novelContext.defaultChapterLength);
     pushFact(lines, "Bind the world", novelContext.worldName);
     pushFact(lines, "An outline already exists", novelContext.outline);
     pushFact(lines, "Structured outline", novelContext.structuredOutline);
@@ -91,36 +91,36 @@ function buildIdeationFacts(results: ToolExecutionResult[], structuredIntent?: S
   }
 
   if (storyBible) {
-    pushFact(lines, "core settings草稿", storyBible.coreSetting);
+    pushFact(lines, "Core-setting draft", storyBible.coreSetting);
     pushFact(lines, "story promise", storyBible.mainPromise);
-    pushFact(lines, "角色弧线", storyBible.characterArcs);
+    pushFact(lines, "Character arcs", storyBible.characterArcs);
     pushFact(lines, "world rules", storyBible.worldRules);
-    pushFact(lines, "禁用规则", storyBible.forbiddenRules);
+    pushFact(lines, "Forbidden rules", storyBible.forbiddenRules);
   }
 
   if (world) {
-    pushFact(lines, "世界观名称", world.worldName);
+    pushFact(lines, "World name", world.worldName);
     const constraints = typeof world.constraints === "object" && world.constraints
       ? world.constraints as Record<string, unknown>
       : null;
     if (constraints) {
-      pushFact(lines, "世界公理", constraints.axioms);
+      pushFact(lines, "World axioms", constraints.axioms);
       pushFact(lines, "power system", constraints.magicSystem);
-      pushFact(lines, "core conflict环境", constraints.conflicts);
-      pushFact(lines, "一致性备注", constraints.consistencyReport);
+      pushFact(lines, "Core-conflict environment", constraints.conflicts);
+      pushFact(lines, "Consistency notes", constraints.consistencyReport);
     }
   }
 
   if (knowledge) {
-    pushFact(lines, "知识库命中数", knowledge.hitCount);
-    pushFact(lines, "知识库上下文", knowledge.contextBlock);
+    pushFact(lines, "Knowledge-base hit count", knowledge.hitCount);
+    pushFact(lines, "Knowledge-base context", knowledge.contextBlock);
   }
 
   if (structuredIntent) {
-    pushFact(lines, "用户显式标题", structuredIntent.novelTitle);
-    pushFact(lines, "用户显式题材", structuredIntent.genre);
-    pushFact(lines, "用户显式设定", structuredIntent.description);
-    pushFact(lines, "用户显式风格", structuredIntent.styleTone);
+    pushFact(lines, "User-stated title", structuredIntent.novelTitle);
+    pushFact(lines, "User-stated genre", structuredIntent.genre);
+    pushFact(lines, "User-stated premise", structuredIntent.description);
+    pushFact(lines, "User-stated style", structuredIntent.styleTone);
   }
 
   return lines.length > 0 ? lines.join("\n") : "There are no usable novel-context facts yet.";

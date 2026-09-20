@@ -102,7 +102,7 @@ export const ragConfig = {
   embeddingModel: resolveEmbeddingModelFromEnv(embeddingProvider),
   embeddingVersion: asInt(process.env.EMBEDDING_VERSION, 1, 1, 100),
   embeddingBatchSize: asInt(process.env.EMBEDDING_BATCH_SIZE, 64, 1, 256),
-  // 不允许 env 读取：通过知识库设置面板管理（RagEmbeddingSettings.embeddingConcurrency）
+  // Do not read from env: managed through the knowledge-base settings panel (RagEmbeddingSettings.embeddingConcurrency)
   embeddingConcurrency: 4,
   embeddingTimeoutMs: asInt(process.env.RAG_EMBEDDING_TIMEOUT_MS ?? process.env.RAG_HTTP_TIMEOUT_MS, 30000, 5000, 300000),
   embeddingMaxRetries: asInt(process.env.RAG_EMBEDDING_MAX_RETRIES, 2, 0, 8),
@@ -112,7 +112,7 @@ export const ragConfig = {
   qdrantCollection: process.env.QDRANT_COLLECTION ?? "ai_novel_chunks_v1",
   qdrantTimeoutMs: asInt(process.env.QDRANT_TIMEOUT_MS ?? process.env.RAG_HTTP_TIMEOUT_MS, 30000, 1000, 300000),
   qdrantUpsertMaxBytes: asInt(process.env.QDRANT_UPSERT_MAX_BYTES, 24 * 1024 * 1024, 1024 * 1024, 64 * 1024 * 1024),
-  // 不允许 env 读取：通过知识库设置面板管理（RagRuntimeSettings.qdrantUpsertConcurrency）
+  // Do not read from env: managed through the knowledge-base settings panel (RagRuntimeSettings.qdrantUpsertConcurrency)
   qdrantUpsertConcurrency: 3,
   chunkSize: asInt(process.env.RAG_CHUNK_SIZE, 800, 200, 4000),
   chunkOverlap: asInt(process.env.RAG_CHUNK_OVERLAP, 120, 0, 1000),

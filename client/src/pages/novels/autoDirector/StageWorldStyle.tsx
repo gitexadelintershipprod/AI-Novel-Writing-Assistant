@@ -135,7 +135,7 @@ export default function StageWorldStyle({
           </div>
           {selectedStyleSummary?.stageSummaryLines.length ? (
             <div className={`pt-1 text-xs leading-6 text-muted-foreground ${AUTO_DIRECTOR_MOBILE_CLASSES.wrapText}`}>
-              This way of writing will affect the tone and rhythm of subsequent chapters:{selectedStyleSummary.stageSummaryLines.join("；")}
+              This way of writing will affect the tone and rhythm of subsequent chapters:{selectedStyleSummary.stageSummaryLines.join("; ")}
             </div>
           ) : null}
         </div>

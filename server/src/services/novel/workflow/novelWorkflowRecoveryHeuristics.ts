@@ -32,6 +32,6 @@ export function isAutoDirectorRecoveryInProgress(input: {
     return false;
   }
   const message = input.lastError?.trim() ?? "";
-  return message.includes("服务重启")
-    && message.includes("Trying to recover");
+  return (message.includes("服务重启") || /service restart/i.test(message))
+    && (message.includes("Trying to recover") || /trying to recover|正在尝试恢复/i.test(message));
 }

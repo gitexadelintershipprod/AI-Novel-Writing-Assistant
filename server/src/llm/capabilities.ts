@@ -36,7 +36,7 @@ function isKimiFixedTemperatureModel(normalizedModel: string): boolean {
   if (!normalizedModel || normalizedModel === "kimi-latest") {
     return false;
   }
-  // Moonshot 新的 K2 / K2.5 系列对 temperature 有固定要求，只接受 1。
+  // Moonshot's newer K2 / K2.5 series has a fixed temperature requirement and only accepts 1.
   return normalizedModel.startsWith("kimi-k2")
     || normalizedModel.startsWith("kimi-2.5")
     || (normalizedModel.startsWith("kimi-") && normalizedModel.includes("k2"))
@@ -99,8 +99,8 @@ export function getJsonCapability(provider: LLMProvider, model?: string, baseURL
 
   const normalizedModel = normalizeModel(model);
 
-  // 注意：这里的“能力”只用于选择 response_format / prompt 约束强度；
-  // 最终仍以 Zod 校验作为强约束。
+  // Note: these "capabilities" only choose response_format / prompt constraint strength;
+  // Zod validation remains the hard constraint.
   const jsonCapabilities: Record<
     BuiltinLLMProvider,
     {
@@ -112,13 +112,13 @@ export function getJsonCapability(provider: LLMProvider, model?: string, baseURL
     openai: {
       supportsJsonObject: true,
       supportsJsonSchema: true,
-      // 按你的要求：OpenAI 仅支持 GPT-5.x
+      // Per product requirement: OpenAI only supports GPT-5.x
       modelCondition: (m) => !m || /^gpt-5([^\w]|$)/.test(m) || m === "gpt-5",
     },
     deepseek: {
       supportsJsonObject: true,
       supportsJsonSchema: false,
-      // deepseek 模型名通常不需要额外条件
+      // deepseek model names usually need no extra condition
     },
     grok: {
       supportsJsonObject: true,
@@ -135,7 +135,7 @@ export function getJsonCapability(provider: LLMProvider, model?: string, baseURL
     kimi: {
       supportsJsonObject: true,
       supportsJsonSchema: false,
-      // Moonshot 稳定模型与 kimi-latest 支持 JSON mode，thinking 系列不走强制 JSON。
+      // Moonshot stable models and kimi-latest support JSON mode; thinking series does not use forced JSON.
       modelCondition: (m) => !m || !m.includes("thinking"),
     },
     minimax: {
@@ -153,7 +153,7 @@ export function getJsonCapability(provider: LLMProvider, model?: string, baseURL
     gemini: {
       supportsJsonObject: true,
       supportsJsonSchema: true,
-      // 如后续你发现只有部分 Gemini 模型支持 schema，可在这里加条件
+      // If later only some Gemini models support schema, add a condition here
       modelCondition: () => true,
     },
     ollama: {

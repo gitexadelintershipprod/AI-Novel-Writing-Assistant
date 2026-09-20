@@ -108,7 +108,7 @@ export default function ComicProjectPage() {
   const queryClient = useQueryClient();
   const [showFormatPicker, setShowFormatPicker] = useState(false);
   const [showStylePicker, setShowStylePicker] = useState(false);
-  // Image model选择跨项目/跨刷新保留（用户通常长期用同一个Image model）
+  // Persist the image-model choice across projects and reloads (users usually stay on one image model).
   const [selectedProvider, setSelectedProvider] = useState<string>(() => {
     try { return localStorage.getItem("comic.preferredImageProvider") ?? ""; } catch { return ""; }
   });
@@ -137,7 +137,7 @@ export default function ComicProjectPage() {
         .filter((p) => p.supportsImageGeneration && p.isConfigured)
         .map((p) => ({ value: p.provider, label: p.displayName ?? p.name })),
   });
-  // 缓存的 provider 仍存在于可用列表才用，否则回退到第一个（避免引用已失效的 provider 配置）
+  // Use the cached provider only if it is still in the available list; otherwise fall back to the first (avoid a stale provider id).
   const resolvedProvider =
     (selectedProvider && providerOptions.some((p) => p.value === selectedProvider))
       ? selectedProvider
@@ -177,7 +177,7 @@ export default function ComicProjectPage() {
 
   return (
     <div className="w-full space-y-5 px-4 py-6 lg:px-6">
-      {/* 顶部导航 */}
+      {/* Top navigation */}
       <div className="flex items-center gap-2">
         <Button asChild type="button" variant="ghost" size="sm" className="-ml-2">
           <a href="/comic">
@@ -189,9 +189,9 @@ export default function ComicProjectPage() {
 
       <ComicImageGenerationNotice />
 
-      {/* 项目信息头部 */}
+      {/* Project header */}
       <div className="rounded-xl border bg-card p-5 space-y-4">
-        {/* 标题行 */}
+        {/* Title row */}
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div className="space-y-1.5">
             <div className="flex items-center gap-2 flex-wrap">
@@ -203,7 +203,7 @@ export default function ComicProjectPage() {
             <p className="text-sm text-muted-foreground">{sourceLabel[project.sourceType] ?? project.sourceType}</p>
           </div>
 
-          {/* 形态卡片 — 点击展开选择器 */}
+          {/* Format card — click to open the picker */}
           <div className="relative">
             <button
               type="button"
@@ -256,7 +256,7 @@ export default function ComicProjectPage() {
           </div>
         </div>
 
-        {/* 统计指标行 */}
+        {/* Stats row */}
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <div className="flex items-center gap-2.5 rounded-lg border bg-background px-3 py-2.5">
             <Hash className="h-4 w-4 text-muted-foreground flex-shrink-0" />
@@ -282,7 +282,7 @@ export default function ComicProjectPage() {
             </div>
           </div>
 
-          {/* 画风 — 点击展开选择器 */}
+          {/* Art style — click to open the picker */}
           <div className="relative">
             <button
               type="button"
@@ -331,7 +331,7 @@ export default function ComicProjectPage() {
           </div>
         </div>
 
-        {/* 技术参数行 */}
+        {/* Technical parameters row */}
         <div className="flex flex-wrap items-center gap-2 pt-0.5">
           <span className="inline-flex items-center gap-1 rounded-full border bg-muted/50 px-2.5 py-0.5 text-xs text-muted-foreground">
             <LayoutTemplate className="h-3 w-3" />
@@ -348,7 +348,7 @@ export default function ComicProjectPage() {
               {formatDef.tag}
             </span>
           )}
-          {/* 图片模型全局选择器 */}
+          {/* Global image-model selector */}
           <div className="ml-auto flex items-center gap-2">
             <span className="text-xs text-muted-foreground whitespace-nowrap">Picture model</span>
             {providerOptions.length === 0 ? (

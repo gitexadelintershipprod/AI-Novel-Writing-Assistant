@@ -172,7 +172,7 @@ export class CharacterResourceExtractionService {
         chapterContent: content,
         rosterText: buildRosterText(characters),
         existingResourceText: existingResources.slice(0, 20).map((item) => (
-          `- ${item.name} | holder=${item.holderCharacterName ?? "未知"} | status=${item.status} | ${item.summary}`
+          `- ${item.name} | holder=${item.holderCharacterName ?? "unknown"} | status=${item.status} | ${item.summary}`
         )).join("\n"),
       },
       options: {

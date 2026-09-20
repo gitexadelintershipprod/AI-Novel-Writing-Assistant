@@ -160,12 +160,22 @@ export const bookAnalysisToolDefinitions: Partial<
     resourceScopes: ["novel", "chapter"],
     parserHints: {
       intent: "inspect_failure_reason",
-      aliases: ["Chapter continuity diagnosis", "章节重复检测", "剧情一致性检查", "audit chapter continuity"],
-      phrases: [
-        "Check whether chapters are repeating",
-        "看看哪些Chapter content重复了",
+      aliases: [
+        "Chapter continuity diagnosis",
+        "audit chapter continuity",
+        "chapter repeat detection",
+        "plot consistency check",
+        "章节重复检测",
+        "剧情一致性检查",
+        "看看哪些章节内容重复了",
         "诊断小说的连续性问题",
         "哪些场景被重复写了",
+      ],
+      phrases: [
+        "Check whether chapters are repeating",
+        "See which chapter content is repeating",
+        "Diagnose the novel's continuity problems",
+        "Which scenes were written repeatedly",
         "Are the openings repeating a pattern",
       ],
       requiresNovelContext: true,
@@ -210,18 +220,18 @@ export const bookAnalysisToolDefinitions: Partial<
 
       const OPENING_LENGTH = 120;
       const SCENE_PATTERN_KEYWORDS = [
-        ["凌晨", "旅馆", "蹲"],
-        ["凌晨", "蹲守"],
-        ["街道办", "盖章"],
-        ["街道办", "Chapter"],
-        ["工商", "执照"],
-        ["工商", "Chapter"],
-        ["摊位", "合同"],
-        ["摊位", "签"],
-        ["凌晨四点"],
-        ["凌晨四"],
-        ["尾随", "跟丢"],
-        ["明天一早"],
+        ["early morning", "hotel", "stakeout"],
+        ["early morning", "stakeout"],
+        ["neighborhood office", "stamp"],
+        ["neighborhood office", "chapter"],
+        ["commerce bureau", "license"],
+        ["commerce bureau", "chapter"],
+        ["stall", "contract"],
+        ["stall", "sign"],
+        ["four in the morning"],
+        ["4 a.m."],
+        ["tailing", "lost them"],
+        ["tomorrow morning"],
       ];
 
       function extractOpeningSnippet(content: string): string {
@@ -309,12 +319,22 @@ export const bookAnalysisToolDefinitions: Partial<
     resourceScopes: ["novel", "chapter"],
     parserHints: {
       intent: "inspect_failure_reason",
-      aliases: ["质量债务归因", "质量债务分析", "根因分析", "analyze quality debt", "quality debt attribution"],
+      aliases: [
+        "analyze quality debt",
+        "quality debt attribution",
+        "root-cause analysis",
+        "质量债务归因",
+        "质量债务分析",
+        "根因分析",
+        "质量债务的根本原因是什么",
+        "分析哪些章节有质量问题",
+        "质量债务根因报告",
+      ],
       phrases: [
         "Why chapter repair keeps failing",
-        "质量债务的根本原因是什么",
-        "分析哪些章节有quality issues",
-        "质量债务根因报告",
+        "What is the root cause of the quality debt",
+        "Analyze which chapters have quality issues",
+        "Quality-debt root-cause report",
         "Repair-failure cause stats",
       ],
       requiresNovelContext: true,
@@ -343,7 +363,7 @@ export const bookAnalysisToolDefinitions: Partial<
         select: { id: true, order: true, title: true, riskFlags: true },
       });
 
-      // 过滤出 terminalAction = defer_and_continue 的章节
+      // Keep chapters whose terminalAction is defer_and_continue.
       const deferredChapters: QualityDebtChapterAttribution[] = [];
 
       for (const chapter of chapters) {
@@ -370,7 +390,7 @@ export const bookAnalysisToolDefinitions: Partial<
 
         const attribution = loop.qualityDebtAttribution;
         if (!attribution || typeof attribution !== "object" || Array.isArray(attribution)) {
-          // 旧数据，无归因信息
+          // Legacy data with no attribution.
           deferredChapters.push({
             chapterOrder: chapter.order,
             chapterId: chapter.id,
@@ -406,7 +426,7 @@ export const bookAnalysisToolDefinitions: Partial<
           ? attr.firstFailureClassificationCode
           : null;
 
-        // 推断主要根因（优先级：D > B > A > E > unknown）
+        // Infer the primary root cause (priority: D > B > A > E > unknown).
         let primaryRootCause: QualityDebtChapterAttribution["primaryRootCause"] = "unknown";
         if (planMisaligned) {
           primaryRootCause = "D";
@@ -438,7 +458,7 @@ export const bookAnalysisToolDefinitions: Partial<
       const attributedCount = attributed.length;
       const totalDeferred = deferredChapters.length;
 
-      // 根因占比
+      // Root-cause share
       const countByRoot = { A: 0, B: 0, D: 0, E: 0, unknown: 0 };
       for (const c of deferredChapters) {
         countByRoot[c.primaryRootCause] += 1;
@@ -452,7 +472,7 @@ export const bookAnalysisToolDefinitions: Partial<
         unknown: Number((countByRoot.unknown / denominator).toFixed(3)),
       };
 
-      // Top 失败 issue code
+      // Top failed issue codes
       const issueCodeCount: Record<string, number> = {};
       for (const c of deferredChapters) {
         for (const code of [...c.firstFailureIssueCodes, ...c.secondFailureIssueCodes]) {
@@ -464,7 +484,7 @@ export const bookAnalysisToolDefinitions: Partial<
         .slice(0, 5)
         .map(([code, count]) => ({ code, count }));
 
-      // Top 缺失义务种类
+      // Top missing obligation kinds
       const obligationKindCount: Record<string, number> = {};
       for (const c of deferredChapters) {
         for (const kind of c.missingObligationKinds) {
@@ -476,7 +496,7 @@ export const bookAnalysisToolDefinitions: Partial<
         .slice(0, 3)
         .map(([kind, count]) => ({ kind, count }));
 
-      // 生成决策建议
+      // Build the decision recommendation
       const dominantRoot = Object.entries(countByRoot)
         .filter(([k]) => k !== "unknown")
         .sort((a, b) => b[1] - a[1])[0]?.[0] ?? "unknown";

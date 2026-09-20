@@ -8,7 +8,7 @@ function compactText(value: string | null | undefined): string {
 
 function line(label: string, value: string | null | undefined): string {
   const text = compactText(value);
-  return text ? `${label}：${text}` : "";
+  return text ? `${label}: ${text}` : "";
 }
 
 function readerChannelPreferenceLabel(value: DirectorIdeaContextRequest["readerChannelPreference"]): string {

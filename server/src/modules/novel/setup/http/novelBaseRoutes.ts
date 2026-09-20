@@ -420,8 +420,9 @@ export function registerNovelBaseRoutes(input: RegisterNovelBaseRoutesInput): vo
                       : progressStatus === "failed" && task?.checkpointType?.includes("chapter")
                         ? "error"
                         : "waiting_planning";
-          // 已保存的草稿也可以只读查看。章节状态仍然决定它是否是稳定正文，
-          // 但不能因为正在审校/修复就把已经生成的内容隐藏掉。
+          // Saved drafts can still be viewed read-only. Chapter status still decides whether
+          // the text is stable manuscript, but generated content must not be hidden just because
+          // review or repair is in progress.
           return {
             id: chapter.id,
             order: chapter.order,

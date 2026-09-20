@@ -36,29 +36,29 @@ export interface PipelineRuntimeInput extends ChapterRuntimeRequestInput {
 }
 
 /**
- * 质量债务根因归因数据，在章节以 defer_and_continue 结束时收集。
- * 用于 analyze_quality_debt_attribution 工具聚合根因占比。
+ * Quality-debt root-cause attribution collected when a chapter ends as defer_and_continue.
+ * Used by analyze_quality_debt_attribution to aggregate root-cause share.
  */
 export interface QualityDebtAttribution {
-  /** 首次验收失败的 issue code 列表（来自 runtimePackage.audit.openIssues） */
+  /** Issue codes from the first failed acceptance (runtimePackage.audit.openIssues). */
   firstFailureIssueCodes: string[];
-  /** 二次验收失败的 issue code 列表（修复后再次失败时才有值） */
+  /** Issue codes from the second failed acceptance (only set when repair fails again). */
   secondFailureIssueCodes: string[];
-  /** 首次失败的 failureClassification.code（判定根因 D） */
+  /** failureClassification.code from the first failure (root cause D). */
   firstFailureClassificationCode: string | null;
-  /** patch 锚点失配，升级到 heavy_repair（判定根因 B） */
+  /** Patch anchor missed and the run escalated to heavy_repair (root cause B). */
   patchAnchorFailed: boolean;
-  /** 首次与二次的 openIssue codes 完全一致（判定根因 A：义务未传达给修复器） */
+  /** First and second openIssue codes are identical (root cause A: obligations never reached the repairer). */
   sameObligationRepeated: boolean;
-  /** firstFailureClassificationCode === "draft_obligation_unmet" → 义务不可达（判定根因 D） */
+  /** firstFailureClassificationCode === "draft_obligation_unmet" means the obligation is unreachable (root cause D). */
   planMisaligned: boolean;
-  /** 首次为 length 类 issue、二次为 content 类（判定根因 E：签名漂移） */
+  /** First failure was length-class, second was content-class (root cause E: signature drift). */
   lengthVsContentDrift: boolean;
-  /** 首次失败缺失的义务种类（来自 obligationCoverage.missing[].kind） */
+  /** Missing obligation kinds from the first failure (obligationCoverage.missing[].kind). */
   missingObligationKinds: string[];
-  /** 已消耗的 Director 预算操作（由外层 Director 写入） */
+  /** Director budget actions already consumed (written by the outer Director). */
   budgetActionsConsumed?: Array<"patch_repair" | "chapter_rewrite" | "window_replan">;
-  /** 章节质量债务导致的提案降级路由，用于后续复核入口聚合。 */
+  /** Proposal downgrade routing caused by chapter quality debt, for later review-entry aggregation. */
   degradedProposalRouting?: {
     contentProvenance: "debt";
     routedToPendingReview: true;
@@ -75,7 +75,7 @@ export interface PipelineRuntimeResult {
   runtimePackage: ChapterRuntimePackage | null;
   retryCountUsed: number;
   recoverableRepairFailure?: PipelineRecoverableRepairFailure | null;
-  /** 仅在章节最终未通过时填充，供 defer_and_continue 路径记录根因 */
+  /** Filled only when the chapter ultimately fails, so defer_and_continue can record the root cause. */
   qualityDebtAttribution?: QualityDebtAttribution | null;
 }
 
@@ -187,7 +187,7 @@ export async function runPipelineChapterWithRuntime(
   let latestLengthControl: ChapterRuntimePackage["lengthControl"] | undefined;
   let recoverableRepairFailure: PipelineRecoverableRepairFailure | null = null;
 
-  // 归因追踪变量
+  // Attribution tracking
   let firstFailureIssueCodes: string[] = [];
   let firstFailureClassificationCode: string | null = null;
   let firstMissingObligationKinds: string[] = [];
@@ -272,7 +272,7 @@ export async function runPipelineChapterWithRuntime(
       break;
     }
 
-    // 收集首次失败的归因信息（只在第一次失败时记录）
+    // Record first-failure attribution only on the first failed attempt.
     if (attempt === 0) {
       firstFailureIssueCodes = extractIssueCodes(latestResult.runtimePackage);
       firstFailureClassificationCode = latestResult.runtimePackage.failureClassification?.code ?? null;
@@ -282,7 +282,7 @@ export async function runPipelineChapterWithRuntime(
     }
 
     if (shouldPauseForAcceptance || !autoRepair || repairMode === "detect_only" || attempt >= effectiveMaxRetries) {
-      // 若是 attempt >= effectiveMaxRetries，这是第二次失败，记录二次 codes
+      // If attempt >= effectiveMaxRetries, this is the second failure; record the second-pass codes.
       if (attempt > 0) {
         secondFailureIssueCodes = extractIssueCodes(latestResult.runtimePackage);
       }
@@ -335,7 +335,7 @@ export async function runPipelineChapterWithRuntime(
     contentProvenance,
   );
 
-  // 章节未通过时构建归因对象
+  // Build attribution when the chapter did not pass.
   const qualityDebtAttribution: QualityDebtAttribution | null = (!pass && firstFailureIssueCodes.length > 0)
     ? buildQualityDebtAttribution({
         firstFailureIssueCodes,
@@ -561,12 +561,13 @@ function issueLooksLikeNonPatchableReviewRisk(issue: ReviewIssue): boolean {
   const fixSuggestion = issue.fixSuggestion.toLowerCase();
   const combined = `${evidence}\n${fixSuggestion}`;
   return combined.includes("acceptance_gate_unavailable")
+    || combined.includes("did not return a usable structured result")
     || combined.includes("接收闸门未返回可用结构化结果")
     || combined.includes("章节接收判断不可用")
     || combined.includes("结构化判断缺失");
 }
 
-/** 从 runtimePackage 提取 openIssues 的 code 列表（过滤空值） */
+/** Extract non-empty openIssue codes from the runtime package. */
 function extractIssueCodes(runtimePackage: ChapterRuntimePackage): string[] {
   return (runtimePackage.audit.openIssues ?? [])
     .map((issue) => issue.code)
@@ -579,7 +580,7 @@ function isLengthIssueCode(code: string): boolean {
   return LENGTH_ISSUE_CODE_PREFIXES.some((prefix) => code.startsWith(prefix));
 }
 
-/** 根据收集到的埋点数据构建结构化归因 */
+/** Build structured attribution from the collected telemetry. */
 function buildQualityDebtAttribution(input: {
   firstFailureIssueCodes: string[];
   secondFailureIssueCodes: string[];
@@ -595,7 +596,7 @@ function buildQualityDebtAttribution(input: {
     patchAnchorFailed,
   } = input;
 
-  // 根因 A：首次和二次 codes 完全一致（修复未解决义务问题）
+  // Root cause A: first and second codes are identical (repair did not clear the obligation).
   const hasBothFailures = secondFailureIssueCodes.length > 0;
   const firstSet = new Set(firstFailureIssueCodes);
   const secondSet = new Set(secondFailureIssueCodes);
@@ -604,11 +605,11 @@ function buildQualityDebtAttribution(input: {
     && firstSet.size === secondSet.size
     && [...firstSet].every((code) => secondSet.has(code));
 
-  // 根因 D：义务分类 = 义务不可达
+  // Root cause D: obligation class means the obligation is unreachable.
   const planMisaligned = firstFailureClassificationCode === "draft_obligation_unmet"
     || firstFailureClassificationCode === "replan_required";
 
-  // 根因 E：首次 length 类、二次 content 类（签名漂移）
+  // Root cause E: first failure was length-class, second was content-class (signature drift).
   const firstHasLengthOnly = firstFailureIssueCodes.length > 0
     && firstFailureIssueCodes.every(isLengthIssueCode);
   const secondHasContentIssue = secondFailureIssueCodes.some((code) => !isLengthIssueCode(code));

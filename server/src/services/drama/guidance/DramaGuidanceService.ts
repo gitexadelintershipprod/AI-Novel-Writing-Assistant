@@ -46,10 +46,10 @@ function buildTrackCatalog(): string {
   return rhythmEngine
     .listTracks()
     .map((track) => [
-      `- ${track.id}｜${track.label}`,
-      `  描述：${track.description}`,
-      `  爽点节奏：${track.rhythmNote}`,
-      `  禁忌：${track.taboos.join("；")}`,
+      `- ${track.id} | ${track.label}`,
+      `  description: ${track.description}`,
+      `  payoff rhythm: ${track.rhythmNote}`,
+      `  taboos: ${track.taboos.join("; ")}`,
     ].join("\n"))
     .join("\n");
 }
@@ -101,11 +101,11 @@ export class DramaGuidanceService {
     const beats = safeJson<unknown[]>(project.sourceBundle.beats, []);
     const facts = safeJson<unknown[]>(project.sourceBundle.hardFacts, []);
     const qualitySnapshot = [
-      `梗概：${project.sourceBundle.synopsis?.trim() ? "已提供" : "缺少"}`,
-      `节拍数量：${beats.length}`,
-      `Number of characters：${project.characters.length}`,
-      `硬事实数量：${facts.length}`,
-      `Number of target sets：${project.targetEpisodes}`,
+      `synopsis: ${project.sourceBundle.synopsis?.trim() ? "provided" : "missing"}`,
+      `beat count: ${beats.length}`,
+      `character count: ${project.characters.length}`,
+      `hard-fact count: ${facts.length}`,
+      `target episode count: ${project.targetEpisodes}`,
     ].join("\n");
 
     const result = await runStructuredPrompt({

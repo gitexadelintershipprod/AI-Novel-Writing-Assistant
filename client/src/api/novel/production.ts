@@ -95,8 +95,8 @@ export async function batchInvalidateCreativeDecisions(id: string, decisionIds: 
 }
 
 /**
- * [开发工具] 重置指定小说的所有Chapter text及相关生成数据，供测试重跑使用。
- * 清除范围：Chapter text、生成状态、事实账本、Chapter Summary、质量报告等。
+ * [Dev tool] Reset all chapter text and related generation data for a novel so tests can rerun.
+ * Clears: chapter text, generation state, fact ledger, chapter summaries, quality reports, etc.
  */
 export async function devResetNovelChapters(id: string): Promise<{ resetCount: number }> {
   const { data } = await apiClient.post<ApiResponse<{ resetCount: number }>>(

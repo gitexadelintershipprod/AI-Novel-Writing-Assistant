@@ -116,7 +116,7 @@ export default function BookAnalysisWorkspaceToolbar(props: BookAnalysisWorkspac
             variant="outline"
             onClick={onPublish}
             disabled={!selectedNovelId || pending.publish || selectedAnalysis.status === "archived"}
-            title={!selectedNovelId ? "Please select the target novel in \"Analysis Information and Release\" below" : "Post to novel knowledge base"}
+            title={!selectedNovelId ? 'Please select the target novel in "Analysis Information and Release" below' : "Post to novel knowledge base"}
           >
             {pending.publish ? "Publish..." : "Publish to knowledge base"}
           </Button>

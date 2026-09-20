@@ -41,14 +41,14 @@ export interface DirectorExecutionNodeAdapter {
 const CHAPTER_EXECUTION_WAITING_STATE: DirectorExecutionNodeAdapter["waitingState"] = {
   stage: "chapter_execution",
   itemKey: "chapter_execution",
-  itemLabel: "Waiting for confirmationChapter execution",
+  itemLabel: "Waiting for confirmation: chapter execution",
   progress: 0.93,
 };
 
 const QUALITY_REPAIR_WAITING_STATE: DirectorExecutionNodeAdapter["waitingState"] = {
   stage: "quality_repair",
   itemKey: "quality_repair",
-  itemLabel: "Waiting for confirmationChapter fixes",
+  itemLabel: "Waiting for confirmation: chapter repairs",
   progress: 0.975,
 };
 

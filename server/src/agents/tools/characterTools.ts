@@ -21,8 +21,20 @@ export const characterToolDefinitions: Partial<
     resourceScopes: ["base_character"],
     parserHints: {
       intent: "list_base_characters",
-      aliases: ["Basic character library", "角色模板库", "base characters"],
-      phrases: ["列出Basic character library中的角色", "查看Basic character library", "角色库里有什么角色"],
+      aliases: [
+        "base character library",
+        "character template library",
+        "base characters",
+        "角色模板库",
+        "列出基础角色库中的角色",
+        "查看基础角色库",
+        "角色库里有什么角色",
+      ],
+      phrases: [
+        "List characters in the base character library",
+        "View the base character library",
+        "What characters are in the character library",
+      ],
       requiresNovelContext: false,
       whenToUse: "The user wants to browse the global base character template library.",
       whenNotToUse: "The user is asking about planned character status in the current novel.",

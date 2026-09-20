@@ -162,7 +162,7 @@ export default function Home() {
           }}
           disabled={isWorkflowPending}
         >
-          {isWorkflowPending ? "Continue to execute..." : (task?.resumeAction ?? `Continue automatic execution${task?.executionScopeLabel ?? "Current chapter scope"}`)}
+          {isWorkflowPending ? "Continue to execute..." : (task?.resumeAction ?? `Continue automatic execution of ${task?.executionScopeLabel ?? "the current chapter range"}`)}
         </Button>
       );
     }

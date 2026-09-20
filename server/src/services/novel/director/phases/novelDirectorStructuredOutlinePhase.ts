@@ -360,8 +360,8 @@ export async function runDirectorStructuredOutlinePhase(input: {
     }
 
     if (recoveryCursor.step === "chapter_detail_bundle") {
-      // 懒规划模式（JIT）：全书自动执行时跳过预生成 task sheet，
-      // 改为执行前即时生成（见 ChapterPlanJITService）。
+      // Lazy planning (JIT): skip pre-generating the task sheet during full-book auto-execution.
+      // Generate it just before execution instead (see ChapterPlanJITService).
       if (isFullBookAutopilotRunMode(request.runMode)) {
         break;
       }
@@ -538,8 +538,8 @@ export async function runDirectorStructuredOutlinePhase(input: {
     throw new Error("Auto-Director generated the chapter split, but chapter resources did not sync into the execution area.");
   }
   const persistedChapterByOrder = new Map(persistedChapters.map((chapter) => [chapter.order, chapter] as const));
-  // 懒规划（JIT）模式：task sheet 尚未预生成属预期状态，跳过执行上下文完整性检查。
-  // 非 autopilot 路径仍做完整性检查，确保手动执行有完整 task sheet。
+  // Lazy planning (JIT): a missing pre-generated task sheet is expected, so skip the execution-context completeness check.
+  // Non-autopilot paths still check completeness so manual execution has a full task sheet.
   if (!isFullBookAutopilotRunMode(request.runMode)) {
     const missingExecutionContextOrders = selectedChapterOrders.filter((order) => {
       const chapter = persistedChapterByOrder.get(order);

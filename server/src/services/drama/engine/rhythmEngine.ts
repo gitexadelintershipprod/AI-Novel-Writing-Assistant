@@ -1,33 +1,33 @@
 /**
- * 竖屏付费短剧节奏引擎（P1 核心 · 平台护城河）
+ * Vertical paid-drama rhythm engine (P1 core, platform moat).
  *
- * 把竖屏付费短剧的真实创作法则落成确定性、可配置的规则集：
- * 钩子类型库 / 赛道模板库 / 付费卡点策略 / 情绪曲线目标。
+ * Turns real vertical paid-drama craft into a deterministic, configurable rule set:
+ * hook-type library / track templates / paywall-card strategy / emotion-curve targets.
  *
- * 这是来源无关的纯领域知识，不依赖 LLM、不依赖任何外部模块，
- * 供策略规划与分集大纲阶段查询与约束。
+ * This is source-agnostic domain knowledge. It does not depend on an LLM or any external module.
+ * Strategy planning and episode-outline stages query and constrain against it.
  */
 
 // ============================================================
-// 钩子类型库
+// Hook-type library
 // ============================================================
 export type HookTypeId =
-  | "identity_reversal" // 身份反转
-  | "face_slap" // 打脸
-  | "hidden_strength" // 扮猪吃老虎/实力隐藏
-  | "mask_drop" // 马甲掉落
-  | "misunderstanding" // 误会
-  | "crisis" // 危机降临
-  | "emotional_tug" // 情感拉扯
-  | "crushing_power" // 实力碾压
-  | "villain_provoke" // 反派挑衅
-  | "secret_reveal"; // 秘密揭露
+  | "identity_reversal" // identity reversal
+  | "face_slap" // comeuppance
+  | "hidden_strength" // hidden strength
+  | "mask_drop" // mask drop
+  | "misunderstanding" // misunderstanding
+  | "crisis" // crisis hits
+  | "emotional_tug" // emotional tug
+  | "crushing_power" // crushing power
+  | "villain_provoke" // villain provocation
+  | "secret_reveal"; // secret reveal
 
 export interface HookType {
   id: HookTypeId;
   label: string;
   description: string;
-  /** 适合放在开场钩子还是集尾卡点，或两者皆可 */
+  /** Opening hook, episode-end card, or both */
   placement: "opening" | "cliffhanger" | "both";
 }
 
@@ -45,29 +45,29 @@ export const HOOK_TYPES: readonly HookType[] = [
 ] as const;
 
 // ============================================================
-// 赛道模板库
+// Track templates
 // ============================================================
 export type TrackId =
-  | "counterattack" // 逆袭
+  | "counterattack" // counterattack
   | "rebirth_revenge" // Rebirth for Revenge
   | "war_god" // Return of the God of War
-  | "live_in_son" // 赘婿
-  | "miracle_doctor" // 神医
+  | "live_in_son" // live-in son-in-law
+  | "miracle_doctor" // miracle doctor
   | "rich_family" // Grudges between wealthy families
-  | "sweet_love" // 甜宠
-  | "hidden_identity"; // 马甲文
+  | "sweet_love" // sweet romance
+  | "hidden_identity"; // hidden-identity story
 
 export interface TrackTemplate {
   id: TrackId;
   label: string;
   description: string;
-  /** 典型人设组合 */
+  /** Typical character-archetype mix */
   typicalArchetypes: string[];
-  /** 该赛道偏好的钩子类型 */
+  /** Hook types this track prefers */
   preferredHooks: HookTypeId[];
-  /** 爽点节奏说明 */
+  /** Payoff-rhythm notes */
   rhythmNote: string;
-  /** 赛道禁忌（黑名单），避免拖节奏/劝退 */
+  /** Track taboos (blacklist) that drag pace or lose viewers */
   taboos: string[];
 }
 
@@ -147,18 +147,18 @@ export const TRACK_TEMPLATES: readonly TrackTemplate[] = [
 ] as const;
 
 // ============================================================
-// Pay card points策略 & sentiment curve
+// Paywall-card strategy and sentiment curve
 // ============================================================
 export interface PaywallStrategy {
-  /** 免费引流集数：前 N 集免费，必须立住主爽点与追剧动力 */
+  /** Free lead-in episodes: the first N episodes are free and must lock the main payoff and continue-watching drive */
   freeEpisodes: number;
-  /** 首付费点：卡在第一个大反转/情绪最高点 */
+  /** First paywall: place it at the first big reversal / emotional peak */
   firstPaywallAt: number;
-  /** 之后每隔几集设强卡点（1=每集集尾都卡） */
+  /** Strong card every N episodes after that (1 = every episode end) */
   paywallCadence: number;
 }
 
-/** 竖屏付费短剧默认卡点策略 */
+/** Default paywall-card strategy for vertical paid drama */
 export const DEFAULT_PAYWALL_STRATEGY: PaywallStrategy = {
   freeEpisodes: 10,
   firstPaywallAt: 12,
@@ -167,9 +167,9 @@ export const DEFAULT_PAYWALL_STRATEGY: PaywallStrategy = {
 
 export interface EmotionCurveTarget {
   description: string;
-  /** 每个滑动窗口（集）内情绪净值至少要有一次正向释放 */
+  /** Each sliding window (episode) must have at least one positive emotional release */
   releaseEveryEpisodes: number;
-  /** 付费点前允许的最大憋屈蓄势深度（负值） */
+  /** Deepest allowed frustration buildup before a paywall (negative) */
   maxBuildupDepth: number;
 }
 
@@ -180,7 +180,7 @@ export const DEFAULT_EMOTION_CURVE: EmotionCurveTarget = {
 };
 
 // ============================================================
-// 引擎
+// Engine
 // ============================================================
 export class RhythmEngine {
   listHooks(): readonly HookType[] {
@@ -199,7 +199,7 @@ export class RhythmEngine {
     return TRACK_TEMPLATES.find((track) => track.id === id);
   }
 
-  /** 该Track recommendations的钩子类型（完整对象） */
+  /** Hook types this track recommends (full objects) */
   recommendHooksForTrack(id: TrackId): HookType[] {
     const track = this.getTrack(id);
     if (!track) {
@@ -211,8 +211,8 @@ export class RhythmEngine {
   }
 
   /**
-   * 计算Pay card point collection号列表（1-based）。
-   * 首付费点起，按 cadence 标记强卡点，直到总集数。
+   * Build the paywall-episode list (1-based).
+   * From the first paywall, mark strong cards by cadence until the last episode.
    */
   buildPaywallPlan(targetEpisodes: number, strategy: PaywallStrategy = DEFAULT_PAYWALL_STRATEGY): number[] {
     const plan: number[] = [];
@@ -223,7 +223,7 @@ export class RhythmEngine {
     return plan;
   }
 
-  /** 某集是否为Pay card point collection */
+  /** Whether this episode is a paywall card */
   isPaywallEpisode(
     episodeOrder: number,
     targetEpisodes: number,

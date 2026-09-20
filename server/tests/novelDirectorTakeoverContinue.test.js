@@ -87,13 +87,13 @@ test("cancelContinueExistingReplacedRuns marks only overlapping active runs as r
     assert.deepEqual(result.pipelineJobIds, ["job_overlap"]);
     assert.deepEqual(workflowUpdates.map((item) => item.where.id), ["task_old_overlap"]);
     assert.equal(workflowUpdates[0].data.status, "cancelled");
-    assert.equal(workflowUpdates[0].data.lastError, "由本任务替代：task_new");
+    assert.equal(workflowUpdates[0].data.lastError, "Replaced by this task: task_new");
     const replacementPayload = JSON.parse(workflowUpdates[0].data.seedPayloadJson);
     assert.equal(replacementPayload.replacementTaskId, "task_new");
-    assert.equal(replacementPayload.replacementReason, "由本任务替代");
+    assert.equal(replacementPayload.replacementReason, "Replaced by this task");
     assert.deepEqual(cancelAttempts, ["job_overlap"]);
     assert.deepEqual(generationUpdates.map((item) => item.where.id), ["job_overlap"]);
-    assert.equal(generationUpdates[0].data.error, "由本任务替代：task_new");
+    assert.equal(generationUpdates[0].data.error, "Replaced by this task: task_new");
   } finally {
     prisma.novelWorkflowTask.findMany = originals.workflowFindMany;
     prisma.novelWorkflowTask.update = originals.workflowUpdate;

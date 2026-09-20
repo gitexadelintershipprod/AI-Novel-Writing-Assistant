@@ -34,13 +34,13 @@ export function compileIntentToPlan(parsed: StructuredIntent, input: PlannerInpu
     contextNeeds.push({
       key: "novel_context",
       required: true,
-      reason: "当前问题绑定小说上下文。",
+      reason: "The current question is bound to novel context.",
     });
   } else {
     contextNeeds.push({
       key: "global_context",
       required: true,
-      reason: "当前问题使用全局上下文。",
+      reason: "The current question uses global context.",
     });
   }
 
@@ -88,7 +88,7 @@ export function toPlannedActions(plan: AgentPlan): PlannedAction[] {
   }
   return Array.from(groups.entries()).map(([agent, calls]) => ({
     agent,
-    reasoning: `${agent} 执行 ${calls.length} 个工具步骤。`,
+    reasoning: `${agent} will execute ${calls.length} tool step(s).`,
     calls,
   }));
 }

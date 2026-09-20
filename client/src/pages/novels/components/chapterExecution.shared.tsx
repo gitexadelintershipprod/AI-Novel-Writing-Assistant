@@ -57,8 +57,10 @@ export type QueueFilterOption = {
 };
 
 /**
- * 手动新建的空白章节尚未进入任何生产步骤时，才允许从Chapter execution队列移除。
- * 这里刻意不按标题判断，避免用户改名后失去操作能力，也避免误删 AI 已规划的章节。
+ * Only a manually created blank chapter that has not entered any production step
+ * may be removed from the Chapter execution queue.
+ * Do not key this off the title: renaming must not remove the action, and
+ * AI-planned chapters must not be deleted by mistake.
  */
 export function canRemoveEmptyManualChapter(chapter: Chapter): boolean {
   return chapter.generationState === "planned"

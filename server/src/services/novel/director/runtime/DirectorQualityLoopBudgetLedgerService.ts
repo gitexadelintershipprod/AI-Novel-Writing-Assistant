@@ -9,7 +9,7 @@ import type {
 } from "@ai-novel/shared/types/novelDirector";
 
 export const DIRECTOR_QUALITY_LOOP_BUDGET_LIMITS = {
-  /** patch 预算提升到 2：首次锚点失配后允许一次宽松锚点重试（Root B）*/
+  /** Patch budget raised to 2: after the first anchor miss, allow one looser-anchor retry (Root B). */
   patchRepair: 2,
   chapterRewrite: 1,
   windowReplan: 1,
@@ -19,6 +19,7 @@ const MAX_QUALITY_LEDGER_ENTRIES = 80;
 
 function normalizeText(value: string | null | undefined): string {
   return (value ?? "")
+    .replace(/Chapter\s+\d+/g, "Chapter #")
     .replace(/第\s*\d+\s*章/g, "第#章")
     .replace(/chapter[-_:\s]*[a-z0-9-]+/gi, "chapter#")
     .replace(/[a-z0-9]{16,}/gi, "#id")
@@ -75,10 +76,10 @@ export function buildDirectorQualityLoopBudgetWindow(input: {
 }
 
 /**
- * 将 noticeCode 归类为 length 类或 content 类。
+ * Classify a noticeCode as length-class or content-class.
  *
- * Root E 修复：长度问题（LENGTH_OVER_*、LENGTH_UNDER_*）与内容问题分属不同签名命名空间，
- * 补丁修好长度后浮出内容问题时，两者不再共用预算计数，避免签名漂移导致误升级。
+ * Root E fix: length issues (LENGTH_OVER_*, LENGTH_UNDER_*) and content issues live in different signature namespaces.
+ * After a patch fixes length and a content issue surfaces, they no longer share a budget counter, which avoids a false upgrade from signature drift.
  */
 function classifyIssueNoticeCode(noticeCode: string | null | undefined): "length" | "content" {
   const code = (noticeCode ?? "").toUpperCase().trim();

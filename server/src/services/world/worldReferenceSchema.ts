@@ -24,7 +24,7 @@ export const worldReferenceSeedBundleSchema = z.record(z.string(), z.unknown()).
 export const worldReferenceInspirationPayloadSchema = z.object({
   conceptCard: worldReferenceConceptCardSchema,
   anchors: z.array(worldReferenceAnchorSchema).optional().default([]),
-  // LLM 输出里可能是 seedPackage 或 referenceSeeds，后续代码会做归一化处理。
+  // LLM output may use seedPackage or referenceSeeds; later code normalizes both.
   seedPackage: worldReferenceSeedBundleSchema.optional(),
   referenceSeeds: worldReferenceSeedBundleSchema.optional(),
 }).passthrough();

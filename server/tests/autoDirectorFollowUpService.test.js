@@ -205,7 +205,7 @@ test("auto director follow-up service lists recent auto-approved records in auto
     const record = response.items[0];
     assert.equal(record.reason, "auto_approval_completed");
     assert.equal(record.section, "auto_progress");
-    assert.equal(record.reasonLabel, "最近自动通过");
+    assert.equal(record.reasonLabel, "Recently passed automatically");
     assert.equal(record.followUpSummary, "AI 已自动通过角色准备，并继续推进。");
     assert.deepEqual(record.availableActions.map((action) => action.code), ["open_detail"]);
     assert.deepEqual(record.batchActionCodes, []);
@@ -362,7 +362,7 @@ test("auto director follow-up service returns section-first counts and filters s
       lastError: "已由自动导演任务 task_new 替代。",
       seedPayloadJson: JSON.stringify({
         replacementTaskId: "task_new",
-        replacementReason: "由本任务替代",
+        replacementReason: "Replaced by this task",
       }),
       updatedAt: new Date("2026-04-21T11:00:00.000Z"),
     }),
@@ -610,7 +610,7 @@ test("auto director follow-up service detail reuses workflow detail and adds fol
     const detail = await service.getDetail("task_detail");
     assert.ok(detail);
     assert.equal(detail.taskId, "task_detail");
-    assert.equal(detail.reasonLabel, "待确认书级方向");
+    assert.equal(detail.reasonLabel, "Book level direction to be confirmed");
     assert.equal(detail.priority, "P1");
     assert.equal(detail.followUpSummary, "请先确认书级方向。");
     assert.equal(detail.currentModel, "anthropic/claude-sonnet-4-6");
@@ -752,7 +752,7 @@ test("auto director follow-up service detail only marks replaced when replacemen
     const detail = await service.getDetail("task_replaced_detail", { heal: false });
 
     assert.ok(detail);
-    assert.equal(detail.reasonLabel, "任务已替代");
+    assert.equal(detail.reasonLabel, "Task has been replaced");
     assert.deepEqual(findUniqueCalls, ["task_replaced_detail", "task_replacement_exists"]);
     assert.deepEqual(healCalls, []);
   } finally {

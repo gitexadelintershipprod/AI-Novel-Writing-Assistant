@@ -62,7 +62,7 @@ export async function applyChapterQualityClosure(input: {
 
   if (chapterResult.recoverableRepairFailure) {
     input.recoverableRepairDetails.push(
-      `Chapter ${chapter.order}需要后续修复：${chapterResult.recoverableRepairFailure.message}`,
+      `Chapter ${chapter.order} still needs later repair: ${chapterResult.recoverableRepairFailure.message}`,
     );
     logPipelineWarn("Local chapter repair was not applied safely. It was recorded and later chapters continued", {
       jobId: input.jobId,
@@ -116,7 +116,7 @@ export async function applyChapterQualityClosure(input: {
     input.qualityAlertDetails.push(
       `Chapter ${chapter.order} (coherence=${final.score.coherence}, repetition=${final.score.repetition}, engagement=${final.score.engagement})`,
     );
-    logPipelineWarn("章节最终未达标", {
+    logPipelineWarn("Chapter still below quality threshold", {
       jobId: input.jobId,
       order: chapter.order,
       score: final.score,
@@ -164,12 +164,12 @@ export async function applyChapterQualityClosure(input: {
         windowSize: Math.max(1, replanRecommendation.affectedChapterOrders?.length ?? 3),
         reason: replanRecommendation.triggerReason ?? replanRecommendation.reason,
       });
-      const plannedOrders = result.affectedChapterOrders.join(",") || "后续未完成章节";
-      const completedDetail = `Chapter ${chapter.order}已调整后续Chapter arrangement（已刷新=${plannedOrders}）。`;
+      const plannedOrders = result.affectedChapterOrders.join(",") || "later unfinished chapters";
+      const completedDetail = `Chapter ${chapter.order} adjusted later chapter arrangement (refreshed=${plannedOrders}).`;
       if (!input.qualityAlertDetails.includes(completedDetail)) input.qualityAlertDetails.push(completedDetail);
       return { shouldStopAfterCurrentChapter: false };
     } catch (error) {
-      const failureDetail = `Chapter ${chapter.order}Follow-up chapter adjustment failed，已保留正文并继续：${error instanceof Error ? error.message : String(error)}`;
+      const failureDetail = `Chapter ${chapter.order} follow-up chapter adjustment failed; prose was kept and the chain continued: ${error instanceof Error ? error.message : String(error)}`;
       if (!input.recoverableRepairDetails.includes(failureDetail)) input.recoverableRepairDetails.push(failureDetail);
       const result = await reportPipelineIssue({
         governance: input.governance,

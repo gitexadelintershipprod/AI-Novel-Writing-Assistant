@@ -77,12 +77,12 @@ function collectRuleHighlights(profile: StyleProfile): string[] {
 
 function buildProfileSummary(profile: StyleProfile): string {
   const parts = [
-    profile.category?.trim() ? `分类：${profile.category.trim()}` : "",
-    profile.tags.length > 0 ? `标签：${profile.tags.slice(0, 5).join("、")}` : "",
-    profile.applicableGenres.length > 0 ? `适配题材：${profile.applicableGenres.slice(0, 4).join("、")}` : "",
+    profile.category?.trim() ? `category: ${profile.category.trim()}` : "",
+    profile.tags.length > 0 ? `tags: ${profile.tags.slice(0, 5).join(", ")}` : "",
+    profile.applicableGenres.length > 0 ? `fitted genres: ${profile.applicableGenres.slice(0, 4).join(", ")}` : "",
     truncateText(profile.description, 120),
     truncateText(profile.analysisMarkdown, 160),
-    collectRuleHighlights(profile).join("；"),
+    collectRuleHighlights(profile).join("; "),
   ].filter(Boolean);
   return parts.join(" | ");
 }
@@ -108,20 +108,20 @@ function buildNovelSummary(novel: {
 }, chapterCount: number): string {
   const bookFramingSummary = buildBookFramingSummary(novel);
   return [
-    `标题：${novel.title}`,
-    novel.genre?.name ? `题材：${novel.genre.name}` : "",
-    novel.description?.trim() ? `简介：${truncateText(novel.description, 220)}` : "",
+    `Title: ${novel.title}`,
+    novel.genre?.name ? `Genre: ${novel.genre.name}` : "",
+    novel.description?.trim() ? `Blurb: ${truncateText(novel.description, 220)}` : "",
     bookFramingSummary ? `Book-level framing:\n${bookFramingSummary}` : "",
     novel.styleTone?.trim() ? `Keywords for writing style:${novel.styleTone.trim()}` : "",
     novel.narrativePov ? `Narrative perspective:${novel.narrativePov}` : "",
     novel.pacePreference ? `Rhythm preference:${novel.pacePreference}` : "",
     novel.emotionIntensity ? `Emotional intensity:${novel.emotionIntensity}` : "",
     novel.aiFreedom ? `AI degrees of freedom:${novel.aiFreedom}` : "",
-    novel.estimatedChapterCount ? `Estimated number of chapters：${novel.estimatedChapterCount}` : "",
+    novel.estimatedChapterCount ? `Estimated number of chapters: ${novel.estimatedChapterCount}` : "",
     chapterCount > 0 ? `Current number of chapters:${chapterCount}` : "",
-    novel.world?.name ? `World view:${novel.world.name}${novel.world.worldType ? `（${novel.world.worldType}）` : ""}` : "",
-    novel.outline?.trim() ? `Story direction：${truncateText(novel.outline, 260)}` : "",
-    novel.structuredOutline?.trim() ? `Structured outline摘录：${truncateText(novel.structuredOutline, 260)}` : "",
+    novel.world?.name ? `World view:${novel.world.name}${novel.world.worldType ? ` (${novel.world.worldType})` : ""}` : "",
+    novel.outline?.trim() ? `Story direction: ${truncateText(novel.outline, 260)}` : "",
+    novel.structuredOutline?.trim() ? `Structured outline excerpt: ${truncateText(novel.structuredOutline, 260)}` : "",
   ].filter(Boolean).join("\n");
 }
 
@@ -200,7 +200,7 @@ export class StyleRecommendationService {
     const targetCount = profiles.length === 1 ? 1 : 2;
     const catalogText = profiles
       .map((profile, index) => (
-        `${index + 1}. ID=${profile.id}\n名称：${profile.name}\n摘要：${buildProfileSummary(profile)}`
+        `${index + 1}. ID=${profile.id}\nname: ${profile.name}\nsummary: ${buildProfileSummary(profile)}`
       ))
       .join("\n\n");
     const novelSummary = buildNovelSummary(novel, chapterCount);

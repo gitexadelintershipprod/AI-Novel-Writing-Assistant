@@ -170,7 +170,7 @@ function composeNovelListAnswer(results: ToolExecutionResult[]): string {
   const lines = items.slice(0, 8).map((item, index) => {
     const title = typeof item?.title === "string" && item.title.trim() ? item.title.trim() : "Untitled novel";
     const chapterCount = typeof item?.chapterCount === "number" ? item.chapterCount : null;
-    return `${index + 1}. 《${title}》${chapterCount != null ? `（${chapterCount} chapter）` : ""}`;
+    return `${index + 1}. "${title}"${chapterCount != null ? ` (${chapterCount} chapter)` : ""}`;
   });
   return `There are currently ${total} novels:\n${lines.join("\n")}`;
 }
@@ -187,7 +187,7 @@ function composeBaseCharacterListAnswer(results: ToolExecutionResult[]): string 
     const category = typeof item?.category === "string" && item.category.trim() ? item.category.trim() : null;
     const tags = typeof item?.tags === "string" && item.tags.trim() ? item.tags.trim() : null;
     const suffix = [role, category, tags].filter(Boolean).join(" / ");
-    return `${index + 1}. ${name}${suffix ? `（${suffix}）` : ""}`;
+    return `${index + 1}. ${name}${suffix ? ` (${suffix})` : ""}`;
   });
   return `The character library currently has ${items.length} character templates:\n${lines.join("\n")}`;
 }
@@ -201,7 +201,7 @@ function composeWorldListAnswer(results: ToolExecutionResult[]): string {
   const lines = items.slice(0, 8).map((item, index) => {
     const name = typeof item?.name === "string" && item.name.trim() ? item.name.trim() : "Unnamed world view";
     const status = typeof item?.status === "string" && item.status.trim() ? item.status.trim() : null;
-    return `${index + 1}. ${name}${status ? `（${status}）` : ""}`;
+    return `${index + 1}. ${name}${status ? ` (${status})` : ""}`;
   });
   return `There are currently ${items.length} worlds:\n${lines.join("\n")}`;
 }
@@ -216,7 +216,7 @@ function composeTaskListAnswer(results: ToolExecutionResult[]): string {
     const title = typeof item?.title === "string" && item.title.trim() ? item.title.trim() : "Untitled task";
     const status = typeof item?.status === "string" && item.status.trim() ? item.status.trim() : "unknown";
     const kind = typeof item?.kind === "string" && item.kind.trim() ? item.kind.trim() : null;
-    return `${index + 1}. ${title}${kind ? `（${kind}）` : ""} - ${status}`;
+    return `${index + 1}. ${title}${kind ? ` (${kind})` : ""} - ${status}`;
   });
   return `There are currently ${items.length} system tasks:\n${lines.join("\n")}`;
 }
@@ -318,7 +318,7 @@ function composeFactProductionStatusText(status: Record<string, unknown>, fallba
         ? `Chapter text: ${draftedChapterCount}/${targetChapterCount} chapters.`
         : `Chapter text: ${draftedChapterCount} chapters.`);
     } else {
-      parts.push(targetChapterCount != null ? `Chapter table of contents:${chapterCount}/${targetChapterCount} chapters.` : `Chapter table of contents:${chapterCount} chapters.`);
+      parts.push(targetChapterCount != null ? `Chapter table of contents: ${chapterCount}/${targetChapterCount} chapters.` : `Chapter table of contents: ${chapterCount} chapters.`);
     }
     if (reviewedChapterCount != null && reviewedChapterCount > 0) {
       parts.push(`Review: ${reviewedChapterCount} chapters.`);
@@ -330,7 +330,7 @@ function composeFactProductionStatusText(status: Record<string, unknown>, fallba
       parts.push(`${needsRepairChapters} chapters waiting for repair.`);
     }
   } else {
-    parts.push(targetChapterCount != null ? `Chapter table of contents:${chapterCount}/${targetChapterCount} chapters.` : `Chapter table of contents:${chapterCount} chapters.`);
+    parts.push(targetChapterCount != null ? `Chapter table of contents: ${chapterCount}/${targetChapterCount} chapters.` : `Chapter table of contents: ${chapterCount} chapters.`);
   }
   if (runtimeLabel && runtimeState !== "idle") {
     parts.push(`Background: ${runtimeLabel}.`);
@@ -393,7 +393,7 @@ function composeCharacterAnswer(results: ToolExecutionResult[]): string {
   const lines = items.slice(0, 6).map((item, index) => {
     const name = typeof item?.name === "string" && item.name.trim() ? item.name.trim() : "unnamed role";
     const role = typeof item?.role === "string" && item.role.trim() ? item.role.trim() : null;
-    return `${index + 1}. ${name}${role ? `（${role}）` : ""}`;
+    return `${index + 1}. ${name}${role ? ` (${role})` : ""}`;
   });
   return `This novel currently has ${count} planned characters:\n${lines.join("\n")}`;
 }

@@ -7,8 +7,8 @@ import { DirectorCommandExecutor } from "../services/novel/director/commands/Dir
 import { DirectorTaskQueue, type DirectorTaskQueueOptions } from "./DirectorTaskQueue";
 import { taskDispatcher } from "./TaskDispatcher";
 
-// DirectorWorker 通常由 app.ts 的 initializeBackgroundServices() 在同进程内启动。
-// 此文件保留独立进程入口（`require.main === module`），仅供需要分离部署时使用。
+// DirectorWorker is normally started in-process by app.ts initializeBackgroundServices().
+// This file keeps a standalone process entry (`require.main === module`) for split deployments.
 
 export interface DirectorWorkerDeps {
   queue: DirectorTaskQueue;

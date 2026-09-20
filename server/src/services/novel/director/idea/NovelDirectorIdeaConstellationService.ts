@@ -48,7 +48,7 @@ async function runComposePrompt(input: DirectorIdeaConstellationComposeRequest, 
     promptInput: {
       contextSummary: buildDirectorIdeaContextSummary(input, marketBriefPrompt),
       selectedSummary: input.selectedOptions
-        .map((option) => `${option.category}：${option.label}（${option.hint}）`)
+        .map((option) => `${option.category}: ${option.label}（${option.hint}）`)
         .join("\n"),
     },
     options: {

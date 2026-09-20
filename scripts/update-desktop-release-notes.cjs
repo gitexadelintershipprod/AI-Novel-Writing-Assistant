@@ -111,13 +111,13 @@ function extractReleaseNotesForVersion(markdown, version) {
 
 function buildReleaseBody(version, notesBlock) {
   return [
-    "## 本版本更新说明",
+    "## What's new in this version",
     "",
     notesBlock,
     "",
     "---",
     "",
-    `桌面客户端版本：v${version}`,
+    `Desktop client version: v${version}`,
   ].join("\n");
 }
 

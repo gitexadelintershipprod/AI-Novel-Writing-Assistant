@@ -56,7 +56,7 @@ function buildImagePresentation(row: {
   if (row.sceneType === "novel_cover" && row.novelId) {
     const title = row.novel?.title?.trim() || `Novel ${row.novelId.slice(0, 8)}`;
     return {
-      title: `novel cover：${title}`,
+      title: `Novel cover: ${title}`,
       ownerLabel: title,
       sourceRoute: `/novels/${row.novelId}/edit?stage=basic`,
     };
@@ -271,7 +271,7 @@ export class RecoveryTaskService {
       ...styleExtractionRows.map((row) => ({
         id: row.id,
         kind: "style_extraction" as const,
-        title: `Writing extraction：${row.name}`,
+        title: `Writing extraction: ${row.name}`,
         ownerLabel: row.name,
         status: toRunningStatus(row.status),
         currentStage: row.currentStage,

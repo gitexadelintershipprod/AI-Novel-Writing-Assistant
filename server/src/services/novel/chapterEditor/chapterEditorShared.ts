@@ -183,7 +183,7 @@ export function buildWorldConstraintSummary(world: WorldLike): string {
   ].filter((item): item is string => Boolean(item));
   const axioms = parseLooseTextList(world.axioms).slice(0, 3);
   if (axioms.length > 0) {
-    lines.push(`Hard rules:${axioms.join("；")}`);
+    lines.push(`Hard rules:${axioms.join("; ")}`);
   }
   return lines.join("\n") || "No extra world constraints.";
 }

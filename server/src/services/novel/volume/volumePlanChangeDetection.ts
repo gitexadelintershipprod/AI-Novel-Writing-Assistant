@@ -147,7 +147,7 @@ function getChapterChangedFields(existing: ExistingChapterRecord, chapter: Volum
   if (!compareNumber(existing.revealLevel, chapter.revealLevel)) changed.push("reveal level");
   if (!compareText(existing.mustAvoid, chapter.mustAvoid)) changed.push("Prohibited matters");
   if (!compareText(existing.taskSheet, chapter.taskSheet)) changed.push("task order");
-  if (!compareText(existing.sceneCards, chapter.sceneCards)) changed.push("场景预算");
+  if (!compareText(existing.sceneCards, chapter.sceneCards)) changed.push("scene budget");
   return changed;
 }
 
@@ -176,7 +176,7 @@ function buildVolumeOutlineSnapshot(volumes: VolumePlan[]): string {
         volume.payoffType ? `Redemption type:${volume.payoffType}` : "",
         volume.nextVolumeHook ? `Lower roll hook:${volume.nextVolumeHook}` : "",
         volume.resetPoint ? `Reset point:${volume.resetPoint}` : "",
-        volume.openPayoffs.length > 0 ? `Unfulfilled items:${volume.openPayoffs.join("、")}` : "",
+        volume.openPayoffs.length > 0 ? `Unfulfilled items:${volume.openPayoffs.join(", ")}` : "",
         `Chapter scope:${chapterSpan}`,
       ].filter(Boolean);
       return lines.join("\n");
@@ -227,14 +227,14 @@ export function hasPayoffLedgerRelevantPlanChanges(beforeVolumes: VolumePlan[], 
 export function buildTaskSheetFromVolumeChapter(chapter: VolumeChapterPlan): string {
   const lines = [
     `Chapter Objectives:${chapter.purpose || chapter.summary || "Advance the main line"}`,
-    chapter.exclusiveEvent ? `exclusive event：${chapter.exclusiveEvent}` : "",
-    chapter.endingState ? `End-of-chapter state：${chapter.endingState}` : "",
-    chapter.nextChapterEntryState ? `Starting state for the next chapter：${chapter.nextChapterEntryState}` : "",
+    chapter.exclusiveEvent ? `Exclusive event: ${chapter.exclusiveEvent}` : "",
+    chapter.endingState ? `End-of-chapter state: ${chapter.endingState}` : "",
+    chapter.nextChapterEntryState ? `Starting state for the next chapter: ${chapter.nextChapterEntryState}` : "",
     typeof chapter.conflictLevel === "number" ? `Conflict level:${chapter.conflictLevel}` : "",
     typeof chapter.revealLevel === "number" ? `Disclosure level:${chapter.revealLevel}` : "",
     typeof chapter.targetWordCount === "number" ? `Target word count:${chapter.targetWordCount}` : "",
     chapter.mustAvoid ? `Prohibited matters:${chapter.mustAvoid}` : "",
-    chapter.payoffRefs.length > 0 ? `Redeem association:${chapter.payoffRefs.join("、")}` : "",
+    chapter.payoffRefs.length > 0 ? `Payoff association: ${chapter.payoffRefs.join(", ")}` : "",
   ].filter(Boolean);
   return lines.join("\n");
 }
@@ -444,8 +444,8 @@ function collectVolumeChangedFields(beforeVolume: VolumePlan | undefined, afterV
   if (!compareText(beforeVolume.climax, afterVolume.climax)) changed.push("Climax at the end of the volume");
   if (!compareText(beforeVolume.payoffType, afterVolume.payoffType)) changed.push("Redemption type");
   if (!compareText(beforeVolume.nextVolumeHook, afterVolume.nextVolumeHook)) changed.push("Lower roll hook");
-  if (!compareText(beforeVolume.resetPoint, afterVolume.resetPoint)) changed.push("重置点");
-  if (!compareStringArray(beforeVolume.openPayoffs, afterVolume.openPayoffs)) changed.push("未兑现事项");
+  if (!compareText(beforeVolume.resetPoint, afterVolume.resetPoint)) changed.push("reset point");
+  if (!compareStringArray(beforeVolume.openPayoffs, afterVolume.openPayoffs)) changed.push("open payoffs");
   if (beforeVolume.chapters.length !== afterVolume.chapters.length) changed.push("Number of chapters");
   const beforeChapterMap = new Map(beforeVolume.chapters.map((chapter) => [chapter.chapterOrder, chapter]));
   const chapterChanged = afterVolume.chapters.some((chapter) => {
@@ -475,10 +475,10 @@ function collectVolumeChangedFields(beforeVolume: VolumePlan | undefined, afterV
 
 export function buildVolumeDiffSummary(changedVolumes: VolumePlanDiffVolume[]): string {
   if (changedVolumes.length === 0) {
-    return "卷级结构无变化。";
+    return "No volume-level structure change.";
   }
   return changedVolumes
-    .map((volume) => `Volume ${volume.sortOrder}"${volume.title}": ${volume.changedFields.join(", ")}${volume.chapterOrders.length > 0 ? `；波及章节 ${volume.chapterOrders.join("、")}` : ""}`)
+    .map((volume) => `Volume ${volume.sortOrder}"${volume.title}": ${volume.changedFields.join(", ")}${volume.chapterOrders.length > 0 ? `; affected chapters ${volume.chapterOrders.join(", ")}` : ""}`)
     .join("\n");
 }
 
@@ -702,10 +702,10 @@ export function buildVolumeImpactResult(
   const staleBeatCount = affectedBeats.filter((beat) => beat.status !== "locked_with_draft").length;
   const lockedBeatCount = affectedBeats.filter((beat) => beat.status === "locked_with_draft").length;
   const recommendedActions = [
-    requiresChapterSync ? "同步章节计划" : "",
-    requiresCharacterReview ? "复核角色职责与成长线" : "",
+    requiresChapterSync ? "Sync chapter plans" : "",
+    requiresCharacterReview ? "Review character duties and growth lines" : "",
     staleBeatCount > 0 ? "Connect the unwritten stretch ahead" : "",
-    diff.changedLines >= 12 ? "复查关键伏笔与兑现链" : "",
+    diff.changedLines >= 12 ? "Recheck key foreshadowing and payoff chains" : "",
   ].filter(Boolean);
 
   return {
@@ -720,9 +720,9 @@ export function buildVolumeImpactResult(
     lockedBeatCount,
     defaultImpactAction: staleBeatCount > 0 ? "Connect the unwritten stretch ahead" : undefined,
     advancedImpactActions: [
-      staleBeatCount > 0 ? "重排某个未写节奏段的参与者" : "",
+      staleBeatCount > 0 ? "Rearrange participants for an unwritten beat stretch" : "",
       lockedBeatCount > 0 ? "Check character consistency in existing draft stretches" : "",
-      requiresCharacterReview ? "重跑节奏板或卷战略" : "",
+      requiresCharacterReview ? "Rerun the beat sheet or volume strategy" : "",
     ].filter(Boolean),
     requiresChapterSync,
     requiresCharacterReview,

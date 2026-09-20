@@ -68,8 +68,8 @@ test("auto director auto-approval audit records the event, appends a milestone, 
 
     assert.equal(record.id, "auto_approval_new");
     assert.equal(record.approvalPointCode, "character_setup_ready");
-    assert.equal(record.approvalPointLabel, "角色准备通过后继续");
-    assert.match(record.summary, /AI 已自动通过「角色准备通过后继续」/);
+    assert.equal(record.approvalPointLabel, "Continue after character setup passes");
+    assert.match(record.summary, /AI automatically passed "Continue after character setup passes"/);
     assert.equal(deletedRows.length, 1);
     assert.deepEqual(deletedRows[0], {
       id: {
@@ -79,7 +79,7 @@ test("auto director auto-approval audit records the event, appends a milestone, 
     const milestones = JSON.parse(taskUpdates[0].milestonesJson);
     assert.equal(milestones.length, 1);
     assert.equal(milestones[0].checkpointType, "character_setup_required");
-    assert.match(milestones[0].summary, /AI 已自动通过「角色准备通过后继续」/);
+    assert.match(milestones[0].summary, /AI automatically passed "Continue after character setup passes"/);
   } finally {
     prisma.novelWorkflowTask.findUnique = originals.taskFindUnique;
     prisma.novelWorkflowTask.update = originals.taskUpdate;
@@ -138,12 +138,12 @@ test("auto director replan notice audit records a reminder instead of an auto-ap
 
     assert.equal(record.id, "auto_replan_notice");
     assert.equal(record.approvalPointCode, "replan_continue");
-    assert.equal(record.approvalPointLabel, "重规划处理后继续");
-    assert.match(record.summary, /AI 已记录重规划提醒，并继续推进/);
-    assert.doesNotMatch(record.summary, /自动通过/);
+    assert.equal(record.approvalPointLabel, "Continue after replan handling");
+    assert.match(record.summary, /AI recorded a replan reminder and continued/);
+    assert.doesNotMatch(record.summary, /automatically passed/);
     const milestones = JSON.parse(taskUpdates[0].milestonesJson);
     assert.equal(milestones[0].checkpointType, "replan_required");
-    assert.match(milestones[0].summary, /AI 已记录重规划提醒，并继续推进/);
+    assert.match(milestones[0].summary, /AI recorded a replan reminder and continued/);
   } finally {
     prisma.novelWorkflowTask.findUnique = originals.taskFindUnique;
     prisma.novelWorkflowTask.update = originals.taskUpdate;

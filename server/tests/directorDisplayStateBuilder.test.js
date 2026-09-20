@@ -60,11 +60,11 @@ test("display state maps chapter draft execution into chapter stage and uses fac
   });
 
   assert.equal(displayState.stageKey, "chapter_execution");
-  assert.equal(displayState.stageLabel, "章节执行");
+  assert.equal(displayState.stageLabel, "Chapter execution");
   assert.equal(displayState.stepIndex, 6);
   assert.equal(displayState.progressPercent, 45);
   assert.equal(displayState.currentAction, "正在推进第 10 章");
-  assert.equal(displayState.nextActionLabel, "继续章节执行");
+  assert.equal(displayState.nextActionLabel, "Continue chapter execution");
   assert.equal(displayState.steps[6].status, "running");
 });
 

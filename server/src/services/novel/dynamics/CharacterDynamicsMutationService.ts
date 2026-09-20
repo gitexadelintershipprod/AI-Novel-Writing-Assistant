@@ -88,8 +88,8 @@ export class CharacterDynamicsMutationService {
         : "(Chapters not generated yet)";
       return `Volume ${beat.volumeOrder} ${beat.beatLabel}${title}${chapterRange}`;
     };
-    const writableSummary = writableBeats.slice(0, 5).map(formatBeat).join("；");
-    const lockedSummary = lockedBeats.slice(0, 3).map(formatBeat).join("；");
+    const writableSummary = writableBeats.slice(0, 5).map(formatBeat).join("; ");
+    const lockedSummary = lockedBeats.slice(0, 3).map(formatBeat).join("; ");
     await prisma.creativeDecision.create({
       data: {
         novelId: input.novelId,
@@ -97,9 +97,9 @@ export class CharacterDynamicsMutationService {
         category: "character_dynamic_beat_impact",
         content: [
           `Character ${input.characterName} access range: ${writableSummary || "No unwritten beat segments"}`,
-          lockedSummary ? `Text locked：${lockedSummary}` : "",
+          lockedSummary ? `Text locked: ${lockedSummary}` : "",
           "By default, only later unwritten beats are connected. Existing draft stretches are used only for consistency checks.",
-        ].filter(Boolean).join("；"),
+        ].filter(Boolean).join("; "),
         importance: writableBeats.length > 0 ? "high" : "normal",
         sourceType: input.sourceType,
         sourceRefId: input.sourceRefId,
@@ -144,7 +144,7 @@ export class CharacterDynamicsMutationService {
           novelId,
           chapterId: candidate.sourceChapter?.id ?? null,
           category: "character_dynamic_confirm",
-          content: `确认新角色：${createdCharacter.name}。来源候选：${candidate.proposedName}。${candidate.summary ?? ""}`.trim(),
+          content: `Confirmed new character: ${createdCharacter.name}. Source candidate: ${candidate.proposedName}. ${candidate.summary ?? ""}`.trim(),
           importance: "high",
           sourceType: "character_candidate",
           sourceRefId: candidate.id,
@@ -203,7 +203,7 @@ export class CharacterDynamicsMutationService {
           novelId,
           chapterId: candidate.sourceChapter?.id ?? null,
           category: "character_dynamic_merge",
-          content: `候选角色 ${candidate.proposedName} 已并入 ${character.name}。${input.summary?.trim() || candidate.summary || ""}`.trim(),
+          content: `Candidate ${candidate.proposedName} was merged into ${character.name}. ${input.summary?.trim() || candidate.summary || ""}`.trim(),
           importance: "normal",
           sourceType: "character_candidate",
           sourceRefId: candidate.id,
@@ -311,11 +311,11 @@ export class CharacterDynamicsMutationService {
       }
 
       const decisionSegments = [
-        typeof input.currentState === "string" ? `状态=${input.currentState}` : "",
-        typeof input.currentGoal === "string" ? `目标=${input.currentGoal}` : "",
-        typeof input.factionLabel === "string" ? `阵营=${input.factionLabel}` : "",
+        typeof input.currentState === "string" ? `state=${input.currentState}` : "",
+        typeof input.currentGoal === "string" ? `goal=${input.currentGoal}` : "",
+        typeof input.factionLabel === "string" ? `faction=${input.factionLabel}` : "",
         typeof input.roleLabel === "string" ? `Volume role=${input.roleLabel}` : "",
-        typeof input.responsibility === "string" ? `职责=${input.responsibility}` : "",
+        typeof input.responsibility === "string" ? `duty=${input.responsibility}` : "",
         input.decisionNote?.trim() || "",
       ].filter(Boolean);
       if (decisionSegments.length > 0) {
@@ -324,7 +324,7 @@ export class CharacterDynamicsMutationService {
             novelId,
             chapterId: input.chapterId ?? null,
             category: "character_dynamic_manual_update",
-            content: `${character.name} 动态状态更新：${decisionSegments.join("；")}`,
+            content: `${character.name} dynamics update: ${decisionSegments.join("; ")}`,
             importance: "normal",
             sourceType: "character_dynamic_state",
             sourceRefId: character.id,
@@ -408,7 +408,7 @@ export class CharacterDynamicsMutationService {
           novelId,
           chapterId: input.chapterId ?? null,
           category: "character_relation_stage_manual_update",
-          content: `${relation.sourceCharacter.name} -> ${relation.targetCharacter.name} relationship stage更新为 ${input.stageLabel}。${input.decisionNote?.trim() || input.stageSummary}`.trim(),
+          content: `${relation.sourceCharacter.name} -> ${relation.targetCharacter.name} relationship stage updated to ${input.stageLabel}. ${input.decisionNote?.trim() || input.stageSummary}`.trim(),
           importance: "normal",
           sourceType: "character_relation_stage",
           sourceRefId: relation.id,
@@ -869,7 +869,7 @@ export class CharacterDynamicsMutationService {
             novelId,
             chapterId: candidate.sourceChapter?.id ?? null,
             category: "character_dynamic_confirm",
-            content: `Auto-Director确认新角色：${createdCharacter.name}。来源候选：${candidate.proposedName}。${candidate.summary ?? ""}`.trim(),
+            content: `Auto-Director confirmed new character: ${createdCharacter.name}. Source candidate: ${candidate.proposedName}. ${candidate.summary ?? ""}`.trim(),
             importance: "high",
             sourceType: "character_candidate",
             sourceRefId: candidate.id,

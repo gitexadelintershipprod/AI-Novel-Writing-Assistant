@@ -1,11 +1,11 @@
 /**
  * ComicSceneService
- * 场景一致性实体（L0 场景圣经 + L1 设定图）的 CRUD + AI 生成 + 上传。
+ * CRUD + AI generation + upload for scene-consistency entities (L0 scene bible + L1 setting art).
  *
- * bible JSON：{ palette, keyElements, materials, ambiance, layout }
- * sheetData JSON：{ status, url, prompt, provider, generatedAt, error, origin:"generated"|"uploaded" }
- * 图片存储：generated-images/comic-scenes/{sceneId}/scene-sheet.{ext}
- * HTTP 端点：/api/comic/scenes/:sceneId/image
+ * bible JSON: { palette, keyElements, materials, ambiance, layout }
+ * sheetData JSON: { status, url, prompt, provider, generatedAt, error, origin:"generated"|"uploaded" }
+ * Image storage: generated-images/comic-scenes/{sceneId}/scene-sheet.{ext}
+ * HTTP endpoint: /api/comic/scenes/:sceneId/image
  */
 import fs from "fs/promises";
 import path from "path";
@@ -81,7 +81,7 @@ async function removeOldSceneFiles(sceneId: string, keepExt: string): Promise<vo
   }
 }
 
-/** 找已存盘的scene setting diagram路径 */
+/** Find a scene setting-art file already on disk. */
 export async function resolveSceneFile(sceneId: string): Promise<{ filePath: string; mimeType: string } | null> {
   const dir = sceneDir(sceneId);
   for (const [ext, mimeType] of IMAGE_EXTS) {
@@ -89,7 +89,7 @@ export async function resolveSceneFile(sceneId: string): Promise<{ filePath: str
     try {
       await fs.access(candidate);
       return { filePath: candidate, mimeType };
-    } catch { /* 继续 */ }
+    } catch { /* keep looking */ }
   }
   return null;
 }
@@ -101,7 +101,7 @@ function buildSceneSheetPrompt(params: {
   stylePrefix?: string;
 }): string {
   const { name, sceneType, bible, stylePrefix } = params;
-  // 十字分割的 2x2 四宫格场景参考图：一张图同时给出四个视角，作参考时信息量最大
+  // Cross-split 2x2 scene reference: one image with four viewpoints, maximizing information when used as a reference.
   const lines: string[] = [
     stylePrefix ?? "webtoon style, vibrant colors, clean lines",
     `location reference sheet of a ${sceneType} scene: ${name}`,
@@ -177,11 +177,11 @@ export class ComicSceneService {
     await this.getScene(sceneId);
     try {
       await fs.rm(sceneDir(sceneId), { recursive: true, force: true });
-    } catch { /* 忽略：文件可能从未生成 */ }
+    } catch { /* ignore: the file may never have been generated */ }
     return prisma.comicScene.delete({ where: { id: sceneId } });
   }
 
-  // ── 图片上传 ──────────────────────────────────────────────────────────────
+  // ── Image upload ────────────────────────────────────────────────────────────
 
   async uploadSceneImage(sceneId: string, fileBuffer: Buffer, mimeType: string): Promise<{ url: string }> {
     await this.getScene(sceneId);
@@ -206,7 +206,7 @@ export class ComicSceneService {
     return { url };
   }
 
-  // ── AI generated（prepare + generate 共享 buildContext） ───────────────────────
+  // ── AI generation (prepare + generate share buildContext) ────────────────────
 
   private async buildSceneGenerationContext(sceneId: string) {
     const scene = await prisma.comicScene.findUnique({
@@ -269,7 +269,7 @@ export class ComicSceneService {
     });
   }
 
-  // ── 文件服务 ──────────────────────────────────────────────────────────────
+  // ── File serving ────────────────────────────────────────────────────────────
 
   async serveSceneImage(sceneId: string): Promise<{ filePath: string; mimeType: string }> {
     const resolved = await resolveSceneFile(sceneId);

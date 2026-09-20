@@ -1,9 +1,10 @@
 /**
- * 生图前统一确认弹窗
+ * Shared confirm dialog shown before image generation.
  *
- * 用于所有生图入口（角色三视图/表情稿/资产/场景设定图/格子图/Drama 角色/Drama 关键帧）
- * 在真正消耗 token 前展示：即将发送的 prompt + 参考图素材 + 模型/尺寸；
- * 用户可临时修改 prompt / provider / size，确认后才发起生图。
+ * Used by every generation entry (character three-view, expression sheets, assets,
+ * scene setting sheets, panel grids, drama characters, drama keyframes).
+ * Before tokens are spent, it shows the prompt about to be sent, reference images,
+ * and model/size. The user can temporarily edit prompt / provider / size, then confirm.
  */
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -46,8 +47,8 @@ type PromptAssistAction = "explain" | "optimize";
 interface Props {
   open: boolean;
   preview: ImageGenerationPreview | null;
-  loading?: boolean;          // prepare 中
-  submitting?: boolean;       // generate 中
+  loading?: boolean;          // preparing
+  submitting?: boolean;       // generating
   onCancel: () => void;
   onConfirm: (overrides: ImageGenerationOverrides) => void;
 }
@@ -71,7 +72,7 @@ export function ImageGenerationConfirmDialog({
   const [promptAssistResult, setPromptAssistResult] = useState<ImagePromptAssistResult | null>(null);
   const [promptAssistError, setPromptAssistError] = useState("");
 
-  // 弹窗重新打开或 preview 变更时，重置编辑态为预览默认值
+  // Reset the editor to the preview defaults when the dialog reopens or preview changes.
   useEffect(() => {
     if (preview) {
       setPrompt(preview.prompt);
@@ -87,7 +88,7 @@ export function ImageGenerationConfirmDialog({
     }
   }, [preview]);
 
-  // 可用 provider 列表（图像生成 + 已配置）
+  // Available providers (image generation + configured).
   const { data: providerOptions = [] } = useQuery({
     queryKey: ["settings", "api-keys"],
     queryFn: getAPIKeySettings,
@@ -97,14 +98,14 @@ export function ImageGenerationConfirmDialog({
         .map((p) => ({ value: p.provider, label: p.displayName ?? p.name })),
   });
 
-  // 当前 provider 不在可用列表里时，临时追加为选项（不丢失数据）
+  // If the current provider is missing from the list, append it temporarily so the value is not dropped.
   const providerChoices = useMemo(() => {
     if (!provider) return providerOptions;
     if (providerOptions.some((p) => p.value === provider)) return providerOptions;
     return [...providerOptions, { value: provider, label: provider }];
   }, [provider, providerOptions]);
 
-  // size 也保证当前值在列表里
+  // Also keep the current size in the option list.
   const sizeChoices = useMemo(() => {
     if (!size) return SIZE_OPTIONS;
     if (SIZE_OPTIONS.some((s) => s.value === size)) return SIZE_OPTIONS;
@@ -216,7 +217,7 @@ export function ImageGenerationConfirmDialog({
           <div className="py-12 text-center text-sm text-muted-foreground">No preview data</div>
         ) : (
           <div className="space-y-4">
-            {/* 参考图素材 */}
+            {/* Reference images */}
             <div>
               <div className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
                 <ImageIcon className="h-3 w-3" />
@@ -265,7 +266,7 @@ export function ImageGenerationConfirmDialog({
                         >
                           <X className="h-3.5 w-3.5" />
                         </button>
-                        {/* 高度固定 h-32，宽度按图片比例自适应 */}
+                        {/* Fixed height h-32; width follows the image aspect ratio. */}
                         <a
                           href={resolveImageAssetUrl(ref.url)}
                           target="_blank"
@@ -292,7 +293,7 @@ export function ImageGenerationConfirmDialog({
               )}
             </div>
 
-            {/* Prompt（可编辑） */}
+            {/* Prompt (editable) */}
             <div>
               <div className="mb-1 flex items-center justify-between">
                 <p className="text-xs font-semibold text-muted-foreground">
@@ -460,7 +461,7 @@ export function ImageGenerationConfirmDialog({
               </div>
             )}
 
-            {/* 参数：provider / size */}
+            {/* Parameters: provider / size */}
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <p className="mb-1 text-xs font-semibold text-muted-foreground">

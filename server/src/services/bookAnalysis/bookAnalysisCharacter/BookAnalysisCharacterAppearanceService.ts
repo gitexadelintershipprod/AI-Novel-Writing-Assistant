@@ -306,8 +306,8 @@ export class BookAnalysisCharacterAppearanceService {
     }
     const snapshotsText = snapshots.map((snapshot) => [
       `Chapter ${snapshot.chapterIndex + 1} ${snapshot.chapterTitle ?? ""}`,
-      snapshot.summaryCaption ? `摘要：${snapshot.summaryCaption}` : "",
-      snapshot.appearanceJson ? `结构：${snapshot.appearanceJson}` : "",
+      snapshot.summaryCaption ? `Summary: ${snapshot.summaryCaption}` : "",
+      snapshot.appearanceJson ? `Structure: ${snapshot.appearanceJson}` : "",
     ].filter(Boolean).join("\n")).join("\n\n");
     const result = await this.promptRunner({
       asset: bookAnalysisCharacterAppearanceConsolidatePrompt,
@@ -379,7 +379,7 @@ export class BookAnalysisCharacterAppearanceService {
       .filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === "object" && !Array.isArray(item))
       .map((item): BookAnalysisCharacterEvidenceItem => {
         const { sourceType: _sourceType, chunkId: _chunkId, noteSegmentId: _noteSegmentId, dimension: _dimension, ...rest } = item;
-        const excerpt = typeof rest.excerpt === "string" && rest.excerpt.trim() ? rest.excerpt.trim() : "章节外貌证据";
+        const excerpt = typeof rest.excerpt === "string" && rest.excerpt.trim() ? rest.excerpt.trim() : "Chapter appearance evidence";
         return {
           ...rest,
           label: typeof rest.label === "string" && rest.label.trim() ? rest.label.trim() : "Appearance-entry evidence",

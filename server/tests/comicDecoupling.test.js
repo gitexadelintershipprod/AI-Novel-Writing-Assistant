@@ -3,14 +3,14 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 
-// 低耦合守卫：services/comic 是独立 bounded context，
-// ① 禁止依赖 novel 领域（services/novel、modules/novel）
-// ② 禁止依赖 drama 服务实现（services/drama 非 engine/ 子路径）
-//    ——跨模块复用一律经由 services/adaptation 共享层
-// 豁免：drama/engine/（rhythmEngine / paywallPlanPolicy）
-//    是纯领域知识零外部依赖，按方案允许 comic 直接 import（暂未移至 adaptation/）
-// 与 novel 的唯一接触点仍由 adaptation/source/NovelSourceAdapter 承担，
-// comic 自身不得 import 任何含 "novel" 的模块路径。
+// Low-coupling guard: services/comic is an independent bounded context.
+// 1. Must not depend on the novel domain (services/novel, modules/novel).
+// 2. Must not depend on drama service implementations (services/drama except engine/).
+//    Cross-module reuse goes through services/adaptation.
+// Exemption: drama/engine/ (rhythmEngine / paywallPlanPolicy) is pure domain knowledge
+// with no external deps; comic may import it directly until it moves to adaptation/.
+// Contact with novel stays in adaptation/source/NovelSourceAdapter.
+// Comic itself must not import any "novel" module path.
 const COMIC_SRC = path.join(__dirname, "..", "src", "services", "comic");
 
 function collectTsFiles(dir) {
@@ -27,9 +27,9 @@ function collectTsFiles(dir) {
   return out;
 }
 
-test("services/comic 不依赖 novel 领域（低耦合守卫）", () => {
+test("services/comic does not depend on the novel domain", () => {
   const files = collectTsFiles(COMIC_SRC);
-  // 目录尚未创建时跳过（P1 落地前占位守卫）
+  // Skip if the directory does not exist yet (placeholder guard).
   if (files.length === 0) return;
 
   const importRe = /\bfrom\s+['"]([^'"]+)['"]/g;
@@ -49,18 +49,18 @@ test("services/comic 不依赖 novel 领域（低耦合守卫）", () => {
   assert.deepEqual(
     violations,
     [],
-    `comic 模块禁止 import novel 领域（仅可经 adaptation/source/NovelSourceAdapter → prisma 只读）：\n${violations.join("\n")}`,
+    `comic must not import the novel domain (read-only via adaptation/source/NovelSourceAdapter → prisma):\n${violations.join("\n")}`,
   );
 });
 
-test("services/comic 不依赖 drama 服务实现（跨模块复用须经 adaptation 层）", () => {
+test("services/comic does not depend on drama service implementations", () => {
   const files = collectTsFiles(COMIC_SRC);
   if (files.length === 0) return;
 
   const importRe = /\bfrom\s+['"]([^'"]+)['"]/g;
-  // 拦截绝对/相对路径中 services/drama 段，放行：
-  //   - adaptation/ 路径（共享层）
-  //   - drama/engine/ 路径（rhythmEngine / paywallPlanPolicy 纯领域知识，方案明确豁免）
+  // Block services/drama path segments; allow:
+  //   - adaptation/ (shared layer)
+  //   - drama/engine/ (rhythmEngine / paywallPlanPolicy; explicit exemption)
   const dramaSegmentRe = /(^|\/)drama(\/|$)/;
   const exemptRe = /(^|\/)adaptation(\/|$)|(^|\/)drama\/engine\//;
   const violations = [];
@@ -78,6 +78,6 @@ test("services/comic 不依赖 drama 服务实现（跨模块复用须经 adapta
   assert.deepEqual(
     violations,
     [],
-    `comic 模块禁止直接 import drama 服务实现（drama/engine/ 豁免，共享能力请下沉到 services/adaptation/）：\n${violations.join("\n")}`,
+    `comic must not import drama service implementations (drama/engine/ exempt; shared capability belongs in services/adaptation/):\n${violations.join("\n")}`,
   );
 });

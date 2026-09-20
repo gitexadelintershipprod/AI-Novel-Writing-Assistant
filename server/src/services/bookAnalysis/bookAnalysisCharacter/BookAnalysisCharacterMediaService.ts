@@ -59,7 +59,7 @@ function parseProfile(profileJson: string | null): CharacterProfile {
 }
 
 function compact(values: Array<string | null | undefined>): string {
-  return values.map((item) => item?.trim()).filter((item): item is string => Boolean(item)).join("；");
+  return values.map((item) => item?.trim()).filter((item): item is string => Boolean(item)).join("; ");
 }
 
 function buildSourcePrompt(row: { name: string; role: string; profileJson: string | null }): string {
@@ -79,8 +79,8 @@ function buildSourcePrompt(row: { name: string; role: string; profileJson: strin
   return compact([
     prompt,
     profile.outerGoal ? `External goals:${profile.outerGoal}` : "",
-    profile.innerNeed ? `Inner need：${profile.innerNeed}` : "",
-    scene ? `代表性Highlight scenes：${scene.sceneLabel}，${scene.performance}` : "",
+    profile.innerNeed ? `Inner need: ${profile.innerNeed}` : "",
+    scene ? `Representative highlight scene: ${scene.sceneLabel}, ${scene.performance}` : "",
   ]).replace(/；/g, "\n");
 }
 
@@ -91,14 +91,14 @@ function buildBaseCharacterData(row: { id: string; name: string; role: string; p
   return {
     name,
     role,
-    personality: compact([profile.personality, profile.values, profile.speakingStyle]) || "待补充性格。",
+    personality: compact([profile.personality, profile.values, profile.speakingStyle]) || "Personality still to fill in.",
     background: compact([
       profile.outerGoal ? `External goals:${profile.outerGoal}` : "",
-      profile.innerNeed ? `Inner need：${profile.innerNeed}` : "",
-      profile.wound ? `创伤：${profile.wound}` : "",
+      profile.innerNeed ? `Inner need: ${profile.innerNeed}` : "",
+      profile.wound ? `Wound: ${profile.wound}` : "",
       profile.misbelief ? `False belief:${profile.misbelief}` : "",
-    ]) || "来源于Open book character files，背景待补充。",
-    development: compact([...(profile.arcStages ?? []), profile.growthTrajectory]) || "待补充Growth path。",
+    ]) || "From Open book character files. Background still to fill in.",
+    development: compact([...(profile.arcStages ?? []), profile.growthTrajectory]) || "Growth path still to fill in.",
     appearance: compact([
       profile.appearance,
       profile.physique,
@@ -107,9 +107,9 @@ function buildBaseCharacterData(row: { id: string; name: string; role: string; p
     ]) || null,
     weaknesses: compact([profile.fear, profile.wound, profile.misbelief]) || null,
     interests: profile.speakingStyle ?? null,
-    keyEvents: profile.highlightScenes?.map((scene) => `${scene.sceneLabel}：${scene.performance}`).join("\n") || null,
-    tags: "拆书角色",
-    category: "拆书沉淀",
+    keyEvents: profile.highlightScenes?.map((scene) => `${scene.sceneLabel}: ${scene.performance}`).join("\n") || null,
+    tags: "book-analysis character",
+    category: "book-analysis capture",
     sourceType: "from_book_analysis_character",
     sourceRefId: row.id,
   };
@@ -144,7 +144,7 @@ function renderJsonBlock(label: string, value: Record<string, unknown> | null): 
   if (!value || Object.keys(value).length === 0) {
     return "";
   }
-  return `${label}：${JSON.stringify(value, null, 2)}`;
+  return `${label}: ${JSON.stringify(value, null, 2)}`;
 }
 
 function buildAppearanceSnapshotPrompt(input: {
@@ -163,15 +163,15 @@ function buildAppearanceSnapshotPrompt(input: {
   const chapterAppearance = parseJsonObject(input.snapshot.appearanceJson);
   const sceneRefs = parseStringArray(input.snapshot.contextSceneRefsJson);
   return [
-    `角色：${profile.name || input.character.name}`,
-    `定位：${profile.role || input.character.role}`,
+    `Character: ${profile.name || input.character.name}`,
+    `Role: ${profile.role || input.character.role}`,
     `Chapter: Chapter ${input.snapshot.chapterIndex}s${input.snapshot.chapterTitle ? `《${input.snapshot.chapterTitle}》` : ""}`,
-    input.snapshot.summaryCaption ? `本章形象概括：${input.snapshot.summaryCaption}` : "",
-    renderJsonBlock("稳定外观特征", stableAppearance),
-    renderJsonBlock("本章外貌、服装、状态与配饰", chapterAppearance),
-    sceneRefs.length > 0 ? `场景锚点：${sceneRefs.join("；")}` : "",
+    input.snapshot.summaryCaption ? `This chapter look summary: ${input.snapshot.summaryCaption}` : "",
+    renderJsonBlock("Stable appearance traits", stableAppearance),
+    renderJsonBlock("This chapter look, costume, state, and accessories", chapterAppearance),
+    sceneRefs.length > 0 ? `Scene anchors: ${sceneRefs.join("; ")}` : "",
     compact([profile.personality, profile.values, profile.speakingStyle])
-      ? `气质参考：${compact([profile.personality, profile.values, profile.speakingStyle])}`
+      ? `Tone reference: ${compact([profile.personality, profile.values, profile.speakingStyle])}`
       : "",
     "Generation rules: keep stable traits and highlight this chapter's costume, state, and emotion. The result should work as the same character's look evolving across chapters. Avoid text, watermarks, and extra people.",
   ].filter(Boolean).join("\n");
@@ -361,7 +361,7 @@ export class BookAnalysisCharacterMediaService {
     });
     await characterLibrarySyncService.createBaseRevision(
       baseCharacter.id,
-      "从Open book character filesAdd to character library。",
+      "Added to the character library from Open book character files.",
       "from_book_analysis_character",
       character.id,
     );

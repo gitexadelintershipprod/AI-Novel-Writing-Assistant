@@ -80,7 +80,7 @@ function normalizeRuleRefs(
       id,
       name: available.name,
       summary: available.summary,
-      whyItMatters: "这是小说侧明确要求保留的规则。",
+      whyItMatters: "This is a rule the novel side explicitly requires keeping.",
     });
   }
   return picked.slice(0, 8);
@@ -118,7 +118,7 @@ function normalizeForceRefs(
       id,
       name: available.name,
       summary: available.summary,
-      roleInStory: "这是小说侧明确要求保留的组织或势力。",
+      roleInStory: "This is an organization or force the novel side explicitly requires keeping.",
       pressure: available.pressure,
     });
   }
@@ -161,7 +161,7 @@ function normalizeLocationRefs(
       id,
       name: available.name,
       summary: available.summary,
-      storyUse: id === primaryLocationId ? "这是小说当前的主舞台。" : "这是小说侧明确要求保留的地点。",
+      storyUse: id === primaryLocationId ? "This is the novel's current main stage." : "This is a location the novel side explicitly requires keeping.",
       risk: available.risk,
     });
   }
@@ -285,7 +285,7 @@ export function normalizeStoryWorldSlice(input: {
   const fallbackScope = [
     input.overrides.scopeNote?.trim(),
     input.bindingSupport.forbiddenCombinations.length > 0
-      ? `需要避开：${input.bindingSupport.forbiddenCombinations.join("；")}`
+      ? `Must avoid: ${input.bindingSupport.forbiddenCombinations.join("; ")}`
       : "",
   ].filter(Boolean).join(" ");
 
@@ -304,7 +304,7 @@ export function normalizeStoryWorldSlice(input: {
     pressureSources: uniqueStrings([
       ...normalizeStringArray(record.pressureSources, 8),
       ...input.bindingSupport.highPressureForces.slice(0, 4),
-      ...activeForces.map((item) => `${item.name}：${item.pressure}`).filter((item) => !item.endsWith("：")),
+      ...activeForces.map((item) => `${item.name}: ${item.pressure}`).filter((item) => !item.endsWith(":")),
     ], 8),
     mysterySources: uniqueStrings(normalizeStringArray(record.mysterySources, 6), 6),
     suggestedStoryAxes: uniqueStrings(normalizeStringArray(record.suggestedStoryAxes, 6), 6),

@@ -602,7 +602,7 @@ export interface DirectorTakeoverResponse {
 
 export interface DirectorProjectContextInput {
   marketBriefId?: string;
-  /** 服务端根据 marketBriefId 解析，不接受客户端直接注入。 */
+  /** Resolved by the server from marketBriefId. Direct client injection is not accepted. */
   marketBriefPrompt?: string;
   title?: string;
   description?: string;

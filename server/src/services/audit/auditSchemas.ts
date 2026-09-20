@@ -46,7 +46,7 @@ const auditReportOutputSchema = z.object({
   issues: z.array(auditIssueOutputSchema).optional().default([]),
 });
 
-// 用于 AuditService / NovelCoreService review 两处：严格校验 LLM 输出可通过性。
+// Used by AuditService and NovelCoreService review: strictly validate whether LLM output can pass.
 export const fullAuditOutputSchema = z.object({
   score: qualityScorePartialSchema.optional(),
   issues: z.array(reviewIssueSchema).optional().default([]),

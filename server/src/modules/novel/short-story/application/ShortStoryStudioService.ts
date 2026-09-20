@@ -487,7 +487,7 @@ export class ShortStoryStudioService {
           previousContinuity,
           previousContentTail,
           writingPlatform: shortStoryPlatformText(parseWritingPlatformSnapshot(context.novel.writingPlatformSnapshotJson), "drafting"),
-          bookStyle: context.novel.styleTone ?? direction.styleKeywords.join("、"),
+          bookStyle: context.novel.styleTone ?? direction.styleKeywords.join(", "),
           productionFoundation: context.productionFoundation,
         },
         contextBlocks: buildShortStoryWriterContextBlocks({
@@ -499,7 +499,7 @@ export class ShortStoryStudioService {
           previousContinuity,
           previousContentTail,
           platform: parseWritingPlatformSnapshot(context.novel.writingPlatformSnapshotJson),
-          bookStyle: context.novel.styleTone ?? direction.styleKeywords.join("、"),
+          bookStyle: context.novel.styleTone ?? direction.styleKeywords.join(", "),
           productionFoundation: context.productionFoundation,
         }),
         options: {

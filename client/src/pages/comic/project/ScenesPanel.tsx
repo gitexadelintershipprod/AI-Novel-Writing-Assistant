@@ -199,7 +199,7 @@ function SceneDetail({
       </div>
 
       <div className="grid lg:grid-cols-[minmax(0,1fr)_minmax(280px,0.7fr)]">
-        {/* 场景圣经编辑 */}
+        {/* Scene bible editor */}
         <div className="min-w-0 space-y-3 border-b p-4 lg:border-b-0 lg:border-r">
           <p className="text-sm font-medium">Scenario Bible</p>
           <p className="text-xs text-muted-foreground">
@@ -227,7 +227,7 @@ function SceneDetail({
           </Button>
         </div>
 
-        {/* 设定图 */}
+        {/* Setting sheet */}
         <aside className="min-w-0 p-4">
           <div className="mb-2 flex items-center justify-between">
             <p className="text-sm font-medium">scene setting diagram</p>

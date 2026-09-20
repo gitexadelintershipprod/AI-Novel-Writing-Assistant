@@ -35,7 +35,7 @@ function summarizeText(value: string, fallback: string): string {
 }
 
 function negativeConstraintsOnly(value: string[]): string[] {
-  return value.filter((item) => /^(不要|禁止|避免|不可|不能)/.test(item.trim()));
+  return value.filter((item) => /^(不要|禁止|避免|不可|不能|do not|don't|avoid|never|forbidden|no )/i.test(item.trim()));
 }
 
 export function toGrowthSteps(value: string): string[] {
@@ -48,18 +48,18 @@ export function toGrowthSteps(value: string): string[] {
 
 function buildPressureRoles(expansion: StoryExpansion): string[] {
   return mergeUnique([
-    `主角位：${summarizeText(expansion.protagonist_core, "主角被困在无法轻易退出的处境中。")}`,
-    `对立位：${summarizeText(expansion.conflict_layers.external, "外部力量持续压迫主角。")}`,
-    `relationship stress位：${summarizeText(expansion.conflict_layers.relational, "Key relations不断施压并制造choice price。")}`,
+    `Protagonist: ${summarizeText(expansion.protagonist_core, "The protagonist is trapped in a situation they cannot easily leave.")}`,
+    `Opposition: ${summarizeText(expansion.conflict_layers.external, "External forces keep pressing the protagonist.")}`,
+    `Relationship stress: ${summarizeText(expansion.conflict_layers.relational, "Key relations keep applying pressure and creating a price for each choice.")}`,
   ], 4);
 }
 
 const DEFAULT_PHASE_NAMES = [
-  "困局锁死",
-  "误判行动",
-  "代价升级",
-  "认知翻转",
-  "终局兑现",
+  "Locked predicament",
+  "Misjudged action",
+  "Rising cost",
+  "Cognitive reversal",
+  "Ending payoff",
 ] as const;
 
 function buildPhaseModel(plan: StoryMacroEditablePlan): StoryMacroPhase[] {
@@ -67,23 +67,23 @@ function buildPhaseModel(plan: StoryMacroEditablePlan): StoryMacroPhase[] {
   return [
     {
       name: DEFAULT_PHASE_NAMES[0],
-      goal: `先把主角困进「${summarizeText(expansion.protagonist_core, decomposition.core_conflict)}」，并抛出Core unknown：${expansion.mystery_box || decomposition.main_hook}`,
+      goal: `First trap the protagonist in "${summarizeText(expansion.protagonist_core, decomposition.core_conflict)}" and throw out the core unknown: ${expansion.mystery_box || decomposition.main_hook}`,
     },
     {
       name: DEFAULT_PHASE_NAMES[1],
-      goal: `围绕「${decomposition.progression_loop}」推进第一次行动，让主角在误判下付出代价。`,
+      goal: `Advance the first action around "${decomposition.progression_loop}" and make the protagonist pay a price for the misjudgment.`,
     },
     {
       name: DEFAULT_PHASE_NAMES[2],
-      goal: `同步拉高外部、内部、关系三条压力线，兑现conflict engine：${summarizeText(expansion.conflict_engine, decomposition.core_conflict)}`,
+      goal: `Raise the external, internal, and relationship pressure lines together and cash the conflict engine: ${summarizeText(expansion.conflict_engine, decomposition.core_conflict)}`,
     },
     {
       name: DEFAULT_PHASE_NAMES[3],
-      goal: `逼近并改写Core unknown「${expansion.mystery_box || decomposition.main_hook}」，让主角的认知发生翻转。`,
+      goal: `Close in on and rewrite the core unknown "${expansion.mystery_box || decomposition.main_hook}", flipping the protagonist's understanding.`,
     },
     {
       name: DEFAULT_PHASE_NAMES[4],
-      goal: `以「${decomposition.ending_flavor}」完成收束，并兑现关键爆点与情绪后劲。`,
+      goal: `Close with "${decomposition.ending_flavor}" and cash the key burst points and emotional aftertaste.`,
     },
   ];
 }
@@ -97,13 +97,13 @@ function buildTurningPoints(payoffs: string[]): StoryMacroTurningPoint[] {
 }
 
 function buildHardConstraints(plan: StoryMacroEditablePlan): string[] {
-  const growthSteps = toGrowthSteps(plan.decomposition.growth_path).map((item) => `主角认知推进必须经过：${item}`);
+  const growthSteps = toGrowthSteps(plan.decomposition.growth_path).map((item) => `The protagonist's understanding must pass through: ${item}`);
   return mergeUnique([
     ...plan.constraints,
     "Before character creation, do not invent specific names, a fixed cast, or full biographies.",
-    `每轮推进都必须持续回应Core unknown：${plan.expansion.mystery_box || plan.decomposition.main_hook}`,
-    `剧情升级必须由conflict engine驱动：${summarizeText(plan.expansion.conflict_engine, plan.decomposition.core_conflict)}`,
-    `高张力场面必须服务于主线，而不是单独炫技：${plan.expansion.setpiece_seeds.join(" / ")}`,
+    `Every advance must keep answering the core unknown: ${plan.expansion.mystery_box || plan.decomposition.main_hook}`,
+    `Plot escalation must be driven by the conflict engine: ${summarizeText(plan.expansion.conflict_engine, plan.decomposition.core_conflict)}`,
+    `High-tension set pieces must serve the spine, not show off on their own: ${plan.expansion.setpiece_seeds.join(" / ")}`,
     ...growthSteps,
   ], 10);
 }
@@ -113,11 +113,11 @@ export function buildConstraintEngine(plan: StoryMacroEditablePlan): StoryConstr
   const hardConstraints = buildHardConstraints(plan);
   const mustNotHave = mergeUnique([
     ...negativeConstraintsOnly(plan.constraints),
-    "用具体人物设定替代故事发动机",
-    "让世界观说明压过冲突推进",
+    "Replace the story engine with specific character bios",
+    "Let worldbuilding explanation crowd out conflict advance",
   ], 6);
   return {
-    premise: plan.expansion.expanded_premise || `${plan.decomposition.selling_point} 主线围绕「${plan.decomposition.core_conflict}」展开。`,
+    premise: plan.expansion.expanded_premise || `${plan.decomposition.selling_point} The spine turns on "${plan.decomposition.core_conflict}".`,
     conflict_axis: plan.decomposition.core_conflict,
     mystery_box: plan.expansion.mystery_box || plan.decomposition.main_hook,
     pressure_roles: buildPressureRoles(plan.expansion),
@@ -127,8 +127,8 @@ export function buildConstraintEngine(plan: StoryMacroEditablePlan): StoryConstr
     turning_points: buildTurningPoints(plan.decomposition.major_payoffs),
     ending_constraints: {
       must_have: mergeUnique([
-        `回应主线问题：${plan.decomposition.main_hook}`,
-        `保留Final taste:${plan.decomposition.ending_flavor}`,
+        `Answer the spine question: ${plan.decomposition.main_hook}`,
+        `Keep the final taste: ${plan.decomposition.ending_flavor}`,
         plan.decomposition.major_payoffs[plan.decomposition.major_payoffs.length - 1] ?? "",
       ], 4),
       must_not_have: mustNotHave,

@@ -106,7 +106,7 @@ function buildNovelWorldSetupSignal(novelWorld: NovelSetupSource["novelWorld"]) 
   const firstRule = structure.rules.axioms[0];
   const rulePreview = compactText([
     structure.rules.summary,
-    firstRule ? [firstRule.name, firstRule.summary].filter(Boolean).join("：") : null,
+    firstRule ? [firstRule.name, firstRule.summary].filter(Boolean).join(": ") : null,
     structure.rules.taboo[0],
     structure.rules.sharedConsequences[0],
   ].find(hasText), 56);

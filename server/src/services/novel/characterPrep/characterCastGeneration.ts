@@ -82,7 +82,7 @@ function buildAutoCastMemberRosterText(parsed: CharacterCastAutoMembersResponseP
       `${index + 1}. ${member.name}`,
       `castRole=${member.castRole}`,
       `role=${member.role}`,
-      `relationToProtagonist=${member.relationToProtagonist || "未写"}`,
+      `relationToProtagonist=${member.relationToProtagonist || "not specified"}`,
       `storyFunction=${member.storyFunction}`,
       member.identityLabel ? `identity=${member.identityLabel}` : "",
       member.factionLabel ? `faction=${member.factionLabel}` : "",

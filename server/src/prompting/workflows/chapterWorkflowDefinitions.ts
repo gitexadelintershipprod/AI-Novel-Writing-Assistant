@@ -22,7 +22,7 @@ export const chapterWorkflowDefinitions: WorkflowDefinition[] = [
         return normalizedOrders.slice(0, 5).map((order) => ({
           agent: "Planner",
           tool: "get_chapter_content_by_order",
-          reason: `读取Chapter ${order}正文`,
+          reason: `Read chapter ${order} text`,
           input: { novelId: plannerInput.novelId, chapterOrder: order },
           keyPrefix: `chapter_${order}`,
         }));
@@ -31,7 +31,7 @@ export const chapterWorkflowDefinitions: WorkflowDefinition[] = [
         return [{
           agent: "Planner",
           tool: "summarize_chapter_range",
-          reason: "按Chapter scope汇总内容",
+          reason: "Summarize content by chapter range",
           input: { novelId: plannerInput.novelId, startOrder: range.startOrder, endOrder: range.endOrder, mode: "summary" },
           keyPrefix: `chapter_range_${range.startOrder}_${range.endOrder}`,
         }];
@@ -40,7 +40,7 @@ export const chapterWorkflowDefinitions: WorkflowDefinition[] = [
         return [{
           agent: "Planner",
           tool: "summarize_chapter_range",
-          reason: "按前 N 章汇总内容",
+          reason: "Summarize the first N chapters",
           input: { novelId: plannerInput.novelId, startOrder: 1, endOrder: relativeFirstN, mode: "summary" },
           keyPrefix: `chapter_first_n_${relativeFirstN}`,
         }];
@@ -49,7 +49,7 @@ export const chapterWorkflowDefinitions: WorkflowDefinition[] = [
         return [{
           agent: "Planner",
           tool: "get_chapter_content",
-          reason: "按章节 ID 读取正文",
+          reason: "Read chapter text by chapter ID",
           input: { novelId: plannerInput.novelId, chapterId: intent.chapterSelectors.chapterId },
           keyPrefix: "chapter_content_by_id",
         }];
@@ -57,7 +57,7 @@ export const chapterWorkflowDefinitions: WorkflowDefinition[] = [
       return [{
         agent: "Planner",
         tool: "get_novel_context",
-        reason: "读取小说上下文，辅助定位章节",
+        reason: "Read novel context to help locate the chapter",
         input: { novelId: plannerInput.novelId },
         keyPrefix: "context_for_chapter_query",
       }];
@@ -121,14 +121,14 @@ export const chapterWorkflowDefinitions: WorkflowDefinition[] = [
           {
             agent: "Planner",
             tool: "preview_pipeline_run",
-            reason: `重写Chapter ${order}预览`,
+            reason: `Preview rewrite of chapter ${order}`,
             input: { novelId: plannerInput.novelId, startOrder: order, endOrder: order },
             keyPrefix: `rewrite_preview_${order}`,
           },
           {
             agent: "Planner",
             tool: "queue_pipeline_run",
-            reason: `重写Chapter ${order}执行`,
+            reason: `Execute rewrite of chapter ${order}`,
             input: { novelId: plannerInput.novelId, startOrder: order, endOrder: order },
             keyPrefix: `rewrite_queue_${order}`,
           },

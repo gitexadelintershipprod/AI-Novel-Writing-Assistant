@@ -42,12 +42,12 @@ function buildDeferredQualityDebtReason(input: {
   remainingChapterCount: number;
 }): string {
   const affectedSummary = input.affectedChapterCount > 0
-    ? `本次已记录 ${input.affectedChapterCount} chapters质量债务`
+    ? `This run recorded quality debt for ${input.affectedChapterCount} chapters`
     : "Quality debt was recorded for this run";
   const remainingSummary = input.remainingChapterCount > 0
-    ? `，仍有 ${input.remainingChapterCount} 章Can continue to advance`
+    ? `, and ${input.remainingChapterCount} chapters can still continue`
     : "";
-  return `${affectedSummary}${remainingSummary}。`;
+  return `${affectedSummary}${remainingSummary}.`;
 }
 
 export function buildDirectorQualityRepairRisk(

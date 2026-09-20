@@ -1,14 +1,15 @@
 import { create } from "zustand";
 
 /**
- * 跨页面共享current novel相关的Automatic director tasks快照，便于在侧栏或其它壳层展示「是否在跑」，
- * 而无需让每个页面各自解析 query。（实时细节仍以 React Query 为准，本 store 只做轻量同步。）
+ * Cross-page snapshot of Automatic director tasks for the current novel, so the sidebar
+ * and other shells can show whether a run is in progress without each page parsing query.
+ * Live details still come from React Query; this store is only a lightweight sync.
  */
 export interface DirectorRealtimeSnapshot {
   novelId: string | null;
   workflowTaskId: string | null;
   taskStatus: string | null;
-  /** 最近一次由编辑页写入的时间戳（ms）。 */
+  /** Timestamp (ms) of the last write from the editor page. */
   updatedAt: number;
 }
 

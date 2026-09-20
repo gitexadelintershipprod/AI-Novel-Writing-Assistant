@@ -280,7 +280,7 @@ export default function WritingFormulaSidebar(props: WritingFormulaSidebarProps)
                     />
                     <textarea
                       className="min-h-[180px] w-full rounded-md border p-2 text-sm"
-                      placeholder="For example: similar to the writing method of \"The Distant Messiah\", the overall restraint, strong sense of thinking, sharp dialogue, less chicken soup, more realistic friction."
+                      placeholder='For example: similar to the writing method of "The Distant Messiah", the overall restraint, strong sense of thinking, sharp dialogue, less chicken soup, more realistic friction.'
                       value={createForm.briefPrompt}
                       onChange={(event) => onCreateFormChange({ briefPrompt: event.target.value })}
                     />

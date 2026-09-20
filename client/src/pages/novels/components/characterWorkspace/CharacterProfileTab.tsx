@@ -102,7 +102,7 @@ export default function CharacterProfileTab(props: CharacterProfileTabProps) {
             <textarea
               key={field.key}
               className="min-h-[72px] w-full rounded-md border bg-background p-2 text-sm"
-              placeholder={`${field.label}：${field.placeholder}`}
+              placeholder={`${field.label}: ${field.placeholder}`}
               value={characterForm[field.key]}
               onChange={(event) => onCharacterFormChange(field.key, event.target.value)}
             />

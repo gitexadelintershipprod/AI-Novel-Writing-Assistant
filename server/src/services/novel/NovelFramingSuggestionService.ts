@@ -7,10 +7,10 @@ import { novelFramingSuggestionPrompt } from "../../prompting/prompts/novel/fram
 
 function buildInputSummary(input: BookFramingSuggestionInput): string {
   return [
-    input.title?.trim() ? `书名：${input.title.trim()}` : "",
+    input.title?.trim() ? `Title: ${input.title.trim()}` : "",
     input.description?.trim() ? `One sentence summary:${input.description.trim()}` : "",
-    input.genreLabel?.trim() ? `作品类型：${input.genreLabel.trim()}` : "",
-    input.styleTone?.trim() ? `当前Keywords for writing style:${input.styleTone.trim()}` : "",
+    input.genreLabel?.trim() ? `Genre: ${input.genreLabel.trim()}` : "",
+    input.styleTone?.trim() ? `Current writing-style keywords: ${input.styleTone.trim()}` : "",
   ].filter(Boolean).join("\n");
 }
 

@@ -47,7 +47,7 @@ export default function BookAnalysisPage() {
       await workspace.createAnalysis();
       setCreateDialogOpen(false);
     } catch {
-      // 保持弹窗打开，用户可在错误提示后重试
+      // Keep the dialog open so the user can retry after the error toast.
     }
   };
 
@@ -56,7 +56,7 @@ export default function BookAnalysisPage() {
       await workspace.createDiagnosisAnalysis();
       setCreateDialogOpen(false);
     } catch {
-      // 保持弹窗打开
+      // Keep the dialog open
     }
   };
 

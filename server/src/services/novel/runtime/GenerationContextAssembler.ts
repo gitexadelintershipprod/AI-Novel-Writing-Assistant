@@ -138,7 +138,7 @@ export class GenerationContextAssembler {
     };
     contextPackage: GenerationContextPackage;
   }> {
-    // Phase 2：novel 稳定层从缓存获取，避免每章重复全量查询
+    // Phase 2: load the novel stable layer from cache so each chapter does not repeat full queries.
     let [novel, chapter] = await Promise.all([
       batchContextCache.getNovelRow(novelId),
       prisma.chapter.findFirst({
@@ -151,8 +151,8 @@ export class GenerationContextAssembler {
       throw new Error("Novel or chapter not found.");
     }
 
-    // 懒规划 JIT：全书 autopilot 路径在 ensureChapterPlan 之前确保 task sheet 就绪。
-    // JIT 生成时会注入已发生事实（factLedger），解决 task sheet 与实际前文脱节问题。
+    // Lazy-planning JIT: the full-book autopilot path must have a task sheet ready before ensureChapterPlan.
+    // JIT generation injects already-happened facts (factLedger) so the task sheet does not drift from earlier prose.
     if (request.controlPolicy?.advanceMode === "full_book_autopilot") {
       await this.chapterPlanJITService.ensureExecutionReady(novelId, chapterId, {
         min: 3,
@@ -254,7 +254,7 @@ export class GenerationContextAssembler {
       prisma.characterDialogueInfluence.findMany({
         where: {
           novelId,
-          // 对话影响只为章节计划中真实参与的角色装配；缺少参与者时宁可不注入。
+          // Dialogue influence is assembled only for characters who actually participate in the chapter plan; skip injection if there are no participants.
           characterId: { in: resourceCharacterIds },
           status: "active",
           targetStartChapterOrder: { lte: chapter.order },
@@ -299,9 +299,9 @@ export class GenerationContextAssembler {
       openAuditIssueCount: openAuditIssues.length,
       hasRepairableDraft: Boolean(chapter.content?.trim()),
     });
-    // Phase 2 缺陷5：timelineContext 在写作路径已不消费（PR-B 已移除），
-    // 停止每章构建，将 timelineContext 置 null。ChapterQualityGateService
-    // 对 null 有防御处理（直接跳过 timeline 检查）。
+    // Phase 2 defect 5: writing no longer consumes timelineContext (removed in PR-B).
+    // Stop building it per chapter and set timelineContext to null. ChapterQualityGateService
+    // already defends against null (it skips the timeline check).
     const canonicalState = resolvedStateDrivenContext.snapshot;
 
     const canonicalLedger = buildRuntimeLedgerFromCanonical(canonicalState);
@@ -378,8 +378,8 @@ export class GenerationContextAssembler {
     const macroConstraints = buildMacroConstraintContext(storyMacroPlan);
     const productionFoundationPrompt = [
       novel.genre?.name ? `Theme base:${novel.genre.name}` : "",
-      novel.genre?.description ? `题材定位：${novel.genre.description}` : "",
-      novel.genre?.template ? `题材使用倾向：${novel.genre.template}` : "",
+      novel.genre?.description ? `Genre positioning: ${novel.genre.description}` : "",
+      novel.genre?.template ? `Genre usage tendency: ${novel.genre.template}` : "",
       buildStoryModePromptBlock({
         primary: novel.primaryStoryMode ? normalizeStoryModeOutput(novel.primaryStoryMode) : null,
         secondary: novel.secondaryStoryMode ? normalizeStoryModeOutput(novel.secondaryStoryMode) : null,
@@ -508,8 +508,8 @@ export class GenerationContextAssembler {
     const storyWorldSlice = worldContextBlock?.rawSlice ?? null;
     const openingHint = await this.buildOpeningConstraintHint(novelId, chapter.order);
 
-    // Phase 2 缺陷6：合并 baseContextPackage 与 contextPackage 为单一构建。
-    // 先用占位值构建 chapterWriteContext，再后置填充派生字段，消除字段手抄两遍。
+    // Phase 2 defect 6: merge baseContextPackage and contextPackage into one build.
+    // Build chapterWriteContext with placeholders first, then fill derived fields, so fields are not copied twice.
     const sharedFields = {
       chapter: {
         id: chapter.id,
@@ -558,7 +558,7 @@ export class GenerationContextAssembler {
       ledgerUrgentItems: canonicalLedger.ledgerUrgentItems,
       ledgerOverdueItems: canonicalLedger.ledgerOverdueItems,
       ledgerSummary: canonicalLedger.ledgerSummary,
-      // Phase 2 缺陷5：timelineContext 停止构建，写作路径已不消费
+      // Phase 2 defect 5: stop building timelineContext; the writing path no longer consumes it
       timelineContext: null,
       characterResourceContext,
       contextGatingDecisions: [] as GenerationContextPackage["contextGatingDecisions"],
@@ -585,7 +585,7 @@ export class GenerationContextAssembler {
       promptBudgetProfiles: getRuntimePromptBudgetProfiles(),
     };
 
-    // buildChapterWriteContext 仅需稳定字段，用 sharedFields + 占位派生字段构建
+    // buildChapterWriteContext only needs stable fields; build with sharedFields plus placeholder derived fields
     const chapterWriteContext = buildChapterWriteContext({
       bookContract,
       productionFoundationPrompt,
@@ -601,7 +601,7 @@ export class GenerationContextAssembler {
       },
     });
 
-    // 填充事实账本：读取已发生不可逆事实，注入 completedMilestones
+    // Fill the fact ledger: read irreversible facts that already happened and inject completedMilestones
     try {
       const factEntries = await novelFactService.listForChapter({
         novelId,
@@ -657,7 +657,7 @@ export class GenerationContextAssembler {
       ragText = "";
     }
 
-    // Phase 2 缺陷6：用 sharedFields 展开，只补充派生字段，消除两遍手抄
+    // Phase 2 defect 6: spread sharedFields and only add derived fields, so they are not copied twice
     const contextPackage: GenerationContextPackage = {
       ...sharedFields,
       ragContext: ragText,

@@ -247,7 +247,7 @@ export class NovelCoreCharacterService {
     let ragContext = "";
     try {
       ragContext = await ragServices.hybridRetrievalService.buildContextBlock(
-        `角色演进 ${character.name}\n${timelineText}`,
+        `Character evolution ${character.name}\n${timelineText}`,
         {
           novelId,
           ownerTypes: ["character", "character_timeline", "chapter_summary", "consistency_fact", "novel", "bible"],

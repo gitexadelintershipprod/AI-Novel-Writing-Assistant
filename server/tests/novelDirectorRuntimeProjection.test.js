@@ -105,9 +105,9 @@ test("runtime projection shows queued candidate confirmation after direction sel
 
     assert.equal(projection.status, "running");
     assert.equal(projection.requiresUserAction, false);
-    assert.equal(projection.headline, "AI 正在处理书级方向");
-    assert.equal(projection.currentLabel, "书级方向提交完成，等待 AI 创建小说项目。");
-    assert.equal(projection.detail, "后台执行器接手后，会创建小说并继续后续流程。");
+    assert.equal(projection.headline, "AI is working on the book direction");
+    assert.equal(projection.currentLabel, "Book direction submitted. Waiting for AI to create the novel project.");
+    assert.equal(projection.detail, "After a background runner takes over, it will create the novel and continue the later flow.");
   } finally {
     restore();
   }

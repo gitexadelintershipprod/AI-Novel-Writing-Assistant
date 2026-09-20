@@ -72,7 +72,7 @@ function compactRepairSource(rawContent: string): string {
   const tail = rawContent.slice(-2_000);
   return [
     head,
-    "\n...[中间的异常重复或退化内容已省略，不能复述或延续]...\n",
+    "\n...[omitted degenerate or looping content; do not repeat or continue it]...\n",
     tail,
   ].join("");
 }
@@ -184,20 +184,20 @@ export async function repairWithLlm<T>(
   });
 
   const repairSystem = [
-    "你是 JSON fix器。",
+    "You are a JSON fixer.",
     "Your task: output a strictly valid JSON value that passes the given schema check.",
     "The final output may be a JSON object or a JSON array; it must match the target structure.",
-    "不要输出任何解释、Markdown 或额外字段。",
+    "Do not output any explanation, Markdown, or extra fields.",
     "If a validation error says a field is missing, use the field name from the error path as the JSON key. Do not translate it into a Chinese alias.",
-    "如果目标结构顶层是数组，就直接输出数组本身，不要再外包一层对象。",
+    "If the target structure is a top-level array, output the array itself. Do not wrap it in an extra object.",
     "If a field must be an array, output a JSON array. Even with one item, do not collapse it into a string, number, or object.",
     "If array items should be objects, output an object array such as [{...}]; do not write a comma-joined string.",
     "If the original JSON wrapped the payload in an extra key such as data, result, output, xxxProjection, or xxxList, remove that wrapper and lift the real target structure to the top.",
     "If a required string field is missing, fill in a non-empty string. Make a minimal, conservative, meaning-consistent completion from the original JSON. Do not output an empty string, null, or undefined.",
-    "如果Validation error是 expected string, received number/boolean，must be retained原值语义并改成 JSON 字符串，例如 19 改为 \"19\"、true 改为 \"true\"，不要删除字段。",
+    "If a validation error is expected string, received number/boolean, keep the original meaning and convert it to a JSON string, for example 19 -> \"19\" and true -> \"true\". Do not delete the field.",
     "If a validation error says an array is too long or too short, fix that path to the exact length required. Do not leave it merely close.",
     "The target JSON Schema is the final field contract. Even if the original output is truncated, degraded, or missing many fields, rebuild a complete object from the schema.",
-    "遇到无意义复读、乱码、失控长文本时，丢弃异常段落并用最短的语义一致内容重建，禁止继续复述损坏内容。",
+    "If you see meaningless repetition, garbled text, or runaway long text, drop the broken spans and rebuild the shortest meaning-consistent content. Do not continue the damaged text.",
     "Keep every string short. Keep only what is needed to pass schema checks and restore the original meaning.",
   ].join("\n");
 
@@ -207,24 +207,24 @@ export async function repairWithLlm<T>(
   const repairSource = compactRepairSource(rawContent);
 
   const repairHuman = [
-    `校验失败：${input.label}`,
+    `Validation failed: ${input.label}`,
     validationError,
     ...(validationPaths.length > 0 ? [
       "",
-      `至少Needs repair这些路径：${validationPaths.join(", ")}`,
+      `At least these paths need repair: ${validationPaths.join(", ")}`,
     ] : []),
     ...(arrayLengthHints.length > 0 ? [
       "",
-      "数组长度硬约束：",
+      "Hard array-length constraints:",
       ...arrayLengthHints.map((hint) => hint.direction === "trim"
-        ? `- ${formatIssuePath(hint.path)} 必须最终恰好保留 ${hint.exactLength} items；如果当前超过该数量，按原顺序裁掉多余项。`
-        : `- ${formatIssuePath(hint.path)} 必须最终补足到恰好 ${hint.exactLength} items；如果当前不足，按原顺序Keep existing项并补齐缺失项。`),
+        ? `- ${formatIssuePath(hint.path)} must end with exactly ${hint.exactLength} items; if it currently has more, drop extras in original order.`
+        : `- ${formatIssuePath(hint.path)} must end with exactly ${hint.exactLength} items; if it currently has fewer, keep existing items in original order and fill the missing ones.`),
     ] : []),
     "",
-    "目标 JSON Schema（字段名、类型、必填项与长度约束以此为准）：",
+    "Target JSON Schema (field names, types, required fields, and length constraints are authoritative):",
     repairSchemaContract,
     "",
-    "原始模型输出（可能包含多余文本、markdown 或截断）：",
+    "Original model output (may include extra text, markdown, or truncation):",
     repairSource,
     "",
     "After fixing it, output only the final JSON.",
@@ -297,7 +297,7 @@ export async function repairWithLlm<T>(
     });
     const repairParse = helpers.tryParseStructuredJsonValue(repairedRaw);
     if ("error" in repairParse) {
-      throw new Error(`[${input.label}] JSON repair 后仍无法解析。错误：${repairParse.error}`);
+      throw new Error(`[${input.label}] JSON still could not be parsed after repair. Error: ${repairParse.error}`);
     }
 
     const final = input.schema.safeParse(repairParse.parsed);
@@ -329,7 +329,7 @@ export async function repairWithLlm<T>(
         });
         return normalized.data;
       }
-      throw new Error(`[${input.label}] JSON repair 后仍未通过 Schema 校验。错误：${helpers.formatZodErrors(final.error)}`);
+      throw new Error(`[${input.label}] JSON still failed schema validation after repair. Error: ${helpers.formatZodErrors(final.error)}`);
     }
     return final.data;
   } catch (error) {

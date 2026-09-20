@@ -48,7 +48,7 @@ export function getOfficialPromptSlotLibrary(promptId: string): OfficialPromptSl
       {
         id: "current",
         label: "Official current version",
-        description: "使用代码注册的 PromptAsset.slots 默认值。",
+        description: "Uses the PromptAsset.slots defaults registered in code.",
       },
     ],
   };

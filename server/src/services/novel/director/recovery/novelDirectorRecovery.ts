@@ -135,9 +135,9 @@ export function resolveAssetFirstRecoveryFromSnapshot(input: {
     phase: "structured_outline";
   }
   | null {
-  // 执行区持久化章节在目标范围内仍缺少完整细化时，优先回到节奏 / 拆章补齐，
-  // 而不是进入章节执行——否则 runFromReady 会抛「缺少完整章节细化」并卡死。
-  // 该信号基于执行区真实契约，弥补了卷工作区 cursor 与执行区可能不一致的缺口。
+  // If persisted execution-area chapters in the target range still lack complete detail, return to beats / chapter-split first
+  // instead of entering chapter execution — otherwise runFromReady throws "missing complete chapter detail" and stalls.
+  // This signal uses the real execution-area contract and covers gaps where the volume-workspace cursor and execution area disagree.
   if (
     isDirectorAutoExecutionRunMode(normalizeDirectorRunMode(input.runMode))
     && input.hasVolumeStrategyPlan

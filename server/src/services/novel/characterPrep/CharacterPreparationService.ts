@@ -738,7 +738,7 @@ export class CharacterPreparationService {
         moralLine: member.moralLine ?? undefined,
         firstImpression: member.firstImpression ?? undefined,
         currentGoal: member.outerGoal ?? undefined,
-        currentState: "等待进入正文",
+        currentState: "Waiting to enter the manuscript",
       });
       involvedCharacterIds.push(created.id);
       characterIdByName.set(created.name, created.id);
@@ -802,7 +802,7 @@ export class CharacterPreparationService {
       visibleProfileGeneration: options.visibleProfileGeneration,
     };
     if (options.postApplyMode === "deferred") {
-      // 快速开篇把增强资料延后到首章正文完成后，由持久化副作用任务补齐。
+      // Fast opening defers extra fill-in until after the first chapter body is done, via a persisted side-effect job.
     } else if (options.postApplyMode === "background") {
       void this.runPostApplyEnhancements(postApplyInput).catch((error) => {
         console.warn("[character-cast-apply] Background fill-in after applying the cast failed", {

@@ -84,18 +84,18 @@ function toAppearanceSnapshotEvidence(
 }
 
 function formatProfileSection(section: BookAnalysisCharacterProfileSection): string {
-  return `${compact(section.title, 80) || section.dimension}：${compact(section.content)}`;
+  return `${compact(section.title, 80) || section.dimension}: ${compact(section.content)}`;
 }
 
 function formatArc(arc: BookAnalysisCharacterArc): string {
-  const state = arc.stateSnapshot ? `；状态：${compact(JSON.stringify(arc.stateSnapshot), 220)}` : "";
+  const state = arc.stateSnapshot ? `; state: ${compact(JSON.stringify(arc.stateSnapshot), 220)}` : "";
   const chapterLabel = typeof arc.chapterIndex === "number" ? `Chapter ${arc.chapterIndex + 1}` : "Confirmed stage";
-  return `${chapterLabel}：${compact(arc.stageLabel)}${state}`;
+  return `${chapterLabel}: ${compact(arc.stageLabel)}${state}`;
 }
 
 function formatScene(scene: BookAnalysisCharacterScene): string {
-  const performance = scene.performance ? `；表现：${compact(JSON.stringify(scene.performance), 220)}` : "";
-  return `${compact(scene.sceneLabel)}${scene.sceneType ? `（${compact(scene.sceneType, 60)}）` : ""}${performance}`;
+  const performance = scene.performance ? `; performance: ${compact(JSON.stringify(scene.performance), 220)}` : "";
+  return `${compact(scene.sceneLabel)}${scene.sceneType ? ` (${compact(scene.sceneType, 60)})` : ""}${performance}`;
 }
 
 function assertInput(input: BookAnalysisCharacterSubjectAdapterInput): void {
@@ -159,13 +159,13 @@ export const bookAnalysisCharacterSubjectAdapter: CharacterSubjectAdapter<BookAn
     const { characterEvidence, sections, arcs, scenes, appearanceSnapshots, evidence } = collectAnchoredContent(input);
     const hasEvidence = evidence.length > 0;
     const identityLines = [
-      `原文Role positioning:${character.role}`,
+      `Source-text role: ${character.role}`,
       ...sections.slice(0, 3).map(formatProfileSection),
     ];
     const situationLines = [
-      arcs.length > 0 ? `已证实的阶段：${formatArc(arcs[arcs.length - 1])}` : null,
-      scenes.length > 0 ? `已证实的scene performance：${formatScene(scenes[scenes.length - 1])}` : null,
-      appearanceSnapshots.length > 0 ? `已证实的形象节点：Chapter ${appearanceSnapshots[appearanceSnapshots.length - 1]!.chapterIndex + 1}。` : null,
+      arcs.length > 0 ? `Confirmed stage: ${formatArc(arcs[arcs.length - 1])}` : null,
+      scenes.length > 0 ? `Confirmed scene performance: ${formatScene(scenes[scenes.length - 1])}` : null,
+      appearanceSnapshots.length > 0 ? `Confirmed look node: Chapter ${appearanceSnapshots[appearanceSnapshots.length - 1]!.chapterIndex + 1}.` : null,
       !hasEvidence ? "There is not enough source evidence up to this chapter anchor to confirm the character's situation, motive, or unrevealed information." : null,
     ].filter((line): line is string => Boolean(line));
 
@@ -184,10 +184,10 @@ export const bookAnalysisCharacterSubjectAdapter: CharacterSubjectAdapter<BookAn
       identity: identityLines.join("\n"),
       currentSituation: situationLines.join("\n") || "Source evidence is insufficient, so the current situation cannot be confirmed.",
       hardBoundaries: [
-        `只能使用Chapter ${chapterAnchor}及之前、带可追溯章节号的原文证据。`,
+        `Use only source-text evidence through Chapter ${chapterAnchor} that has a traceable chapter number.`,
         "Do not use plot, character changes, or reader-known information after this anchor.",
         "When evidence is insufficient, say clearly that it cannot be confirmed from the source. Do not invent secrets, motives, or later plot.",
-        "本次交流仅用于理解原作人物，不会修改原文、拆书结论或任何小说正文。",
+        "This conversation is only for understanding the source character. It will not change the source text, book-analysis conclusions, or any novel prose.",
       ],
       subjectiveState: characterEvidence.length > 0 || appearanceSnapshots.length > 0
         ? "The following judgments only reflect what the source evidence supports. They are not a confirmation of the character's inner truth."
@@ -205,15 +205,15 @@ export const bookAnalysisCharacterSubjectAdapter: CharacterSubjectAdapter<BookAn
       `- Chapter ${item.chapterOrder}｜${item.label}: ${item.detail}`,
     );
     const lines = [
-      "角色来源：Open book character files（证据约束式访谈）",
-      `角色：${compact(character.name)}（${compact(character.role)}）`,
-      `证据锚点：截至Chapter ${chapterAnchor}。`,
-      sections.length > 0 ? `可用人物档案：${sections.slice(0, 4).map(formatProfileSection).join("；")}` : null,
-      arcs.length > 0 ? `可用角色阶段：${arcs.slice(-3).map(formatArc).join("；")}` : null,
-      scenes.length > 0 ? `可用scene performance：${scenes.slice(-3).map(formatScene).join("；")}` : null,
-      appearanceSnapshots.length > 0 ? `可用形象节点：${appearanceSnapshots.slice(-3).map((snapshot) => `第 ${snapshot.chapterIndex + 1} chapter`).join("、")}` : null,
-      evidenceLines.length > 0 ? `原文证据：\n${evidenceLines.join("\n")}` : "原文证据不足：不得确认角色的内心、秘密、动机或后续发展。",
-      "边界：只能基于上述证据回应；不得引用锚点后的内容，不得把合理推测说成原文事实。",
+      "Character source: Open book character files (evidence-bounded interview)",
+      `Character: ${compact(character.name)} (${compact(character.role)})`,
+      `Evidence anchor: through Chapter ${chapterAnchor}.`,
+      sections.length > 0 ? `Available profile: ${sections.slice(0, 4).map(formatProfileSection).join("; ")}` : null,
+      arcs.length > 0 ? `Available stages: ${arcs.slice(-3).map(formatArc).join("; ")}` : null,
+      scenes.length > 0 ? `Available scene performance: ${scenes.slice(-3).map(formatScene).join("; ")}` : null,
+      appearanceSnapshots.length > 0 ? `Available look nodes: ${appearanceSnapshots.slice(-3).map((snapshot) => `Chapter ${snapshot.chapterIndex + 1}`).join(", ")}` : null,
+      evidenceLines.length > 0 ? `Source evidence:\n${evidenceLines.join("\n")}` : "Source evidence is insufficient: do not confirm the character's inner life, secrets, motives, or later development.",
+      "Boundary: answer only from the evidence above. Do not cite content after the anchor, and do not present reasonable guesses as source facts.",
     ];
     return lines.filter((line): line is string => Boolean(line)).join("\n");
   },

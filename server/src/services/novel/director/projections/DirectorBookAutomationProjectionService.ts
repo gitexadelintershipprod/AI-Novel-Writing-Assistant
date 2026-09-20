@@ -499,7 +499,7 @@ export class DirectorBookAutomationProjectionService {
       ...usageTelemetry.recentUsage.slice(0, 8).map((usage) => ({
         id: `usage:${usage.id}`,
         type: "usage" as const,
-        title: `AI usage：${getDirectorNodeDisplayLabel({
+        title: `AI usage: ${getDirectorNodeDisplayLabel({
           label: usage.promptAssetKey,
           nodeKey: usage.nodeKey,
           fallback: "Advance steps",
@@ -589,7 +589,7 @@ export class DirectorBookAutomationProjectionService {
         autoApprovalRecordCount,
         usageSummary: usageTelemetry.summary,
         }),
-      ].filter((value): value is string => Boolean(value?.trim())).join("；"),
+      ].filter((value): value is string => Boolean(value?.trim())).join("; "),
       progressSummary: displayRuntimeProjection?.progressSummary ?? null,
       artifactSummary,
       usageSummary: usageTelemetry.summary,

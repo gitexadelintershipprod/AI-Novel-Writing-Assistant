@@ -891,9 +891,9 @@ export interface VolumeStrategyPlan {
 
 export interface VolumeBeat {
   key: string;
-  /** 稳定职能名，例如「开卷抓手」。 */
+  /** Stable duty name, for example `Opening hook`. English is canonical on write; Chinese aliases such as `开卷抓手` are dual-read only. */
   label: string;
-  /** 本卷定制短标题，例如「夜市夺印」。 */
+  /** This volume's custom short title, for example "Seizing the seal at the night market". */
   title?: string | null;
   summary: string;
   chapterSpanHint: string;

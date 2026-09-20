@@ -48,12 +48,12 @@ function buildGeneratedOpeningWorldSlice(input: {
       })),
       activeForces: input.structure.forces.slice(0, 4).map((item) => ({
         id: item.id,
-        roleInStory: "这是开篇会直接施加行动压力的势力。",
+        roleInStory: "This is a force that will apply action pressure from the opening.",
         pressure: item.pressure,
       })),
       activeLocations: input.structure.locations.slice(0, 4).map((item, index) => ({
         id: item.id,
-        storyUse: index === 0 ? "开篇主要story stage。" : "开篇可进入或产生冲突的地点。",
+        storyUse: index === 0 ? "The main story stage for the opening." : "A location that can be entered or produce conflict in the opening.",
         risk: item.risk,
       })),
       conflictCandidates: input.bindingSupport.compatibleConflicts.slice(0, 4),
@@ -519,7 +519,7 @@ export class NovelWorldInstanceService {
       lastGeneratedAt: new Date().toISOString(),
     };
     const bindingSupport = buildWorldBindingSupport(structuredData);
-    const title = result.output.title.trim() || `${novel.title}世界`;
+    const title = result.output.title.trim() || `${novel.title} world`;
     const coverSummary = result.output.coverSummary.trim() || structuredData.profile.summary || null;
     const worldType = result.output.worldType.trim() || structuredData.profile.identity || "custom";
     const structuredFields = applyStructuredWorldToLegacyFields(structuredData, {

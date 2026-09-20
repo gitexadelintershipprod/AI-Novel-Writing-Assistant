@@ -1,11 +1,11 @@
 /**
- * 漫画导出服务
+ * Comic export service.
  *
- * 1. 以话为单位，垂直拼接全话已排版格子图（lettered > raw 优先）
- * 2. 按平台规格切片（可配，默认 800px 宽度单片无高度上限）
- * 3. 产物落盘 + ComicExportJob 记录
+ * 1. Per episode, vertically stitch all lettered (preferred) or raw panel images.
+ * 2. Slice to platform spec (configurable; default 800px width, no height cap for a single long image).
+ * 3. Persist artifacts and a ComicExportJob record.
  *
- * 依赖：sharp（已安装）
+ * Depends on sharp (already installed).
  */
 import fs from "fs/promises";
 import path from "path";
@@ -19,13 +19,13 @@ import { resolveGeneratedImagesRoot } from "../../runtime/appPaths";
 export type ExportFormat = "long_image" | "sliced";
 
 export interface ExportSpec {
-  /** 切片目标宽度（像素，默认 800） */
+  /** Slice target width (pixels, default 800). */
   sliceWidth?: number;
-  /** 单切片最大高度（像素，0 = 不切，输出单张长图） */
+  /** Max height per slice (pixels; 0 = no slicing, one long image). */
   sliceMaxHeight?: number;
-  /** 输出格式 */
+  /** Output format. */
   outputFormat?: "png" | "jpg" | "webp";
-  /** jpg/webp 质量（1-100） */
+  /** jpg/webp quality (1-100). */
   quality?: number;
 }
 
@@ -73,8 +73,8 @@ async function findPanelImageBuffer(panelId: string, preferLettered = true): Pro
 
 export class ComicExportService {
   /**
-   * 导出一话为长图（optionally 切片）。
-   * 若格子图不存在则跳过该格（导出可用的部分）。
+   * Export one episode as a long image (optionally sliced).
+   * Skip panels that have no image (export the usable portion).
    */
   async exportEpisode(
     episodeId: string,
@@ -93,7 +93,7 @@ export class ComicExportService {
       throw new AppError("This episode has no panels yet. Generate the panel script and images first.", 400);
     }
 
-    // 创建导出Task record
+    // Create the export job record.
     const job = await prisma.comicExportJob.create({
       data: {
         projectId: episode.projectId,
@@ -112,7 +112,7 @@ export class ComicExportService {
       const quality = spec.quality ?? 90;
       const targetWidth = spec.sliceWidth ?? 800;
 
-      // 收集所有面板图
+      // Collect all panel images.
       const panelBuffers: Buffer[] = [];
       for (const panel of episode.panels) {
         const buf = await findPanelImageBuffer(panel.id);
@@ -122,14 +122,14 @@ export class ComicExportService {
         throw new AppError("No panel image is available (generate images first).", 400);
       }
 
-      // 统一宽度 + 垂直拼接
+      // Normalize width and stitch vertically.
       const resizedBuffers = await Promise.all(
         panelBuffers.map((buf) =>
           sharp(buf).resize({ width: targetWidth, withoutEnlargement: false }).toBuffer(),
         ),
       );
 
-      // 逐一获取各格高度以计算 canvas 总高度
+      // Read each panel height so the canvas total height can be computed.
       const heights = await Promise.all(
         resizedBuffers.map(async (buf) => {
           const meta = await sharp(buf).metadata();
@@ -138,7 +138,7 @@ export class ComicExportService {
       );
       const totalHeight = heights.reduce((s, h) => s + h, 0);
 
-      // 用 sharp 的 joinChannel/composite 垂直拼接（通过 extend + composite 方式）
+      // Vertically stitch with sharp composite (extend + composite).
       const composites: Array<{ input: Buffer; top: number; left: number }> = [];
       let yOffset = 0;
       for (let i = 0; i < resizedBuffers.length; i++) {
@@ -160,7 +160,7 @@ export class ComicExportService {
 
       const maxHeight = spec.sliceMaxHeight ?? 0;
       if (format === "sliced" && maxHeight > 0 && totalHeight > maxHeight) {
-        // 切片：先输出完整长图到内存，再按高度切割
+        // Slice: render the full long image in memory, then cut by height.
         const longBuffer = await applyQuality(longImageBase).toBuffer();
         const sliceCount = Math.ceil(totalHeight / maxHeight);
         for (let s = 0; s < sliceCount; s++) {
@@ -175,7 +175,7 @@ export class ComicExportService {
           artifacts.push({ index: s + 1, filePath, url: exportArtifactUrl(job.id, filename), width: targetWidth, height: sliceHeight });
         }
       } else {
-        // 单张长图
+        // Single long image.
         const ext = outputFmt === "jpg" ? "jpg" : outputFmt;
         const filename = `episode-${episode.order}.${ext}`;
         const filePath = path.join(jobDir, filename);
@@ -210,9 +210,9 @@ export class ComicExportService {
     });
   }
 
-  /** 读取导出产物文件供 HTTP 流式响应 */
+  /** Read an export artifact for an HTTP streaming response. */
   async getArtifactFile(jobId: string, filename: string): Promise<{ buffer: Buffer; ext: string } | null> {
-    const safeFilename = path.basename(filename); // 防目录穿越
+    const safeFilename = path.basename(filename); // Prevent directory traversal.
     const filePath = path.join(exportJobDir(jobId), safeFilename);
     try {
       const buffer = await fs.readFile(filePath);

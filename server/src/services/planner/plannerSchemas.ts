@@ -1,8 +1,8 @@
 import { z } from "zod";
 import type { PlannerOutput } from "./plannerOutputNormalization";
 
-// Planner 输出需要尽量宽容：不同模型可能在字段类型上有差异（字符串/数组等）。
-// 但 top-level 必须是对象，且 scenes 必须是数组（或可修复为数组）。
+// Planner output should stay lenient: models may differ on field types (string vs array, etc.).
+// The top level must still be an object, and scenes must be an array (or repairable into one).
 
 const plannerSceneSchema = z.object({
   title: z.string().trim().optional(),

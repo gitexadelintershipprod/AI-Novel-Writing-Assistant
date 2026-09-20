@@ -535,7 +535,7 @@ export class NovelCorePipelineService {
         data,
       });
     } catch {
-      // 后台任务状态更新失败不应影响主服务稳定
+      // Background job status updates must not affect main-service stability
     }
   }
 
@@ -546,7 +546,7 @@ export class NovelCorePipelineService {
     NovelCorePipelineService.activeJobIds.add(jobId);
     void this.executePipeline(jobId, novelId, options)
       .catch(() => {
-        // 防止后台任务未处理拒绝导致进程不稳定
+        // Prevent unhandled background-job rejection from destabilizing the process
       })
       .finally(() => {
         NovelCorePipelineService.activeJobIds.delete(jobId);

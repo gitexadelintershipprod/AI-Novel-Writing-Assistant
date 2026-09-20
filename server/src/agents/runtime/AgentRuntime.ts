@@ -105,7 +105,7 @@ export class AgentRuntime {
         if (existing.status === "waiting_approval") {
           return this.executor.getRunDetailOrThrow(existing.id, "The current run is waiting for approval. Handle that first.");
         }
-        return this.executor.getRunDetailOrThrow(existing.id, "当前运行仍在执行中。");
+        return this.executor.getRunDetailOrThrow(existing.id, "The current run is still executing.");
       }
     }
 
@@ -257,7 +257,7 @@ export class AgentRuntime {
       };
       replayActions.push({
         agent: normalizeAgent(step.agentName),
-        reasoning: "从历史步骤重放",
+        reasoning: "Replay from historical steps",
         calls: [call],
       });
     }
@@ -353,11 +353,11 @@ export class AgentRuntime {
     });
   }
 
-  /** 创建Chapter generation轨迹 run，用于章节编辑页展示 */
+  /** Create a chapter-generation trace run for the chapter editor. */
   async createChapterGenRun(novelId: string, chapterId: string, chapterOrder: number): Promise<string> {
     const run = await this.store.createRun({
       sessionId: `chapter-gen-${chapterId}-${Date.now()}`,
-      goal: `章节 ${chapterOrder} 生成`,
+      goal: `Generate chapter ${chapterOrder}`,
       novelId,
       chapterId,
       entryAgent: "Writer",
@@ -366,7 +366,7 @@ export class AgentRuntime {
     return run.id;
   }
 
-  /** Chapter generation is complete后更新 run 并记录一条步骤 */
+  /** After chapter generation finishes, update the run and record one step. */
   async finishChapterGenRun(runId: string, summary: string, durationMs?: number): Promise<void> {
     await this.store.updateRun(runId, {
       status: "succeeded",

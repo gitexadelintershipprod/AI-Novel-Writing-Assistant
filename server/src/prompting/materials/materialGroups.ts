@@ -3,7 +3,7 @@ import type { NovelMaterialGroupDefinition } from "./types";
 export const NOVEL_MATERIAL_GROUPS: NovelMaterialGroupDefinition[] = [
   {
     group: "novel_basics",
-    title: "小说Basic information",
+    title: "Novel basic information",
     required: true,
     importance: "must",
     sourceType: "novel",
@@ -18,7 +18,7 @@ export const NOVEL_MATERIAL_GROUPS: NovelMaterialGroupDefinition[] = [
   },
   {
     group: "chapter_mission",
-    title: "章节任务",
+    title: "Chapter mission",
     required: true,
     importance: "must",
     sourceType: "chapter",
@@ -36,7 +36,7 @@ export const NOVEL_MATERIAL_GROUPS: NovelMaterialGroupDefinition[] = [
   },
   {
     group: "recent_chapters",
-    title: "最近章节",
+    title: "Recent chapters",
     required: false,
     importance: "medium",
     sourceType: "chapter",
@@ -59,7 +59,7 @@ export const NOVEL_MATERIAL_GROUPS: NovelMaterialGroupDefinition[] = [
   },
   {
     group: "world_rules",
-    title: "世界观约束",
+    title: "World constraints",
     required: false,
     importance: "high",
     sourceType: "world",
@@ -67,7 +67,7 @@ export const NOVEL_MATERIAL_GROUPS: NovelMaterialGroupDefinition[] = [
   },
   {
     group: "style_contract",
-    title: "风格约束",
+    title: "Style constraints",
     required: false,
     importance: "high",
     sourceType: "style",
@@ -75,7 +75,7 @@ export const NOVEL_MATERIAL_GROUPS: NovelMaterialGroupDefinition[] = [
   },
   {
     group: "open_issues",
-    title: "开放问题",
+    title: "Open issues",
     required: false,
     importance: "medium",
     sourceType: "audit",
@@ -84,7 +84,7 @@ export const NOVEL_MATERIAL_GROUPS: NovelMaterialGroupDefinition[] = [
   },
   {
     group: "director_workspace",
-    title: "Auto-Director工作区摘要",
+    title: "Auto-Director workspace summary",
     required: false,
     importance: "medium",
     sourceType: "task",

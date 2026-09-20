@@ -42,7 +42,7 @@ function takeFeatureDigest(features: StyleExtractionFeature[] | undefined, limit
       const risk = feature.fingerprintRisk >= 0.65
         ? `；Fingerprint risk ${Math.round(feature.fingerprintRisk * 100)}`
         : "";
-      return `- [${feature.group}] ${feature.label}：${feature.description}${risk}`;
+      return `- [${feature.group}] ${feature.label}: ${feature.description}${risk}`;
     });
 }
 
@@ -52,7 +52,7 @@ function takeRiskDigest(features: StyleExtractionFeature[] | undefined, limit: n
     .sort((left, right) => right.fingerprintRisk - left.fingerprintRisk)
     .slice(0, limit)
     .map((feature) => (
-      `- ${feature.label}：Fingerprint risk ${Math.round(feature.fingerprintRisk * 100)} / 迁移性 ${Math.round(feature.transferability * 100)} / Imitation value ${Math.round(feature.imitationValue * 100)}`
+      `- ${feature.label}: Fingerprint risk ${Math.round(feature.fingerprintRisk * 100)} / transferability ${Math.round(feature.transferability * 100)} / Imitation value ${Math.round(feature.imitationValue * 100)}`
     ));
 }
 
@@ -66,12 +66,12 @@ function renderRuleSection(sectionLabel: string, rules: Record<string, unknown> 
     .slice(0, limit)
     .map(([key, value]) => {
       if (Array.isArray(value)) {
-        return `- ${sectionLabel}.${key}：${value.join("、")}`;
+        return `- ${sectionLabel}.${key}: ${value.join(", ")}`;
       }
       if (typeof value === "boolean") {
-        return `- ${sectionLabel}.${key}：${value ? "是" : "否"}`;
+        return `- ${sectionLabel}.${key}: ${value ? "yes" : "no"}`;
       }
-      return `- ${sectionLabel}.${key}：${String(value)}`;
+      return `- ${sectionLabel}.${key}: ${String(value)}`;
     });
 }
 
@@ -105,14 +105,14 @@ export function normalizeStyleAntiAiSelectionDraft(
 
 export function buildStyleMetadataDigest(input: StyleCreationCoreDraft): string {
   const lines = [
-    compactText(input.description) ? `写法概述：${compactText(input.description)}` : "",
-    compactText(input.summary) ? `核心摘要：${compactText(input.summary)}` : "",
-    compactText(input.analysisMarkdown) ? `分析短稿：${compactText(input.analysisMarkdown)}` : "",
+    compactText(input.description) ? `Writing overview: ${compactText(input.description)}` : "",
+    compactText(input.summary) ? `Core summary: ${compactText(input.summary)}` : "",
+    compactText(input.analysisMarkdown) ? `Analysis note: ${compactText(input.analysisMarkdown)}` : "",
   ].filter(Boolean);
 
   const featureLines = takeFeatureDigest(input.features, 8);
   if (featureLines.length > 0) {
-    lines.push("特征摘要：", ...featureLines);
+    lines.push("Feature digest:", ...featureLines);
   }
 
   const ruleLines = [
@@ -130,13 +130,13 @@ export function buildStyleMetadataDigest(input: StyleCreationCoreDraft): string 
 
 export function buildStyleAntiAiRiskDigest(input: StyleCreationCoreDraft): string {
   const lines = [
-    compactText(input.summary) ? `写法核心：${compactText(input.summary)}` : "",
-    compactText(input.description) ? `读感定位：${compactText(input.description)}` : "",
+    compactText(input.summary) ? `Writing core: ${compactText(input.summary)}` : "",
+    compactText(input.description) ? `Reading-feel positioning: ${compactText(input.description)}` : "",
   ].filter(Boolean);
 
   const riskLines = takeRiskDigest(input.features, 6);
   if (riskLines.length > 0) {
-    lines.push("高风险特征：", ...riskLines);
+    lines.push("High-risk features:", ...riskLines);
   }
 
   const ruleLines = [
@@ -146,7 +146,7 @@ export function buildStyleAntiAiRiskDigest(input: StyleCreationCoreDraft): strin
     ...renderRuleSection("Rhythm", input.ruleSet?.rhythmRules as Record<string, unknown> | undefined, 3),
   ];
   if (ruleLines.length > 0) {
-    lines.push("规则抓手：", ...ruleLines);
+    lines.push("Rule handles:", ...ruleLines);
   }
 
   return lines.join("\n").trim();
@@ -159,7 +159,7 @@ export function buildAntiAiCatalogText(rules: AntiAiRule[], limit = 24): string 
       const instruction = compactText(rule.promptInstruction)
         || compactText(rule.rewriteSuggestion)
         || compactText(rule.description);
-      return `- key=${rule.key} | 名称=${rule.name} | 类型=${rule.type} | 严重度=${rule.severity} | 说明=${instruction}`;
+      return `- key=${rule.key} | name=${rule.name} | type=${rule.type} | severity=${rule.severity} | note=${instruction}`;
     })
     .join("\n");
 }

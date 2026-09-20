@@ -23,18 +23,18 @@ export function toBindings(bindings?: CreativeHubResourceBinding): CreativeHubRe
 
 export function describeBindings(bindings: CreativeHubResourceBinding): string | null {
   const parts = [
-    bindings.novelId ? `小说ID=${bindings.novelId}` : null,
-    bindings.chapterId ? `章节ID=${bindings.chapterId}` : null,
-    bindings.worldId ? `世界观ID=${bindings.worldId}` : null,
-    bindings.taskId ? `任务ID=${bindings.taskId}` : null,
+    bindings.novelId ? `novelId=${bindings.novelId}` : null,
+    bindings.chapterId ? `chapterId=${bindings.chapterId}` : null,
+    bindings.worldId ? `worldId=${bindings.worldId}` : null,
+    bindings.taskId ? `taskId=${bindings.taskId}` : null,
     bindings.bookAnalysisId ? `Book split analysisID=${bindings.bookAnalysisId}` : null,
     bindings.formulaId ? `writing formulaID=${bindings.formulaId}` : null,
-    bindings.styleProfileId ? `写法资产ID=${bindings.styleProfileId}` : null,
+    bindings.styleProfileId ? `styleProfileId=${bindings.styleProfileId}` : null,
     bindings.baseCharacterId ? `Basic roleID=${bindings.baseCharacterId}` : null,
     bindings.knowledgeDocumentIds?.length ? `knowledge documentID=${bindings.knowledgeDocumentIds.join(",")}` : null,
   ].filter((item): item is string => Boolean(item));
 
-  return parts.length > 0 ? parts.join("，") : null;
+  return parts.length > 0 ? parts.join(", ") : null;
 }
 
 export function prependBindingMessage(
@@ -50,7 +50,7 @@ export function prependBindingMessage(
     {
       id: "creative_hub_binding_context",
       type: "system",
-      content: `当前creative center绑定的工作区资源如下：${summary}。如需查询、诊断或控制，请优先围绕这些资源理解用户意图。`,
+      content: `Creative Hub is currently bound to these workspace resources: ${summary}. For query, diagnosis, or control, prefer understanding the user's intent around these resources.`,
       additional_kwargs: {
         source: "creative_hub_binding",
         bindings,
@@ -211,7 +211,7 @@ export function buildInterrupt(payload: {
     id: payload.approvalId,
     approvalId: payload.approvalId,
     runId: payload.runId,
-    title: "审批确认",
+    title: "Approval required",
     summary: payload.summary,
     targetType: payload.targetType,
     targetId: payload.targetId,

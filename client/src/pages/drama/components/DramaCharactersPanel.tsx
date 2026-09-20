@@ -84,7 +84,7 @@ function assetCompleteness(draft: DramaCharacterAssetInput) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 角色图片展示与生成
+// Character image display and generation
 // ─────────────────────────────────────────────────────────────────────────────
 
 function parsePortrait(raw: string | null | undefined): DramaCharacterPortraitData {
@@ -168,7 +168,7 @@ function CharacterImagesBlock(props: {
   return (
     <div className="space-y-3 border-t pt-3">
       <ImageGenerationConfirmDialog {...imageFlow.dialogProps} />
-      {/* 标题行 + Provider 选择器 */}
+      {/* Title row + provider selector */}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <p className="text-sm font-medium">Character design draft</p>
@@ -192,7 +192,7 @@ function CharacterImagesBlock(props: {
         )}
       </div>
 
-      {/* 设计稿预览 — 横版大图 */}
+      {/* Design-draft preview — landscape large image */}
       {sheet.status === "done" && sheet.url ? (
         <a href={sheet.url} target="_blank" rel="noreferrer" className="block">
           <img
@@ -226,7 +226,7 @@ function CharacterImagesBlock(props: {
         </div>
       )}
 
-      {/* 操作按钮 */}
+      {/* Action buttons */}
       <div className="flex flex-wrap items-center gap-2">
         <Button
           type="button"

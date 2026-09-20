@@ -248,11 +248,11 @@ function describeDirectorPolicyMode(mode: DirectorPolicyMode): string {
     case "run_next_step":
       return "Proceed to the next step";
     case "run_until_gate":
-      return "推进到下一个检查点";
+      return "Advance to the next checkpoint";
     case "auto_safe_scope":
-      return "Safe range automatic advancement";
+      return "Auto-advance in a safe range";
     default:
-      return "当前Propulsion method";
+      return "Current approach";
   }
 }
 
@@ -329,8 +329,21 @@ export const directorRuntimeToolDefinitions: Partial<
     resourceScopes: ["novel", "task"],
     parserHints: {
       intent: "analyze_director_workspace",
-      aliases: ["Director workspace analysis", "Auto-Director分析", "分析current novel资产"],
-      phrases: ["分析这本书现在缺什么", "让Auto-Director检查当前工作区", "current novel资产是否完整"],
+      aliases: [
+        "Director workspace analysis",
+        "Auto-Director analysis",
+        "analyze current novel assets",
+        "Auto-Director分析",
+        "分析当前小说资产",
+        "分析这本书现在缺什么",
+        "让Auto-Director检查当前工作区",
+        "当前小说资产是否完整",
+      ],
+      phrases: [
+        "Analyze what this book is missing now",
+        "Have Auto-Director inspect the current workspace",
+        "Are this novel's assets complete",
+      ],
       requiresNovelContext: true,
       whenToUse: "The user asks Auto-Director to analyze current-novel assets, gaps, risks, or whether work can continue.",
     },
@@ -355,8 +368,20 @@ export const directorRuntimeToolDefinitions: Partial<
     resourceScopes: ["novel", "task"],
     parserHints: {
       intent: "query_director_status",
-      aliases: ["Auto-Director状态", "Director's progress", "director runtime"],
-      phrases: ["Auto-Director到哪了", "导演任务现在什么状态", "当前导演节点是什么"],
+      aliases: [
+        "Auto-Director status",
+        "Director's progress",
+        "director runtime",
+        "Auto-Director状态",
+        "Auto-Director到哪了",
+        "导演任务现在什么状态",
+        "当前导演节点是什么",
+      ],
+      phrases: [
+        "Where is Auto-Director now",
+        "What is the director task's status",
+        "What is the current director node",
+      ],
       requiresNovelContext: true,
       whenToUse: "The user is asking about Auto-Director running status, the current node, a confirmation wait, or recent events.",
     },
@@ -379,8 +404,15 @@ export const directorRuntimeToolDefinitions: Partial<
     resourceScopes: ["novel", "task"],
     parserHints: {
       intent: "explain_director_next_action",
-      aliases: ["Suggestions for next steps", "导演建议", "现在该做什么"],
-      phrases: ["What this book should do now", "What to do next", "Auto-DirectorSuggest next steps是什么"],
+      aliases: [
+        "Suggestions for next steps",
+        "director suggestion",
+        "what to do now",
+        "导演建议",
+        "现在该做什么",
+        "Auto-Director下一步建议是什么",
+      ],
+      phrases: ["What this book should do now", "What to do next", "What does Auto-Director suggest next"],
       requiresNovelContext: true,
       whenToUse: "The user wants Creative Hub to explain this novel's next step, risks, and recommended action.",
     },
@@ -394,7 +426,7 @@ export const directorRuntimeToolDefinitions: Partial<
       const reason = nextAction?.reason
         ?? projection.nextActionLabel
         ?? projection.detail
-        ?? "当前Auto-Director会根据运行时状态继续Recommend next step。";
+        ?? "Auto-Director will keep recommending the next step from the current runtime status.";
       return explainDirectorNextActionOutputSchema.parse({
         novelId: scope.novelId,
         taskId: scope.taskId,
@@ -422,8 +454,8 @@ export const directorRuntimeToolDefinitions: Partial<
     resourceScopes: ["novel", "task"],
     parserHints: {
       intent: "run_director_next_step",
-      aliases: ["continue directing", "Proceed to the next step", "run next step"],
-      phrases: ["Continue Auto-Director to the next step", "Let the director take one more step", "执行导演下一步"],
+      aliases: ["continue directing", "Proceed to the next step", "run next step", "执行导演下一步"],
+      phrases: ["Continue Auto-Director to the next step", "Let the director take one more step", "Run the director's next step"],
       requiresNovelContext: true,
       whenToUse: "The user explicitly asks Auto-Director to continue with the next step.",
     },
@@ -445,8 +477,12 @@ export const directorRuntimeToolDefinitions: Partial<
     resourceScopes: ["novel", "task"],
     parserHints: {
       intent: "run_director_until_gate",
-      aliases: ["Advance to checkpoint", "run until gate", "推进到确认点"],
-      phrases: ["Continue Auto-Director to the checkpoint", "Advance to the next place that needs my confirmation", "让导演运行到下一个关口"],
+      aliases: ["Advance to checkpoint", "run until gate", "推进到确认点", "让导演运行到下一个关口"],
+      phrases: [
+        "Continue Auto-Director to the checkpoint",
+        "Advance to the next place that needs my confirmation",
+        "Let the director run to the next gate",
+      ],
       requiresNovelContext: true,
       whenToUse: "The user explicitly asks Auto-Director to keep advancing until a checkpoint, confirmation point, or blocker.",
     },
@@ -467,7 +503,7 @@ export const directorRuntimeToolDefinitions: Partial<
     resourceScopes: ["novel", "task"],
     parserHints: {
       intent: "switch_director_policy",
-      aliases: ["切换导演策略", "切换Propulsion method", "自动化强度"],
+      aliases: ["switch director policy", "switch approach", "automation intensity", "切换导演策略", "切换推进方式", "自动化强度"],
       phrases: ["Switch Auto-Director to suggestions only", "Switch to advancing to a checkpoint", "Allow auto-advance in a safe range"],
       requiresNovelContext: true,
       whenToUse: "The user explicitly asks to adjust Auto-Director policy or automation intensity.",
@@ -510,8 +546,19 @@ export const directorRuntimeToolDefinitions: Partial<
     resourceScopes: ["novel", "chapter", "task"],
     parserHints: {
       intent: "evaluate_manual_edit_impact",
-      aliases: ["改文影响", "手动编辑影响", "manual edit impact"],
-      phrases: ["我改了第三章看看影响什么", "我改了主角动机后续要不要重算", "Which chapters would deleting this payoff affect"],
+      aliases: [
+        "edit impact",
+        "manual edit impact",
+        "改文影响",
+        "手动编辑影响",
+        "我改了第三章看看影响什么",
+        "我改了主角动机后续要不要重算",
+      ],
+      phrases: [
+        "I edited chapter 3; what does that affect",
+        "I changed the protagonist's motive; should later chapters be recomputed",
+        "Which chapters would deleting this payoff affect",
+      ],
       requiresNovelContext: true,
       whenToUse: "After the user manually edits prose, motive, payoffs, or canon, they want impact scope and a repair path.",
     },

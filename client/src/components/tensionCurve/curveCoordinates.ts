@@ -11,8 +11,9 @@ export const PADDING = {
   top: 22,
   bottom: 92,
 };
-// 折线绘图区（0-100 值域）与底部的"待定"轨道、Chapter number轴分成三条独立的横带，
-// 避免三者的文字/线条挤在一起，导致断线原因（未设置数值的章节）看不清。
+// The polyline plot (0-100 domain), the bottom "pending" track, and the chapter-number
+// axis occupy three separate horizontal bands so their labels/lines do not collide
+// and a missing chapter value (the reason the line breaks) stays readable.
 export const PLOT_BOTTOM = HEIGHT - PADDING.bottom;
 export const NULL_TRACK_Y = PLOT_BOTTOM + 30;
 export const AXIS_LABEL_Y = NULL_TRACK_Y + 28;
@@ -20,15 +21,16 @@ export const TICKS = [0, 25, 50, 75, 100];
 export const POINT_NODE_SIZE = 28;
 export const POINT_NODE_HALF = POINT_NODE_SIZE / 2;
 export const NODE_ORIGIN: [number, number] = [0, 0];
-// 容器的 CSS 像素高度：与 TensionCurvePanel 里的 style height 保持同一份常量，
-// 避免"缩放比例按高度算"和"容器实际显示高度"两处数字各写各的、悄悄漂移。
+// Container CSS pixel height: keep one constant with TensionCurvePanel's style height
+// so "zoom computed from height" and "actual displayed height" cannot drift apart.
 export const CONTAINER_HEIGHT = { compact: 236, normal: 430 };
 export const MIN_VIEWPORT_ZOOM = 0.6;
 export const MAX_VIEWPORT_ZOOM = 1.2;
 
-// 章节一多，画布宽度会远大于容器宽度；此时如果用 fitView 强行把全部宽度塞进一屏，
-// 缩放比例会被宽度反向拖累，容器再高也没用——折线区看起来还是那么扁。
-// 这里改成"只按高度算缩放"，多出来的宽度交给横向平移/滚轮浏览，而不是压缩进同一屏。
+// With many chapters the canvas is much wider than the container. Forcing fitView
+// to squeeze that width into one screen would drag zoom down, so extra height
+// would not help — the plot still looks flat. Zoom from height only; leftover
+// width is panned / wheel-scrolled instead of compressed into the same screen.
 export function computeHeightFitZoom(containerHeight: number): number {
   const raw = (containerHeight * 0.92) / HEIGHT;
   return Math.min(MAX_VIEWPORT_ZOOM, Math.max(MIN_VIEWPORT_ZOOM, raw));

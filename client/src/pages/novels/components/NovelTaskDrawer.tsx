@@ -91,7 +91,7 @@ function formatCheckpoint(checkpoint: NovelWorkflowMilestoneType | null | undefi
     return "Ready to start writing, waiting to select production method";
   }
   if (checkpoint === "chapter_batch_ready") {
-    return `${resolvedScopeLabel}Auto-run is paused`;
+    return `${resolvedScopeLabel} auto-run is paused`;
   }
   if (checkpoint === "step_review_required") {
     return "Current step to be checked";
@@ -197,7 +197,7 @@ function ResourceProposalCard(props: {
         <div className="min-w-0 flex-1">
           <div className="text-sm font-medium text-foreground">{resourceName}</div>
           <div className="mt-1 text-xs leading-5 text-muted-foreground">
-            {holderName ? `${holderName}Related resources` : "Resource ownership needs to be confirmed"}
+            {holderName ? `${holderName} related resources` : "Resource ownership needs to be confirmed"}
           </div>
         </div>
         <Badge variant={proposal.riskLevel === "high" ? "destructive" : "secondary"}>
@@ -612,12 +612,12 @@ export default function NovelTaskDrawer({
                       <div className="text-sm text-foreground">{step.label}</div>
                       <Badge variant="outline">{"isCurrent" in step
                         ? (step.status === "attention"
-                          ? "\u9700\u5904\u7406"
+                          ? "Needs attention"
                           : step.status === "running"
-                            ? "\u8fdb\u884c\u4e2d"
+                            ? "In progress"
                             : step.status === "completed"
-                              ? "\u5df2\u5b8c\u6210"
-                              : "\u5f85\u63a8\u8fdb")
+                              ? "Completed"
+                              : "Waiting")
                         : formatStepStatus(step.status)}</Badge>
                     </div>
                   ))}

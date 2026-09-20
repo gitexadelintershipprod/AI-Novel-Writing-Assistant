@@ -69,19 +69,19 @@ function buildBookAnalysisCharacterPrompt(
   const profile = parseBookAnalysisCharacterProfile(character.profileJson);
   const background = [
     readProfileText(profile, "outerGoal") ? `External goals:${readProfileText(profile, "outerGoal")}` : "",
-    readProfileText(profile, "innerNeed") ? `Inner need：${readProfileText(profile, "innerNeed")}` : "",
-    readProfileText(profile, "growthTrajectory") ? `Growth path：${readProfileText(profile, "growthTrajectory")}` : "",
-  ].filter(Boolean).join("\n") || "来自Open book character files。";
+    readProfileText(profile, "innerNeed") ? `Inner need: ${readProfileText(profile, "innerNeed")}` : "",
+    readProfileText(profile, "growthTrajectory") ? `Growth path: ${readProfileText(profile, "growthTrajectory")}` : "",
+  ].filter(Boolean).join("\n") || "From open-book character files.";
   return buildCharacterPrompt(prompt, stylePreset, {
     name: readProfileText(profile, "name") || character.name,
     role: readProfileText(profile, "role") || character.role,
-    personality: readProfileText(profile, "personality") || readProfileText(profile, "values") || "未明确",
+    personality: readProfileText(profile, "personality") || readProfileText(profile, "values") || "Unspecified",
     appearance: [
       readProfileText(profile, "appearance"),
       readProfileText(profile, "physique"),
       readProfileText(profile, "attireStyle"),
       readProfileText(profile, "signatureDetail"),
-    ].filter(Boolean).join("；") || null,
+    ].filter(Boolean).join("; ") || null,
     background,
   });
 }
@@ -93,7 +93,7 @@ function mergeNovelCoverNegativePrompt(input: string | null | undefined): string
   }
   return normalized.includes(DEFAULT_NOVEL_COVER_NEGATIVE_PROMPT)
     ? normalized
-    : `${normalized}，${DEFAULT_NOVEL_COVER_NEGATIVE_PROMPT}`;
+    : `${normalized}, ${DEFAULT_NOVEL_COVER_NEGATIVE_PROMPT}`;
 }
 
 function resolveTaskOwnerKey(task: {

@@ -370,7 +370,7 @@ export async function parseStructuredLlmRawContentDetailed<T>(
   });
   if (!input.rawContent.trim()) {
     throw buildStructuredError({
-      message: `[${input.label}] 模型没有返回可用内容，无法执行结构校验或 JSON fix。`,
+      message: `[${input.label}] The model returned no usable content, so schema validation and JSON repair cannot run.`,
       category: "transport_error",
       strategy: input.strategy,
       profile: input.profile,
@@ -400,7 +400,7 @@ export async function parseStructuredLlmRawContentDetailed<T>(
       } catch (repairError) {
         if (attempt >= maxRepairAttempts) {
           throw buildStructuredError({
-            message: `[${input.label}] JSON 解析失败且修复未成功。错误：${repairError instanceof Error ? repairError.message : String(repairError)}`,
+            message: `[${input.label}] JSON parsing failed and repair did not succeed. Error: ${repairError instanceof Error ? repairError.message : String(repairError)}`,
             category: classifyStructuredOutputFailure({
               error: repairError,
               rawContent: input.rawContent,
@@ -476,7 +476,7 @@ export async function parseStructuredLlmRawContentDetailed<T>(
         data: await repairWithLlm<T>({
           ...input,
           schema: runtimeSchema,
-        }, input.rawContent, `Zod Validation error：\n${formatZodErrors(zodError)}`, attempt, getRepairHelpers<T>()),
+        }, input.rawContent, `Zod validation error:\n${formatZodErrors(zodError)}`, attempt, getRepairHelpers<T>()),
         repairUsed: true,
         repairAttempts: attempt,
         diagnostics,
@@ -485,7 +485,7 @@ export async function parseStructuredLlmRawContentDetailed<T>(
     } catch (error) {
       if (attempt >= maxRepairAttempts) {
         throw buildStructuredError({
-          message: `[${input.label}] LLM 输出经修复后仍未通过 Schema 校验。错误：${error instanceof Error ? error.message : String(error)}`,
+          message: `[${input.label}] The LLM output still failed schema validation after repair. Error: ${error instanceof Error ? error.message : String(error)}`,
           category: "schema_mismatch",
           strategy: input.strategy,
           profile: input.profile,
@@ -501,7 +501,7 @@ export async function parseStructuredLlmRawContentDetailed<T>(
   }
 
   throw buildStructuredError({
-    message: `[${input.label}] LLM 输出经修复后仍未通过 Schema 校验。错误：${formatZodErrors(zodError)}`,
+    message: `[${input.label}] The LLM output still failed schema validation after repair. Error: ${formatZodErrors(zodError)}`,
     category: "schema_mismatch",
     strategy: input.strategy,
     profile: input.profile,

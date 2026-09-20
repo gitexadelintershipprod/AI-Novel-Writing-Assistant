@@ -1,7 +1,7 @@
 /**
- * 短剧策略规划服务（P1-B）
+ * Short-drama strategy-planning service (P1-B).
  *
- * 读取项目内容包 + 赛道模板 → LLM 生成改编策略 → 落库 project.strategy。
+ * Reads the project content bundle + track template → LLM generates an adaptation strategy → persist project.strategy.
  */
 import type { LLMProvider } from "@ai-novel/shared/types/llm";
 import { prisma } from "../../db/prisma";
@@ -43,7 +43,7 @@ export class DramaStrategyService {
     const preferredHooks = rhythmEngine
       .recommendHooksForTrack(track.id)
       .map((hook) => hook.label)
-      .join("、");
+      .join(", ");
 
     const result = await runStructuredPrompt({
       asset: dramaStrategyPrompt,
@@ -52,7 +52,7 @@ export class DramaStrategyService {
         trackLabel: track.label,
         trackDescription: track.description,
         rhythmNote: track.rhythmNote,
-        taboos: track.taboos.join("；"),
+        taboos: track.taboos.join("; "),
         preferredHooks,
         targetEpisodes: project.targetEpisodes,
         freeEpisodes: DEFAULT_PAYWALL_STRATEGY.freeEpisodes,

@@ -505,7 +505,7 @@ export default function NovelExistingProjectTakeoverDialog({
                   ) : null}
                   {selectedStyleSummary?.stageSummaryLines.length ? (
                     <div className={`rounded-lg border bg-muted/15 p-3 text-xs leading-6 text-muted-foreground ${AUTO_DIRECTOR_MOBILE_CLASSES.wrapText}`}>
-                      Only the writing summary that is effective at this stage is:{selectedStyleSummary.stageSummaryLines.join("；")}
+                      Only the writing summary that is effective at this stage is:{selectedStyleSummary.stageSummaryLines.join("; ")}
                     </div>
                   ) : null}
                 </div>

@@ -3,41 +3,41 @@ import { novelEventBus } from "../../../events";
 import type { NovelEvent } from "../../../events/types";
 
 /**
- * 批次上下文稳定层缓存（Phase 2）
+ * Batch-context stable-layer cache (Phase 2).
  *
- * 生命周期：进程内 singleton，按 novelId 分桶。
- * 失效策略：订阅 character:changed / world:updated / outline:revised / volume:updated 事件，
- *           对应 novelId 的稳定层立即失效。
+ * Lifecycle: in-process singleton, bucketed by novelId.
+ * Invalidation: subscribe to character:changed / world:updated / outline:revised / volume:updated
+ * and drop the stable layer for that novelId immediately.
  *
- * 缓存内容：novel + world + characters + storyMacroPlan + volumePlans
- * （这些字段在一次全书 autopilot pipeline 内基本不变，每章重查浪费巨大）
+ * Cached content: novel + world + characters + storyMacroPlan + volumePlans
+ * (these fields barely change inside one full-book autopilot pipeline, so per-chapter refetch is wasteful).
  */
 
-// ────────────────────────────── 类型 ──────────────────────────────
+// ────────────────────────────── Types ──────────────────────────────
 
-/** novel Prisma 查询的完整返回类型 */
+/** Full return type of the novel Prisma query. */
 export type CachedNovelRow = NonNullable<Awaited<ReturnType<typeof fetchNovelRow>>>;
 
-// ────────────────────────────── 内部缓存结构 ──────────────────────────────
+// ────────────────────────────── Internal cache shape ──────────────────────────────
 
 interface StableLayerEntry {
   data: CachedNovelRow;
   cachedAt: number; // Date.now()
 }
 
-/** 最多缓存多少个 novelId（防内存泄漏） */
+/** Max cached novelIds (guards against unbounded memory growth). */
 const MAX_CACHED_NOVELS = 8;
-/** 稳定层 TTL（毫秒）：30 分钟 */
+/** Stable-layer TTL in milliseconds: 30 minutes. */
 const STABLE_LAYER_TTL_MS = 30 * 60 * 1000;
 
 class BatchContextCache {
   private readonly stableLayer = new Map<string, StableLayerEntry>();
 
-  // ──────────────── 公共 API ────────────────
+  // ──────────────── Public API ────────────────
 
   /**
-   * 获取 novelId 对应的稳定层数据。
-   * cache miss 或 TTL 过期时重查 DB 并缓存。
+   * Return the stable-layer data for a novelId.
+   * On cache miss or TTL expiry, refetch from the DB and cache the row.
    */
   async getNovelRow(novelId: string): Promise<CachedNovelRow> {
     const entry = this.stableLayer.get(novelId);
@@ -48,20 +48,20 @@ class BatchContextCache {
   }
 
   /**
-   * 主动失效某 novelId 的稳定层（Agent 工具修改世界/角色后调用）。
+   * Actively drop the stable layer for a novelId (call after Agent tools change world/characters).
    */
   invalidate(novelId: string): void {
     this.stableLayer.delete(novelId);
   }
 
-  // ──────────────── 内部 ────────────────
+  // ──────────────── Internal ────────────────
 
   private async fetchAndCache(novelId: string): Promise<CachedNovelRow> {
     const row = await fetchNovelRow(novelId);
     if (!row) {
       throw new Error(`Novel not found: ${novelId}`);
     }
-    // 超出最大容量时清掉最旧的条目
+    // Evict the oldest entry when the cache is at capacity.
     if (this.stableLayer.size >= MAX_CACHED_NOVELS) {
       const oldestKey = [...this.stableLayer.entries()]
         .sort(([, a], [, b]) => a.cachedAt - b.cachedAt)[0]?.[0];
@@ -78,9 +78,9 @@ class BatchContextCache {
 
 export const batchContextCache = new BatchContextCache();
 
-// ────────────────────────────── 事件订阅（失效） ──────────────────────────────
+// ────────────────────────────── Event subscriptions (invalidation) ──────────────────────────────
 
-// character 变更 → 失效该小说稳定层
+// Character change → invalidate this novel's stable layer.
 novelEventBus.on(
   "character:changed",
   (event: Extract<NovelEvent, { type: "character:changed" }>) => {
@@ -88,7 +88,7 @@ novelEventBus.on(
   },
 );
 
-// 卷更新（大纲/卷计划变更）→ 失效稳定层
+// Volume update (outline / volume plan change) → invalidate the stable layer.
 novelEventBus.on(
   "volume:updated",
   (event: Extract<NovelEvent, { type: "volume:updated" }>) => {
@@ -96,7 +96,7 @@ novelEventBus.on(
   },
 );
 
-// 大纲修订 → 失效稳定层
+// Outline revision → invalidate the stable layer.
 novelEventBus.on(
   "outline:revised",
   (event: Extract<NovelEvent, { type: "outline:revised" }>) => {
@@ -111,7 +111,7 @@ novelEventBus.on(
   },
 );
 
-// pipeline 完成 → 失效（确保下次批次拿到latest status）
+// Pipeline completion → invalidate so the next batch sees the latest status.
 novelEventBus.on(
   "pipeline:completed",
   (event: Extract<NovelEvent, { type: "pipeline:completed" }>) => {
@@ -119,10 +119,10 @@ novelEventBus.on(
   },
 );
 
-// world:updated 只有 worldId，无法直接映射；
-// 世界更新走 WorldContextGateway 自身缓存机制，BatchContextCache 不需要额外处理。
+// world:updated only carries worldId, so it cannot map here directly.
+// World updates use WorldContextGateway's own cache; BatchContextCache needs no extra handling.
 
-// ────────────────────────────── DB 查询 ──────────────────────────────
+// ────────────────────────────── DB query ──────────────────────────────
 
 async function fetchNovelRow(novelId: string) {
   return prisma.novel.findUnique({

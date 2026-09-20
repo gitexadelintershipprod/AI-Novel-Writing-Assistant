@@ -40,7 +40,7 @@ export const DIRECTOR_STAGE_NODE_ADAPTERS: Record<DirectorPlanningStage, Directo
     waitingState: {
       stage: "story_macro",
       itemKey: "story_macro",
-      itemLabel: "Waiting for confirmationStory planning",
+      itemLabel: "Waiting for confirmation: story planning",
       progress: DIRECTOR_PROGRESS.storyMacro,
     },
   },
@@ -56,7 +56,7 @@ export const DIRECTOR_STAGE_NODE_ADAPTERS: Record<DirectorPlanningStage, Directo
     waitingState: {
       stage: "story_macro",
       itemKey: "book_contract",
-      itemLabel: "Waiting for confirmationBook contract",
+      itemLabel: "Waiting for confirmation: book contract",
       progress: DIRECTOR_PROGRESS.bookContract,
     },
   },
@@ -88,7 +88,7 @@ export const DIRECTOR_STAGE_NODE_ADAPTERS: Record<DirectorPlanningStage, Directo
     waitingState: {
       stage: "character_setup",
       itemKey: "character_setup",
-      itemLabel: "Waiting for confirmationCast of characters",
+      itemLabel: "Waiting for confirmation: cast of characters",
       progress: DIRECTOR_PROGRESS.characterSetup,
     },
   },
@@ -104,7 +104,7 @@ export const DIRECTOR_STAGE_NODE_ADAPTERS: Record<DirectorPlanningStage, Directo
     waitingState: {
       stage: "volume_strategy",
       itemKey: "volume_strategy",
-      itemLabel: "Waiting for confirmationVolume strategy",
+      itemLabel: "Waiting for confirmation: volume strategy",
       progress: DIRECTOR_PROGRESS.volumeStrategy,
     },
   },
@@ -120,7 +120,7 @@ export const DIRECTOR_STAGE_NODE_ADAPTERS: Record<DirectorPlanningStage, Directo
     waitingState: {
       stage: "structured_outline",
       itemKey: "chapter_detail_bundle",
-      itemLabel: "Waiting for confirmationChapter task sheet",
+      itemLabel: "Waiting for confirmation: chapter task sheet",
       progress: DIRECTOR_PROGRESS.chapterDetailStart,
     },
   },

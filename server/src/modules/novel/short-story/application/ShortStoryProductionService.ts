@@ -262,7 +262,7 @@ export class ShortStoryProductionService {
           previousContinuity,
           previousContentTail,
           writingPlatform: shortStoryPlatformText(context.platform, "drafting"),
-          bookStyle: context.novel.styleTone ?? context.intent.direction.styleKeywords.join("、"),
+          bookStyle: context.novel.styleTone ?? context.intent.direction.styleKeywords.join(", "),
           productionFoundation: context.productionFoundation,
         };
         const generated = await runStructuredPrompt({

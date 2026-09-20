@@ -80,7 +80,7 @@ function buildOptionAssessment(
   optionIndex: number,
 ): CharacterCastOptionAssessment {
   const issues: CharacterCastQualityIssue[] = [];
-  const optionTitle = option.title.trim() || `方案 ${optionIndex + 1}`;
+  const optionTitle = option.title.trim() || `Option ${optionIndex + 1}`;
 
   option.members.forEach((member) => {
     if (!member.gender) {

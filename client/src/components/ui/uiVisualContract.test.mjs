@@ -18,8 +18,8 @@ test("active design guidance keeps UI primitives project owned", () => {
   const design = read("../../../../docs/design/product-ui-design-system.md");
   const agents = read("../../../../AGENTS.md");
   assert.match(design, /Low-border Hierarchy/);
-  assert.match(design, /禁止安装新的 shadcn\/ui 组件或运行其生成器/);
-  assert.match(design, /普通 Surface\/Card 默认无可见边框和阴影/);
+  assert.match(design, /Do not install new shadcn\/ui components or run their generator/);
+  assert.match(design, /Ordinary Surface\/Card has no visible border or shadow by default/);
   assert.match(agents, /## UI Visual Rules/);
   assert.match(agents, /Default content surfaces must not render a visible border or shadow/);
 });
