@@ -1,5 +1,6 @@
 import type { LLMProvider } from "@ai-novel/shared/types/llm";
 import { prisma } from "../db/prisma";
+import { DEFAULT_CHAT_PROVIDER } from "./providers";
 
 const STRUCTURED_FALLBACK_ENABLED_KEY = "structuredFallback.enabled";
 const STRUCTURED_FALLBACK_PROVIDER_KEY = "structuredFallback.provider";
@@ -9,8 +10,8 @@ const STRUCTURED_FALLBACK_MAX_TOKENS_KEY = "structuredFallback.maxTokens";
 
 const DEFAULT_STRUCTURED_FALLBACK_SETTINGS: StructuredFallbackSettings = {
   enabled: false,
-  provider: "deepseek",
-  model: "deepseek-chat",
+  provider: DEFAULT_CHAT_PROVIDER,
+  model: "",
   temperature: 0.2,
   maxTokens: null,
 };
@@ -40,7 +41,7 @@ function normalizeProvider(value: string | undefined | null): LLMProvider {
 }
 
 function normalizeModel(value: string | undefined | null): string {
-  return value?.trim() || DEFAULT_STRUCTURED_FALLBACK_SETTINGS.model;
+  return value?.trim() ?? DEFAULT_STRUCTURED_FALLBACK_SETTINGS.model;
 }
 
 function clampTemperature(value: number | undefined | null): number {
@@ -73,6 +74,10 @@ function buildSettingsFromEntries(entries: Map<string, string>): StructuredFallb
     temperature: clampTemperature(Number(entries.get(STRUCTURED_FALLBACK_TEMPERATURE_KEY))),
     maxTokens: normalizeMaxTokens(entries.get(STRUCTURED_FALLBACK_MAX_TOKENS_KEY)),
   };
+}
+
+export function invalidateStructuredFallbackSettingsCache(): void {
+  cachedSettings = null;
 }
 
 export async function getStructuredFallbackSettings(forceRefresh = false): Promise<StructuredFallbackSettings> {

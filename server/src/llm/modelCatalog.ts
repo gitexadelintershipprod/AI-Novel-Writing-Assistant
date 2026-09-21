@@ -1,6 +1,8 @@
+import { createHash } from "node:crypto";
 import type { LLMProvider } from "@ai-novel/shared/types/llm";
 import {
   isBuiltInProvider,
+  isOpenRouterBaseUrl,
   providerRequiresApiKey,
   PROVIDERS,
   resolveProviderBaseUrl,
@@ -22,7 +24,19 @@ interface GetProviderModelsOptions {
 }
 
 const MODEL_CACHE_TTL_MS = 30 * 60 * 1000;
+const DEFAULT_FETCH_TIMEOUT_MS = 10_000;
+const OPENROUTER_FETCH_TIMEOUT_MS = 20_000;
 const modelCache = new Map<string, ModelCacheItem>();
+
+class ModelCatalogRequestError extends Error {
+  readonly statusCode: number;
+
+  constructor(statusCode: number, message: string) {
+    super(message);
+    this.name = "ModelCatalogRequestError";
+    this.statusCode = statusCode;
+  }
+}
 
 function uniqueModels(models: string[]): string[] {
   return Array.from(new Set(models.map((item) => item.trim()).filter(Boolean)));
@@ -39,13 +53,21 @@ function getFallbackModels(provider: LLMProvider, options: GetProviderModelsOpti
   ]);
 }
 
-function getCacheKey(provider: LLMProvider, baseURL?: string): string {
-  const resolvedBaseURL = resolveProviderBaseUrl(provider, baseURL, baseURL) ?? "";
-  return `${provider}::${resolvedBaseURL}`;
+function fingerprintApiKey(apiKey?: string): string {
+  const trimmed = apiKey?.trim();
+  if (!trimmed) {
+    return "anonymous";
+  }
+  return createHash("sha256").update(trimmed).digest("hex").slice(0, 16);
 }
 
-function getCachedModels(provider: LLMProvider, baseURL?: string): string[] | undefined {
-  const cacheKey = getCacheKey(provider, baseURL);
+function getCacheKey(provider: LLMProvider, baseURL?: string, apiKey?: string): string {
+  const resolvedBaseURL = resolveProviderBaseUrl(provider, baseURL, baseURL) ?? "";
+  return `${provider}::${resolvedBaseURL}::${fingerprintApiKey(apiKey)}`;
+}
+
+function getCachedModels(provider: LLMProvider, baseURL?: string, apiKey?: string): string[] | undefined {
+  const cacheKey = getCacheKey(provider, baseURL, apiKey);
   const item = modelCache.get(cacheKey);
   if (!item) {
     return undefined;
@@ -58,9 +80,9 @@ function getCachedModels(provider: LLMProvider, baseURL?: string): string[] | un
   return item.models;
 }
 
-function setCachedModels(provider: LLMProvider, models: string[], baseURL?: string): string[] {
+function setCachedModels(provider: LLMProvider, models: string[], baseURL?: string, apiKey?: string): string[] {
   const normalized = uniqueModels(models);
-  modelCache.set(getCacheKey(provider, baseURL), {
+  modelCache.set(getCacheKey(provider, baseURL, apiKey), {
     models: normalized,
     cachedAt: Date.now(),
   });
@@ -88,9 +110,9 @@ function parseModelIds(payload: unknown): string[] {
     .filter(Boolean);
 }
 
-async function fetchJson(url: string, init: RequestInit): Promise<unknown> {
+async function fetchJson(url: string, init: RequestInit, timeoutMs = DEFAULT_FETCH_TIMEOUT_MS): Promise<unknown> {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 10_000);
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
     const response = await fetch(url, {
@@ -100,13 +122,71 @@ async function fetchJson(url: string, init: RequestInit): Promise<unknown> {
 
     if (!response.ok) {
       const detail = await response.text();
-      throw new Error(`Failed to fetch the model list (${response.status}): ${detail || "unknown error"}`);
+      throw new ModelCatalogRequestError(
+        response.status,
+        `Failed to fetch the model list (${response.status}): ${detail || "unknown error"}`,
+      );
     }
 
     return response.json();
   } finally {
     clearTimeout(timer);
   }
+}
+
+function isOpenRouterRequest(provider: LLMProvider, baseURL: string): boolean {
+  return provider === "openrouter" || isOpenRouterBaseUrl(baseURL);
+}
+
+async function readOpenRouterModelIds(url: string, apiKey: string): Promise<string[]> {
+  const payload = await fetchJson(url, {
+    method: "GET",
+    headers: buildHeaders("openrouter", apiKey),
+  }, OPENROUTER_FETCH_TIMEOUT_MS);
+  return parseModelIds(payload);
+}
+
+async function fetchOpenRouterModels(baseURL: string, apiKey: string): Promise<string[]> {
+  const normalizedKey = apiKey.trim();
+  if (!normalizedKey) {
+    throw new Error("Failed to fetch the OpenRouter model list: an API key is required.");
+  }
+
+  const root = baseURL.replace(/\/+$/, "");
+  try {
+    const models = await readOpenRouterModelIds(
+      `${root}/models/user?output_modalities=text`,
+      normalizedKey,
+    );
+    if (models.length === 0) {
+      throw new Error("The model list is empty.");
+    }
+    return models;
+  } catch (error) {
+    if (error instanceof ModelCatalogRequestError && error.statusCode === 401) {
+      throw new Error("Failed to fetch the OpenRouter model list: the API key was rejected.");
+    }
+    if (!(error instanceof ModelCatalogRequestError) || error.statusCode !== 403) {
+      throw error;
+    }
+  }
+
+  let models: string[];
+  try {
+    models = await readOpenRouterModelIds(
+      `${root}/models?output_modalities=text`,
+      normalizedKey,
+    );
+  } catch (error) {
+    if (error instanceof ModelCatalogRequestError && error.statusCode === 401) {
+      throw new Error("Failed to fetch the OpenRouter model list: the API key was rejected.");
+    }
+    throw error;
+  }
+  if (models.length === 0) {
+    throw new Error("The model list is empty.");
+  }
+  return models;
 }
 
 function buildHeaders(provider: LLMProvider, apiKey?: string): Record<string, string> {
@@ -171,6 +251,9 @@ async function fetchProviderModels(
   if (provider === "ollama") {
     return fetchOllamaModels(baseURL);
   }
+  if (isOpenRouterRequest(provider, baseURL)) {
+    return fetchOpenRouterModels(baseURL, apiKey ?? "");
+  }
 
   const payload = await fetchJson(`${baseURL}/models`, {
     method: "GET",
@@ -190,7 +273,7 @@ export async function getProviderModels(
 ): Promise<string[]> {
   const fallback = getFallbackModels(provider, options);
   if (!options.forceRefresh) {
-    const cached = getCachedModels(provider, options.baseURL);
+    const cached = getCachedModels(provider, options.baseURL, options.apiKey);
     if (cached && cached.length > 0) {
       return cached;
     }
@@ -205,9 +288,9 @@ export async function getProviderModels(
 
   try {
     const models = await fetchProviderModels(provider, normalizedApiKey, options.baseURL);
-    return models.length > 0 ? setCachedModels(provider, models, options.baseURL) : fallback;
+    return models.length > 0 ? setCachedModels(provider, models, options.baseURL, normalizedApiKey) : fallback;
   } catch {
-    const cached = getCachedModels(provider, options.baseURL);
+    const cached = getCachedModels(provider, options.baseURL, options.apiKey);
     if (cached && cached.length > 0) {
       return cached;
     }
@@ -221,5 +304,5 @@ export async function refreshProviderModels(
   baseURL?: string,
 ): Promise<string[]> {
   const models = await fetchProviderModels(provider, apiKey?.trim(), baseURL);
-  return setCachedModels(provider, models, baseURL);
+  return setCachedModels(provider, models, baseURL, apiKey);
 }

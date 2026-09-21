@@ -17,7 +17,18 @@ export interface ProviderConfig {
   requiresApiKey?: boolean;
 }
 
+export const DEFAULT_CHAT_PROVIDER: BuiltinLLMProvider = "openrouter";
+
 export const PROVIDERS: Record<BuiltinLLMProvider, ProviderConfig> = {
+  openrouter: {
+    name: "OpenRouter",
+    baseURL: "https://openrouter.ai/api/v1",
+    defaultModel: "",
+    models: [],
+    envKey: "OPENROUTER_API_KEY",
+    envBaseURLKey: "OPENROUTER_BASE_URL",
+    envModelKey: "OPENROUTER_MODEL",
+  },
   deepseek: {
     name: "DeepSeek",
     baseURL: "https://api.deepseek.com/v1",
@@ -217,4 +228,17 @@ export function providerRequiresApiKey(provider: LLMProvider): boolean {
     return false;
   }
   return PROVIDERS[provider].requiresApiKey !== false;
+}
+
+export function isOpenRouterBaseUrl(baseURL: string | undefined): boolean {
+  const trimmed = baseURL?.trim();
+  if (!trimmed) {
+    return false;
+  }
+  try {
+    const host = new URL(trimmed).hostname.toLowerCase();
+    return host === "openrouter.ai" || host.endsWith(".openrouter.ai");
+  } catch {
+    return false;
+  }
 }

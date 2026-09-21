@@ -5,7 +5,7 @@ import type {
   ModelRouteTaskType,
 } from "@ai-novel/shared/types/novel";
 import { prisma } from "../db/prisma";
-import { isBuiltInProvider, PROVIDERS } from "./providers";
+import { DEFAULT_CHAT_PROVIDER, isBuiltInProvider, PROVIDERS } from "./providers";
 import type { StructuredOutputStrategy } from "./structuredOutput";
 
 export type TaskType =
@@ -60,85 +60,85 @@ const STRICT_ROUTE_TASK_TYPES = new Set<ModelRouteTaskType>([
 
 const DEFAULT_ROUTES: Record<ModelRouteTaskType | "default", Omit<ResolvedModel, "routeKey" | "routeDegraded">> = {
   planner: {
-    provider: "deepseek",
-    model: PROVIDERS.deepseek.defaultModel,
+    provider: DEFAULT_CHAT_PROVIDER,
+    model: PROVIDERS[DEFAULT_CHAT_PROVIDER].defaultModel,
     temperature: 0.3,
     requestProtocol: "auto",
     structuredResponseFormat: "auto",
   },
   writer: {
-    provider: "deepseek",
-    model: PROVIDERS.deepseek.defaultModel,
+    provider: DEFAULT_CHAT_PROVIDER,
+    model: PROVIDERS[DEFAULT_CHAT_PROVIDER].defaultModel,
     temperature: 0.8,
     requestProtocol: "auto",
     structuredResponseFormat: "auto",
   },
   review: {
-    provider: "deepseek",
-    model: PROVIDERS.deepseek.defaultModel,
+    provider: DEFAULT_CHAT_PROVIDER,
+    model: PROVIDERS[DEFAULT_CHAT_PROVIDER].defaultModel,
     temperature: 0.2,
     requestProtocol: "auto",
     structuredResponseFormat: "auto",
   },
   light_review: {
-    provider: "deepseek",
-    model: PROVIDERS.deepseek.defaultModel,
+    provider: DEFAULT_CHAT_PROVIDER,
+    model: PROVIDERS[DEFAULT_CHAT_PROVIDER].defaultModel,
     temperature: 0.2,
     requestProtocol: "auto",
     structuredResponseFormat: "auto",
   },
   critical_review: {
-    provider: "deepseek",
-    model: PROVIDERS.deepseek.defaultModel,
+    provider: DEFAULT_CHAT_PROVIDER,
+    model: PROVIDERS[DEFAULT_CHAT_PROVIDER].defaultModel,
     temperature: 0.1,
     requestProtocol: "auto",
     structuredResponseFormat: "auto",
   },
   repair: {
-    provider: "deepseek",
-    model: PROVIDERS.deepseek.defaultModel,
+    provider: DEFAULT_CHAT_PROVIDER,
+    model: PROVIDERS[DEFAULT_CHAT_PROVIDER].defaultModel,
     temperature: 0.4,
     requestProtocol: "auto",
     structuredResponseFormat: "auto",
   },
   replan: {
-    provider: "deepseek",
-    model: PROVIDERS.deepseek.defaultModel,
+    provider: DEFAULT_CHAT_PROVIDER,
+    model: PROVIDERS[DEFAULT_CHAT_PROVIDER].defaultModel,
     temperature: 0.2,
     requestProtocol: "auto",
     structuredResponseFormat: "auto",
   },
   state_resolution: {
-    provider: "deepseek",
-    model: PROVIDERS.deepseek.defaultModel,
+    provider: DEFAULT_CHAT_PROVIDER,
+    model: PROVIDERS[DEFAULT_CHAT_PROVIDER].defaultModel,
     temperature: 0.1,
     requestProtocol: "auto",
     structuredResponseFormat: "auto",
   },
   summary: {
-    provider: "deepseek",
-    model: PROVIDERS.deepseek.defaultModel,
+    provider: DEFAULT_CHAT_PROVIDER,
+    model: PROVIDERS[DEFAULT_CHAT_PROVIDER].defaultModel,
     temperature: 0.2,
     requestProtocol: "auto",
     structuredResponseFormat: "auto",
   },
   fact_extraction: {
-    provider: "deepseek",
-    model: PROVIDERS.deepseek.defaultModel,
+    provider: DEFAULT_CHAT_PROVIDER,
+    model: PROVIDERS[DEFAULT_CHAT_PROVIDER].defaultModel,
     temperature: 0.2,
     requestProtocol: "auto",
     structuredResponseFormat: "auto",
   },
   chat: {
-    provider: "deepseek",
-    model: PROVIDERS.deepseek.defaultModel,
+    provider: DEFAULT_CHAT_PROVIDER,
+    model: PROVIDERS[DEFAULT_CHAT_PROVIDER].defaultModel,
     temperature: 0.7,
     requestProtocol: "auto",
     structuredResponseFormat: "auto",
   },
   default: {
-    provider: "deepseek",
-    model: PROVIDERS.deepseek.defaultModel,
+    provider: DEFAULT_CHAT_PROVIDER,
+    model: PROVIDERS[DEFAULT_CHAT_PROVIDER].defaultModel,
     temperature: 0.7,
     requestProtocol: "auto",
     structuredResponseFormat: "auto",
@@ -147,10 +147,10 @@ const DEFAULT_ROUTES: Record<ModelRouteTaskType | "default", Omit<ResolvedModel,
 
 function normalizeProviderId(value: string | null | undefined): LLMProvider {
   if (typeof value !== "string") {
-    return "deepseek";
+    return DEFAULT_CHAT_PROVIDER;
   }
   const trimmed = value.trim();
-  return trimmed || "deepseek";
+  return trimmed || DEFAULT_CHAT_PROVIDER;
 }
 
 function normalizeMaxTokens(provider: LLMProvider, maxTokens?: number): number | undefined {

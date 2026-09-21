@@ -181,9 +181,10 @@ export default function SettingsPage() {
       const models = response.data?.models ?? [];
       setPreviewModels(models);
       setPreviewModelsResult(response.message ?? `Loaded ${models.length} models.`);
+      const suggestedModel = response.data?.defaultModel?.trim() ?? "";
       setForm((prev) => ({
         ...prev,
-        model: prev.model.trim() || models[0] || "",
+        model: prev.model.trim() || suggestedModel,
       }));
     },
     onError: (error) => {

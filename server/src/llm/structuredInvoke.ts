@@ -128,7 +128,7 @@ async function resolveAttemptTarget(input: {
   );
   const route = shouldResolveRoutePreference ? await resolveModel(input.taskType!) : null;
   const resolved = await resolveLLMClientOptions(input.provider, {
-    fallbackProvider: "deepseek",
+    fallbackProvider: "openrouter",
     apiKey: input.apiKey,
     baseURL: input.baseURL,
     model: input.model,
@@ -173,7 +173,7 @@ async function invokeStructuredAttempt<T>(input: {
 }): Promise<StructuredInvokeResult<T>> {
   const attemptTemperature = computeAttemptTemperature(input.target.temperature, input.strategyIndex);
   const resolved = await resolveLLMClientOptions(input.target.provider, {
-    fallbackProvider: "deepseek",
+    fallbackProvider: "openrouter",
     apiKey: input.target.apiKey,
     baseURL: input.target.baseURL,
     model: input.target.model,

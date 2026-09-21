@@ -8,7 +8,7 @@ import { createAnthropicLLM } from "./anthropicClient";
 import { attachLLMDebugLogging } from "./debugLogging";
 import { attachLLMRequestLimiter } from "./requestLimiter";
 import { attachLLMRequestGuard } from "./requestGuard";
-import { resolveProviderReasoningBehavior } from "./reasoning";
+import { isOpenRouterProvider, resolveProviderReasoningBehavior } from "./reasoning";
 import {
   resolveStructuredOutputProfile,
   type StructuredExecutionMode,
@@ -18,6 +18,7 @@ import {
 import { attachLLMUsageTracking } from "./usageTracking";
 import { resolveModel, toStructuredOutputStrategy, type TaskType } from "./modelRouter";
 import {
+  DEFAULT_CHAT_PROVIDER,
   getProviderEnvApiKey,
   getProviderEnvModel,
   isBuiltInProvider,
@@ -194,12 +195,53 @@ async function resolveProviderSecret(provider: LLMProvider): Promise<ProviderSec
   }
 }
 
+function hasUsableRetiredConnection(
+  provider: "deepseek" | "ollama",
+  secret: ProviderSecret | undefined,
+  requestedModel: string | undefined,
+): boolean {
+  if (provider === "ollama") {
+    return Boolean(normalizeOptionalText(secret?.model) ?? getProviderEnvModel(provider));
+  }
+  const model = requestedModel
+    ?? normalizeOptionalText(secret?.model)
+    ?? getProviderEnvModel(provider);
+  const apiKey = normalizeOptionalText(secret?.key) ?? getProviderEnvApiKey(provider);
+  return Boolean(apiKey && model);
+}
+
+async function maybeRetargetRetiredProvider(
+  provider: LLMProvider,
+  model: string | undefined,
+): Promise<{ provider: LLMProvider; model: string | undefined }> {
+  if (provider !== "deepseek" && provider !== "ollama") {
+    return { provider, model };
+  }
+  const retiredProvider: "deepseek" | "ollama" = provider === "ollama" ? "ollama" : "deepseek";
+  const retiredSecret = await resolveProviderSecret(retiredProvider);
+  if (hasUsableRetiredConnection(retiredProvider, retiredSecret, model)) {
+    return { provider, model };
+  }
+
+  const openRouterSecret = await resolveProviderSecret(DEFAULT_CHAT_PROVIDER);
+  const openRouterModel = normalizeOptionalText(openRouterSecret?.model) ?? getProviderEnvModel(DEFAULT_CHAT_PROVIDER);
+  const openRouterKey = normalizeOptionalText(openRouterSecret?.key) ?? getProviderEnvApiKey(DEFAULT_CHAT_PROVIDER);
+  if (!openRouterKey || !openRouterModel) {
+    const label = provider === "ollama" ? "Ollama" : "DeepSeek";
+    throw new Error(`${label} is no longer connected. Add an OpenRouter API key and choose a model in model settings.`);
+  }
+  return {
+    provider: DEFAULT_CHAT_PROVIDER,
+    model: openRouterModel,
+  };
+}
+
 export async function resolveLLMClientOptions(
   provider?: LLMProvider,
   rawOptions: LLMOptions = {},
 ): Promise<ResolvedLLMClientOptions> {
   const options: LLMOptions = { ...rawOptions };
-  let resolvedProvider = provider ?? options.fallbackProvider ?? "deepseek";
+  let resolvedProvider = provider ?? options.fallbackProvider ?? DEFAULT_CHAT_PROVIDER;
   let resolvedModel = normalizeOptionalText(options.model);
   let resolvedTemperature: number | undefined = options.temperature;
   let resolvedMaxTokens: number | undefined = options.maxTokens;
@@ -241,29 +283,47 @@ export async function resolveLLMClientOptions(
     resolvedRouteDegraded = route.routeDegraded;
   }
 
+  const retargeted = await maybeRetargetRetiredProvider(resolvedProvider, resolvedModel);
+  const droppedCallerCredentials = retargeted.provider !== resolvedProvider;
+  resolvedProvider = retargeted.provider;
+  resolvedModel = retargeted.model;
+
   const dbSecret = await resolveProviderSecret(resolvedProvider);
   const providerName = isBuiltInProvider(resolvedProvider)
     ? PROVIDERS[resolvedProvider].name
     : dbSecret?.displayName ?? resolvedProvider;
-  const apiKey = normalizeOptionalText(options.apiKey)
-    ?? dbSecret?.key
-    ?? getProviderEnvApiKey(resolvedProvider);
+  const apiKey = droppedCallerCredentials
+    ? (normalizeOptionalText(dbSecret?.key) ?? getProviderEnvApiKey(resolvedProvider))
+    : (normalizeOptionalText(options.apiKey)
+      ?? dbSecret?.key
+      ?? getProviderEnvApiKey(resolvedProvider));
 
   if (!apiKey && providerRequiresApiKey(resolvedProvider)) {
-    throw new Error(`No API key is configured for ${providerName}.`);
+    throw new Error(
+      isOpenRouterProvider(resolvedProvider)
+        ? "No OpenRouter API key is configured. Add an OpenRouter API key and choose a model in model settings."
+        : `No API key is configured for ${providerName}.`,
+    );
   }
 
+  const builtinDefaultModel = isBuiltInProvider(resolvedProvider)
+    ? normalizeOptionalText(PROVIDERS[resolvedProvider].defaultModel)
+    : undefined;
   const model = resolvedModel
     ?? dbSecret?.model
     ?? getProviderEnvModel(resolvedProvider)
-    ?? (isBuiltInProvider(resolvedProvider) ? PROVIDERS[resolvedProvider].defaultModel : undefined);
+    ?? builtinDefaultModel;
   if (!model) {
-    throw new Error(`No default model is configured for ${providerName}.`);
+    throw new Error(
+      isOpenRouterProvider(resolvedProvider)
+        ? "No OpenRouter model is selected. Add an OpenRouter API key and choose a model in model settings."
+        : `No default model is configured for ${providerName}.`,
+    );
   }
 
   const baseURL = resolveProviderBaseUrl(
     resolvedProvider,
-    options.baseURL ?? dbSecret?.baseURL,
+    droppedCallerCredentials ? dbSecret?.baseURL : (options.baseURL ?? dbSecret?.baseURL),
     dbSecret?.baseURL,
   );
   if (!baseURL) {

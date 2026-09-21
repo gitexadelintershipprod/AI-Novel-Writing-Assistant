@@ -1,4 +1,5 @@
 export const LLM_PROVIDERS = [
+  "openrouter",
   "deepseek",
   "siliconflow",
   "openai",

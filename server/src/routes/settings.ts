@@ -212,15 +212,21 @@ function buildBuiltInProviderStatus(
   const envKey = getProviderEnvApiKey(provider);
   const effectiveKey = savedKey ?? envKey;
   const savedBaseURL = normalizeOptionalText(item?.baseURL);
-  const configuredModel = normalizeOptionalText(item?.model) ?? getProviderEnvModel(provider);
+  const explicitModel = normalizeOptionalText(item?.model) ?? getProviderEnvModel(provider);
   const currentBaseURL = savedBaseURL
     ?? getProviderEnvBaseUrl(provider)
     ?? PROVIDERS[provider].baseURL;
   const requiresApiKey = providerRequiresApiKey(provider);
-  const models = getFallbackModels(provider, configuredModel);
-  const currentModel = configuredModel ?? models[0] ?? "";
+  const models = getFallbackModels(provider, explicitModel);
+  const currentModel = provider === "ollama"
+    ? (explicitModel ?? "")
+    : (explicitModel ?? models[0] ?? "");
   const currentImageModel = imageModel ?? getDefaultImageModel(provider) ?? null;
-  const isConfigured = requiresApiKey ? Boolean(effectiveKey && currentModel) : Boolean(currentModel && currentBaseURL);
+  const isConfigured = provider === "ollama"
+    ? Boolean(explicitModel && currentBaseURL)
+    : requiresApiKey
+      ? Boolean(effectiveKey && currentModel)
+      : Boolean(currentModel && currentBaseURL);
 
   return {
     provider,
@@ -554,6 +560,9 @@ router.put(
 
       if (requiresApiKey && !effectiveKey) {
         throw new AppError("Enter the API Key first.", 400);
+      }
+      if (provider === "openrouter" && body.isActive !== false && !nextModel) {
+        throw new AppError("Choose a model from the OpenRouter list before saving.", 400);
       }
       if (!isBuiltInProvider(provider) && !nextModel) {
         throw new AppError("Choose or enter a default model for the custom provider first.", 400);

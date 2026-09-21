@@ -68,7 +68,11 @@ export default function ProviderConfigDialog({
   const canSelectListedModels = selectableModels.length > 0;
   const imageModelOptions = editingConfig?.imageModels ?? [];
   const canSelectImageModels = imageModelOptions.length > 0;
-  const modelGuidance = editingConfig?.provider === "deepseek"
+  const isOpenRouter = editingConfig?.provider === "openrouter";
+  const canPreviewModels = isCreatingCustomProvider || isOpenRouter;
+  const modelGuidance = isOpenRouter
+    ? "Enter the OpenRouter API key, load the models this key can use, then choose one. The list does not pick a model for you."
+    : editingConfig?.provider === "deepseek"
     ? "It is recommended to use DeepSeek V4 Flash, which takes into account the quality and response speed of Chinese long articles; you can also choose other available models."
     : isCreatingCustomProvider
       ? "After obtaining the model list, the first available model will be automatically filled in; when the interface does not return the list, it can be filled in manually."
@@ -136,7 +140,7 @@ export default function ProviderConfigDialog({
               placeholder={editingConfig?.isConfigured ? "Leave blank to use the saved API Key" : "Enter API Key"}
               onChange={(event) => {
                 setForm((prev) => ({ ...prev, key: event.target.value }));
-                if (isCreatingCustomProvider) {
+                if (canPreviewModels) {
                   onClearPreviewModels();
                 }
               }}
@@ -154,26 +158,28 @@ export default function ProviderConfigDialog({
                   baseURL: event.target.value,
                   model: isCreatingCustomProvider ? "" : prev.model,
                 }));
-                if (isCreatingCustomProvider) {
+                if (canPreviewModels) {
                   onClearPreviewModels();
                 }
               }}
             />
             <div className="text-xs text-muted-foreground">
-              {isCreatingCustomProvider
+              {isOpenRouter
+                ? "Leave blank to use https://openrouter.ai/api/v1."
+                : isCreatingCustomProvider
                 ? "Fill in the OpenAI compatible API address, usually ending with /v1; a common local Ollama address is http://127.0.0.1:11434/v1."
                 : "Leave blank to use the default address; a common local Ollama address is http://127.0.0.1:11434/v1."}
             </div>
           </div>
 
-          {isCreatingCustomProvider ? (
+          {canPreviewModels ? (
             <div className="space-y-2">
               <Button
                 type="button"
                 variant="secondary"
                 className="w-full sm:w-auto"
                 onClick={onPreviewModels}
-                disabled={isPreviewingModels || !form.baseURL.trim()}
+                disabled={isPreviewingModels || !form.baseURL.trim() || (isOpenRouter && !form.key.trim())}
               >
                 {isPreviewingModels ? "Getting..." : "Get model list"}
               </Button>

@@ -22,14 +22,19 @@ A built-in vendor's static model list may only be a settings-page candidate hint
 - After the user switches vendor or model at the top of the workspace, the frontend should persist that choice to the server current selection.
 - A built-in vendor with no saved model must not be treated as runnable just because `PROVIDERS.*.defaultModel` exists. It needs a saved model, an environment model, or a fetchable model catalog.
 - Model routing, structured fallback, and per-task explicit model overrides remain independent configuration. They are not the same as the top current model.
-- DeepSeek's recommended new-configuration value is `deepseek-v4-flash`. That recommendation only affects configuration guidance and built-in candidate order when no model has been saved. It does not override an existing vendor configuration, the top current selection, or task-level routing.
+- OpenRouter is the default chat vendor for a new or empty selection. Its static model list is empty. A model becomes the current model only after the user chooses one from the list returned for that API key.
+- The OpenRouter model list is loaded with the entered API key. `GET /models/user` is tried first. A rejected key (`401`) does not fall back to the public catalog. A forbidden user-list (`403`) falls back to `GET /models` with the same key. The cache key includes a fingerprint of the API key, not the key itself.
+- Do not auto-select the first OpenRouter catalog item. That list is large and the first item is not a product recommendation.
+- Saved DeepSeek and Ollama chat connections are removed once, including task routes and the top selection when they point at those vendors. The vendors remain available if someone configures them again. A later DeepSeek or Ollama connection is not removed. Calls that still name DeepSeek or Ollama, while that vendor has no usable saved connection, use the saved OpenRouter model instead of the old model id. If OpenRouter has no saved key and model, the call stops with a setup error.
+- Knowledge-base embeddings stay on their own provider and model. Retiring DeepSeek and Ollama chat connections does not change embedding settings.
+- DeepSeek's recommended new-configuration value is `deepseek-v4-flash`. That recommendation only affects configuration guidance and built-in candidate order when someone configures DeepSeek again. It does not override an existing vendor configuration, the top current selection, or task-level routing.
 
 ## Examples
 
 Recommended:
 
 - After the user switches from DeepSeek to Qwen at the top of the workspace, a project restart still reads Qwen and the matching model from the server.
-- If a vendor has an API key but no saved model, the server first tries to read that vendor's model catalog and uses the catalog's first item as the currently available model.
+- If a vendor other than OpenRouter has an API key but no saved model, the server first tries to read that vendor's model catalog and uses the catalog's first item as the currently available model. OpenRouter waits for an explicit choice.
 - If the model catalog cannot be read, the settings page still allows the user to enter a model manually, but the top selector does not automatically pick a built-in old model name.
 
 Forbidden or discouraged:
@@ -50,6 +55,7 @@ Forbidden or discouraged:
 - `server/src/routes/settings/llmSelectionRoutes.ts`
 - `server/src/routes/settings.ts`
 - `server/src/llm/modelCatalog.ts`
+- `server/src/services/settings/LegacyChatProviderRetirementService.ts`
 - `client/src/components/layout/LLMSelectionBootstrap.tsx`
 - `client/src/components/common/LLMSelector.tsx`
 - `client/src/store/llmStore.ts`

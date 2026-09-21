@@ -41,6 +41,7 @@ const OPENAI_HOST_PATTERN = /(?:^|\.)api\.openai\.com$/i;
 const GEMINI_HOST_PATTERN = /(?:^|\.)generativelanguage\.googleapis\.com$/i;
 const MOONSHOT_HOST_PATTERN = /(?:^|\.)api\.moonshot\.cn$/i;
 const DEEPSEEK_HOST_PATTERN = /(?:^|\.)api\.deepseek\.com$/i;
+const OPENROUTER_HOST_PATTERN = /(?:^|\.)openrouter\.ai$/i;
 const GLM_HOST_PATTERN = /(?:^|\.)open\.bigmodel\.cn$/i;
 const GROK_HOST_PATTERN = /(?:^|\.)api\.x\.ai$/i;
 const MINIMAX_HOST_PATTERN = /(?:^|\.)api\.minimax(?:i)?\.(?:io|com)$/i;
@@ -156,6 +157,15 @@ export function resolveStructuredOutputProfile(input: {
   const isDashScopeQwen = input.provider === "qwen" || DASHSCOPE_HOST_PATTERN.test(host);
   const isModelScopeQwen = MODELSCOPE_HOST_PATTERN.test(host) || provider.includes("modelscope");
 
+  if (input.provider === "openrouter" || OPENROUTER_HOST_PATTERN.test(host)) {
+    return buildProfile({
+      family: "openrouter",
+      nativeJsonObject: true,
+      preferredStructuredStrategy: "json_object",
+      requiresNonThinkingForStructured: true,
+      supportsReasoningToggle: true,
+    });
+  }
   if (input.requestProtocol === "anthropic") {
     return buildProfile({
       family: "anthropic",

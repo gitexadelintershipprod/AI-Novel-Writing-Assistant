@@ -4,6 +4,7 @@ import type { LLMProvider } from "@ai-novel/shared/types/llm";
 const THINK_OPEN_TAG = "<think>";
 const THINK_CLOSE_TAG = "</think>";
 const DEEPSEEK_HOST_PATTERN = /(?:^|:\/\/)(?:api\.)?deepseek\.com(?:\/|$)/i;
+const OPENROUTER_HOST_PATTERN = /(?:^|:\/\/)(?:[^/?#]+\.)?openrouter\.ai(?:\/|$)/i;
 const MINIMAX_HOST_PATTERN = /(?:^|:\/\/)(?:api\.)?minimax(?:i)?\.(?:io|com)(?:\/|$)/i;
 const MINIMAX_MODEL_PATTERN = /^minimax-m2(?:[.-]|$)/i;
 
@@ -86,6 +87,17 @@ export function isMiniMaxCompatibleProvider(
   return Boolean(normalizedModel && MINIMAX_MODEL_PATTERN.test(normalizedModel));
 }
 
+export function isOpenRouterProvider(
+  provider: LLMProvider,
+  baseURL?: string,
+): boolean {
+  if (provider === "openrouter") {
+    return true;
+  }
+  const normalizedBaseURL = normalizeOptionalText(baseURL);
+  return Boolean(normalizedBaseURL && OPENROUTER_HOST_PATTERN.test(normalizedBaseURL));
+}
+
 export function isDeepSeekThinkingModeProvider(
   provider: LLMProvider,
   baseURL?: string,
@@ -111,6 +123,26 @@ export function resolveProviderReasoningBehavior(input: {
   model: string;
   reasoningEnabled: boolean;
 }): ProviderReasoningBehavior {
+  if (isOpenRouterProvider(input.provider, input.baseURL)) {
+    if (input.reasoningEnabled) {
+      return {
+        reasoningEnabled: true,
+        includeRawResponse: false,
+        usesAccumulatedStreamDeltas: false,
+      };
+    }
+    return {
+      reasoningEnabled: false,
+      modelKwargs: {
+        reasoning: {
+          enabled: false,
+        },
+      },
+      includeRawResponse: false,
+      usesAccumulatedStreamDeltas: false,
+    };
+  }
+
   if (isDeepSeekThinkingModeProvider(input.provider, input.baseURL, input.model)) {
     return {
       reasoningEnabled: input.reasoningEnabled,

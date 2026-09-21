@@ -22,6 +22,7 @@ import type { LLMProvider } from "@ai-novel/shared/types/llm";
 import { completeQuickSetup } from "@/api/onboarding";
 import { previewCustomProviderModels } from "@/api/settings";
 import { queryKeys } from "@/api/queryKeys";
+import SearchableSelect from "@/components/common/SearchableSelect";
 import { AppDialogContent, Dialog } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -59,6 +60,7 @@ const EMPTY_FORM: SetupForm = {
 };
 
 function providerDescription(provider: QuickSetupProviderOption): string {
+  if (provider.id === "openrouter") return "Use one API key, then choose a model from the list that key can access";
   if (provider.id === "deepseek") return "Recommend DeepSeek V4 Flash, taking into account the quality and response speed of Chinese long articles";
   if (provider.id === "ollama") return "Use native model, no API Key required";
   if (provider.id === "openai") return "Suitable for general planning, text and structured tasks";
@@ -86,7 +88,7 @@ export default function QuickSetupDialog(props: QuickSetupDialogProps) {
   );
   const recommendedProvider = useMemo(
     () => props.status?.providers.find((provider) => provider.id === props.status?.selectedProvider)
-      ?? props.status?.providers.find((provider) => provider.id === "deepseek")
+      ?? props.status?.providers.find((provider) => provider.id === "openrouter")
       ?? props.status?.providers[0]
       ?? null,
     [props.status?.providers, props.status?.selectedProvider],
@@ -95,8 +97,9 @@ export default function QuickSetupDialog(props: QuickSetupDialogProps) {
   const providerChoices: QuickSetupProviderOption[] = showAllProviderChoices
     ? props.status?.providers ?? []
     : preferredProvider ? [preferredProvider] : [];
-  const modelOptions = form.providerKind === "custom"
-    ? customModels
+  const canLoadModelList = form.providerKind === "custom" || form.provider === "openrouter";
+  const modelOptions = canLoadModelList
+    ? (customModels.length > 0 ? customModels : selectedProvider?.models ?? [])
     : selectedProvider?.models ?? [];
 
   useEffect(() => {
@@ -105,7 +108,7 @@ export default function QuickSetupDialog(props: QuickSetupDialogProps) {
     }
     const preferred = props.status.providers.find(
       (provider) => provider.id === props.status?.selectedProvider,
-    ) ?? props.status.providers.find((provider) => provider.id === "deepseek")
+    ) ?? props.status.providers.find((provider) => provider.id === "openrouter")
       ?? props.status.providers[0];
     if (!preferred) return;
     setForm({
@@ -145,9 +148,10 @@ export default function QuickSetupDialog(props: QuickSetupDialogProps) {
     }),
     onSuccess: (response) => {
       const models = response.data?.models ?? [];
+      const suggestedModel = response.data?.defaultModel?.trim() ?? "";
       setCustomModels(models);
       setCustomModelsMessage(models.length > 0 ? `Found ${models.length} available models.` : "The interface does not return a model list and can be filled in manually.");
-      setForm((current) => ({ ...current, model: current.model.trim() || models[0] || "" }));
+      setForm((current) => ({ ...current, model: current.model.trim() || suggestedModel }));
     },
     onError: (error) => {
       setCustomModels([]);
@@ -381,23 +385,48 @@ export default function QuickSetupDialog(props: QuickSetupDialogProps) {
                 autoComplete="off"
                 value={form.apiKey}
                 placeholder={hasSavedKey ? "Leave blank to continue using the saved Key" : requiresApiKey ? "Enter API Key" : "Local interface can be left blank"}
-                onChange={(event) => setForm((current) => ({ ...current, apiKey: event.target.value }))}
+                onChange={(event) => {
+                  setForm((current) => ({ ...current, apiKey: event.target.value }));
+                  if (form.provider === "openrouter") {
+                    setCustomModels([]);
+                    setCustomModelsMessage("");
+                  }
+                }}
               />
             </label>
             <label className="block space-y-1.5">
               <span className="text-sm font-medium">API address</span>
               <Input value={form.baseURL} placeholder="https://api.example.com/v1" onChange={(event) => setForm((current) => ({ ...current, baseURL: event.target.value }))} />
             </label>
-            {form.providerKind === "custom" ? (
+            {canLoadModelList ? (
               <div className="flex flex-wrap items-center gap-3">
-                <Button type="button" variant="outline" size="sm" onClick={() => previewMutation.mutate()} disabled={!form.baseURL.trim() || previewMutation.isPending}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => previewMutation.mutate()}
+                  disabled={!form.baseURL.trim() || (form.provider === "openrouter" && !form.apiKey.trim()) || previewMutation.isPending}
+                >
                   {previewMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <ServerCog className="h-4 w-4" />}
                   Get the model list
                 </Button>
                 {customModelsMessage ? <span className="text-xs text-muted-foreground">{customModelsMessage}</span> : null}
               </div>
             ) : null}
-            {modelOptions.length > 0 ? (
+            {form.provider === "openrouter" && modelOptions.length > 0 ? (
+              <label className="block space-y-1.5">
+                <span className="text-sm font-medium">Available models</span>
+                <SearchableSelect
+                  value={form.model}
+                  onValueChange={(value) => setForm((current) => ({ ...current, model: value }))}
+                  options={modelOptions.map((model) => ({ value: model }))}
+                  placeholder="Choose a model"
+                  searchPlaceholder="Search models"
+                  emptyText="No model available"
+                />
+              </label>
+            ) : null}
+            {form.provider !== "openrouter" && modelOptions.length > 0 ? (
               <div className="flex flex-wrap gap-2">
                 {modelOptions.slice(0, 8).map((model) => (
                   <button

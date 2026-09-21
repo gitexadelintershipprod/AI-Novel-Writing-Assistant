@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { ensureRuntimeDatabaseReady } from "../db/runtimeMigrations";
 import { loadProviderApiKeys } from "../llm/factory";
+import { retireLegacyDirectChatProviders } from "../services/settings/LegacyChatProviderRetirementService";
 import { initializeRagSettingsCompatibility } from "../services/settings/RagCompatibilityBootstrapService";
 import { qualityDebtSettingsService } from "../services/settings/QualityDebtSettingsService";
 import { DirectorCommandExecutor } from "../services/novel/director/commands/DirectorCommandExecutor";
@@ -111,6 +112,9 @@ export class DirectorWorker {
 
 async function bootstrap(): Promise<void> {
   await ensureRuntimeDatabaseReady();
+  await retireLegacyDirectChatProviders().catch((error) => {
+    console.warn("[director.worker] failed to retire saved DeepSeek and Ollama chat connections.", error);
+  });
   await initializeRagSettingsCompatibility().catch((error) => {
     console.warn("[director.worker] failed to initialize RAG compatibility settings.", error);
   });

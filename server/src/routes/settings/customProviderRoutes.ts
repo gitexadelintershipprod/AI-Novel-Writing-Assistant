@@ -6,7 +6,7 @@ import { setProviderSecretCache } from "../../llm/factory";
 import { evictSharedLimiters } from "../../llm/requestLimiter";
 import { refreshProviderModels } from "../../llm/modelCatalog";
 import { llmProviderSchema } from "../../llm/providerSchema";
-import { isBuiltInProvider } from "../../llm/providers";
+import { isBuiltInProvider, isOpenRouterBaseUrl } from "../../llm/providers";
 import { AppError } from "../../middleware/errorHandler";
 import { validate } from "../../middleware/validate";
 import {
@@ -94,7 +94,7 @@ function getFallbackModels(currentModel?: string): string[] {
 }
 
 function isModelFetchError(error: Error): boolean {
-  return /failed|empty|失败|为空/i.test(error.message);
+  return /failed|empty|rejected|required|失败|为空/i.test(error.message);
 }
 
 export function registerCustomProviderRoutes(router: Router): void {
@@ -104,16 +104,22 @@ export function registerCustomProviderRoutes(router: Router): void {
     async (req, res, next) => {
       try {
         const body = req.body as z.infer<typeof customProviderModelsSchema>;
+        const baseURL = body.baseURL.trim();
+        const openRouterRequest = isOpenRouterBaseUrl(baseURL);
+        const apiKey = normalizeOptionalText(body.key);
+        if (openRouterRequest && !apiKey) {
+          throw new AppError("Enter an OpenRouter API key before loading models.", 400);
+        }
         const models = await refreshProviderModels(
-          "custom_preview",
-          normalizeOptionalText(body.key),
-          body.baseURL.trim(),
+          openRouterRequest ? "openrouter" : "custom_preview",
+          apiKey,
+          baseURL,
         );
         res.status(200).json({
           success: true,
           data: {
             models,
-            defaultModel: models[0] ?? "",
+            defaultModel: openRouterRequest ? "" : (models[0] ?? ""),
           },
           message: `Loaded ${models.length} models.`,
         } satisfies ApiResponse<{

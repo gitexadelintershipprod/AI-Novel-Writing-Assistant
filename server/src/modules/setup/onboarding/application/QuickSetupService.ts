@@ -64,20 +64,23 @@ async function listProviderOptions(): Promise<QuickSetupProviderOption[]> {
   const builtins: QuickSetupProviderOption[] = SUPPORTED_PROVIDERS.map((provider) => {
     const config = PROVIDERS[provider];
     const record = recordByProvider.get(provider);
-    const currentModel = normalizeOptionalText(record?.model)
-      ?? getProviderEnvModel(provider)
-      ?? config.defaultModel;
+    const savedModel = normalizeOptionalText(record?.model) ?? getProviderEnvModel(provider);
+    const currentModel = savedModel
+      ?? (provider === "ollama" || provider === "openrouter" ? "" : config.defaultModel);
     const currentBaseURL = normalizeOptionalText(record?.baseURL)
       ?? getProviderEnvBaseUrl(provider)
       ?? config.baseURL;
     const hasRequiredKey = !providerRequiresApiKey(provider)
       || Boolean(normalizeOptionalText(record?.key) ?? getProviderEnvApiKey(provider));
+    const hasChosenModel = provider === "ollama" || provider === "openrouter"
+      ? Boolean(savedModel)
+      : Boolean(currentModel);
     return {
       id: provider,
       kind: "builtin",
       name: config.name,
       requiresApiKey: providerRequiresApiKey(provider),
-      configured: (record?.isActive ?? true) && hasRequiredKey && Boolean(currentModel),
+      configured: (record?.isActive ?? true) && hasRequiredKey && hasChosenModel,
       active: record?.isActive ?? true,
       currentModel,
       defaultModel: config.defaultModel,

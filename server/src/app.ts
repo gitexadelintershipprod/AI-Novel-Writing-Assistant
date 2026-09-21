@@ -57,6 +57,7 @@ import {
   hasSystemResourceBootstrapChanges,
 } from "./services/bootstrap/SystemResourceBootstrapService";
 import { initializeRagSettingsCompatibility } from "./services/settings/RagCompatibilityBootstrapService";
+import { retireLegacyDirectChatProviders } from "./services/settings/LegacyChatProviderRetirementService";
 import onboardingRoutes from "./modules/setup/onboarding/http/onboardingRoutes";
 import { qualityDebtSettingsService } from "./services/settings/QualityDebtSettingsService";
 import { DirectorWorker } from "./workers/directorWorker";
@@ -310,6 +311,10 @@ export async function startServer(options?: ServerStartOptions): Promise<Started
   scheduleLogRetentionCleanup();
   await ensureRuntimeDatabaseReady();
 
+  const providerRetirement = await retireLegacyDirectChatProviders();
+  if (providerRetirement.retiredProviders) {
+    console.log("[server] removed saved DeepSeek and Ollama chat connections.");
+  }
   const ragCompatibilityReport = await initializeRagSettingsCompatibility();
   if (
     ragCompatibilityReport.importedSettingKeys.length > 0

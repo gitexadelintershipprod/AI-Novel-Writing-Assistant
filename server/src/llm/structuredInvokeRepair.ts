@@ -165,7 +165,7 @@ export async function repairWithLlm<T>(
     strategy: "prompt_json",
   });
   const llm = await getLLM(input.provider, {
-    fallbackProvider: "deepseek",
+    fallbackProvider: "openrouter",
     apiKey: input.apiKey,
     baseURL: input.baseURL,
     model: input.model,
