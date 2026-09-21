@@ -5,8 +5,9 @@ REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_DIR"
 
 COMPOSE_FILE="compose.remote.yml"
-SERVICES=(database qdrant api web)
+SERVICES=(database qdrant neo4j api web)
 QDRANT_HEALTH_URL="${QDRANT_HEALTH_URL:-http://127.0.0.1:16333/readyz}"
+NEO4J_HEALTH_URL="${NEO4J_HEALTH_URL:-http://127.0.0.1:17474/}"
 API_HEALTH_URL="${API_HEALTH_URL:-http://127.0.0.1:3165/api/health}"
 WEB_HEALTH_URL="${WEB_HEALTH_URL:-http://127.0.0.1:8045/}"
 COMMIT_MESSAGE="${1:-chore(deploy): sync remote stack changes}"
@@ -43,7 +44,7 @@ compose up -d --build
 
 # Recreating the containers is what re-resolves single-file bind mounts. An
 # in-place `nginx -s reload` keeps serving the replaced file's original inode.
-echo "==> restarting all four services"
+echo "==> restarting all stack services"
 for service in "${SERVICES[@]}"; do
   compose restart "$service"
 done
@@ -52,9 +53,10 @@ echo "==> verifying services"
 compose exec -T database sh -c 'pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"' >/dev/null \
   || fail "database is not ready"
 wait_for_http "$QDRANT_HEALTH_URL" || fail "qdrant is not ready at $QDRANT_HEALTH_URL"
+wait_for_http "$NEO4J_HEALTH_URL" || fail "neo4j is not ready at $NEO4J_HEALTH_URL"
 wait_for_http "$API_HEALTH_URL" || fail "api is not ready at $API_HEALTH_URL"
 wait_for_http "$WEB_HEALTH_URL" || fail "web is not ready at $WEB_HEALTH_URL"
-echo "all four services healthy"
+echo "all stack services healthy"
 
 echo "==> staging changes"
 git add -A

@@ -31,8 +31,15 @@ export interface KnowledgeEmbeddingSettingsFormState {
   qdrantTimeoutMs: number;
   qdrantUpsertMaxBytes: number;
   qdrantUpsertConcurrency: number;
-  chunkSize: number;
-  chunkOverlap: number;
+  chunkWordSize: number;
+  chunkOverlapWords: number;
+  graphEnabled: boolean;
+  neo4jUri: string;
+  neo4jUser: string;
+  neo4jPassword: string;
+  neo4jPasswordConfigured: boolean;
+  clearNeo4jPassword: boolean;
+  neo4jTimeoutMs: number;
   vectorCandidates: number;
   keywordCandidates: number;
   finalTopK: number;
@@ -282,6 +289,100 @@ export default function KnowledgeEmbeddingSettingsCard({
           </div>
         </section>
 
+        <section className="space-y-5 rounded-3xl border border-border/35 bg-card/70 p-5 sm:p-6">
+          <div className="flex items-start gap-3">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-primary/[0.07] text-primary">
+              <Search className="h-4 w-4" aria-hidden="true" />
+            </div>
+            <div>
+              <div className="font-medium">Book relationship graph</div>
+              <div className="mt-1 text-xs leading-5 text-muted-foreground">
+                Remember people, places, and writing techniques from English books. Georgian materials stay in ordinary search.
+              </div>
+            </div>
+          </div>
+
+          <label className="flex items-center gap-2 rounded-2xl bg-muted/25 px-4 py-3 text-sm">
+            <input
+              type="checkbox"
+              checked={form.graphEnabled}
+              onChange={(event) => setForm((prev) => ({ ...prev, graphEnabled: event.target.checked }))}
+            />
+            Use the graph when searching English books
+          </label>
+
+          <div className="space-y-2">
+            <div className="text-sm font-medium">Graph database address</div>
+            <Input
+              value={form.neo4jUri}
+              onChange={(event) => setForm((prev) => ({ ...prev, neo4jUri: event.target.value }))}
+              placeholder="bolt://neo4j:7687"
+            />
+            <div className="text-xs text-muted-foreground">
+              On this server the usual address is bolt://neo4j:7687.
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <div className="text-sm font-medium">Graph user</div>
+              <Input
+                value={form.neo4jUser}
+                onChange={(event) => setForm((prev) => ({ ...prev, neo4jUser: event.target.value }))}
+                placeholder="neo4j"
+              />
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <div className="text-sm font-medium">Graph password</div>
+                <Badge variant="secondary" className={`border-0 font-normal ${form.neo4jPasswordConfigured ? "bg-success/10 text-success" : "bg-muted/60"}`}>
+                  {form.neo4jPasswordConfigured ? "Key available" : "not set"}
+                </Badge>
+              </div>
+              <Input
+                type="password"
+                value={form.neo4jPassword}
+                onChange={(event) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    neo4jPassword: event.target.value,
+                    clearNeo4jPassword: false,
+                  }))}
+                placeholder={form.neo4jPasswordConfigured ? "Leave blank to keep the saved password" : "Enter the graph password"}
+              />
+            </div>
+          </div>
+
+          <label className="flex items-center gap-2 rounded-2xl bg-muted/25 px-4 py-3 text-sm">
+            <input
+              type="checkbox"
+              checked={form.clearNeo4jPassword}
+              onChange={(event) =>
+                setForm((prev) => ({
+                  ...prev,
+                  clearNeo4jPassword: event.target.checked,
+                  neo4jPassword: event.target.checked ? "" : prev.neo4jPassword,
+                }))}
+            />
+            Clear the saved graph password when saving
+          </label>
+
+          <div className="space-y-2">
+            <div className="text-sm font-medium">Connection wait (ms)</div>
+            <Input
+              type="number"
+              min={1000}
+              max={120000}
+              value={form.neo4jTimeoutMs}
+              onChange={(event) =>
+                setForm((prev) => ({
+                  ...prev,
+                  neo4jTimeoutMs: parseNumberInput(event.target.value, prev.neo4jTimeoutMs),
+                }))}
+            />
+          </div>
+        </section>
+
         <details className="group rounded-3xl bg-muted/20 p-5 sm:p-6">
           <summary className="flex cursor-pointer list-none flex-col gap-2 md:flex-row md:items-center md:justify-between">
             <div className="space-y-1">
@@ -456,33 +557,39 @@ export default function KnowledgeEmbeddingSettingsCard({
 
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="space-y-2">
-                  <div className="text-sm font-medium">Cut size</div>
+                  <div className="text-sm font-medium">Words in each searchable section</div>
                   <Input
                     type="number"
-                    min={200}
-                    max={4000}
-                    value={form.chunkSize}
+                    min={80}
+                    max={800}
+                    value={form.chunkWordSize}
                     onChange={(event) =>
                       setForm((prev) => ({
                         ...prev,
-                        chunkSize: parseNumberInput(event.target.value, prev.chunkSize),
+                        chunkWordSize: parseNumberInput(event.target.value, prev.chunkWordSize),
                       }))}
                   />
+                  <div className="text-xs text-muted-foreground">
+                    About 250–400 words keeps a scene together without cutting a word in half.
+                  </div>
                 </div>
 
                 <div className="space-y-2">
-                  <div className="text-sm font-medium">Overlapping slices</div>
+                  <div className="text-sm font-medium">Words reused from the previous section</div>
                   <Input
                     type="number"
                     min={0}
-                    max={1000}
-                    value={form.chunkOverlap}
+                    max={200}
+                    value={form.chunkOverlapWords}
                     onChange={(event) =>
                       setForm((prev) => ({
                         ...prev,
-                        chunkOverlap: parseNumberInput(event.target.value, prev.chunkOverlap),
+                        chunkOverlapWords: parseNumberInput(event.target.value, prev.chunkOverlapWords),
                       }))}
                   />
+                  <div className="text-xs text-muted-foreground">
+                    Reuse the last whole sentence so a boundary does not lose meaning.
+                  </div>
                 </div>
 
                 <div className="space-y-2">
@@ -694,6 +801,7 @@ export default function KnowledgeEmbeddingSettingsCard({
               || !form.embeddingModel.trim()
               || !collectionNameToDisplay.trim()
               || !form.qdrantUrl.trim()
+              || (form.graphEnabled && !form.neo4jUri.trim())
             }
           >
             {isSaving ? "Saving..." : "Save search settings"}

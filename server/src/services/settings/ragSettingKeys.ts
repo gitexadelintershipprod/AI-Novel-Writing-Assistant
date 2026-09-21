@@ -16,8 +16,13 @@ export const QDRANT_API_KEY_KEY = "rag.qdrantApiKey";
 export const QDRANT_TIMEOUT_MS_KEY = "rag.qdrantTimeoutMs";
 export const QDRANT_UPSERT_MAX_BYTES_KEY = "rag.qdrantUpsertMaxBytes";
 export const QDRANT_UPSERT_CONCURRENCY_KEY = "rag.qdrantUpsertConcurrency";
-export const CHUNK_SIZE_KEY = "rag.chunkSize";
-export const CHUNK_OVERLAP_KEY = "rag.chunkOverlap";
+export const CHUNK_WORD_SIZE_KEY = "rag.chunkWordSize";
+export const CHUNK_OVERLAP_WORDS_KEY = "rag.chunkOverlapWords";
+export const GRAPH_ENABLED_KEY = "rag.graphEnabled";
+export const NEO4J_URI_KEY = "rag.neo4jUri";
+export const NEO4J_USER_KEY = "rag.neo4jUser";
+export const NEO4J_PASSWORD_KEY = "rag.neo4jPassword";
+export const NEO4J_TIMEOUT_MS_KEY = "rag.neo4jTimeoutMs";
 export const VECTOR_CANDIDATES_KEY = "rag.vectorCandidates";
 export const KEYWORD_CANDIDATES_KEY = "rag.keywordCandidates";
 export const FINAL_TOP_K_KEY = "rag.finalTopK";
@@ -49,8 +54,13 @@ export const RAG_RUNTIME_SETTING_KEYS = [
   QDRANT_TIMEOUT_MS_KEY,
   QDRANT_UPSERT_MAX_BYTES_KEY,
   QDRANT_UPSERT_CONCURRENCY_KEY,
-  CHUNK_SIZE_KEY,
-  CHUNK_OVERLAP_KEY,
+  CHUNK_WORD_SIZE_KEY,
+  CHUNK_OVERLAP_WORDS_KEY,
+  GRAPH_ENABLED_KEY,
+  NEO4J_URI_KEY,
+  NEO4J_USER_KEY,
+  NEO4J_PASSWORD_KEY,
+  NEO4J_TIMEOUT_MS_KEY,
   VECTOR_CANDIDATES_KEY,
   KEYWORD_CANDIDATES_KEY,
   FINAL_TOP_K_KEY,

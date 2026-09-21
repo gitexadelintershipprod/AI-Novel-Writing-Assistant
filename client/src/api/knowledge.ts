@@ -65,6 +65,11 @@ export interface RagHealthStatus {
     ok: boolean;
     detail?: string;
   };
+  graph?: {
+    ok: boolean;
+    enabled?: boolean;
+    detail?: string;
+  };
   ok: boolean;
 }
 
@@ -90,6 +95,11 @@ function buildStaleRagHealthResponse(previousHealth?: RagHealthStatus): ApiRespo
         ok: false,
         detail: "No cached Qdrant health status is available yet.",
       },
+      graph: {
+        ok: true,
+        enabled: false,
+        detail: "No cached graph health status is available yet.",
+      },
       ok: false,
     },
     message: "RAG health returned 304 Not Modified, but no cached health status was available.",
@@ -113,6 +123,11 @@ function buildUnavailableRagHealthResponse(rawResponse?: ApiResponse<RagHealthSt
       qdrant: {
         ok: false,
         detail: "RAG health check failed before Qdrant details were available.",
+      },
+      graph: {
+        ok: true,
+        enabled: false,
+        detail: "RAG health check failed before graph details were available.",
       },
       ok: false,
     },

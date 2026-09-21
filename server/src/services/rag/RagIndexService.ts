@@ -8,7 +8,8 @@ import { VectorStoreService } from "./VectorStoreService";
 import { RagContextualChunkService, type RagContextualChunkDocument } from "./RagContextualChunkService";
 import { resolveEmbeddingChunkTokenBudget } from "./embeddingModelLimits";
 import type { RagChunkCandidate, RagJobStatus, RagJobType, RagOwnerType, RagSourceDocument } from "./types";
-import { buildChunkId, computeChunkHash, estimateTokenCount, normalizeRagText, splitRagChunks } from "./utils";
+import { detectRagLanguage, splitRagChunks } from "./chunking";
+import { buildChunkId, computeChunkHash, estimateTokenCount, normalizeRagText, runWithConcurrency } from "./utils";
 import {
   encodeFacetKeys,
   extractChapterAnchorFromChunk,
@@ -18,7 +19,6 @@ import {
   type RagChunkFacets,
   type RagPreChunk,
 } from "./chunkFacets";
-import { runWithConcurrency } from "./utils";
 
 type ReindexScope = "novel" | "world" | "all";
 
@@ -29,9 +29,6 @@ export class RagJobCancelledError extends Error {
   }
 }
 
-function isCjk(text: string): boolean {
-  return /[\u4E00-\u9FFF]/.test(text);
-}
 
 function buildJoinedText(...parts: Array<string | null | undefined>): string {
   return parts
@@ -554,7 +551,7 @@ export class RagIndexService {
       const isKnowledgeDoc = document.ownerType === "knowledge_document";
       const sourcePieces: SourcePiece[] = document.preChunks?.length
         ? document.preChunks.flatMap((preChunk) => {
-          const pieces = splitRagChunks(preChunk.chunkText, ragConfig.chunkSize, ragConfig.chunkOverlap, {
+          const pieces = splitRagChunks(preChunk.chunkText, ragConfig.chunkWordSize, ragConfig.chunkOverlapWords, {
             maxTokens: options?.maxTokens ?? null,
           });
           return pieces.map((chunkText) => ({
@@ -564,7 +561,7 @@ export class RagIndexService {
             metadata: preChunk.metadata,
           }));
         })
-        : splitRagChunks(document.content, ragConfig.chunkSize, ragConfig.chunkOverlap, {
+        : splitRagChunks(document.content, ragConfig.chunkWordSize, ragConfig.chunkOverlapWords, {
           maxTokens: options?.maxTokens ?? null,
         }).map((chunkText): SourcePiece => {
           if (!isKnowledgeDoc) {
@@ -614,7 +611,7 @@ export class RagIndexService {
           chunkHash,
           chunkOrder,
           tokenEstimate: estimateTokenCount(chunkText),
-          language: isCjk(chunkText) ? "zh" : "en",
+          language: detectRagLanguage(chunkText),
           metadataJson: Object.keys(metadata).length > 0 ? JSON.stringify(metadata) : undefined,
           facets: piece.facets,
           facetKeys,
@@ -1194,6 +1191,9 @@ export class RagIndexService {
     const tenantId = job.tenantId || ragConfig.defaultTenantId;
     const ownerType = job.ownerType as RagOwnerType;
     const jobType = job.jobType as RagJobType;
+    if (jobType === "graph_sync") {
+      return { chunks: 0 };
+    }
     if (jobType === "delete") {
       await this.updateJobProgress(job.id, {
         stage: "deleting_existing",
@@ -1223,7 +1223,7 @@ export class RagIndexService {
     jobType: RagJobType,
     importVersionId?: string | null,
   ): Promise<void> {
-    if (ownerType !== "knowledge_document") {
+    if (ownerType !== "knowledge_document" || jobType === "graph_sync") {
       return;
     }
 

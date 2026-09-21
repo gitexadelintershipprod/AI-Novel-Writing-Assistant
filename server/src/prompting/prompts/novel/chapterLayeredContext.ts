@@ -487,7 +487,12 @@ export function getAllContextBlocks(contextPackage: GenerationContextPackage): P
             id: "rag_context",
             group: "rag_context",
             priority: 60,
-            content: contextPackage.ragContext,
+            content: [
+              "Retrieved book excerpts may be in English. Write the chapter in Georgian.",
+              "Use them as craft or setting clues. Do not copy another book's plot as this story.",
+              "",
+              contextPackage.ragContext,
+            ].join("\n"),
         }));
     }
     return blocks;

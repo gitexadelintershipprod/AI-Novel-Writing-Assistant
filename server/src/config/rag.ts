@@ -53,6 +53,21 @@ function normalizeOptionalUrl(value: string | undefined): string {
   return (normalizeOptionalText(value) ?? "").replace(/\/+$/, "");
 }
 
+function parseNeo4jAuth(rawValue: string | undefined): { user: string; password: string } {
+  const value = normalizeOptionalText(rawValue);
+  if (!value) {
+    return { user: "neo4j", password: "" };
+  }
+  const separator = value.indexOf("/");
+  if (separator <= 0) {
+    return { user: "neo4j", password: value };
+  }
+  return {
+    user: value.slice(0, separator) || "neo4j",
+    password: value.slice(separator + 1),
+  };
+}
+
 export function asEmbeddingProvider(rawValue: string | undefined): EmbeddingProvider {
   const trimmed = rawValue?.trim();
   if (!trimmed) {
@@ -114,8 +129,13 @@ export const ragConfig = {
   qdrantUpsertMaxBytes: asInt(process.env.QDRANT_UPSERT_MAX_BYTES, 24 * 1024 * 1024, 1024 * 1024, 64 * 1024 * 1024),
   // Do not read from env: managed through the knowledge-base settings panel (RagRuntimeSettings.qdrantUpsertConcurrency)
   qdrantUpsertConcurrency: 3,
-  chunkSize: asInt(process.env.RAG_CHUNK_SIZE, 800, 200, 4000),
-  chunkOverlap: asInt(process.env.RAG_CHUNK_OVERLAP, 120, 0, 1000),
+  chunkWordSize: asInt(process.env.RAG_CHUNK_WORD_SIZE, 320, 80, 800),
+  chunkOverlapWords: asInt(process.env.RAG_CHUNK_OVERLAP_WORDS, 40, 0, 200),
+  graphEnabled: isEnabled(process.env.RAG_GRAPH_ENABLED, false),
+  neo4jUri: (process.env.NEO4J_URI ?? "bolt://neo4j:7687").replace(/\/+$/, ""),
+  neo4jUser: process.env.NEO4J_USER ?? parseNeo4jAuth(process.env.NEO4J_AUTH).user,
+  neo4jPassword: process.env.NEO4J_PASSWORD ?? parseNeo4jAuth(process.env.NEO4J_AUTH).password,
+  neo4jTimeoutMs: asInt(process.env.NEO4J_TIMEOUT_MS, 15000, 1000, 120000),
   vectorCandidates: asInt(process.env.RAG_VECTOR_CANDIDATES, 40, 1, 200),
   keywordCandidates: asInt(process.env.RAG_KEYWORD_CANDIDATES, 40, 1, 200),
   finalTopK: asInt(process.env.RAG_FINAL_TOP_K, 8, 1, 50),

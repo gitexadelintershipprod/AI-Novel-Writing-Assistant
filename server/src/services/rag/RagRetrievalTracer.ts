@@ -3,11 +3,12 @@ import { prisma } from "../../db/prisma";
 import { ragConfig } from "../../config/rag";
 import type { RagSearchOptions, RetrievedChunk } from "./types";
 
-type TraceStage = "vector" | "keyword" | "fusion" | "fallback" | "reranker" | "decay" | "hits";
+type TraceStage = "vector" | "keyword" | "graph" | "fusion" | "fallback" | "reranker" | "decay" | "hits";
 
 interface TraceTimingSnapshot {
   vectorMs: number;
   keywordMs: number;
+  graphMs: number;
   fusionMs: number;
   rerankerMs: number;
   decayMs: number;
@@ -17,6 +18,7 @@ interface TraceTimingSnapshot {
 interface TraceCandidateCounts {
   vector: number;
   keyword: number;
+  graph: number;
   fused: number;
   rerankerInput: number;
   rerankerOutput: number;
@@ -65,7 +67,7 @@ function snapshotHits(rows: RetrievedChunk[]): Array<{
   ownerId: string;
   score: number;
   rank: number;
-  source: "vector" | "keyword" | "reranked";
+  source: "vector" | "keyword" | "reranked" | "graph";
 }> {
   return rows.slice(0, 50).map((row, index) => ({
     chunkId: row.id,
@@ -83,6 +85,7 @@ export class RagRetrievalTracer {
   private readonly timings: TraceTimingSnapshot = {
     vectorMs: 0,
     keywordMs: 0,
+    graphMs: 0,
     fusionMs: 0,
     rerankerMs: 0,
     decayMs: 0,
@@ -91,6 +94,7 @@ export class RagRetrievalTracer {
   private readonly candidateCounts: TraceCandidateCounts = {
     vector: 0,
     keyword: 0,
+    graph: 0,
     fused: 0,
     rerankerInput: 0,
     rerankerOutput: 0,
@@ -123,6 +127,11 @@ export class RagRetrievalTracer {
     if (stage === "keyword") {
       this.timings.keywordMs += Number(payload.elapsedMs ?? 0);
       this.candidateCounts.keyword += Number(payload.count ?? 0);
+      return;
+    }
+    if (stage === "graph") {
+      this.timings.graphMs += Number(payload.elapsedMs ?? 0);
+      this.candidateCounts.graph += Number(payload.count ?? 0);
       return;
     }
     if (stage === "fusion") {

@@ -95,9 +95,10 @@ router.delete("/jobs/:jobId", validate({ params: jobParamsSchema }), async (req,
 
 router.get("/health", async (_req, res, next) => {
   try {
-    const [embedding, qdrant] = await Promise.all([
+    const [embedding, qdrant, graph] = await Promise.all([
       ragServices.embeddingService.healthCheck(),
       ragServices.vectorStoreService.healthCheck(),
+      ragServices.knowledgeGraphService.healthCheck(),
     ]);
     const data = {
       embedding: {
@@ -109,6 +110,11 @@ router.get("/health", async (_req, res, next) => {
       qdrant: {
         ...qdrant,
         timeoutMs: ragConfig.qdrantTimeoutMs,
+      },
+      graph: {
+        ...graph,
+        enabled: ragConfig.graphEnabled,
+        timeoutMs: ragConfig.neo4jTimeoutMs,
       },
       ok: embedding.ok && qdrant.ok,
     };

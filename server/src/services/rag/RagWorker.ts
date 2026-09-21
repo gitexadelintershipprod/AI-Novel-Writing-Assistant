@@ -1,5 +1,6 @@
 import { ragConfig } from "../../config/rag";
 import { RagIndexService, RagJobCancelledError } from "./RagIndexService";
+import type { KnowledgeGraphService } from "./graph";
 
 function backoffMs(attempt: number): number {
   const factor = Math.min(Math.max(attempt, 1), 6);
@@ -12,7 +13,10 @@ export class RagWorker {
   private startGeneration = 0;
   private started = false;
 
-  constructor(private readonly ragIndexService: RagIndexService) {}
+  constructor(
+    private readonly ragIndexService: RagIndexService,
+    private readonly knowledgeGraphService?: KnowledgeGraphService,
+  ) {}
 
   private logInfo(message: string, meta?: Record<string, unknown>): void {
     if (!ragConfig.verboseLog) {
@@ -118,11 +122,26 @@ export class RagWorker {
       });
 
       try {
-        const result = await this.ragIndexService.processJob(job);
+        const result = job.jobType === "graph_sync"
+          ? await (this.knowledgeGraphService?.processSyncJob(job) ?? Promise.resolve({ chunks: 0 }))
+          : await this.ragIndexService.processJob(job);
         await this.ragIndexService.updateJobStatus(job.id, {
           status: "succeeded",
           lastError: null,
         });
+        if (
+          (job.jobType === "upsert" || job.jobType === "rebuild")
+          && job.ownerType === "knowledge_document"
+          && this.knowledgeGraphService
+          && ragConfig.graphEnabled
+        ) {
+          await this.ragIndexService.enqueueOwnerJob("graph_sync", job.ownerType, job.ownerId, {
+            tenantId: job.tenantId,
+          });
+        }
+        if (job.jobType === "delete") {
+          await this.knowledgeGraphService?.deleteOwner(job.ownerType, job.ownerId, job.tenantId).catch(() => {});
+        }
         this.logInfo("Job succeeded.", {
           jobId: job.id,
           chunks: result.chunks,

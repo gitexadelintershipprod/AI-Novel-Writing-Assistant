@@ -4,6 +4,12 @@ This file is the complete user-visible update history. The root [README.md](../.
 
 ## Update history
 
+### 2026-09-22
+
+- Knowledge materials now split into searchable sections by whole words and sentences, so a word is not cut in the middle.
+- English reference books can be used while writing a Georgian chapter: the search question is turned into English only for those books, and the chapter is still written in Georgian.
+- English books also keep a relationship graph of people, places, and writing techniques. If the graph is unavailable, ordinary search still works.
+
 ### 2026-09-21
 
 - This workspace starts empty so you can open Auto-Director from your own idea. Previous novels, tasks, worlds, and knowledge were cleared after a backup; your model settings and built-in genre, story-mode, and writing-profile libraries remain.

@@ -14,7 +14,7 @@ export const RAG_OWNER_TYPES = [
 
 export type RagOwnerType = (typeof RAG_OWNER_TYPES)[number];
 
-export const RAG_JOB_TYPES = ["upsert", "delete", "rebuild"] as const;
+export const RAG_JOB_TYPES = ["upsert", "delete", "rebuild", "graph_sync"] as const;
 export type RagJobType = (typeof RAG_JOB_TYPES)[number];
 
 export const RAG_JOB_STATUSES = ["queued", "running", "succeeded", "failed", "cancelled"] as const;
@@ -70,8 +70,8 @@ export interface RetrievedChunk {
   worldId?: string;
   metadataJson?: string;
   contextPrefix?: string;
-  retrievalSource?: "vector" | "keyword" | "reranked";
-  source: "vector" | "keyword" | "reranked";
+  retrievalSource?: "vector" | "keyword" | "reranked" | "graph";
+  source: "vector" | "keyword" | "reranked" | "graph";
 }
 
 export interface RagSearchOptions {

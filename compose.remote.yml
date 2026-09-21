@@ -31,6 +31,19 @@ services:
     networks:
       - ai_novel_writing_assistant_network
 
+  neo4j:
+    image: neo4j:5-community
+    restart: unless-stopped
+    environment:
+      NEO4J_AUTH: ${NEO4J_AUTH:-neo4j/changeme}
+    ports:
+      - "127.0.0.1:17687:7687"
+      - "127.0.0.1:17474:7474"
+    volumes:
+      - ai_novel_writing_assistant_neo4j_data:/data
+    networks:
+      - ai_novel_writing_assistant_network
+
   api:
     build:
       context: .
@@ -42,6 +55,8 @@ services:
       database:
         condition: service_healthy
       qdrant:
+        condition: service_started
+      neo4j:
         condition: service_started
     ports:
       - "127.0.0.1:3165:3000"
@@ -76,4 +91,5 @@ networks:
 volumes:
   ai_novel_writing_assistant_postgres_data:
   ai_novel_writing_assistant_qdrant_data:
+  ai_novel_writing_assistant_neo4j_data:
   ai_novel_writing_assistant_storage:

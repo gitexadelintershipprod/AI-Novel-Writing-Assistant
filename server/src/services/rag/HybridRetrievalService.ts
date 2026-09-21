@@ -10,6 +10,8 @@ import { RagRetrievalTracer } from "./RagRetrievalTracer";
 import { RagRerankerService, resolveRerankerCandidateLimit } from "./RagRerankerService";
 import { resolveDatabaseRuntimeConfig } from "../../config/database";
 import { searchKnowledgeKeywords } from "./knowledge-retrieval";
+import { KnowledgeQueryRewriteService } from "./knowledge-retrieval/queryRewrite";
+import type { KnowledgeGraphService } from "./graph";
 
 const RRF_K = 60;
 const NON_KNOWLEDGE_OWNER_TYPES = RAG_OWNER_TYPES.filter((item) => item !== "knowledge_document");
@@ -69,30 +71,23 @@ export class HybridRetrievalService {
     private readonly embeddingService: EmbeddingService,
     private readonly vectorStoreService: VectorStoreService,
     private readonly rerankerService: RagRerankerService = new RagRerankerService(),
+    private readonly knowledgeGraphService?: Pick<KnowledgeGraphService, "searchChunks">,
+    private readonly queryRewriter: Pick<KnowledgeQueryRewriteService, "rewrite"> = new KnowledgeQueryRewriteService(),
   ) {}
 
-  private fuseRrf(vectorResults: RetrievedChunk[], keywordResults: RetrievedChunk[], finalTopK: number): RetrievedChunk[] {
+  private fuseRrf(lists: RetrievedChunk[][], finalTopK: number): RetrievedChunk[] {
     const scoreMap = new Map<string, { item: RetrievedChunk; score: number }>();
-
-    vectorResults.forEach((item, index) => {
-      const key = item.id;
-      const current = scoreMap.get(key);
-      const nextScore = (current?.score ?? 0) + 1 / (RRF_K + index + 1);
-      scoreMap.set(key, {
-        item: current?.item ?? item,
-        score: nextScore,
+    for (const list of lists) {
+      list.forEach((item, index) => {
+        const key = item.id;
+        const current = scoreMap.get(key);
+        const nextScore = (current?.score ?? 0) + 1 / (RRF_K + index + 1);
+        scoreMap.set(key, {
+          item: current?.item ?? item,
+          score: nextScore,
+        });
       });
-    });
-
-    keywordResults.forEach((item, index) => {
-      const key = item.id;
-      const current = scoreMap.get(key);
-      const nextScore = (current?.score ?? 0) + 1 / (RRF_K + index + 1);
-      scoreMap.set(key, {
-        item: current?.item ?? item,
-        score: nextScore,
-      });
-    });
+    }
 
     return Array.from(scoreMap.values())
       .sort((a, b) => b.score - a.score || a.item.chunkOrder - b.item.chunkOrder)
@@ -148,48 +143,52 @@ export class HybridRetrievalService {
     if (terms.length === 0) {
       return [];
     }
-    const ownerTypes = toOwnerTypes(options.ownerTypes);
-    const ownerIds = toOwnerIds(options.ownerIds);
-    const rows = ownerTypes?.length === 1 && ownerTypes[0] === "knowledge_document"
-      ? await searchKnowledgeKeywords(prisma, resolveDatabaseRuntimeConfig().provider, query, {
-        tenantId: options.tenantId,
-        ownerIds: options.ownerIds,
-        novelId: options.novelId,
-        worldId: options.worldId,
-        facets: options.facets,
-        limit: options.keywordCandidates ?? ragConfig.keywordCandidates,
-      })
-      : await prisma.knowledgeChunk.findMany({
-      where: {
-        tenantId: options.tenantId,
-        ...(options.novelId ? { novelId: options.novelId } : {}),
-        ...(options.worldId ? { worldId: options.worldId } : {}),
-        ...(ownerTypes ? { ownerType: { in: ownerTypes } } : {}),
-        ...(ownerIds ? { ownerId: { in: ownerIds } } : {}),
-        ...buildFacetWhere(options.facets),
-        OR: terms.flatMap((term) => [
-          { chunkText: { contains: term } },
-          { metadataJson: { contains: term } },
-        ]),
-      },
-      orderBy: [{ updatedAt: "desc" }, { chunkOrder: "asc" }],
-      take: options.keywordCandidates ?? ragConfig.keywordCandidates,
-    });
-    return rows.map((row) => ({
-      id: row.id,
-      ownerType: row.ownerType as RagOwnerType,
-      ownerId: row.ownerId,
-      score: 0,
-      title: row.title ?? undefined,
-      chunkText: row.chunkText,
-      chunkOrder: row.chunkOrder,
-      novelId: row.novelId ?? undefined,
-      worldId: row.worldId ?? undefined,
-      metadataJson: row.metadataJson ?? undefined,
-      contextPrefix: this.extractContextPrefix(row.metadataJson),
-      source: "keyword" as const,
-      retrievalSource: "keyword" as const,
-    }));
+    try {
+      const ownerTypes = toOwnerTypes(options.ownerTypes);
+      const ownerIds = toOwnerIds(options.ownerIds);
+      const rows = ownerTypes?.length === 1 && ownerTypes[0] === "knowledge_document"
+        ? await searchKnowledgeKeywords(prisma, resolveDatabaseRuntimeConfig().provider, query, {
+          tenantId: options.tenantId,
+          ownerIds: options.ownerIds,
+          novelId: options.novelId,
+          worldId: options.worldId,
+          facets: options.facets,
+          limit: options.keywordCandidates ?? ragConfig.keywordCandidates,
+        })
+        : await prisma.knowledgeChunk.findMany({
+          where: {
+            tenantId: options.tenantId,
+            ...(options.novelId ? { novelId: options.novelId } : {}),
+            ...(options.worldId ? { worldId: options.worldId } : {}),
+            ...(ownerTypes ? { ownerType: { in: ownerTypes } } : {}),
+            ...(ownerIds ? { ownerId: { in: ownerIds } } : {}),
+            ...buildFacetWhere(options.facets),
+            OR: terms.flatMap((term) => [
+              { chunkText: { contains: term } },
+              { metadataJson: { contains: term } },
+            ]),
+          },
+          orderBy: [{ updatedAt: "desc" }, { chunkOrder: "asc" }],
+          take: options.keywordCandidates ?? ragConfig.keywordCandidates,
+        });
+      return rows.map((row) => ({
+        id: row.id,
+        ownerType: row.ownerType as RagOwnerType,
+        ownerId: row.ownerId,
+        score: 0,
+        title: row.title ?? undefined,
+        chunkText: row.chunkText,
+        chunkOrder: row.chunkOrder,
+        novelId: row.novelId ?? undefined,
+        worldId: row.worldId ?? undefined,
+        metadataJson: row.metadataJson ?? undefined,
+        contextPrefix: this.extractContextPrefix(row.metadataJson),
+        source: "keyword" as const,
+        retrievalSource: "keyword" as const,
+      }));
+    } catch {
+      return [];
+    }
   }
 
   private async vectorSearch(query: string, options: SearchScopeOptions): Promise<RetrievedChunk[]> {
@@ -225,6 +224,22 @@ export class HybridRetrievalService {
       }));
     } catch {
       return [] as RetrievedChunk[];
+    }
+  }
+
+  private async graphSearch(phrases: string[], options: SearchScopeOptions): Promise<RetrievedChunk[]> {
+    if (!this.knowledgeGraphService) {
+      return [];
+    }
+    try {
+      return await this.knowledgeGraphService.searchChunks({
+        tenantId: options.tenantId,
+        ownerIds: options.ownerIds,
+        phrases,
+        limit: options.keywordCandidates ?? ragConfig.keywordCandidates,
+      });
+    } catch {
+      return [];
     }
   }
 
@@ -295,12 +310,19 @@ export class HybridRetrievalService {
       shouldSearchKnowledgeDocuments,
     });
 
+    const knowledgeQuery = knowledgeScope
+      ? await this.queryRewriter.rewrite(normalizedQuery)
+      : { searchText: normalizedQuery, phrases: [normalizedQuery], rewritten: false };
+    tracer.setScope({
+      knowledgeQueryRewritten: knowledgeQuery.rewritten,
+    });
+
     const runSearches = async (scopes: {
       baseScope: SearchScopeOptions | null;
       knowledgeScope: SearchScopeOptions | null;
     }) => {
       const traceSearch = async (
-        stage: "vector" | "keyword",
+        stage: "vector" | "keyword" | "graph",
         search: () => Promise<RetrievedChunk[]>,
       ) => {
         const startedAt = Date.now();
@@ -316,18 +338,22 @@ export class HybridRetrievalService {
         baseKeywordRows,
         knowledgeVectorRows,
         knowledgeKeywordRows,
+        knowledgeGraphRows,
       ] = await Promise.all([
         scopes.baseScope ? traceSearch("vector", () => this.vectorSearch(normalizedQuery, scopes.baseScope!)) : Promise.resolve([] as RetrievedChunk[]),
         scopes.baseScope ? traceSearch("keyword", () => this.keywordSearch(normalizedQuery, scopes.baseScope!)) : Promise.resolve([] as RetrievedChunk[]),
-        scopes.knowledgeScope ? traceSearch("vector", () => this.vectorSearch(normalizedQuery, scopes.knowledgeScope!)) : Promise.resolve([] as RetrievedChunk[]),
-        scopes.knowledgeScope ? traceSearch("keyword", () => this.keywordSearch(normalizedQuery, scopes.knowledgeScope!)) : Promise.resolve([] as RetrievedChunk[]),
+        scopes.knowledgeScope ? traceSearch("vector", () => this.vectorSearch(knowledgeQuery.searchText, scopes.knowledgeScope!)) : Promise.resolve([] as RetrievedChunk[]),
+        scopes.knowledgeScope ? traceSearch("keyword", () => this.keywordSearch(knowledgeQuery.searchText, scopes.knowledgeScope!)) : Promise.resolve([] as RetrievedChunk[]),
+        scopes.knowledgeScope
+          ? traceSearch("graph", () => this.graphSearch(knowledgeQuery.phrases, scopes.knowledgeScope!))
+          : Promise.resolve([] as RetrievedChunk[]),
       ]);
       const fusionStartedAt = Date.now();
-      const fusedRows = this.fuseRrf(
+      const fusedRows = this.fuseRrf([
         [...baseVectorRows, ...knowledgeVectorRows],
         [...baseKeywordRows, ...knowledgeKeywordRows],
-        fusionTopK,
-      );
+        knowledgeGraphRows,
+      ], fusionTopK);
       tracer.record("fusion", {
         elapsedMs: Date.now() - fusionStartedAt,
         count: fusedRows.length,
@@ -405,7 +431,13 @@ export class HybridRetrievalService {
     }
     return rows
       .map((item, index) => {
-        const sourceLabel = item.source === "reranked" ? "reranked" : item.source === "vector" ? "vector" : "keyword";
+        const sourceLabel = item.source === "reranked"
+          ? "reranked"
+          : item.source === "vector"
+            ? "vector"
+            : item.source === "graph"
+              ? "graph"
+              : "keyword";
         const title = item.title?.trim() ? ` | ${item.title.trim()}` : "";
         const contextPrefix = item.contextPrefix?.trim() ? `${item.contextPrefix.trim()}\n` : "";
         return `[RAG-${index + 1}] (${sourceLabel}) ${item.ownerType}:${item.ownerId}${title}\n${contextPrefix}${compactSnippet(item.chunkText)}`;

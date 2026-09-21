@@ -93,8 +93,13 @@ export interface RagSettingsStatus {
   qdrantTimeoutMs: number;
   qdrantUpsertMaxBytes: number;
   qdrantUpsertConcurrency: number;
-  chunkSize: number;
-  chunkOverlap: number;
+  chunkWordSize: number;
+  chunkOverlapWords: number;
+  graphEnabled: boolean;
+  neo4jUri: string;
+  neo4jUser: string;
+  neo4jPasswordConfigured: boolean;
+  neo4jTimeoutMs: number;
   vectorCandidates: number;
   keywordCandidates: number;
   finalTopK: number;
@@ -238,8 +243,14 @@ export async function saveRagSettings(payload: {
   qdrantTimeoutMs: number;
   qdrantUpsertMaxBytes: number;
   qdrantUpsertConcurrency: number;
-  chunkSize: number;
-  chunkOverlap: number;
+  chunkWordSize: number;
+  chunkOverlapWords: number;
+  graphEnabled: boolean;
+  neo4jUri: string;
+  neo4jUser?: string;
+  neo4jPassword?: string;
+  clearNeo4jPassword?: boolean;
+  neo4jTimeoutMs: number;
   vectorCandidates: number;
   keywordCandidates: number;
   finalTopK: number;
@@ -270,8 +281,13 @@ export async function saveRagSettings(payload: {
         | "qdrantTimeoutMs"
         | "qdrantUpsertMaxBytes"
         | "qdrantUpsertConcurrency"
-        | "chunkSize"
-        | "chunkOverlap"
+        | "chunkWordSize"
+        | "chunkOverlapWords"
+        | "graphEnabled"
+        | "neo4jUri"
+        | "neo4jUser"
+        | "neo4jPasswordConfigured"
+        | "neo4jTimeoutMs"
         | "vectorCandidates"
         | "keywordCandidates"
         | "finalTopK"

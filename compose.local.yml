@@ -20,6 +20,14 @@ services:
     volumes:
       - ai_novel_qdrant_data:/qdrant/storage
 
+  neo4j:
+    image: neo4j:5-community
+    restart: unless-stopped
+    environment:
+      NEO4J_AUTH: ${NEO4J_AUTH:-neo4j/changeme}
+    volumes:
+      - ai_novel_neo4j_data:/data
+
   api:
     build:
       context: .
@@ -34,6 +42,8 @@ services:
         condition: service_healthy
       qdrant:
         condition: service_started
+      neo4j:
+        condition: service_started
     environment:
       NODE_ENV: production
       HOST: 0.0.0.0
@@ -41,6 +51,8 @@ services:
       DATABASE_URL: postgresql://postgres:postgres@database:5432/ai_novel
       AI_NOVEL_DATABASE_MODE: postgresql
       QDRANT_URL: http://qdrant:6333
+      NEO4J_URI: bolt://neo4j:7687
+      RAG_GRAPH_ENABLED: "true"
       CORS_ORIGIN: http://127.0.0.1:8045,http://localhost:8045
     ports:
       - "127.0.0.1:3165:3000"
@@ -62,4 +74,5 @@ services:
 volumes:
   ai_novel_postgres_data:
   ai_novel_qdrant_data:
+  ai_novel_neo4j_data:
   ai_novel_storage:

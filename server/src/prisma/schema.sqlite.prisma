@@ -55,6 +55,7 @@ enum RagJobType {
   upsert
   delete
   rebuild
+  graph_sync
 }
 
 enum RagJobStatus {

@@ -29,8 +29,13 @@ import {
   RAG_ENABLED_KEY,
   QDRANT_TIMEOUT_MS_KEY,
   QDRANT_UPSERT_MAX_BYTES_KEY,
-  CHUNK_SIZE_KEY,
-  CHUNK_OVERLAP_KEY,
+  CHUNK_WORD_SIZE_KEY,
+  CHUNK_OVERLAP_WORDS_KEY,
+  GRAPH_ENABLED_KEY,
+  NEO4J_URI_KEY,
+  NEO4J_USER_KEY,
+  NEO4J_PASSWORD_KEY,
+  NEO4J_TIMEOUT_MS_KEY,
   VECTOR_CANDIDATES_KEY,
   KEYWORD_CANDIDATES_KEY,
   FINAL_TOP_K_KEY,
@@ -121,12 +126,32 @@ function buildRagSettingImportCandidates(): RagSettingImportCandidate[] {
       value: process.env.QDRANT_UPSERT_MAX_BYTES,
     },
     {
-      key: CHUNK_SIZE_KEY,
-      value: process.env.RAG_CHUNK_SIZE,
+      key: CHUNK_WORD_SIZE_KEY,
+      value: process.env.RAG_CHUNK_WORD_SIZE,
     },
     {
-      key: CHUNK_OVERLAP_KEY,
-      value: process.env.RAG_CHUNK_OVERLAP,
+      key: CHUNK_OVERLAP_WORDS_KEY,
+      value: process.env.RAG_CHUNK_OVERLAP_WORDS,
+    },
+    {
+      key: GRAPH_ENABLED_KEY,
+      value: process.env.RAG_GRAPH_ENABLED,
+    },
+    {
+      key: NEO4J_URI_KEY,
+      value: process.env.NEO4J_URI,
+    },
+    {
+      key: NEO4J_USER_KEY,
+      value: process.env.NEO4J_USER,
+    },
+    {
+      key: NEO4J_PASSWORD_KEY,
+      value: process.env.NEO4J_PASSWORD,
+    },
+    {
+      key: NEO4J_TIMEOUT_MS_KEY,
+      value: process.env.NEO4J_TIMEOUT_MS,
     },
     {
       key: VECTOR_CANDIDATES_KEY,

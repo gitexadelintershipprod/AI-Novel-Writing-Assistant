@@ -45,6 +45,7 @@ const JOB_TYPE_LABELS: Record<string, string> = {
   upsert: "Update search content",
   rebuild: "Re-index",
   delete: "Remove search content",
+  graph_sync: "Update book relationships",
 };
 
 function canDeleteRagJob(job: RagJobSummary): boolean {
@@ -121,7 +122,7 @@ export default function KnowledgeOpsTab({
 
         <details className="group mt-4 text-xs text-muted-foreground">
           <summary className="cursor-pointer list-none marker:hidden">View connection details</summary>
-          <div className="mt-3 grid gap-3 rounded-2xl bg-background/55 p-4 sm:grid-cols-2">
+          <div className="mt-3 grid gap-3 rounded-2xl bg-background/55 p-4 sm:grid-cols-3">
             <div>
               <div className="font-medium text-foreground">vector model</div>
               <div className="mt-1 break-words">
@@ -134,7 +135,18 @@ export default function KnowledgeOpsTab({
               <div className="mt-1">{ragHealth?.qdrant.ok ? "The connection is normal" : "Connection failed"}</div>
               {ragHealth?.qdrant.detail ? <div className="mt-1 break-words">{ragHealth.qdrant.detail}</div> : null}
             </div>
-            {ragHealthNotice ? <div className="sm:col-span-2">{ragHealthNotice}</div> : null}
+            <div>
+              <div className="font-medium text-foreground">Book relationship graph</div>
+              <div className="mt-1">
+                {ragHealth?.graph?.enabled === false
+                  ? "Turned off"
+                  : ragHealth?.graph?.ok
+                    ? "The connection is normal"
+                    : "Connection failed"}
+              </div>
+              {ragHealth?.graph?.detail ? <div className="mt-1 break-words">{ragHealth.graph.detail}</div> : null}
+            </div>
+            {ragHealthNotice ? <div className="sm:col-span-3">{ragHealthNotice}</div> : null}
           </div>
         </details>
       </section>

@@ -175,7 +175,7 @@ export default function KnowledgeDocumentDetailDialog({
                               <div key={hit.id} className="min-w-0 max-w-full overflow-hidden rounded-md border p-3">
                                 <div className="flex flex-wrap items-center justify-between gap-2">
                                   <div className="min-w-0 break-all font-medium">
-                                    Match {index + 1} | {hit.source === "reranked" ? "Reranked" : hit.source === "vector" ? "Vector" : "Keyword"} | Chunk #{hit.chunkOrder + 1}
+                                    Match {index + 1} | {hit.source === "reranked" ? "Reranked" : hit.source === "vector" ? "Vector" : hit.source === "graph" ? "Graph" : "Keyword"} | Chunk #{hit.chunkOrder + 1}
                                   </div>
                                   <Badge variant="outline">Score {hit.score.toFixed(4)}</Badge>
                                 </div>

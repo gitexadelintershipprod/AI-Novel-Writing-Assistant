@@ -222,6 +222,14 @@ export const promptAssetLoaderEntries: PromptAssetLoaderEntry[] = [
     load: () => require("../prompts/rag/contextualChunk.prompts").ragContextualChunkPrompt as UnknownPromptAsset,
   },
   {
+    key: "rag.knowledge_query.rewrite@v1",
+    load: () => require("../prompts/rag/knowledgeQueryRewrite.prompts").ragKnowledgeQueryRewritePrompt as UnknownPromptAsset,
+  },
+  {
+    key: "rag.knowledge_graph.extract@v1",
+    load: () => require("../prompts/rag/knowledgeGraphExtract.prompts").ragKnowledgeGraphExtractPrompt as UnknownPromptAsset,
+  },
+  {
     key: "novel.director.candidates@v3",
     load: () => require("../prompts/novel/directorPlanning.prompts").directorCandidatePrompt as UnknownPromptAsset,
   },

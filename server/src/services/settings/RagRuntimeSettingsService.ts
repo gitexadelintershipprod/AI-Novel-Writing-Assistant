@@ -2,11 +2,16 @@ import { ragConfig } from "../../config/rag";
 import { prisma } from "../../db/prisma";
 import { isMissingTableError, normalizeOptionalText } from "./ragLegacyCompatibility";
 import {
-  CHUNK_OVERLAP_KEY,
-  CHUNK_SIZE_KEY,
+  CHUNK_OVERLAP_WORDS_KEY,
+  CHUNK_WORD_SIZE_KEY,
   FINAL_TOP_K_KEY,
+  GRAPH_ENABLED_KEY,
   HTTP_TIMEOUT_MS_KEY,
   KEYWORD_CANDIDATES_KEY,
+  NEO4J_PASSWORD_KEY,
+  NEO4J_TIMEOUT_MS_KEY,
+  NEO4J_URI_KEY,
+  NEO4J_USER_KEY,
   QDRANT_API_KEY_KEY,
   QDRANT_TIMEOUT_MS_KEY,
   QDRANT_UPSERT_CONCURRENCY_KEY,
@@ -27,8 +32,13 @@ const INITIAL_RAG_RUNTIME_DEFAULTS = {
   qdrantTimeoutMs: ragConfig.qdrantTimeoutMs,
   qdrantUpsertMaxBytes: ragConfig.qdrantUpsertMaxBytes,
   qdrantUpsertConcurrency: ragConfig.qdrantUpsertConcurrency,
-  chunkSize: ragConfig.chunkSize,
-  chunkOverlap: ragConfig.chunkOverlap,
+  chunkWordSize: ragConfig.chunkWordSize,
+  chunkOverlapWords: ragConfig.chunkOverlapWords,
+  graphEnabled: ragConfig.graphEnabled,
+  neo4jUri: ragConfig.neo4jUri,
+  neo4jUser: ragConfig.neo4jUser,
+  neo4jPassword: ragConfig.neo4jPassword,
+  neo4jTimeoutMs: ragConfig.neo4jTimeoutMs,
   vectorCandidates: ragConfig.vectorCandidates,
   keywordCandidates: ragConfig.keywordCandidates,
   finalTopK: ragConfig.finalTopK,
@@ -45,8 +55,13 @@ export interface RagRuntimeSettings {
   qdrantTimeoutMs: number;
   qdrantUpsertMaxBytes: number;
   qdrantUpsertConcurrency: number;
-  chunkSize: number;
-  chunkOverlap: number;
+  chunkWordSize: number;
+  chunkOverlapWords: number;
+  graphEnabled: boolean;
+  neo4jUri: string;
+  neo4jUser: string;
+  neo4jPasswordConfigured: boolean;
+  neo4jTimeoutMs: number;
   vectorCandidates: number;
   keywordCandidates: number;
   finalTopK: number;
@@ -64,8 +79,14 @@ export interface RagRuntimeSettingsInput {
   qdrantTimeoutMs: number;
   qdrantUpsertMaxBytes: number;
   qdrantUpsertConcurrency: number;
-  chunkSize: number;
-  chunkOverlap: number;
+  chunkWordSize: number;
+  chunkOverlapWords: number;
+  graphEnabled: boolean;
+  neo4jUri: string;
+  neo4jUser?: string;
+  neo4jPassword?: string;
+  clearNeo4jPassword?: boolean;
+  neo4jTimeoutMs: number;
   vectorCandidates: number;
   keywordCandidates: number;
   finalTopK: number;
@@ -103,17 +124,22 @@ function clampInt(value: number, fallback: number, min: number, max: number): nu
 }
 
 function applyRagRuntimeSettings(
-  settings: Omit<RagRuntimeSettings, "qdrantApiKeyConfigured">,
-  qdrantApiKey: string,
+  settings: Omit<RagRuntimeSettings, "qdrantApiKeyConfigured" | "neo4jPasswordConfigured">,
+  secrets: { qdrantApiKey: string; neo4jPassword: string },
 ): RagRuntimeSettings {
   ragConfig.enabled = settings.enabled;
   ragConfig.qdrantUrl = settings.qdrantUrl;
-  ragConfig.qdrantApiKey = qdrantApiKey;
+  ragConfig.qdrantApiKey = secrets.qdrantApiKey;
   ragConfig.qdrantTimeoutMs = settings.qdrantTimeoutMs;
   ragConfig.qdrantUpsertMaxBytes = settings.qdrantUpsertMaxBytes;
   ragConfig.qdrantUpsertConcurrency = settings.qdrantUpsertConcurrency;
-  ragConfig.chunkSize = settings.chunkSize;
-  ragConfig.chunkOverlap = settings.chunkOverlap;
+  ragConfig.chunkWordSize = settings.chunkWordSize;
+  ragConfig.chunkOverlapWords = settings.chunkOverlapWords;
+  ragConfig.graphEnabled = settings.graphEnabled;
+  ragConfig.neo4jUri = settings.neo4jUri;
+  ragConfig.neo4jUser = settings.neo4jUser;
+  ragConfig.neo4jPassword = secrets.neo4jPassword;
+  ragConfig.neo4jTimeoutMs = settings.neo4jTimeoutMs;
   ragConfig.vectorCandidates = settings.vectorCandidates;
   ragConfig.keywordCandidates = settings.keywordCandidates;
   ragConfig.finalTopK = settings.finalTopK;
@@ -124,20 +150,24 @@ function applyRagRuntimeSettings(
 
   return {
     ...settings,
-    qdrantApiKeyConfigured: Boolean(qdrantApiKey),
+    qdrantApiKeyConfigured: Boolean(secrets.qdrantApiKey),
+    neo4jPasswordConfigured: Boolean(secrets.neo4jPassword),
   };
 }
 
-function getDefaultSettings(): RagRuntimeSettings {
+function getDefaultSettings(): Omit<RagRuntimeSettings, "qdrantApiKeyConfigured" | "neo4jPasswordConfigured"> {
   return {
     enabled: INITIAL_RAG_RUNTIME_DEFAULTS.enabled,
     qdrantUrl: normalizeUrl(INITIAL_RAG_RUNTIME_DEFAULTS.qdrantUrl, INITIAL_RAG_RUNTIME_DEFAULTS.qdrantUrl),
-    qdrantApiKeyConfigured: Boolean(normalizeOptionalText(INITIAL_RAG_RUNTIME_DEFAULTS.qdrantApiKey)),
     qdrantTimeoutMs: clampInt(INITIAL_RAG_RUNTIME_DEFAULTS.qdrantTimeoutMs, 30000, 1000, 300000),
     qdrantUpsertMaxBytes: clampInt(INITIAL_RAG_RUNTIME_DEFAULTS.qdrantUpsertMaxBytes, 24 * 1024 * 1024, 1024 * 1024, 64 * 1024 * 1024),
     qdrantUpsertConcurrency: clampInt(INITIAL_RAG_RUNTIME_DEFAULTS.qdrantUpsertConcurrency, 3, 1, 16),
-    chunkSize: clampInt(INITIAL_RAG_RUNTIME_DEFAULTS.chunkSize, 800, 200, 4000),
-    chunkOverlap: clampInt(INITIAL_RAG_RUNTIME_DEFAULTS.chunkOverlap, 120, 0, 1000),
+    chunkWordSize: clampInt(INITIAL_RAG_RUNTIME_DEFAULTS.chunkWordSize, 320, 80, 800),
+    chunkOverlapWords: clampInt(INITIAL_RAG_RUNTIME_DEFAULTS.chunkOverlapWords, 40, 0, 200),
+    graphEnabled: INITIAL_RAG_RUNTIME_DEFAULTS.graphEnabled,
+    neo4jUri: normalizeOptionalText(INITIAL_RAG_RUNTIME_DEFAULTS.neo4jUri) ?? "bolt://neo4j:7687",
+    neo4jUser: normalizeOptionalText(INITIAL_RAG_RUNTIME_DEFAULTS.neo4jUser) ?? "neo4j",
+    neo4jTimeoutMs: clampInt(INITIAL_RAG_RUNTIME_DEFAULTS.neo4jTimeoutMs, 15000, 1000, 120000),
     vectorCandidates: clampInt(INITIAL_RAG_RUNTIME_DEFAULTS.vectorCandidates, 40, 1, 200),
     keywordCandidates: clampInt(INITIAL_RAG_RUNTIME_DEFAULTS.keywordCandidates, 40, 1, 200),
     finalTopK: clampInt(INITIAL_RAG_RUNTIME_DEFAULTS.finalTopK, 8, 1, 50),
@@ -159,13 +189,21 @@ async function getValueMap(): Promise<Map<string, string>> {
   return new Map(records.map((item) => [item.key, item.value]));
 }
 
+function defaultSecrets() {
+  return {
+    qdrantApiKey: normalizeOptionalText(INITIAL_RAG_RUNTIME_DEFAULTS.qdrantApiKey) ?? "",
+    neo4jPassword: normalizeOptionalText(INITIAL_RAG_RUNTIME_DEFAULTS.neo4jPassword) ?? "",
+  };
+}
+
 export async function getRagRuntimeSettings(): Promise<RagRuntimeSettings> {
   const defaults = getDefaultSettings();
   try {
     const valueMap = await getValueMap();
     const qdrantApiKey = normalizeOptionalText(valueMap.get(QDRANT_API_KEY_KEY))
-      ?? normalizeOptionalText(INITIAL_RAG_RUNTIME_DEFAULTS.qdrantApiKey)
-      ?? "";
+      ?? defaultSecrets().qdrantApiKey;
+    const neo4jPassword = normalizeOptionalText(valueMap.get(NEO4J_PASSWORD_KEY))
+      ?? defaultSecrets().neo4jPassword;
 
     return applyRagRuntimeSettings({
       enabled: toBoolean(valueMap.get(RAG_ENABLED_KEY), defaults.enabled),
@@ -188,8 +226,12 @@ export async function getRagRuntimeSettings(): Promise<RagRuntimeSettings> {
         1,
         16,
       ),
-      chunkSize: clampInt(Number(valueMap.get(CHUNK_SIZE_KEY)), defaults.chunkSize, 200, 4000),
-      chunkOverlap: clampInt(Number(valueMap.get(CHUNK_OVERLAP_KEY)), defaults.chunkOverlap, 0, 1000),
+      chunkWordSize: clampInt(Number(valueMap.get(CHUNK_WORD_SIZE_KEY)), defaults.chunkWordSize, 80, 800),
+      chunkOverlapWords: clampInt(Number(valueMap.get(CHUNK_OVERLAP_WORDS_KEY)), defaults.chunkOverlapWords, 0, 200),
+      graphEnabled: toBoolean(valueMap.get(GRAPH_ENABLED_KEY), defaults.graphEnabled),
+      neo4jUri: normalizeOptionalText(valueMap.get(NEO4J_URI_KEY)) ?? defaults.neo4jUri,
+      neo4jUser: normalizeOptionalText(valueMap.get(NEO4J_USER_KEY)) ?? defaults.neo4jUser,
+      neo4jTimeoutMs: clampInt(Number(valueMap.get(NEO4J_TIMEOUT_MS_KEY)), defaults.neo4jTimeoutMs, 1000, 120000),
       vectorCandidates: clampInt(Number(valueMap.get(VECTOR_CANDIDATES_KEY)), defaults.vectorCandidates, 1, 200),
       keywordCandidates: clampInt(Number(valueMap.get(KEYWORD_CANDIDATES_KEY)), defaults.keywordCandidates, 1, 200),
       finalTopK: clampInt(Number(valueMap.get(FINAL_TOP_K_KEY)), defaults.finalTopK, 1, 50),
@@ -202,25 +244,10 @@ export async function getRagRuntimeSettings(): Promise<RagRuntimeSettings> {
         300000,
       ),
       httpTimeoutMs: clampInt(Number(valueMap.get(HTTP_TIMEOUT_MS_KEY)), defaults.httpTimeoutMs, 1000, 300000),
-    }, qdrantApiKey);
+    }, { qdrantApiKey, neo4jPassword });
   } catch (error) {
     if (isMissingTableError(error)) {
-      return applyRagRuntimeSettings({
-        enabled: defaults.enabled,
-        qdrantUrl: defaults.qdrantUrl,
-        qdrantTimeoutMs: defaults.qdrantTimeoutMs,
-        qdrantUpsertMaxBytes: defaults.qdrantUpsertMaxBytes,
-        qdrantUpsertConcurrency: defaults.qdrantUpsertConcurrency,
-        chunkSize: defaults.chunkSize,
-        chunkOverlap: defaults.chunkOverlap,
-        vectorCandidates: defaults.vectorCandidates,
-        keywordCandidates: defaults.keywordCandidates,
-        finalTopK: defaults.finalTopK,
-        workerPollMs: defaults.workerPollMs,
-        workerMaxAttempts: defaults.workerMaxAttempts,
-        workerRetryBaseMs: defaults.workerRetryBaseMs,
-        httpTimeoutMs: defaults.httpTimeoutMs,
-      }, normalizeOptionalText(INITIAL_RAG_RUNTIME_DEFAULTS.qdrantApiKey) ?? "");
+      return applyRagRuntimeSettings(defaults, defaultSecrets());
     }
     throw error;
   }
@@ -230,11 +257,13 @@ export async function saveRagRuntimeSettings(
   input: RagRuntimeSettingsInput,
 ): Promise<SaveRagRuntimeSettingsResult> {
   const previous = await getRagRuntimeSettings();
-  let existingQdrantApiKey = normalizeOptionalText(INITIAL_RAG_RUNTIME_DEFAULTS.qdrantApiKey) ?? "";
+  let existingQdrantApiKey = defaultSecrets().qdrantApiKey;
+  let existingNeo4jPassword = defaultSecrets().neo4jPassword;
 
   try {
     const valueMap = await getValueMap();
     existingQdrantApiKey = normalizeOptionalText(valueMap.get(QDRANT_API_KEY_KEY)) ?? existingQdrantApiKey;
+    existingNeo4jPassword = normalizeOptionalText(valueMap.get(NEO4J_PASSWORD_KEY)) ?? existingNeo4jPassword;
   } catch (error) {
     if (!isMissingTableError(error)) {
       throw error;
@@ -244,6 +273,9 @@ export async function saveRagRuntimeSettings(
   const qdrantApiKey = input.clearQdrantApiKey
     ? ""
     : normalizeOptionalText(input.qdrantApiKey) ?? existingQdrantApiKey;
+  const neo4jPassword = input.clearNeo4jPassword
+    ? ""
+    : normalizeOptionalText(input.neo4jPassword) ?? existingNeo4jPassword;
 
   const settings = applyRagRuntimeSettings({
     enabled: Boolean(input.enabled),
@@ -256,8 +288,12 @@ export async function saveRagRuntimeSettings(
       64 * 1024 * 1024,
     ),
     qdrantUpsertConcurrency: clampInt(input.qdrantUpsertConcurrency, previous.qdrantUpsertConcurrency, 1, 16),
-    chunkSize: clampInt(input.chunkSize, previous.chunkSize, 200, 4000),
-    chunkOverlap: clampInt(input.chunkOverlap, previous.chunkOverlap, 0, 1000),
+    chunkWordSize: clampInt(input.chunkWordSize, previous.chunkWordSize, 80, 800),
+    chunkOverlapWords: clampInt(input.chunkOverlapWords, previous.chunkOverlapWords, 0, 200),
+    graphEnabled: Boolean(input.graphEnabled),
+    neo4jUri: normalizeOptionalText(input.neo4jUri) ?? previous.neo4jUri,
+    neo4jUser: normalizeOptionalText(input.neo4jUser) ?? previous.neo4jUser,
+    neo4jTimeoutMs: clampInt(input.neo4jTimeoutMs, previous.neo4jTimeoutMs, 1000, 120000),
     vectorCandidates: clampInt(input.vectorCandidates, previous.vectorCandidates, 1, 200),
     keywordCandidates: clampInt(input.keywordCandidates, previous.keywordCandidates, 1, 200),
     finalTopK: clampInt(input.finalTopK, previous.finalTopK, 1, 50),
@@ -265,11 +301,11 @@ export async function saveRagRuntimeSettings(
     workerMaxAttempts: clampInt(input.workerMaxAttempts, previous.workerMaxAttempts, 1, 20),
     workerRetryBaseMs: clampInt(input.workerRetryBaseMs, previous.workerRetryBaseMs, 1000, 300000),
     httpTimeoutMs: clampInt(input.httpTimeoutMs, previous.httpTimeoutMs, 1000, 300000),
-  }, qdrantApiKey);
+  }, { qdrantApiKey, neo4jPassword });
 
   const connectionChanged = previous.qdrantUrl !== settings.qdrantUrl;
-  const chunkingChanged = previous.chunkSize !== settings.chunkSize
-    || previous.chunkOverlap !== settings.chunkOverlap;
+  const chunkingChanged = previous.chunkWordSize !== settings.chunkWordSize
+    || previous.chunkOverlapWords !== settings.chunkOverlapWords;
 
   const writeOperations = [
     prisma.appSetting.upsert({
@@ -298,14 +334,34 @@ export async function saveRagRuntimeSettings(
       create: { key: QDRANT_UPSERT_CONCURRENCY_KEY, value: String(settings.qdrantUpsertConcurrency) },
     }),
     prisma.appSetting.upsert({
-      where: { key: CHUNK_SIZE_KEY },
-      update: { value: String(settings.chunkSize) },
-      create: { key: CHUNK_SIZE_KEY, value: String(settings.chunkSize) },
+      where: { key: CHUNK_WORD_SIZE_KEY },
+      update: { value: String(settings.chunkWordSize) },
+      create: { key: CHUNK_WORD_SIZE_KEY, value: String(settings.chunkWordSize) },
     }),
     prisma.appSetting.upsert({
-      where: { key: CHUNK_OVERLAP_KEY },
-      update: { value: String(settings.chunkOverlap) },
-      create: { key: CHUNK_OVERLAP_KEY, value: String(settings.chunkOverlap) },
+      where: { key: CHUNK_OVERLAP_WORDS_KEY },
+      update: { value: String(settings.chunkOverlapWords) },
+      create: { key: CHUNK_OVERLAP_WORDS_KEY, value: String(settings.chunkOverlapWords) },
+    }),
+    prisma.appSetting.upsert({
+      where: { key: GRAPH_ENABLED_KEY },
+      update: { value: String(settings.graphEnabled) },
+      create: { key: GRAPH_ENABLED_KEY, value: String(settings.graphEnabled) },
+    }),
+    prisma.appSetting.upsert({
+      where: { key: NEO4J_URI_KEY },
+      update: { value: settings.neo4jUri },
+      create: { key: NEO4J_URI_KEY, value: settings.neo4jUri },
+    }),
+    prisma.appSetting.upsert({
+      where: { key: NEO4J_USER_KEY },
+      update: { value: settings.neo4jUser },
+      create: { key: NEO4J_USER_KEY, value: settings.neo4jUser },
+    }),
+    prisma.appSetting.upsert({
+      where: { key: NEO4J_TIMEOUT_MS_KEY },
+      update: { value: String(settings.neo4jTimeoutMs) },
+      create: { key: NEO4J_TIMEOUT_MS_KEY, value: String(settings.neo4jTimeoutMs) },
     }),
     prisma.appSetting.upsert({
       where: { key: VECTOR_CANDIDATES_KEY },
@@ -355,6 +411,15 @@ export async function saveRagRuntimeSettings(
         })]
         : [prisma.appSetting.deleteMany({
           where: { key: QDRANT_API_KEY_KEY },
+        })]),
+      ...(neo4jPassword
+        ? [prisma.appSetting.upsert({
+          where: { key: NEO4J_PASSWORD_KEY },
+          update: { value: neo4jPassword },
+          create: { key: NEO4J_PASSWORD_KEY, value: neo4jPassword },
+        })]
+        : [prisma.appSetting.deleteMany({
+          where: { key: NEO4J_PASSWORD_KEY },
         })]),
     ]);
   } catch (error) {

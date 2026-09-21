@@ -25,8 +25,9 @@ const RAG_SETTING_KEYS = [
   "rag.qdrantApiKey",
   "rag.qdrantTimeoutMs",
   "rag.qdrantUpsertMaxBytes",
-  "rag.chunkSize",
-  "rag.chunkOverlap",
+  "rag.chunkWordSize",
+  "rag.chunkOverlapWords",
+  "rag.graphEnabled",
   "rag.vectorCandidates",
   "rag.keywordCandidates",
   "rag.finalTopK",
@@ -58,8 +59,10 @@ const LEGACY_ENV_KEYS = [
   "RAG_EMBEDDING_RETRY_BASE_MS",
   "QDRANT_TIMEOUT_MS",
   "QDRANT_UPSERT_MAX_BYTES",
-  "RAG_CHUNK_SIZE",
-  "RAG_CHUNK_OVERLAP",
+  "RAG_CHUNK_WORD_SIZE",
+  "RAG_CHUNK_OVERLAP_WORDS",
+  "RAG_GRAPH_ENABLED",
+  "NEO4J_URI",
   "RAG_VECTOR_CANDIDATES",
   "RAG_KEYWORD_CANDIDATES",
   "RAG_FINAL_TOP_K",
@@ -258,7 +261,7 @@ test("legacy RAG env bootstrap preserves the historical default collection when 
       QDRANT_URL: "http://legacy-qdrant:6333",
       QDRANT_API_KEY: "legacy-qdrant-key",
       QDRANT_COLLECTION: "ai_novel_chunks_v1",
-      RAG_CHUNK_SIZE: "777",
+      RAG_CHUNK_WORD_SIZE: "321",
     },
     { addLegacyKnowledgeMarker: true },
     async (result) => {
@@ -269,7 +272,7 @@ test("legacy RAG env bootstrap preserves the historical default collection when 
       assert.equal(result.embedding.collectionMode, "manual");
       assert.equal(result.embedding.collectionName, "ai_novel_chunks_v1");
       assert.equal(result.runtime.qdrantUrl, "http://legacy-qdrant:6333");
-      assert.equal(result.runtime.chunkSize, 777);
+      assert.equal(result.runtime.chunkWordSize, 321);
 
       const collectionNameSetting = result.settings.find((item) => item.key === "rag.embeddingCollectionName");
       assert.deepEqual(collectionNameSetting, {
