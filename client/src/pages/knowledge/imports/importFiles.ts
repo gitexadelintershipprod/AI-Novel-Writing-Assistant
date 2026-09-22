@@ -1,3 +1,5 @@
+import { hashImportBytes } from "./importHash.ts";
+
 export const MAX_IMPORT_FILES = 1000;
 export const MAX_IMPORT_FILE_BYTES = 10 * 1024 * 1024;
 export const MAX_IMPORT_JSON_BYTES = 20 * 1024 * 1024;
@@ -24,9 +26,20 @@ export function validateImportContent(content: string): string | null {
   return null;
 }
 
+export function createImportFileId(): string {
+  const bytes = new Uint8Array(16);
+  if (typeof globalThis.crypto?.getRandomValues === "function") globalThis.crypto.getRandomValues(bytes);
+  else for (let index = 0; index < bytes.length; index += 1) bytes[index] = Math.floor(Math.random() * 256);
+  bytes[6] = (bytes[6] & 0x0f) | 0x40;
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  const hex = Array.from(bytes, (value) => value.toString(16).padStart(2, "0")).join("");
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+}
+
 export async function hashImportText(content: string): Promise<string> {
-  const hash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(normalizeImportText(content)));
-  return Array.from(new Uint8Array(hash), (value) => value.toString(16).padStart(2, "0")).join("");
+  const data = new TextEncoder().encode(normalizeImportText(content));
+  const digest = globalThis.crypto?.subtle?.digest;
+  return hashImportBytes(data, typeof digest === "function" ? digest.bind(globalThis.crypto.subtle) : null);
 }
 
 export async function importFileKey(relativePath: string, contentHash: string): Promise<string> {

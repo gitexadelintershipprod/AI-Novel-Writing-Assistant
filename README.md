@@ -175,13 +175,9 @@ The priority is helping a beginner finish a book, not stacking extra side tools.
 
 ## Latest updates
 
-### 2026-09-22
+### 2026-09-23
 
-- Model settings can connect OpenRouter. Enter an API key, load the models that key can use, and choose one for writing.
-- Saved DeepSeek and Ollama chat connections are cleared. Add OpenRouter and choose a model to keep writing. Other vendors, and the knowledge-base embedding model, stay as they are.
-- Knowledge materials now split into searchable sections by whole words and sentences, so a word is not cut in the middle.
-- English reference books can be used while writing a Georgian chapter: the search question is turned into English only for those books, and the chapter is still written in Georgian.
-- English books also keep a relationship graph of people, places, and writing techniques. If the graph is unavailable, ordinary search still works.
+- Bulk Import can check files again from the site's usual web address. Choosing a file or folder no longer stops before the check starts.
 
 Full history: [docs/releases/release-notes.md](./docs/releases/release-notes.md).
 

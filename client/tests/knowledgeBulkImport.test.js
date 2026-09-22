@@ -2,8 +2,9 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import fs from "node:fs";
 import { createHash } from "node:crypto";
+import { hashImportBytes, sha256Hex } from "../src/pages/knowledge/imports/importHash.ts";
 import {
-  formatImportBytes, hashImportText, importFileKey, indexProgressPercent, MAX_IMPORT_FILES, MAX_IMPORT_FILE_BYTES,
+  createImportFileId, formatImportBytes, hashImportText, importFileKey, indexProgressPercent, MAX_IMPORT_FILES, MAX_IMPORT_FILE_BYTES,
   normalizeImportText, runImportSequence, toggleSelection, validateImportContent, validateImportFile,
 } from "../src/pages/knowledge/imports/importFiles.ts";
 
@@ -21,6 +22,19 @@ test("bulk TXT validation rejects unsupported, empty and oversized files", () =>
   assert.ok(validateImportContent("\u0001".repeat(4 * 1024 * 1024)), "JSON escaping can exceed the request limit even below the file size limit");
   assert.equal(validateImportContent("თავი პირველი\nქართული ტექსტი"), null);
   assert.equal(formatImportBytes(1024 * 1024), "1.0 MiB");
+});
+
+test("file checks work without secure-context browser crypto", async () => {
+  const encoded = new TextEncoder().encode("თავი პირველი");
+  const expected = createHash("sha256").update(encoded).digest("hex");
+  assert.equal(sha256Hex(encoded), expected);
+  assert.equal(await hashImportBytes(encoded, null), expected);
+  assert.equal(sha256Hex(new Uint8Array()), "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
+  const longBytes = new TextEncoder().encode("ა".repeat(80));
+  assert.equal(sha256Hex(longBytes), createHash("sha256").update(longBytes).digest("hex"));
+  const ids = new Set(Array.from({ length: 32 }, () => createImportFileId()));
+  assert.equal(ids.size, 32);
+  for (const id of ids) assert.match(id, /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
 });
 
 test("hashes match normalized server SHA-256 while idempotency includes the relative path", async () => {
@@ -88,6 +102,8 @@ test("workspace exposes two separate steps, persists batch navigation and never 
   assert.match(source, /Pause processing/);
   assert.match(source, /Retry failed uploads/);
   assert.match(source, /Retry failed processing/);
+  assert.match(source, /createImportFileId\(\)/);
+  assert.doesNotMatch(source, /crypto\.randomUUID|crypto\.subtle/);
   const upload = source.slice(source.indexOf("async function uploadSelection"), source.indexOf("async function action"));
   assert.match(upload, /uploadImportFile/);
   assert.doesNotMatch(upload, /queueImportItems|retryImportItems/);

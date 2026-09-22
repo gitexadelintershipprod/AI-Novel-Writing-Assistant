@@ -10,7 +10,7 @@ import {
   type ImportFileMetadata, type ImportItem,
 } from "@/api/knowledgeImport";
 import {
-  formatImportBytes, hashImportText, importFileKey, indexProgressPercent, MAX_IMPORT_FILES,
+  createImportFileId, formatImportBytes, hashImportText, importFileKey, indexProgressPercent, MAX_IMPORT_FILES,
   runImportSequence, toggleSelection, validateImportContent, validateImportFile,
 } from "./importFiles";
 
@@ -86,7 +86,7 @@ export default function KnowledgeImportPage() {
     setBusy("checking"); setMessage("");
     let activeBatchId = batchId;
     const candidates: LocalFile[] = chosen.map((file) => ({
-      id: crypto.randomUUID(), file, path: file.webkitRelativePath || file.name, status: "checking", percent: 0,
+      id: createImportFileId(), file, path: file.webkitRelativePath || file.name, status: "checking", percent: 0,
     }));
     setFiles((previous) => [...previous, ...candidates]);
     const hashes = new Set(files.filter((file) => file.metadata && file.status !== "invalid").map((file) => file.metadata!.contentHash));

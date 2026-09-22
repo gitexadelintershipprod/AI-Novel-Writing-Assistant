@@ -25,6 +25,8 @@ Save ten files, select three stored IDs, and enqueue them: exactly three indexin
 
 A file marked Not indexed is stored, not searchable. Check explicit queue selection before investigating the embedding provider. For an archived duplicate, inspect the referenced document; do not automatically restore it. For a changed-version error, do not repoint an old job: use the document's explicit indexing controls for its current version.
 
+The public site is plain HTTP. Browsers omit `crypto.randomUUID` and `crypto.subtle` outside a secure context, so choosing files must not call them. Local row ids use `crypto.getRandomValues`. Content hashes use SubtleCrypto when the page has it, and the same SHA-256 otherwise, so the preview hash still matches the server.
+
 ## Deployment
 
 The additive migration is 20260908000000_knowledge_bulk_import in both PostgreSQL and SQLite migration directories. It creates two tables and adds two nullable RagIndexJob columns, without deleting data.
