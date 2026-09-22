@@ -8,6 +8,7 @@ This file is the complete user-visible update history. The root [README.md](../.
 
 - Bulk Import can check files again from the site's usual web address. Choosing a file or folder no longer stops before the check starts.
 - Knowledge files up to 10 MiB can finish uploading. A file that stopped as too large while still under that size can be sent again with Retry failed uploads.
+- Indexing imported knowledge files no longer freezes the rest of the site. A book that was already indexed is not sent through indexing again when the relationship-graph step cannot start.
 
 ### 2026-09-22
 

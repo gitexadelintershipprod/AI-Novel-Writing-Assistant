@@ -93,6 +93,35 @@ export class RagWorker {
     this.logInfo("Worker stopped.");
   }
 
+  private async enqueueGraphFollowUp(job: {
+    id: string;
+    jobType: string;
+    ownerType: string;
+    ownerId: string;
+    tenantId?: string | null;
+  }): Promise<void> {
+    if (
+      (job.jobType !== "upsert" && job.jobType !== "rebuild")
+      || job.ownerType !== "knowledge_document"
+      || !this.knowledgeGraphService
+      || !ragConfig.graphEnabled
+    ) {
+      return;
+    }
+    try {
+      await this.ragIndexService.enqueueOwnerJob("graph_sync", "knowledge_document", job.ownerId, {
+        tenantId: job.tenantId ?? undefined,
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "The relationship graph job could not be queued.";
+      console.warn("[RAG][Worker] Indexing finished, but the relationship graph job was not queued.", {
+        jobId: job.id,
+        ownerId: job.ownerId,
+        error: message,
+      });
+    }
+  }
+
   private async tick(): Promise<void> {
     if (this.isTicking) {
       return;
@@ -129,16 +158,7 @@ export class RagWorker {
           status: "succeeded",
           lastError: null,
         });
-        if (
-          (job.jobType === "upsert" || job.jobType === "rebuild")
-          && job.ownerType === "knowledge_document"
-          && this.knowledgeGraphService
-          && ragConfig.graphEnabled
-        ) {
-          await this.ragIndexService.enqueueOwnerJob("graph_sync", job.ownerType, job.ownerId, {
-            tenantId: job.tenantId,
-          });
-        }
+        await this.enqueueGraphFollowUp(job);
         if (job.jobType === "delete") {
           await this.knowledgeGraphService?.deleteOwner(job.ownerType, job.ownerId, job.tenantId).catch(() => {});
         }

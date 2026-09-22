@@ -47,6 +47,18 @@ test("splitRagChunks uses English periods as sentence boundaries and does not cu
   assert.equal(chunks.some((chunk) => /morning number \d+\. The closed/.test(chunk)), true);
 });
 
+test("splitRagChunks segments a long English text once and finishes quickly", () => {
+  const sentence = "The closed palace still waited for morning while the watch changed. ";
+  const source = sentence.repeat(1800);
+  assert.ok(Buffer.byteLength(source) > 100 * 1024);
+  const started = Date.now();
+  const chunks = splitRagChunks(source, 320, 40);
+  const elapsed = Date.now() - started;
+  assert.equal(chunks.length > 1, true);
+  assert.equal(chunks.every((chunk) => tokenizeRagWords(chunk).length <= 320), true);
+  assert.ok(elapsed < 1000, `chunking took ${elapsed}ms`);
+});
+
 test("splitRagChunks keeps Georgian words whole", () => {
   const source = Array.from({ length: 30 }, () => "მეფემ კარი გახსნა. დედოფალი შიგნით შევიდა.").join(" ");
   const chunks = splitRagChunks(source, 16, 4);

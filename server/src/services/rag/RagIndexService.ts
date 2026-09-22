@@ -547,6 +547,7 @@ export class RagIndexService {
   ): RagChunkCandidate[] {
     const candidateNames = options?.knownCharacterNames ?? [];
     const candidates: RagChunkCandidate[] = [];
+    const nextChunkOrder = new Map<string, number>();
     for (const document of documents) {
       const isKnowledgeDoc = document.ownerType === "knowledge_document";
       const sourcePieces: SourcePiece[] = document.preChunks?.length
@@ -586,8 +587,9 @@ export class RagIndexService {
         });
       for (const piece of sourcePieces) {
         const chunkText = piece.chunkText;
-        const chunkOrder = candidates.filter((item) =>
-          item.ownerType === document.ownerType && item.ownerId === document.ownerId).length;
+        const ownerKey = `${document.ownerType}:${document.ownerId}`;
+        const chunkOrder = nextChunkOrder.get(ownerKey) ?? 0;
+        nextChunkOrder.set(ownerKey, chunkOrder + 1);
         const metadata = {
           ...(document.metadata ?? {}),
           ...(piece.metadata ?? {}),

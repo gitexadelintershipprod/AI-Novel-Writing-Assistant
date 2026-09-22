@@ -24,7 +24,11 @@ export function isEnglishKnowledgeText(text: string): boolean {
   return detectRagLanguage(text) === "en";
 }
 
-function localeForLanguage(language: "ka" | "zh" | "en"): string {
+type RagLanguage = "ka" | "zh" | "en";
+
+const WORD_CHAR = /[\p{Letter}\p{Number}]/u;
+
+function localeForLanguage(language: RagLanguage): string {
   if (language === "ka") {
     return "ka-GE";
   }
@@ -34,21 +38,52 @@ function localeForLanguage(language: "ka" | "zh" | "en"): string {
   return "en-US";
 }
 
+function createWordSegmenter(language: RagLanguage): Intl.Segmenter | null {
+  if (language === "ka" || typeof Intl.Segmenter !== "function") {
+    return null;
+  }
+  return new Intl.Segmenter(localeForLanguage(language), { granularity: "word" });
+}
+
+function isWordSegment(segment: string): boolean {
+  return WORD_CHAR.test(segment);
+}
+
+function countSegmentedWords(text: string, segmenter: Intl.Segmenter): number {
+  let count = 0;
+  for (const segment of segmenter.segment(text)) {
+    if (segment.isWordLike && isWordSegment(segment.segment)) {
+      count += 1;
+    }
+  }
+  return count;
+}
+
+function tokenizeSegmentedWords(text: string, segmenter: Intl.Segmenter): string[] {
+  const words: string[] = [];
+  for (const segment of segmenter.segment(text)) {
+    if (segment.isWordLike && isWordSegment(segment.segment)) {
+      words.push(segment.segment);
+    }
+  }
+  return words;
+}
+
+function countFallbackWords(text: string): number {
+  return text.match(FALLBACK_WORD_PATTERN)?.length ?? 0;
+}
+
+function tokenizeFallbackWords(text: string): string[] {
+  return text.match(FALLBACK_WORD_PATTERN) ?? [];
+}
+
 export function countRagWords(text: string): number {
   const language = detectRagLanguage(text);
   if (language === "ka") {
     return countGeorgianWords(text);
   }
-  if (typeof Intl.Segmenter !== "function") {
-    return text.match(FALLBACK_WORD_PATTERN)?.length ?? 0;
-  }
-  let count = 0;
-  for (const segment of new Intl.Segmenter(localeForLanguage(language), { granularity: "word" }).segment(text)) {
-    if (segment.isWordLike && /[\p{Letter}\p{Number}]/u.test(segment.segment)) {
-      count += 1;
-    }
-  }
-  return count;
+  const segmenter = createWordSegmenter(language);
+  return segmenter ? countSegmentedWords(text, segmenter) : countFallbackWords(text);
 }
 
 export function tokenizeRagWords(text: string): string[] {
@@ -56,49 +91,126 @@ export function tokenizeRagWords(text: string): string[] {
   if (language === "ka") {
     return tokenizeGeorgianWords(text);
   }
+  const segmenter = createWordSegmenter(language);
+  return segmenter ? tokenizeSegmentedWords(text, segmenter) : tokenizeFallbackWords(text);
+}
+
+interface IndexedWord {
+  word: string;
+  index: number;
+}
+
+interface PreparedSentence {
+  text: string;
+  wordCount: number;
+  tokens: string[];
+}
+
+function collectFallbackIndexedWords(text: string): IndexedWord[] {
+  return Array.from(text.matchAll(FALLBACK_WORD_PATTERN), (match) => ({
+    word: match[0],
+    index: match.index ?? 0,
+  }));
+}
+
+function collectGeorgianIndexedWords(text: string): IndexedWord[] {
+  const normalized = text.normalize("NFC");
   if (typeof Intl.Segmenter !== "function") {
-    return text.match(FALLBACK_WORD_PATTERN) ?? [];
+    return collectFallbackIndexedWords(normalized);
   }
-  const words: string[] = [];
-  for (const segment of new Intl.Segmenter(localeForLanguage(language), { granularity: "word" }).segment(text)) {
-    if (segment.isWordLike && /[\p{Letter}\p{Number}]/u.test(segment.segment)) {
-      words.push(segment.segment);
+  const words: Array<IndexedWord & { end: number }> = [];
+  for (const segment of new Intl.Segmenter("ka-GE", { granularity: "word" }).segment(normalized)) {
+    if (!segment.isWordLike || !isWordSegment(segment.segment)) {
+      continue;
+    }
+    const previous = words.at(-1);
+    const separator = previous ? normalized.slice(previous.end, segment.index) : "";
+    if (previous && /^[-'’]$/u.test(separator)) {
+      previous.word += `${separator}${segment.segment}`;
+      previous.end = segment.index + segment.segment.length;
+    } else {
+      words.push({
+        word: segment.segment,
+        index: segment.index,
+        end: segment.index + segment.segment.length,
+      });
     }
   }
   return words;
 }
 
-function splitSentences(text: string): string[] {
-  const language = detectRagLanguage(text);
-  if (typeof Intl.Segmenter === "function") {
-    const sentences: string[] = [];
+function collectIndexedWords(text: string, language: RagLanguage): IndexedWord[] {
+  if (language === "ka") {
+    return collectGeorgianIndexedWords(text);
+  }
+  if (language === "en") {
+    return collectFallbackIndexedWords(text);
+  }
+  const segmenter = createWordSegmenter(language);
+  if (!segmenter) {
+    return collectFallbackIndexedWords(text);
+  }
+  const words: IndexedWord[] = [];
+  for (const segment of segmenter.segment(text)) {
+    if (segment.isWordLike && isWordSegment(segment.segment)) {
+      words.push({ word: segment.segment, index: segment.index });
+    }
+  }
+  return words;
+}
+
+function sentenceSpans(text: string, language: RagLanguage): Array<{ text: string; start: number; end: number }> {
+  if (language !== "en" && typeof Intl.Segmenter === "function") {
+    const spans: Array<{ text: string; start: number; end: number }> = [];
     for (const segment of new Intl.Segmenter(localeForLanguage(language), { granularity: "sentence" }).segment(text)) {
       const value = segment.segment.trim();
       if (value) {
-        sentences.push(value);
+        spans.push({ text: value, start: segment.index, end: segment.index + segment.segment.length });
       }
     }
-    if (sentences.length > 0) {
-      return sentences;
+    if (spans.length > 0) {
+      return spans;
     }
   }
-  return text
-    .split(/(?<=[.!?。！？])\s+/)
-    .map((item) => item.trim())
-    .filter(Boolean);
+  const spans: Array<{ text: string; start: number; end: number }> = [];
+  const pattern = /[^.!?。！？]+[.!?。！？]*\s*/g;
+  for (const match of text.matchAll(pattern)) {
+    const value = match[0].trim();
+    if (!value) {
+      continue;
+    }
+    spans.push({ text: value, start: match.index ?? 0, end: (match.index ?? 0) + match[0].length });
+  }
+  return spans.length > 0 ? spans : [{ text, start: 0, end: text.length }];
+}
+
+function prepareSentences(text: string, language: RagLanguage): PreparedSentence[] {
+  const words = collectIndexedWords(text, language);
+  const spans = sentenceSpans(text, language);
+  let cursor = 0;
+  return spans.map((span) => {
+    const tokens: string[] = [];
+    while (cursor < words.length && words[cursor].index < span.start) {
+      cursor += 1;
+    }
+    while (cursor < words.length && words[cursor].index < span.end) {
+      tokens.push(words[cursor].word);
+      cursor += 1;
+    }
+    return { text: span.text, wordCount: tokens.length, tokens };
+  });
 }
 
 function joinSentences(sentences: string[]): string {
   return sentences.join(" ").replace(/\s+/g, " ").trim();
 }
 
-function splitByWordWindow(text: string, wordSize: number, overlapWords: number): string[] {
-  const words = tokenizeRagWords(text);
+function splitByWordWindow(words: string[], wordSize: number, overlapWords: number): string[] {
   if (words.length === 0) {
     return [];
   }
   if (words.length <= wordSize) {
-    return [text.trim()];
+    return [words.join(" ")];
   }
   const overlap = Math.max(0, Math.min(overlapWords, wordSize - 1));
   const step = Math.max(1, wordSize - overlap);
@@ -116,14 +228,14 @@ function splitByWordWindow(text: string, wordSize: number, overlapWords: number)
   return chunks;
 }
 
-function overlapSentences(sentences: string[], overlapWords: number): string[] {
+function overlapSentences(sentences: PreparedSentence[], overlapWords: number): PreparedSentence[] {
   if (overlapWords <= 0 || sentences.length === 0) {
     return [];
   }
-  const selected: string[] = [];
+  const selected: PreparedSentence[] = [];
   let total = 0;
   for (let index = sentences.length - 1; index >= 0; index -= 1) {
-    const words = countRagWords(sentences[index]);
+    const words = sentences[index].wordCount;
     if (selected.length > 0 && total + words > overlapWords) {
       break;
     }
@@ -136,16 +248,21 @@ function overlapSentences(sentences: string[], overlapWords: number): string[] {
   return selected;
 }
 
-function countSentenceWords(sentences: string[]): number {
-  return sentences.reduce((sum, sentence) => sum + countRagWords(sentence), 0);
+function countSentenceWords(sentences: PreparedSentence[]): number {
+  return sentences.reduce((sum, sentence) => sum + sentence.wordCount, 0);
 }
 
-function enforceTokenBudget(chunks: string[], maxTokens: number, overlapWords: number): string[] {
+function enforceTokenBudget(
+  chunks: string[],
+  maxTokens: number,
+  overlapWords: number,
+  tokenize: (value: string) => string[],
+): string[] {
   return chunks.flatMap((chunk) => {
     if (estimateTokenCount(chunk) <= maxTokens) {
       return [chunk];
     }
-    const words = tokenizeRagWords(chunk);
+    const words = tokenize(chunk);
     if (words.length <= 1) {
       return [chunk];
     }
@@ -184,28 +301,39 @@ export function splitRagChunks(
     ? Math.floor(options.maxTokens)
     : null;
 
-  if (countRagWords(normalized) <= wordSize && (!maxTokens || estimateTokenCount(normalized) <= maxTokens)) {
+  const language = detectRagLanguage(normalized);
+  const analysisText = language === "ka" ? normalized.normalize("NFC") : normalized;
+  const segmenter = createWordSegmenter(language);
+  const tokenize = (text: string): string[] => {
+    if (language === "ka") {
+      return tokenizeGeorgianWords(text);
+    }
+    return segmenter ? tokenizeSegmentedWords(text, segmenter) : tokenizeFallbackWords(text);
+  };
+  const sentences = prepareSentences(analysisText, language);
+  const totalWords = sentences.reduce((sum, sentence) => sum + sentence.wordCount, 0);
+
+  if (totalWords <= wordSize && (!maxTokens || estimateTokenCount(normalized) <= maxTokens)) {
     return [normalized];
   }
 
-  const sentences = splitSentences(normalized);
   const chunks: string[] = [];
-  let current: string[] = [];
+  let current: PreparedSentence[] = [];
   let currentWords = 0;
 
   for (const sentence of sentences) {
-    const sentenceWords = countRagWords(sentence);
+    const sentenceWords = sentence.wordCount;
     if (sentenceWords > wordSize) {
       if (current.length > 0) {
-        chunks.push(joinSentences(current));
+        chunks.push(joinSentences(current.map((item) => item.text)));
         current = [];
         currentWords = 0;
       }
-      chunks.push(...splitByWordWindow(sentence, wordSize, overlapWords));
+      chunks.push(...splitByWordWindow(sentence.tokens, wordSize, overlapWords));
       continue;
     }
     if (current.length > 0 && currentWords + sentenceWords > wordSize) {
-      chunks.push(joinSentences(current));
+      chunks.push(joinSentences(current.map((item) => item.text)));
       current = overlapSentences(current, overlapWords);
       currentWords = countSentenceWords(current);
       if (currentWords + sentenceWords > wordSize) {
@@ -218,12 +346,12 @@ export function splitRagChunks(
   }
 
   if (current.length > 0) {
-    chunks.push(joinSentences(current));
+    chunks.push(joinSentences(current.map((item) => item.text)));
   }
 
   const prepared = chunks.filter(Boolean);
   if (!maxTokens) {
     return prepared;
   }
-  return enforceTokenBudget(prepared, maxTokens, overlapWords);
+  return enforceTokenBudget(prepared, maxTokens, overlapWords, tokenize);
 }

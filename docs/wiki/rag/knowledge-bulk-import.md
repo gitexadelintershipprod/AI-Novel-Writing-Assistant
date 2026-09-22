@@ -27,6 +27,8 @@ A file marked Not indexed is stored, not searchable. Check explicit queue select
 
 The public site is plain HTTP. Browsers omit `crypto.randomUUID` and `crypto.subtle` outside a secure context, so choosing files must not call them. Local row ids use `crypto.getRandomValues`. Content hashes use SubtleCrypto when the page has it, and the same SHA-256 otherwise, so the preview hash still matches the server.
 
+Chunking runs on the API process. A document must be segmented once; constructing a word segmenter per sentence blocks the process and makes health checks time out. A failed relationship-graph follow-up must not requeue a rebuild that already succeeded. Postgres `RagJobType` must include `graph_sync` before that follow-up is enabled. Apply only `20260922000000_rag_graph_sync_job`. Do not replay `20260328120000_schema_gap_backfill` while it is unfinished.
+
 ## Deployment
 
 The additive migration is 20260908000000_knowledge_bulk_import in both PostgreSQL and SQLite migration directories. It creates two tables and adds two nullable RagIndexJob columns, without deleting data.
