@@ -7,6 +7,7 @@ This file is the complete user-visible update history. The root [README.md](../.
 ### 2026-09-23
 
 - Bulk Import can check files again from the site's usual web address. Choosing a file or folder no longer stops before the check starts.
+- Knowledge files up to 10 MiB can finish uploading. A file that stopped as too large while still under that size can be sent again with Retry failed uploads.
 
 ### 2026-09-22
 
