@@ -14,12 +14,7 @@ server/dev.db
 server/dev.db-shm
 server/dev.db-wal
 server/tmp_*.js
-server/tmp/**/*.db
-server/tmp/**/*.db*
-server/tmp/**/*.db-*
-server/tmp/**/*.sqlite
-server/tmp/**/*.sqlite*
-server/tmp/**/*.sqlite-*
+server/tmp/
 server/storage/
 server/src/prisma/dev.db
 server/src/prisma/dev.db-journal
