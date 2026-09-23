@@ -17,6 +17,7 @@ import {
   buildSteps,
   toLegacyTaskStatus,
 } from "../taskCenter.shared";
+import { knowledgeTaskTitle, selectVisibleJobs } from "../../rag/jobs/knowledgeJobListing";
 
 interface KnowledgeDocumentRecord {
   id: string;
@@ -54,13 +55,7 @@ function parseJobProgress(payloadJson: string | null): KnowledgeJobProgressPaylo
 }
 
 function getJobTitle(jobType: RagJobType, documentTitle: string): string {
-  if (jobType === "delete") {
-    return `Delete knowledge base index: ${documentTitle}`;
-  }
-  if (jobType === "upsert") {
-    return `Update knowledge base index: ${documentTitle}`;
-  }
-  return `Rebuild knowledge base index: ${documentTitle}`;
+  return knowledgeTaskTitle(jobType, documentTitle);
 }
 
 const KNOWLEDGE_PROGRESS_LABELS: Record<string, string> = {
@@ -72,19 +67,44 @@ const KNOWLEDGE_PROGRESS_LABELS: Record<string, string> = {
   deleting_existing: "Removing previous index",
   upserting_vectors: "Writing to vector store",
   writing_metadata: "Saving index metadata",
+  reading_relationships: "Reading relationships",
   completed: "Index complete",
   failed: "Index failed",
   cancelled: "Index cancelled",
 };
 
+const RELATIONSHIP_STEPS = [
+  { key: "queued", label: "Queued" },
+  { key: "reading_relationships", label: "Reading relationships" },
+  { key: "completed", label: "Complete" },
+] as const;
+
 function getProgressLabel(progress: KnowledgeJobProgressPayload | null): string | null {
   if (!progress) {
     return null;
   }
-  return progress.stage ? KNOWLEDGE_PROGRESS_LABELS[progress.stage] ?? progress.label ?? progress.stage : progress.label ?? null;
+  if (progress.label) {
+    return progress.label;
+  }
+  return progress.stage ? KNOWLEDGE_PROGRESS_LABELS[progress.stage] ?? progress.stage : null;
 }
 
-function getRecoveryHint(status: TaskStatus): string {
+function getRecoveryHint(status: TaskStatus, jobType: RagJobType): string {
+  if (jobType === "graph_sync") {
+    if (status === "failed") {
+      return "Relationship reading failed. Retry after checking the model connection.";
+    }
+    if (status === "running") {
+      return "Relationships are still being read for this book.";
+    }
+    if (status === "queued") {
+      return "This book is waiting to be read for relationships.";
+    }
+    if (status === "cancelled") {
+      return "Relationship reading was cancelled. Submit the task again to continue.";
+    }
+    return "No recovery action is needed.";
+  }
   if (status === "failed") {
     return "Check the document version, chunking result, embedding model, and shared RAG queue before retrying.";
   }
@@ -123,6 +143,37 @@ function matchesKeyword(
 }
 
 export class KnowledgeTaskAdapter {
+  private async listVisibleJobs(
+    archivedFilter: { id?: { notIn: string[] } },
+    take: number,
+  ) {
+    const running = await prisma.ragIndexJob.findMany({
+      where: { ownerType: "knowledge_document", ...archivedFilter, status: "running" },
+      orderBy: [{ updatedAt: "desc" }, { id: "desc" }],
+      take,
+    });
+    const queued = running.length >= take
+      ? []
+      : await prisma.ragIndexJob.findMany({
+        where: { ownerType: "knowledge_document", ...archivedFilter, status: "queued" },
+        orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+        take: take - running.length,
+      });
+    const active = selectVisibleJobs(running, queued, [], take);
+    const finished = active.length >= take
+      ? []
+      : await prisma.ragIndexJob.findMany({
+        where: {
+          ownerType: "knowledge_document",
+          ...archivedFilter,
+          status: { in: ["succeeded", "failed", "cancelled"] },
+        },
+        orderBy: [{ updatedAt: "desc" }, { id: "desc" }],
+        take: take - active.length,
+      });
+    return selectVisibleJobs(running, queued, finished, take);
+  }
+
   async list(input: {
     status?: TaskStatus;
     keyword?: string;
@@ -134,21 +185,19 @@ export class KnowledgeTaskAdapter {
 
     const status = toLegacyTaskStatus(input.status);
     const archivedIds = await getArchivedTaskIds("knowledge_document");
-    const rows = await prisma.ragIndexJob.findMany({
-      where: {
-        ownerType: "knowledge_document",
-        ...(archivedIds.length
-          ? {
-            id: {
-              notIn: archivedIds,
-            },
-          }
-          : {}),
-        ...(status ? { status } : {}),
-      },
-      orderBy: [{ updatedAt: "desc" }, { id: "desc" }],
-      take: input.keyword ? Math.max(input.take * 3, input.take) : input.take,
-    });
+    const archivedFilter = archivedIds.length ? { id: { notIn: archivedIds } } : {};
+    const take = input.keyword ? Math.max(input.take * 3, input.take) : input.take;
+    const rows = status
+      ? await prisma.ragIndexJob.findMany({
+        where: {
+          ownerType: "knowledge_document",
+          ...archivedFilter,
+          status,
+        },
+        orderBy: [{ updatedAt: "desc" }, { id: "desc" }],
+        take,
+      })
+      : await this.listVisibleJobs(archivedFilter, take);
 
     const documents = await prisma.knowledgeDocument.findMany({
       where: {
@@ -205,7 +254,7 @@ export class KnowledgeTaskAdapter {
             : row.status === "cancelled"
               ? "Knowledge base indexing was cancelled."
               : row.lastError,
-          recoveryHint: getRecoveryHint(statusValue),
+          recoveryHint: getRecoveryHint(statusValue, row.jobType as RagJobType),
           sourceResource: {
             type: "knowledge_document",
             id: row.ownerId,
@@ -275,7 +324,7 @@ export class KnowledgeTaskAdapter {
         : row.status === "cancelled"
           ? "Knowledge base indexing was cancelled."
           : row.lastError,
-      recoveryHint: getRecoveryHint(statusValue),
+      recoveryHint: getRecoveryHint(statusValue, row.jobType as RagJobType),
       sourceResource: {
         type: "knowledge_document",
         id: row.ownerId,
@@ -317,7 +366,7 @@ export class KnowledgeTaskAdapter {
           : null,
       },
       steps: buildSteps(
-        KNOWLEDGE_DOCUMENT_STEPS,
+        row.jobType === "graph_sync" ? RELATIONSHIP_STEPS : KNOWLEDGE_DOCUMENT_STEPS,
         summary.status,
         summary.currentStage,
         summary.createdAt,
@@ -352,9 +401,9 @@ export class KnowledgeTaskAdapter {
       }
       await prisma.knowledgeDocument.update({
         where: { id: document.id },
-        data: {
-          latestIndexStatus: "queued",
-        },
+        data: job.jobType === "graph_sync"
+          ? { latestGraphStatus: "queued" }
+          : { latestIndexStatus: "queued" },
       });
     }
 

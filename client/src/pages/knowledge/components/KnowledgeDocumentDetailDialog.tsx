@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AppDialogContent, Dialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { formatStatus } from "./knowledgeRagUi";
+import { formatRelationshipStatus, formatStatus } from "./knowledgeRagUi";
 
 const PREVIEW_CHAR_LIMIT = 3000;
 const EXPAND_WARN_THRESHOLD = 100_000;
@@ -126,7 +126,8 @@ export default function KnowledgeDocumentDetailDialog({
             <>
               <div className="flex flex-wrap items-center gap-2 text-sm">
                 <Badge variant="outline">Document status: {formatStatus(document.status)}</Badge>
-                <Badge variant="outline">Index status: {formatStatus(isArchived ? "idle" : (document.latestIndexStatus ?? "-"))}</Badge>
+                <Badge variant="outline">Index: {formatStatus(isArchived ? "idle" : (document.latestIndexStatus ?? "-"))}</Badge>
+                <Badge variant="outline">{formatRelationshipStatus(isArchived ? "idle" : document.latestGraphStatus)}</Badge>
               </div>
               {document.latestIndexStatus === "failed" && document.latestIndexError ? (
                 <div className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">

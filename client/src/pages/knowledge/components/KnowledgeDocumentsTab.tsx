@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import type { RagJobSummary } from "@/api/knowledge";
 import {
   formatRagJobMeta,
+  formatRelationshipStatus,
   formatStatus,
   getRagJobProgressPercent,
   getRagJobProgressWidth,
@@ -131,11 +132,19 @@ export default function KnowledgeDocumentsTab({
 
   const renderDocumentRow = (document: KnowledgeDocumentSummary) => {
     const documentJob = latestKnowledgeDocumentJobs.get(document.id);
-    const displayIndexStatus = documentJob && (documentJob.status === "queued" || documentJob.status === "running")
-      ? documentJob.status
+    const activeJob = documentJob && (documentJob.status === "queued" || documentJob.status === "running")
+      ? documentJob
+      : undefined;
+    const displayIndexStatus = activeJob && activeJob.jobType !== "graph_sync"
+      ? activeJob.status
       : document.status === "archived"
         ? "idle"
       : document.latestIndexStatus;
+    const displayGraphStatus = document.status === "archived"
+      ? "idle"
+      : activeJob?.jobType === "graph_sync"
+        ? activeJob.status
+        : (document.latestGraphStatus ?? "idle");
 
     return (
       <article
@@ -164,27 +173,33 @@ export default function KnowledgeDocumentsTab({
               variant="secondary"
               className={`border-0 font-normal ${displayIndexStatus === "succeeded" ? "bg-success/10 text-success" : displayIndexStatus === "failed" ? "bg-destructive/10 text-destructive" : "bg-muted/60"}`}
             >
-              {formatStatus(displayIndexStatus)}
+              {`Index: ${formatStatus(displayIndexStatus)}`}
+            </Badge>
+            <Badge
+              variant="secondary"
+              className={`border-0 font-normal ${displayGraphStatus === "succeeded" ? "bg-success/10 text-success" : displayGraphStatus === "failed" ? "bg-destructive/10 text-destructive" : "bg-muted/60"}`}
+            >
+              {formatRelationshipStatus(displayGraphStatus)}
             </Badge>
           </div>
         </div>
         <div className="mt-4 flex-1">
-            {documentJob?.progress && (documentJob.status === "queued" || documentJob.status === "running") ? (
+            {activeJob?.progress ? (
               <div className="rounded-xl bg-info/5 p-3">
                 <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
-                  <span className="font-medium">{documentJob.progress.label}</span>
-                  <span>{getRagJobProgressPercent(documentJob)}%</span>
+                  <span className="font-medium">{activeJob.progress.label}</span>
+                  <span>{getRagJobProgressPercent(activeJob)}%</span>
                 </div>
                 <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
                   <div
                     className="h-full rounded-full bg-primary transition-all"
-                    style={{ width: getRagJobProgressWidth(documentJob) }}
+                    style={{ width: getRagJobProgressWidth(activeJob) }}
                   />
                 </div>
-                {documentJob.progress.detail ? (
-                  <div className="mt-2 text-xs text-muted-foreground">{documentJob.progress.detail}</div>
+                {activeJob.progress.detail ? (
+                  <div className="mt-2 text-xs text-muted-foreground">{activeJob.progress.detail}</div>
                 ) : null}
-                <div className="mt-1 text-xs text-muted-foreground">{formatRagJobMeta(documentJob)}</div>
+                <div className="mt-1 text-xs text-muted-foreground">{formatRagJobMeta(activeJob)}</div>
               </div>
             ) : null}
             {document.latestIndexStatus === "failed" && document.latestIndexError ? (

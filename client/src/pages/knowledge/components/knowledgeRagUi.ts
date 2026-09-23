@@ -36,8 +36,26 @@ export function getRagJobProgressWidth(job: RagJobSummary): string {
   return `${percent}%`;
 }
 
+const JOB_TYPE_LABELS: Record<string, string> = {
+  upsert: "Update search content",
+  rebuild: "Re-index",
+  delete: "Remove search content",
+  graph_sync: "Update book relationships",
+};
+
+export function formatJobType(jobType: string): string {
+  return JOB_TYPE_LABELS[jobType] ?? "Search content";
+}
+
+export function formatRelationshipStatus(status: string | null | undefined): string {
+  if (!status || status === "idle") {
+    return "Relationships: Not started";
+  }
+  return `Relationships: ${formatStatus(status)}`;
+}
+
 export function formatRagJobMeta(job: RagJobSummary): string {
-  const parts = [job.jobType, `Attempt ${job.attempts}/${job.maxAttempts}`];
+  const parts = [formatJobType(job.jobType), `Attempt ${job.attempts}/${job.maxAttempts}`];
   if (job.progress?.current !== undefined && job.progress?.total !== undefined && job.progress.total > 0) {
     parts.push(`${job.progress.current}/${job.progress.total}`);
   }

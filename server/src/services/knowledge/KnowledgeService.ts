@@ -126,6 +126,8 @@ export class KnowledgeService {
           ? (failedIndexErrors.get(item.id) ?? "Indexing failed. Open Task History for details.")
           : null,
       lastIndexedAt: item.lastIndexedAt,
+      latestGraphStatus: item.latestGraphStatus,
+      lastGraphSyncedAt: item.lastGraphSyncedAt,
       createdAt: item.createdAt,
       updatedAt: item.updatedAt,
       versionCount: item._count.versions,
@@ -177,6 +179,8 @@ export class KnowledgeService {
           ? (failedIndexError?.lastError ?? "Indexing failed. Open Task History for details.")
           : null,
       lastIndexedAt: document.lastIndexedAt,
+      latestGraphStatus: document.latestGraphStatus,
+      lastGraphSyncedAt: document.lastGraphSyncedAt,
       createdAt: document.createdAt,
       updatedAt: document.updatedAt,
       bookAnalysisCount: document._count.bookAnalyses,
@@ -436,7 +440,7 @@ export class KnowledgeService {
       where: { id: documentId },
       data: {
         status,
-        ...(status === "archived" ? { latestIndexStatus: "idle" } : {}),
+        ...(status === "archived" ? { latestIndexStatus: "idle", latestGraphStatus: "idle" } : {}),
         ...(shouldRestoreArchivedDocument && document.activeVersionId ? { latestIndexStatus: this.getPendingIndexStatus() } : {}),
       },
     });

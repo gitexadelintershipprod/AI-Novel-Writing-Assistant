@@ -152,7 +152,18 @@ export class RagWorker {
 
       try {
         const result = job.jobType === "graph_sync"
-          ? await (this.knowledgeGraphService?.processSyncJob(job) ?? Promise.resolve({ chunks: 0 }))
+          ? await (this.knowledgeGraphService?.processSyncJob(job, async (current, total) => {
+            await this.ragIndexService.updateJobProgress(job.id, {
+              stage: "reading_relationships",
+              label: total > 0 ? `Reading relationships ${current}/${total}` : "Reading relationships",
+              detail: total > 0
+                ? `Reading relationships ${current}/${total}`
+                : "This book has no sections to read.",
+              current,
+              total,
+              percent: total > 0 ? current / total : 1,
+            });
+          }) ?? Promise.resolve({ chunks: 0 }))
           : await this.ragIndexService.processJob(job);
         await this.ragIndexService.updateJobStatus(job.id, {
           status: "succeeded",

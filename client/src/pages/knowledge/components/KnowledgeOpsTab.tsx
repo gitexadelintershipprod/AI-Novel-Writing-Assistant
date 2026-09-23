@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { RagHealthStatus, RagJobSummary } from "@/api/knowledge";
 import {
+  formatJobType,
   formatRagJobMeta,
   formatStatus,
   getRagJobProgressPercent,
@@ -41,23 +42,12 @@ const OWNER_LABELS: Record<string, string> = {
   chat_message: "creative dialogue",
 };
 
-const JOB_TYPE_LABELS: Record<string, string> = {
-  upsert: "Update search content",
-  rebuild: "Re-index",
-  delete: "Remove search content",
-  graph_sync: "Update book relationships",
-};
-
 function canDeleteRagJob(job: RagJobSummary): boolean {
   return FINISHED_RAG_JOB_STATUSES.has(job.status);
 }
 
 function formatOwnerLabel(ownerType: string): string {
   return OWNER_LABELS[ownerType] ?? "Creative materials";
-}
-
-function formatJobType(jobType: string): string {
-  return JOB_TYPE_LABELS[jobType] ?? "Search content synchronously";
 }
 
 export default function KnowledgeOpsTab({
@@ -196,7 +186,7 @@ export default function KnowledgeOpsTab({
                         {failed ? <CircleAlert className="h-4 w-4" /> : active ? <Clock3 className="h-4 w-4" /> : <CircleCheck className="h-4 w-4" />}
                       </div>
                       <div className="min-w-0">
-                        <div className="font-medium">{formatOwnerLabel(job.ownerType)}</div>
+                        <div className="font-medium">{job.ownerTitle || formatOwnerLabel(job.ownerType)}</div>
                         <div className="mt-0.5 text-xs text-muted-foreground">{formatJobType(job.jobType)}</div>
                       </div>
                     </div>

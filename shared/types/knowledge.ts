@@ -15,6 +15,8 @@ export interface KnowledgeDocument {
   latestIndexStatus: KnowledgeIndexStatus;
   latestIndexError?: string | null;
   lastIndexedAt?: string | null;
+  latestGraphStatus?: KnowledgeIndexStatus;
+  lastGraphSyncedAt?: string | null;
   createdAt: string;
   updatedAt: string;
 }

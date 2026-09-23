@@ -21,6 +21,7 @@ export interface RagJobProgress {
     | "deleting_existing"
     | "upserting_vectors"
     | "writing_metadata"
+    | "reading_relationships"
     | "completed"
     | "cancelled"
     | "failed";
@@ -38,6 +39,7 @@ export interface RagJobSummary {
   id: string;
   ownerType: string;
   ownerId: string;
+  ownerTitle?: string;
   jobType: string;
   status: "queued" | "running" | "succeeded" | "failed" | "cancelled";
   attempts: number;

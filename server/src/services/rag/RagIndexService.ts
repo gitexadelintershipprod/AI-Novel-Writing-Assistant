@@ -19,6 +19,7 @@ import {
   type RagChunkFacets,
   type RagPreChunk,
 } from "./chunkFacets";
+import { knowledgeDocumentJobPatch, knowledgeStatusProgress, selectVisibleJobs } from "./jobs/knowledgeJobListing";
 
 type ReindexScope = "novel" | "world" | "all";
 
@@ -60,6 +61,7 @@ export interface RagJobProgressSnapshot {
     | "deleting_existing"
     | "upserting_vectors"
     | "writing_metadata"
+    | "reading_relationships"
     | "completed"
     | "cancelled"
     | "failed";
@@ -92,6 +94,7 @@ export interface RagJobSummaryRecord {
   createdAt: Date;
   updatedAt: Date;
   progress?: RagJobProgressSnapshot;
+  ownerTitle?: string;
 }
 
 export class RagIndexService {
@@ -143,7 +146,7 @@ export class RagIndexService {
     }
   }
 
-  private async updateJobProgress(jobId: string, progress: Omit<RagJobProgressSnapshot, "updatedAt">): Promise<void> {
+  async updateJobProgress(jobId: string, progress: Omit<RagJobProgressSnapshot, "updatedAt">): Promise<void> {
     const record = await prisma.ragIndexJob.findUnique({
       where: { id: jobId },
       select: { payloadJson: true },
@@ -991,13 +994,21 @@ export class RagIndexService {
           ...(options?.payload ?? {}),
           progress: this.createProgressSnapshot({
             stage: "queued",
-            label: "Queued",
-            detail: "The indexing job is queued.",
+            label: jobType === "graph_sync" ? "Waiting for relationships" : "Queued",
+            detail: jobType === "graph_sync"
+              ? "This book is waiting to be read for relationships."
+              : "The indexing job is queued.",
             percent: 0,
           }),
         } satisfies RagJobPayloadRecord),
       },
     });
+    if (jobType === "graph_sync" && ownerType === "knowledge_document") {
+      await prisma.knowledgeDocument.updateMany({
+        where: { id: ownerId, status: { not: "archived" } },
+        data: { latestGraphStatus: "queued" },
+      });
+    }
     return created;
   }
 
@@ -1123,46 +1134,16 @@ export class RagIndexService {
         lastError: payload.lastError,
       },
     });
-    if (payload.status === "queued") {
-      await this.updateJobProgress(job.id, {
-        stage: "queued",
-        label: payload.lastError ? "Waiting to retry" : "Queued",
-        detail: payload.lastError ? `The job was queued again: ${payload.lastError}` : "The indexing job is queued.",
-        percent: 0,
-      });
-    } else if (payload.status === "running") {
-      await this.updateJobProgress(job.id, {
-        stage: "loading_source",
-        label: "Processing",
-        detail: "The indexing worker started processing the job.",
-        percent: 0.02,
-      });
-    } else if (payload.status === "succeeded") {
-      await this.updateJobProgress(job.id, {
-        stage: "completed",
-        label: "Index complete",
-        detail: "The indexing job completed.",
-        percent: 1,
-      });
-    } else if (payload.status === "cancelled") {
-      const progress = this.parseJobPayload(current.payloadJson).progress;
-      await this.updateJobProgress(job.id, {
-        stage: "cancelled",
-        label: "Index cancelled",
-        detail: payload.lastError ?? "The indexing job was cancelled.",
-        current: progress?.current,
-        total: progress?.total,
-        documents: progress?.documents,
-        chunks: progress?.chunks,
-        percent: progress?.percent ?? 0,
-      });
-    } else if (payload.status === "failed") {
-      await this.updateJobProgress(job.id, {
-        stage: "failed",
-        label: "Index failed",
-        detail: payload.lastError ?? "The indexing job failed.",
-        percent: 1,
-      });
+    const statusProgress = knowledgeStatusProgress({
+      jobType: job.jobType,
+      status: payload.status,
+      lastError: payload.lastError,
+      previous: payload.status === "cancelled"
+        ? this.parseJobPayload(current.payloadJson).progress
+        : undefined,
+    });
+    if (statusProgress) {
+      await this.updateJobProgress(job.id, statusProgress);
     }
     await this.syncKnowledgeDocumentIndexStatus(
       job.ownerType as RagOwnerType,
@@ -1175,16 +1156,53 @@ export class RagIndexService {
   }
 
   async listJobs(limit = 100, status?: RagJobStatus) {
-    return prisma.ragIndexJob.findMany({
-      where: status ? { status } : {},
-      orderBy: [{ updatedAt: "desc" }, { createdAt: "desc" }],
-      take: Math.min(Math.max(limit, 1), 500),
+    const take = Math.min(Math.max(limit, 1), 500);
+    if (status) {
+      return prisma.ragIndexJob.findMany({
+        where: { status },
+        orderBy: [{ updatedAt: "desc" }, { createdAt: "desc" }],
+        take,
+      });
+    }
+    const running = await prisma.ragIndexJob.findMany({
+      where: { status: "running" },
+      orderBy: [{ updatedAt: "desc" }, { id: "desc" }],
+      take,
     });
+    const queued = running.length >= take
+      ? []
+      : await prisma.ragIndexJob.findMany({
+        where: { status: "queued" },
+        orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+        take: take - running.length,
+      });
+    const active = selectVisibleJobs(running, queued, [], take);
+    const finished = active.length >= take
+      ? []
+      : await prisma.ragIndexJob.findMany({
+        where: { status: { in: ["succeeded", "failed", "cancelled"] } },
+        orderBy: [{ updatedAt: "desc" }, { id: "desc" }],
+        take: take - active.length,
+      });
+    return selectVisibleJobs(running, queued, finished, take);
   }
 
   async listJobSummaries(limit = 100, status?: RagJobStatus): Promise<RagJobSummaryRecord[]> {
     const jobs = await this.listJobs(limit, status);
-    return jobs.map((job) => this.serializeJob(job));
+    const documentIds = Array.from(new Set(
+      jobs.filter((job) => job.ownerType === "knowledge_document").map((job) => job.ownerId),
+    ));
+    const documents = documentIds.length
+      ? await prisma.knowledgeDocument.findMany({
+        where: { id: { in: documentIds } },
+        select: { id: true, title: true },
+      })
+      : [];
+    const titles = new Map(documents.map((document) => [document.id, document.title]));
+    return jobs.map((job) => ({
+      ...this.serializeJob(job),
+      ownerTitle: titles.get(job.ownerId),
+    }));
   }
 
   async processJob(job: RagIndexJob): Promise<{ chunks: number }> {
@@ -1225,27 +1243,17 @@ export class RagIndexService {
     jobType: RagJobType,
     importVersionId?: string | null,
   ): Promise<void> {
-    if (ownerType !== "knowledge_document" || jobType === "graph_sync") {
+    if (ownerType !== "knowledge_document") {
       return;
     }
-
-    const nextStatus = jobType === "delete" && (status === "succeeded" || status === "cancelled")
-      ? "idle"
-      : status === "queued"
-        ? "queued"
-        : status === "running"
-          ? "running"
-          : status === "succeeded"
-            ? "succeeded"
-            : status === "cancelled"
-              ? "idle"
-              : "failed";
-
+    const patch = knowledgeDocumentJobPatch(jobType, status);
     await prisma.knowledgeDocument.updateMany({
       where: { id: ownerId, ...(importVersionId ? { activeVersionId: importVersionId, status: { not: "archived" } } : {}) },
       data: {
-        latestIndexStatus: nextStatus,
-        ...(status === "succeeded" && jobType !== "delete" ? { lastIndexedAt: new Date() } : {}),
+        ...(patch.latestIndexStatus ? { latestIndexStatus: patch.latestIndexStatus } : {}),
+        ...(patch.latestGraphStatus ? { latestGraphStatus: patch.latestGraphStatus } : {}),
+        ...(patch.touchIndexTime ? { lastIndexedAt: new Date() } : {}),
+        ...(patch.touchGraphTime ? { lastGraphSyncedAt: new Date() } : {}),
       },
     });
   }

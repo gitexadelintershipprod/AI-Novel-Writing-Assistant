@@ -356,7 +356,6 @@ export default function KnowledgePage() {
     () => knowledgeDocumentJobs.filter((item) => item.status === "queued" || item.status === "running").length,
     [knowledgeDocumentJobs],
   );
-  const previousActiveKnowledgeJobCount = useRef(0);
   const enabledCount = useMemo(
     () => visibleDocuments.filter((item) => item.status === "enabled").length,
     [visibleDocuments],
@@ -406,15 +405,27 @@ export default function KnowledgePage() {
     setUploadDialogOpen(true);
   };
 
+  const activeKnowledgeJobSignature = useMemo(
+    () => knowledgeDocumentJobs
+      .filter((item) => item.status === "queued" || item.status === "running")
+      .map((item) => `${item.id}:${item.status}`)
+      .join(","),
+    [knowledgeDocumentJobs],
+  );
+  const previousActiveKnowledgeJobSignature = useRef("");
+
   useEffect(() => {
-    if (previousActiveKnowledgeJobCount.current > 0 && activeKnowledgeJobCount === 0) {
+    if (previousActiveKnowledgeJobSignature.current === activeKnowledgeJobSignature) {
+      return;
+    }
+    if (previousActiveKnowledgeJobSignature.current || activeKnowledgeJobSignature) {
       void queryClient.invalidateQueries({ queryKey: documentListQueryKey });
       if (selectedDocumentId) {
         void queryClient.invalidateQueries({ queryKey: queryKeys.knowledge.detail(selectedDocumentId) });
       }
     }
-    previousActiveKnowledgeJobCount.current = activeKnowledgeJobCount;
-  }, [activeKnowledgeJobCount, documentListQueryKey, queryClient, selectedDocumentId]);
+    previousActiveKnowledgeJobSignature.current = activeKnowledgeJobSignature;
+  }, [activeKnowledgeJobSignature, documentListQueryKey, queryClient, selectedDocumentId]);
 
   const handleUpload = async (file: File) => {
     if (!isTxtFile(file)) {

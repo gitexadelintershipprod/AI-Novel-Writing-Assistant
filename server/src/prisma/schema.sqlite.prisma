@@ -3052,6 +3052,8 @@ model KnowledgeDocument {
   activeVersionNumber    Int                      @default(0)
   latestIndexStatus      KnowledgeIndexStatus     @default(idle)
   lastIndexedAt          DateTime?
+  latestGraphStatus      KnowledgeIndexStatus     @default(idle)
+  lastGraphSyncedAt      DateTime?
   activeVersion          KnowledgeDocumentVersion? @relation("KnowledgeDocumentActiveVersion", fields: [activeVersionId], references: [id], onDelete: SetNull)
   versions               KnowledgeDocumentVersion[] @relation("KnowledgeDocumentVersions")
   bindings               KnowledgeBinding[]

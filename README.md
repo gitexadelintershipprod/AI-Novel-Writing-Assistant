@@ -181,6 +181,7 @@ The priority is helping a beginner finish a book, not stacking extra side tools.
 - Knowledge files up to 10 MiB can finish uploading. A file that stopped as too large while still under that size can be sent again with Retry failed uploads.
 - Indexing imported knowledge files no longer freezes the rest of the site. A book that was already indexed is not sent through indexing again when the relationship-graph step cannot start.
 - A longer question that names a person in a reference book now returns a passage where that person appears, instead of only a nearby topic from the same book.
+- A reference book shows when its search index and its relationships are ready. The task list names the book being read and how many sections are done.
 
 Full history: [docs/releases/release-notes.md](./docs/releases/release-notes.md).
 

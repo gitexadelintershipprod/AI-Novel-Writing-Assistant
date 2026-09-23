@@ -24,7 +24,10 @@ export class KnowledgeGraphService {
     return this.store.healthCheck();
   }
 
-  async processSyncJob(job: RagIndexJob): Promise<{ chunks: number }> {
+  async processSyncJob(
+    job: RagIndexJob,
+    onProgress?: (current: number, total: number) => Promise<void>,
+  ): Promise<{ chunks: number }> {
     const ownerType = job.ownerType as RagOwnerType;
     if (!ragConfig.graphEnabled || ownerType !== "knowledge_document") {
       return { chunks: 0 };
@@ -50,8 +53,13 @@ export class KnowledgeGraphService {
         return { chunks: 0 };
       }
       const writes: GraphChunkWrite[] = [];
+      let finished = 0;
+      await onProgress?.(0, chunks.length);
       await runWithConcurrency(chunks, Math.min(2, ragConfig.contextualRetrievalConcurrency), async (chunk) => {
         const extracted = await this.extractChunk(chunk.title ?? "", chunk.chunkOrder, chunk.chunkText);
+        finished += 1;
+        const current = finished;
+        await onProgress?.(current, chunks.length);
         if (extracted.entities.length === 0 && extracted.relations.length === 0) {
           return;
         }
