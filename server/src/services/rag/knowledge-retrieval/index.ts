@@ -20,8 +20,8 @@ export function knowledgeKeywordTerms(query: string): string[] {
 
 /**
  * Capitalized names in a question are lexical evidence, not an intent guess.
- * A long question can still match a nearby topic through frequent words; these
- * anchors keep a passage that actually contains the names in contention.
+ * Keyword order changes only when one of these names is much rarer in the
+ * searched text than the next name, so a frequent title does not hide it.
  */
 export function knowledgeQueryAnchors(query: string): string[] {
   const anchors: string[] = [];
@@ -32,46 +32,6 @@ export function knowledgeQueryAnchors(query: string): string[] {
     anchors.push(lower);
   }
   return [...new Set(anchors)].slice(0, 8);
-}
-
-function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-function containsWholeTerm(text: string, term: string): boolean {
-  return new RegExp(`(?<![\\p{L}\\p{M}\\p{N}])${escapeRegExp(term)}(?![\\p{L}\\p{M}\\p{N}])`, "iu").test(text);
-}
-
-export interface NamedEvidenceHit {
-  id: string;
-  chunkText: string;
-  score: number;
-}
-
-/**
- * Place the best name-bearing keyword passage first when hybrid fusion preferred
- * a related passage that dropped one of those names. Score stays just above the
- * previous leader so a later score sort does not undo the placement.
- */
-export function promoteNamedKeywordHit<T extends NamedEvidenceHit>(
-  query: string,
-  keywordHits: T[],
-  fused: T[],
-): T[] {
-  const anchors = knowledgeQueryAnchors(query);
-  const lead = keywordHits[0];
-  const top = fused[0];
-  if (anchors.length < 2 || !lead || !top || lead.id === top.id) return fused;
-  const matched = (text: string) => anchors.filter((anchor) => containsWholeTerm(text, anchor));
-  const leadAnchors = matched(lead.chunkText);
-  const topAnchors = matched(top.chunkText);
-  const topMissesNamedEvidence = leadAnchors.some((anchor) => !topAnchors.includes(anchor));
-  if (leadAnchors.length < 2 || leadAnchors.length < topAnchors.length || !topMissesNamedEvidence) return fused;
-  const existing = fused.find((item) => item.id === lead.id) ?? lead;
-  return [
-    { ...existing, score: top.score + 1 / 61 },
-    ...fused.filter((item) => item.id !== existing.id),
-  ];
 }
 
 export interface KnowledgeKeywordScope {
@@ -116,22 +76,55 @@ export function buildKnowledgeKeywordQuery(
   }
   const limit = Math.max(1, Math.min(1000, Math.floor(scope.limit) || 1));
   const anchors = knowledgeQueryAnchors(query);
-  const coverage = anchors.map((anchor) => (
-    provider === "postgresql"
-      ? `(CASE WHEN to_tsvector('simple', c."chunkText") @@ plainto_tsquery('simple', ${bind(anchor)}) THEN 1 ELSE 0 END)`
-      : `(CASE WHEN c.rowid IN (SELECT rowid FROM "KnowledgeChunkFts" WHERE "KnowledgeChunkFts" MATCH ${bind(`"${anchor}"`)}) THEN 1 ELSE 0 END)`
-  )).join(" + ");
-  const coverageOrder = coverage ? [`(${coverage}) DESC`] : [];
   if (provider === "postgresql") {
     const match = bind([...new Set(terms)].join(" | "));
     const phrase = bind(terms.join(" "));
     const vector = `to_tsvector('simple', c."chunkText")`;
+    const rank = [
+      `(${vector} @@ phraseto_tsquery('simple', ${phrase})) DESC`,
+      `ts_rank_cd(${vector}, to_tsquery('simple', ${match})) DESC`,
+      `c."chunkOrder" ASC`,
+      `c."id" ASC`,
+    ];
+    if (anchors.length < 2) {
+      return {
+        sql: `SELECT c.* FROM "KnowledgeChunk" c
+          WHERE ${where.join(" AND ")} AND ${vector} @@ to_tsquery('simple', ${match})
+          ORDER BY ${rank.join(", ")} LIMIT ${bind(limit)}`,
+        parameters,
+      };
+    }
+    const values = anchors.map((anchor) => `(${bind(anchor)})`).join(", ");
+    const hitVector = `to_tsvector('simple', h."chunkText")`;
     return {
-      sql: `SELECT c.* FROM "KnowledgeChunk" c
-        WHERE ${where.join(" AND ")} AND ${vector} @@ to_tsquery('simple', ${match})
-        ORDER BY ${[...coverageOrder, `(${vector} @@ phraseto_tsquery('simple', ${phrase})) DESC`,
-          `ts_rank_cd(${vector}, to_tsquery('simple', ${match})) DESC`,
-          `c."chunkOrder" ASC`, `c."id" ASC`].join(", ")} LIMIT ${bind(limit)}`,
+      sql: `WITH hits AS (
+          SELECT c.* FROM "KnowledgeChunk" c
+          WHERE ${where.join(" AND ")} AND ${vector} @@ to_tsquery('simple', ${match})
+        ), anchor_df AS (
+          SELECT v.term,
+            COUNT(*) FILTER (WHERE to_tsvector('simple', h."chunkText") @@ plainto_tsquery('simple', v.term)) AS n
+          FROM (VALUES ${values}) AS v(term)
+          LEFT JOIN hits h ON true
+          GROUP BY v.term
+        ), rare AS (
+          SELECT term FROM (
+            SELECT term, n, lead(n) OVER (ORDER BY n ASC, term ASC) AS next_n
+            FROM anchor_df
+            WHERE n > 0
+          ) ranked
+          WHERE next_n IS NOT NULL AND n * 3 < next_n
+          ORDER BY n ASC, term ASC
+          LIMIT 1
+        )
+        SELECT h.* FROM hits h
+        ORDER BY (CASE
+          WHEN EXISTS (SELECT 1 FROM rare)
+            AND ${hitVector} @@ plainto_tsquery('simple', (SELECT term FROM rare))
+          THEN 1 ELSE 0 END) DESC,
+          (${hitVector} @@ phraseto_tsquery('simple', ${phrase})) DESC,
+          ts_rank_cd(${hitVector}, to_tsquery('simple', ${match})) DESC,
+          h."chunkOrder" ASC, h."id" ASC
+        LIMIT ${bind(limit)}`,
       parameters,
     };
   }
@@ -141,8 +134,8 @@ export function buildKnowledgeKeywordQuery(
     sql: `SELECT c.* FROM "KnowledgeChunkFts"
       JOIN "KnowledgeChunk" c ON c.rowid = "KnowledgeChunkFts".rowid
       WHERE ${where.join(" AND ")} AND "KnowledgeChunkFts" MATCH ${match}
-      ORDER BY ${[...coverageOrder, `(c.rowid IN (SELECT rowid FROM "KnowledgeChunkFts" WHERE "KnowledgeChunkFts" MATCH ${phrase})) DESC`,
-        `bm25("KnowledgeChunkFts") ASC`, `c."chunkOrder" ASC`, `c."id" ASC`].join(", ")} LIMIT ${bind(limit)}`,
+      ORDER BY (c.rowid IN (SELECT rowid FROM "KnowledgeChunkFts" WHERE "KnowledgeChunkFts" MATCH ${phrase})) DESC,
+        bm25("KnowledgeChunkFts") ASC, c."chunkOrder" ASC, c."id" ASC LIMIT ${bind(limit)}`,
     parameters,
   };
 }

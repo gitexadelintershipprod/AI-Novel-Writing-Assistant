@@ -9,7 +9,7 @@ import { hasRagFacets, normalizeRagFacets, type RagChunkFacets } from "./chunkFa
 import { RagRetrievalTracer } from "./RagRetrievalTracer";
 import { RagRerankerService, resolveRerankerCandidateLimit } from "./RagRerankerService";
 import { resolveDatabaseRuntimeConfig } from "../../config/database";
-import { promoteNamedKeywordHit, searchKnowledgeKeywords } from "./knowledge-retrieval";
+import { searchKnowledgeKeywords } from "./knowledge-retrieval";
 import { KnowledgeQueryRewriteService } from "./knowledge-retrieval/queryRewrite";
 import type { KnowledgeGraphService } from "./graph";
 
@@ -349,11 +349,11 @@ export class HybridRetrievalService {
           : Promise.resolve([] as RetrievedChunk[]),
       ]);
       const fusionStartedAt = Date.now();
-      const fusedRows = promoteNamedKeywordHit(knowledgeQuery.searchText, knowledgeKeywordRows, this.fuseRrf([
+      const fusedRows = this.fuseRrf([
         [...baseVectorRows, ...knowledgeVectorRows],
         [...baseKeywordRows, ...knowledgeKeywordRows],
         knowledgeGraphRows,
-      ], fusionTopK));
+      ], fusionTopK);
       tracer.record("fusion", {
         elapsedMs: Date.now() - fusionStartedAt,
         count: fusedRows.length,

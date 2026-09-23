@@ -3,7 +3,6 @@ import test from "node:test";
 import {
   buildKnowledgeKeywordQuery,
   knowledgeQueryAnchors,
-  promoteNamedKeywordHit,
 } from "../src/services/rag/knowledge-retrieval/index.ts";
 
 const scope = { tenantId: "tenant", ownerIds: ["doc"], limit: 10 };
@@ -17,11 +16,11 @@ test("capitalized names are kept as lexical anchors", () => {
   assert.deepEqual(knowledgeQueryAnchors("იურგენი ვინ არის კეინისთვის?"), []);
 });
 
-test("keyword search ranks passages that contain more of the asked names first", () => {
+test("keyword search prefers a name that is much rarer than the other names", () => {
   const named = buildKnowledgeKeywordQuery("postgresql", "Who is Gunner Jurgen to Commissar Ciaphas Cain?", scope);
   assert.ok(named);
-  assert.match(named.sql, /ORDER BY \(.*plainto_tsquery\('simple', \$\d+\).*\) DESC, /s);
-  assert.ok(named.sql.indexOf("plainto_tsquery") < named.sql.indexOf("ts_rank_cd"));
+  assert.match(named.sql, /n \* 3 < next_n/);
+  assert.match(named.sql, /plainto_tsquery\('simple', \(SELECT term FROM rare\)\)/);
   for (const anchor of ["gunner", "jurgen", "commissar", "ciaphas", "cain"]) {
     assert.ok(named.parameters.includes(anchor));
   }
@@ -30,25 +29,6 @@ test("keyword search ranks passages that contain more of the asked names first",
 
   const topical = buildKnowledgeKeywordQuery("postgresql", "How do genestealers board a space hulk?", scope);
   assert.ok(topical);
-  assert.equal(topical.sql.includes("plainto_tsquery"), false);
-});
-
-test("a name-bearing keyword passage moves ahead of a related passage that dropped a name", () => {
-  const query = "Who is Gunner Jurgen to Commissar Ciaphas Cain?";
-  const fused = [
-    { id: "archive", chunkText: "The Cain Archive is an editorial note about Commissar Ciaphas Cain.", score: 0.032 },
-    { id: "tau", chunkText: "What do you know of the greater good?", score: 0.031 },
-  ];
-  const keyword = [
-    { id: "aide", chunkText: "My aide, Gunner First Class Ferik Jurgen, stood with Commissar Cain.", score: 0 },
-  ];
-  const promoted = promoteNamedKeywordHit(query, keyword, fused);
-  assert.equal(promoted[0].id, "aide");
-  assert.ok(promoted[0].score > fused[0].score);
-  assert.deepEqual(promoted.map((item) => item.id), ["aide", "archive", "tau"]);
-
-  const narrower = [{ id: "shout", chunkText: "Jurgen! Help the women, commissar.", score: 0 }];
-  assert.equal(promoteNamedKeywordHit(query, narrower, fused)[0].id, "archive");
-  assert.equal(promoteNamedKeywordHit("How do genestealers board a space hulk?", keyword, fused)[0].id, "archive");
-  assert.equal(promoteNamedKeywordHit(query, [{ id: "aide", chunkText: "Gunner Jurgen, my aide.", score: 0.04 }], [{ id: "aide", chunkText: "Gunner Jurgen, my aide.", score: 0.04 }])[0].id, "aide");
+  assert.equal(topical.sql.includes("anchor_df"), false);
+  assert.equal(topical.sql.includes("WITH hits"), false);
 });
