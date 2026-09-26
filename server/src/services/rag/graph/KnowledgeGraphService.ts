@@ -6,6 +6,13 @@ import { isEnglishKnowledgeText } from "../chunking";
 import { runWithConcurrency } from "../utils";
 import type { RagOwnerType, RetrievedChunk } from "../types";
 import { Neo4jGraphStore, type GraphChunkWrite } from "./Neo4jGraphStore";
+import { GRAPH_SECTION_CONCURRENCY } from "./graphSyncPace";
+
+export type GraphSyncProgress = {
+  phase: "reading" | "saving";
+  current: number;
+  total: number;
+};
 
 type StructuredPromptRunner = typeof import("../../../prompting/core/promptRunner")["runStructuredPrompt"];
 
@@ -26,7 +33,7 @@ export class KnowledgeGraphService {
 
   async processSyncJob(
     job: RagIndexJob,
-    onProgress?: (current: number, total: number) => Promise<void>,
+    onProgress?: (progress: GraphSyncProgress) => Promise<void>,
   ): Promise<{ chunks: number }> {
     const ownerType = job.ownerType as RagOwnerType;
     if (!ragConfig.graphEnabled || ownerType !== "knowledge_document") {
@@ -54,12 +61,12 @@ export class KnowledgeGraphService {
       }
       const writes: GraphChunkWrite[] = [];
       let finished = 0;
-      await onProgress?.(0, chunks.length);
-      await runWithConcurrency(chunks, Math.min(2, ragConfig.contextualRetrievalConcurrency), async (chunk) => {
+      await onProgress?.({ phase: "reading", current: 0, total: chunks.length });
+      await runWithConcurrency(chunks, GRAPH_SECTION_CONCURRENCY, async (chunk) => {
         const extracted = await this.extractChunk(chunk.title ?? "", chunk.chunkOrder, chunk.chunkText);
         finished += 1;
         const current = finished;
-        await onProgress?.(current, chunks.length);
+        await onProgress?.({ phase: "reading", current, total: chunks.length });
         if (extracted.entities.length === 0 && extracted.relations.length === 0) {
           return;
         }
@@ -74,6 +81,9 @@ export class KnowledgeGraphService {
         ownerType,
         ownerId: job.ownerId,
         chunks: writes,
+        onBatch: async (saved, total) => {
+          await onProgress?.({ phase: "saving", current: saved, total });
+        },
       });
       return { chunks: writes.length };
     } catch {

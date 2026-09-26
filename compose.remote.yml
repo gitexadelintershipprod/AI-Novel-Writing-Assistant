@@ -5,6 +5,7 @@ services:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
+      TZ: Europe/Berlin
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -16,6 +17,8 @@ services:
     ports:
       - "127.0.0.1:15432:5432"
     volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /usr/share/zoneinfo:/usr/share/zoneinfo:ro
       - ai_novel_writing_assistant_postgres_data:/var/lib/postgresql/data
     networks:
       - ai_novel_writing_assistant_network
@@ -26,7 +29,11 @@ services:
     ports:
       - "127.0.0.1:16333:6333"
       - "127.0.0.1:16334:6334"
+    environment:
+      TZ: Europe/Berlin
     volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /usr/share/zoneinfo:/usr/share/zoneinfo:ro
       - ai_novel_writing_assistant_qdrant_data:/qdrant/storage
     networks:
       - ai_novel_writing_assistant_network
@@ -35,11 +42,14 @@ services:
     image: neo4j:5-community
     restart: unless-stopped
     environment:
+      TZ: Europe/Berlin
       NEO4J_AUTH: ${NEO4J_AUTH:-neo4j/changeme}
     ports:
       - "127.0.0.1:17687:7687"
       - "127.0.0.1:17474:7474"
     volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /usr/share/zoneinfo:/usr/share/zoneinfo:ro
       - ai_novel_writing_assistant_neo4j_data:/data
     networks:
       - ai_novel_writing_assistant_network
@@ -49,6 +59,8 @@ services:
       context: .
       dockerfile: Dockerfile.api
     restart: unless-stopped
+    environment:
+      TZ: Europe/Berlin
     env_file:
       - .env
     depends_on:
@@ -61,6 +73,8 @@ services:
     ports:
       - "127.0.0.1:3165:3000"
     volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /usr/share/zoneinfo:/usr/share/zoneinfo:ro
       - ai_novel_writing_assistant_storage:/app/server/storage
     networks:
       - ai_novel_writing_assistant_network
@@ -72,11 +86,15 @@ services:
       args:
         VITE_API_BASE_URL: /api
     restart: unless-stopped
+    environment:
+      TZ: Europe/Berlin
     depends_on:
       - api
     ports:
       - "8045:8080"
     volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /usr/share/zoneinfo:/usr/share/zoneinfo:ro
       - type: bind
         source: ./infra/nginx/ai-novel-remote.conf
         target: /etc/nginx/conf.d/default.conf

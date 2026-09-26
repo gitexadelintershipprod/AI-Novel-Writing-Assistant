@@ -1,5 +1,6 @@
 import neo4j, { type Driver, type Session } from "neo4j-driver";
 import { ragConfig } from "../../../config/rag";
+import { GRAPH_WRITE_BATCH_SIZE, graphWriteBatches } from "./graphSyncPace";
 
 export interface GraphEntityRecord {
   name: string;
@@ -25,6 +26,7 @@ function entityKey(tenantId: string, ownerId: string, name: string): string {
 export class Neo4jGraphStore {
   private driver: Driver | null = null;
   private driverKey = "";
+  private constraintsReady = false;
 
   private currentKey(): string {
     return [
@@ -43,6 +45,7 @@ export class Neo4jGraphStore {
     if (this.driver) {
       await this.driver.close().catch(() => {});
       this.driver = null;
+      this.constraintsReady = false;
     }
     this.driver = neo4j.driver(
       ragConfig.neo4jUri,
@@ -89,50 +92,59 @@ export class Neo4jGraphStore {
     ownerType: string;
     ownerId: string;
     chunks: GraphChunkWrite[];
+    onBatch?: (saved: number, total: number) => Promise<void>;
   }): Promise<number> {
+    await this.ensureConstraints();
     await this.deleteOwner(input.tenantId, input.ownerType, input.ownerId);
     if (input.chunks.length === 0) {
       return 0;
     }
+    const batches = graphWriteBatches(input.chunks, GRAPH_WRITE_BATCH_SIZE);
+    let saved = 0;
+    await input.onBatch?.(saved, input.chunks.length).catch(() => {});
     await this.withSession(async (session) => {
-      for (const chunk of input.chunks) {
-        const entities = chunk.entities
-          .map((item) => ({
-            key: entityKey(input.tenantId, input.ownerId, item.name),
-            name: item.name.trim(),
-            type: item.type,
-          }))
-          .filter((item) => item.name);
-        const relations = chunk.relations
-          .map((item) => ({
-            fromKey: entityKey(input.tenantId, input.ownerId, item.from),
-            toKey: entityKey(input.tenantId, input.ownerId, item.to),
-            type: item.type.trim(),
-          }))
-          .filter((item) => item.fromKey && item.toKey && item.type);
+      for (const batch of batches) {
+        const prepared = batch.map((chunk) => this.prepareChunk(input.tenantId, input.ownerId, chunk));
         await session.run(
           `
-          MERGE (c:KnowledgeChunk {id: $chunkId})
+          UNWIND $chunks AS chunk
+          MERGE (c:KnowledgeChunk {id: chunk.chunkId})
           SET c.tenantId = $tenantId, c.ownerType = $ownerType, c.ownerId = $ownerId
-          WITH c
-          UNWIND $entities AS entity
-          MERGE (e:KnowledgeEntity {key: entity.key})
-          SET e.name = entity.name,
-              e.nameLower = toLower(entity.name),
-              e.type = entity.type,
-              e.tenantId = $tenantId,
-              e.ownerType = $ownerType,
-              e.ownerId = $ownerId
-          MERGE (e)-[:MENTIONED_IN]->(c)
           `,
           {
-            chunkId: chunk.chunkId,
+            chunks: prepared.map((chunk) => ({ chunkId: chunk.chunkId })),
             tenantId: input.tenantId,
             ownerType: input.ownerType,
             ownerId: input.ownerId,
-            entities,
           },
         );
+        const entities = prepared.flatMap((chunk) => chunk.entities.map((entity) => ({
+          chunkId: chunk.chunkId,
+          ...entity,
+        })));
+        if (entities.length > 0) {
+          await session.run(
+            `
+            UNWIND $entities AS entity
+            MATCH (c:KnowledgeChunk {id: entity.chunkId})
+            MERGE (e:KnowledgeEntity {key: entity.key})
+            SET e.name = entity.name,
+                e.nameLower = toLower(entity.name),
+                e.type = entity.type,
+                e.tenantId = $tenantId,
+                e.ownerType = $ownerType,
+                e.ownerId = $ownerId
+            MERGE (e)-[:MENTIONED_IN]->(c)
+            `,
+            {
+              entities,
+              tenantId: input.tenantId,
+              ownerType: input.ownerType,
+              ownerId: input.ownerId,
+            },
+          );
+        }
+        const relations = prepared.flatMap((chunk) => chunk.relations);
         if (relations.length > 0) {
           await session.run(
             `
@@ -149,9 +161,52 @@ export class Neo4jGraphStore {
             },
           );
         }
+        saved += batch.length;
+        await input.onBatch?.(saved, input.chunks.length).catch(() => {});
       }
     });
     return input.chunks.length;
+  }
+
+  private async ensureConstraints(): Promise<void> {
+    if (this.constraintsReady) {
+      return;
+    }
+    try {
+      await this.withSession(async (session) => {
+        await session.run(`
+          CREATE CONSTRAINT knowledge_entity_key IF NOT EXISTS
+          FOR (e:KnowledgeEntity) REQUIRE e.key IS UNIQUE
+        `);
+        await session.run(`
+          CREATE CONSTRAINT knowledge_chunk_id IF NOT EXISTS
+          FOR (c:KnowledgeChunk) REQUIRE c.id IS UNIQUE
+        `);
+      });
+      this.constraintsReady = true;
+    } catch {
+      this.constraintsReady = false;
+    }
+  }
+
+  private prepareChunk(tenantId: string, ownerId: string, chunk: GraphChunkWrite) {
+    return {
+      chunkId: chunk.chunkId,
+      entities: chunk.entities
+        .map((item) => ({
+          key: entityKey(tenantId, ownerId, item.name),
+          name: item.name.trim(),
+          type: item.type,
+        }))
+        .filter((item) => item.name),
+      relations: chunk.relations
+        .map((item) => ({
+          fromKey: entityKey(tenantId, ownerId, item.from),
+          toKey: entityKey(tenantId, ownerId, item.to),
+          type: item.type.trim(),
+        }))
+        .filter((item) => item.fromKey && item.toKey && item.type),
+    };
   }
 
   async deleteOwner(tenantId: string, ownerType: string, ownerId: string): Promise<void> {

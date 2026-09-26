@@ -4,6 +4,10 @@ This file is the complete user-visible update history. The root [README.md](../.
 
 ## Update history
 
+### 2026-09-27
+
+- Relationship reading works through several sections of a book at once. While those relationships are saved, the task shows that saving is in progress instead of staying on the last section.
+
 ### 2026-09-23
 
 - Bulk Import can check files again from the site's usual web address. Choosing a file or folder no longer stops before the check starts.

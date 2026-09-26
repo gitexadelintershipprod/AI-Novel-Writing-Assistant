@@ -1,5 +1,5 @@
 import { ragConfig } from "../../config/rag";
-import { RagIndexService, RagJobCancelledError } from "./RagIndexService";
+import { RagIndexService, RagJobCancelledError, type RagJobProgressSnapshot } from "./RagIndexService";
 import type { KnowledgeGraphService } from "./graph";
 
 function backoffMs(attempt: number): number {
@@ -17,6 +17,17 @@ export class RagWorker {
     private readonly ragIndexService: RagIndexService,
     private readonly knowledgeGraphService?: KnowledgeGraphService,
   ) {}
+
+  private graphProgressQueue: Promise<void> = Promise.resolve();
+
+  private enqueueGraphProgress(
+    jobId: string,
+    progress: Omit<RagJobProgressSnapshot, "updatedAt">,
+  ): Promise<void> {
+    const write = this.graphProgressQueue.then(() => this.ragIndexService.updateJobProgress(jobId, progress));
+    this.graphProgressQueue = write.then(() => undefined, () => undefined);
+    return write;
+  }
 
   private logInfo(message: string, meta?: Record<string, unknown>): void {
     if (!ragConfig.verboseLog) {
@@ -151,17 +162,29 @@ export class RagWorker {
       });
 
       try {
+        if (job.jobType === "graph_sync") {
+          this.graphProgressQueue = Promise.resolve();
+        }
         const result = job.jobType === "graph_sync"
-          ? await (this.knowledgeGraphService?.processSyncJob(job, async (current, total) => {
-            await this.ragIndexService.updateJobProgress(job.id, {
+          ? await (this.knowledgeGraphService?.processSyncJob(job, (progress) => {
+            const label = progress.phase === "saving"
+              ? `Saving relationships ${progress.current}/${progress.total}`
+              : (progress.total > 0
+                ? `Reading relationships ${progress.current}/${progress.total}`
+                : "Reading relationships");
+            const fraction = progress.total > 0 ? progress.current / progress.total : 1;
+            const percent = progress.phase === "saving"
+              ? 0.85 + (0.15 * fraction)
+              : 0.85 * fraction;
+            return this.enqueueGraphProgress(job.id, {
               stage: "reading_relationships",
-              label: total > 0 ? `Reading relationships ${current}/${total}` : "Reading relationships",
-              detail: total > 0
-                ? `Reading relationships ${current}/${total}`
-                : "This book has no sections to read.",
-              current,
-              total,
-              percent: total > 0 ? current / total : 1,
+              label,
+              detail: progress.phase === "saving"
+                ? label
+                : (progress.total > 0 ? label : "This book has no sections to read."),
+              current: progress.current,
+              total: progress.total,
+              percent,
             });
           }) ?? Promise.resolve({ chunks: 0 }))
           : await this.ragIndexService.processJob(job);
