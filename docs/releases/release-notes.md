@@ -7,6 +7,7 @@ This file is the complete user-visible update history. The root [README.md](../.
 ### 2026-10-03
 
 - If relationship reading cannot get an answer for a book, that book stays unfinished instead of looking ready with a missing graph. Relationships already saved for other books stay in place.
+- Relationship reading works through many more sections of a book at once, so a book finishes sooner.
 
 ### 2026-09-27
 

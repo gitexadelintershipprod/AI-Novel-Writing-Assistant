@@ -178,6 +178,7 @@ The priority is helping a beginner finish a book, not stacking extra side tools.
 ### 2026-10-03
 
 - If relationship reading cannot get an answer for a book, that book stays unfinished instead of looking ready with a missing graph. Relationships already saved for other books stay in place.
+- Relationship reading works through many more sections of a book at once, so a book finishes sooner.
 
 Full history: [docs/releases/release-notes.md](./docs/releases/release-notes.md).
 

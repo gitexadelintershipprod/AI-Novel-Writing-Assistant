@@ -6,8 +6,8 @@ import {
   graphWriteBatches,
 } from "../src/services/rag/graph/graphSyncPace.ts";
 
-test("relationship reading uses six sections and saves them in batches of forty", () => {
-  assert.equal(GRAPH_SECTION_CONCURRENCY, 6);
+test("relationship reading uses thirty sections and saves them in batches of forty", () => {
+  assert.equal(GRAPH_SECTION_CONCURRENCY, 30);
   assert.equal(GRAPH_WRITE_BATCH_SIZE, 40);
   const batches = graphWriteBatches(Array.from({ length: 85 }, (_, index) => index));
   assert.deepEqual(batches.map((batch) => batch.length), [40, 40, 5]);

@@ -1,4 +1,4 @@
-export const GRAPH_SECTION_CONCURRENCY = 6;
+export const GRAPH_SECTION_CONCURRENCY = 30;
 export const GRAPH_WRITE_BATCH_SIZE = 40;
 
 export function graphWriteBatches<T>(items: T[], batchSize = GRAPH_WRITE_BATCH_SIZE): T[][] {
