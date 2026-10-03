@@ -4,6 +4,10 @@ This file is the complete user-visible update history. The root [README.md](../.
 
 ## Update history
 
+### 2026-10-03
+
+- If relationship reading cannot get an answer for a book, that book stays unfinished instead of looking ready with a missing graph. Relationships already saved for other books stay in place.
+
 ### 2026-09-27
 
 - Relationship reading works through several sections of a book at once. While those relationships are saved, the task shows that saving is in progress instead of staying on the last section.

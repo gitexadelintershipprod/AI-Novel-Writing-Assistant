@@ -1,18 +1,15 @@
 import type { RagIndexJob } from "@prisma/client";
-import { prisma } from "../../../db/prisma";
 import { ragConfig } from "../../../config/rag";
-import { ragKnowledgeGraphExtractPrompt } from "../../../prompting/prompts/rag/knowledgeGraphExtract.prompts";
-import { isEnglishKnowledgeText } from "../chunking";
-import { runWithConcurrency } from "../utils";
 import type { RagOwnerType, RetrievedChunk } from "../types";
-import { Neo4jGraphStore, type GraphChunkWrite } from "./Neo4jGraphStore";
-import { GRAPH_SECTION_CONCURRENCY } from "./graphSyncPace";
+import { Neo4jGraphStore } from "./Neo4jGraphStore";
+import {
+  syncKnowledgeGraph,
+  type GraphChunkLoader,
+  type GraphChunkRow,
+  type GraphSyncProgress,
+} from "./graphSyncJob";
 
-export type GraphSyncProgress = {
-  phase: "reading" | "saving";
-  current: number;
-  total: number;
-};
+export type { GraphSyncProgress };
 
 type StructuredPromptRunner = typeof import("../../../prompting/core/promptRunner")["runStructuredPrompt"];
 
@@ -21,10 +18,31 @@ const runExtractPrompt: StructuredPromptRunner = async (input) => {
   return runStructuredPrompt(input);
 };
 
+async function loadKnowledgeChunks(
+  job: Pick<RagIndexJob, "tenantId" | "ownerType" | "ownerId">,
+): Promise<GraphChunkRow[]> {
+  const { prisma } = await import("../../../db/prisma");
+  return prisma.knowledgeChunk.findMany({
+    where: {
+      tenantId: job.tenantId,
+      ownerType: job.ownerType,
+      ownerId: job.ownerId,
+    },
+    orderBy: { chunkOrder: "asc" },
+    select: {
+      id: true,
+      title: true,
+      chunkText: true,
+      chunkOrder: true,
+    },
+  });
+}
+
 export class KnowledgeGraphService {
   constructor(
     private readonly store: Neo4jGraphStore = new Neo4jGraphStore(),
     private readonly promptRunner: StructuredPromptRunner = runExtractPrompt,
+    private readonly loadChunks: GraphChunkLoader = loadKnowledgeChunks,
   ) {}
 
   async healthCheck(): Promise<{ ok: boolean; detail?: string }> {
@@ -35,60 +53,13 @@ export class KnowledgeGraphService {
     job: RagIndexJob,
     onProgress?: (progress: GraphSyncProgress) => Promise<void>,
   ): Promise<{ chunks: number }> {
-    const ownerType = job.ownerType as RagOwnerType;
-    if (!ragConfig.graphEnabled || ownerType !== "knowledge_document") {
-      return { chunks: 0 };
-    }
-    try {
-      const chunks = await prisma.knowledgeChunk.findMany({
-        where: {
-          tenantId: job.tenantId,
-          ownerType,
-          ownerId: job.ownerId,
-        },
-        orderBy: { chunkOrder: "asc" },
-        select: {
-          id: true,
-          title: true,
-          chunkText: true,
-          chunkOrder: true,
-        },
-      });
-      const sourceText = chunks.map((item) => item.chunkText).join("\n");
-      if (chunks.length === 0 || !isEnglishKnowledgeText(sourceText)) {
-        await this.store.deleteOwner(job.tenantId, ownerType, job.ownerId).catch(() => {});
-        return { chunks: 0 };
-      }
-      const writes: GraphChunkWrite[] = [];
-      let finished = 0;
-      await onProgress?.({ phase: "reading", current: 0, total: chunks.length });
-      await runWithConcurrency(chunks, GRAPH_SECTION_CONCURRENCY, async (chunk) => {
-        const extracted = await this.extractChunk(chunk.title ?? "", chunk.chunkOrder, chunk.chunkText);
-        finished += 1;
-        const current = finished;
-        await onProgress?.({ phase: "reading", current, total: chunks.length });
-        if (extracted.entities.length === 0 && extracted.relations.length === 0) {
-          return;
-        }
-        writes.push({
-          chunkId: chunk.id,
-          entities: extracted.entities,
-          relations: extracted.relations,
-        });
-      });
-      await this.store.replaceOwnerChunks({
-        tenantId: job.tenantId,
-        ownerType,
-        ownerId: job.ownerId,
-        chunks: writes,
-        onBatch: async (saved, total) => {
-          await onProgress?.({ phase: "saving", current: saved, total });
-        },
-      });
-      return { chunks: writes.length };
-    } catch {
-      return { chunks: 0 };
-    }
+    return syncKnowledgeGraph({
+      job,
+      store: this.store,
+      promptRunner: this.promptRunner,
+      loadChunks: this.loadChunks,
+      onProgress,
+    });
   }
 
   async deleteOwner(ownerType: string, ownerId: string, tenantId: string): Promise<void> {
@@ -117,6 +88,7 @@ export class KnowledgeGraphService {
       if (chunkIds.length === 0) {
         return [];
       }
+      const { prisma } = await import("../../../db/prisma");
       const rows = await prisma.knowledgeChunk.findMany({
         where: { id: { in: chunkIds } },
       });
@@ -146,22 +118,4 @@ export class KnowledgeGraphService {
     }
   }
 
-  private async extractChunk(title: string, chunkOrder: number, chunkText: string) {
-    try {
-      const result = await this.promptRunner({
-        asset: ragKnowledgeGraphExtractPrompt,
-        promptInput: { title, chunkOrder, chunkText },
-        options: {
-          timeoutMs: ragConfig.neo4jTimeoutMs,
-          maxTokens: 700,
-          temperature: 0.1,
-          entrypoint: "rag_knowledge_graph_extract",
-          triggerReason: "graph_sync",
-        },
-      });
-      return result.output;
-    } catch {
-      return { entities: [], relations: [] };
-    }
-  }
 }

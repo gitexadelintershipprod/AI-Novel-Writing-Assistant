@@ -175,9 +175,9 @@ The priority is helping a beginner finish a book, not stacking extra side tools.
 
 ## Latest updates
 
-### 2026-09-27
+### 2026-10-03
 
-- Relationship reading works through several sections of a book at once. While those relationships are saved, the task shows that saving is in progress instead of staying on the last section.
+- If relationship reading cannot get an answer for a book, that book stays unfinished instead of looking ready with a missing graph. Relationships already saved for other books stay in place.
 
 Full history: [docs/releases/release-notes.md](./docs/releases/release-notes.md).
 

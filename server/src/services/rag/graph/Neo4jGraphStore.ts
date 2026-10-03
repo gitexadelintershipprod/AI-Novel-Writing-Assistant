@@ -1,6 +1,6 @@
 import neo4j, { type Driver, type Session } from "neo4j-driver";
 import { ragConfig } from "../../../config/rag";
-import { GRAPH_WRITE_BATCH_SIZE, graphWriteBatches } from "./graphSyncPace";
+import { writeThenPruneOwnerGraph } from "./graphOwnerReplace";
 
 export interface GraphEntityRecord {
   name: string;
@@ -17,10 +17,6 @@ export interface GraphChunkWrite {
   chunkId: string;
   entities: GraphEntityRecord[];
   relations: GraphRelationRecord[];
-}
-
-function entityKey(tenantId: string, ownerId: string, name: string): string {
-  return `${tenantId}|${ownerId}|${name.trim().toLowerCase()}`;
 }
 
 export class Neo4jGraphStore {
@@ -95,77 +91,7 @@ export class Neo4jGraphStore {
     onBatch?: (saved: number, total: number) => Promise<void>;
   }): Promise<number> {
     await this.ensureConstraints();
-    await this.deleteOwner(input.tenantId, input.ownerType, input.ownerId);
-    if (input.chunks.length === 0) {
-      return 0;
-    }
-    const batches = graphWriteBatches(input.chunks, GRAPH_WRITE_BATCH_SIZE);
-    let saved = 0;
-    await input.onBatch?.(saved, input.chunks.length).catch(() => {});
-    await this.withSession(async (session) => {
-      for (const batch of batches) {
-        const prepared = batch.map((chunk) => this.prepareChunk(input.tenantId, input.ownerId, chunk));
-        await session.run(
-          `
-          UNWIND $chunks AS chunk
-          MERGE (c:KnowledgeChunk {id: chunk.chunkId})
-          SET c.tenantId = $tenantId, c.ownerType = $ownerType, c.ownerId = $ownerId
-          `,
-          {
-            chunks: prepared.map((chunk) => ({ chunkId: chunk.chunkId })),
-            tenantId: input.tenantId,
-            ownerType: input.ownerType,
-            ownerId: input.ownerId,
-          },
-        );
-        const entities = prepared.flatMap((chunk) => chunk.entities.map((entity) => ({
-          chunkId: chunk.chunkId,
-          ...entity,
-        })));
-        if (entities.length > 0) {
-          await session.run(
-            `
-            UNWIND $entities AS entity
-            MATCH (c:KnowledgeChunk {id: entity.chunkId})
-            MERGE (e:KnowledgeEntity {key: entity.key})
-            SET e.name = entity.name,
-                e.nameLower = toLower(entity.name),
-                e.type = entity.type,
-                e.tenantId = $tenantId,
-                e.ownerType = $ownerType,
-                e.ownerId = $ownerId
-            MERGE (e)-[:MENTIONED_IN]->(c)
-            `,
-            {
-              entities,
-              tenantId: input.tenantId,
-              ownerType: input.ownerType,
-              ownerId: input.ownerId,
-            },
-          );
-        }
-        const relations = prepared.flatMap((chunk) => chunk.relations);
-        if (relations.length > 0) {
-          await session.run(
-            `
-            UNWIND $relations AS rel
-            MATCH (from:KnowledgeEntity {key: rel.fromKey})
-            MATCH (to:KnowledgeEntity {key: rel.toKey})
-            MERGE (from)-[link:RELATES_TO {type: rel.type}]->(to)
-            SET link.ownerId = $ownerId, link.tenantId = $tenantId
-            `,
-            {
-              relations,
-              ownerId: input.ownerId,
-              tenantId: input.tenantId,
-            },
-          );
-        }
-        saved += batch.length;
-        await input.onBatch?.(saved, input.chunks.length).catch(() => {});
-      }
-    });
-    return input.chunks.length;
+    return this.withSession((session) => writeThenPruneOwnerGraph(session, input));
   }
 
   private async ensureConstraints(): Promise<void> {
@@ -187,26 +113,6 @@ export class Neo4jGraphStore {
     } catch {
       this.constraintsReady = false;
     }
-  }
-
-  private prepareChunk(tenantId: string, ownerId: string, chunk: GraphChunkWrite) {
-    return {
-      chunkId: chunk.chunkId,
-      entities: chunk.entities
-        .map((item) => ({
-          key: entityKey(tenantId, ownerId, item.name),
-          name: item.name.trim(),
-          type: item.type,
-        }))
-        .filter((item) => item.name),
-      relations: chunk.relations
-        .map((item) => ({
-          fromKey: entityKey(tenantId, ownerId, item.from),
-          toKey: entityKey(tenantId, ownerId, item.to),
-          type: item.type.trim(),
-        }))
-        .filter((item) => item.fromKey && item.toKey && item.type),
-    };
   }
 
   async deleteOwner(tenantId: string, ownerType: string, ownerId: string): Promise<void> {
